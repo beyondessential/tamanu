@@ -14,6 +14,7 @@ export class InvoicePriceList extends Model {
   declare code: string;
   declare name?: string;
   declare rules?: Record<string, any>;
+  declare evaluationOrder?: number;
   declare visibilityStatus: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -30,6 +31,10 @@ export class InvoicePriceList extends Model {
         },
         rules: {
           type: DataTypes.JSONB,
+          allowNull: true,
+        },
+        evaluationOrder: {
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         visibilityStatus: {
@@ -87,7 +92,12 @@ export class InvoicePriceList extends Model {
 
     const priceLists = await this.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      // When multiple price lists match an encounter, the first one wins. evaluationOrder
+      // lets admins set that priority explicitly (lowest number wins) so overlapping rules
+      // resolve the same way in every environment. Postgres sorts ASC nulls last, so lists
+      // without an evaluationOrder fall back to createdAt/code after any that have one.
       order: [
+        ['evaluationOrder', 'ASC'],
         ['createdAt', 'ASC'],
         ['code', 'ASC'],
       ],

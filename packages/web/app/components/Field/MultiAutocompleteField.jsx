@@ -6,21 +6,13 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
-import { FormHelperText } from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
 import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
 import { CheckControl } from './CheckField';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
-
-  // helper text
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
 `;
 
 const StyledSelect = styled(Select)`
@@ -173,12 +165,12 @@ const MultiValue = props => {
     isAllOptionsSelected && allowSelectAll
       ? getTranslation('general.multiAutocompleteField.allSelected', 'All selected')
       : selected.length === 1
-      ? label
-      : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
-          replacements: {
-            items: selected.length,
-          },
-        });
+        ? label
+        : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
+            replacements: {
+              items: selected.length,
+            },
+          });
 
   return (
     <components.MultiValue

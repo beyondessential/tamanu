@@ -111,11 +111,6 @@ export const usePatientNavigation = () => {
     [navigate, params],
   );
 
-  const setNavigateBackTab = useCallback(
-    tab => window.history.replaceState(null, '', `${location.pathname}?tab=${tab}`),
-    [location.pathname],
-  );
-
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -125,6 +120,5 @@ export const usePatientNavigation = () => {
     navigateToMar,
     navigateToProgramRegistry,
     navigateToProgramRegistrySurvey,
-    setNavigateBackTab,
   };
 };

@@ -30,8 +30,9 @@ module.exports = defineConfig({
     // Slow down each browser action to make local debugging easier.
     launchOptions: process.env.CI ? undefined : { slowMo: 200 },
     timezoneId: process.env.TZ,
-    // Pin browser locale so navigator.language-driven date formatting is deterministic across
-    // runners (CI Ubuntu defaults to en-US which yields MM/DD/YYYY; tests expect DD/MM/YYYY).
+    // Pin browser locale so Intl-driven date formatting is deterministic across runners
+    // (CI Ubuntu defaults to en-US which yields MM/DD/YYYY; tests expect DD/MM/YYYY).
+    // tests/patients/dateLocale.spec.ts overrides this per context to test other locales.
     locale: 'en-AU',
   },
 
@@ -45,7 +46,10 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'chromium',
+      // single project: the setup logs into both frontends and saves one
+      // combined session, so specs can drive the facility (:5173) or admin
+      // (:5174) frontend authenticated, including within the same test
+      name: 'e2e',
       use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
       dependencies: ['setup'],
     },

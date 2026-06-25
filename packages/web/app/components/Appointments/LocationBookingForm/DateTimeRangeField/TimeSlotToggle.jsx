@@ -49,9 +49,6 @@ const Toggle = styled(ToggleButton)`
 
     &.${toggleButtonClasses.selected} {
       background-color: oklch(from ${Colors.primary} l c h / 10%);
-      @supports not (color: oklch(from black l c h)) {
-        background-color: ${Colors.primary}1a;
-      }
 
       :is(&, & + &) {
         //   ^~~~~ Override another stubborn MUI style
@@ -75,9 +72,6 @@ const Toggle = styled(ToggleButton)`
 
     .MuiTouchRipple-child {
       background-color: oklch(from ${Colors.primary} l c h / 50%);
-      @supports not (color: oklch(from black l c h)) {
-        background-color: ${Colors.primary}80;
-      }
     }
   }
 `;
@@ -107,9 +101,6 @@ const BookedToggle = styled(Toggle).attrs({
   // (0,6,0) to override styling of disabled Toggle
   &&&&&& {
     background-color: oklch(from ${Colors.alert} l c h / 10%);
-    @supports not (color: oklch(from black l c h)) {
-      background-color: ${Colors.alert}1a;
-    }
   }
 `;
 

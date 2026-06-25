@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { ViewPhotoLink } from './ViewPhotoLink';
-import { DateDisplay } from './DateDisplay';
-import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { TranslatedReferenceData } from './Translation/index.js';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedOption } from './Translation/TranslatedOptions';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
+import {
+  Button,
+  DateDisplay,
+  PatientDataDisplayField,
+  PlainTimeDisplay,
+  SignatureAnswerResult,
+  SurveyResultBadge,
+  TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { DisplayTextPseudoResult } from './DisplayTextPseudoResult';
+import MultilineResult from './MultilineResult';
+import MultiSelectResult from './MultiSelectResult';
+import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { ViewPhotoLink } from './ViewPhotoLink';
+
+const EmptyState = styled.span.attrs({
+  'data-testid': 'empty-state-n4wk',
+  children: <>&mdash;</>,
+})`
+  color: ${p => p.theme.palette.text.tertiary};
+`;
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
@@ -26,13 +43,22 @@ export const SurveyAnswerResult = ({
   originalBody,
   componentConfig,
   dataElementId,
+  surveyComponent,
 }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
-  if (!answer) return 'Answer not submitted';
+  if (answer === null || answer === undefined || answer === '') {
+    return <EmptyState />;
+  }
 
   switch (type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
+      return surveyComponent ? (
+        <DisplayTextPseudoResult component={surveyComponent} />
+      ) : (
+        answer // Fallback (shouldn’t be reached)
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
@@ -43,6 +69,8 @@ export const SurveyAnswerResult = ({
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      return <PlainTimeDisplay time={answer} data-testid="plaintimedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>
@@ -51,12 +79,9 @@ export const SurveyAnswerResult = ({
             variant="contained"
             color="primary"
             data-testid="button-rzll"
+            style={{ display: 'inline-block' }}
           >
-            <TranslatedText
-              stringId="survey.action.showForm"
-              fallback="Show Form"
-              data-testid="translatedtext-show-form"
-            />
+            <TranslatedText stringId="survey.action.showForm" fallback="Show form" />
           </Button>
           <SurveyResponseDetailsModal
             surveyResponseId={surveyLink}
@@ -74,17 +99,10 @@ export const SurveyAnswerResult = ({
           referenceDataCategory="programDataElement"
         />
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
+      return <MultilineResult answer={answer} />;
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(element => (
-        <>
-          <TranslatedOption
-            value={element}
-            referenceDataId={dataElementId}
-            referenceDataCategory="programDataElement"
-          />
-          <br />
-        </>
-      ));
+      return <MultiSelectResult answerBody={answer} dataElementId={dataElementId} />;
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       return (
         <PatientDataDisplayField
@@ -100,6 +118,8 @@ export const SurveyAnswerResult = ({
           originalBody={originalBody}
         />
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return <SignatureAnswerResult path={answer} />;
     default:
       return answer;
   }

@@ -5,7 +5,7 @@ import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/c
 import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
-import { asNewRole } from '@tamanu/shared/test-helpers';
+import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { setFhirRefreshTriggers } from '@tamanu/database';
@@ -59,7 +59,11 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext({ initFhir = false, initFhirTriggers = false } = {}) {
+export async function createTestContext({
+  initFhir = false,
+  initFhirTriggers = false,
+  aiService,
+} = {}) {
   // Matches packages/facility-server/__tests__/utilities.js
   // do NOT time out during create context
   // TODO: remove once the slow test setup (db recreate + full migration run)
@@ -67,6 +71,7 @@ export async function createTestContext({ initFhir = false, initFhirTriggers = f
   jest.setTimeout(1000 * 60 * 60 * 24);
 
   const ctx = await new MockApplicationContext().init({ initFhir, initFhirTriggers });
+  if (aiService) ctx.aiService = aiService;
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
   const baseApp = supertest.agent(appServer);

@@ -1,17 +1,20 @@
 import React from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
-import { Form, FormGrid, ConfirmCancelRow } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-
-
+import {
+  ConfirmCancelRow,
+  DateDisplay,
+  Form,
+  FormGrid,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { Field } from '../components/Field';
-import { DateDisplay } from '../components/DateDisplay';
-import { useTranslation } from '../contexts/Translation';
-import { TranslatedEnum, TranslatedReferenceData } from '../components';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { Colors } from '../constants/styles';
 
 const Label = styled.div`
   font-size: 14px;
@@ -39,7 +42,7 @@ const WarningTitle = styled.div`
   color: ${Colors.alert};
 `;
 
-const Paragraph = styled.p`
+const Paragraph = styled.p.attrs({ 'data-testid': 'paragraph-85nv' })`
   font-size: 14px;
 `;
 
@@ -59,14 +62,8 @@ const StyledFormGrid = styled(FormGrid)`
 export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, patient }) => {
   const { getTranslation } = useTranslation();
   const shortLabel = getTranslation('general.localisedField.displayId.label.short', 'NHN');
-  const {
-    encounterType,
-    facilityName,
-    facilityId,
-    startDate,
-    endDate,
-    reasonForEncounter,
-  } = encounterToDelete;
+  const { encounterType, facilityName, facilityId, startDate, endDate, reasonForEncounter } =
+    encounterToDelete;
 
   return (
     <Form
@@ -78,22 +75,14 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
               <GridItem data-testid="griditem-lnay">
                 <GridContent data-testid="gridcontent-pjkx">
                   <Label data-testid="label-ecib">
-                    <TranslatedText
-                      stringId="general.date.label"
-                      fallback="Date"
-                      data-testid="translatedtext-date-label"
-                    />
+                    <TranslatedText stringId="general.date.label" fallback="Date" />
                   </Label>
                   <Value data-testid="value-h3um">
-                    <DateDisplay date={startDate} data-testid="datedisplay-nbbl" /> -{' '}
+                    <DateDisplay date={startDate} data-testid="datedisplay-nbbl" /> &ndash;{' '}
                     <DateDisplay date={endDate} data-testid="datedisplay-miju" />
                   </Value>
                   <Label data-testid="label-0frx">
-                    <TranslatedText
-                      stringId="general.type.label"
-                      fallback="Type"
-                      data-testid="translatedtext-type-label"
-                    />
+                    <TranslatedText stringId="general.type.label" fallback="Type" />
                   </Label>
                   <Value data-testid="value-t2jy">
                     <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
@@ -103,11 +92,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
               <GridItem data-testid="griditem-umla">
                 <div>
                   <Label data-testid="label-g7t4">
-                    <TranslatedText
-                      stringId="general.facility.label"
-                      fallback="Facility"
-                      data-testid="translatedtext-facility-label"
-                    />
+                    <TranslatedText stringId="general.facility.label" fallback="Facility" />
                   </Label>
                   <Value data-testid="value-qh5l">
                     <TranslatedReferenceData
@@ -120,7 +105,6 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                     <TranslatedText
                       stringId="encounter.reasonForEncounter.label"
                       fallback="Reason for encounter"
-                      data-testid="translatedtext-reason-label"
                     />
                   </Label>
                   <Value data-testid="value-zj1h">{reasonForEncounter}</Value>
@@ -132,22 +116,19 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                 <TranslatedText
                   stringId="encounter.delete.confirmTitle"
                   fallback="Confirm encounter deletion"
-                  data-testid="translatedtext-confirm-title"
                 />
               </WarningTitle>
-              <Paragraph data-testid="paragraph-85nv">
+              <Paragraph>
                 <TranslatedText
                   stringId="encounter.delete.warningMessage"
                   fallback="This action will delete the encounter record and all its corresponding data. This includes all notes, diagnoses, procedures and all other information associated with this encounter."
-                  data-testid="translatedtext-warning-message"
                 />
-                <br />
-                <br />
+              </Paragraph>
+              <Paragraph>
                 <TranslatedText
                   stringId="encounter.delete.confirmationPrompt"
-                  fallback="This action is irreversible - to make sure you have selected the correct encounter, please enter the :shortLabel for this patient to confirm deletion."
+                  fallback="This action is irreversible. To make sure you have selected the correct encounter, please enter the :shortLabel for this patient to confirm deletion."
                   replacements={{ shortLabel }}
-                  data-testid="translatedtext-confirmation-prompt"
                 />
               </Paragraph>
               <NHNField
@@ -180,7 +161,6 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-              data-testid="translatedtext-displayid-label"
             />,
           ),
       })}

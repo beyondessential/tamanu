@@ -1,14 +1,17 @@
-import { utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
+import { utils } from 'xlsx';
 
-import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-
-import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-
-import { statkey, updateStat } from '../stats';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import {
+  formatSurveyTimeFromDate,
+  parseSurveyTimeToHHmmss,
+  toDateString,
+  toDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
+import { statkey, updateStat } from '../stats';
 
 const checkMandatory = (mandatory, values) => {
   try {
@@ -105,6 +108,17 @@ const getAnswerValue = async ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       answer = toDateString(getJsDateFromExcel(answer)); // this throws an error if invalid
       break;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME: {
+      answer = (() => {
+        const normalized =
+          typeof answer === 'number' && !Number.isNaN(answer)
+            ? formatSurveyTimeFromDate(getJsDateFromExcel(answer))
+            : parseSurveyTimeToHHmmss(String(answer));
+        if (!normalized) throw new Error(`Invalid time value: ${answer}`);
+        return normalized;
+      })();
+      break;
+    }
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE: {
       const config = getConfigObject(screenComponent.config, screenComponent.id);
       const modelName = getModelFromConfigType(config);
@@ -279,11 +293,10 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
 
       if (!surveyScreenComponents[surveyCode]) {
         log.debug(`Loading survey screen components from DB for survey with code "${surveyCode}"`);
-        surveyScreenComponents[
-          surveyCode
-        ] = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id, {
-          includeAllVitals: true,
-        });
+        surveyScreenComponents[surveyCode] =
+          await models.SurveyScreenComponent.getComponentsForSurvey(survey.id, {
+            includeAllVitals: true,
+          });
       }
     } catch (e) {
       // no survey or error getting components

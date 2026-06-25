@@ -2,11 +2,11 @@ import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
-import { formatStringDate } from '/helpers/date';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
 import { DateFormats } from '~/ui/helpers/constants';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const SensitiveResponseLabel = (): ReactElement => (
   <StyledText color={theme.colors.DISABLED_GREY} fontSize={14} fontWeight="500">
@@ -18,22 +18,25 @@ export const SurveyResponseLink = ({
   surveyResponse,
   detailsRouteName,
   backgroundColor = theme.colors.WHITE,
-}): ReactElement => {
+}): ReactElement | null => {
   const navigation = useNavigation();
+  const { formatStringDate } = useDateFormatter();
+
+  const showResponseDetails = useCallback((): void => {
+    if (!surveyResponse || surveyResponse.survey?.isSensitive) {
+      return;
+    }
+    navigation.navigate(detailsRouteName, {
+      surveyResponseId: surveyResponse.id,
+    });
+  }, [detailsRouteName, navigation, surveyResponse]);
 
   if (!surveyResponse) {
     return null;
   }
+
   const { survey, endTime = '', resultText } = surveyResponse;
   const { isSensitive } = survey;
-
-  const showResponseDetails = useCallback((): void => {
-    if (!isSensitive) {
-      navigation.navigate(detailsRouteName, {
-        surveyResponseId: surveyResponse.id,
-      });
-    }
-  }, [isSensitive, navigation, surveyResponse]);
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>

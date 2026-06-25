@@ -38,13 +38,15 @@ export const CellContent = ({
 
   return (
     <StyledView
-      width={85}
-      borderRightWidth={1}
-      borderColor={theme.colors.BOX_OUTLINE}
-      background={cellData.background}
-      borderBottomWidth={1}
-      height={80}
-      alignItems="center"
+      style={{
+        width: 85,
+        height: 80,
+        borderRightWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: theme.colors.BOX_OUTLINE,
+        backgroundColor: cellData.background,
+        alignItems: 'center',
+      }}
     >
       {cellStatus ? (
         <CenterView flex={1}>

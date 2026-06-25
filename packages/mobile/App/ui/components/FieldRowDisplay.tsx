@@ -42,11 +42,11 @@ export const FieldRowDisplay = ({
   };
 
   return (
-    <StyledView width="100%" margin={20} marginTop={0}>
+    <StyledView style={{ marginRight: 20, marginBottom: 20, marginLeft: 20 }}>
       {rows.map((row) => (
-        <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
+        <RowView key={row.map(([name]) => name).join(',')} style={{ marginTop: 20 }}>
           {row.map(([name, info]) => (
-            <InformationBox key={name} flex={1} title={getLabel(name)} info={info} />
+            <InformationBox key={name} style={{ flex: 1 }} title={getLabel(name)} info={info} />
           ))}
         </RowView>
       ))}

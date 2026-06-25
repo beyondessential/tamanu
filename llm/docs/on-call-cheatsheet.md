@@ -128,16 +128,19 @@ Get-Content -Path "C:\caddy\logs\server-2024-07-16T15-22-25.879.log" | ForEach-O
 
 These queries were used plenty when we were debugging sync stuff.
 
+> Negative `updated_at_sync_tick` values are flags, not real ticks (e.g. `-999` = last updated
+> on another server). See [Sync tick flags](initial-overview.md#sync-tick-flags) for the full list.
+
 ### Sessions
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, debug_info->>'facilityId' as facility_id FROM sync_sessions ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last 10 errors
 
 ```sql
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, debug_info->>'facilityId' as facility_id, errors FROM sync_sessions WHERE errors IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, parameters->'facilityIds' as facility_ids, errors FROM sync_sessions WHERE errors IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last error expanded view
@@ -169,19 +172,19 @@ WITH sync_status_aux as (SELECT completed_at - created_at as "duration", error I
 ### How long sessions using sync_lookup have been taking over the last day
 
 ```
-WITH sync_status_aux as (SELECT completed_at - created_at as "duration", errors IS NOT NULL as "is_error" FROM sync_sessions WHERE debug_info->>'useSyncLookup' = 'true' AND created_at > now() - interval '3 days') SELECT duration_range, COUNT(*) FROM (SELECT CASE WHEN duration >= interval '3 hours' THEN 'a - 3h+' WHEN duration >= interval '2 hours' AND duration < interval '3 hours' THEN 'b - 2-3h' WHEN duration >= interval '1 hour' AND duration < interval '2 hours' THEN 'c - 1-2h' WHEN duration >= interval '30 minutes' AND duration < interval '1 hour' THEN 'd - 30-59m' WHEN duration >= interval '10 minutes' AND duration < interval '1 hour' THEN 'e - 10-30m' WHEN duration >= interval '5 minutes' AND duration < interval '10 minutes' THEN 'f - 5-10m' WHEN duration >= interval '3 minutes' AND duration < interval '5 minutes' THEN 'g - 3-5m' WHEN duration >= interval '2 minutes' AND duration < interval '3 minutes' THEN 'h - 2m' WHEN duration >= interval '1 minute' AND duration < interval '2 minutes' THEN 'i - 1m' WHEN duration < '1 minute' THEN 'j - 1m-' END as "duration_range" FROM sync_status_aux WHERE is_error = FALSE) a GROUP BY a.duration_range;
+WITH sync_status_aux as (SELECT completed_at - created_at as "duration", errors IS NOT NULL as "is_error" FROM sync_sessions WHERE parameters->>'useSyncLookup' = 'true' AND created_at > now() - interval '3 days') SELECT duration_range, COUNT(*) FROM (SELECT CASE WHEN duration >= interval '3 hours' THEN 'a - 3h+' WHEN duration >= interval '2 hours' AND duration < interval '3 hours' THEN 'b - 2-3h' WHEN duration >= interval '1 hour' AND duration < interval '2 hours' THEN 'c - 1-2h' WHEN duration >= interval '30 minutes' AND duration < interval '1 hour' THEN 'd - 30-59m' WHEN duration >= interval '10 minutes' AND duration < interval '1 hour' THEN 'e - 10-30m' WHEN duration >= interval '5 minutes' AND duration < interval '10 minutes' THEN 'f - 5-10m' WHEN duration >= interval '3 minutes' AND duration < interval '5 minutes' THEN 'g - 3-5m' WHEN duration >= interval '2 minutes' AND duration < interval '3 minutes' THEN 'h - 2m' WHEN duration >= interval '1 minute' AND duration < interval '2 minutes' THEN 'i - 1m' WHEN duration < '1 minute' THEN 'j - 1m-' END as "duration_range" FROM sync_status_aux WHERE is_error = FALSE) a GROUP BY a.duration_range;
 ```
 
 ### Recent sessions for a facility (replace xxx with facility id)
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, debug_info->>'facilityId' as facility_id FROM sync_sessions WHERE debug_info->>'facilityId' = 'xxx' ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions WHERE parameters->'facilityIds' ? 'xxx' ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last successful session for a facility (replace xxx with facility id)
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, debug_info->>'facilityId' as facility_id FROM sync_sessions WHERE debug_info->>'facilityId' = 'xxx' AND errors IS NULL AND completed_at IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions WHERE parameters->'facilityIds' ? 'xxx' AND errors IS NULL AND completed_at IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
 ```
 
 
@@ -197,10 +200,10 @@ WITH sync_with_status AS (
       WHEN snapshot_started_at IS NOT NULL AND errors IS NOT NULL THEN 'Successful push, unsuccessful pull'
       ELSE 'Unsuccessful'
     END AS sync_status,
-    debug_info->>'facilityId' as facility_id,
+    parameters->'facilityIds' as facility_ids,
     ROW_NUMBER() OVER (ORDER BY start_time) as row_num
   FROM sync_sessions
-  WHERE debug_info->>'facilityId' = 'xxx'
+  WHERE parameters->'facilityIds' ? 'xxx'
   AND completed_at IS NOT NULL
   ORDER BY completed_at
 ),
@@ -208,7 +211,7 @@ status_change AS (
   SELECT 
     s2.sync_status as status_changed_to,
     s2.completed_at as status_changed_at,
-    s2.facility_id
+    s2.facility_ids
   FROM sync_with_status s1
   JOIN sync_with_status s2 ON s1.row_num + 1 = s2.row_num
   WHERE s1.sync_status != s2.sync_status
@@ -216,7 +219,7 @@ status_change AS (
 SELECT 
   status_changed_to,
   status_changed_at,
-  facility_id
+  facility_ids
 FROM status_change
 WHERE status_changed_at >= 'yyyy-mm-dd'
 ORDER BY status_changed_at DESC;
@@ -225,7 +228,7 @@ ORDER BY status_changed_at DESC;
 Facility Sync Status
 
 ```
-SELECT created_at, completed_at - created_at as duration, debug_info->>'facilityIds', errors IS NOT NULL as has_errors FROM sync_sessions ORDER BY created_at DESC LIMIT 10;
+SELECT created_at, completed_at - created_at as duration, parameters->'facilityIds', errors IS NOT NULL as has_errors FROM sync_sessions ORDER BY created_at DESC LIMIT 10;
 ```
 
 ### Average sync lookup refresh for the last 2 hours	

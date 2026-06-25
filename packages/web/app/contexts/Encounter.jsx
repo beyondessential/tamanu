@@ -1,5 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
+import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../api/queries/useAiPatientSummaryQuery';
 
 /*
   When loading an encounter, the user can't access the encounter view
@@ -35,6 +37,18 @@ export const EncounterProvider = ({ children }) => {
   const [encounter, setEncounterData] = useState(null);
 
   const api = useApi();
+  const queryClient = useQueryClient();
+
+  const invalidateAiPatientSummary = useCallback(
+    updatedEncounter => {
+      if (!updatedEncounter?.patientId) {
+        return;
+      }
+
+      queryClient.invalidateQueries([AI_PATIENT_SUMMARY_QUERY_KEY, updatedEncounter.patientId]);
+    },
+    [queryClient],
+  );
 
   // write encounter data to the central server.
   const saveEncounter = async (encounterId, data) => {
@@ -82,6 +96,7 @@ export const EncounterProvider = ({ children }) => {
   const createEncounter = async data => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post('encounter', data);
+    invalidateAiPatientSummary(createdEncounter);
     await loadEncounter(createdEncounter.id);
     setIsLoadingEncounter(false);
     return createdEncounter;

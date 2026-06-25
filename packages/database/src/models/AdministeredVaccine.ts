@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, type InjectionSite } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
@@ -15,7 +15,7 @@ export class AdministeredVaccine extends Model {
   declare consentGivenBy?: string;
   declare status: string;
   declare reason?: string;
-  declare injectionSite?: string;
+  declare injectionSite?: InjectionSite;
   declare givenBy?: string;
   declare givenElsewhere?: boolean;
   declare vaccineBrand?: string;
@@ -142,5 +142,4 @@ export class AdministeredVaccine extends Model {
   static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
-
 }

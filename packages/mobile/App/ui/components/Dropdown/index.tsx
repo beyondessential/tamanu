@@ -8,7 +8,7 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 
@@ -19,7 +19,7 @@ export interface SelectOption {
   value: string;
 }
 
-export interface DropdownProps extends BaseInputProps {
+export interface DropdownProps extends Omit<BaseInputProps, 'label'> {
   options?: SelectOption[];
   onChange?: (items: string) => void;
   multiselect?: boolean;
@@ -129,7 +129,7 @@ export const Dropdown = React.memo(
     const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
     const searchInputPlaceholderText = filterable
       ? searchPlaceholderText || getTranslation('general.placeholder.search...', 'Search…')
-      : label?.props?.fallback || label;
+      : getTranslatedTextFallback(label);
 
     return (
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
@@ -152,7 +152,7 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={selectPlaceholderText || label?.props?.fallback || label}
+          selectText={selectPlaceholderText || getTranslatedTextFallback(label)}
           searchInputPlaceholderText={searchInputPlaceholderText}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}

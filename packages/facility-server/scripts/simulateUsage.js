@@ -1,6 +1,5 @@
 import config from 'config';
 import Chance from 'chance';
-import { v4 as uuidv4 } from 'uuid';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomReferenceData } from '@tamanu/database/demoData/patients';
 import { randomRecord } from '@tamanu/database/demoData/utilities';
@@ -77,7 +76,7 @@ async function updateRecord(model) {
 
 async function createPatient(models) {
   const { Patient, PatientAdditionalData } = models;
-  const patient = await Patient.create(fake(Patient, { displayId: uuidv4() }));
+  const patient = await Patient.create(fake(Patient, { displayId: crypto.randomUUID() }));
   await PatientAdditionalData.create(fake(PatientAdditionalData, { patientId: patient.id }));
 
   return patient;

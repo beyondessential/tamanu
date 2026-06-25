@@ -1,5 +1,13 @@
 import * as yup from 'yup';
-import { extractDefaults } from './utils';
+
+import {
+  ADMINISTRATION_FREQUENCIES,
+  type AdministrationFrequency,
+  BROWSER_SUPPORT_POLICIES,
+  isValidAdditionalSearchField,
+  PLATFORM_SUPPORT_POLICIES,
+  SETTING_EDITORS,
+} from '@tamanu/constants';
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
@@ -28,19 +36,17 @@ import {
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
 } from './definitions';
-import {
-  layoutModuleProperties,
-  unhideableLayoutModuleProperties,
-} from './global-settings-properties/layouts';
-import {
-  ADMINISTRATION_FREQUENCIES,
-  isValidAdditionalSearchField,
-  SETTING_EDITORS,
-} from '@tamanu/constants';
+import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
+import { patientSummaryProperties } from './definitions/patientSummary';
+import {
+  layoutModuleProperties,
+  unhideableLayoutModuleProperties,
+} from './global-settings-properties/layouts';
+import { extractDefaults } from './utils';
 
 const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
@@ -74,16 +80,6 @@ export const globalSettings = {
             },
           },
         },
-        changes: {
-          description: 'Audit changes',
-          properties: {
-            enabled: {
-              description: 'Enable audit changes',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
-        },
       },
     },
     auth: {
@@ -107,6 +103,60 @@ export const globalSettings = {
       exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
+    },
+    browserSupport: {
+      name: 'Browser support',
+      description: 'Controls which browsers and devices may load the web application',
+      properties: {
+        policy: {
+          name: 'Browser policy',
+          description:
+            'Which browser families may load the app: Chrome/Chromium/Edge only, any Chromium-based browser, or any browser (experimental)',
+          type: yup.string().oneOf(Object.values(BROWSER_SUPPORT_POLICIES)),
+          defaultValue: BROWSER_SUPPORT_POLICIES.BLINK,
+          options: [
+            { value: BROWSER_SUPPORT_POLICIES.CHROMIUM, label: 'Chrome, Chromium and Edge only' },
+            { value: BROWSER_SUPPORT_POLICIES.BLINK, label: 'Any Chromium-based browser' },
+            { value: BROWSER_SUPPORT_POLICIES.ALL, label: 'Any browser (experimental)' },
+          ],
+        },
+        versionsBack: {
+          name: 'Versions back',
+          description:
+            'How many major browser versions behind the current release are allowed (0 = current only)',
+          type: yup.number().integer().min(0),
+          defaultValue: 2,
+        },
+        platform: {
+          name: 'Device policy',
+          description: 'Which device types may load the app',
+          type: yup.string().oneOf(Object.values(PLATFORM_SUPPORT_POLICIES)),
+          defaultValue: PLATFORM_SUPPORT_POLICIES.TABLET,
+          options: [
+            { value: PLATFORM_SUPPORT_POLICIES.DESKTOP, label: 'Desktops and laptops only' },
+            { value: PLATFORM_SUPPORT_POLICIES.TABLET, label: 'Allow tablets' },
+            { value: PLATFORM_SUPPORT_POLICIES.ALL, label: 'Allow all devices (incl. mobile)' },
+          ],
+        },
+      },
+    },
+    dateTimeLocale: {
+      description:
+        "BCP-47 locale used for date/time formatting (e.g. 'en-GB'). When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes",
+      exposedToWeb: true,
+      type: yup
+        .string()
+        .nullable()
+        .test('is-bcp47-locale', 'must be a well-formed BCP-47 locale', value => {
+          if (value == null) return true;
+          try {
+            Intl.getCanonicalLocales(value);
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      defaultValue: null,
     },
     appointments: {
       description: 'Appointment settings',
@@ -1685,6 +1735,8 @@ export const globalSettings = {
         },
       },
     },
+    patientSummary: patientSummaryProperties,
+    encounterSummary: encounterSummaryProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,
@@ -1809,10 +1861,12 @@ export const globalSettings = {
           properties: generateFrequencyProperties(
             Object.values(ADMINISTRATION_FREQUENCIES).filter(
               frequency =>
-                ![
-                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
-                ].includes(frequency),
+                !(
+                  [
+                    ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                    ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                  ] as AdministrationFrequency[]
+                ).includes(frequency),
             ),
           ),
         },

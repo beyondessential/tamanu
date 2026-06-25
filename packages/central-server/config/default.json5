@@ -10,6 +10,7 @@
     "username": "",
     "password": "",
     "migrateOnStartup": false,
+    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
@@ -271,6 +272,12 @@
       "enabled": true,
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
+    },
+    "formBuilderChatCleaner": {
+      "enabled": true,
+      // Every 15 minutes; expired AI form-builder chat sessions/jobs are low
+      // volume so they don't need frequent sweeping.
+      "schedule": "*/15 * * * *"
     },
     "snapshotTableCleaner": {
       "enabled": true,

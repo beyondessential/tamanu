@@ -16,11 +16,11 @@ import {
   createAccessLog,
   generateImportData,
 } from './helpers/index.js';
+import { resetRandomRecordCache } from './randomRecord.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
-  const { default: pLimit } = await import('p-limit');
-  const limit = pLimit(10);
-
+  // Fresh id cache each round so random picks see rows added by earlier rounds.
+  resetRandomRecordCache();
   // Create one of each basic deployment/reference data to reference for clinical data
   const {
     referenceData,
@@ -39,13 +39,11 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   // Clinical data
   const { patient } = await createPatient({
     models,
-    limit,
     facilityId: facility.id,
     userId: user.id,
   });
   const { encounter } = await createEncounter({
     models,
-    limit,
     patientId: patient.id,
     departmentId: department.id,
     locationId: location.id,
@@ -54,9 +52,8 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   });
 
   await Promise.all([
-    await createLabRequest({
+    createLabRequest({
       models,
-      limit,
       departmentId: department.id,
       userId: user.id,
       encounterId: encounter.id,
@@ -64,61 +61,53 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       patientId: patient.id,
       labTestTypeId: labTestType.id,
     }),
-    await createProgramRegistry({
+    createProgramRegistry({
       models,
-      limit,
       userId: user.id,
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
-    await createSurveyResponse({ models, limit, encounterId: encounter.id, surveyId: survey.id }),
-    await createDbReport({ models, limit, userId: user.id }),
-    await createAdministeredVaccine({
+    createSurveyResponse({ models, encounterId: encounter.id, surveyId: survey.id }),
+    createDbReport({ models, userId: user.id }),
+    createAdministeredVaccine({
       models,
-      limit,
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
     }),
-    await createInvoice({
+    createInvoice({
       models,
-      limit,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
       productId: invoiceProduct.id,
     }),
-    await createImagingRequest({
+    createImagingRequest({
       models,
-      limit,
       userId: user.id,
       encounterId: encounter.id,
       locationGroupId: locationGroup.id,
     }),
-    await createRepeatingAppointment({
+    createRepeatingAppointment({
       models,
-      limit,
       locationGroupId: locationGroup.id,
       patientId: patient.id,
       clinicianId: user.id,
     }),
-    await createTask({
+    createTask({
       models,
-      limit,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
     }),
-    await createPatientCommunication({ models, limit, patientId: patient.id }),
-    await createMedication({
+    createPatientCommunication({ models, patientId: patient.id }),
+    createMedication({
       models,
-      limit,
       encounterId: encounter.id,
       patientId: patient.id,
       referenceDataId: referenceData.id,
     }),
-    await createAccessLog({
+    createAccessLog({
       models,
-      limit,
       userId: user.id,
       patientId: patient.id,
       facilityId: facility.id,

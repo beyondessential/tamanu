@@ -19,9 +19,7 @@ export class CarePlanModal extends BasePatientModal {
   readonly completedCarePlanEditButton: Locator;
   readonly editableNoteContent: Locator;
   readonly saveEditedNoteButton: Locator;
-  readonly additionalNoteEditButton: Locator;
   readonly additionalNoteSavedDate: Locator;
-  readonly additionalNoteDeleteButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -38,7 +36,7 @@ export class CarePlanModal extends BasePatientModal {
       .getByTestId('formsubmitcancelrow-2egx-confirmButton')
       .filter({ hasText: 'Add note' })
       .first();
-    this.carePlanHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
+    this.carePlanHeader = this.page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.completedCarePlan = this.page.getByTestId('notecontainer-6fi4');
     this.completedMainCarePlan = this.completedCarePlan.filter({ hasText: 'Main care plan' });
     this.completedSystemAdditionalCarePlan = this.completedCarePlan.filter({
@@ -55,12 +53,10 @@ export class CarePlanModal extends BasePatientModal {
       .getByTestId('formsubmitcancelrow-2egx-confirmButton')
       .filter({ hasText: 'Save' })
       .first();
-    this.additionalNoteEditButton = this.page.getByTestId('item-8ybn-0');
     this.additionalNoteSavedDate = this.page
       .getByTestId('editablenoteformcontainer-mx3i')
       .getByTestId('field-qouz')
       .locator('input');
-    this.additionalNoteDeleteButton = this.page.getByTestId('item-8ybn-1');
   }
 
   async fillOutCarePlan(carePlanName: string, carePlanDetails: string) {
@@ -83,6 +79,11 @@ export class CarePlanModal extends BasePatientModal {
 
   getAdditionalNoteKebabMenu(clinicianName: string) {
     return this.completedCarePlan.filter({ hasText: clinicianName }).getByTestId('openbutton-d1ec');
+  }
+
+  async clickAdditionalNoteMenuAction(clinicianName: string, action: 'Edit' | 'Delete') {
+    await this.getAdditionalNoteKebabMenu(clinicianName).click();
+    await this.page.getByRole('menuitem', { name: action, exact: true }).click();
   }
 
   // Helper methods for handling multiple buttons with the same test ID

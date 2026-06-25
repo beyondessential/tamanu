@@ -1,19 +1,23 @@
-import React from 'react';
-import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 import { Box } from '@mui/material';
+import React from 'react';
+
+import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 import {
-  LimitedTextField,
-  MultilineTextField,
-  BaseSelectField,
   BaseMultiselectField,
-  ReadOnlyTextField,
-  InstructionField,
-  NumberField,
+  BaseSelectField,
   DateField,
   DateTimeField,
+  InstructionField,
+  LimitedTextField,
+  MultilineTextField,
   NullableBooleanField,
-  PhotoField,
+  NumberField,
   PatientDataDisplayField,
+  PhotoField,
+  ReadOnlyNumberField,
+  ReadOnlyTextField,
+  SignatureField,
+  TimeField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -36,19 +40,22 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyNumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE]: UnsupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: UnsupportedField,

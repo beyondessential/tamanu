@@ -29,18 +29,18 @@ const Label = styled.div`
 `;
 
 const LabelContent = styled.div`
-  padding: 1.5mm 2mm 0 2mm;
+  padding: 0.7mm 2mm 0 2mm;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-grow: 1;
 `;
 
 const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
-  margin-bottom: 0.708mm;
+  gap: 0.4mm;
+  margin-bottom: 1mm;
 `;
 
 const LabelMedicationName = styled.div`
@@ -69,6 +69,7 @@ const LabelBottomSection = styled.div`
 const LabelPatientDateRow = styled.div`
   display: flex;
   gap: 2mm;
+  margin-top: auto;
   border-bottom: 0.354mm solid ${Colors.black};
   padding-bottom: 0.354mm;
 `;
@@ -96,7 +97,7 @@ const LabelDate = styled.div`
 const LabelLeftColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
+  gap: 0.4mm;
   flex: 1;
   min-width: 0;
 `;
@@ -104,10 +105,9 @@ const LabelLeftColumn = styled.div`
 const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
-  flex-shrink: 0;
-  text-align: right;
-  white-space: nowrap;
+  gap: 0.4mm;
+  flex: 1;
+  min-width: 0;
 `;
 
 const LabelDetailRow = styled.div`
@@ -121,8 +121,8 @@ const LabelDetailRow = styled.div`
 
 const LabelFooter = styled.div`
   border-top: 0.177mm solid ${Colors.black};
-  padding: 1.416mm 0;
-  margin-top: 0.708mm;
+  padding: 0.4mm 0 0.2mm;
+  margin-top: 0.354mm;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -145,11 +145,10 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 
-const calculateDynamicFontSizes = (data, labelHeight) => {
+const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
-  const patientNameLength = data.patientName?.length || 0;
-  const prescriberNameLength = data.prescriberName?.length || 0;
-  
+  const instructionsLength = data.instructions?.length || 0;
+
   // 1. Medication name: scale based on length
   let medicationNameFontSize = labelHeight * 0.09;
   if (medicationNameLength > 50) {
@@ -159,34 +158,38 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   } else if (medicationNameLength < 25) {
     medicationNameFontSize = labelHeight * 0.11;
   }
-  
-  // 2. Instructions: never scale - fixed readable size (20% larger)
-  const instructionsFontSize = labelHeight * 0.108; // Fixed 4.32mm for 40mm height
-  
-  // 3. Patient name and date: scale based on patient name length to stay on one line
-  let patientDateFontSize = labelHeight * 0.09;
-  if (patientNameLength > 30) {
-    patientDateFontSize = labelHeight * 0.075;
-  } else if (patientNameLength > 25) {
-    patientDateFontSize = labelHeight * 0.08;
-  } else if (patientNameLength < 15) {
-    patientDateFontSize = labelHeight * 0.095;
+
+  // 2. Instructions / Label text: scale down for longer text so the footer
+  // and other fixed sections still fit. Uppercase preset-label text is wider
+  // per char than mixed-case English, so the thresholds step harder than the
+  // medication-name ladder above. Thresholds are tuned for the default 80x40
+  // shape; capacity is bound by chars-per-line, which is `width / fontSize`
+  // and the font scales with `labelHeight`, so a tall-thin label fits LESS
+  // text per row than the default.
+  const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
+  let instructionsFontSize = labelHeight * 0.145;
+  if (instructionsLength > 150 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.09;
+  } else if (instructionsLength > 110 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.11;
+  } else if (instructionsLength > 50 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.125;
   }
-  
-  // 4. Details (Total prescribed, Repeats, Pres., Request): scale based on prescriber name
-  // Prescriber name is the longest, so scale to fit it on one line
-  let detailFontSize = labelHeight * 0.08; // Base detail size
-  
-  if (prescriberNameLength > 35) {
-    detailFontSize = labelHeight * 0.06; // Smallest: 2.4mm
-  } else if (prescriberNameLength > 28) {
-    detailFontSize = labelHeight * 0.07; // 2.8mm
-  } else if (prescriberNameLength < 20) {
-    detailFontSize = labelHeight * 0.085; // 3.4mm
+
+  // When the medication name is long enough to shrink AND wrap to two lines it
+  // costs an extra line, so step long instructions down (kept as large as fits)
+  // to drop a line and keep the footer on a fixed-size label.
+  if (medicationNameLength > 45 && instructionsLength > 75 * widthHeightScale) {
+    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.095);
   }
-  
-  // 5. Footer: never scale - fixed readable size
+
+
+  // 3 & 4. Patient name/date and the detail rows (Pres, Request, quantity,
+  // Repeats) are secondary info — sized to match the footer to free vertical
+  // space for the medication name and instructions. Long values truncate.
   const footerFontSize = labelHeight * 0.075; // Fixed 3mm for 40mm height
+  const patientDateFontSize = footerFontSize;
+  const detailFontSize = footerFontSize;
   
   return {
     medicationNameFontSize,
@@ -201,8 +204,8 @@ export const MedicationLabel = React.memo(({ data }) => {
   const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
-  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') || 40;
+  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') ?? 80;
+  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') ?? 40;
 
   const {
     medicationName,
@@ -223,7 +226,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     patientDateFontSize,
     detailFontSize,
     footerFontSize,
-  } = calculateDynamicFontSizes(data, labelHeight);
+  } = calculateDynamicFontSizes(data, labelWidth, labelHeight);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
@@ -242,16 +245,6 @@ export const MedicationLabel = React.memo(({ data }) => {
         </LabelPatientDateRow>
         <LabelBottomSection>
           <LabelLeftColumn>
-            <LabelDetailRow $fontSize={detailFontSize}>
-              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres" />:{' '}
-              {prescriberName}
-            </LabelDetailRow>
-            <LabelDetailRow $fontSize={detailFontSize}>
-              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
-              {requestNumber}
-            </LabelDetailRow>
-          </LabelLeftColumn>
-          <LabelRightColumn>
             <LabelDetailRow $fontSize={detailFontSize}>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelDetailRow>
             <LabelDetailRow $fontSize={detailFontSize}>
               <TranslatedText
@@ -259,6 +252,16 @@ export const MedicationLabel = React.memo(({ data }) => {
                 fallback="Repeats"
               />
               : {remainingRepeats}
+            </LabelDetailRow>
+          </LabelLeftColumn>
+          <LabelRightColumn>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />:{' '}
+              {prescriberName}
+            </LabelDetailRow>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
+              {requestNumber}
             </LabelDetailRow>
           </LabelRightColumn>
         </LabelBottomSection>

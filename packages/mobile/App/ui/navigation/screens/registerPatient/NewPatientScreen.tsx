@@ -1,21 +1,31 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
+import { NavigationProp } from '@react-navigation/native';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Button } from '/components/Button';
 import { CrossIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
-import { compose } from 'redux';
-import { withPatient } from '/containers/Patient';
-import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
 import { useSettings } from '/contexts/SettingsContext';
+import { store } from '~/ui/store';
 
-const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
+export const NewPatientScreen = ({
+  navigation,
+}: {
+  navigation: NavigationProp<any>;
+}): ReactElement | null => {
+  // Snapshot patient at mount so clearing Redux on back from patient view
+  // does not re-render this screen while RegisterPatientStack is still mounted.
+  const [patient] = useState(() => store.getState().patient.selectedPatient);
+
+  const homeStackNavigation = navigation.getParent();
+
   const onNavigateToHome = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
-  }, []);
+    // Navigate within the Home stack so RegisterPatientStack is popped off.
+    homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index);
+  }, [homeStackNavigation]);
 
   const onAddAnotherPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.Index, {
@@ -24,16 +34,20 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
         screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
       },
     });
-  }, []);
+  }, [navigation]);
 
   const onStartVisit = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
+    homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
     });
-  }, []);
+  }, [homeStackNavigation]);
 
   const { getSetting } = useSettings();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
+
+  if (!patient) {
+    return null;
+  }
 
   return (
     <FullView>
@@ -58,7 +72,7 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           fontWeight="bold"
         >
-          {selectedPatient.displayId}
+          {patient.displayId}
         </StyledText>
       </StyledView>
       <FullView
@@ -71,11 +85,11 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           fontWeight="bold"
         >
-          {joinNames(selectedPatient)}
+          {joinNames(patient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {getGender(selectedPatient.sex)}{' '}
-          {getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)} old{' '}
+          {getGender(patient.sex)}{' '}
+          {getDisplayAge(patient.dateOfBirth, ageDisplayFormat)} old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
@@ -83,7 +97,7 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
           marginTop={90}
           textAlign="center"
         >
-          {selectedPatient.firstName} has been{'\n'}added to the database
+          {patient.firstName} has been{'\n'}added to the database
         </StyledText>
         <StyledSafeAreaView
           flex={1}
@@ -111,5 +125,3 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
     </FullView>
   );
 };
-
-export const NewPatientScreen = compose(withPatient)(Screen);

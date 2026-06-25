@@ -365,7 +365,9 @@ test.describe('Basic tests', () => {
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
     await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('P');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(
+      `${formValues.diagnosis} (primary diagnosis)`,
+    );
   });
   test('[BT-0022][AT-2016]Add a not primary diagnosis', async ({
     newPatientWithHospitalAdmission,
@@ -381,7 +383,9 @@ test.describe('Basic tests', () => {
     const formValues = await diagnosisModal.fillForm(false);
     await diagnosisModal.confirmButton.click();
     await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('S');
-    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText([
+      `${formValues.diagnosis} (secondary diagnosis)`,
+    ]);
   });
   test('[BT-0023][AT-2017] Add a new task set', async ({
     newPatientWithHospitalAdmission,
@@ -399,10 +403,7 @@ test.describe('Basic tests', () => {
     await tasksPane.addTaskButton.click();
     const addTaskModal = tasksPane.getAddTaskModal();
     await addTaskModal.waitForModalToLoad();
-    const formValues = await addTaskModal.fillForm({
-      taskName: taskName,
-      notes: notes,
-    });
+    const formValues = await addTaskModal.fillForm({ taskName, notes });
     await addTaskModal.confirmButton.click();
     await tasksPane.waitForNoDataContainerToDisappear();
     const note = await getTableItems(tasksPane.page, 2, 'note');

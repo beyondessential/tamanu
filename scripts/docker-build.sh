@@ -83,14 +83,12 @@ build_server() {
 }
 
 build_web() {
-  npm run build-shared
-  npm run build --workspace @tamanu/web-frontend
+  npm run build -- --filter=@tamanu/web-frontend...
   scripts/precompress-assets.sh packages/web/dist
 }
 
 build_patient_portal() {
-  npm run build-shared
-  npm run build --workspace @tamanu/patient-portal
+  npm run build -- --filter=@tamanu/patient-portal...
   scripts/precompress-assets.sh packages/patient-portal/dist
 }
 

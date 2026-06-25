@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import AddIcon from '@mui/icons-material/Add';
 
-import { SelectInput, Button } from '@tamanu/ui-components';
+import { SelectInput, Button, VisuallyHidden } from '@tamanu/ui-components';
 import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
@@ -131,7 +131,11 @@ export const ManageReferenceDataTab = () => {
     if (selectedType === SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION) {
       cols.push({
         key: 'actions',
-        title: '',
+        title: (
+          <VisuallyHidden>
+            <TranslatedText stringId="general.actions.label" fallback="Actions" />
+          </VisuallyHidden>
+        ),
         sortable: false,
         dontCallRowInput: true,
         CellComponent: ({ data }) => (

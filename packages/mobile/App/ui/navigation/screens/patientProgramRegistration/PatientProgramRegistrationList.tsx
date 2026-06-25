@@ -99,7 +99,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   const onNavigateToPatientProgramRegistrationDetails = (item: any) => {
     navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
-      patientProgramRegistration: item,
+      patientProgramRegistrationId: item.id,
     });
   };
 

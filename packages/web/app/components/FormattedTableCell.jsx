@@ -1,6 +1,9 @@
+import { useTheme } from '@mui/material';
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+
+import { EditedOrnament, PlainTimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
@@ -10,30 +13,34 @@ const ALERT = 'alert';
 const INFO = 'info';
 
 const CellWrapper = styled.div`
-  background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}20` : 'transparent')};
   border-radius: 10px;
-  padding: 8px 14px;
-  margin: -8px ${({ severity }) => (severity === ALERT ? '0px' : '-14px')};
+  margin-block: -6px;
+  margin-inline: -11px;
+  padding-block: 6px;
+  padding-inline: 11px;
   width: fit-content;
+
+  ${p =>
+    p.$severity === ALERT &&
+    css`
+      background-color: oklch(from ${Colors.alert} l c h / 12.5%);
+    `}
 `;
 
 const ClickableCellWrapper = styled(CellWrapper)`
   cursor: pointer;
-
-  &:hover {
-    background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}40` : Colors.background)};
-  }
+  ${p =>
+    p.$severity === ALERT &&
+    css`
+      &:hover {
+        background-color: oklch(from ${Colors.alert} l c h / 25%);
+      }
+    `}
 `;
 
 const HeadCellWrapper = styled.div`
   display: block;
   width: fit-content;
-  div {
-    color: ${Colors.midText};
-    :first-child {
-      color: ${Colors.darkText};
-    }
-  }
 `;
 
 function round(float, { rounding } = {}) {
@@ -93,20 +100,31 @@ export const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
-    <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div>
-        <DateDisplay noTooltip date={value} format="shortest" />
-      </div>
-      <div>
-        <TimeDisplay noTooltip date={value} />
-      </div>
-    </HeadCellWrapper>
-  </TableTooltip>
-));
+export const DateHeadCell = ({ value }) => {
+  const theme = useTheme();
+  return (
+    <TableTooltip
+      title={<DateDisplay date={value} format="long" />}
+      data-testid="tabletooltip-5w9x"
+    >
+      <HeadCellWrapper data-testid="headcellwrapper-jcsy">
+        <DateDisplay
+          date={value}
+          format="shortest"
+          noTooltip
+          style={{ color: theme.palette.text.secondary, display: 'block' }}
+        />
+        <TimeDisplay
+          date={value}
+          noTooltip
+          style={{ color: theme.palette.text.tertiary, display: 'block' }}
+        />
+      </HeadCellWrapper>
+    </TableTooltip>
+  );
+};
 
-export const DateBodyCell = React.memo(({ value, onClick }) => {
+export const DateBodyCell = ({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
@@ -114,16 +132,21 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div>
-          <DateDisplay noTooltip date={value} format="shortest" />
-        </div>
-        <div>
-          <TimeDisplay noTooltip date={value} />
-        </div>
+        <DateDisplay date={value} format="shortest" noTooltip style={{ display: 'block' }} />
+        <TimeDisplay date={value} noTooltip style={{ display: 'block' }} />
       </CellContainer>
     </TableTooltip>
   );
-});
+};
+
+export function TimeBodyCell({ value, onClick }) {
+  const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+  return (
+    <CellContainer onClick={onClick} data-testid="cellcontainer-time">
+      <PlainTimeDisplay time={value} />
+    </CellContainer>
+  );
+}
 
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
@@ -200,7 +223,7 @@ export const LimitedLinesCell = ({
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
-      {isEdited && isClamped && <span>*</span>}
+      {isEdited && isClamped && <EditedOrnament />}
     </LimitedLinesCellContainer>
   );
 };
@@ -233,8 +256,6 @@ export const RangeValidatedCell = React.memo(
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(value, config);
-    const isEditedSuffix = isEdited ? '*' : '';
-    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(
       () => getValidationState(float, config, validationCriteria),
       [float, config, validationCriteria],
@@ -243,11 +264,20 @@ export const RangeValidatedCell = React.memo(
     const cell = (
       <CellContainer
         onClick={onClick}
-        severity={severity}
+        $severity={severity}
         {...props}
         data-testid="cellcontainer-4zzh"
       >
-        <ValueWrapper value={formattedValue} isEdited={isEdited} data-testid="valuewrapper-nbfj" />
+        <ValueWrapper
+          value={
+            <>
+              {formatValue(value, config)}
+              {isEdited && <EditedOrnament />}
+            </>
+          }
+          isEdited={isEdited}
+          data-testid="valuewrapper-nbfj"
+        />
       </CellContainer>
     );
 

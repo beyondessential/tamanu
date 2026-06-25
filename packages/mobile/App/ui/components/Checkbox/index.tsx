@@ -7,7 +7,7 @@ import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
@@ -84,7 +84,7 @@ export const Checkbox = ({
             fontSize={fieldFontSize || screenPercentageToDP('1.70', Orientation.Height)}
             color={fieldColor || theme.colors.TEXT_MID}
           >
-            {`${text?.props?.fallback || text}${required && !label ? '*' : ''}`}
+            {`${getTranslatedTextFallback(text) ?? (typeof text === 'string' ? text : '')}${required && !label ? '*' : ''}`}
           </StyledText>
         )}
       </RowView>

@@ -1,6 +1,6 @@
 import { RateLimitedError } from '@tamanu/errors';
 
-import { QueueManager, RequestQueue } from '@tamanu/central-server/app/middleware/loadshedder';
+import { QueueManager, RequestQueue } from '../../app/middleware/loadshedder';
 
 describe('RequestQueue', () => {
   it('allows multiple parallel requests through under the threshold', async () => {

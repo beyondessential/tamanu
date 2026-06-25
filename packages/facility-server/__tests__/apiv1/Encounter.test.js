@@ -594,6 +594,33 @@ describe('Encounter', () => {
         expect(notes[0].authorId).toEqual(app.user.id);
       });
 
+      it('should format dates in change notes per the dateTimeLocale setting', async () => {
+        await models.Setting.set('dateTimeLocale', 'en-US');
+        try {
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            encounterType: ENCOUNTER_TYPES.ADMISSION,
+            startDate: '2024-04-12 15:30:00',
+          });
+
+          const result = await app.put(`/api/encounter/${encounter.id}`).send({
+            startDate: '2024-05-06 09:00:00',
+          });
+          expect(result).toHaveSucceeded();
+
+          const notes = await encounter.getNotes();
+          expect(notes).toHaveLength(1);
+          expect(notes[0].content).toEqual(
+            '• Changed admission date & time from ‘04/12/2024 3:30pm’ to ‘05/06/2024 9:00am’',
+          );
+        } finally {
+          // Global setting — remove so other suites sharing the test database
+          // keep formatting with the runtime default locale.
+          await models.Setting.destroy({ where: { key: 'dateTimeLocale' }, force: true });
+        }
+      });
+
       it('should discharge a patient', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),

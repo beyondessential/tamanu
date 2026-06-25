@@ -55,13 +55,7 @@ export const CoreComplexChartData = ({
   const { data } = useEncounterChartsQuery(encounter?.id, selectedSurveyId, currentInstanceId);
   const actions = [
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.delete"
-          fallback="Delete"
-          data-testid="translatedtext-3r78"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return (

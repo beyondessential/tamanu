@@ -114,6 +114,7 @@ export async function createApi(ctx) {
     req.db = store.sequelize;
     req.store = store;
     req.emailService = emailService;
+    req.aiService = ctx.aiService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
     req.language = req.headers['language'];

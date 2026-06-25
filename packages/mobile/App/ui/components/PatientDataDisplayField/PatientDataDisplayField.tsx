@@ -3,6 +3,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { StyledText } from '~/ui/styled/common';
 import { useBackend } from '~/ui/hooks';
 import { getDisplayNameForModel } from '~/ui/helpers/fields';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 
 // TypeORM version of getPatientDataFieldAssociationData
@@ -66,6 +67,7 @@ export const PatientDataDisplayField = ({
 }) => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { models } = useBackend();
+  const { locale } = useDateFormatter();
   const [displayValue, setDisplayValue] = useState('');
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export const PatientDataDisplayField = ({
           record: data,
           getReferenceDataTranslation,
           getEnumTranslation,
+          locale,
         }),
       );
     }

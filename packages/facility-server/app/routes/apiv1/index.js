@@ -1,9 +1,11 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { settingsCache } from '@tamanu/settings';
+import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { suggestions } from '@tamanu/shared/services/suggestions';
+import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
+import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
 
 import {
   authMiddleware,
@@ -66,6 +68,7 @@ import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
+import { ai } from './ai';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -128,7 +131,30 @@ export function createApiv1({ authLimiter } = {}) {
       res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
     }),
   );
-  
+
+  apiv1.post(
+    '/public/browser-support',
+    asyncHandler(async (req, res) => {
+      // Pre-login gate for the web app; the client posts its parsed navigator info.
+      req.flagPermissionChecked();
+      const settings = new ReadSettings(req.models);
+      const [policy, versionsBack, platformPolicy] = await Promise.all([
+        settings.get('browserSupport.policy'),
+        settings.get('browserSupport.versionsBack'),
+        settings.get('browserSupport.platform'),
+      ]);
+      res.send(
+        decideBrowserSupport({
+          policy,
+          versionsBack,
+          platformPolicy,
+          currentMajors: getCurrentBrowserMajors(),
+          descriptor: parseBrowserDescriptor(req.body),
+        }),
+      );
+    }),
+  );
+
   apiv1.use(authMiddleware);
   
   apiv1.use(constructPermission);
@@ -249,6 +275,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/vitals', vitals);
   patientDataRoutes.use('/tasks', tasks);
   patientDataRoutes.use('/notifications', notifications);
+  patientDataRoutes.use('/ai', ai);
   
   // reference data endpoints
   referenceDataRoutes.use('/asset', asset);

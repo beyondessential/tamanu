@@ -204,7 +204,12 @@ export const MedicationDetails = ({
         },
       ]),
     {
-      label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
+      label: (
+        <TranslatedText
+          stringId="medication.details.originalPrescriber"
+          fallback="Original prescriber"
+        />
+      ),
       value: medication.prescriber?.displayName || '-',
     },
     {

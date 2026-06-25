@@ -1,8 +1,10 @@
+import InfoIcon from '@mui/icons-material/Info';
 import React from 'react';
 import styled from 'styled-components';
-import InfoIcon from '@mui/icons-material/Info';
+
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
+import { RequiredOrnament } from '../RequiredOrnament';
 
 const OuterLabel = styled.label`
   display: inline-block;
@@ -12,11 +14,6 @@ const OuterLabel = styled.label`
   font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
   line-height: 16px;
   letter-spacing: 0;
-`;
-
-const OuterLabelRequired = styled.span`
-  color: ${TAMANU_COLORS.alert};
-  padding-left: 3px;
 `;
 
 const IconWrapper = styled.div`
@@ -50,7 +47,7 @@ export const OuterLabelFieldWrapper = React.memo(
         {label && (
           <OuterLabel htmlFor={htmlFor} className="label-field" size={size}>
             {label}
-            {required && <OuterLabelRequired className="required-indicator">*</OuterLabelRequired>}
+            {required && <RequiredOrnament />}
           </OuterLabel>
         )}
         {infoTooltip && (

@@ -60,6 +60,9 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in medication_dispenses."
+          - name: medication_preset_label_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__medication_preset_label_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in medication_dispenses."

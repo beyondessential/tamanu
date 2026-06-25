@@ -13,7 +13,9 @@ export async function runFunctionInBatches<T, R>(
   for (let i = 0; i < arrayToBeBatched.length; i += batchSize) {
     const batch = arrayToBeBatched.slice(i, i + batchSize);
     const chunkedResult = await functionToRun(batch);
-    results.push(...chunkedResult);
+    for (const item of chunkedResult) {
+      results.push(item);
+    }
   }
   return results;
 }

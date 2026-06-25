@@ -71,3 +71,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in survey_response_answers."
             data_tests:
               - not_null
+          - name: edited_time
+            data_type: character(19)
+            description: "{{ doc('survey_response_answers__edited_time') }}"

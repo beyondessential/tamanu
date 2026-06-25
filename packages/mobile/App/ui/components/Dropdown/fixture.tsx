@@ -18,7 +18,6 @@ export function BaseStory(): JSX.Element {
       options={dropdownItems}
       onChange={setSelectedItem}
       value={selectedItem}
-      onPress={() => {}}
     />
   );
 }

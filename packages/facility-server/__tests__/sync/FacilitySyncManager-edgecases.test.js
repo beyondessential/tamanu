@@ -241,7 +241,7 @@ describe('FacilitySyncManager edge cases', () => {
       }));
 
       const configToOverride = {
-        sync: { enabled: true, assertIfPulledRecordsUpdatedAfterPushSnapshot: true },
+        sync: { email: 'test@example.com', password: 'test-password', enabled: true, assertIfPulledRecordsUpdatedAfterPushSnapshot: true },
       };
       const encounter = await initializeSyncManager(configToOverride);
 
@@ -276,7 +276,7 @@ describe('FacilitySyncManager edge cases', () => {
       }));
 
       const configToOverride = {
-        sync: { enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
+        sync: { email: 'test@example.com', password: 'test-password', enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
       };
       const encounter = await initializeSyncManager(configToOverride);
 

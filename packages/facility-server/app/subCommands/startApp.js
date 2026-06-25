@@ -9,7 +9,7 @@ import { DEVICE_TYPES } from '@tamanu/constants';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
-import { performDatabaseIntegrityChecks } from '../database';
+import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
 import { createApiApp } from '../createApiApp';
@@ -38,11 +38,7 @@ const startApp =
 
     const context = await new ApplicationContext().init({ appType });
 
-    if (config.db.migrateOnStartup) {
-      await context.sequelize.migrate('up');
-    } else {
-      await context.sequelize.assertUpToDate({ skipMigrationCheck });
-    }
+    await prepareDatabaseForStartup(context, { skipMigrationCheck });
 
     await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
     await checkConfig(context);

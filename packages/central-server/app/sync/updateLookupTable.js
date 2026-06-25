@@ -74,7 +74,12 @@ const updateLookupTableForModel = async (
           }
           ${joins || ''}
           WHERE
-          (${where || `${table}.updated_at_sync_tick > ${shouldFullyRebuild ? -1 : ':since'}`})
+          -- on a full rebuild, reselect every row; the custom where is only an incremental filter
+          (${
+            shouldFullyRebuild
+              ? `${table}.updated_at_sync_tick > -1`
+              : where || `${table}.updated_at_sync_tick > :since`
+          })
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit

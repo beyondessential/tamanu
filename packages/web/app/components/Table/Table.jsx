@@ -390,8 +390,8 @@ class TableComponent extends React.Component {
   handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage, onChangePage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
-    if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
-    if (onChangePage) onChangePage(0);
+    onChangeRowsPerPage?.(newRowsPerPage);
+    onChangePage?.(0);
   };
 
   renderHeaders() {
@@ -678,13 +678,7 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: (
-    <TranslatedText
-      stringId="general.table.noDataMessage"
-      fallback="No data found"
-      data-testid="translatedtext-d4jv"
-    />
-  ),
+  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
   count: 0,
   hideHeader: false,
   isLoading: false,

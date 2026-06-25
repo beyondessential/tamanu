@@ -21,7 +21,10 @@ export class SettingsService extends LocalDataService {
   }
 
   async setSettings(settings: object): Promise<void> {
-    this.data = settings;
+    // Merge over existing data so that keys only present in the login response (e.g. mobileSync,
+    // which is a central-scope setting not returned by the setFacility endpoint) are preserved
+    // when facility-specific settings are applied on top.
+    this.data = { ...this.data, ...settings };
     await this._writeDataToConfig();
     this.onDataLoaded();
   }

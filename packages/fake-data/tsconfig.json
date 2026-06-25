@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "target": "es2020",
     "moduleResolution": "bundler",
-    "module": "ESNext"
+    "module": "ESNext",
+    "incremental": true
   }
 }

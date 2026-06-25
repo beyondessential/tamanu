@@ -105,6 +105,12 @@ EOF
                     },
                     enableTasking: true,
                 },
+                patientSummary: {
+                    enabled: true,
+                },
+                encounterSummary: {
+                    enabled: true,
+                },
             },
         },
 

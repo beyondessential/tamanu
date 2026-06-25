@@ -1,6 +1,17 @@
 const os = require('node:os');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
+// Use the Node runtime bundled in runtime/ next to this config if present,
+// otherwise the node running this process.
+const embeddedNode = path.join(
+  __dirname,
+  'runtime',
+  process.platform === 'win32' ? 'node.exe' : path.join('bin', 'node'),
+);
+const interpreter = fs.existsSync(embeddedNode) ? embeddedNode : process.execPath;
 
 // NOTE: We also explicitly set this value in the Dockerfile for when running in containers
 // but the two values should resolve to the same path
@@ -24,7 +35,7 @@ function task(name, args, instances = 1, env = {}) {
     cwd,
     script: './dist/index.js',
     args,
-    interpreter: require.resolve('node/bin/node'),
+    interpreter,
     interpreter_args: `--max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',

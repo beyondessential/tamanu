@@ -3,7 +3,6 @@ import { afterAll, beforeAll } from '@jest/globals';
 import {
   REGISTRATION_STATUSES,
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
@@ -26,7 +25,6 @@ describe('PatientProgramRegistration', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    await models.Setting.set('audit.changes.enabled', true, SETTINGS_SCOPES.GLOBAL);
   });
 
   afterEach(async () => {

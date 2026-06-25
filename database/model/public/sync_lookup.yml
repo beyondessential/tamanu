@@ -20,7 +20,7 @@ sources:
               - unique
               - not_null
           - name: record_id
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('sync_lookup__record_id') }}"
             data_tests:
               - not_null

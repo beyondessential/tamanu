@@ -12,7 +12,7 @@ export const ProgramsPane = styled(Paper)`
   border-radius: 3px;
 `;
 
-export const ProgramsPaneHeader = styled.div`
+export const ProgramsPaneHeader = styled.header`
   padding: 30px;
   margin: -30px -30px 30px -30px;
   border-bottom: 1px solid ${Colors.softOutline};

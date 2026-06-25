@@ -209,7 +209,9 @@ export class PatientDetailsPage extends BasePatientPage {
       .filter({ hasText: 'Other patient issuesAdd' })
       .getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
-    this.savedIssueType = this.page.getByTestId('collapse-0a33').getByText('Type*Issue');
+    this.savedIssueType = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-lwpd-select');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
@@ -390,6 +392,11 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
+  }
+
+  async navigateToFirstEncounter() {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
@@ -606,6 +613,25 @@ export class PatientDetailsPage extends BasePatientPage {
     const modal = this.getEditEncounterModal();
     await modal.waitForModalToLoad();
     return modal;
+  }
+
+  // Opens the "Encounter progress record" action (shown for an active encounter) from the
+  // encounter actions menu, which renders the encounter record PDF in a viewer modal.
+  async openEncounterProgressRecord(): Promise<void> {
+    await this.threeDotMenuButton.click();
+    const menuItem = this.page.getByRole('menuitem', { name: 'Encounter progress record' });
+    await menuItem.waitFor({ state: 'visible' });
+    await menuItem.click();
+  }
+
+  // The client-side rendered encounter record PDF, shown in an iframe with a blob: URL.
+  get encounterRecordPdfFrame(): Locator {
+    return this.page.getByTestId('fulliframe-rz3a');
+  }
+
+  // The determinate progress indicator shown while a large encounter record renders in chunks.
+  get encounterRecordPdfProgress(): Locator {
+    return this.page.getByTestId('pdfprogress-cont');
   }
 
   get encounterHistoryPane(): EncounterHistoryPane {

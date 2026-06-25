@@ -24,7 +24,6 @@ import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInv
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { PATIENT_TABS } from '../../constants/patientPaths';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -111,8 +110,8 @@ const Table = styled(DataFetchingTable)`
 
 const getDate = ({ date }) => <DateDisplay date={date} format="shortest" />;
 const getInvoiceTotal = row => {
-  const { patientTotal } = getInvoiceSummaryDisplay(row);
-  return patientTotal === undefined ? (
+  const { patientSubtotal } = getInvoiceSummaryDisplay(row);
+  return patientSubtotal === undefined ? (
     <TranslatedText
       stringId="general.fallback.notApplicable"
       fallback="N/A"
@@ -120,7 +119,7 @@ const getInvoiceTotal = row => {
       data-testid="translatedtext-nc3a"
     />
   ) : (
-    `$${patientTotal}`
+    `$${patientSubtotal}`
   );
 };
 const getPaymentStatus = row => {
@@ -266,7 +265,7 @@ const COLUMNS = [
 
 export const InvoicesTable = ({ patient }) => {
   const { ability } = useAuth();
-  const { navigateToEncounter, setNavigateBackTab } = usePatientNavigation();
+  const { navigateToEncounter } = usePatientNavigation();
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   return (
@@ -304,7 +303,6 @@ export const InvoicesTable = ({ patient }) => {
       onClickRow={
         ability.can('read', 'Invoice')
           ? (_, data) => {
-              setNavigateBackTab(PATIENT_TABS.INVOICES);
               navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
             }
           : undefined

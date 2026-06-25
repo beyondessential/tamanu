@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
@@ -62,10 +61,11 @@ const FormFooter = styled.div`
   border-radius: 3px;
 `;
 
-const getDefaultRow = getCurrentDate => ({
-  id: uuidv4(),
+const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
+  id: crypto.randomUUID(),
   quantity: 1,
   orderDate: getCurrentDate(),
+  orderedByUserId,
 });
 
 export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
@@ -79,7 +79,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
   const [inProgressItems, setInProgressItems] = useState(
-    isAddForm ? [getDefaultRow(getCurrentDate)] : [],
+    isAddForm ? [getDefaultRow(getCurrentDate, invoice.encounter?.examinerId)] : [],
   );
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -189,7 +189,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         if (isReadOnlyForm) {
                           setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
                         } else {
-                          formArrayMethods.push(getDefaultRow(getCurrentDate));
+                          formArrayMethods.push(
+                            getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                          );
                         }
                       }}
                       startIcon={<Plus />}

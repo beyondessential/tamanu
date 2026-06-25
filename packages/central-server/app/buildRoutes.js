@@ -11,6 +11,7 @@ import { healthRoutes } from './health';
 import { integrationRoutes } from './integrations';
 import { adminRoutes } from './admin';
 import { suggestionsRoutes } from './suggestions';
+import { aiRoutes } from './ai';
 
 export const buildRoutes = ctx => {
   const routes = express.Router();
@@ -38,6 +39,7 @@ export const buildRoutes = ctx => {
   routes.use('/integration', integrationRoutes);
   routes.use('/admin', adminRoutes);
   routes.use('/suggestions', suggestionsRoutes);
+  routes.use('/ai', aiRoutes);
 
   return routes;
 };

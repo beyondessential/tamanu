@@ -25,7 +25,6 @@ describe('withDeferredSyncSafeguards', () => {
       displayName: 'System',
       role: 'system',
     });
-    await models.Setting.set('audit.changes.enabled', false);
   });
 
   afterAll(() => ctx.close());

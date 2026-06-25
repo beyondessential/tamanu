@@ -1,5 +1,7 @@
-import React, { createContext, useCallback, useState, useEffect, useContext } from 'react';
+import React, { createContext, useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { useApi } from '../api';
+
+const MAX_SYNC_STATUS_POLL_FAILURES = 5;
 
 export const SyncStateContext = createContext({
   addSyncingPatient: () => null,
@@ -13,6 +15,7 @@ export const useSyncState = () => useContext(SyncStateContext);
 export const SyncStateProvider = ({ children }) => {
   const [currentSyncingPatients, setCurrentSyncingPatients] = useState([]);
   const [syncStatus, setSyncStatus] = useState({});
+  const pollFailureCountRef = useRef(0);
   const api = useApi();
 
   // functions to manage the list of currently-syncing patients
@@ -20,6 +23,7 @@ export const SyncStateProvider = ({ children }) => {
   // it could be a few
   const addSyncingPatient = useCallback(
     (patientId, tick) => {
+      pollFailureCountRef.current = 0;
       setCurrentSyncingPatients([...currentSyncingPatients, { patientId, tick }]);
     },
     [currentSyncingPatients],
@@ -53,9 +57,22 @@ export const SyncStateProvider = ({ children }) => {
 
   // query the facility server for sync status
   const querySync = useCallback(async () => {
-    const status = await api.get('/sync/status');
-    setSyncStatus(status);
-    clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
+    if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
+      return;
+    }
+
+    try {
+      const status = await api.get('sync/status');
+      setSyncStatus(status);
+      clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
+      // eslint-disable-next-line require-atomic-updates -- ref tracks consecutive poll failures across async polls
+      pollFailureCountRef.current = 0;
+    } catch {
+      pollFailureCountRef.current += 1;
+      if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
+        setCurrentSyncingPatients([]);
+      }
+    }
   }, [api, clearSyncingPatients]);
 
   // effect to poll sync status while there are pending patient syncs

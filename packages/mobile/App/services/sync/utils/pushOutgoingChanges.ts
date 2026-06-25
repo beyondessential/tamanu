@@ -20,7 +20,7 @@ export const pushOutgoingChanges = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<void> => {
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let startOfPage = 0;
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let pushedRecordsCount = 0;

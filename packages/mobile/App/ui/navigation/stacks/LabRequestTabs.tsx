@@ -34,10 +34,10 @@ const DumbLabRequestTabs = ({
         subtitle={getPatientName(selectedPatient)}
         onGoBack={goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} lazy>
+      <Tabs.Navigator swipeEnabled={false} lazy screenOptions={{ headerShown: false }}>
         <Tabs.Screen
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText stringId="patient.test.newTest.title" fallback="New test" />
             ),
           }}
@@ -46,7 +46,7 @@ const DumbLabRequestTabs = ({
         />
         <Tabs.Screen
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText
                 stringId="patient.test.requestHistory.title"
                 fallback="Request history"

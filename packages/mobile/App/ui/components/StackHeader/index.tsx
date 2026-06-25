@@ -1,36 +1,85 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '/styled/theme';
-import styled from 'styled-components/native';
-import {
-  CenterView,
-  RowView,
-  StyledView,
-  StyledSafeAreaView,
-  StyledText,
-  StyledTouchableOpacity,
-} from '/styled/common';
+import { StyledText } from '/styled/common';
 import { ArrowLeftIcon, KebabIcon } from '../Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
+const HEADER_HEIGHT = 70;
+const BUTTON_PADDING = 25;
+
+const stackHeaderStyles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  row: {
+    height: HEADER_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  sideButton: {
+    padding: BUTTON_PADDING,
+    zIndex: 1,
+  },
+  titleOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: BUTTON_PADDING + 28,
+  },
+  subtitle: {
+    fontSize: 11,
+    color: theme.colors.WHITE,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: 16,
+    color: theme.colors.WHITE,
+    textAlign: 'center',
+  },
+});
+
 type HeaderTitleProps = {
-  title: Element;
-  subtitle: Element;
+  title: ReactNode;
+  subtitle?: ReactNode;
 };
 
 const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
-  <CenterView top="25%" position="absolute" zIndex={-1} width="100%">
-    <StyledText fontSize={11} color={theme.colors.WHITE} marginBottom={2} marginTop={-2}>
-      {subtitle}
-    </StyledText>
-    <StyledText color={theme.colors.WHITE} fontSize={16}>
-      {title}
-    </StyledText>
-  </CenterView>
+  <View style={stackHeaderStyles.titleOverlay} pointerEvents="none">
+    {subtitle ? (
+      typeof subtitle === 'string' ? (
+        <Text style={stackHeaderStyles.subtitle}>{subtitle}</Text>
+      ) : (
+        <StyledText
+          fontSize={11}
+          color={theme.colors.WHITE}
+          marginBottom={2}
+          textAlign="center"
+        >
+          {subtitle}
+        </StyledText>
+      )
+    ) : null}
+    {typeof title === 'string' ? (
+      <Text style={stackHeaderStyles.title}>{title}</Text>
+    ) : (
+      <StyledText color={theme.colors.WHITE} fontSize={16} textAlign="center">
+        {title}
+      </StyledText>
+    )}
+  </View>
 );
 
 type StackHeaderProps = {
-  title: Element;
-  subtitle: Element;
+  title: ReactNode;
+  subtitle?: ReactNode;
   onGoBack: () => void;
   onRightSideIconTap?: () => void;
 };
@@ -41,36 +90,30 @@ export const StackHeader = ({
   onGoBack,
   onRightSideIconTap,
 }: StackHeaderProps): ReactElement => (
-  <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-    <RowView background={theme.colors.PRIMARY_MAIN} height={70}>
-      <StyledTouchableOpacity
+  <SafeAreaView style={stackHeaderStyles.safeArea} edges={['top']}>
+    <View style={stackHeaderStyles.row}>
+      <TouchableOpacity
         accessibilityLabel="back"
-        paddingTop={25}
-        paddingLeft={25}
-        paddingRight={25}
-        paddingBottom={25}
+        style={stackHeaderStyles.sideButton}
         onPress={onGoBack}
       >
         <ArrowLeftIcon
           height={screenPercentageToDP(2.43, Orientation.Height)}
           width={screenPercentageToDP(2.43, Orientation.Height)}
         />
-      </StyledTouchableOpacity>
-      {onRightSideIconTap && (
-        <StyledTouchableOpacity
+      </TouchableOpacity>
+      {onRightSideIconTap ? (
+        <TouchableOpacity
           accessibilityLabel="menu"
-          paddingTop={25}
-          paddingLeft={25}
-          paddingRight={25}
-          paddingBottom={25}
+          style={[stackHeaderStyles.sideButton, { marginLeft: 'auto' }]}
           onPress={onRightSideIconTap}
         >
           <KebabIcon />
-        </StyledTouchableOpacity>
-      )}
+        </TouchableOpacity>
+      ) : null}
       <HeaderTitle title={title} subtitle={subtitle} />
-    </RowView>
-  </StyledSafeAreaView>
+    </View>
+  </SafeAreaView>
 );
 
 interface IEmptyStackHeader {
@@ -79,44 +122,56 @@ interface IEmptyStackHeader {
   status?: React.ReactNode;
 }
 
-export const EmptyStackHeaderRow = styled.View`
-  max-width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: baseline;
-`;
+const emptyStackHeaderStyles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: theme.colors.WHITE,
+    borderColor: theme.colors.LIGHT_GREY,
+  },
+  backButton: {
+    paddingTop: BUTTON_PADDING,
+    paddingLeft: BUTTON_PADDING,
+    paddingRight: BUTTON_PADDING,
+    paddingBottom: BUTTON_PADDING,
+  },
+  row: {
+    maxWidth: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  title: {
+    paddingLeft: BUTTON_PADDING,
+    paddingRight: BUTTON_PADDING,
+    paddingBottom: BUTTON_PADDING,
+    fontSize: 24,
+    fontWeight: '500',
+    color: theme.colors.TEXT_DARK,
+    maxWidth: screenPercentageToDP(70, Orientation.Width),
+  },
+  statusContainer: {
+    paddingRight: BUTTON_PADDING,
+    paddingBottom: BUTTON_PADDING,
+  },
+});
 
 export const EmptyStackHeader = ({ title, onGoBack, status }: IEmptyStackHeader): ReactElement => (
-  <StyledSafeAreaView background={theme.colors.WHITE} borderColor={theme.colors.LIGHT_GREY}>
-    <StyledTouchableOpacity
+  <SafeAreaView style={emptyStackHeaderStyles.safeArea} edges={['top']}>
+    <TouchableOpacity
       accessibilityLabel="back"
-      paddingTop={'25'}
-      paddingLeft={'25'}
-      paddingRight={'25'}
-      paddingBottom={'25'}
+      style={emptyStackHeaderStyles.backButton}
       onPress={onGoBack}
     >
       <ArrowLeftIcon
         size={screenPercentageToDP(4.86, Orientation.Height)}
         fill={theme.colors.PRIMARY_MAIN}
       />
-    </StyledTouchableOpacity>
+    </TouchableOpacity>
 
-    <EmptyStackHeaderRow>
-      <StyledText
-        paddingLeft={'25'}
-        paddingRight={'25'}
-        paddingBottom={'25'}
-        color={theme.colors.TEXT_DARK}
-        fontSize={24}
-        fontWeight={500}
-        numberOfLines={2}
-        style={{ maxWidth: screenPercentageToDP(70, Orientation.Width) }}
-      >
+    <View style={emptyStackHeaderStyles.row}>
+      <StyledText numberOfLines={2} style={emptyStackHeaderStyles.title}>
         {title}
       </StyledText>
-      <StyledView paddingRight={'25'}>{status}</StyledView>
-    </EmptyStackHeaderRow>
-  </StyledSafeAreaView>
+      {status ? <View style={emptyStackHeaderStyles.statusContainer}>{status}</View> : null}
+    </View>
+  </SafeAreaView>
 );

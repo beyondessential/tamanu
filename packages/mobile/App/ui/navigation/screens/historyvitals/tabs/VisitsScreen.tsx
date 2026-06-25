@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import { compose } from 'redux';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
@@ -49,9 +50,10 @@ const visitsHistoryRows = {
 };
 
 const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
+  const isFocused = useIsFocused();
   const [data, error] = useBackendEffect(
     ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
-    [],
+    [isFocused, selectedPatient.id],
   );
 
   if (error) return <ErrorScreen error={error} />;

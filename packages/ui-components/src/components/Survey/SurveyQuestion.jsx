@@ -1,5 +1,9 @@
+/** @typedef {import('@tamanu/constants').ProgramDataElementType} ProgramDataElementType */
+
+import { Box, Typography } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PATIENT_DATA_FIELD_LOCATIONS,
@@ -7,24 +11,36 @@ import {
   SEX_VALUES,
 } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
-import { Box, Typography } from '@material-ui/core';
-import { TAMANU_COLORS } from '../../constants/colors';
+import SurveyResultQuestion from '../Field/SurveyResultQuestion';
+import { RequiredOrnament } from '../RequiredOrnament';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useSettings, useTranslation } from '../../contexts';
+import { ViewChangeLogButton } from '../ViewChangeLogButton';
 
-const Text = styled.div`
-  margin-bottom: 10px;
+/** @type {ReadonlySet<ProgramDataElementType>} */
+const suppressChangelogQuestionTypes = new Set([
+  PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+  PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+  PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER,
+  PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT,
+]);
+
+/** @type {ProgramDataElementType} type */
+function shouldSuppressChangelog(type) {
+  return suppressChangelogQuestionTypes.has(type);
+}
+
+const Text = styled(Typography)`
+  margin-block-end: 10px;
 `;
 
-export const FullWidthCol = styled.div`
-  grid-column: 1/-1;
-`;
-
-const OuterLabelRequired = styled.span`
-  color: ${TAMANU_COLORS.alert};
-  padding-left: 3px;
+const FullWidthCol = styled.div`
+  grid-column: 1 / -1;
 `;
 
 const GeolocateQuestion = ({ text, component, required }) => {
@@ -35,9 +51,7 @@ const GeolocateQuestion = ({ text, component, required }) => {
         data-testid="typography-7mxf"
       >
         {text}
-        {required && (
-          <OuterLabelRequired data-testid="outerlabelrequired-uroc">*</OuterLabelRequired>
-        )}
+        {required && <RequiredOrnament />}
       </Typography>
       <Typography
         style={{ fontSize: '14px', color: TAMANU_COLORS.darkText }}
@@ -68,7 +82,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   const text = component.text || component.dataElement.defaultText;
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
-    return <Text data-testid="text-lag8">{`${text} ${component.detail}`}</Text>;
+    return <SurveyResultQuestion text={text} component={component} />;
   }
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
@@ -84,7 +98,8 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 
   if (
     component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
-    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE
   ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
@@ -99,6 +114,8 @@ export const SurveyQuestion = ({
   disabled,
   encounterType,
   getComponentForQuestionType,
+  isEdited = false,
+  onViewChangeLog,
 }) => {
   const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -123,13 +140,36 @@ export const SurveyQuestion = ({
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = componentDetail && (
+
+  const detail = componentDetail && (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
   );
+  const showChangeLogButton = onViewChangeLog && !shouldSuppressChangelog(type);
+  const helperText = (
+    <>
+      {detail}
+      {isEdited && (
+        <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
+          <TranslatedText stringId="general.label.edited" fallback="Edited" />
+          {showChangeLogButton && (
+            <>
+              {' '}
+              &ndash;{' '}
+              <ViewChangeLogButton
+                onClick={onViewChangeLog}
+                data-testid="survey-question-view-changelog"
+              />
+            </>
+          )}
+        </span>
+      )}
+    </>
+  );
+
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(() => {
     // if the question is a patient data question with a select field type,
@@ -166,7 +206,7 @@ export const SurveyQuestion = ({
         value,
       };
     });
-  }, [getTranslation, id, options, type, componentConfig, getEnumTranslation]);
+  }, [componentConfig, getEnumTranslation, getSetting, getTranslation, id, options, type]);
 
   const configObject = getConfigObject(id, componentConfig);
   const FieldComponent = getComponentForQuestionType(type, configObject);
@@ -199,9 +239,5 @@ export const SurveyQuestion = ({
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
-  if (customComponent) {
-    return customComponent;
-  }
-
-  return fieldComponent;
+  return customComponent ?? fieldComponent;
 };

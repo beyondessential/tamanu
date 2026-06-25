@@ -91,9 +91,13 @@ jobs:
           K8S_CORE: ${{ vars.K8S_CORE }}
         with:
           script: |
+            const fs = require('fs');
             const cwd = '${{ github.workspace }}';
+            const pkg = JSON.parse(fs.readFileSync(`${cwd}/package.json`, 'utf8'));
+            const appVersion = pkg.version || null;
             const { configMap } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
-            core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
+            const config = configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}, { appVersion });
+            core.setOutput('pulumi', config);
 
       - name: Get full stack name
         id: stack

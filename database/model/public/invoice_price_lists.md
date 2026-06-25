@@ -13,3 +13,7 @@ Human-readable name of the price list, displayed in user interfaces and reports.
 {% docs invoice_price_lists__rules %}
 JSON configuration containing the pricing rules and logic for this price list. Defines how prices are calculated or retrieved for invoice line items.
 {% enddocs %}
+
+{% docs invoice_price_lists__evaluation_order %}
+Order to evaluate invoice price list
+{% enddocs %}

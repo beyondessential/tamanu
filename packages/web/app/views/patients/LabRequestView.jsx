@@ -180,6 +180,7 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
 
   return (
     <MenuButton
+      a11yLabel={<TranslatedText stringId="lab.actions" fallback="Lab request actions" />}
       disabled={disabled}
       status={status}
       actions={menuActions}

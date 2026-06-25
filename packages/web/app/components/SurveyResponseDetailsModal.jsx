@@ -1,59 +1,64 @@
 import PrintIcon from '@mui/icons-material/Print';
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
+import {
+  Button,
+  checkVisibility,
+  EditedLegend,
+  EditedOrnament,
+  Modal,
+  TranslatedReferenceData,
+  TranslatedText,
+  ViewChangeLogButton,
+} from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
-import { useSurveyResponseQuery } from '../api/queries';
+import { useSurveyResponseChangesQuery, useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
-
-const SectionSpacing = styled.div`
-  height: 14px;
-`;
 
 const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
   overflow: auto;
 `;
 
-const PrintButton = styled(Button)`
+const PrintButton = styled(Button).attrs({
+  'data-testid': 'printbutton-ywph',
+  color: 'primary',
+  size: 'small',
+  startIcon: <PrintIcon data-testid="printicon-t3sp" />,
+  variant: 'outlined',
+})`
   position: absolute;
   right: 70px;
   top: 21px;
 `;
 
-const COLUMNS = [
-  {
-    key: 'text',
-    title: (
-      <TranslatedText
-        stringId="surveyResponse.details.table.column.indicator"
-        fallback="Indicator"
-      />
-    ),
-    accessor: ({ name }) => name,
-  },
-  {
-    key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
-      <SurveyAnswerResult
-        answer={answer}
-        type={type}
-        data-testid="surveyanswerresult-dhnv"
-        originalBody={originalBody}
-        componentConfig={componentConfig}
-        dataElementId={dataElementId}
-      />
-    ),
-  },
-];
+const indicatorColumn = {
+  key: 'text',
+  title: (
+    <TranslatedText stringId="surveyResponse.details.table.column.indicator" fallback="Indicator" />
+  ),
+  accessor: ({ name }) => name,
+  sortable: false,
+};
 
-const isShowable = component =>
-  component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+const isHiddenInResponseViews = (component, values, allComponents) => {
+  switch (component.dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+      // `checkVisibility` could be called for all question types, but it’s redundant for other
+      // question types. (A hidden question is always unanswered, which gets hidden anyway.)
+      // DisplayText is a special case that’s expressly un-hidden, hence parsing visibilityCriteria.
+      return !checkVisibility(component, values, allComponents);
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
+      return true;
+    default:
+      return false;
+  }
+};
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
   if (isLoading) {
@@ -63,7 +68,7 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
     return (
       <TranslatedText
         stringId="surveyResponse.modal.details.error.formDeleted"
-        fallback="This form has been deleted and is no longer available."
+        fallback="This form has been deleted and is no longer available"
       />
     );
   }
@@ -75,53 +80,119 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+export const SurveyResponseDetailsModal = ({
+  surveyResponseId,
+  onClose,
+  onPrint,
+  onViewChangeLog = null,
+}) => {
   const {
     data: surveyDetails,
     isLoading,
     error,
   } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
-
   const isNotFound = error?.status === 404;
   const isPending = isLoading || !surveyDetails || error;
 
-  const { components = [], answers = [] } = surveyDetails ?? {};
-  const answerRows = components
-    .map(component => {
-      if (!isShowable(component)) return null; // Filter out
+  const { data: changes } = useSurveyResponseChangesQuery(surveyResponseId, {
+    enabled: Boolean(
+      surveyResponseId && surveyDetails && !error && surveyDetails.surveyType === SURVEY_TYPES.PROGRAMS,
+    ),
+  });
+  const editedAnswerIds = useMemo(() => new Set(changes?.map(c => c.recordId)), [changes]);
+  const hasChanges = Boolean(editedAnswerIds.size);
 
-      const { dataElement, id, config } = component;
-      const { type: originalType, name, id: dataElementId } = dataElement;
-      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject?.body;
-
-      if (answer === undefined) return null; // Filter out
-
-      const originalBody = answerObject?.originalBody;
-      const sourceType = answerObject?.sourceType;
-      const sourceConfig = answerObject?.sourceConfig;
-      const componentConfig =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
-      const type =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
-
-      return {
-        id,
-        dataElementId,
-        type,
-        answer,
-        originalBody,
-        name: (
-          <TranslatedReferenceData
-            category="programDataElement"
-            value={dataElementId}
-            fallback={name}
-          />
+  const columns = useMemo(
+    () => [
+      indicatorColumn,
+      {
+        key: 'value',
+        title: (
+          <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
         ),
-        componentConfig,
-      };
-    })
-    .filter(r => r !== null);
+        accessor: ({
+          answer,
+          type,
+          originalBody,
+          componentConfig,
+          dataElementId,
+          wasEdited,
+          surveyComponent,
+        }) => (
+          <>
+            <SurveyAnswerResult
+              answer={answer}
+              type={type}
+              data-testid="surveyanswerresult-dhnv"
+              originalBody={originalBody}
+              componentConfig={componentConfig}
+              dataElementId={dataElementId}
+              surveyComponent={surveyComponent}
+            />
+            {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
+          </>
+        ),
+        sortable: false,
+      },
+    ],
+    [],
+  );
+
+  const { components = [], answers = [] } = surveyDetails ?? {};
+
+  const answerRows = useMemo(() => {
+    const values = answers.reduce((acc, { dataElementId, body }) => {
+      acc[dataElementId] = body;
+      return acc;
+    }, {});
+    const answersByDataElementId = new Map(answers.map(a => [a.dataElementId, a]));
+
+    return components
+      .map(component => {
+        if (isHiddenInResponseViews(component, values, components)) return null;
+
+        const { dataElement, id, config } = component;
+        const { type: originalType, name, id: dataElementId } = dataElement;
+
+        const answerObject = answersByDataElementId.get(dataElement.id);
+        const answer =
+          answerObject?.body ??
+          (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
+            ? getDisplayTextAnswer(component)
+            : undefined);
+
+        if (answer === undefined) return null;
+
+        const originalBody = answerObject?.originalBody;
+        const sourceType = answerObject?.sourceType;
+        const sourceConfig = answerObject?.sourceConfig;
+        const componentConfig =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
+        const type =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
+
+        const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+
+        return {
+          id,
+          dataElementId,
+          type,
+          answer,
+          originalBody,
+          wasEdited,
+          name: (
+            <TranslatedReferenceData
+              category="programDataElement"
+              value={dataElementId}
+              fallback={name}
+            />
+          ),
+          componentConfig,
+          surveyComponent: component,
+        };
+      })
+      .filter(r => r !== null);
+  }, [answers, components, editedAnswerIds]);
 
   return (
     <Modal
@@ -140,26 +211,28 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       ) : (
         <>
           {onPrint && (
-            <PrintButton
-              onClick={onPrint}
-              color="primary"
-              variant="outlined"
-              startIcon={<PrintIcon data-testid="printicon-t3sp" />}
-              size="small"
-              data-testid="printbutton-ywph"
-            >
+            <PrintButton onClick={onPrint}>
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
           <TableContainer data-testid="tablecontainer-csba">
             <Table
               data={answerRows}
-              columns={COLUMNS}
+              columns={columns}
               allowExport={false}
               data-testid="table-3xqx"
             />
           </TableContainer>
-          <SectionSpacing data-testid="sectionspacing-gtmt" />
+          {hasChanges && (
+            <EditedLegend>
+              {onViewChangeLog && (
+                <ViewChangeLogButton
+                  onClick={() => onViewChangeLog(surveyResponseId)}
+                  data-testid="surveyresponse-details-view-changelog"
+                />
+              )}
+            </EditedLegend>
+          )}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

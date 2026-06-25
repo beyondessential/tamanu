@@ -21,7 +21,6 @@ import {
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
@@ -282,6 +281,21 @@ const DEFAULT_MAPPER = ({ name, code, id }) => ({
   id,
 });
 
+// Natural sort by code using the en_numeric ICU collation (as locations.name does).
+const codeNaturalOrder = Sequelize.literal('"ReferenceData"."code" COLLATE public.en_numeric');
+
+// Per-type order overrides consulted by the reference data suggester below.
+const REFERENCE_DATA_ORDER_OVERRIDES = {
+  // Prioritise treatment plan at the top.
+  [REFERENCE_TYPES.NOTE_TYPE]: [
+    Sequelize.literal(
+      `CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END`,
+    ),
+  ],
+  // The dropdown displays the code, so order by code rather than the translatable name.
+  [REFERENCE_TYPES.MEDICATION_PRESET_LABEL]: [codeNaturalOrder],
+};
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -348,7 +362,7 @@ const referenceDataBodyBuilder = ({ type, name }) => {
   const code = `${camelCase(name)}-${customAlphabet('1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ', 3)()}`;
 
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     code,
     type,
     name,
@@ -446,13 +460,20 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName, req }) => {
+    ({ endpoint, modelName, req, search }) => {
       const { parentId } = req.query;
 
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
+
+      // The medication preset label autocomplete displays the code (not the name),
+      // so the search term must match the code column rather than the default
+      // (translatable) name search.
+      if (typeName === REFERENCE_TYPES.MEDICATION_PRESET_LABEL) {
+        baseWhere[Op.or] = [{ code: { [Op.iLike]: search } }];
+      }
 
       // Filter by parent using subquery to avoid self-join ambiguity issues
       if (parentId) {
@@ -537,6 +558,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         REFERENCE_TYPES.LAB_SAMPLE_SITE,
         REFERENCE_TYPES.TASK_TEMPLATE,
         REFERENCE_TYPES.TASK_SET,
+        REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
       ];
       if (facilityFilterTypes.includes(typeName)) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
@@ -622,16 +644,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
-      orderBuilder: () => {
-        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
-          return [
-            // Prioritize treatment plan at the top
-            Sequelize.literal(`
-              CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-              `),
-          ];
-        }
-      },
+      orderBuilder: () => REFERENCE_DATA_ORDER_OVERRIDES[typeName],
     },
     true,
   );

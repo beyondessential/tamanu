@@ -67,7 +67,7 @@ export function createChangeRecorders<T extends Model>(
   }: {
     columnName: keyof T;
     noteLabel: string;
-    formatText?: (value: any) => string;
+    formatText?: (value: any) => string | Promise<string>;
     changeType?: string;
     onChange?: () => Promise<void>;
   }) => {
@@ -82,7 +82,7 @@ export function createChangeRecorders<T extends Model>(
     const oldValue = modelInstance[columnName];
     const newValue = updateData[columnName];
     systemNoteRows.push(
-      `Changed ${noteLabel} from ‘${formatText(oldValue)}’ to ‘${formatText(newValue)}’`,
+      `Changed ${noteLabel} from ‘${await formatText(oldValue)}’ to ‘${await formatText(newValue)}’`,
     );
     await onChange?.();
   };

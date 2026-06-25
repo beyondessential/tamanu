@@ -17,16 +17,16 @@ describe('<RadioButtonGroup />', () => {
       },
     ],
   };
-  it('should render <RadioButtonGroup/>', () => {
-    const { getByText } = render(<RadioButtonGroup {...props} />);
+  it('should render <RadioButtonGroup/>', async () => {
+    const { getByText } = await render(<RadioButtonGroup {...props} />);
     props.options.forEach(option => {
       expect(getByText(option.label)).not.toBe(null);
     });
   });
 
-  it('should call onChange when pressed a <RadioButton/>', () => {
-    const { getByText } = render(<RadioButtonGroup {...props} />);
-    fireEvent.press(getByText(props.options[0].label));
+  it('should call onChange when pressed a <RadioButton/>', async () => {
+    const { getByText } = await render(<RadioButtonGroup {...props} />);
+    await fireEvent.press(getByText(props.options[0].label));
     expect(props.onChange).toHaveBeenCalled();
   });
 });

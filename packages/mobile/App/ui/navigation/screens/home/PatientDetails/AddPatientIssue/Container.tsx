@@ -5,8 +5,6 @@ import { NavigationProp } from '@react-navigation/native';
 import { useBackend } from '~/ui/hooks';
 import { IPatient, IPatientIssue, PatientIssueType } from '~/types';
 import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '~/ui/helpers/routes';
-
 import { Screen } from './Screen';
 
 export type AddPatientIssueProps = {
@@ -25,7 +23,7 @@ const Container = ({
   }, [navigation]);
 
   const navigateToDetails = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+    navigation.goBack();
   }, [navigation]);
 
   const onRecordPatientIssue = useCallback(

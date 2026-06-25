@@ -72,3 +72,19 @@ export async function down(query: QueryInterface): Promise<void> {
 ```
 
 This helps developers understand the consequences of rolling back a migration.
+
+## Update the dbt Source Models After Schema Changes
+
+Schema changes (added/removed/changed tables or columns) must be reflected in
+the dbt source models under `database/model/` (generated `.yml` per table plus
+a `.md` doc), which document the schema and feed `data.bes.au`. After applying
+the migration locally:
+
+1. `npm run dbt-generate-model` — reconciles the `.yml` models against the live
+   schema (don't hand-edit the generated parts).
+2. Fill in the new `TODO`s in the `.md` doc: table and column descriptions, a
+   table tag, and a `config.meta.masking` entry for sensitive columns (tags and
+   masking kinds are explained in `database/README.md`).
+3. `npm run dbt-check-todos` — CI fails on outstanding `TODO`s.
+
+Commit the regenerated `database/model/` files with the migration.

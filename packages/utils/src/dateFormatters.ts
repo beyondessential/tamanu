@@ -1,4 +1,6 @@
-import { intlFormatDate, type DateInput } from './dateTime';
+import { Temporal } from 'temporal-polyfill';
+
+import { intlFormatDate, locale, parseSurveyTimeToHHmmss, type DateInput } from './dateTime';
 
 const createFormatter =
   (
@@ -38,7 +40,29 @@ export const formatShort = createFormatter(
 );
 
 /** "12:30am" */
-export const formatTime = createFormatter({ timeStyle: 'short', hour12: true }, '__:__', compactTime);
+export const formatTime = createFormatter(
+  { hour12: true, timeStyle: 'short' },
+  '‒‒:‒‒',
+  compactTime,
+);
+
+/**
+ * @param time - Plain time without a date or time zone, in HH:mm or HH:mm:ss format
+ * @returns Wall-clock time in 12-hour format, no seconds component (hh:mma).
+ * @example "2:30pm"
+ * */
+export const formatPlainTime = (time: string | null | undefined): string => {
+  if (!time) return '‒‒:‒‒';
+  const HHmmss = parseSurveyTimeToHHmmss(time);
+  if (!HHmmss) return '‒‒:‒‒';
+  try {
+    return compactTime(
+      Temporal.PlainTime.from(HHmmss).toLocaleString(locale, { hour12: true, timeStyle: 'short' }),
+    );
+  } catch {
+    return '‒‒:‒‒';
+  }
+};
 
 /** "12:30:00am" */
 export const formatTimeWithSeconds = createFormatter(

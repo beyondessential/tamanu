@@ -34,12 +34,14 @@ const Tile = styled(UnstyledHtmlButton)`
   padding-inline: 0.625rem;
   transition: background-color 150ms ease, border-color 150ms ease;
 
-  ${({ $isDragging = false }) => $isDragging && css`
-    opacity: 0.5;
-    > * {
-      opacity: 0;
-    }
-  `}
+  ${({ $isDragging = false }) =>
+    $isDragging &&
+    css`
+      opacity: 0.5;
+      > * {
+        opacity: 0;
+      }
+    `}
 
   &:hover {
     background-color: ${props => props.$isDragging ? 'var(--bg-lighter)' : 'var(--bg-darker)'};
@@ -48,17 +50,12 @@ const Tile = styled(UnstyledHtmlButton)`
   ${({ $color = Colors.blue, $selected = false }) => css`
     --bg-lighter: oklch(from ${$color} l c h / 10%);
     --bg-darker: oklch(from ${$color} l c h / 20%);
-    @supports not (color: oklch(from black l c h)) {
-      // These work only with six-digit hex colours
-      --bg-lighter: ${$color}1a;
-      --bg-darker: ${$color}33;
-    }
 
     ${$selected &&
-      css`
-        background-color: var(--bg-darker);
-        border-color: ${$color};
-      `}
+    css`
+      background-color: var(--bg-darker);
+      border-color: ${$color};
+    `}
   `}
 `;
 
@@ -125,7 +122,7 @@ export const AppointmentTile = ({
 
   const tileText = (
     <>
-      {!hideTime && <StyledTimeDisplay date={startTimeStr} noTooltip />} 
+      {!hideTime && <StyledTimeDisplay date={startTimeStr} noTooltip />}
       {getPatientNameAsString(patient)}
     </>
   );

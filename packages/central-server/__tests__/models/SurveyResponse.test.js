@@ -1,6 +1,6 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
+import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   REGISTRATION_STATUSES,

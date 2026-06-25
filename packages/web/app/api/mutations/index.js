@@ -15,3 +15,8 @@ export {
 export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';
 export { useRegisterPatientPortal } from './useRegisterPatientPortal';
 export { useTogglePermissionMutation } from './usePermissionMutation';
+export {
+  useGenerateAiPatientSummary,
+  useSaveAiPatientSummary,
+  useDiscardAiPatientSummary,
+} from './useAiPatientSummaryMutation';

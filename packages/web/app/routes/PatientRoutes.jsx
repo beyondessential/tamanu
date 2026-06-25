@@ -51,6 +51,16 @@ export const usePatientRoutes = () => {
       ],
     },
     {
+      path: 'programs/:surveyResponseId/edit',
+      component: ProgramsView,
+      breadcrumbs: [
+        <Breadcrumb
+          key="edit-form"
+          title={<TranslatedText stringId="program.action.editForm" fallback="Edit form" />}
+        />,
+      ],
+    },
+    {
       path: 'referrals/new',
       component: ReferralsView,
       breadcrumbs: [
@@ -77,7 +87,7 @@ export const usePatientRoutes = () => {
           title={
             <TranslatedText
               stringId="encounter.dischargeSummary.title"
-              fallback="Discharge Summary"
+              fallback="Discharge summary"
             />
           }
         />,
@@ -112,6 +122,17 @@ export const usePatientRoutes = () => {
         <Breadcrumb
           key="new-form"
           title={<TranslatedText stringId="program.action.newForm" fallback="New form" />}
+        />,
+      ],
+    },
+    {
+      path: 'encounter/:encounterId/programs/:surveyResponseId/edit',
+      component: ProgramsView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <Breadcrumb
+          key="edit-form"
+          title={<TranslatedText stringId="program.action.editForm" fallback="Edit form" />}
         />,
       ],
     },

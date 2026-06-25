@@ -143,6 +143,7 @@ export default [
       globals: {
         ...globals.browser,
         __VERSION__: 'readonly',
+        __MIN_CHROME_VERSION__: 'readonly',
         module: 'readonly',
 
         // polyfilled by vite

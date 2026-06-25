@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { DateFormats } from '/helpers/constants';
-import { formatDate, getDisplayAge } from '/helpers/date';
+import { getDisplayAge } from '/helpers/date';
 import { UserAvatar } from '../UserAvatar';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as styles from './styles';
@@ -12,6 +12,7 @@ import { IPatient } from '~/types';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { useSettings } from '/contexts/SettingsContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -19,6 +20,7 @@ export interface PatientCardProps {
 }
 
 export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element => {
+  const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
   // TODO: These fields aren't on the patient model yet.

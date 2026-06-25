@@ -1,5 +1,5 @@
 import { Op, Sequelize, type DestroyOptions } from 'sequelize';
-import { getDependentAssociations } from './getDependentAssociations';
+import { getDependentAssociations } from '@tamanu/shared/utils/getDependentAssociations';
 import type { Model } from '../models/Model';
 
 async function getIds(options: DestroyOptions) {

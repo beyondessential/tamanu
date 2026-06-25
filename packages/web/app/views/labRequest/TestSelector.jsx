@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, capitalize, FormHelperText } from '@material-ui/core';
+import { Box, capitalize } from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useQuery } from '@tanstack/react-query';
@@ -20,15 +21,6 @@ const SELECTABLE_DATA_ENDPOINTS = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'labTestType',
 };
-
-const Container = styled.div`
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
-`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -219,7 +211,7 @@ export const TestSelectorInput = ({
   };
 
   return (
-    <Container data-testid="container-04yz">
+    <div data-testid="container-04yz">
       <LabelText data-testid="labeltext-79xr">{label}</LabelText>
       <Wrapper data-testid="wrapper-u8cg">
         <SelectorContainer data-testid="selectorcontainer-xky9">
@@ -384,7 +376,7 @@ export const TestSelectorInput = ({
           {helperText}
         </FormHelperText>
       )}
-    </Container>
+    </div>
   );
 };
 

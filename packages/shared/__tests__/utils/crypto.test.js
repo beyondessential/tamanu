@@ -135,7 +135,6 @@ describe('Crypto utilities', () => {
       const encrypted = await encryptSecret(key, 'secret');
 
       const parts = encrypted.split(':');
-      // Tamper with the ciphertext
       const tamperedCiphertext = Buffer.from(parts[2], 'base64');
       tamperedCiphertext[0] ^= 0xff;
       parts[2] = tamperedCiphertext.toString('base64');
@@ -145,9 +144,47 @@ describe('Crypto utilities', () => {
         await decryptSecret(key, tampered);
         expect.fail('Should have thrown an error');
       } catch (err) {
-        // AES-GCM authentication should fail
-        // Web Crypto API throws DOMException, not Error
-        expect(err).to.exist;
+        // WebCrypto's DOMException is wrapped so the caller can't distinguish
+        // wrong-key from tampered-ciphertext from AAD mismatch.
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Decryption failed');
+      }
+    });
+
+    it('should fail with wrong IV length', async () => {
+      const key = await generateSecretKey();
+      const shortIv = Buffer.from('00'.repeat(8), 'hex').toString('base64'); // 8 bytes, not 12
+      try {
+        await decryptSecret(key, `S1:${shortIv}:abcd`);
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Decryption failed');
+      }
+    });
+
+    it('should fail with empty ciphertext', async () => {
+      const key = await generateSecretKey();
+      const iv = Buffer.from('00'.repeat(12), 'hex').toString('base64');
+      try {
+        await decryptSecret(key, `S1:${iv}:`);
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Decryption failed');
+      }
+    });
+
+    it('should fail with wrong key length', async () => {
+      const shortKey = Buffer.from('00'.repeat(16), 'hex'); // 16 bytes, not 32
+      const validKey = await generateSecretKey();
+      const encrypted = await encryptSecret(validKey, 'secret');
+      try {
+        await decryptSecret(shortKey, encrypted);
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.include('Key must be exactly');
       }
     });
   });

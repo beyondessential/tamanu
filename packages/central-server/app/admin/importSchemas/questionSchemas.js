@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   CURRENTLY_AT_TYPES,
   PATIENT_DATA_FIELD_LOCATIONS,
+  PATIENT_ISSUE_TYPES,
   READONLY_DATA_FIELDS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
@@ -174,4 +175,13 @@ export const SSCResult = SurveyScreenComponent.shape({
   config: configString(numberConfig),
   validationCriteria: validationString(numberValidationCriteria),
   calculation: mathjsString(),
+});
+
+export const SSCPatientIssue = SurveyScreenComponent.shape({
+  config: configString(
+    baseConfigShape.shape({
+      issueType: yup.string().oneOf(Object.values(PATIENT_ISSUE_TYPES)).required(),
+      issueNote: yup.string().required(),
+    }),
+  ),
 });

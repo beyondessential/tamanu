@@ -121,4 +121,5 @@ describe('Read Settings', () => {
     expect(contextSettingValue).toEqual('GeneralClinic');
     expect(readerAValue).toEqual('Facility1Clinic');
   });
+
 });

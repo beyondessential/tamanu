@@ -12,6 +12,7 @@ permissions:
   contents: read
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
@@ -48,14 +49,22 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i -g '@swc/cli@^0.1.63'
-      - run: npm ci
-      - run: npm run build-shared
+      - name: Clean-install dependencies
+        run: |
+          npm ci \
+            --include-workspace-root \
+            --workspace=@tamanu/database \
+            --workspace=scripts \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server
+      - name: Build @tamanu/database
+        run: npm run build -- --filter=@tamanu/database...
 
       - name: Precheck
         id: precheck

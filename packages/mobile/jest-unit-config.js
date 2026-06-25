@@ -1,5 +1,5 @@
 /* eslint-disable */
-const config = require('./jest.config.mjs');
+const config = require('./jest.config');
 
 config.testRegex = '(/App/.*\\.spec)\\.(ts|tsx|js)$',
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { FieldTypes, PatientFieldDefinitionTypes } from './fields';
 
 import { LimitedTextField, TextField } from '~/ui/components/TextField/TextField';
@@ -24,6 +25,7 @@ export const FieldByType = {
   [FieldTypes.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [FieldTypes.DATE]: DateField,
   [FieldTypes.DATE_TIME]: DateField,
+  [FieldTypes.TIME]: props => React.createElement(DateField, { ...props, mode: 'time' }),
   [FieldTypes.SUBMISSION_DATE]: DateField,
   [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,
@@ -35,14 +37,17 @@ export const FieldByType = {
   [FieldTypes.PATIENT_DATA]: ReadOnlyField,
   [FieldTypes.USER_DATA]: ReadOnlyField,
   [FieldTypes.PHOTO]: UploadPhoto,
+  [FieldTypes.DISPLAY_TEXT]: null,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
   [FieldTypes.GEOLOCATE]: SurveyGeolocationField,
-};
+} as const satisfies Partial<
+  Record<(typeof FieldTypes)[keyof typeof FieldTypes], React.ComponentType<any> | null>
+>;
 
 export const PatientFieldDefinitionComponents = {
   [PatientFieldDefinitionTypes.STRING]: FieldByType[FieldTypes.TEXT],
   [PatientFieldDefinitionTypes.NUMBER]: FieldByType[FieldTypes.NUMBER],
   [PatientFieldDefinitionTypes.SELECT]: FieldByType[FieldTypes.SELECT],
-};
+} as const;

@@ -21,12 +21,15 @@ const StyledBox = styled(Box)`
   }
 `;
 
-export const NoteChangeLogs = ({ note = {} }) => {
+export const NoteChangeLogs = ({ note = {}, ...props }) => {
   const api = useApi();
 
   const { data: { data: changeLogNotes } = {} } = useQuery(
     ['noteChangeLogs', note.recordId, note.revisedById],
-    () => api.get(`encounter/${note.recordId}/notes/${note.revisedById}/changelogs`),
+    async () =>
+      await api.get(
+        `encounter/${encodeURIComponent(note.recordId)}/notes/${encodeURIComponent(note.revisedById)}/changelogs`,
+      ),
     { enabled: !!(note.recordId && note.revisedById) },
   );
 
@@ -36,14 +39,9 @@ export const NoteChangeLogs = ({ note = {} }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={
-        <TranslatedText
-          stringId="note.changeLog.label"
-          fallback="Change log"
-          data-testid="translatedtext-llzr"
-        />
-      }
+      label={<TranslatedText stringId="note.changeLog.label" fallback="Change log" />}
       data-testid="outerlabelfieldwrapper-pwpg"
+      {...props}
     >
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}

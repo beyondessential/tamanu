@@ -73,9 +73,6 @@ const Toggle = styled(ToggleButton)`
       ${({ $color }) => css`
         color: ${$color};
         background-color: oklch(from ${$color} l c h / 10%);
-        @supports not (color: oklch(from black l c h)) {
-          background-color: ${$color}1a; // Works only with six-digit hex colour
-        }
       `}
     }
   }

@@ -1,5 +1,5 @@
 import config from 'config';
-import { add, format } from 'date-fns';
+import { add, format, sub } from 'date-fns';
 import { Op } from 'sequelize';
 
 import {
@@ -11,6 +11,7 @@ import {
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { fake } from '@tamanu/fake-data/fake';
@@ -65,12 +66,43 @@ describe('Appointments', () => {
     expect(result.body.data[0].id).toEqual(appointment.id);
   });
 
+  it('should list past appointments when queried with an ISO 9075 earliest after bound', async () => {
+    const pastAppointmentsPatient = await models.Patient.create(await createDummyPatient(models));
+    const locationGroup = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+    const pastAppointment = await models.Appointment.create({
+      ...fake(models.Appointment),
+      patientId: pastAppointmentsPatient.id,
+      clinicianId: userApp.user.dataValues.id,
+      locationGroupId: locationGroup.id,
+      startTime: toDateTimeString(sub(new Date(), { days: 7 })),
+    });
+    const futureAppointment = await models.Appointment.create({
+      ...fake(models.Appointment),
+      patientId: pastAppointmentsPatient.id,
+      clinicianId: userApp.user.dataValues.id,
+      locationGroupId: locationGroup.id,
+      startTime: toDateTimeString(add(new Date(), { days: 7 })),
+    });
+
+    const before = encodeURIComponent(toDateTimeString(new Date()));
+    const after = encodeURIComponent('0000-01-01 00:00:00');
+    const result = await userApp.get(
+      `/api/appointments?all=true&locationGroupId=&before=${before}&after=${after}&patientId=${pastAppointmentsPatient.id}&facilityId=${facilityId}`,
+    );
+
+    expect(result).toHaveSucceeded();
+    expect(result.body.data.map(({ id }) => id)).toContain(pastAppointment.id);
+    expect(result.body.data.map(({ id }) => id)).not.toContain(futureAppointment.id);
+  });
+
   it('should cancel an appointment', async () => {
     const result = await userApp.put(`/api/appointments/${appointment.id}`).send({
       status: APPOINTMENT_STATUSES.CANCELLED,
     });
     expect(result).toHaveSucceeded();
-    const getResult = await userApp.get('/api/appointments?includeCancelled=true');
+    const getResult = await userApp.get(
+      `/api/appointments?includeCancelled=true&patientId=${patient.id}`,
+    );
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
@@ -80,6 +112,8 @@ describe('Appointments', () => {
     appointment = await models.Appointment.create({
       ...fake(models.Appointment),
       patientId: patient.id,
+      startTime: add(new Date(), { days: 1 }),
+      endTime: add(new Date(), { days: 2 }),
     });
 
     const searchPatientNameOrId = query =>

@@ -36,7 +36,6 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
       displayName: 'System',
       role: 'system',
     });
-    await models.Setting.set('audit.changes.enabled', false);
     await models.DebugLog.truncate({ force: true });
   });
 

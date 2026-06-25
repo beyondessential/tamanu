@@ -14,6 +14,7 @@ export class MedicationDispense extends Model {
   declare pharmacyOrderPrescriptionId: string;
   declare quantity: number;
   declare instructions?: string;
+  declare medicationPresetLabelId?: string;
   declare dispensedByUserId: string;
   declare dispensedAt: string;
 
@@ -51,10 +52,15 @@ export class MedicationDispense extends Model {
       foreignKey: 'dispensedByUserId',
       as: 'dispensedBy',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'medicationPresetLabelId',
+      as: 'medicationPresetLabel',
+    });
   }
 
   static getListReferenceAssociations() {
-    return ['pharmacyOrderPrescription', 'dispensedBy'];
+    return ['pharmacyOrderPrescription', 'dispensedBy', 'medicationPresetLabel'];
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

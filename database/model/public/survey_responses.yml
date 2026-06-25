@@ -106,3 +106,6 @@ sources:
             config:
               meta:
                 masking: empty
+          - name: edited_time
+            data_type: character(19)
+            description: "{{ doc('survey_responses__edited_time') }}"

@@ -39,7 +39,6 @@ describe('CentralSyncManager.addIncomingChanges', () => {
       displayName: 'System',
       role: 'system',
     });
-    await models.Setting.set('audit.changes.enabled', false);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     await models.SyncLookup.truncate({ force: true });
     await models.DebugLog.truncate({ force: true });
@@ -48,7 +47,6 @@ describe('CentralSyncManager.addIncomingChanges', () => {
   afterAll(() => ctx.close());
   it('does not record audit changelogs during incoming sync from facility server', async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '16');
-    await models.Setting.set('audit.changes.enabled', true);
     const facility = await models.Facility.create(fake(models.Facility));
     const patient = await models.Patient.create(fake(models.Patient));
     const program = await models.Program.create(fake(models.Program));
@@ -117,7 +115,6 @@ describe('CentralSyncManager.addIncomingChanges', () => {
 
   it('records audit changelogs during incoming sync from mobile', async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '17');
-    await models.Setting.set('audit.changes.enabled', true);
     const facility = await models.Facility.create(fake(models.Facility));
     const patient = await models.Patient.create(fake(models.Patient));
     const program = await models.Program.create(fake(models.Program));

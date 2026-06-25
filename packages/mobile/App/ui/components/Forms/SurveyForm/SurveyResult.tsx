@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { View } from 'react-native';
-import { Subheading, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useBackend } from '~/ui/hooks';
 import { Field } from '../FormField';
 import { SurveyResultBadge } from '../../SurveyResultBadge';
@@ -23,13 +23,13 @@ export const SurveyResult = ({ patient, config, name }) => {
 
   if (!surveyResponse)
     return (
-      <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>
+      <Text>
         Survey (id: {config.source}) not submitted for patient.
       </Text>
     );
   const SurveyBadgeField = () => (
     <View>
-      <Subheading>CVD Risk</Subheading>
+      <Text variant="titleMedium">CVD Risk</Text>
       <SurveyResultBadge resultText={surveyResponse.resultText} />
     </View>
   );

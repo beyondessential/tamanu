@@ -602,8 +602,8 @@ export const PharmacyOrderModal = React.memo(
               infoTooltip={
                 <Box width="150px">
                   <TranslatedText
-                    stringId="pharmacyOrder.orderingClinician.tooltip"
-                    fallback="The clinician who is placing the pharmacy order."
+                    stringId="pharmacyOrder.orderingPrescriber.tooltip"
+                    fallback="The prescriber who is placing the pharmacy order."
                     data-testid="translatedtext-s7yn"
                   />
                 </Box>
@@ -611,8 +611,8 @@ export const PharmacyOrderModal = React.memo(
               name="orderingClinicianId"
               label={
                 <TranslatedText
-                  stringId="pharmacyOrder.orderingClinician.label"
-                  fallback="Ordering clinician"
+                  stringId="pharmacyOrder.orderingPrescriber.label"
+                  fallback="Ordering prescriber"
                   data-testid="translatedtext-aemx"
                 />
               }

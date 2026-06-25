@@ -12,7 +12,6 @@ import { Slide } from 'react-toastify';
 import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
-import { GlobalStyles } from './constants';
 import { EncounterProvider } from './contexts/Encounter';
 import { AuthProvider } from './contexts/Auth';
 import { LabRequestProvider } from './contexts/LabRequest';
@@ -77,7 +76,6 @@ function RootContent({ store }) {
             <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
               <StateContextProviders store={store}>
                 <ReactQueryDevtools initialIsOpen={false} />
-                <GlobalStyles />
                 <CustomToastContainer
                   hideProgressBar
                   transition={Slide}

@@ -1,9 +1,8 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['@react-native/babel-preset'],
   plugins: [
     'babel-plugin-transform-typescript-metadata',
     '@babel/plugin-transform-export-namespace-from',
-    'react-native-reanimated/plugin',
     ['@babel/plugin-proposal-decorators', { legacy: true }],
     [
       'module-resolver',
@@ -32,5 +31,7 @@ module.exports = {
         },
       },
     ],
+    // react-native-worklets/plugin must be last
+    'react-native-worklets/plugin',
   ],
 };

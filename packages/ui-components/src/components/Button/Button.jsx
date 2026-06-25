@@ -1,26 +1,27 @@
-import React, { forwardRef } from 'react';
-import styled from 'styled-components';
-import { useFormikContext } from 'formik';
-import { Link } from 'react-router';
-import { red } from '@material-ui/core/colors';
 import {
-  Button as MuiButton,
-  ButtonBase as MuiButtonBase,
   CircularProgress,
   IconButton,
+  Button as MuiButton,
+  ButtonBase as MuiButtonBase,
 } from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
+import { buttonClasses } from '@mui/material/Button';
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
+import { useFormikContext } from 'formik';
+import React, { forwardRef } from 'react';
+import { Link } from 'react-router';
+import styled from 'styled-components';
 
 import { TAMANU_COLORS } from '../../constants';
 import { useTranslation } from '../../contexts';
-import { withPermissionCheck } from '../withPermissionCheck';
-import { withPermissionTooltip } from '../withPermissionTooltip';
 import { TranslatedText } from '../Translation';
 import { useFormButtonSubmitting } from '../useFormButtonSubmitting';
+import { withPermissionCheck } from '../withPermissionCheck';
+import { withPermissionTooltip } from '../withPermissionTooltip';
 
 export const ButtonBase = props => {
   delete props.functionallyDisabled;
@@ -173,23 +174,16 @@ export const LargeOutlineButton = props => (
   <StyledLargeButton variant="outlined" color="primary" {...props} />
 );
 
-const StyledDeleteButton = styled(Button)`
-  background: ${red[600]};
+export const DeleteButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+  variant: 'contained',
+})`
+  background-color: ${red[600]};
   color: ${TAMANU_COLORS.white};
-
-  :hover {
-    background: ${red[800]};
+  &:hover {
+    background-color: ${red[800]};
   }
 `;
-
-export const DeleteButton = props => {
-  const { children } = props;
-  return (
-    <StyledDeleteButton variant="contained" {...props}>
-      {children || 'Delete'}
-    </StyledDeleteButton>
-  );
-};
 
 const StyledTextButton = styled(Button)`
   color: #5b84ad;
@@ -201,6 +195,10 @@ const StyledTextButton = styled(Button)`
     background: transparent;
     color: #23476b;
     font-weight: 500;
+  }
+  .${buttonClasses.startIcon} {
+    /* Zero-ing padding (above) wreaks havoc on the built-in icon alignment */
+    margin-left: 0;
   }
 `;
 
