@@ -14,4 +14,4 @@ Draft or refine the implementation checklist in the feature's plan doc — turni
 5. Each checklist item is a concrete step — a file to change, a feature to wire up, a migration to author. Avoid vague items like "add tests".
 6. Ask only the clarifying questions you genuinely need — one or two turns, not an extended interview.
 
-The plan is a free-form working document, not a spec — checkboxes describe build steps, not product behaviour. See `.claude/skills/shared/plan-format.md` for its shape.
+The plan is a free-form working document, not a spec — checkboxes describe build steps, not product behaviour. See `.agents/skills/shared/plan-format.md` for its shape.

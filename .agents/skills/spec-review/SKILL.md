@@ -15,6 +15,6 @@ Look for:
 - Unclear or ambiguous criteria
 - Content in the wrong spec (information-architecture issues)
 - Cross-spec impact (existing specs that should be updated)
-- Violations of the conventions in `.claude/skills/shared/spec-format.md`
+- Violations of the conventions in `.agents/skills/shared/spec-format.md`
 
 Be specific and constructive — reference exact criteria when noting issues. Post findings as a structured message the user can work through with you; don't silently edit the specs in response to your own review.

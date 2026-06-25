@@ -11,11 +11,11 @@ Implement the work described by the ticket. The starting point varies — work o
 
 1. **Pending spec change on this branch?** Diff your branch against its base (usually `main`), scoped to `specs/`. If there are spec changes, that diff is the source of truth — the new/changed criteria describe the work.
 2. **Otherwise, lead with the ticket description.** Read it carefully, and read the relevant existing specs in `specs/<area>/` for context. Where the description and the specs disagree, the description wins — implement to it, update the affected specs to match, and say which you changed and why.
-3. **No spec at all?** Fall back to the ticket + conversation context; treat concrete decisions as the de-facto spec. If the behaviour is substantive and worth keeping, write it up as a spec change (see `.claude/skills/shared/spec-format.md`).
+3. **No spec at all?** Fall back to the ticket + conversation context; treat concrete decisions as the de-facto spec. If the behaviour is substantive and worth keeping, write it up as a spec change (see `.agents/skills/shared/spec-format.md`).
 
 ### The plan
 
-The feature may have a plan (see `.claude/skills/shared/plan-format.md`).
+The feature may have a plan (see `.agents/skills/shared/plan-format.md`).
 
 - **Checklist exists** → work through it in order, ticking items (`- [ ]` → `- [x]`) as you complete them; expand a step into sub-items if it's larger than expected; note any drift from the plan.
 - **Notes only** → use them as context and draft the checklist as you begin.
@@ -24,13 +24,13 @@ The feature may have a plan (see `.claude/skills/shared/plan-format.md`).
 
 ### Implementation
 
-- For UI work, follow `.claude/skills/shared/design-sourcing.md` — source the visual language, and **preserve unchanged aspects**.
+- For UI work, follow `.agents/skills/shared/design-sourcing.md` — source the visual language, and **preserve unchanged aspects**.
 - Make the code match the acceptance criteria — each criterion should be traceable to code.
 - Follow the repo's conventions (`AGENTS.md` / `llm/project-rules/`).
 
 ### Test cases
 
-The feature may have a test-cases doc (see `.claude/skills/shared/test-cases-format.md`). Read it alongside the specs; tick scenarios as your automated tests cover them; append new scenarios that implementation surfaces.
+The feature may have a test-cases doc (see `.agents/skills/shared/test-cases-format.md`). Read it alongside the specs; tick scenarios as your automated tests cover them; append new scenarios that implementation surfaces.
 
 ### Spec ambiguity
 

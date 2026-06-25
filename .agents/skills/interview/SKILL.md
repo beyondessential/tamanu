@@ -5,7 +5,7 @@ description: Interview the user about a feature or ticket to develop comprehensi
 
 ## Interview me
 
-Guide the user through developing comprehensive acceptance criteria. Read `.claude/skills/shared/spec-format.md` first so the questions you ask, and the criteria you extract, conform to the conventions.
+Guide the user through developing comprehensive acceptance criteria. Read `.agents/skills/shared/spec-format.md` first so the questions you ask, and the criteria you extract, conform to the conventions.
 
 Methodology:
 

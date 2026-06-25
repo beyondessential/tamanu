@@ -13,4 +13,4 @@ Workshop the technical approach for the feature/ticket interactively. The goal i
 4. As decisions land, write them into the plan doc as prose notes under clear headings. Notes are fine on their own — don't force a checklist yet.
 5. If no plan doc exists, create one (e.g. `specs/<area>/<feature>-plan.md`) — an H1 title, an optional summary, and sections of notes.
 
-The plan is a free-form working document, not a spec — see `.claude/skills/shared/plan-format.md` for its shape. Do not start implementation from this skill — it is for thinking and note-taking only.
+The plan is a free-form working document, not a spec — see `.agents/skills/shared/plan-format.md` for its shape. Do not start implementation from this skill — it is for thinking and note-taking only.

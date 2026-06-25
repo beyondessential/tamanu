@@ -14,4 +14,4 @@ Produce or refine the feature's test-case checklist — the concrete scenarios t
 5. Cite the spec/criterion it verifies where one applies. Scenarios without a citation are valid for operational concerns (smoke checks, cross-browser, manual feel).
 6. Ask only the clarifying questions you genuinely need — one or two turns at most.
 
-See `.claude/skills/shared/test-cases-format.md` for the doc's shape.
+See `.agents/skills/shared/test-cases-format.md` for the doc's shape.

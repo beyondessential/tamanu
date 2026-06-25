@@ -7,7 +7,7 @@ description: Draft edits to existing specs (or a new spec if none fits) directly
 
 Produce spec edits directly from the ticket/feature description — no extended interview.
 
-Read `.claude/skills/shared/spec-format.md` first; every edit must conform to it (writing conventions, fold-vs-create-vs-split).
+Read `.agents/skills/shared/spec-format.md` first; every edit must conform to it (writing conventions, fold-vs-create-vs-split).
 
 1. Read the ticket title and description carefully.
 2. Read existing specs in `specs/<area>/` to understand the area structure.

@@ -15,4 +15,4 @@ Workshop how to slice a large feature/ticket into smaller tickets and capture th
 
 Don't create the tickets yourself unless asked — agree the breakdown with the user first.
 
-See `.claude/skills/shared/card-plan-format.md` for the breakdown's shape.
+See `.agents/skills/shared/card-plan-format.md` for the breakdown's shape.
