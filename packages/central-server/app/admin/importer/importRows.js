@@ -1,4 +1,4 @@
-import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
+import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'es-toolkit/compat';
 import { AggregateError, DataTypes, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';

@@ -4,10 +4,8 @@ export default config(
   import.meta,
   {
     testEnvironment: 'jest-environment-node',
-    testPathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/__tests__/', '/node_modules/'],
-    globalTeardown: '<rootDir>/__disttests__/teardown.js',
-    setupFiles: ['<rootDir>/__disttests__/setup.js'],
-    setupFilesAfterEnv: ['<rootDir>/__disttests__/configureEnvironment.js', 'jest-expect-message'],
+    testPathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/__disttests__/', '<rootDir>/dist/', '/node_modules/'],
+    setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js', 'jest-expect-message'],
   },
   { transformNodeModules: ['sequelize'] },
 );

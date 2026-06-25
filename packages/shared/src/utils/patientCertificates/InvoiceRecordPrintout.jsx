@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit/compat';
 
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 

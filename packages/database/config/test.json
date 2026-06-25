@@ -15,5 +15,8 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   },
   "primaryTimeZone": "Australia/Melbourne",
-  "serverFacilityIds": ["facility-1"]
+  "serverFacilityIds": ["facility-1"],
+  "crypto": {
+    "keyFile": "config/dev-secret.key"
+  }
 }

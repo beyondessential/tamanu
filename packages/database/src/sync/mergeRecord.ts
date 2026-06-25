@@ -1,4 +1,5 @@
-import { snake } from 'case';
+import __cjs_case from 'case';
+const { snake } = __cjs_case;
 
 // utility that can pick the latest whole record, or single field, depending on what is passed in
 const pickLatest = (

@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit/compat';
 import {
   REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,

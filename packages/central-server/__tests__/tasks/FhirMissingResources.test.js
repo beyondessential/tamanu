@@ -6,7 +6,7 @@ import {
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
   fakeResourcesOfFhirSpecimen,
 } from '../fake/fhir';
-import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
+import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
 import { JOB_PRIORITIES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 describe('FhirMissingResources task', () => {

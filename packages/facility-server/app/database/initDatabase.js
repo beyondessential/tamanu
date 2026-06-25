@@ -1,12 +1,13 @@
 import config from 'config';
 
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
+import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
   return await openDatabase(key, {
-    ...config.db,
+    ...resolveDbConfig(config.db),
     ...configOverrides,
     testMode,
   });

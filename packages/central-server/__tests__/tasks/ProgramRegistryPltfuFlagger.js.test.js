@@ -8,7 +8,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 
-import { ProgramRegistryPltfuFlagger } from '../../dist/tasks/ProgramRegistryPltfuFlagger';
+import { ProgramRegistryPltfuFlagger } from '../../app/tasks/ProgramRegistryPltfuFlagger';
 import { createTestContext } from '../utilities';
 
 jest.setTimeout(60000);

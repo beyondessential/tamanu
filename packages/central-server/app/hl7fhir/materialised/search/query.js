@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { last } from 'es-toolkit/compat';
 
 import { FHIR_COUNT_CONFIG_DEFAULT } from '@tamanu/shared/utils/fhir/parameters';
 

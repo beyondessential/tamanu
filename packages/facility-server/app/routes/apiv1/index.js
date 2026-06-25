@@ -19,7 +19,7 @@ import * as z from 'zod';
 import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';

@@ -1,5 +1,5 @@
 import { isValid, parseISO } from 'date-fns';
-import { isEqual } from 'lodash';
+import { isEqual } from 'es-toolkit/compat';
 
 export const appointmentToInterval = (appointment) => {
   const { startTime, endTime } = appointment;

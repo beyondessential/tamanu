@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce } from 'es-toolkit/compat';
 import React, { ReactElement, ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   AppState,
