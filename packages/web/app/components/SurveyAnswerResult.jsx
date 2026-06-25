@@ -5,20 +5,20 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 import {
   Button,
+  DateDisplay,
   getCurrentLanguageCode,
   PatientDataDisplayField,
   PlainTimeDisplay,
   SignatureAnswerResult,
+  SurveyResultBadge,
+  TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
 } from '@tamanu/ui-components';
-import { DateDisplay } from './DateDisplay';
 import { DisplayTextPseudoResult } from './DisplayTextPseudoResult';
 import MultilineResult from './MultilineResult';
 import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { TranslatedReferenceData } from './Translation/index.js';
-import { TranslatedOption } from './Translation/TranslatedOptions';
-import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
 const EmptyState = styled.span.attrs({
