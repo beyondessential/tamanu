@@ -6,8 +6,14 @@ export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <>
-      {messages.map(text => (
-        <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
+      {messages.map((text, index) => (
+        <div
+          key={
+            isValidElement(text) && text.key != null ? text.key : `err-msg-${index}`
+          }
+        >
+          {isValidElement(text) ? text : toString(text)}
+        </div>
       ))}
     </>
   );

@@ -1,23 +1,19 @@
-import React, { isValidElement } from 'react';
+import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { each, isArray, toString } from 'es-toolkit/compat';
-import { toast } from 'react-toastify';
+import { each, isArray } from 'es-toolkit/compat';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';
 import { MAX_REPEATS } from '@tamanu/constants';
 
-export const prepareToastMessage = msg => {
-  const messages = isArray(msg) ? msg : [msg];
-  return (
-    <>
-      {messages.map(text => (
-        <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
-      ))}
-    </>
-  );
-};
+export {
+  notify,
+  notifyInfo,
+  notifySuccess,
+  notifyError,
+  prepareToastMessage,
+} from '@tamanu/ui-components';
 
 export const getDeviceId = () => {
   let deviceId = window?.localStorage?.getItem('deviceId');
@@ -27,18 +23,6 @@ export const getDeviceId = () => {
   }
   return deviceId;
 };
-
-export const notify = (message, props) => {
-  if (message !== false) {
-    toast(prepareToastMessage(message), props);
-  } else {
-    toast.dismiss();
-  }
-};
-
-export const notifyInfo = (msg, props) => notify(msg, { ...props, type: 'info' });
-export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
-export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 export const flattenRequest = (object, deep = true) => {
   try {

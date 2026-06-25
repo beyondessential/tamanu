@@ -34,7 +34,7 @@ const useVerifyRegistration = () => {
   const api = useApi();
 
   return useMutation({
-    mutationFn: (token: string) => api.post('/verify-registration', { token } as any),
+    mutationFn: (token: string) => api.post('verify-registration', { token } as any),
   });
 };
 
