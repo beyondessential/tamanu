@@ -10,7 +10,7 @@ import {
   AUDIT_STATUSES,
 } from '../../app/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_CONNECTIONS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
-import { fake } from '../../../fake-data/dist/mjs/fake/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 const mockSuccessResponse = {

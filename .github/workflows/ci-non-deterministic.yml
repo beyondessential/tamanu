@@ -1,13 +1,17 @@
 name: Migration determinism
 
 on:
-  # Temporarily disabled on the build-less stack; re-enabled in the fixes PR.
   workflow_dispatch:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/*
 permissions:
   contents: read
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
@@ -58,9 +62,6 @@ jobs:
             --workspace=scripts \
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server
-      - name: Build @tamanu/database
-        run: npm run build -- --filter=@tamanu/database...
-
       - name: Precheck
         id: precheck
         run: |

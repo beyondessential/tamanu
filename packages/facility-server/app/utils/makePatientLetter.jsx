@@ -7,7 +7,8 @@ import { get } from 'es-toolkit/compat';
 import { Op } from 'sequelize';
 
 import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
-import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
+import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
+import { tmpdir } from '@tamanu/shared/utils/tmpdir';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {

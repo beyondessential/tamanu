@@ -1,5 +1,4 @@
-import __cjs_express from 'express';
-const { Request } = __cjs_express;
+import type { Request } from 'express';
 import type { AccessLog, User } from '../models';
 import type { ModelProperties, Models } from './model';
 import type { ReadSettings } from '@tamanu/settings';

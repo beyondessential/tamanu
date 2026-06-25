@@ -52,6 +52,17 @@ type BaseFixtures = {
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
 };
 export const test = base.extend<BaseFixtures>({
+  // Define `__name` in every browser context. Specs and page objects import @tamanu
+  // workspace source, which the tsx loader compiles with esbuild's name-keeping helper
+  // (`__name(...)`). Functions passed to page.evaluate are serialised into the browser
+  // without that helper in scope, so provide a no-op to satisfy the references.
+  context: async ({ context }, use) => {
+    await context.addInitScript(() => {
+      const globalScope = globalThis as unknown as { __name?: <T>(target: T) => T };
+      globalScope.__name = globalScope.__name || (target => target);
+    });
+    await use(context);
+  },
   api: async ({ page }: { page: Page }, use) => {
     const apiContext = await createApiContext({ page });
     await use(apiContext);

@@ -14,8 +14,9 @@
   "scripts": {
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
+    "pretest": "npm run package-default-translations",
     "test": "vitest run --no-file-parallelism",
-    "package-default-translations": "tsx scripts/scrapeTranslations.ts > dist/default-translations.json",
+    "package-default-translations": "tsx scripts/scrapeTranslations.ts > default-translations.json",
     "test:watch": "vitest watch"
   },
   "devDependencies": {
@@ -32,7 +33,7 @@
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
-    "lodash": "^4.17.21",
+    "es-toolkit": "^1.48.1",
     "sequelize": "^6.37.8",
     "toposort": "^2.0.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

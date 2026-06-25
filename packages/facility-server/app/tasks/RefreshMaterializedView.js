@@ -1,6 +1,7 @@
 import config from 'config';
 import __cjs_case from 'case';
 const { pascal, snake } = __cjs_case;
+
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {
   MATERIALIZED_VIEWS,

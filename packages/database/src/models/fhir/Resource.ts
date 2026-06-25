@@ -2,7 +2,6 @@
 import { snakeCase } from 'es-toolkit/compat';
 import { DataTypes, Sequelize, Utils, type InitOptions, type ModelAttributes } from 'sequelize';
 import { subMinutes } from 'date-fns';
-
 import {
   FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,

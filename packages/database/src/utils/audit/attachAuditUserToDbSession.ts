@@ -1,6 +1,5 @@
 import type { ExpressRequest } from 'types/express';
-import __cjs_express from 'express';
-const { NextFunction } = __cjs_express;
+import type { NextFunction, Response } from 'express';
 import { AsyncLocalStorage } from 'async_hooks';
 
 const auditUserIdAsyncLocalStorage = new AsyncLocalStorage();

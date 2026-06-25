@@ -1,8 +1,13 @@
 name: CI
 
 on:
-  # Temporarily disabled on the build-less stack; re-enabled in the fixes PR.
   workflow_dispatch:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
+
 permissions:
   contents: read
 
@@ -11,14 +16,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
-  BUILD_PATHS: |
-    packages/*/dist
 
 jobs:
   plan:
@@ -84,10 +86,17 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  build:
+  build-frontends:
     needs: node_modules_cache
-    name: Build all packages
+    name: Build ${{ matrix.package }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The only packages that still have a build: the deployable frontends (built from
+        # @tamanu source via vite). Everything else runs from source, so there is nothing
+        # else to build — this job just verifies the production bundles compile.
+        package: [web-frontend, patient-portal]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -100,23 +109,11 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v5
-        id: build-cache
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
-      - if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm install --include-workspace-root
-      - if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
-      - if: steps.build-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
+      - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.package }}
+      - run: npm run build --workspace=@tamanu/${{ matrix.package }}
 
   test:
-    needs: [plan, node_modules_cache, build]
+    needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-test == 'true'
     strategy:
       fail-fast: false
@@ -136,10 +133,6 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v5
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
 
       - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
 
@@ -182,7 +175,7 @@ jobs:
         run: npm run lint-all
 
   migrations:
-    needs: [plan, node_modules_cache, build]
+    needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-migrations == 'true'
     strategy:
       fail-fast: false
@@ -202,10 +195,6 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v5
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
 
       - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
 
@@ -217,7 +206,7 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    needs: [plan, node_modules_cache, build]
+    needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-mobile == 'true'
     name: Test mobile
     runs-on: ubuntu-latest
@@ -233,10 +222,6 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v5
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
 
       - run: npm install --include-workspace-root --workspace=@tamanu/mobile
 
@@ -244,7 +229,7 @@ jobs:
         working-directory: packages/mobile
 
   test-facility-offline:
-    needs: [plan, node_modules_cache, build]
+    needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
@@ -260,10 +245,6 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
       - name: Install dependencies
         run: |
           npm install \
@@ -304,7 +285,7 @@ jobs:
       - run: git diff --exit-code
 
   dbt-model:
-    needs: [plan, node_modules_cache, build]
+    needs: [plan, node_modules_cache]
     if: needs.plan.outputs.run-dbt-model == 'true'
     name: DBT model up to date
     runs-on: ubuntu-latest
@@ -320,10 +301,6 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v5
-        with:
-          key: ${{ runner.os }}-build-${{ github.sha }}
-          path: ${{ env.BUILD_PATHS }}
 
       - name: Install and start postgres
         run: |
@@ -404,7 +381,7 @@ jobs:
     needs:
       - plan
       - node_version
-      - build
+      - build-frontends
       - test
       - lint
       - migrations
