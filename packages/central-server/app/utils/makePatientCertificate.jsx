@@ -1,19 +1,19 @@
 import React from 'react';
 import config from 'config';
 import path from 'path';
-import { get } from 'lodash';
+import { get } from 'es-toolkit/compat';
 import ReactPDF from '@react-pdf/renderer';
 
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
+import { getPatientSurveyResponseAnswer, tmpdir } from '@tamanu/shared/utils';
 import {
+  CertificateTypes,
+  CovidLabCertificate,
   CovidVaccineCertificate,
-  getPatientSurveyResponseAnswer,
-  tmpdir,
   VaccineCertificate,
-} from '@tamanu/shared/utils';
-import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
+} from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 

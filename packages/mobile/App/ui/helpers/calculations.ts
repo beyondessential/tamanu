@@ -1,5 +1,5 @@
 import { all as allMath, create } from 'mathjs';
-import { isNumber } from 'lodash';
+import { isNumber } from 'es-toolkit/compat';
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 // set up math context

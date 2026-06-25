@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from './utilities';
-import { migrateAppointments } from '../dist/subCommands';
+import { migrateAppointments } from '../app/subCommands';
 
 async function prepopulate(models) {
   const { Facility, User, Patient, Location, LocationGroup, Appointment } = models;

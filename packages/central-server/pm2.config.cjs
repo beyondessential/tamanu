@@ -33,10 +33,11 @@ function task(name, args, instances = 1, env = {}) {
   const base = {
     name,
     cwd,
-    script: './dist/index.js',
+    // Run from TypeScript source via the tsx loader.
+    script: './app/index.js',
     args,
     interpreter,
-    interpreter_args: `--max_old_space_size=${memory}`,
+    interpreter_args: `--import tsx --max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
     restart_delay: 5000,

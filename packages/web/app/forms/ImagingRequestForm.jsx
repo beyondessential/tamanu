@@ -1,4 +1,4 @@
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { useDispatch } from 'react-redux';

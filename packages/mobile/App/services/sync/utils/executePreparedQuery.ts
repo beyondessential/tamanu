@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { chunk } from 'lodash';
+import { chunk } from 'es-toolkit/compat';
 import { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
 

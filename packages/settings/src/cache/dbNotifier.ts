@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce } from 'es-toolkit/compat';
 import { settingsCache as defaultSettingsCache, SettingsCache } from './settingsCache';
 
 const SETTINGS_TABLE = 'settings';
