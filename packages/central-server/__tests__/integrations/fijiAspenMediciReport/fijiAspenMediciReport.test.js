@@ -1,5 +1,5 @@
 import config from 'config';
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'es-toolkit/compat';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,

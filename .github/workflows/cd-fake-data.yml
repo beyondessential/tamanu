@@ -14,8 +14,6 @@ permissions:
   contents: read
   id-token: write # for Tailscale OIDC authentication
 
-env:
-  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   deploy:
@@ -31,7 +29,6 @@ jobs:
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - run: npm ci --include-workspace-root --workspace=scripts
-      - run: npm run build -- --filter=scripts^...
 
       - name: Configure tamanu to connect to the database in k8s
         run: |

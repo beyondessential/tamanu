@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApi } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { getCurrentLanguageCode } from '../utils/translation';
-import { unionBy } from 'lodash';
+import { unionBy } from 'es-toolkit/compat';
 
 export const useSuggesterOptions = ({
   field,

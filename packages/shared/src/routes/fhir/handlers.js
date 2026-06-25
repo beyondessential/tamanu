@@ -1,5 +1,5 @@
-import { Router } from 'express';
-
+import __cjs_express from 'express';
+const { Router } = __cjs_express;
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { OperationOutcome } from '../../utils/fhir';
 import { resourcesThatCanDo } from '../../utils/fhir/resources';

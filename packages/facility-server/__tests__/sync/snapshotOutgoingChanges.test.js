@@ -8,7 +8,7 @@ import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;

@@ -1,4 +1,4 @@
-import { without } from 'lodash';
+import { without } from 'es-toolkit/compat';
 
 import { BaseModel } from '../../../models/BaseModel';
 

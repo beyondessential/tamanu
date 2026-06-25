@@ -1,7 +1,7 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
 
-import { importerTransaction } from '../../../dist/admin/importer/importerEndpoint';
-import { referenceDataImporter } from '../../../dist/admin/referenceDataImporter';
+import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
+import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 

@@ -10,7 +10,7 @@ import {
   getPatientWhereClause,
   patientToHL7Patient,
   patientToHL7PatientList,
-} from '../../dist/hl7fhir/patient';
+} from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
 

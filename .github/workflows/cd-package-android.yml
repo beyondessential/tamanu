@@ -1,7 +1,5 @@
 name: CD Package Android
 
-env:
-  TURBO_TELEMETRY_DISABLED: 1
 
 permissions:
   contents: write # to update the release notes
@@ -113,9 +111,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install --include-workspace-root --workspace=@tamanu/mobile
-
-      - name: Build mobile dependencies
-        run: npm run build -- --filter=@tamanu/mobile^...
 
       # The New Architecture compiles each native module's C++ via CMake, which
       # dominates build time. ccache persists the compiled objects across runs so

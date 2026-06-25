@@ -1,5 +1,4 @@
 import { addSeconds, parseISO } from 'date-fns';
-
 import {
   ENCOUNTER_TYPES,
   FHIR_ENCOUNTER_CLASS_CODE,

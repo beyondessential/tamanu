@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { lowerCase, snakeCase } from 'lodash';
+import { lowerCase, snakeCase } from 'es-toolkit/compat';
 
 import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';

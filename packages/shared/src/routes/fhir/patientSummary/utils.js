@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+import { escape } from 'es-toolkit/compat';
 import { VACCINE_STATUS } from '@tamanu/constants';
 
 export const escapeHtml = str => (str ? escape(str) : '');

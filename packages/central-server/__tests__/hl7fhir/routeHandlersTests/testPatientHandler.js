@@ -4,7 +4,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
-import { getIdentifierNamespace } from '../../../dist/hl7fhir/utils';
+import { getIdentifierNamespace } from '../../../app/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - Patient`, () => {
@@ -535,7 +535,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient)),
         ]);
 
-        const identifier = encodeURIComponent(`${getIdentifierNamespace()}|${patientOne.displayId}`);
+        const identifier = encodeURIComponent(
+          `${getIdentifierNamespace()}|${patientOne.displayId}`,
+        );
         const path = `/api/integration/${integrationName}/Patient?identifier=${identifier}`;
         const response = await app.get(path).set(requestHeaders);
 

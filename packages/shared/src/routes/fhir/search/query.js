@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { last } from 'es-toolkit/compat';
 
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';

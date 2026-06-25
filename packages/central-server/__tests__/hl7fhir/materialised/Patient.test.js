@@ -5,10 +5,10 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 
 import { createTestContext } from '../../utilities';
-import { getIdentifierNamespace } from '../../../dist/hl7fhir/utils';
+import { getIdentifierNamespace } from '../../../app/hl7fhir/utils';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -421,7 +421,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(3);
 
         // The first order is actually address[].line[] (so streetVillage)
-        expect(response.body.entry.map((x) => x.resource.address[0].city)).toEqual([
+        expect(response.body.entry.map(x => x.resource.address[0].city)).toEqual([
           'El Paso',
           'Amsterdam',
           'Cabo',
@@ -710,7 +710,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(5);
 
         // Numbers don't repeat so everything else should be in place
-        expect(response.body.entry.map((x) => x.resource.telecom[0].value)).toEqual([
+        expect(response.body.entry.map(x => x.resource.telecom[0].value)).toEqual([
           '123456783',
           '123456781',
           '123456782',

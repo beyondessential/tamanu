@@ -1,7 +1,7 @@
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
 import { makeTwoPatients } from './makeTwoPatients';
 import { setupProgramRegistry } from './setupProgramRegistry';

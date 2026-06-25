@@ -21,22 +21,22 @@ import { initReporting } from '@tamanu/database/services/reporting';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
-import { createApiApp } from '../dist/createApiApp';
-import { buildToken } from '../dist/middleware/auth';
-import { initDatabase } from '../dist/database';
+import { createApiApp } from '../app/createApiApp';
+import { buildToken } from '../app/middleware/auth';
+import { initDatabase } from '../app/database';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
-import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
-import { ApplicationContext } from '../dist/ApplicationContext';
-import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
+import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import { ApplicationContext } from '../app/ApplicationContext';
+import { FacilitySyncConnection } from '../app/sync/FacilitySyncConnection';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-jest.mock('../dist/sync/CentralServerConnection');
-jest.mock('../dist/utils/uploadAttachment');
+jest.mock('../app/sync/CentralServerConnection');
+jest.mock('../app/utils/uploadAttachment');
 
 const formatError = response => `
 
