@@ -383,7 +383,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...']);
+    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...', '--filter=@tamanu/upgrade...']);
 
     console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;
