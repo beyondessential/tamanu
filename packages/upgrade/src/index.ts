@@ -1,7 +1,13 @@
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { syncDatabaseServerVersion, type Models, type Sequelize } from '@tamanu/database';
-import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
+import type { Transaction } from 'sequelize';
+import {
+  createMigrationInterface,
+  flushDeferredConstraints,
+  migrateUpTo,
+  runInRollbackTransaction,
+} from '@tamanu/database/services/migrations';
 import { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
@@ -17,11 +23,42 @@ export async function upgrade({
   models,
   toVersion,
   serverType,
+  dryRun = false,
 }: {
   sequelize: Sequelize;
   models: Models;
   toVersion: string;
   serverType: 'central' | 'facility';
+  dryRun?: boolean;
+}) {
+  if (dryRun) {
+    log.info(
+      'DRY RUN: running upgrade in a transaction that will be rolled back; no changes will be committed.',
+    );
+    await runInRollbackTransaction(sequelize, (parentTransaction: Transaction) =>
+      runUpgrade({ sequelize, models, toVersion, serverType, dryRun, parentTransaction }),
+    );
+    log.info('DRY RUN complete — upgrade rolled back, no changes committed.');
+    return;
+  }
+
+  await runUpgrade({ sequelize, models, toVersion, serverType, dryRun });
+}
+
+async function runUpgrade({
+  sequelize,
+  models,
+  toVersion,
+  serverType,
+  dryRun,
+  parentTransaction = null,
+}: {
+  sequelize: Sequelize;
+  models: Models;
+  toVersion: string;
+  serverType: 'central' | 'facility';
+  dryRun: boolean;
+  parentTransaction?: Transaction | null;
 }) {
   await syncDatabaseServerVersion({
     models,
@@ -41,11 +78,13 @@ export async function upgrade({
 
   // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
   // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).
-  await normaliseMigrationStorageExtensions(sequelize);
+  // Pass parentTransaction so the rewrite rolls back with a dry run rather than committing.
+  await normaliseMigrationStorageExtensions(sequelize, parentTransaction);
 
   const { migrations: migrationsUmzug, getDurationStats } = await createMigrationInterface(
     log,
     sequelize,
+    { dryRun, parentTransaction },
   );
   const migrations = migrationsUmzug as any;
   let pendingMigrations = await migrations.pending();
@@ -66,6 +105,7 @@ export async function upgrade({
       getDurationStats,
       upOpts: { to: pendingEarliestMigration.file },
       upgradeRunId,
+      dryRun,
     });
     pendingMigrations = await migrations.pending();
     doneMigrations = await migrations.executed();
@@ -97,6 +137,7 @@ export async function upgrade({
         getDurationStats,
         upOpts: {},
         upgradeRunId,
+        dryRun,
       });
       continue;
     }
@@ -119,6 +160,7 @@ export async function upgrade({
           getDurationStats,
           upOpts: { to: target.file },
           upgradeRunId,
+          dryRun,
         });
       }
       continue;
@@ -157,6 +199,11 @@ export async function upgrade({
 
     logger.info('Running step');
     await step.run(args);
+
+    // Flush this step's deferred audit triggers before any later migration or step does DDL.
+    if (dryRun) {
+      await flushDeferredConstraints(sequelize);
+    }
   }
 
   log.info('Tamanu has been upgraded', { toVersion });
