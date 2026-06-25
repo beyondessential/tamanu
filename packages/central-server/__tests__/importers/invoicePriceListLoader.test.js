@@ -1,4 +1,5 @@
 import { write, utils } from 'xlsx';
+import { keyBy } from 'lodash';
 import { fake } from '@tamanu/fake-data/fake';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
@@ -191,7 +192,7 @@ describe('Invoice price list item import', () => {
       InvoicePriceListItem: {
         created: 0,
         deleted: 0,
-        errored: 2,
+        errored: 1,
         restored: 0,
         skipped: 0,
         updated: 0,
@@ -327,5 +328,172 @@ describe('Invoice price list item import', () => {
       'message',
       'Missing required column: invoiceProductId on invoicePriceListItem at row 2',
     );
+  });
+
+  describe('fixed-price markers', () => {
+    it('imports an f-prefixed cell as a fixed price (case-insensitive, trimmed)', async () => {
+      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-3' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      const headers = ['invoiceProductId', 'PL_A'];
+      const rows = [
+        { invoiceProductId: 'prod-1', PL_A: 'f2.00' },
+        { invoiceProductId: 'prod-2', PL_A: 'F3.50' },
+        { invoiceProductId: 'prod-3', PL_A: '  f4  ' },
+      ];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { errors } = await doImport(ctx, { buffer });
+      expect(errors).toBeEmpty();
+
+      const items = await InvoicePriceListItem.findAll();
+      const byProduct = keyBy(items, 'invoiceProductId');
+      expect(byProduct['prod-1'].isFixedPrice).toBe(true);
+      expect(Number(byProduct['prod-1'].price)).toBe(2);
+      expect(byProduct['prod-2'].isFixedPrice).toBe(true);
+      expect(Number(byProduct['prod-2'].price)).toBe(3.5);
+      expect(byProduct['prod-3'].isFixedPrice).toBe(true);
+      expect(Number(byProduct['prod-3'].price)).toBe(4);
+    });
+
+    it('imports a plain number as per-unit (not fixed) and handles a mixed column', async () => {
+      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      // Mixed column: text (f-prefixed) and numeric cells together
+      const headers = ['invoiceProductId', 'PL_A'];
+      const rows = [
+        { invoiceProductId: 'prod-1', PL_A: 'f2.00' },
+        { invoiceProductId: 'prod-2', PL_A: 0.5 },
+      ];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { errors } = await doImport(ctx, { buffer });
+      expect(errors).toBeEmpty();
+
+      const items = await InvoicePriceListItem.findAll();
+      const byProduct = keyBy(items, 'invoiceProductId');
+      expect(byProduct['prod-1'].isFixedPrice).toBe(true);
+      expect(byProduct['prod-2'].isFixedPrice).toBe(false);
+      expect(Number(byProduct['prod-2'].price)).toBe(0.5);
+    });
+
+    it('marks a whole column fixed via the :fixed header token (token stripped)', async () => {
+      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
+
+      const headers = ['invoiceProductId', 'KOSRAE:fixed'];
+      const rows = [
+        { invoiceProductId: 'prod-1', 'KOSRAE:fixed': 2 },
+        { invoiceProductId: 'prod-2', 'KOSRAE:fixed': 5 },
+      ];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { errors } = await doImport(ctx, { buffer });
+      expect(errors).toBeEmpty();
+
+      const items = await InvoicePriceListItem.findAll();
+      expect(items).toHaveLength(2);
+      // Column maps to price list KOSRAE (token stripped) and every plain number is fixed
+      expect(items.every(i => i.isFixedPrice)).toBe(true);
+      const priceList = await InvoicePriceList.findOne({ where: { code: 'KOSRAE' } });
+      expect(items.every(i => i.invoicePriceListId === priceList.id)).toBe(true);
+    });
+
+    it('resolves a literal header code before treating :fixed as a token', async () => {
+      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      // A real (if contrived) code that ends in :fixed must win as a literal match.
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'WEIRD:fixed' });
+
+      const headers = ['invoiceProductId', 'WEIRD:fixed'];
+      const rows = [{ invoiceProductId: 'prod-1', 'WEIRD:fixed': 2 }];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { errors } = await doImport(ctx, { buffer });
+      expect(errors).toBeEmpty();
+
+      const item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+      const priceList = await InvoicePriceList.findOne({ where: { code: 'WEIRD:fixed' } });
+      // Resolved as the literal code, NOT treated as a fixed-default column
+      expect(item.invoicePriceListId).toBe(priceList.id);
+      expect(item.isFixedPrice).toBe(false);
+    });
+
+    it('errors on an f marker with no valid number', async () => {
+      const { InvoiceProduct, InvoicePriceList } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      const headers = ['invoiceProductId', 'PL_A'];
+      const rows = [{ invoiceProductId: 'prod-1', PL_A: 'fabc' }];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { didntSendReason } = await doImport(ctx, { buffer });
+      expect(didntSendReason).toEqual('validationFailed');
+    });
+
+    it('errors on a non-finite fixed value like fInfinity', async () => {
+      const { InvoiceProduct, InvoicePriceList } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      const headers = ['invoiceProductId', 'PL_A'];
+      const rows = [{ invoiceProductId: 'prod-1', PL_A: 'fInfinity' }];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { didntSendReason } = await doImport(ctx, { buffer });
+      expect(didntSendReason).toEqual('validationFailed');
+    });
+
+    it('errors when two headers resolve to the same price list (KOSRAE and KOSRAE:fixed)', async () => {
+      const { InvoiceProduct, InvoicePriceList } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
+
+      const headers = ['invoiceProductId', 'KOSRAE', 'KOSRAE:fixed'];
+      const rows = [{ invoiceProductId: 'prod-1', KOSRAE: 2, 'KOSRAE:fixed': 3 }];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { didntSendReason } = await doImport(ctx, { buffer });
+      expect(didntSendReason).toEqual('validationFailed');
+    });
+
+    it('flips isFixedPrice back to false on re-import with a plain number', async () => {
+      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      const headers = ['invoiceProductId', 'PL_A'];
+      const fixedBuffer = buildWorkbookBuffer(headers, [{ invoiceProductId: 'prod-1', PL_A: 'f2.00' }]);
+      await doImport(ctx, { buffer: fixedBuffer });
+
+      let item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+      expect(item.isFixedPrice).toBe(true);
+      const originalId = item.id;
+
+      const plainBuffer = buildWorkbookBuffer(headers, [{ invoiceProductId: 'prod-1', PL_A: 2 }]);
+      const { errors } = await doImport(ctx, { buffer: plainBuffer });
+      expect(errors).toBeEmpty();
+
+      item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+      expect(item.id).toBe(originalId); // same row reused
+      expect(item.isFixedPrice).toBe(false);
+    });
   });
 });

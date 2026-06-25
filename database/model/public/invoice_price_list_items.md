@@ -17,3 +17,7 @@ The price amount for this product in the context of this price list. Stored as a
 {% docs invoice_price_list_items__is_hidden %}
 Determines whether the related invoice product should be hidden from searches on the frontend and also whether it should be automatically added to the invoice.
 {% enddocs %}
+
+{% docs invoice_price_list_items__is_fixed_price %}
+When true, the product is charged as a flat fee regardless of quantity (price x 1) rather than price x quantity. Only honoured for medications. Mutually exclusive with is_hidden.
+{% enddocs %}

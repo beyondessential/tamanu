@@ -9,7 +9,12 @@ import {
 } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
+import {
+  getInvoiceItemPrice,
+  getInvoiceSummary,
+  getInvoicePatientPaymentStatus,
+  isFixedPriceProduct,
+} from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -30,7 +35,7 @@ invoiceRoute.get(
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { InvoicePriceList, InvoicePriceListItem } = req.models;
+    const { InvoicePriceList, InvoicePriceListItem, InvoiceProduct } = req.models;
 
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
 
@@ -44,10 +49,19 @@ invoiceRoute.get(
         invoiceProductId: productId,
         isHidden: false,
       },
-      attributes: ['price'],
+      attributes: ['price', 'isFixedPrice'],
     });
 
-    res.json(item);
+    if (!item) {
+      res.json(item);
+      return;
+    }
+
+    // Return the product category too so the form can apply fixed pricing (medications only)
+    // before the item is saved.
+    const product = await InvoiceProduct.findByPk(productId, { attributes: ['category'] });
+
+    res.json({ price: item.price, isFixedPrice: item.isFixedPrice, category: product?.category });
   }),
 );
 
@@ -416,6 +430,7 @@ invoiceRoute.put(
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
 
+          item.isFixedPriceFinal = isFixedPriceProduct(item.product);
           item.priceFinal = getInvoiceItemPrice(item);
 
           // Save insurance plan coverage values

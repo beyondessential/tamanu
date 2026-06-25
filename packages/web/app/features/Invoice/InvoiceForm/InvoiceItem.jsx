@@ -63,9 +63,11 @@ const useInvoiceItemPrice = ({
       const currentItem = values.invoiceItems[index];
       const nextProduct = {
         ...(currentItem.product || {}),
+        category: data.category ?? currentItem.product?.category,
         invoicePriceListItem: {
           ...(currentItem.product?.invoicePriceListItem || {}),
           price: data.price,
+          isFixedPrice: data.isFixedPrice,
         },
       };
 

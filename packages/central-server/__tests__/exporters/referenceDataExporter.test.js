@@ -757,6 +757,61 @@ describe('Reference data exporter', () => {
     );
   });
 
+  it('Should export fixed-price items with an f-prefixed marker so they re-import identically', async () => {
+    const p1 = await models.InvoiceProduct.create({
+      id: 'prod-a',
+      code: 'PROD-A',
+      name: 'Product A',
+      insurable: false,
+    });
+    const p2 = await models.InvoiceProduct.create({
+      id: 'prod-b',
+      code: 'PROD-B',
+      name: 'Product B',
+      insurable: false,
+    });
+
+    const pl = await models.InvoicePriceList.create({ id: 'pl-1', code: 'A', evaluationOrder: 1 });
+
+    // prod-a is a fixed fee; prod-b is per-unit
+    await models.InvoicePriceListItem.create({
+      id: 'item-1',
+      invoiceProductId: p1.id,
+      invoicePriceListId: pl.id,
+      price: 2,
+      isFixedPrice: true,
+    });
+    await models.InvoicePriceListItem.create({
+      id: 'item-2',
+      invoiceProductId: p2.id,
+      invoicePriceListId: pl.id,
+      price: 50,
+    });
+
+    await exporter(store, { 1: 'invoicePriceList', 2: 'invoicePriceListItem' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'code', 'name', 'rules', 'evaluationOrder', 'visibilityStatus'],
+            ['pl-1', 'A', null, null, 1, 'current'],
+          ],
+          name: 'Invoice Price List',
+        },
+        {
+          data: [
+            ['invoiceProductId', 'A'],
+            ['prod-a', 'f2'],
+            ['prod-b', '50'],
+          ],
+          name: 'Invoice Price List Items',
+        },
+      ],
+      '',
+    );
+  });
+
   describe('Invoice Product', () => {
     it('Should export invoice products with correct source record type', async () => {
       await createInvoiceProduct(models, {
