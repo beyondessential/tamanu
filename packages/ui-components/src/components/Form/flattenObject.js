@@ -1,4 +1,4 @@
-import { isArray, isObject } from 'lodash';
+import { isArray, isObject } from 'es-toolkit/compat';
 import { isValidElement } from 'react';
 
 /** 

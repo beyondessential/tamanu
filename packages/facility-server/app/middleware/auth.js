@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import { compare } from 'bcrypt';
+import __cjs_bcrypt from 'bcrypt';
+const { compare } = __cjs_bcrypt;
 import config from 'config';
 import * as jose from 'jose';
 import ms from 'ms';

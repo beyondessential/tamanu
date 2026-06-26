@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { debounce } from 'lodash';
+import { debounce } from 'es-toolkit/compat';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';

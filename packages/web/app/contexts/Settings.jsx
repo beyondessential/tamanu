@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get } from 'es-toolkit/compat';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 

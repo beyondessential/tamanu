@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import { isArray } from 'es-toolkit/compat';
 
 export function getHL7Link(baseUrl, params = {}) {
   const query = Object.entries(params)

@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react-swc';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// @ts-expect-error - plain .mjs vite plugin shared with the web frontend
+import { tamanuSourceResolve } from '../../scripts/viteTamanuSourceResolve.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +28,7 @@ export default async () =>
         platform: 'web',
       }),
     },
-    plugins: [react()],
+    plugins: [tamanuSourceResolve, react()],
 
     resolve: {
       alias: {

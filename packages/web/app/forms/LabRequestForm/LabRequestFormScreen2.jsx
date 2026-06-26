@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';

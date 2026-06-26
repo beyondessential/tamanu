@@ -1,4 +1,4 @@
-import { startCase } from 'lodash';
+import { startCase } from 'es-toolkit/compat';
 import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '@tamanu/constants';
 import { BaseError } from '@tamanu/errors';
 

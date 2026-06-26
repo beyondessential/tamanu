@@ -10,7 +10,7 @@
  * }} Program
  */
 
-import { groupBy } from 'lodash';
+import { groupBy } from 'es-toolkit/compat';
 import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from '@tamanu/errors';

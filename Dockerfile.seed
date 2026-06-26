@@ -2,16 +2,17 @@ FROM node:20-alpine AS build
 RUN apk add --no-cache bash g++ gcc git jq make python3 py3-setuptools && \
     npm install -g node-gyp
 WORKDIR /app
-COPY package.json package-lock.json turbo.jsonc ./
+COPY package.json package-lock.json ./
 COPY patches/ patches/
 COPY common.* ./
 COPY scripts/ scripts/
 COPY packages/ packages/
-# Build only what the seed CMD runs (central-server migrate + scripts fake.js)
-# plus their internal deps (shared, database, fake-data, ...) via turbo's graph.
-# The old `build-shared`/`-w` scripts were removed in the Turborepo migration.
+# Servers and scripts run from TypeScript source via the tsx loader, so there is no build step.
+# The one artefact the runtime needs is the bundled default translations the migrate's upgrade
+# step reads; generate it while the whole workspace is present (it scans every package for
+# translatable strings), then trim what the seed CMD does not need.
 RUN npm ci && \
-    npm run build -- --filter=@tamanu/central-server... --filter=scripts... && \
+    npm run package-default-translations --workspace @tamanu/upgrade && \
     npm prune --production && \
     npm cache clean --force && \
     rm -rf packages/web packages/patient-portal packages/mobile \
@@ -32,6 +33,6 @@ COPY --from=build /app/node_modules/ node_modules/
 # ROUNDS controls fake-data volume; override at runtime to scale snapshot size.
 CMD ["bash", "-euc", "\
   export NODE_CONFIG=$(node -p \"JSON.stringify({db:{host:process.env.DB_HOST,port:5432,name:'app',username:process.env.DB_USERNAME,password:process.env.DB_PASSWORD}})\")\n\
-  node packages/central-server/dist migrate\n\
-  node packages/scripts/dist/fake.js --database app --rounds \"$ROUNDS\" --from-tally packages/fake-data/src/populateDb/parseTally/standard.json\
+  node --import tsx packages/central-server/app migrate\n\
+  node --import tsx packages/scripts/src/fake.ts --database app --rounds \"$ROUNDS\" --from-tally packages/fake-data/src/populateDb/parseTally/standard.json\
 "]

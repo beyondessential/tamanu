@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { debounce, omit } from 'lodash';
+import { debounce, omit } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
 

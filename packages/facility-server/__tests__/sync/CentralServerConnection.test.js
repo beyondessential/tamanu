@@ -16,7 +16,7 @@ import {
 } from '@tamanu/errors';
 import * as jose from 'jose';
 
-const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
+const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
 const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));

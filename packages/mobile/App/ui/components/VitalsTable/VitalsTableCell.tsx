@@ -1,5 +1,5 @@
 import React from 'react';
-import { isNumber } from 'lodash';
+import { isNumber } from 'es-toolkit/compat';
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
