@@ -1,8 +1,12 @@
 import { DataTypes, Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_ITEMS_CATEGORIES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
+  ENCOUNTER_FEE_CODES,
+  PHARMACY_ENCOUNTER_FEE_CODE,
+  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
@@ -20,7 +24,9 @@ import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import { selectEncounterFeeCode } from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
+import type { Encounter } from '../Encounter';
 
 type InvoiceItemSourceRecord =
   | Procedure
@@ -28,7 +34,8 @@ type InvoiceItemSourceRecord =
   | LabTest
   | ImagingRequestArea
   | ImagingRequest
-  | Prescription;
+  | Prescription
+  | Encounter;
 
 export class Invoice extends Model {
   declare id: string;
@@ -281,5 +288,168 @@ export class Invoice extends Model {
       },
       options,
     );
+  }
+
+  /**
+   * Add the encounter fee to an encounter's in-progress invoice, if one applies.
+   *
+   * The fee is anchored on the Encounter so it is added at most once. A cashier-removed fee
+   * is never re-added: we skip when a line already exists for this encounter, including a
+   * soft-deleted one (unlike addItemToInvoice, which restores soft-deleted items on re-add).
+   */
+  static async addEncounterFee(
+    encounter: Encounter,
+    settings: ReadSettings,
+    primaryTimeZone: string,
+  ) {
+    const invoice = await this.getInProgressInvoiceForEncounter(encounter.id);
+    if (!invoice) {
+      return;
+    }
+
+    const { InvoiceItem } = this.sequelize.models;
+    // Idempotent and cashier-aware: never re-add a fee line for this encounter, including one a
+    // cashier has already removed (soft-deleted).
+    const existingItem = await InvoiceItem.findOne({
+      where: {
+        invoiceId: invoice.id,
+        sourceRecordType: encounter.getModelName(),
+        sourceRecordId: encounter.id,
+      },
+      paranoid: false,
+    });
+    if (existingItem) {
+      return;
+    }
+
+    const [
+      facilityTimeZone,
+      standardHoursStart,
+      standardHoursEnd,
+      pharmacyDepartmentId,
+    ] = await Promise.all([
+      settings.get('facilityTimeZone'),
+      settings.get('invoicing.encounterFee.standardHoursStart'),
+      settings.get('invoicing.encounterFee.standardHoursEnd'),
+      settings.get('medications.medicationDispensing.automaticEncounterDepartmentId'),
+    ]);
+
+    // A walk-in pharmacy dispensing encounter is created in the configured pharmacy department and
+    // charges a separate, flat pharmacy fee instead of a clinic fee. The Boolean guard stops a
+    // null setting matching a null department.
+    const isPharmacyEncounter =
+      Boolean(pharmacyDepartmentId) && encounter.departmentId === pharmacyDepartmentId;
+
+    const product = isPharmacyEncounter
+      ? await this.resolvePharmacyFeeProduct()
+      : await this.resolveClinicFeeProduct({
+          encounter,
+          primaryTimeZone,
+          facilityTimeZone: facilityTimeZone as string | null,
+          standardHoursStart: standardHoursStart as string,
+          standardHoursEnd: standardHoursEnd as string,
+        });
+    if (!product) {
+      return;
+    }
+
+    const { InvoicePriceList, InvoicePriceListItem } = this.sequelize.models;
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounter.id);
+
+    if (isPharmacyEncounter) {
+      // Charging for pharmacy is opt-in: only add the fee where the facility has priced the
+      // pharmacy product (a visible price-list item). Unpriced → no fee line.
+      const pricedItem = invoicePriceListId
+        ? await InvoicePriceListItem.findOne({
+            where: { invoicePriceListId, invoiceProductId: product.id, isHidden: false },
+          })
+        : null;
+      if (!pricedItem) {
+        return;
+      }
+    } else if (invoicePriceListId) {
+      // Clinic/ED fees apply wherever the encounter type qualifies; a facility can still suppress
+      // one by hiding that product on its price list.
+      const hiddenItem = await InvoicePriceListItem.findOne({
+        where: { invoicePriceListId, invoiceProductId: product.id, isHidden: true },
+      });
+      if (hiddenItem) {
+        return;
+      }
+    }
+
+    await InvoiceItem.create({
+      invoiceId: invoice.id,
+      sourceRecordType: encounter.getModelName(),
+      sourceRecordId: encounter.id,
+      productId: product.id,
+      orderedByUserId: SYSTEM_USER_UUID,
+      orderDate: new Date(),
+      quantity: 1,
+    });
+  }
+
+  private static async resolveClinicFeeProduct({
+    encounter,
+    primaryTimeZone,
+    facilityTimeZone,
+    standardHoursStart,
+    standardHoursEnd,
+  }: {
+    encounter: Encounter;
+    primaryTimeZone: string;
+    facilityTimeZone: string | null;
+    standardHoursStart: string;
+    standardHoursEnd: string;
+  }) {
+    const feeCode = selectEncounterFeeCode({
+      encounterType: encounter.encounterType as EncounterType,
+      startDateTime: encounter.startDate,
+      primaryTimeZone,
+      facilityTimeZone,
+      standardHoursStart,
+      standardHoursEnd,
+    });
+    if (!feeCode) {
+      return null;
+    }
+
+    const product = await this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+      REFERENCE_TYPES.ENCOUNTER_FEE,
+      feeCode,
+    );
+    if (product || feeCode !== ENCOUNTER_FEE_CODES.WEEKEND) {
+      return product;
+    }
+    // No distinct weekend product configured → fall back to the after-hours product.
+    return this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+      REFERENCE_TYPES.ENCOUNTER_FEE,
+      ENCOUNTER_FEE_CODES.AFTER_HOURS,
+    );
+  }
+
+  private static resolvePharmacyFeeProduct() {
+    return this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
+      REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE,
+      PHARMACY_ENCOUNTER_FEE_CODE,
+    );
+  }
+
+  private static findEncounterFeeProduct(category: string, referenceType: string, code: string) {
+    const { InvoiceProduct, ReferenceData } = this.sequelize.models;
+    return InvoiceProduct.findOne({
+      where: { category },
+      include: [
+        {
+          model: ReferenceData,
+          as: 'sourceRefDataRecord',
+          required: true,
+          where: { type: referenceType, code },
+        },
+      ],
+    });
   }
 }

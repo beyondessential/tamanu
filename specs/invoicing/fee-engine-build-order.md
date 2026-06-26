@@ -30,8 +30,8 @@ The fee *amount* is never written on the line — it comes from the price list v
 
 ### New invoice categories & source types
 
-- Add to `INVOICE_ITEMS_CATEGORIES` (`packages/constants/src/invoices.ts:24`): `ENCOUNTER_FEE: 'EncounterFee'` and `BED_FEE: 'BedFee'`, plus matching entries in `INVOICE_ITEMS_CATEGORIES_MODELS` and `INVOICE_ITEMS_CATEGORY_LABELS`.
-- **Encounter-fee products** point at a new `encounterFee` **reference-data** type — reuse the existing `sourceRefDataRecord` resolution in `InvoiceProduct.getSourceRecord()` (`InvoiceProduct.ts:98`), so map `ENCOUNTER_FEE → ReferenceData`.
+- Add to `INVOICE_ITEMS_CATEGORIES` (`packages/constants/src/invoices.ts:24`): `ENCOUNTER_FEE: 'EncounterFee'`, `PHARMACY_ENCOUNTER_FEE: 'PharmacyEncounterFee'` and `BED_FEE: 'BedFee'`, plus matching entries in `INVOICE_ITEMS_CATEGORIES_MODELS` and `INVOICE_ITEMS_CATEGORY_LABELS`.
+- **Encounter-fee products** point at the `encounterFee` / `pharmacyEncounterFee` **reference-data** types — reuse the existing `sourceRefDataRecord` resolution in `InvoiceProduct.getSourceRecord()`, so map both to `ReferenceData`.
 - **Bed-fee products** point at a **Location** — add a `belongsTo(Location)` association + a `getSourceRecord()` case, mapping `BED_FEE → Location`.
 - Extend the `InvoiceItemSourceRecord` union (`Invoice.ts:25`) with **Encounter** and **Location** so each can be a line source; confirm both expose `getModelName()` / `id()`.
 
@@ -46,7 +46,6 @@ Every encounter-creation path already calls `Invoice.automaticallyCreateForEncou
 Invoicing on/off stays **global** (`features.invoicing.enabled`, `packages/settings/src/schema/global.ts`). The per-state behaviour goes in a new **facility-scoped** block in `packages/settings/src/schema/facility.ts`, read via `Setting.get(key, facilityId)` / `ReadSettings`:
 
 - normal-hours window (start/end, weekend handling) — 6898
-- charge encounter fee for pharmacy walk-in encounters (boolean) — 6898
 - overnight bed-fee check time (default `02:00`) — 6900
 - bundled inpatient categories — 6901
 

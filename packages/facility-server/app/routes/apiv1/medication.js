@@ -533,13 +533,20 @@ medication.post(
       );
 
       // Automatically add an invoice
-      await models.Invoice.automaticallyCreateForEncounter(
+      const invoice = await models.Invoice.automaticallyCreateForEncounter(
         encounter.id,
         encounter.encounterType,
         encounter.startDate,
         facilitySettings,
         { transaction },
       );
+      if (invoice) {
+        await models.Invoice.addEncounterFee(
+          encounter,
+          facilitySettings,
+          getPrimaryTimeZone(config),
+        );
+      }
 
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];

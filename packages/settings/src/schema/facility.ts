@@ -247,6 +247,31 @@ export const facilitySettings = {
         },
       },
     },
+    invoicing: {
+      name: 'Invoicing',
+      description: 'Settings for automatically adding fees to invoices',
+      properties: {
+        encounterFee: {
+          name: 'Encounter fee',
+          description: 'Automatic encounter fee for outpatient and emergency encounters',
+          properties: {
+            standardHoursStart: {
+              name: 'Standard hours start',
+              description:
+                'Start of standard (in-hours) time on weekdays. 24-hour time, e.g. 08:00. Weekday encounters starting outside standard hours get the after-hours fee; weekend encounters get the weekend fee.',
+              type: datelessTimeStringSchema,
+              defaultValue: '08:00',
+            },
+            standardHoursEnd: {
+              name: 'Standard hours end',
+              description: 'End of standard (in-hours) time on weekdays. 24-hour time, e.g. 17:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+          },
+        },
+      },
+    },
     survey: {
       name: 'Survey settings',
       description: '_',

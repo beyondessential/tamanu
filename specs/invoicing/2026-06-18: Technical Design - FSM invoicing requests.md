@@ -5,7 +5,7 @@ Product decisions and technical design for the FSM Encounter Fee Invoicing.
 # Cross Cutting
 
 - **One fee engine.** Outpatient, emergency and bed fees are all invoice products priced through the existing price-list system; they differ only in which product applies and when it's added (encounter start for outpatient/emergency, per night for the bed fee).
-- **One pricing mechanism — price lists.** Per-facility, per-department, age and patient-type rates, insurance and discounts all come from the existing price-list engine; no new pricing logic. The bed fee joins by treating each bed (Location) as a priceable product.
+- **One pricing mechanism — price lists.** Per-facility, age and patient-type rates, insurance and discounts all come from the existing price-list engine; no new pricing logic. The bed fee joins by treating each bed (Location) as a priceable product. Where a fee needs to vary by department (walk-in pharmacy), that's handled by a separate fee product — not a department dimension on the engine — so admins keep a single facility price list.
 - **Settings.** Invoicing on/off stays global; a new **facility-scoped** block holds the per-state behaviour (states differ): normal-hours window, overnight bed-fee check time (default 02:00), and which item categories are bundled into the inpatient fee. (need to make sure that the scheduler runs after the bed fee check time each night)
 - **Encounter-type taxonomy.** 
   - Outpatient: clinic, imaging
@@ -28,21 +28,23 @@ Product decisions and technical design for the FSM Encounter Fee Invoicing.
 - **One fee line per encounter** — anchored to the encounter, so re-runs/re-syncs update the same line, never duplicate. Adding at start (not discharge) survives the end-of-day clinic auto-discharge. Changes should be handled through an Encounter model level change hook - this should only add if there isn't already a line for the same product code. Initial encounter fee is set when the invoice is created.
 - Update the invoice-item "source" types with 2 new types: Encounter Fee and Bed Fee.
 
-### Walk-in pharmacy vs regular clinic — fee varies by Department
+### Walk-in pharmacy vs regular clinic — a separate pharmacy fee product
 
-Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit — but in a **dedicated department** (`medications.medicationDispensing.automaticEncounterDepartmentId`), distinct from regular clinic departments. So **Department is the natural discriminator** and no extra flag on the encounter is needed. Resolved with Les: where pharmacy is charged (Yap) it's the same fee as a regular clinic visit; where it isn't (Pohnpei) it's skipped. No facility prices the two differently.
+Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit — but in a **dedicated department** (`medications.medicationDispensing.automaticEncounterDepartmentId`), distinct from regular clinic departments. The encounter's department therefore tells us whether to charge a **clinic** fee or a **pharmacy** fee. Resolved with Les: where pharmacy is charged (Yap) it's a flat pharmacy fee; where it isn't (Pohnpei) it's skipped.
 
-**Approach: the encounter fee varies by Department, through the price-list engine.** Add `departmentId` as a price-list rule dimension (alongside facility / patient type / age):
+**Approach: a separate pharmacy encounter-fee product, priced on the same facility price list.** The encounter-fee products are split into two categories:
 
-- **Charge (Yap):** the pharmacy department's price list prices the encounter-fee product like a normal clinic visit.
-- **Skip (Pohnpei):** the pharmacy department's price list **hides** the encounter-fee product (the existing `isHidden` mechanism) → no fee line (not a $0 line).
-- **Fee selection is unchanged** — the helper still picks the standard / after-hours / weekend / ED product by encounter family + time-of-day. Department only affects which price list matches: the amount, or hidden → skip.
-- **Requires** the encounter-fee add path to honour the matching price list's `isHidden`/absence — the same check the other auto-add paths already make — so a department can skip the fee.
-- **No `isPharmacyEncounter` flag, column or migration** — the department already on every encounter does the job.
+- **Clinic encounter fees** (`encounterFee` reference data): standard / after-hours / weekend / emergency, selected by encounter family + facility-local time-of-day (unchanged).
+- **Pharmacy encounter fee** (`pharmacyEncounterFee` reference data): a single flat product, charged for an encounter created in the configured pharmacy department.
 
-This keeps all pricing in the price-list engine (per the Cross-Cutting "one pricing mechanism" principle) and is **future-proof**: any department can carry its own encounter fee, or none — not just pharmacy. It assumes the pharmacy auto-department is distinct from regular clinic departments (true by config).
+When adding the fee, the encounter's `departmentId` is compared to the configured pharmacy department: a match resolves the pharmacy product, otherwise the clinic selector runs as before. Both products live on the **one facility price list** — no department-scoped list to manage.
 
-*(Superseded: the first cut of TAM-6898 used an `isPharmacyEncounter` boolean on the encounter + a per-facility charge toggle. Replaced by the department model above, which avoids a synced column + mobile migration and generalises beyond pharmacy.)*
+- **Charge (Yap):** price the pharmacy product on the facility price list → a flat pharmacy fee line.
+- **Skip (Pohnpei):** leave the pharmacy product **unpriced** (no visible price-list item) → no fee line. Charging pharmacy is opt-in.
+- **Clinic fees** keep the existing behaviour: they apply wherever the encounter type qualifies, and a facility can still suppress one by hiding that product. An unpriced-but-present clinic product still surfaces as a $0 line, so that misconfiguration stays visible.
+- **No `isPharmacyEncounter` flag, column or migration, and no department dimension on the price-list engine** — the department already on every encounter selects the product, and pricing stays a plain product × price-list matrix.
+
+*(Earlier designs: a per-facility `isPharmacyEncounter` boolean + charge toggle [needed a synced column + mobile migration]; then a `departmentId` price-list rule dimension [forced admins to manage a second, department-scoped price list]. Both replaced by the separate-product model, which keeps a single facility price list and makes charging pharmacy a matter of pricing one extra product.)*
 
 ## Decisions
 
