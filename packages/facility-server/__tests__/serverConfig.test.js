@@ -14,7 +14,7 @@ import {
 
 // In-memory stand-ins for the models the resolver reads: LocalSystemFact (host,
 // email, facility ids) and LocalSystemSecret (the encrypted password, via
-// get/setSecret).
+// get/set).
 const makeModels = ({ facts = {}, secrets = {} } = {}) => {
   const factStore = new Map(Object.entries(facts));
   const secretStore = new Map(Object.entries(secrets));
@@ -27,8 +27,8 @@ const makeModels = ({ facts = {}, secrets = {} } = {}) => {
         set: async (key, value) => void factStore.set(key, value),
       },
       LocalSystemSecret: {
-        getSecret: async key => (secretStore.has(key) ? secretStore.get(key) : null),
-        setSecret: async (key, value) => void secretStore.set(key, value),
+        get: async key => (secretStore.has(key) ? secretStore.get(key) : null),
+        set: async (key, value) => void secretStore.set(key, value),
       },
     },
   };
