@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
@@ -385,12 +386,22 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--discard-changes', '--detach', commitBeforeMigration]);
     await runCommand('npm', ['install']);
+
+    // The old build system (build-all.mjs) doesn't understand --filter= and builds every package,
+    // including web-frontend, then runs scrapeTranslations.ts as part of @tamanu/upgrade's build.
+    // That scraper scanned dist dirs (unlike HEAD which skips them) and flagged bundled strings as
+    // duplicates. --shared-only skips web-frontend / patient-portal (nothing workspace-depends on
+    // them) so the scraper only sees source files, which are consistent.
+    // TODO: Remove this once all builds are on the new system
+    const rootPkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+    const isOldBuildSystem = (rootPkg.scripts?.build ?? '').includes('build-all.mjs');
     await runCommand('npm', [
       'run',
       'build',
       '--',
-      '--filter=@tamanu/database...',
-      '--filter=scripts...',
+      ...(isOldBuildSystem
+        ? ['--shared-only']
+        : ['--filter=@tamanu/database...', '--filter=scripts...']),
     ]);
 
     const initDb = dbConfig('init');
@@ -408,7 +419,13 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...', '--filter=@tamanu/upgrade...']);
+    await runCommand('npm', [
+      'run',
+      'build',
+      '--',
+      '--filter=@tamanu/database...',
+      '--filter=@tamanu/upgrade...',
+    ]);
 
     console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;
