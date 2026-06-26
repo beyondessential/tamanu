@@ -317,12 +317,14 @@ export class Prescription extends Model {
     }
 
     // Medications bundled into the admission fee exclude the administered (MAR) portion;
-    // discharge dispensing is always invoiced.
-    const isMedicationBundled = await isInpatientFeeBundled(
-      this.sequelize.models,
-      encounter.id,
-      INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
-    );
+    // discharge dispensing is always invoiced. Only relevant when there's a MAR quantity to drop.
+    const isMedicationBundled =
+      marQty > 0 &&
+      (await isInpatientFeeBundled(
+        this.sequelize.models,
+        encounter.id,
+        INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
+      ));
 
     // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
     const finalQty = (isMedicationBundled ? 0 : marQty) + totalSentQty;

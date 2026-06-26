@@ -1,16 +1,12 @@
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, type InpatientBundledCategory } from '@tamanu/constants';
 import type { Models } from '../types/model';
 
-/**
- * Whether a clinical-item category is bundled into the admission fee for the encounter's facility.
- *
- * Bundling applies only to admission encounters: a bundled category is not auto-added to the
- * admission invoice (it's covered by the admission fee) but is still auto-added for outpatient/ER.
- */
+// Admission-only: at a facility that bundles this category the item is covered by the admission
+// fee, so it's not auto-added to the invoice (returns true to suppress it). False everywhere else.
 export const isInpatientFeeBundled = async (
   models: Models,
   encounterId: string,
-  category: string,
+  category: InpatientBundledCategory,
 ): Promise<boolean> => {
   const encounter = await models.Encounter.findByPk(encounterId, {
     attributes: ['encounterType', 'locationId'],
