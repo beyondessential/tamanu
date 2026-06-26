@@ -2,7 +2,7 @@
 
 Scenarios that verify the encounter fee is added correctly at encounter start, buckets by facility-local time, handles the ED and pharmacy cases, and stays idempotent. Pairs with `outpatient-encounter-fees-plan.md`.
 
-**Setup:** invoicing enabled globally; a facility with the normal-hours window configured and standard / after-hours / weekend / ED fee products priced in a matching price list; one facility that charges pharmacy walk-ins (toggle on) and one that doesn't (toggle off).
+**Setup:** invoicing enabled globally; a facility with the normal-hours window configured and standard / after-hours / weekend / ED fee products priced in a matching price list; a dedicated pharmacy department (`medications.medicationDispensing.automaticEncounterDepartmentId`); a `pharmacyEncounterFee` product priced on the facility price list to charge pharmacy, or left unpriced to skip it.
 
 ## Outpatient bucketing
 
@@ -27,10 +27,10 @@ Scenarios that verify the encounter fee is added correctly at encounter start, b
 
 ## Pharmacy walk-in
 
-- [ ] At a charging facility (toggle on), walk-in pharmacy dispensing creates a clinic encounter → **normal clinic fee** line for the applicable bucket
-- [ ] At a non-charging facility (toggle off), a walk-in pharmacy encounter → **no fee** line
-- [ ] A regular clinic encounter at the non-charging facility still gets the clinic fee (the toggle affects pharmacy encounters only)
-- [ ] `isPharmacyEncounter` is set `true` by the walk-in route and is unchanged thereafter
+- [x] Where the `pharmacyEncounterFee` product is **priced**, a pharmacy-department encounter → one **flat pharmacy fee** line (not a clinic fee)
+- [x] Where the `pharmacyEncounterFee` product is **unpriced**, a pharmacy-department encounter → **no fee** line (charging is opt-in)
+- [x] A regular clinic-department encounter still gets the **clinic** fee, regardless of pharmacy pricing
+- [x] Selection is by the encounter's department, not a flag — covered at the model layer in `EncounterFee.test.js`
 
 ## Gating & edge cases
 

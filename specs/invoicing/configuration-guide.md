@@ -19,18 +19,17 @@ With it off, no invoices or fees are created and the rest of this guide has no e
 Every chargeable thing — a procedure, a lab test, an encounter fee, a bed — is an **Invoice Product**. A **Price List** sets the amount for each product, and a price list applies to an encounter when its **rules** match. Rules can match on:
 
 - **Facility**
-- **Department**
 - **Patient type** (billing type)
 - **Patient age**
 
-A rule that's left blank matches everything, so a facility-wide price list (only the facility rule set) covers every encounter at that facility, and a more specific price list (e.g. facility + department) takes precedence where it matches. When two price lists could match, the one with the lower **evaluation order** wins.
+A rule that's left blank matches everything, so a facility-wide price list (only the facility rule set) covers every encounter at that facility, and a more specific price list (e.g. facility + patient type) takes precedence where it matches. When two price lists could match, the one with the lower **evaluation order** wins.
 
 Price lists are filled in as a **matrix** on the price-list-item tab: the first column is `invoiceProductId` (the product codes, one per row) and each remaining column header is a **price list code**. In each cell you put either:
 
 - a **number** — the price of that product on that price list, or
 - **`hidden`** — that product is **not charged** on that price list (no line appears on the invoice).
 
-`hidden` is the key to "don't charge this here" — you'll use it for the pharmacy case below.
+`hidden` is the key to "don't charge this product here".
 
 ---
 
@@ -62,10 +61,13 @@ Encounters starting outside this window on a weekday get the after-hours fee; th
 
 ### Walk-in pharmacy (charging some facilities, not others)
 
-A walk-in pharmacy dispensing visit is a clinic encounter created in a **dedicated pharmacy department** (set by `medications.medicationDispensing.automaticEncounterDepartmentId`). Because the fee can vary by department, you control whether pharmacy visits are charged purely through price lists — no special flags:
+A walk-in pharmacy dispensing visit is a clinic encounter created in a **dedicated pharmacy department** (set by `medications.medicationDispensing.automaticEncounterDepartmentId`). It's charged a **separate, flat pharmacy fee** rather than a clinic fee — so whether pharmacy is charged is just a matter of whether you price that product, all on the one facility price list:
 
-- **To charge pharmacy the same as a normal clinic visit** (e.g. Yap): do nothing — the facility price list already prices the clinic fee.
-- **To not charge pharmacy** (e.g. Pohnpei): add a price list scoped to the pharmacy department (facility + department rules) and set the encounter-fee product cell to **`hidden`**. Pharmacy visits then get no fee line, while regular clinic visits in other departments are charged normally.
+- **Set up the product:** add a row to the **`pharmacyEncounterFee`** reference-data tab with the code `encounterFeePharmacy` (and a display name). Importing it creates the matching Invoice Product.
+- **To charge pharmacy** (e.g. Yap): give `encounterFeePharmacy` a price on the facility price list → each pharmacy visit gets that flat fee.
+- **To not charge pharmacy** (e.g. Pohnpei): leave `encounterFeePharmacy` off the price list (or unpriced). Charging pharmacy is opt-in, so with no price there's simply no fee line — no separate department price list needed.
+
+Regular clinic visits in other departments are charged the clinic fees above, regardless.
 
 The same approach lets any department carry its own encounter-fee rate, or none.
 
