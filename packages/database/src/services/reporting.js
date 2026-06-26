@@ -6,9 +6,21 @@ import {
   REPORT_DB_CONNECTION_SCHEMAS,
   REPORT_DB_CONNECTION_VALUES,
   FACT_REPORTING_ROLE_SECRET,
+  FACT_REPORTING_SECRET_ROTATED_AT,
 } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { openDatabase } from './database';
 import { resolveDbConfig } from './connectionConfig';
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// The secret is rotated automatically once it's older than this many days; the new
+// passwords take effect as each server process restarts. 0 (or unset) disables
+// age-based rotation — the secret is still generated on first use.
+export const isReportingSecretStale = (rotatedAt, days) => {
+  if (!days || !rotatedAt) return false;
+  return Date.now() - new Date(rotatedAt).getTime() >= days * MS_PER_DAY;
+};
 
 // Tamanu owns the reporting/raw roles: unprivileged read-only LOGIN roles it
 // provisions and connects AS. We log in as the role rather than SET ROLE from the
@@ -21,20 +33,26 @@ const reportingRolePassword = (secret, role) =>
     .update(`tamanu-report-role:${role}`)
     .digest('hex');
 
-// Random per-server secret, generated once and stored in local_system_secrets
-// (not synced — like the device key). setIfAbsent is INSERT ... ON CONFLICT DO
-// NOTHING, so the concurrent startup contexts don't clobber each other.
-const getReportingSecret = async ({ models }) => {
-  let secret = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
-  if (!secret) {
-    await models.LocalSystemSecret.setIfAbsent(
-      FACT_REPORTING_ROLE_SECRET,
-      crypto.randomBytes(32).toString('hex'),
-    );
-    secret = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
-  }
-  return secret;
-};
+// Random per-server secret the role passwords derive from, stored encrypted in
+// local_system_secrets (not synced — like the device key). Generated on first use
+// and rotated once it passes db.reportingSecretRotationDays. The advisory lock
+// serialises this so the concurrently-starting central app processes converge on
+// one secret rather than each generating its own; processes from a previous boot
+// keep their cached secret until they restart.
+const getReportingSecret = async ({ models, sequelize }) =>
+  sequelize.transaction(async () => {
+    await sequelize.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:reporting-secret'));`);
+
+    const existing = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
+    const rotatedAt = await models.LocalSystemFact.get(FACT_REPORTING_SECRET_ROTATED_AT);
+    const rotationDays = config.db?.reportingSecretRotationDays ?? 0;
+    if (existing && !isReportingSecretStale(rotatedAt, rotationDays)) return existing;
+
+    const secret = crypto.randomBytes(32).toString('hex');
+    await models.LocalSystemSecret.set(FACT_REPORTING_ROLE_SECRET, secret);
+    await models.LocalSystemFact.set(FACT_REPORTING_SECRET_ROTATED_AT, getCurrentDateTimeString());
+    return secret;
+  });
 
 const ensureReportingRole = async (existingStore, connectionName, password) => {
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
