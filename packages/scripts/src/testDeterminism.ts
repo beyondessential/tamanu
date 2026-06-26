@@ -136,9 +136,15 @@ function summarise(hashes: TableHashes): string {
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const { initDatabase } = await import('@tamanu/database/services/database');
   const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
+  const { normaliseMigrationStorageExtensions } = await import('@tamanu/upgrade');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
+
+  // The baseline DB is built at the pre-migration commit, which may pre-date the build-less
+  // switch and so hold `.js` storage records. upgrade() normalises these before consulting
+  // migrations; do the same here so createMigrationInterface's guard doesn't trip.
+  await normaliseMigrationStorageExtensions(sequelize);
 
   const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
