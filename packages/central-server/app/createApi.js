@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
+import { requireHttps } from '@tamanu/shared/utils';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -128,6 +129,9 @@ export async function createApi(ctx) {
       index: true,
     });
   });
+
+  // Reject non-HTTPS requests when the security.requireHttps setting is enabled
+  express.use(requireHttps);
 
   // Patient Portal - must go before main API to avoid main authentication
   const portalRouter = patientPortalApi(limiters);

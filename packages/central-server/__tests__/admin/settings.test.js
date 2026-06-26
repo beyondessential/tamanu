@@ -203,4 +203,48 @@ describe('Settings Admin', () => {
       }),
     );
   });
+
+  describe('security.requireHttps guard', () => {
+    // Use facility scope throughout so enabling the setting cannot switch on HTTPS
+    // enforcement for this central test server (which reads the central scope).
+    let facility;
+
+    beforeAll(async () => {
+      facility = await models.Facility.create(fake(models.Facility));
+    });
+
+    it('rejects enabling security.requireHttps over a non-HTTPS connection', async () => {
+      const response = await adminApp.put('/v1/admin/settings').send({
+        settings: { security: { requireHttps: true } },
+        scope: SETTINGS_SCOPES.FACILITY,
+        facilityId: facility.id,
+      });
+      expect(response).toBeForbidden();
+
+      // The setting must not have been persisted
+      const persisted = await getSettings(SETTINGS_SCOPES.FACILITY, facility.id);
+      expect(persisted.body?.security?.requireHttps).toBeFalsy();
+    });
+
+    it('allows enabling security.requireHttps over an HTTPS connection', async () => {
+      const response = await adminApp
+        .put('/v1/admin/settings')
+        .set('X-Forwarded-Proto', 'https')
+        .send({
+          settings: { security: { requireHttps: true } },
+          scope: SETTINGS_SCOPES.FACILITY,
+          facilityId: facility.id,
+        });
+      expect(response).toHaveSucceeded();
+    });
+
+    it('allows saving other settings over HTTP when requireHttps is not being enabled', async () => {
+      const response = await adminApp.put('/v1/admin/settings').send({
+        settings: { security: { requireHttps: false } },
+        scope: SETTINGS_SCOPES.FACILITY,
+        facilityId: facility.id,
+      });
+      expect(response).toHaveSucceeded();
+    });
+  });
 });
