@@ -1,4 +1,4 @@
-import { DataTypes, Op, Transaction } from 'sequelize';
+import { DataTypes, Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_ITEMS_CATEGORIES,
@@ -479,7 +479,7 @@ export class Invoice extends Model {
       return;
     }
 
-    const { InvoiceItem, InvoiceProduct } = this.sequelize.models;
+    const { InvoiceItem, InvoiceProduct, EncounterHistory } = this.sequelize.models;
     const locationSourceType = this.sequelize.models.Location.name;
 
     const chargeInstants = computeBedFeeChargeInstants({
@@ -490,14 +490,27 @@ export class Invoice extends Model {
       facilityTimeZone: (await settings.get('facilityTimeZone')) as string | null,
     });
 
+    // Load the encounter's location history once and resolve each instant in memory — the history
+    // is small (one row per ward move), so this avoids a query per night. Dates are ISO 9075
+    // strings, so string ordering is chronological.
+    const locationHistory = await EncounterHistory.findAll({
+      where: { encounterId: encounter.id },
+      order: [['date', 'ASC']],
+      attributes: ['date', 'locationId'],
+    });
+    const locationIdAtInstant = (instant: string): string | null => {
+      let locationId: string | null | undefined;
+      for (const change of locationHistory) {
+        if (change.date > instant) break; // ascending history — no later row can precede this instant
+        locationId = change.locationId;
+      }
+      return locationId ?? encounter.locationId ?? null;
+    };
+
     // Count qualifying nights per location — the rate follows the location occupied at each instant.
     const nightsByLocation = new Map<string, number>();
     for (const instant of chargeInstants) {
-      const locationId = await this.locationIdAtInstant(
-        encounter.id,
-        instant,
-        encounter.locationId,
-      );
+      const locationId = locationIdAtInstant(instant);
       if (!locationId) {
         continue;
       }
@@ -547,18 +560,5 @@ export class Invoice extends Model {
         });
       }
     }
-  }
-
-  private static async locationIdAtInstant(
-    encounterId: string,
-    instant: string,
-    fallbackLocationId?: string,
-  ): Promise<string | null> {
-    const snapshot = await this.sequelize.models.EncounterHistory.findOne({
-      where: { encounterId, date: { [Op.lte]: instant } },
-      order: [['date', 'DESC']],
-      attributes: ['locationId'],
-    });
-    return snapshot?.locationId ?? fallbackLocationId ?? null;
   }
 }
