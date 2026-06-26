@@ -102,6 +102,7 @@ export class InvoiceProduct extends Model {
       case INVOICE_ITEMS_CATEGORIES.IMAGING_AREA:
       case INVOICE_ITEMS_CATEGORIES.DRUG:
       case INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE:
+      case INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE:
         return this.sourceRefDataRecord;
       case INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE:
         return this.sourceLabTestTypeRecord;

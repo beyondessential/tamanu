@@ -5,6 +5,7 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   ENCOUNTER_FEE_CODES,
+  PHARMACY_ENCOUNTER_FEE_CODE,
   REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
@@ -306,24 +307,9 @@ export class Invoice extends Model {
       return;
     }
 
-    const [facilityTimeZone, standardHoursStart, standardHoursEnd] = await Promise.all([
-      settings.get('facilityTimeZone'),
-      settings.get('invoicing.encounterFee.standardHoursStart'),
-      settings.get('invoicing.encounterFee.standardHoursEnd'),
-    ]);
-    const feeCode = selectEncounterFeeCode({
-      encounterType: encounter.encounterType as EncounterType,
-      startDateTime: encounter.startDate,
-      primaryTimeZone,
-      facilityTimeZone: facilityTimeZone as string | null,
-      standardHoursStart: standardHoursStart as string,
-      standardHoursEnd: standardHoursEnd as string,
-    });
-    if (!feeCode) {
-      return;
-    }
-
     const { InvoiceItem } = this.sequelize.models;
+    // Idempotent and cashier-aware: never re-add a fee line for this encounter, including one a
+    // cashier has already removed (soft-deleted).
     const existingItem = await InvoiceItem.findOne({
       where: {
         invoiceId: invoice.id,
@@ -336,16 +322,54 @@ export class Invoice extends Model {
       return;
     }
 
-    const product = await this.resolveEncounterFeeProduct(feeCode);
+    const [
+      facilityTimeZone,
+      standardHoursStart,
+      standardHoursEnd,
+      pharmacyDepartmentId,
+    ] = await Promise.all([
+      settings.get('facilityTimeZone'),
+      settings.get('invoicing.encounterFee.standardHoursStart'),
+      settings.get('invoicing.encounterFee.standardHoursEnd'),
+      settings.get('medications.medicationDispensing.automaticEncounterDepartmentId'),
+    ]);
+
+    // A walk-in pharmacy dispensing encounter is created in the configured pharmacy department and
+    // charges a separate, flat pharmacy fee instead of a clinic fee. The Boolean guard stops a
+    // null setting matching a null department.
+    const isPharmacyEncounter =
+      Boolean(pharmacyDepartmentId) && encounter.departmentId === pharmacyDepartmentId;
+
+    const product = isPharmacyEncounter
+      ? await this.resolvePharmacyFeeProduct()
+      : await this.resolveClinicFeeProduct({
+          encounter,
+          primaryTimeZone,
+          facilityTimeZone: facilityTimeZone as string | null,
+          standardHoursStart: standardHoursStart as string,
+          standardHoursEnd: standardHoursEnd as string,
+        });
     if (!product) {
       return;
     }
 
-    // Honour the encounter's price list — a department whose price list hides the fee product
-    // (e.g. walk-in pharmacy at a facility that doesn't charge it) gets no fee line.
     const { InvoicePriceList, InvoicePriceListItem } = this.sequelize.models;
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounter.id);
-    if (invoicePriceListId) {
+
+    if (isPharmacyEncounter) {
+      // Charging for pharmacy is opt-in: only add the fee where the facility has priced the
+      // pharmacy product (a visible price-list item). Unpriced → no fee line.
+      const pricedItem = invoicePriceListId
+        ? await InvoicePriceListItem.findOne({
+            where: { invoicePriceListId, invoiceProductId: product.id, isHidden: false },
+          })
+        : null;
+      if (!pricedItem) {
+        return;
+      }
+    } else if (invoicePriceListId) {
+      // Clinic/ED fees apply wherever the encounter type qualifies; a facility can still suppress
+      // one by hiding that product on its price list.
       const hiddenItem = await InvoicePriceListItem.findOne({
         where: { invoicePriceListId, invoiceProductId: product.id, isHidden: true },
       });
@@ -365,26 +389,67 @@ export class Invoice extends Model {
     });
   }
 
-  private static async resolveEncounterFeeProduct(feeCode: string) {
-    const { InvoiceProduct, ReferenceData } = this.sequelize.models;
-    const findProductByCode = (code: string) =>
-      InvoiceProduct.findOne({
-        where: { category: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE },
-        include: [
-          {
-            model: ReferenceData,
-            as: 'sourceRefDataRecord',
-            required: true,
-            where: { type: REFERENCE_TYPES.ENCOUNTER_FEE, code },
-          },
-        ],
-      });
+  private static async resolveClinicFeeProduct({
+    encounter,
+    primaryTimeZone,
+    facilityTimeZone,
+    standardHoursStart,
+    standardHoursEnd,
+  }: {
+    encounter: Encounter;
+    primaryTimeZone: string;
+    facilityTimeZone: string | null;
+    standardHoursStart: string;
+    standardHoursEnd: string;
+  }) {
+    const feeCode = selectEncounterFeeCode({
+      encounterType: encounter.encounterType as EncounterType,
+      startDateTime: encounter.startDate,
+      primaryTimeZone,
+      facilityTimeZone,
+      standardHoursStart,
+      standardHoursEnd,
+    });
+    if (!feeCode) {
+      return null;
+    }
 
-    const product = await findProductByCode(feeCode);
+    const product = await this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+      REFERENCE_TYPES.ENCOUNTER_FEE,
+      feeCode,
+    );
     if (product || feeCode !== ENCOUNTER_FEE_CODES.WEEKEND) {
       return product;
     }
     // No distinct weekend product configured → fall back to the after-hours product.
-    return findProductByCode(ENCOUNTER_FEE_CODES.AFTER_HOURS);
+    return this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+      REFERENCE_TYPES.ENCOUNTER_FEE,
+      ENCOUNTER_FEE_CODES.AFTER_HOURS,
+    );
+  }
+
+  private static resolvePharmacyFeeProduct() {
+    return this.findEncounterFeeProduct(
+      INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
+      REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE,
+      PHARMACY_ENCOUNTER_FEE_CODE,
+    );
+  }
+
+  private static findEncounterFeeProduct(category: string, referenceType: string, code: string) {
+    const { InvoiceProduct, ReferenceData } = this.sequelize.models;
+    return InvoiceProduct.findOne({
+      where: { category },
+      include: [
+        {
+          model: ReferenceData,
+          as: 'sourceRefDataRecord',
+          required: true,
+          where: { type: referenceType, code },
+        },
+      ],
+    });
   }
 }

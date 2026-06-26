@@ -29,12 +29,13 @@ export const INVOICE_ITEMS_CATEGORIES = {
   LAB_TEST_TYPE: 'LabTestType',
   LAB_TEST_PANEL: 'LabTestPanel',
   ENCOUNTER_FEE: 'EncounterFee',
+  PHARMACY_ENCOUNTER_FEE: 'PharmacyEncounterFee',
 };
 
-// Stable reference-data codes for the encounter-fee products. A data admin imports
+// Stable reference-data codes for the clinic/ED encounter-fee products. A data admin imports
 // `encounterFee` reference data with these codes and prices them per facility via price lists.
-// The fee selector resolves an encounter to one of these buckets; the weekend product is
-// optional and falls back to the after-hours product where a state doesn't distinguish them.
+// The fee selector resolves a clinic/ED encounter to one of these buckets; the weekend product
+// is optional and falls back to the after-hours product where a state doesn't distinguish them.
 export const ENCOUNTER_FEE_CODES = {
   STANDARD: 'encounterFeeStandard',
   AFTER_HOURS: 'encounterFeeAfterHours',
@@ -42,11 +43,17 @@ export const ENCOUNTER_FEE_CODES = {
   EMERGENCY: 'encounterFeeEmergency',
 };
 
+// A walk-in pharmacy dispensing encounter charges its own flat fee, separate from the clinic
+// fees above. It is priced on the same facility price list; a facility that doesn't charge for
+// pharmacy simply leaves this product unpriced (no price-list item → no fee line).
+export const PHARMACY_ENCOUNTER_FEE_CODE = 'encounterFeePharmacy';
+
 export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
   [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
   [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
   [REFERENCE_TYPES.DRUG]: INVOICE_ITEMS_CATEGORIES.DRUG,
   [REFERENCE_TYPES.ENCOUNTER_FEE]: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+  [REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE]: INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
 };
 
 // All imaging area reference data types are mapped to the ImagingArea category
@@ -63,6 +70,7 @@ export const INVOICE_ITEMS_CATEGORIES_MODELS = {
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'LabTestType',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'LabTestPanel',
   [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'ReferenceData',
 };
 
 export const INVOICE_ITEMS_CATEGORY_LABELS = {
@@ -73,6 +81,7 @@ export const INVOICE_ITEMS_CATEGORY_LABELS = {
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'Lab test type',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'Lab test panel',
   [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'Encounter fee',
+  [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'Pharmacy encounter fee',
 };
 
 export const INVOICE_ITEMS_DISCOUNT_TYPES = {

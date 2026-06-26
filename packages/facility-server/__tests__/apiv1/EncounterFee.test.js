@@ -2,14 +2,16 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import { ReadSettings } from '@tamanu/settings';
+import { ReadSettings, settingsCache } from '@tamanu/settings';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_FEE_CODES,
+  PHARMACY_ENCOUNTER_FEE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
   REFERENCE_TYPES,
+  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -27,18 +29,25 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
   let pharmacyDepartment;
   let standardProduct;
   let edProduct;
+  let pharmacyProduct;
   let facilityPriceList;
   let settings;
   let primaryTimeZone;
 
-  const createFeeProduct = async code => {
+  const createFeeProduct = async (
+    code,
+    {
+      referenceType = REFERENCE_TYPES.ENCOUNTER_FEE,
+      category = INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+    } = {},
+  ) => {
     const referenceData = await models.ReferenceData.create(
-      fake(models.ReferenceData, { type: REFERENCE_TYPES.ENCOUNTER_FEE, code }),
+      fake(models.ReferenceData, { type: referenceType, code }),
     );
     return models.InvoiceProduct.create(
       fake(models.InvoiceProduct, {
-        category: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
-        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE],
+        category,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[category],
         sourceRecordId: referenceData.id,
       }),
     );
@@ -107,6 +116,19 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
 
     standardProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.STANDARD);
     edProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY);
+    pharmacyProduct = await createFeeProduct(PHARMACY_ENCOUNTER_FEE_CODE, {
+      referenceType: REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE,
+      category: INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
+    });
+
+    // Encounters created in this department are treated as walk-in pharmacy dispensing.
+    await models.Setting.set(
+      'medications.medicationDispensing.automaticEncounterDepartmentId',
+      pharmacyDepartment.id,
+      SETTINGS_SCOPES.FACILITY,
+      facility.id,
+    );
+    settingsCache.reset();
 
     facilityPriceList = await models.InvoicePriceList.create(
       fake(models.InvoicePriceList, {
@@ -158,22 +180,23 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     expect(liveItems).toHaveLength(0);
   });
 
-  it('skips the fee when the department price list hides the fee product, but charges other departments', async () => {
-    const pharmacyPriceList = await models.InvoicePriceList.create(
-      fake(models.InvoicePriceList, {
-        name: 'Pharmacy department list',
-        code: 'ENC-FEE-PHARMACY-PL',
-        rules: { facilityId: facility.id, departmentId: pharmacyDepartment.id },
-        evaluationOrder: 1, // wins over the facility-wide list for the pharmacy department
-      }),
-    );
-    await priceListItem(pharmacyPriceList.id, standardProduct.id, { price: 0, isHidden: true });
+  it('charges the standard clinic fee, not the pharmacy fee, for a clinic-department encounter', async () => {
+    const items = await addFeeFor({ departmentId: generalDepartment.id });
+    expect(items).toHaveLength(1);
+    expect(items[0].productId).toBe(standardProduct.id);
+  });
 
-    const pharmacyItems = await addFeeFor({ departmentId: pharmacyDepartment.id });
-    expect(pharmacyItems).toHaveLength(0);
+  it('does not charge a pharmacy encounter when the pharmacy product is unpriced', async () => {
+    // No price-list item for the pharmacy product → charging is opt-in, so no line.
+    const items = await addFeeFor({ departmentId: pharmacyDepartment.id });
+    expect(items).toHaveLength(0);
+  });
 
-    const generalItems = await addFeeFor({ departmentId: generalDepartment.id });
-    expect(generalItems).toHaveLength(1);
-    expect(generalItems[0].productId).toBe(standardProduct.id);
+  it('charges the pharmacy fee for a pharmacy-department encounter once the product is priced', async () => {
+    await priceListItem(facilityPriceList.id, pharmacyProduct.id, { price: 5 });
+
+    const items = await addFeeFor({ departmentId: pharmacyDepartment.id });
+    expect(items).toHaveLength(1);
+    expect(items[0].productId).toBe(pharmacyProduct.id);
   });
 });
