@@ -1,6 +1,12 @@
+import asyncPool from 'tiny-async-pool';
+
 import { ForbiddenError } from '@tamanu/errors';
 
 const REQUIRE_HTTPS_SETTING = 'security.requireHttps';
+
+// Cap concurrent setting reads on a multi-facility server so we don't fan out one DB read per
+// hosted facility unbounded; the value is in practice cached, but the read pool is finite.
+const SETTING_READ_CONCURRENCY = 3;
 
 /**
  * Resolve whether HTTPS is required from `req.settings`, which differs by server:
@@ -17,8 +23,8 @@ export async function isHttpsRequired(settings) {
   if (typeof settings.get === 'function') {
     return Boolean(await settings.get(REQUIRE_HTTPS_SETTING));
   }
-  const values = await Promise.all(
-    Object.values(settings).map((reader) => reader.get(REQUIRE_HTTPS_SETTING)),
+  const values = await asyncPool(SETTING_READ_CONCURRENCY, Object.values(settings), (reader) =>
+    reader.get(REQUIRE_HTTPS_SETTING),
   );
   return values.some(Boolean);
 }
