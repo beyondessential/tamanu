@@ -542,7 +542,7 @@ export class Invoice extends Model {
           sourceRecordId: locationId,
           productId: product.id,
           orderedByUserId: SYSTEM_USER_UUID,
-          orderDate: new Date(),
+          orderDate: getCurrentDateTimeString(),
           quantity: nights,
         });
       }
