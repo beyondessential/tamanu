@@ -10,7 +10,7 @@ const REQUIRE_HTTPS_SETTING = 'security.requireHttps';
  * For a facility server hosting more than one facility the protocol is fixed before we know which
  * facility a request targets, so we enforce if *any* hosted facility requires HTTPS.
  */
-async function isHttpsRequired(settings) {
+export async function isHttpsRequired(settings) {
   if (!settings) {
     return false;
   }
@@ -43,3 +43,46 @@ export const requireHttps = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Determine whether a raw request (e.g. a WebSocket upgrade that bypasses Express) arrived over
+ * HTTPS, mirroring how Express computes `req.secure`. `trustProxyFn` is Express's compiled trust
+ * function (`app.get('trust proxy fn')`); when the immediate peer is trusted we honour the first
+ * `X-Forwarded-Proto` value, exactly as Express derives `req.protocol`.
+ */
+export function isRawRequestSecure(req, trustProxyFn) {
+  const socket = req.socket ?? req.connection;
+  if (socket?.encrypted) {
+    return true;
+  }
+  if (typeof trustProxyFn === 'function' && trustProxyFn(socket?.remoteAddress, 0)) {
+    const header = req.headers?.['x-forwarded-proto'];
+    if (header) {
+      return header.split(',')[0].trim() === 'https';
+    }
+  }
+  return false;
+}
+
+/**
+ * Build a Socket.IO `allowRequest` handler that rejects WebSocket handshakes that did not arrive
+ * over HTTPS when `security.requireHttps` is in effect. WebSocket upgrades attach to the HTTP server
+ * directly and never pass through the Express middleware stack, so they need their own gate.
+ *
+ * `getSettings` returns the same shape as `req.settings` (a `ReadSettings` for central, or a
+ * `facilityId -> ReadSettings` map for facility); `getTrustProxyFn` returns the server's compiled
+ * trust-proxy function. Fails closed (rejects) if the setting cannot be read.
+ */
+export function buildWebsocketHttpsGuard({ getSettings, getTrustProxyFn }) {
+  return (req, callback) => {
+    (async () => {
+      if (isRawRequestSecure(req, getTrustProxyFn())) {
+        return true;
+      }
+      return !(await isHttpsRequired(getSettings()));
+    })().then(
+      (allowed) => callback(allowed ? null : 'This server only accepts connections over HTTPS.', allowed),
+      () => callback('This server only accepts connections over HTTPS.', false),
+    );
+  };
+}

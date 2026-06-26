@@ -41,7 +41,12 @@ export async function createApiApp({
 
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
-  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
+  const websocketService = defineWebsocketService({
+    httpServer: server,
+    dbNotifier,
+    models,
+    app: express,
+  });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   express.use(

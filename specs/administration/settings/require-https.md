@@ -22,6 +22,7 @@ A facility server that hosts more than one facility requires HTTPS when the requ
 ## Enforcement
 
 When the requirement is in effect, a request that did not arrive over HTTPS is rejected with `403 Forbidden` before it reaches any route handler.
+WebSocket connections are gated the same way: a handshake that did not arrive over HTTPS is refused when the requirement is in effect.
 The connectivity index route remains reachable over plain HTTP regardless of the setting, so health checks continue to work.
 
 A request counts as HTTPS when it arrives over a direct TLS connection, or when a trusted reverse proxy reports the original client protocol as HTTPS via the `X-Forwarded-Proto` header.

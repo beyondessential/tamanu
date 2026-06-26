@@ -1,13 +1,27 @@
+import config from 'config';
 import { Server } from 'socket.io';
 
 import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
+import { buildWebsocketHttpsGuard } from '@tamanu/shared/utils';
 
 /**
  *
- * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/database/models')}} injector
+ * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/database/models'), app: import('express').Express}} injector
  * @returns
  */
 export const defineWebsocketService = injector => {
+  const facilityIds = config.serverFacilityId
+    ? [config.serverFacilityId]
+    : config.serverFacilityIds ?? [];
+  const settingsByFacility = facilityIds.reduce(
+    (byFacility, facilityId) => ({
+      ...byFacility,
+      [facilityId]: new ReadSettings(injector.models, facilityId),
+    }),
+    {},
+  );
+
   const socketServer = new Server(injector.httpServer, {
     path: WS_PATH,
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
@@ -15,6 +29,11 @@ export const defineWebsocketService = injector => {
       origin: '*',
       methods: ['GET', 'POST'],
     },
+    // WebSocket upgrades bypass the Express middleware stack, so enforce security.requireHttps here.
+    allowRequest: buildWebsocketHttpsGuard({
+      getSettings: () => settingsByFacility,
+      getTrustProxyFn: () => injector.app?.get('trust proxy fn'),
+    }),
   });
 
   const getSocketServer = () => socketServer;
