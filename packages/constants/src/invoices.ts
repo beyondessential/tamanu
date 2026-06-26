@@ -30,6 +30,7 @@ export const INVOICE_ITEMS_CATEGORIES = {
   LAB_TEST_PANEL: 'LabTestPanel',
   ENCOUNTER_FEE: 'EncounterFee',
   PHARMACY_ENCOUNTER_FEE: 'PharmacyEncounterFee',
+  BED_FEE: 'BedFee',
 };
 
 // Stable reference-data codes for the clinic/ED encounter-fee products. A data admin imports
@@ -82,6 +83,7 @@ export const INVOICE_ITEMS_CATEGORIES_MODELS = {
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'LabTestPanel',
   [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'ReferenceData',
   [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.BED_FEE]: 'Location',
 };
 
 export const INVOICE_ITEMS_CATEGORY_LABELS = {
@@ -93,6 +95,7 @@ export const INVOICE_ITEMS_CATEGORY_LABELS = {
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'Lab test panel',
   [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'Encounter fee',
   [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'Pharmacy encounter fee',
+  [INVOICE_ITEMS_CATEGORIES.BED_FEE]: 'Bed fee',
 };
 
 export const INVOICE_ITEMS_DISCOUNT_TYPES = {

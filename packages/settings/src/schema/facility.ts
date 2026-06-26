@@ -284,6 +284,19 @@ export const facilitySettings = {
             },
           },
         },
+        bedFee: {
+          name: 'Bed fee',
+          description: 'Per-night inpatient bed fee',
+          properties: {
+            overnightChargeTime: {
+              name: 'Overnight charge time',
+              description:
+                'Facility-local time each night when a bed fee is charged for still-admitted patients. 24-hour time, e.g. 02:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '02:00',
+            },
+          },
+        },
       },
     },
     survey: {
