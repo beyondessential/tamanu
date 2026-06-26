@@ -7,6 +7,54 @@ import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
 /**
+ * Sentinel thrown to force a managed transaction to roll back at the end of a dry run, while
+ * carrying fn's result back out. Caught by runInRollbackTransaction so it never surfaces as a
+ * real error.
+ */
+class DryRunRollback extends Error {
+  constructor(result) {
+    super();
+    this.result = result;
+  }
+}
+
+/**
+ * Runs `fn` inside a managed transaction that is always rolled back, so a dry run can
+ * exercise the real migration/upgrade code path (including DDL, DML and audit writes)
+ * without committing anything. `fn` receives the outer Transaction object; pass it as
+ * `parentTransaction` so inner `sequelize.transaction()` calls nest as SAVEPOINTs rather
+ * than opening independent connections that would commit for real (Sequelize does not
+ * auto-nest transactions from CLS — only individual queries attach to the current one).
+ */
+export async function runInRollbackTransaction(sequelize, fn) {
+  try {
+    await sequelize.transaction(async (outerTransaction) => {
+      // Throwing rolls the transaction back; the sentinel carries fn's result back out.
+      throw new DryRunRollback(await fn(outerTransaction));
+    });
+  } catch (error) {
+    if (error instanceof DryRunRollback) {
+      return error.result;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Fires any pending DEFERRABLE INITIALLY DEFERRED constraint triggers (e.g. the changelog
+ * audit triggers) immediately, then returns to deferred mode. During a dry run every
+ * migration runs as a SAVEPOINT under one outer transaction; RELEASE SAVEPOINT does not
+ * fire deferred triggers (only the outer COMMIT does), so without this they accumulate and
+ * a later DDL migration trips "cannot ALTER TABLE ... pending trigger events" on a table an
+ * earlier DML migration wrote to. Flushing at each migration boundary mimics the
+ * per-migration COMMIT of a real run; the flushed writes still roll back with the dry run.
+ */
+export async function flushDeferredConstraints(sequelize) {
+  await sequelize.query('SET CONSTRAINTS ALL IMMEDIATE');
+  await sequelize.query('SET CONSTRAINTS ALL DEFERRED');
+}
+
+/**
  * Enhances PostgreSQL "pending trigger events" errors with helpful guidance.
  * This error occurs when a migration mixes DDL and DML on the same table.
  */
@@ -52,8 +100,23 @@ function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
 // migration as the revert boundary instead.
 const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdateSyncTick.js';
 
-/** @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }} */
-export function createMigrationInterface(log, sequelize) {
+/**
+ * `options.dryRun`: when true, each migration runs as a SAVEPOINT under
+ * `options.parentTransaction` (the outer dry-run transaction) and deferred audit triggers
+ * are flushed at each boundary so a rolled-back dry run behaves like a real run.
+ *
+ * @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }}
+ */
+export function createMigrationInterface(log, sequelize, options = {}) {
+  const { dryRun = false, parentTransaction = null } = options;
+
+  // In a dry run each migration nests as a SAVEPOINT under parentTransaction. Without one,
+  // `sequelize.transaction({ transaction: null })` would silently open an independent top-level
+  // transaction that commits for real, defeating the rollback — so fail loudly instead.
+  if (dryRun && !parentTransaction) {
+    throw new Error('createMigrationInterface: a dry run requires a parentTransaction.');
+  }
+
   // ie, database/dist/cjs/migrations
   const migrationsDir = path.join(__dirname, '../..', 'migrations');
 
@@ -78,38 +141,50 @@ export function createMigrationInterface(log, sequelize) {
       path: migrationsDir,
       pattern: /^\d+[\w-]+\.(js|ts)$/,
       params: [sequelize.getQueryInterface()],
-      wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
-        if (!isMigrationContextAvailable) {
+      // In a dry run, nest each migration as a SAVEPOINT under the outer dry-run
+      // transaction (Sequelize only nests when the parent is passed explicitly); otherwise
+      // each migration runs in its own top-level transaction as usual.
+      wrap: (updown) => (...args) => {
+        const transactionArgs = dryRun ? [{ transaction: parentTransaction }] : [];
+        return sequelize.transaction(...transactionArgs, async () => {
+          // Flush the previous migration's deferred audit triggers before this one's DDL,
+          // mimicking the per-migration COMMIT that a real run would have done by now.
+          if (dryRun) {
+            await flushDeferredConstraints(sequelize);
+          }
+
+          const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
+          if (!isMigrationContextAvailable) {
+            try {
+              return await updown(...args);
+            } catch (error) {
+              throw enhancePendingTriggerError(error, wrapContext.migrationName);
+            }
+          }
+
+          // Create migration context object
+          const migrationContext = {
+            direction: wrapContext.direction,
+            migrationName: wrapContext.migrationName,
+            serverType: global?.serverInfo?.serverType || 'unknown',
+          };
+
+          // Set the migration context as a transaction variable
+          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+
           try {
             return await updown(...args);
           } catch (error) {
             throw enhancePendingTriggerError(error, wrapContext.migrationName);
+          } finally {
+            try {
+              await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+            } catch {
+              // Transaction already aborted; rollback will clean up.
+            }
           }
-        }
-
-        // Create migration context object
-        const migrationContext = {
-          direction: wrapContext.direction,
-          migrationName: wrapContext.migrationName,
-          serverType: global?.serverInfo?.serverType || 'unknown',
-        };
-
-        // Set the migration context as a transaction variable
-        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
-
-        try {
-          return await updown(...args);
-        } catch (error) {
-          throw enhancePendingTriggerError(error, wrapContext.migrationName);
-        } finally {
-          try {
-            await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
-          } catch {
-            // Transaction already aborted; rollback will clean up.
-          }
-        }
-      }),
+        });
+      },
 
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
@@ -182,6 +257,7 @@ export async function migrateUpTo({
   getDurationStats,
   upOpts,
   upgradeRunId,
+  dryRun = false,
 }) {
   const batchStart = Date.now();
 
@@ -200,6 +276,11 @@ export async function migrateUpTo({
 
   log.info('Applied migrations successfully');
 
+  // Flush the last migration's deferred audit triggers before the post-migration DDL.
+  if (dryRun) {
+    await flushDeferredConstraints(sequelize);
+  }
+
   log.info('Running post-migration steps...');
   await runPostMigration(log, sequelize);
   log.info(`Applied post-migration steps successfully.`);
@@ -217,19 +298,29 @@ export async function migrateUpTo({
   });
 }
 
-async function migrateUp(log, sequelize, upOpts = undefined) {
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
+async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
+  const { dryRun = false, parentTransaction = null } = options;
+  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize, {
+    dryRun,
+    parentTransaction,
+  });
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
-    await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts });
+    await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts, dryRun });
   } else {
     log.info('Migrations already up-to-date.');
   }
+
+  return pending.length;
 }
 
-async function migrateDown(log, sequelize, options) {
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
+async function migrateDown(log, sequelize, options = {}) {
+  const { dryRun = false, parentTransaction = null, to } = options;
+  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize, {
+    dryRun,
+    parentTransaction,
+  });
 
   const batchStart = Date.now();
 
@@ -241,7 +332,7 @@ async function migrateDown(log, sequelize, options) {
 
   const preSnapshot = await tryGatherPreMigrationDbSnapshot(log, sequelize);
 
-  const reverted = await migrations.down(options);
+  const reverted = await migrations.down(to ? { to } : undefined);
   const revertedList = Array.isArray(reverted) ? reverted : [reverted];
   const durationStats = getDurationStats();
   const durationMsPerMigration = migrationDurationsForBatch(durationStats, revertedList);
@@ -255,6 +346,11 @@ async function migrateDown(log, sequelize, options) {
     }
   } else {
     log.info(`Reverted migration ${reverted.file}.`);
+  }
+
+  // Flush the reverted migration's deferred audit triggers before the post-migration DDL.
+  if (dryRun) {
+    await flushDeferredConstraints(sequelize);
   }
 
   log.info('Running post-migration steps...');
@@ -285,21 +381,43 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, direction) {
-  if (direction === 'up') {
-    return migrateUp(log, sequelize);
+export async function migrate(log, sequelize, direction, options = {}) {
+  const { dryRun = false } = options;
+
+  if (dryRun && direction !== 'up' && direction !== 'redoLatest') {
+    throw new Error(`--dry-run is only supported for 'up' and 'redoLatest', not '${direction}'.`);
   }
-  if (direction === 'down') {
-    return migrateDown(log, sequelize);
+
+  const run = async (parentTransaction = null) => {
+    const opts = { ...options, parentTransaction };
+    if (direction === 'up') {
+      return migrateUp(log, sequelize, undefined, opts);
+    }
+    if (direction === 'down') {
+      return migrateDown(log, sequelize, opts);
+    }
+    if (direction === 'downToLastReversibleMigration') {
+      return migrateDown(log, sequelize, { ...opts, to: LAST_REVERSIBLE_MIGRATION });
+    }
+    if (direction === 'redoLatest') {
+      await migrateDown(log, sequelize, opts);
+      return migrateUp(log, sequelize, undefined, opts);
+    }
+    throw new Error(`Unrecognised migrate direction: ${direction}`);
+  };
+
+  if (dryRun) {
+    log.info(
+      'DRY RUN: applying migrations in a transaction that will be rolled back; no changes will be committed.',
+    );
+    const migrationCount = await runInRollbackTransaction(sequelize, run);
+    log.info(
+      `DRY RUN complete — ${migrationCount ?? 0} migration${migrationCount === 1 ? '' : 's'} would be applied; rolled back, no changes committed.`,
+    );
+    return undefined;
   }
-  if (direction === 'downToLastReversibleMigration') {
-    return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
-  }
-  if (direction === 'redoLatest') {
-    await migrateDown(log, sequelize);
-    return migrateUp(log, sequelize);
-  }
-  throw new Error(`Unrecognised migrate direction: ${direction}`);
+
+  return run();
 }
 
 export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
@@ -308,7 +426,11 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
   migrateCommand
     .command('up', { isDefault: true })
     .description('Run all unrun migrations until up to date')
-    .action(() => migrateCallback('up'));
+    .option(
+      '--dry-run',
+      'Apply migrations in a transaction then roll back, without committing any changes',
+    )
+    .action((options) => migrateCallback('up', { dryRun: Boolean(options.dryRun) }));
 
   migrateCommand
     .command('down')
@@ -325,7 +447,11 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
   migrateCommand
     .command('redoLatest')
     .description('Run database migrations down 1 and then up 1')
-    .action(() => migrateCallback('redoLatest'));
+    .option(
+      '--dry-run',
+      'Run the down and up in a transaction then roll back, without committing any changes',
+    )
+    .action((options) => migrateCallback('redoLatest', { dryRun: Boolean(options.dryRun) }));
 
   return migrateCommand;
 }

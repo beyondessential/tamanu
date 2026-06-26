@@ -5,9 +5,9 @@ import { initDatabase } from '../database';
 // This is the "just-migrate" command for running database migrations only
 // Note: there's also a 'migrate' alias on the 'upgrade' command for deployment safety, which
 // includes database migrations plus automated upgrade steps
-async function migrate(direction) {
+async function migrate(direction, { dryRun = false } = {}) {
   const store = await initDatabase({ testMode: false });
-  await store.sequelize.migrate(direction);
+  await store.sequelize.migrate(direction, { dryRun });
   process.exit(0);
 }
 
