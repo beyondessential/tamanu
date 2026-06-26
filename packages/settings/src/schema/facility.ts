@@ -297,19 +297,6 @@ export const facilitySettings = {
             },
           },
         },
-        inpatientFee: {
-          name: 'Inpatient fee inclusions',
-          description: 'Item categories bundled into the admission fee',
-          properties: {
-            bundledCategories: {
-              name: 'Bundled categories',
-              description:
-                'Item categories bundled into the inpatient admission fee, so they are not auto-added to an admission invoice (still auto-added for outpatient/ER). Allowed values: imaging, lab, medication.',
-              type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
-              defaultValue: [],
-            },
-          },
-        },
       },
     },
     survey: {
