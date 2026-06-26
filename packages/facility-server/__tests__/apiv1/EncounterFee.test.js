@@ -54,8 +54,7 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
       }),
     );
 
-  // Create an encounter + its in-progress invoice, run addEncounterFee, and return the line items.
-  const addFeeFor = async ({
+  const createEncounterWithInvoice = async ({
     encounterType = ENCOUNTER_TYPES.CLINIC,
     departmentId,
     startDate = '2024-06-18 10:00:00', // Tuesday, standard hours
@@ -76,6 +75,12 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
       date: startDate,
       status: INVOICE_STATUSES.IN_PROGRESS,
     });
+    return { encounter, invoice };
+  };
+
+  // Create an encounter + its in-progress invoice, run addEncounterFee, and return the line items.
+  const addFeeFor = async (opts = {}) => {
+    const { encounter, invoice } = await createEncounterWithInvoice(opts);
     await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
     return models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
   };
@@ -131,6 +136,26 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
   it('adds no fee for an encounter type that is not invoiceable', async () => {
     const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.ADMISSION });
     expect(items).toHaveLength(0);
+  });
+
+  it('is idempotent — a second call for the same encounter does not add a duplicate fee line', async () => {
+    const { encounter, invoice } = await createEncounterWithInvoice();
+    await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
+    await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
+    const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(items).toHaveLength(1);
+    expect(items[0].productId).toBe(standardProduct.id);
+  });
+
+  it('does not re-add a fee line that was removed (soft-deleted) by a cashier', async () => {
+    const { encounter, invoice } = await createEncounterWithInvoice();
+    await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
+    const [feeLine] = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    await feeLine.destroy(); // cashier removes the fee
+
+    await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
+    const liveItems = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(liveItems).toHaveLength(0);
   });
 
   it('skips the fee when the department price list hides the fee product, but charges other departments', async () => {

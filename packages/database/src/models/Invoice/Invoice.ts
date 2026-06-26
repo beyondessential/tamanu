@@ -306,15 +306,18 @@ export class Invoice extends Model {
       return;
     }
 
+    const [facilityTimeZone, standardHoursStart, standardHoursEnd] = await Promise.all([
+      settings.get('facilityTimeZone'),
+      settings.get('invoicing.encounterFee.standardHoursStart'),
+      settings.get('invoicing.encounterFee.standardHoursEnd'),
+    ]);
     const feeCode = selectEncounterFeeCode({
       encounterType: encounter.encounterType as EncounterType,
       startDateTime: encounter.startDate,
       primaryTimeZone,
-      facilityTimeZone: (await settings.get('facilityTimeZone')) as string | null,
-      standardHoursStart: (await settings.get(
-        'invoicing.encounterFee.standardHoursStart',
-      )) as string,
-      standardHoursEnd: (await settings.get('invoicing.encounterFee.standardHoursEnd')) as string,
+      facilityTimeZone: facilityTimeZone as string | null,
+      standardHoursStart: standardHoursStart as string,
+      standardHoursEnd: standardHoursEnd as string,
     });
     if (!feeCode) {
       return;
