@@ -236,6 +236,10 @@ describe('Settings Admin', () => {
           facilityId: facility.id,
         });
       expect(response).toHaveSucceeded();
+
+      // The value must actually have been persisted
+      const persisted = await getSettings(SETTINGS_SCOPES.FACILITY, facility.id);
+      expect(persisted.body?.security?.requireHttps).toBe(true);
     });
 
     it('allows saving other settings over HTTP when requireHttps is not being enabled', async () => {

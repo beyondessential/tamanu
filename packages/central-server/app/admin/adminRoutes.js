@@ -220,7 +220,9 @@ adminRoutes.put(
 
     // Guard against locking everyone out: security.requireHttps can only be turned on from an
     // HTTPS connection, which proves HTTPS reaches this server before it becomes mandatory.
-    if (getAtPath(settings, 'security.requireHttps') === true && !req.secure) {
+    // Use a truthy check (not === true) to match how the middleware reads the value (Boolean(...)),
+    // so e.g. a `1` cannot slip past the guard yet still trigger enforcement.
+    if (getAtPath(settings, 'security.requireHttps') && !req.secure) {
       throw new ForbiddenError(
         'security.requireHttps can only be enabled over an HTTPS connection. Reconnect over HTTPS and try again.',
       );
