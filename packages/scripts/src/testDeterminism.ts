@@ -136,10 +136,14 @@ function summarise(hashes: TableHashes): string {
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const { initDatabase } = await import('@tamanu/database/services/database');
   const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
+  const { normaliseMigrationStorageExtensions } = await import('@tamanu/upgrade');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
+  // The init DB was migrated under old code that stored `.js` extensions; normalise to `.ts`
+  // before createMigrationInterface asserts it has been done.
+  await normaliseMigrationStorageExtensions(sequelize);
   const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();
