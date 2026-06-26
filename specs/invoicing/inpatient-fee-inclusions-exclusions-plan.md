@@ -10,22 +10,31 @@ Per-facility control of which item categories (imaging / lab / medications) are 
 
 ## Build steps
 
-- [ ] Facility setting: bundled-categories list (`settings/src/schema/facility.ts`), e.g. `invoicing.inpatientBundledCategories`
-- [ ] Shared check `isCategoryBundledForEncounter(category, encounter)` → `Setting.get(key, encounter facilityId)`, admission-only
-- [ ] Lab: gate in `shouldAddLabRequestToInvoice` (`LabRequest/hooks.ts:10`) — skip when bundled + admission
-- [ ] Imaging: gate in `shouldAddImagingRequestToInvoice` (`ImagingRequest/hooks.ts:12`) and the area path (`ImagingRequestArea/hooks.ts:85`)
-- [ ] Medications: in `recalculateAndApplyInvoiceQuantity`, exclude the administered/MAR sum when meds are bundled + admission; keep the discharge sum (`Prescription.ts:266–314`)
-- [ ] Procedures: confirm no change (never bundled) — `Procedure/hooks.ts`
-- [ ] Confirm `facilityId` is derivable from the encounter inside the hooks (e.g. `encounter.location.facilityId`)
+- [x] Facility setting: bundled-categories list — `invoicing.inpatientFee.bundledCategories` (array of `imaging` / `lab` / `medication`), `settings/src/schema/facility.ts`
+- [x] Shared check `isInpatientFeeBundled(models, encounterId, category)` → admission-only, reads `Setting.get(key, facilityId)` (`database/src/utils/isInpatientFeeBundled.ts`)
+- [x] Lab: gated in `shouldAddLabRequestToInvoice` — skip when bundled + admission
+- [x] Imaging: gated in `shouldAddImagingRequestToInvoice` (the area path defers to it via `ImagingRequestArea/hooks.ts:85`, so it's covered)
+- [x] Medications: in `recalculateAndApplyInvoiceQuantity`, the administered (MAR) portion is zeroed when meds are bundled + admission; the discharge sum still bills
+- [x] Procedures: no change (never bundled) — `Procedure/hooks.ts` untouched
+- [x] `facilityId` derived in the helper from the encounter's location (`encounter.locationId → Location.facilityId`)
 
 ### Tests
 
-- [ ] Per-state matrix (Chuuk / Kosrae / Pohnpei / Yap) from the inclusion table
-- [ ] Admission excludes bundled categories; outpatient/ER still auto-add them
-- [ ] Discharge meds always invoiced even when administered meds are bundled
-- [ ] Pre-admission item keeps full price after the encounter becomes admission
-- [ ] Bundled items are absent from the invoice (not added at all)
+- [ ] Per-state matrix (Chuuk / Kosrae / Pohnpei / Yap) from the inclusion table — integration
+- [ ] Admission excludes bundled categories; outpatient/ER still auto-add them — integration
+- [ ] Discharge meds always invoiced even when administered meds are bundled — integration
+- [ ] Pre-admission item keeps full price after the encounter becomes admission — integration
+- [ ] Bundled items are absent from the invoice (not added at all) — integration
 
-## Risks / open
+## Implementation status — 2026-06-25
 
-- The lab/imaging hooks currently read **global** settings; this work needs `facilityId` in-hook — verify it's reliably available from the encounter/invoice.
+Branch `feature/tam-6901-…`, stacked on `feature/tam-6898` (it reuses 6898's `invoicing` settings block). One commit.
+
+**Done & verified** — `@tamanu/database` + `@tamanu/settings` build pass, lint clean:
+- `INPATIENT_BUNDLED_CATEGORIES` constant + the `invoicing.inpatientFee.bundledCategories` facility setting.
+- `isInpatientFeeBundled` helper (admission-only, per-facility) and the three gates (lab, imaging, administered-medication).
+- Procedures untouched; discharge meds still bill; outpatient/ER unaffected (helper short-circuits on non-admission).
+
+**Not yet runtime/DB-verified** — endpoint/integration tests (the per-state matrix above) haven't been run against a live DB.
+
+**Note:** the helper does small extra PK lookups (re-fetches encounter type/location + facility) per gated request; fine functionally, could be optimised later by threading the already-loaded encounter through.

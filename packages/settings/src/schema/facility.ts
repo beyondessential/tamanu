@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
+  INPATIENT_BUNDLED_CATEGORY_VALUES,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -267,6 +268,19 @@ export const facilitySettings = {
               description: 'End of standard (in-hours) time on weekdays. 24-hour time, e.g. 17:00.',
               type: datelessTimeStringSchema,
               defaultValue: '17:00',
+            },
+          },
+        },
+        inpatientFee: {
+          name: 'Inpatient fee inclusions',
+          description: 'Item categories bundled into the admission fee',
+          properties: {
+            bundledCategories: {
+              name: 'Bundled categories',
+              description:
+                'Item categories bundled into the inpatient admission fee, so they are not auto-added to an admission invoice (still auto-added for outpatient/ER). Allowed values: imaging, lab, medication.',
+              type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
+              defaultValue: [],
             },
           },
         },
