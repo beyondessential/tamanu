@@ -50,4 +50,9 @@ describe('resolveDbConfig', () => {
       username: 'tamanu',
     });
   });
+
+  it('throws a clear error when DATABASE_URL is not a postgres connection string', () => {
+    process.env.DATABASE_URL = 'localhost:5432/tamanu';
+    expect(() => resolveDbConfig(structured)).toThrow(/postgres/);
+  });
 });

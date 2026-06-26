@@ -29,6 +29,14 @@ export const resolveDbConfig = (dbConfig = {}) => {
   const url = process.env.DATABASE_URL;
   if (!url) return dbConfig;
 
+  // pg-connection-string is lenient and won't reject junk, so check the scheme
+  // here and fail with a clear message rather than a vague connection error later.
+  // (A prefix check, not `new URL`, because that rejects the valid unix-socket
+  // form `postgresql://user@/db?host=/path`.)
+  if (!/^postgres(ql)?:\/\//i.test(url)) {
+    throw new Error('DATABASE_URL must be a postgres:// or postgresql:// connection string');
+  }
+
   const parsed = parse(url);
   return {
     ...dbConfig,
