@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { isEqual, isPlainObject } from 'lodash';
+import { isEqual, isPlainObject } from 'es-toolkit/compat';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';

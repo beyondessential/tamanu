@@ -1,11 +1,11 @@
 # Tech Design - FSM Encounter Fees
 
-Product decisions and technical design for the FSM Encounver Fee Invoicing.
+Product decisions and technical design for the FSM Encounter Fee Invoicing.
 
 # Cross Cutting
 
 - **One fee engine.** Outpatient, emergency and bed fees are all invoice products priced through the existing price-list system; they differ only in which product applies and when it's added (encounter start for outpatient/emergency, per night for the bed fee).
-- **One pricing mechanism — price lists.** Per-facility, age and patient-type rates, insurance and discounts all come from the existing price-list engine; no new pricing logic. The bed fee joins by treating each bed (Location) as a priceable product.
+- **One pricing mechanism — price lists.** Per-facility, per-department, age and patient-type rates, insurance and discounts all come from the existing price-list engine; no new pricing logic. The bed fee joins by treating each bed (Location) as a priceable product.
 - **Settings.** Invoicing on/off stays global; a new **facility-scoped** block holds the per-state behaviour (states differ): normal-hours window, overnight bed-fee check time (default 02:00), and which item categories are bundled into the inpatient fee. (need to make sure that the scheduler runs after the bed fee check time each night)
 - **Encounter-type taxonomy.** 
   - Outpatient: clinic, imaging
@@ -18,7 +18,7 @@ Product decisions and technical design for the FSM Encounver Fee Invoicing.
 
 
 
-# Outpatient & ED Encounter Fees
+# Outpatient & ED Encounter Fees (TAM-6898)
 
 ## Tech design
 
@@ -28,15 +28,21 @@ Product decisions and technical design for the FSM Encounver Fee Invoicing.
 - **One fee line per encounter** — anchored to the encounter, so re-runs/re-syncs update the same line, never duplicate. Adding at start (not discharge) survives the end-of-day clinic auto-discharge. Changes should be handled through an Encounter model level change hook - this should only add if there isn't already a line for the same product code. Initial encounter fee is set when the invoice is created.
 - Update the invoice-item "source" types with 2 new types: Encounter Fee and Bed Fee.
 
-### Walk-in pharmacy vs regular clinic — discriminator flag + charge toggle
+### Walk-in pharmacy vs regular clinic — fee varies by Department
 
-Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit. Resolved with Les: where pharmacy is charged (Yap) it's the **same fee** as a regular clinic visit; where it isn't (Pohnpei) the fee is **skipped** entirely. No facility prices the two differently. So this is **charge-or-skip, not a pricing difference** — no separate pharmacy fee products (which would mean a parallel, mostly-$0 product set). But the fee logic still has to tell pharmacy walk-ins apart from regular clinic encounters; today's only signal is the hardcoded free-text `reasonForEncounter: 'Medication dispensing'`, too fragile to bill off.
+Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit — but in a **dedicated department** (`medications.medicationDispensing.automaticEncounterDepartmentId`), distinct from regular clinic departments. So **Department is the natural discriminator** and no extra flag on the encounter is needed. Resolved with Les: where pharmacy is charged (Yap) it's the same fee as a regular clinic visit; where it isn't (Pohnpei) it's skipped. No facility prices the two differently.
 
-**Approach: an additive discriminator flag on the encounter**, e.g. `isPharmacyEncounter` (boolean, default `false`), set `true` at creation by the walk-in pharmacy route and immutable thereafter; plus a **facility setting** toggling whether pharmacy walk-ins are charged.
+**Approach: the encounter fee varies by Department, through the price-list engine.** Add `departmentId` as a price-list rule dimension (alongside facility / patient type / age):
 
-- **Fee selection:** for a `clinic` encounter, if `isPharmacyEncounter` is set and the facility's charge-pharmacy setting is off, the helper **skips the fee**; otherwise the pharmacy walk-in gets the **normal clinic fee** — same products, same time-of-day bucket as a regular visit.
-- **Why a flag, not a new encounter type:** additive and low-blast-radius (one column + migration), vs a new encounter type which threads through ~61 files (UI, permissions, FHIR, reports, mobile, sync, dbt, auto-discharger, invoiceable-type sets) and changes existing clinic behaviour. A new `pharmacy` encounter type is the cleaner long-term model *if* the org wants pharmacy dispensing to be a first-class encounter concept — that's a separate product decision, out of scope here.
-- **Migrations:** the column is on `encounters`, which syncs — so add the **mobile (TypeORM) migration alongside the server (Sequelize) one**, even though walk-in pharmacy is a facility-server flow today.
+- **Charge (Yap):** the pharmacy department's price list prices the encounter-fee product like a normal clinic visit.
+- **Skip (Pohnpei):** the pharmacy department's price list **hides** the encounter-fee product (the existing `isHidden` mechanism) → no fee line (not a $0 line).
+- **Fee selection is unchanged** — the helper still picks the standard / after-hours / weekend / ED product by encounter family + time-of-day. Department only affects which price list matches: the amount, or hidden → skip.
+- **Requires** the encounter-fee add path to honour the matching price list's `isHidden`/absence — the same check the other auto-add paths already make — so a department can skip the fee.
+- **No `isPharmacyEncounter` flag, column or migration** — the department already on every encounter does the job.
+
+This keeps all pricing in the price-list engine (per the Cross-Cutting "one pricing mechanism" principle) and is **future-proof**: any department can carry its own encounter fee, or none — not just pharmacy. It assumes the pharmacy auto-department is distinct from regular clinic departments (true by config).
+
+*(Superseded: the first cut of TAM-6898 used an `isPharmacyEncounter` boolean on the encounter + a per-facility charge toggle. Replaced by the department model above, which avoids a synced column + mobile migration and generalises beyond pharmacy.)*
 
 ## Decisions
 
@@ -46,13 +52,13 @@ Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a reg
 - Public holidays not automated — cashier adjusts.
 - Includes **A single ED fee** covering Triage, Active ED and Emergency short stay
 - **No imaging encounters** in FSM — outpatient fee applies to clinic (incl. walk-in pharmacy) only.
-- **Walk-in pharmacy** (clinic) encounters: charged the **normal clinic fee** where the facility charges pharmacy (Yap), **no fee** where it doesn't (Pohnpei) — controlled by a per-facility toggle + the `isPharmacyEncounter` discriminator, not separate products.
+- **Walk-in pharmacy** (clinic) encounters: the encounter fee varies by **Department** via the price list — priced normally where pharmacy is charged (Yap), hidden (no line) where it isn't (Pohnpei). No separate products, no encounter flag.
 
 ---
 
 
 
-# Inpatient Encounter Fees
+# Inpatient Encounter Fees (TAM-6900)
 
 ## Tech design
 
@@ -70,10 +76,11 @@ Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a reg
 - **"Open ward" placeholder** locations are never charged.
 - Invoice **batches by Location** (e.g. ICU ×2, Ward 1 Bed 1 ×3), not one row per night.
 - Overnight check time configurable per facility (default 02:00), in facility-local time.
+- A patient **admitted from ED** keeps the ED encounter fee and is also charged the bed fee's first night, with pre-admission items at full price — all on the one encounter invoice.
 
 
 
-# FSM Price Ward Scenario
+# FSM Price Ward Scenario (TAM-6913)
 
 Handles the edge case where a patient occupies two billable locations in one day — placed in a general ward while waiting for a private room, then moved once one frees up — and is billed a night for each (a distinct billable location occupied that day = one night).
 
@@ -81,7 +88,7 @@ Handles the edge case where a patient occupies two billable locations in one day
 
 
 
-# Inpatient fee inclusions / exclusions
+# Inpatient fee inclusions / exclusions (TAM-6901)
 
 ## Tech design
 
@@ -106,15 +113,5 @@ Handles the edge case where a patient occupies two billable locations in one day
 | Medications | no | yes | no | yes |
 | Procedures | no | no | no | no |
 
-## Open questions
-
-- Can I confirm that a patient admitted to hospital from ED is charged both the Emergency encounter fee and the bed fee's first night, plus pre-admission items at full price all on one invoice? - Yes
-
-- Does the Outpatient Fee apply to Imaging encounters & walk-in pharmacy encounters as well as Clinic encounters? - We don't have Imaging encounters. Pharmacy walk-ins: **resolved** — charged the normal clinic fee where the facility charges pharmacy (Yap), skipped where it doesn't (Pohnpei), via a per-facility toggle + `isPharmacyEncounter` discriminator. No separate/$0 products (see Walk-in pharmacy section).
-
-- Can I confirm that STAT medications for outpatients are out of scope for now? - Yes
-
-- Will Location Group be sufficient for pricing? No it won't so we will have to go back to using locations.
-- **[Resolved]** Does Pohnpei charge the outpatient fee for *regular clinic visits*? **Yes** — Pohnpei charges regular clinic but **skips** the fee for pharmacy walk-ins; Yap charges both the same; no state prices pharmacy differently. Handled by a per-facility charge-pharmacy toggle + the `isPharmacyEncounter` discriminator — no separate pharmacy products.
 
   

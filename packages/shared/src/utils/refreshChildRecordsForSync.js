@@ -1,4 +1,4 @@
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'es-toolkit/compat';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 

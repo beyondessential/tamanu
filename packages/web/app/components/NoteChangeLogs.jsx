@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'es-toolkit/compat';
 import { useQuery } from '@tanstack/react-query';
 
 import { Colors } from '../constants';

@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/fake-data/fake';
 import config from 'config';
-import { verifyToken } from '../../dist/auth/utils';
-import { genToken } from '../../dist/subCommands/apiKeys/issue';
+import { verifyToken } from '../../app/auth/utils';
+import { genToken } from '../../app/subCommands/apiKeys/issue';
 import { createTestContext } from '../utilities';
 
 describe('apiKeys issue', () => {

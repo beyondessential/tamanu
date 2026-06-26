@@ -17,7 +17,7 @@ export function assertConsistentPathCasing(): void {
 
   for (const [label, given] of [
     ['cwd', process.cwd()],
-    ['script directory', __dirname],
+    ['script directory', import.meta.dirname],
   ] as const) {
     let canonical: string;
     try {

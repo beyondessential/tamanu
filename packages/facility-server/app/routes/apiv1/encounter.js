@@ -34,7 +34,7 @@ import {
   fetchGraphData,
   fetchChartInstances,
 } from '../../routeHandlers/charts';
-import { keyBy } from 'lodash';
+import { keyBy } from 'es-toolkit/compat';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';

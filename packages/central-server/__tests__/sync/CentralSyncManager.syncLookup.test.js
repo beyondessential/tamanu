@@ -21,11 +21,11 @@ import {
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 
-import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
+import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
-import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
-import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
-import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { getPatientLinkedModels } from '../../app/sync/getPatientLinkedModels';
+import { createMarkedForSyncPatientsTable } from '../../app/sync/createMarkedForSyncPatientsTable';
+import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 describe('Sync Lookup data', () => {
@@ -1494,7 +1494,7 @@ describe('Sync Lookup data', () => {
       });
 
       const actualConfig = jest.requireActual('config');
-      const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
+      const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
       const config = {
         ...actualConfig,
         sync: {

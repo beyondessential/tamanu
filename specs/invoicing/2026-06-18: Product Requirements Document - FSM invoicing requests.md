@@ -70,7 +70,7 @@ Fee X — Overnight Stay
   - Fee X stops if a patient turns 65 during their inpatient stay. I.e. patient will be charged only up until the day prior to their 65th birthday. 
 - **Invoicing:**
   - Batch invoice line items by location: 
-    - E.g. If a patient is in ICU for 2 nights and then transferred to Ward 1 Bed 1 for 3 nights, invoice should display 1 item with quantity of 2 for ICU and 1 item with quanitity of 3 for Ward 1 Bed 1.
+    - E.g. If a patient is in ICU for 2 nights and then transferred to Ward 1 Bed 1 for 3 nights, invoice should display 1 item with quantity of 2 for ICU and 1 item with quantity of 3 for Ward 1 Bed 1.
 
 ------
 
