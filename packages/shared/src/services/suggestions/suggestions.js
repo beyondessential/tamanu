@@ -90,6 +90,8 @@ const invoiceInsurancePlanIncludeBuilder = req => {
       required: true,
       where: {
         patientId,
+        // Removed plans are marked historical (not soft-deleted), so exclude them explicitly
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     },
   ];
