@@ -11,6 +11,11 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
 // { sync: { host, email, password }, facilityIds }, resolved once at boot.
+// Module-level singleton: re-running initServerConfig (e.g. after the setup
+// wizard writes new facts) refreshes it, so isServerConfigured() flips within the
+// same process, but the sync runtime is NOT hot-reloaded — anything that captured
+// a resolved value at construction (e.g. CentralServerConnection's host) keeps the
+// old one until the process restarts.
 let resolved = null;
 
 /**

@@ -47,6 +47,8 @@ describe('Admin sync credentials', () => {
     expect(user.displayName).toContain('sync');
     // password is stored hashed, not as the returned plaintext
     expect(user.password).not.toBe(result.body.password);
+    // and the returned plaintext actually authenticates against that hash
+    expect(await user.comparePassword(result.body.password)).toBe(true);
   });
 
   it('rotates the same account (new password) on repeat calls for the same facilities', async () => {

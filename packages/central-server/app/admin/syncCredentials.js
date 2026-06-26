@@ -30,7 +30,12 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const { User } = req.store.models;
 
   const email = syncUserEmail(uniqueFacilityIds);
-  const displayName = `System: ${uniqueFacilityIds.join(', ')} sync`;
+  // Summarise rather than listing every id so the display name stays short for
+  // servers that serve many facilities.
+  const displayName =
+    uniqueFacilityIds.length > 3
+      ? `System: ${uniqueFacilityIds.length} facilities sync`
+      : `System: ${uniqueFacilityIds.join(', ')} sync`;
   const password = crypto.randomBytes(24).toString('base64url');
 
   const existing = await User.findOne({ where: { email } });
@@ -43,5 +48,6 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
     await User.create({ email, displayName, role: 'admin', password });
   }
 
-  res.send({ email, password });
+  // Plaintext credential in the body — keep it out of any intermediary cache.
+  res.set('Cache-Control', 'no-store').send({ email, password });
 });

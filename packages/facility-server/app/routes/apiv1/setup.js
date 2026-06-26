@@ -49,7 +49,6 @@ export const isTrustedSetupSource = ip => {
   );
 };
 
-const isProduction = process.env.NODE_ENV === 'production';
 
 const setupSyncSchema = z.object({
   host: z
@@ -58,8 +57,10 @@ const setupSyncSchema = z.object({
     .refine(value => {
       try {
         const { protocol } = new URL(value);
-        // https only (allow http in non-production for local dev).
-        return protocol === 'https:' || (!isProduction && protocol === 'http:');
+        // https only (allow http in non-production for local dev). Read NODE_ENV
+        // here rather than at module load so tests that set it are respected.
+        const allowHttp = process.env.NODE_ENV !== 'production';
+        return protocol === 'https:' || (allowHttp && protocol === 'http:');
       } catch {
         return false;
       }
@@ -131,14 +132,27 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   }
 
   const { LocalSystemFact, LocalSystemSecret } = req.models;
-  // Atomic so a mid-write failure can't leave the server half-configured.
+  // Atomic so a mid-write failure can't leave the server half-configured. The
+  // advisory lock + re-check closes the TOCTOU between the isServerConfigured()
+  // check above and the write: two concurrent trusted requests can both pass that
+  // check, so the second to reach here must not silently overwrite the first.
+  let alreadyConfigured = false;
   await req.db.transaction(async () => {
+    await req.db.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:facility-setup'));`);
+    if (await LocalSystemFact.get(FACT_CENTRAL_HOST)) {
+      alreadyConfigured = true;
+      return;
+    }
     await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
     await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
     // Password encrypted at rest, out of local_system_facts and the raw reporting role.
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, syncCredentials.password);
   });
+
+  if (alreadyConfigured) {
+    return res.status(409).send({ error: { message: 'Server is already configured' } });
+  }
 
   // Refresh the holder so this process reports configured immediately; the sync
   // process picks it up on its next (re)start.

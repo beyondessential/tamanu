@@ -54,8 +54,8 @@ const startApp =
           models: context.models,
           url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
         });
+        // No central connection on the API server, so no remote timezone to check.
         await performTimeZoneChecks({
-          remote: context.centralServer,
           sequelize: context.sequelize,
           config,
         });
