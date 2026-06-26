@@ -200,6 +200,23 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
+
+      // A discharge (endDate) or ward move (locationId) changes the bed fee — recompute now so the
+      // final nights land on the invoice immediately, rather than waiting for the next nightly
+      // BedFeeCharger run (which would miss them entirely if the invoice is finalised first).
+      if (req.body.discharge || req.body.endDate != null || req.body.locationId != null) {
+        const location = await models.Location.findByPk(encounterObject.locationId, {
+          attributes: ['facilityId'],
+        });
+        const facilitySettings = location && req.settings[location.facilityId];
+        if (facilitySettings) {
+          await models.Invoice.recalculateBedFee(
+            encounterObject,
+            facilitySettings,
+            getPrimaryTimeZone(config),
+          );
+        }
+      }
     });
     res.send(encounterObject);
   }),
