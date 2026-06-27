@@ -58,4 +58,7 @@ export class EncounterMedicationPane extends BasePatientPane {
     await this.medicationTable.waitFor({ state: 'visible' });
   }
 
+  async clickFirstMedicationRow(): Promise<void> {
+    await this.tableBody.getByRole('row').first().click();
+  }
 }

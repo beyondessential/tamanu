@@ -16,6 +16,7 @@ import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { PatientMedicationPane } from '../MedicationsPage/panes/PatientMedicationPane';
 import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
 import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
@@ -28,6 +29,7 @@ import { EditEncounterModal } from './modals/EditEncounterModal';
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
+  readonly patientMedicationTab: Locator;
   readonly procedureTab: Locator;
   readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
@@ -39,6 +41,7 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  patientMedicationPane?: PatientMedicationPane;
   documentsPane?: DocumentsPane;
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
@@ -125,6 +128,7 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
     this.prepareDischargeButton = this.page.getByRole('button', { name: 'Prepare discharge', exact: true });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.patientMedicationTab = this.page.getByTestId('tab-medication');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
@@ -388,6 +392,15 @@ export class PatientDetailsPage extends BasePatientPage {
     }
     await this.encounterMedicationPane.waitForPaneToLoad();
     return this.encounterMedicationPane;
+  }
+
+  async navigateToPatientMedicationTab(): Promise<PatientMedicationPane> {
+    await this.patientMedicationTab.click();
+    if (!this.patientMedicationPane) {
+      this.patientMedicationPane = new PatientMedicationPane(this.page);
+    }
+    await this.patientMedicationPane.waitForPaneToLoad();
+    return this.patientMedicationPane;
   }
 
   async goToPatient(patient: Patient) {
