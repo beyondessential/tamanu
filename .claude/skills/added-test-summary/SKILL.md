@@ -23,26 +23,26 @@ BASE=origin/<base>
 git diff --name-status --diff-filter=A "$BASE"...HEAD | grep -iE '\.(test|spec)\.(js|ts|jsx|tsx)$'
 # existing test files that changed (only some cases may be new)
 git diff --name-status --diff-filter=M "$BASE"...HEAD | grep -iE '\.(test|spec)\.(js|ts|jsx|tsx)$'
-# for each modified file, the new it()/test()/describe() lines
-git diff "$BASE"...HEAD -- <file> | grep -E '^\+\s*(it|test|test\.describe|describe)\('
+# for each modified file, the new runnable cases (it()/test(), incl .only/.skip)
+git diff "$BASE"...HEAD -- <file> | grep -E '^\+\s*(it|test)(\.(only|skip|each))?\('
 ```
 
-Build the precise list of added cases before running anything. Modified files usually contribute only a couple of new cases — name them from the diff.
+Count only runnable cases — `it`/`test`. A new `describe`/`test.describe` is a suite wrapper, **not** a test; don't count it (count the `it`/`test` cases inside it). Build the precise list of added cases before running anything; modified files usually contribute only a couple.
 
 ## 3. Run only the added tests
 
-Pick the runner by package, and run under the repo's Node (`.node-version`) against a local Postgres:
+Pick the runner from the package's own `test` script (don't assume — check it), and run under the repo's Node (`.node-version`) against a local Postgres. Current mapping:
 
-- `@tamanu/database`, `@tamanu/shared`, web packages → **vitest**: `npx vitest run <files>`
-- `@tamanu/central-server`, `@tamanu/facility-server` → **jest**: `NODE_ENV=test npx jest <file>`
-- `@tamanu/e2e-tests` (`*.spec.ts`) → **Playwright**: `npm run e2e-test` / `npx playwright test <file>`
+- **vitest** — `@tamanu/database`, `@tamanu/web`: `npx vitest run <files>`
+- **jest** — `@tamanu/shared`, `@tamanu/central-server`, `@tamanu/facility-server`: `NODE_ENV=test npx jest <file>`
+- **Playwright** (e2e) — `@tamanu/e2e-tests` (`*.spec.ts`): `npx playwright test <file>`
 
-For an **entirely-new file**, run the whole file. For a **modified file**, filter to the new cases so the report shows only what's added:
+Always pass the specific file(s) — never the bare workspace script (`npm run e2e-test`, `npm test`), which runs the whole suite and defeats "only the added tests". For an **entirely-new file**, run the whole file. For a **modified file**, filter to the new cases:
 
 ```bash
-# jest: -t matches against the full "describe > it" name
-NODE_ENV=test npx jest <file> -t "<shared substring of the new cases>" --verbose
-# vitest: -t likewise, or just run the new file outright
+# jest: -t matches the full "describe > it" name
+NODE_ENV=test npx jest <file> -t "<substring of the new cases>" --verbose
+# vitest: -t likewise
 npx vitest run <file> -t "<substring>"
 # playwright: -g matches the test title
 npx playwright test <file> -g "<substring>"
@@ -54,4 +54,6 @@ Caveats — when a runner can't run locally, **cite the branch's CI run** (`gh r
 
 ## 4. Report
 
-Group by runner (vitest / jest / Playwright e2e), list each added case with a `✓` (or the CI status when run there), and give per-runner totals plus a grand total of **added** tests. Keep pre-existing/`skipped` cases out of the headline count (mention them only as the reason for a `-t`/`-g` filter). Start the report with the branch and the commit SHA it was run at, and mark any runner whose result is cited from CI rather than run locally.
+List **every** added case individually — one `✓` line per test, grouped by runner then file. Do **not** collapse to per-file counts (e.g. "connectionConfig.test.js 5 ✓"); show each test name. Use the CI status in place of `✓` for any runner cited from CI.
+
+Give per-runner totals and a grand total of **added** tests. Keep pre-existing/`skipped` cases out of the headline count (mention them only as the reason for a `-t`/`-g` filter). Start the report with the branch and the commit SHA it was run at, and mark any runner whose result is cited from CI rather than run locally.
