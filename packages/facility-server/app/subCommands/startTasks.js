@@ -7,7 +7,7 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { getServerFacilityIds } from '../serverConfig';
-import { setupSyncRuntime } from '../setupSyncRuntime';
+import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
@@ -31,12 +31,15 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
-  await setupSyncRuntime(context, { syncManager });
+  const isConfigured = await setupSyncRuntime(context, { syncManager });
 
   const cancelTasks = startScheduledTasks(context, taskClasses);
+  // If booted unconfigured, start syncing once first-run setup completes.
+  const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();
+    cancelConfigPoll();
   });
 }
 

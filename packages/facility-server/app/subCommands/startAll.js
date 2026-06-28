@@ -9,7 +9,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
 import { getServerFacilityIds } from '../serverConfig';
-import { setupSyncRuntime } from '../setupSyncRuntime';
+import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 
@@ -57,13 +57,15 @@ async function startAll({ skipMigrationCheck }) {
   });
 
   const cancelTasks = startScheduledTasks(context);
-  // SyncTask needs a sync manager, which only exists when the server is configured.
-  const cancelSyncTask = isConfigured ? startScheduledTasks(context, [SyncTask]) : () => {};
+  // SyncTask no-ops until the runtime is ready, so schedule it regardless.
+  const cancelSyncTask = startScheduledTasks(context, [SyncTask]);
+  const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     cancelTasks();
     cancelSyncTask();
+    cancelConfigPoll();
     server.close();
     syncServer.close();
   });

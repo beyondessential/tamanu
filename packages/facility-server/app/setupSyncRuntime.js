@@ -5,7 +5,10 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
-import { getSyncConfig, isServerConfigured } from './serverConfig';
+import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+
+// How often a sync/tasks process re-checks for first-run setup completing.
+const SETUP_POLL_INTERVAL_MS = 30_000;
 
 export const SYNC_NOT_CONFIGURED_WARNING =
   'Facility server has no sync host/facilities configured; sync is disabled until setup ' +
@@ -37,4 +40,23 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
   });
 
   return true;
+}
+
+// The wizard configures the server in the API process; poll so a separate
+// sync/tasks process re-reads the new config and starts syncing without a restart.
+// Only start this when booted unconfigured.
+export function startSyncRuntimeWhenConfigured(context, { intervalMs = SETUP_POLL_INTERVAL_MS } = {}) {
+  const timer = setInterval(async () => {
+    try {
+      await initServerConfig({ context }); // re-read facts written by the wizard
+      if (!isServerConfigured()) return;
+      clearInterval(timer);
+      log.info('Setup completed; starting sync runtime without a restart');
+      await setupSyncRuntime(context);
+    } catch (error) {
+      log.warn(`startSyncRuntimeWhenConfigured: ${error.message}`);
+    }
+  }, intervalMs);
+  timer.unref();
+  return () => clearInterval(timer);
 }
