@@ -48,7 +48,23 @@ const TriageSearchBarAdvancedFields = () => {
   const categoryOptions =
     triageCategories?.map(category => ({
       value: category.level.toString(),
-      label: `Level ${category.level} - ${category.label}`,
+      label: (
+        <TranslatedText
+          stringId="patientList.triage.search.triageCategory.option"
+          fallback="Level :level - :label"
+          replacements={{
+            level: category.level,
+            label: (
+              <TranslatedText
+                stringId={`patientList.triage.category.level${category.level}.label`}
+                fallback={category.label}
+                data-testid={`translatedtext-triage-category-label-${category.level}`}
+              />
+            ),
+          }}
+          data-testid={`translatedtext-triage-category-${category.level}`}
+        />
+      ),
     })) || [];
 
   return (
