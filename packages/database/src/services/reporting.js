@@ -14,6 +14,12 @@ import { resolveDbConfig } from './connectionConfig';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+// Cluster-global advisory-lock keys for the reporting DDL. Hardcoded int8 values
+// above the int4 range, so they can never collide with another lock keyed on
+// hashtext() (which returns int4) anywhere in the cluster.
+const REPORTING_ROLES_LOCK_KEY = '7829301042';
+const REPORTING_SECRET_LOCK_KEY = '7829301043';
+
 // The secret is rotated automatically once it's older than this many days; the new
 // passwords take effect as each server process restarts. 0 (or unset) disables
 // age-based rotation — the secret is still generated on first use.
@@ -41,7 +47,7 @@ const reportingRolePassword = (secret, role) =>
 // keep their cached secret until they restart.
 const getReportingSecret = async ({ models, sequelize }) =>
   sequelize.transaction(async () => {
-    await sequelize.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:reporting-secret'));`);
+    await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_SECRET_LOCK_KEY}::bigint);`);
 
     const existing = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
     let rotatedAt = await models.LocalSystemFact.get(FACT_REPORTING_SECRET_ROTATED_AT);
@@ -72,7 +78,7 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
   // updated"). Serialise with a transaction-scoped advisory lock; the DDL is
   // idempotent so re-applying it once per startup is harmless.
   await sequelize.transaction(async () => {
-    await sequelize.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:reporting-roles'));`);
+    await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_ROLES_LOCK_KEY}::bigint);`);
 
     await sequelize.query(`
       DO $$
