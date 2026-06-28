@@ -44,9 +44,17 @@ const getReportingSecret = async ({ models, sequelize }) =>
     await sequelize.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:reporting-secret'));`);
 
     const existing = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
-    const rotatedAt = await models.LocalSystemFact.get(FACT_REPORTING_SECRET_ROTATED_AT);
+    let rotatedAt = await models.LocalSystemFact.get(FACT_REPORTING_SECRET_ROTATED_AT);
     const rotationDays = config.db?.reportingSecretRotationDays ?? 0;
-    if (existing && !isReportingSecretStale(rotatedAt, rotationDays)) return existing;
+    if (existing) {
+      // A secret from before this feature has no rotation timestamp; seed it now so
+      // the rotation clock starts, rather than the secret never rotating.
+      if (!rotatedAt) {
+        rotatedAt = getCurrentDateTimeString();
+        await models.LocalSystemFact.set(FACT_REPORTING_SECRET_ROTATED_AT, rotatedAt);
+      }
+      if (!isReportingSecretStale(rotatedAt, rotationDays)) return existing;
+    }
 
     const secret = crypto.randomBytes(32).toString('hex');
     await models.LocalSystemSecret.set(FACT_REPORTING_ROLE_SECRET, secret);
