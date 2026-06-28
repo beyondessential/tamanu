@@ -1,6 +1,7 @@
 import { QueryInterface } from 'sequelize';
 
 const GENERIC_SURVEY_EXPORT_REPORT_ID = 'generic-survey-export-line-list';
+const GENERIC_SURVEY_EXPORT_VERSION_ID = 'db69159e-e291-49c6-a36c-958847f550e0';
 
 const QUERY_OPTIONS = JSON.stringify({
   parameters: [
@@ -44,7 +45,7 @@ export async function up(query: QueryInterface): Promise<void> {
         report_definition_id, user_id, created_at, updated_at, updated_at_sync_tick
       )
       SELECT
-        gen_random_uuid()::text,
+        :versionId,
         1,
         'published',
         '',
@@ -61,6 +62,7 @@ export async function up(query: QueryInterface): Promise<void> {
     `,
     {
       replacements: {
+        versionId: GENERIC_SURVEY_EXPORT_VERSION_ID,
         reportDefinitionId: GENERIC_SURVEY_EXPORT_REPORT_ID,
         queryOptions: QUERY_OPTIONS,
       },
