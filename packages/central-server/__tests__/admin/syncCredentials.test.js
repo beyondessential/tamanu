@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { createTestContext } from '../utilities';
 
 const ENDPOINT = '/api/admin/syncCredentials';
@@ -48,7 +49,7 @@ describe('Admin sync credentials', () => {
     // password is stored hashed, not as the returned plaintext
     expect(user.password).not.toBe(result.body.password);
     // and the returned plaintext actually authenticates against that hash
-    expect(await user.comparePassword(result.body.password)).toBe(true);
+    expect(await bcrypt.compare(result.body.password, user.password)).toBe(true);
   });
 
   it('rotates the same account (new password) on repeat calls for the same facilities', async () => {
