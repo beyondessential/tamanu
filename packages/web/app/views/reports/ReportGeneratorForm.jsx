@@ -308,15 +308,16 @@ export const ReportGeneratorForm = () => {
 
   const onDownload = async () => {
     try {
-      await saveFile(dataReadyForSaving);
-      resetDownload();
-      setSuccessMessage(
-        <TranslatedText
-          stringId="report.generate.message.export.success"
-          fallback="Report successfully exported"
-          data-testid="translatedtext-mr0n"
-        />,
-      );
+      const saved = await saveFile(dataReadyForSaving);
+      if (saved) {
+        resetDownload();
+        setSuccessMessage(
+          <TranslatedText
+            stringId="report.generate.message.export.success"
+            fallback="Report successfully exported"
+          />,
+        );
+      }
     } catch (error) {
       setRequestError(`Unable to export report - ${error.message}`);
     }

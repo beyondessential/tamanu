@@ -22,14 +22,13 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
-  const { getTranslation } = translationContext;
 
   const safelyRenderToText = element => {
     return renderToText(
       <ExportProvider isExporting={true}>
-        <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
-          <ApiContext.Provider value={api} data-testid="provider-72ic">
-            <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
+        <QueryClientProvider client={queryClient}>
+          <ApiContext.Provider value={api}>
+            <TranslationContext.Provider value={translationContext}>
               <DateTimeProviderContext.Provider value={dateTimeContext}>
                 {element}
               </DateTimeProviderContext.Provider>
@@ -109,14 +108,19 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   };
 
   const onDownloadData = async () => {
-    await saveFile({
+    const saved = await saveFile({
       defaultFileName: `${exportName}-${getCurrentDate()}`,
       getData: prepareData,
       extension: 'xlsx',
     });
-    notifySuccess(
-      getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
-    );
+    if (saved) {
+      notifySuccess(
+        <TranslatedText
+          stringId="document.notification.downloadSuccess"
+          fallback="Successfully downloaded file"
+        />,
+      );
+    }
   };
 
   return (
