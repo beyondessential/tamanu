@@ -38,7 +38,7 @@ const reportingRolePassword = (secret, role) =>
 
 // The advisory lock makes concurrently-starting processes converge on one secret
 // rather than each generating its own.
-const getReportingSecret = async ({ models, sequelize }) =>
+export const getReportingSecret = async ({ models, sequelize }) =>
   sequelize.transaction(async () => {
     await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_SECRET_LOCK_KEY}::bigint);`);
 
