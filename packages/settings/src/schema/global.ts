@@ -173,6 +173,17 @@ export const globalSettings = {
         },
       },
     },
+    reportingDb: {
+      description: 'Reporting database settings',
+      properties: {
+        secretRotationDays: {
+          description:
+            'Auto-rotate the reporting/raw role secret once it is older than this many days (new passwords take effect as servers restart). 0 disables rotation.',
+          type: yup.number().integer().min(0),
+          defaultValue: 90,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       exposedToWeb: true,

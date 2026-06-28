@@ -9,6 +9,7 @@ import {
   FACT_REPORTING_SECRET_ROTATED_AT,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { ReadSettings } from '@tamanu/settings/reader';
 import { openDatabase } from './database';
 import { resolveDbConfig } from './connectionConfig';
 
@@ -17,8 +18,6 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 // int8 keys above the int4 range hashtext() returns, so they can't collide with other locks.
 const REPORTING_ROLES_LOCK_KEY = '7829301042';
 const REPORTING_SECRET_LOCK_KEY = '7829301043';
-
-const SECRET_ROTATION_DAYS = 90;
 
 export const isReportingSecretStale = (rotatedAt, days) => {
   if (!days || !rotatedAt) return false;
@@ -38,8 +37,9 @@ const reportingRolePassword = (secret, role) =>
 
 // The advisory lock makes concurrently-starting processes converge on one secret
 // rather than each generating its own.
-export const getReportingSecret = async ({ models, sequelize }) =>
-  sequelize.transaction(async () => {
+export const getReportingSecret = async ({ models, sequelize }) => {
+  const rotationDays = await new ReadSettings(models).get('reportingDb.secretRotationDays');
+  return sequelize.transaction(async () => {
     await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_SECRET_LOCK_KEY}::bigint);`);
 
     const existing = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
@@ -50,7 +50,7 @@ export const getReportingSecret = async ({ models, sequelize }) =>
         rotatedAt = getCurrentDateTimeString();
         await models.LocalSystemFact.set(FACT_REPORTING_SECRET_ROTATED_AT, rotatedAt);
       }
-      if (!isReportingSecretStale(rotatedAt, SECRET_ROTATION_DAYS)) return existing;
+      if (!isReportingSecretStale(rotatedAt, rotationDays)) return existing;
     }
 
     const secret = crypto.randomBytes(32).toString('hex');
@@ -58,6 +58,7 @@ export const getReportingSecret = async ({ models, sequelize }) =>
     await models.LocalSystemFact.set(FACT_REPORTING_SECRET_ROTATED_AT, getCurrentDateTimeString());
     return secret;
   });
+};
 
 const ensureReportingRole = async (existingStore, connectionName, password) => {
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
