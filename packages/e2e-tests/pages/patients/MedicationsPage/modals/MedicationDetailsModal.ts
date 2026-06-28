@@ -8,12 +8,13 @@ export class MedicationDetailsModal {
 
   constructor(page: Page) {
     this.page = page;
-    this.dialog = page.getByRole('dialog').first();
-    this.discontinueButton = this.dialog.getByRole('button', { name: 'Discontinue' });
+    this.dialog = page.getByTestId('dialog-g9qi');
+    this.discontinueButton = page.getByTestId('medicationdetails-discontinue-button');
   }
 
   async waitForModalToLoad(): Promise<void> {
     await this.dialog.waitFor({ state: 'visible' });
+    await this.discontinueButton.waitFor({ state: 'visible' });
   }
 
   async clickDiscontinue(): Promise<MedicationDiscontinueModal> {
