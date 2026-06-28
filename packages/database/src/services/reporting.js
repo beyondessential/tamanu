@@ -59,10 +59,16 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
     `);
 
     // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
-    await sequelize.query(
-      `ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`,
-      { logging: false },
-    );
+    // On failure, re-throw without the original error: its `sql` field holds the
+    // statement with the password inline, which a generic error log would leak.
+    try {
+      await sequelize.query(
+        `ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`,
+        { logging: false },
+      );
+    } catch (error) {
+      throw new Error(`Failed to set password for reporting role "${role}": ${error.message}`);
+    }
 
     if (schema !== 'public') {
       await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
@@ -79,8 +85,9 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
 
     // The raw role reads all of `public` for reporting, but report SQL has no
     // business reading credential/token tables: local_system_secrets holds the
-    // device private key and the reporting secret in cleartext, and the rest
-    // hold auth tokens or certificate signing keys. Revoke SELECT on them.
+    // device private key and the reporting secret (encrypted, but still not for
+    // reports), and the rest hold auth tokens or certificate signing keys. Revoke
+    // SELECT on them.
     // to_regclass skips any not present on this server (e.g. central-only ones).
     if (schema === 'public') {
       await sequelize.query(`
