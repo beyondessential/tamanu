@@ -15,9 +15,6 @@
     "password": "",
     "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
-    // Auto-rotate the reporting/raw role secret once it's this many days old; the
-    // new passwords take effect as servers restart. 0 disables age-based rotation.
-    "reportingSecretRotationDays": 90,
     "pool": {
       "max": 10
       // "min": 5,

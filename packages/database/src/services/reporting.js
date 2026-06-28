@@ -20,9 +20,11 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const REPORTING_ROLES_LOCK_KEY = '7829301042';
 const REPORTING_SECRET_LOCK_KEY = '7829301043';
 
-// The secret is rotated automatically once it's older than this many days; the new
-// passwords take effect as each server process restarts. 0 (or unset) disables
-// age-based rotation — the secret is still generated on first use.
+// Auto-rotate the reporting/raw role secret once it's older than this; the new
+// passwords take effect as each server process restarts. Hardcoded rather than
+// configurable — there's no deployment that needs a different cadence.
+const SECRET_ROTATION_DAYS = 90;
+
 export const isReportingSecretStale = (rotatedAt, days) => {
   if (!days || !rotatedAt) return false;
   return Date.now() - new Date(rotatedAt).getTime() >= days * MS_PER_DAY;
@@ -41,17 +43,16 @@ const reportingRolePassword = (secret, role) =>
 
 // Random per-server secret the role passwords derive from, stored encrypted in
 // local_system_secrets (not synced — like the device key). Generated on first use
-// and rotated once it passes db.reportingSecretRotationDays. The advisory lock
-// serialises this so the concurrently-starting central app processes converge on
-// one secret rather than each generating its own; processes from a previous boot
-// keep their cached secret until they restart.
+// and rotated once it passes SECRET_ROTATION_DAYS. The advisory lock serialises
+// this so the concurrently-starting central app processes converge on one secret
+// rather than each generating its own; processes from a previous boot keep their
+// cached secret until they restart.
 const getReportingSecret = async ({ models, sequelize }) =>
   sequelize.transaction(async () => {
     await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_SECRET_LOCK_KEY}::bigint);`);
 
     const existing = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
     let rotatedAt = await models.LocalSystemFact.get(FACT_REPORTING_SECRET_ROTATED_AT);
-    const rotationDays = config.db?.reportingSecretRotationDays ?? 0;
     if (existing) {
       // A secret from before this feature has no rotation timestamp; seed it now so
       // the rotation clock starts, rather than the secret never rotating.
@@ -59,7 +60,7 @@ const getReportingSecret = async ({ models, sequelize }) =>
         rotatedAt = getCurrentDateTimeString();
         await models.LocalSystemFact.set(FACT_REPORTING_SECRET_ROTATED_AT, rotatedAt);
       }
-      if (!isReportingSecretStale(rotatedAt, rotationDays)) return existing;
+      if (!isReportingSecretStale(rotatedAt, SECRET_ROTATION_DAYS)) return existing;
     }
 
     const secret = crypto.randomBytes(32).toString('hex');
