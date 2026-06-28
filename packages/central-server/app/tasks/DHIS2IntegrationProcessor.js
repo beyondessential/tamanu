@@ -1,5 +1,5 @@
 import config from 'config';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 

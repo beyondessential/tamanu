@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
-import { isEmpty, snakeCase } from 'lodash';
+import { isEmpty, snakeCase } from 'es-toolkit/compat';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { startCase } from 'lodash';
+import { startCase } from 'es-toolkit/compat';
 import { PAD_REFERENCE_DATA_FIELDS } from '@tamanu/constants';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';

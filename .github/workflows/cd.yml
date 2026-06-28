@@ -37,8 +37,6 @@ permissions:
   issues: read # to parse special deploy issues
   id-token: write # OIDC token for AWS (only for release tags)
 
-env:
-  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   # This job sets everything up. It parses the run metadata, event payload, PR or issue bodies,
@@ -413,7 +411,7 @@ jobs:
     name: Append image names to release notes
     runs-on: ubuntu-latest
     steps:
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           append_body: true

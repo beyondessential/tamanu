@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import __cjs_express from 'express';
+const { Router } = __cjs_express;
 import { Problem } from '@tamanu/errors';
 
 import {

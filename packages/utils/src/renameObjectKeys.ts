@@ -1,4 +1,4 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject } from 'es-toolkit/compat';
 
 export const camelify = (str: string) => {
   const [initial, ...subsequent] = str.split('_');

@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { times } from 'es-toolkit/compat';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import type { Patient } from '@tamanu/database';

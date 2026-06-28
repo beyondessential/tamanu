@@ -2,13 +2,13 @@ import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
   getTablesWithNoMergeCoverage,
   mergePatient,
-} from '../../../dist/admin/patientMerge/mergePatient';
+} from '../../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
 import { InvalidParameterError } from '@tamanu/errors';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
+import { PatientMergeMaintainer } from '../../../app/tasks/PatientMergeMaintainer';
 import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 

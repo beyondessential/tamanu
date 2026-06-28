@@ -2,7 +2,7 @@ import {
   normalizeQuestionConfigForImport,
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
-} from '../../dist/admin/programImporter/programDefinition';
+} from '../../app/admin/programImporter/programDefinition';
 
 describe('programDefinition', () => {
   it('normalizes generated PatientIssue issue types to Tamanu values', () => {

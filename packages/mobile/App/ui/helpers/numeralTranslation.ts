@@ -1,5 +1,5 @@
 import { limon } from 'khmer-unicode-converter';
-import { isNaN } from 'lodash';
+import { isNaN } from 'es-toolkit/compat';
 
 function isNumeric(value) {
   return !isNaN(parseFloat(value));

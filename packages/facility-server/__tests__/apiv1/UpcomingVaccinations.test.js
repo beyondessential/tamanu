@@ -7,7 +7,7 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
-import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
+import { RefreshUpcomingVaccinations } from '../../app/tasks/RefreshMaterializedView';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 jest.mock('@tamanu/utils/dateTime', () => ({

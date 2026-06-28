@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
-import { Patient } from '@tamanu/database';
+import type { Patient } from '@tamanu/database';
 import { constructFacilityUrl } from '@utils/navigation';
 import { routes } from '@config/routes';
 import { BasePatientPage } from '../BasePatientPage';

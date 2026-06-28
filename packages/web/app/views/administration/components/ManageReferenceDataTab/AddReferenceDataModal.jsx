@@ -1,5 +1,5 @@
 import React from 'react';
-import { startCase } from 'lodash';
+import { startCase } from 'es-toolkit/compat';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FormModal } from '../../../../components/FormModal';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';

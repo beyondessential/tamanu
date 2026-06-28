@@ -6,16 +6,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-ENV TURBO_TELEMETRY_DISABLED=1
 
-COPY package.json package-lock.json turbo.jsonc ./
+COPY package.json package-lock.json ./
 COPY patches/ patches/
 COPY common.* ./
 COPY scripts/ scripts/
 COPY packages/ packages/
 
 RUN npm ci
-RUN npm run build -- --filter=@tamanu/synthetic-tests^...
 RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
 
 FROM node:26-slim

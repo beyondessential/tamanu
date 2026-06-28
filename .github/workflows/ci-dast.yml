@@ -19,7 +19,6 @@ permissions:
   contents: read
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
   NODE_MODULES_PATHS: |
@@ -130,12 +129,6 @@ jobs:
             --include-workspace-root \
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server
-
-      - name: Build central & facility servers
-        run: |
-          npm run build -- \
-            --filter=@tamanu/central-server... \
-            --filter=@tamanu/facility-server...
 
       - name: Setup postgres dbs
         run: |
