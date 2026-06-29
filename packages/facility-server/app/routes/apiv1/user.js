@@ -15,7 +15,7 @@ import {
 } from '../../utils/query';
 import { z } from 'zod';
 import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
@@ -247,7 +247,9 @@ user.get(
       facilityId,
     } = query;
 
-    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = await new ReadSettings(models).get(
+      'tasking.upcomingTasksTimeFrame',
+    );
 
     const defaultOrder = [
       ['dueTime', 'ASC'],

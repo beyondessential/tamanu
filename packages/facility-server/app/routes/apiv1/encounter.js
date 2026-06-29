@@ -4,6 +4,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
@@ -813,7 +814,9 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Tasking');
 
-    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = await new ReadSettings(models).get(
+      'tasking.upcomingTasksTimeFrame',
+    );
     const baseQueryOptions = {
       where: {
         encounterId,
