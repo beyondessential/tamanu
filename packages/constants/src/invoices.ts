@@ -93,10 +93,13 @@ export const INVOICE_INSURER_PAYMENT_STATUS_LABELS = {
 
 export const INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES = {
   HIDDEN: 'hidden',
-  // Prefix on a price-list cell marking it as a fixed (flat) fee, e.g. `f2.00`.
-  FIXED_PREFIX: 'f',
-  // Header token marking a whole column fixed-by-default, e.g. `KOSRAE:fixed`.
-  FIXED_COLUMN_TOKEN: ':fixed',
+};
+
+// Charging type per (product × price list), imported via the dedicated
+// "Invoice Price List Charging" sheet. flatFee → isFixedPrice true; perUnit → false.
+export const INVOICE_PRICE_LIST_CHARGING_VALUES = {
+  FLAT_FEE: 'flatFee',
+  PER_UNIT: 'perUnit',
 };
 
 export const AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES: string[] = [

@@ -63,33 +63,20 @@ Out of scope (v1):
 
 ## Import / config
 
-The price-list importer uses a product-by-code matrix: first column header `invoiceProductId`, remaining headers are price-list codes, each cell a numeric price (or `hidden`). A cell is always **exactly one of**: empty (no price) / plain number (per-unit) / fixed number / `hidden`. `hidden` and fixed are mutually exclusive — there is no combined marker.
+Charging type is configured in its own spreadsheet tab — **Invoice Price List Charging** — kept separate from the price matrix so prices stay purely numeric (no letters-in-number cells) and a future per-facility price-list UI can present pricing type as its own field. The tab mirrors the price tab's shape exactly: first column header `invoiceProductId`, remaining headers are **price-list codes**, each cell holds **`flatFee`** or **`perUnit`**.
 
-### Per-cell fixed marker
+It maps 1:1 onto the same `InvoicePriceListItem` rows as the price tab — `flatFee` → `isFixedPrice = true`, `perUnit` → `false`. The two tabs merge onto one row per (product × price list); the charging tab carries no price and the price tab carries no charging type.
 
-- An **`f` prefix** (case-insensitive), e.g. `f2.00`, marks an individual cell as a fixed fee. `F2.00` is equivalent.
-- `f` always means **fixed**. There is no per-cell marker to force per-unit (see column default below).
+### Cell values & validation
 
-### Column-level default (Kosrae "all medications fixed")
-
-- A price-list column can be marked fixed-by-default with the **`:fixed` header token** appended to the price-list code, e.g. `KOSRAE:fixed`. Every plain number in that column is then a fixed fee.
-- **Header resolution is code-first** (collision-proof): the importer first tries the **whole header** as a price-list code; only if that doesn't match an existing code does it strip a trailing `:fixed` and retry. So a column `KOSRAE:fixed` maps to price list `KOSRAE` as a fixed-default column, while a hypothetical real code containing `:fixed` would still resolve as itself. A header that matches no code either way is the existing "price list does not exist" error.
-- A fixed-by-default column is **all-or-nothing in v1**: there is no way to mark an individual cell back to per-unit. A price list with per-unit exceptions does not use the column default — instead each fixed cell is marked explicitly with `f` (the Yap pattern: `f2.00` for tablets/capsules, plain `0.50` for bottles/tubes).
-
-### Parsing & validation
-
-- Detection handles **both numeric and text cells in the same column** — a prefixed cell arrives as text, a plain cell as a number.
-- Marker matching is **case-insensitive** and **trims surrounding whitespace**; decimal parsing is **locale-safe** (consistent with existing price parsing).
-- The marker is **import syntax only**. It parses to an `isFixedPrice` boolean plus a numeric `price` on `InvoicePriceListItem`; the prefix is never stored as a string.
-- An `f` marker with no valid number (e.g. `f`, `fabc`) is an **import error**, reported like other invalid price values.
-- Fixed pricing is **only valid for medications** (product category `Drug`), enforced at import:
-  - An explicit `f` marker on a **non-medication** product is an **import error** (it's a mistake the configurer should fix).
-  - A `:fixed` **column default** on a non-medication row is **silently ignored** — the plain number imports as a normal per-unit price (the column default is a bulk convenience that simply doesn't apply to non-medications).
+- Valid cell values are **`flatFee`** or **`perUnit`** (case-insensitive, trimmed). Any other value is an **import error**.
+- A value is **required in every cell** present in the tab — a blank cell is an **import error** (no implicit default). A product or price list simply absent from the tab is per-unit (its `isFixedPrice` stays `false`).
+- Fixed pricing is **only valid for medications** (product category `Drug`): `flatFee` on a **non-medication** product is an **import error**. `perUnit` is allowed on any product (it's the default and a no-op).
+- The charging tab is imported **after** the price tab (it depends on it), so it reuses the existing price-list-item rows and merges `isFixedPrice` onto them rather than creating duplicates.
 
 ### Export round-trip
 
-- The price-list export **re-emits the fixed marker** so an exported sheet re-imports identically (PMs export → edit → re-import without losing fixed-price config).
-- Export emits the **per-cell `f` prefix** on fixed cells (`f2.00`) and plain numbers elsewhere; it does not attempt to reconstruct the `:fixed` column-default token. This is lossless on re-import — every fixed cell is explicitly marked — just more verbose than the hand-authored form.
+- Export emits the **Invoice Price List Charging** tab with an explicit `flatFee`/`perUnit` for every item (fixed → `flatFee`, otherwise `perUnit`), so an exported sheet re-imports identically with no blanks.
 
 ---
 
@@ -100,8 +87,8 @@ The price-list importer uses a product-by-code matrix: first column header `invo
 - **Single calc surface:** the line total is `getInvoiceItemPrice() × quantity` in one place (`packages/utils/src/invoice/invoiceItem.ts`). A fixed line is "price × 1" — one conditional in `getInvoiceItemTotalPrice`, gated on the product being a medication (`category === 'Drug'`) and `invoicePriceListItem.isFixedPrice`. Discount, insurance coverage, net cost, and invoice totals all derive from this, so they inherit fixed behaviour automatically. The conditional must be respected wherever a total/coverage/net-cost is computed so quantity cannot leak in.
 - **No medication "form" field exists.** Form is only free-text `units` on the prescription, so the system cannot compute "is this a tablet". Config flags the right products in the right price lists instead — no `ReferenceData` migration.
 - **Quantity stays auto-derived** (`recalculateAndApplyInvoiceQuantity()` sums MAR-given + pharmacy-dispensed); for fixed lines this value is informational only.
-- **Import** lives in `invoicePriceListItemLoaderFactory.js` (via `ProductMatrixByCodeLoaderFactory`): extend the `valueExtractor` to detect the `f` prefix and return `{ parsedValue, isValidValue, isFixedPrice }`; resolve the column default by the code-first header rule (try the whole header as a code, strip a trailing `:fixed` only on a miss). **Export** mirrors it in `InvoicePriceListItemExporter.js`: load `isFixedPrice` and emit `f${price}` for fixed cells.
-- **Constants:** the `f` marker and the `:fixed` header token sit alongside `INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES.HIDDEN` in `packages/constants/src/invoices.ts`.
+- **Import:** a dedicated **`invoicePriceListCharging`** importable type (`invoicePriceListChargingLoaderFactory.js`, via `ProductMatrixByCodeLoaderFactory`) with `valueField: 'isFixedPrice'` and a value extractor that maps `flatFee`/`perUnit` → boolean, errors on blank/unknown, and errors on `flatFee` for non-medications. It `needs: ['invoicePriceList', 'invoiceProduct', 'invoicePriceListItem']` so it runs after the price items exist and merges `isFixedPrice` onto the same rows. **Export** mirrors it in `InvoicePriceListChargingExporter.js`. The price tab (`invoicePriceListItem`) is unchanged — plain numbers and `hidden` only.
+- **Constants:** `INVOICE_PRICE_LIST_CHARGING_VALUES` (`flatFee` / `perUnit`) in `packages/constants/src/invoices.ts`; the `invoicePriceListCharging` importable type in `importable.ts`.
 
 ---
 

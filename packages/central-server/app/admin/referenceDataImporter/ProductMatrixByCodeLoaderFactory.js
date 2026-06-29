@@ -6,11 +6,6 @@ function defaultValueExtractor(value) {
   return { parsedValue, isValidValue };
 }
 
-// Each header maps to a single parent code with no extra per-column metadata.
-function defaultHeaderResolver(rawHeader) {
-  return [{ code: rawHeader, columnMeta: {} }];
-}
-
 /**
  * Generic, stateful loader factory for product-by-code matrix imports.
  *
@@ -18,10 +13,6 @@ function defaultHeaderResolver(rawHeader) {
  * - First column header (case-insensitive) is `invoiceProductId`.
  * - Remaining headers are parent codes (e.g., price list codes, insurance contract codes).
  * - Each row provides numeric values for product/code pairs.
- *
- * A `headerResolver` may return several candidate `{ code, columnMeta }` for a header in priority
- * order; the first candidate whose code matches an existing parent wins (so a literal header always
- * beats a token-stripped fallback). `columnMeta` is passed through to the `valueExtractor`.
  */
 export function productMatrixByCodeLoaderFactory(config) {
   const {
@@ -30,7 +21,6 @@ export function productMatrixByCodeLoaderFactory(config) {
     parentIdField,
     valueField,
     valueExtractor = defaultValueExtractor,
-    headerResolver = defaultHeaderResolver,
     allowEmptyValues = false,
     messages,
   } = config;
@@ -38,7 +28,8 @@ export function productMatrixByCodeLoaderFactory(config) {
   const state = {
     initialized: false,
     invoiceProductKey: null,
-    columns: [],
+    codes: [],
+    parentIdCache: new Map(),
   };
 
   return async (rawItem, { pushError, models, header: sheetHeader }) => {
@@ -58,51 +49,30 @@ export function productMatrixByCodeLoaderFactory(config) {
         pushError('Missing required column: invoiceProductId', itemModel);
         return [];
       }
+
+      const codes = headers.filter(h => h !== invoiceProductKey);
       state.invoiceProductKey = invoiceProductKey;
+      state.codes = codes;
 
-      const codeHeaders = headers.filter(h => h !== invoiceProductKey);
-
-      // Resolve candidate codes for every header, then look them all up at once.
-      const candidatesByHeader = new Map();
-      const allCandidateCodes = new Set();
-      for (const header of codeHeaders) {
-        const candidates = headerResolver(header);
-        candidatesByHeader.set(header, candidates);
-        candidates.forEach(candidate => allCandidateCodes.add(candidate.code));
-      }
-
+      // Validate all parents exist and cache their IDs
       const existingParents = await models[parentModel].findAll({
-        where: { code: { [Op.in]: [...allCandidateCodes] } },
+        where: { code: { [Op.in]: codes } },
       });
-      const parentIdByCode = new Map(existingParents.map(parent => [parent.code, parent.id]));
 
-      const seenHeaders = new Set();
-      const seenParentIds = new Set();
-      for (const header of codeHeaders) {
-        if (seenHeaders.has(header)) {
-          pushError(messages.duplicateCode(header), itemModel);
+      const seen = new Set();
+      for (const code of codes) {
+        if (seen.has(code)) {
+          pushError(messages.duplicateCode(code), itemModel);
           continue;
         }
-        seenHeaders.add(header);
+        seen.add(code);
 
-        // Code-first: the first candidate whose code exists wins.
-        const match = candidatesByHeader
-          .get(header)
-          .find(candidate => parentIdByCode.has(candidate.code));
-        if (!match) {
-          pushError(messages.missingParentByCode(header), itemModel);
+        const parent = existingParents.find(p => p.code === code);
+        if (!parent) {
+          pushError(messages.missingParentByCode(code), itemModel);
           continue;
         }
-
-        const parentId = parentIdByCode.get(match.code);
-        // Two different headers can resolve to the same parent (e.g. `KOSRAE` and `KOSRAE:fixed`).
-        if (seenParentIds.has(parentId)) {
-          pushError(messages.duplicateCode(header), itemModel);
-          continue;
-        }
-        seenParentIds.add(parentId);
-
-        state.columns.push({ header, parentId, columnMeta: match.columnMeta });
+        state.parentIdCache.set(code, parent.id);
       }
 
       // eslint-disable-next-line require-atomic-updates
@@ -126,8 +96,8 @@ export function productMatrixByCodeLoaderFactory(config) {
     );
 
     const rows = [];
-    for (const { header, parentId, columnMeta } of state.columns) {
-      const rawValue = item[header];
+    for (const code of state.codes) {
+      const rawValue = item[code];
 
       const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
       if (!allowEmptyValues && isEmpty) continue;
@@ -135,11 +105,16 @@ export function productMatrixByCodeLoaderFactory(config) {
       const { parsedValue, isValidValue, errorMessage, ...otherColumns } = valueExtractor(
         rawValue,
         isEmpty,
-        columnMeta,
         productExists,
       );
       if (!isValidValue) {
-        pushError(errorMessage ?? messages.invalidValue(rawValue, header, invoiceProductId), itemModel);
+        pushError(errorMessage ?? messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
+        return [];
+      }
+
+      const parentId = state.parentIdCache.get(code);
+      if (!parentId) {
+        pushError(messages.couldNotFindParentId(code), itemModel);
         return [];
       }
 

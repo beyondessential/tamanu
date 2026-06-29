@@ -38,36 +38,24 @@ Layers: **calc** unit tests (`packages/utils/__test__/invoice.test.ts`, vitest),
 - [ ] A medication prescribed but with nothing dispensed/administered adds no fixed-price line. *(Trigger: no dispense → no fee)*
 - [ ] Increasing the dispensed quantity on a fixed line (recompute) leaves the charged amount unchanged. *(Pricing: quantity informational only)*
 
-## Import — per-cell marker (integration)
+## Import — charging tab (integration)
 
-- [ ] Importing a cell `f2.00` for a medication sets `price = 2.00` and `isFixedPrice = true`; the `f` prefix is not stored as a string. *(Import: per-cell marker; marker is syntax only)*
-- [ ] `F2.00` (uppercase) imports identically to `f2.00`. *(Import: case-insensitive)*
-- [ ] `  f2.00  ` (surrounding whitespace) imports as fixed $2.00. *(Import: trims whitespace)*
-- [ ] A plain number `0.50` in a normal column imports as `price = 0.50`, `isFixedPrice = false`. *(Import: plain number = per-unit)*
-- [ ] A column with both a text `f2.00` cell and a numeric `5.00` cell imports both correctly (mixed numeric/text in one column). *(Import: handles numeric and text cells together)*
-- [ ] An `f` cell on a **non-medication** product raises an import error (fixed pricing is medications-only). *(Import: f on non-medication errors)*
-- [ ] A locale-style decimal (consistent with existing price parsing) prefixed with `f` parses to the correct numeric fee. *(Import: locale-safe parsing)*
+The **Invoice Price List Charging** tab: rows = `invoiceProductId`, columns = price-list codes, cells = `flatFee`/`perUnit`. Maps onto `InvoicePriceListItem.isFixedPrice`.
 
-## Import — column default (integration)
-
-- [ ] A header `KOSRAE:fixed` maps the column to price list `KOSRAE` (token stripped) and imports every plain number in it as `isFixedPrice = true`. *(Column default: header token, stripped before resolving code)*
-- [ ] A header that exactly matches an existing price-list code resolves as that code (whole-header match wins) and is not treated as a fixed-default column even if the code happens to end in `:fixed`. *(Column default: code-first resolution is collision-proof)*
-- [ ] In a `:fixed` column, an explicit `f2.00` is also fixed (redundant marker is harmless). *(Column default / per-cell consistency)*
-- [ ] In a `:fixed` column, a **non-medication** row imports the plain number as per-unit (`isFixedPrice = false`), with no error. *(Column default ignored for non-medications)*
-- [ ] A normal (untagged) column imports plain numbers as per-unit even when another column in the same sheet is `:fixed`. *(Column default scoped per column)*
-- [ ] The Yap pattern — an untagged column with `f2.00` on some cells and `0.50` on others — imports a mix of fixed and per-unit items. *(Per-cell marker handles mixed lists)*
-
-## Import — validation (integration)
-
-- [ ] `f` with no number (e.g. `f`, `fabc`) raises an import error reported like other invalid price values. *(Validation: invalid fixed value errors)*
-- [ ] A `hidden` cell still imports as hidden with no price; `hidden` and fixed are never combined. *(Spec: hidden and fixed mutually exclusive)*
-- [ ] Re-importing a sheet that changes a cell from `f2.00` to plain `2.00` flips `isFixedPrice` back to false on the existing item (reuses the row id). *(Import updates existing items)*
+- [ ] A `flatFee` cell for a medication sets `isFixedPrice = true`; `perUnit` sets `false`. *(Charging: maps to isFixedPrice)*
+- [ ] The charging tab **merges onto the existing price-list item** (same row): price from the price tab is preserved, `isFixedPrice` is set; no duplicate row is created. *(Charging: merges onto price item)*
+- [ ] `flatFee`/`perUnit` matching is **case-insensitive** and trims whitespace (e.g. `FlatFee`). *(Charging: case-insensitive)*
+- [ ] A **blank** cell raises an import error — an explicit value is required. *(Validation: blank errors)*
+- [ ] An **unknown** value (e.g. `sometimes`) raises an import error. *(Validation: unknown value errors)*
+- [ ] `flatFee` on a **non-medication** product raises an import error (fixed pricing is medications-only). *(Scope: flatFee on non-medication errors)*
+- [ ] `perUnit` on a **non-medication** product imports without error (`isFixedPrice = false`). *(Scope: perUnit allowed on any product)*
+- [ ] Re-importing the charging tab with a changed value flips `isFixedPrice` on the existing item (row reused). *(Charging: updates existing items)*
+- [ ] The price tab (`invoicePriceListItem`) is unaffected — plain numbers and `hidden` import as before. *(Regression: price tab unchanged)*
 
 ## Export round-trip (integration)
 
-- [ ] Exporting a price list with a fixed item emits `f2.00` (per-cell prefix) for that cell and a plain number for per-unit cells. *(Export: re-emits the marker)*
-- [ ] Export → re-import reproduces identical `price` and `isFixedPrice` values for every item (lossless round-trip). *(Export: lossless re-import)*
-- [ ] A hidden item still round-trips as `hidden` (unchanged by this feature). *(Regression)*
+- [ ] Exporting the charging tab emits `flatFee` for fixed items and `perUnit` for the rest (an explicit value for every item, no blanks). *(Export: charging tab)*
+- [ ] Export → re-import of the price and charging tabs reproduces identical `price` and `isFixedPrice` for every item. *(Export: lossless re-import)*
 
 ## Display / printout (manual)
 
