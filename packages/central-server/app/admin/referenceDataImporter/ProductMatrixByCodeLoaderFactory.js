@@ -83,8 +83,8 @@ export function productMatrixByCodeLoaderFactory(config) {
     if (!invoiceProductId) return [];
 
     // Validate product exists
-    const productExists = await models.InvoiceProduct.findByPk(invoiceProductId);
-    if (!productExists) {
+    const product = await models.InvoiceProduct.findByPk(invoiceProductId);
+    if (!product) {
       pushError(`Invoice product '${invoiceProductId}' does not exist`, itemModel);
       return [];
     }
@@ -105,7 +105,7 @@ export function productMatrixByCodeLoaderFactory(config) {
       const { parsedValue, isValidValue, errorMessage, ...otherColumns } = valueExtractor(
         rawValue,
         isEmpty,
-        productExists,
+        product,
       );
       if (!isValidValue) {
         pushError(errorMessage ?? messages.invalidValue(rawValue, code, invoiceProductId), itemModel);

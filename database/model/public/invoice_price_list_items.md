@@ -19,5 +19,5 @@ Determines whether the related invoice product should be hidden from searches on
 {% enddocs %}
 
 {% docs invoice_price_list_items__is_fixed_price %}
-When true, the product is charged as a flat fee regardless of quantity (price x 1) rather than price x quantity. Only honoured for medications. Mutually exclusive with is_hidden.
+When true, the product is charged as a flat fee regardless of quantity (price x 1) rather than price x quantity. Only honoured for medications. Set via the Invoice Price List Charging import tab.
 {% enddocs %}

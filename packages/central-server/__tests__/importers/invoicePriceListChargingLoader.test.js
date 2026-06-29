@@ -25,7 +25,7 @@ function buildWorkbook(sheets) {
     });
     ws['!ref'] = utils.encode_range({
       s: { r: 0, c: 0 },
-      e: { r: rows.length + 1, c: headers.length - 1 },
+      e: { r: rows.length, c: headers.length - 1 },
     });
     SheetNames.push(sheetName);
     Sheets[sheetName] = ws;

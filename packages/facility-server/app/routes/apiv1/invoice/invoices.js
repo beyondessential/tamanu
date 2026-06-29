@@ -49,7 +49,6 @@ invoiceRoute.get(
         invoiceProductId: productId,
         isHidden: false,
       },
-      attributes: ['price', 'isFixedPrice'],
     });
 
     if (!item) {
@@ -57,11 +56,11 @@ invoiceRoute.get(
       return;
     }
 
-    // Return the product category too so the form can apply fixed pricing (medications only)
-    // before the item is saved.
+    // Return the full price-list item plus the product category, so the form can apply fixed
+    // pricing (medications only) before the item is saved.
     const product = await InvoiceProduct.findByPk(productId, { attributes: ['category'] });
 
-    res.json({ price: item.price, isFixedPrice: item.isFixedPrice, category: product?.category });
+    res.json({ ...item.get({ plain: true }), category: product?.category });
   }),
 );
 
