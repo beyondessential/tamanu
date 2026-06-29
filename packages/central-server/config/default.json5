@@ -137,9 +137,6 @@
       "tokenExpiry": 20
     }
   },
-  "export": {
-    "maxFileSizeInMB": 50
-  },
   "mailgun": {
     "domain": "",
     "apiKey": "",

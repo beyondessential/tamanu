@@ -65,6 +65,18 @@ export const centralSettings = {
         },
       },
     },
+    export: {
+      description: 'Settings for admin data exports',
+      properties: {
+        maxFileSizeInMB: {
+          description:
+            'Maximum size of a generated export file. Exports larger than this are rejected.',
+          type: yup.number().positive(),
+          unit: 'MB',
+          defaultValue: 50,
+        },
+      },
+    },
     sync: {
       description: 'Settings related to sync',
       highRisk: true,

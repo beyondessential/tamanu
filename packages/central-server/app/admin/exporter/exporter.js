@@ -1,5 +1,4 @@
 import { promises as asyncFs } from 'fs';
-import config from 'config';
 import { writeExcelFile } from '../../utils/excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
@@ -27,7 +26,7 @@ async function buildSheetDataForDataType(context, dataType, options) {
   };
 }
 
-async function validateFileSize(fileName, maxSizeInMb) {
+export async function validateFileSize(fileName, maxSizeInMb) {
   if (!fileName) {
     return;
   }
@@ -51,11 +50,5 @@ export async function exporter(context, includedDataTypes = {}, options = {}, fi
       };
     }),
   );
-  const exportedFileName = writeExcelFile(sheets, fileName);
-
-  // This is a temporary fix for limiting the exported file size.
-  // TODO: Remove this validation as soon as we implement the download in chunks.
-  const { maxFileSizeInMB } = config.export;
-  await validateFileSize(exportedFileName, maxFileSizeInMB);
-  return exportedFileName;
+  return writeExcelFile(sheets, fileName);
 }
