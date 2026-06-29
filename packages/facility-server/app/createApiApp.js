@@ -6,6 +6,7 @@ import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
+import { requireHttps } from '@tamanu/shared/utils';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { fhirRoutes } from '@tamanu/shared/routes/fhir';
 import { log } from '@tamanu/shared/services/logging';
@@ -43,7 +44,12 @@ export async function createApiApp({
 
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
-  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
+  const websocketService = defineWebsocketService({
+    httpServer: server,
+    dbNotifier,
+    models,
+    app: express,
+  });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   express.use(
@@ -79,12 +85,15 @@ export async function createApiApp({
 
   express.use(settingsReaderMiddleware);
 
-  // index route for debugging connectivity
+  // index route for debugging connectivity (left accessible over HTTP for health checks)
   express.get('/', (req, res) => {
     res.send({
       index: true,
     });
   });
+
+  // Reject non-HTTPS requests when the security.requireHttps setting is enabled
+  express.use(requireHttps);
 
   const limiters = buildRateLimiters();
   // Apply a permissive global rate limit to every API request as a

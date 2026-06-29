@@ -1411,6 +1411,12 @@ export const globalSettings = {
       highRisk: true,
       description: 'Security settings',
       properties: {
+        requireHttps: {
+          name: 'Require HTTPS',
+          description:
+            'Reject client requests that do not arrive over HTTPS. Acts as the default for every server; leave unset to let the central and per-facility settings decide, or set it here to apply to all servers at once (a central or facility setting still overrides this). Requires a TLS-terminating proxy that is listed in `proxy.trusted` and forwards the `X-Forwarded-Proto` header, otherwise all requests will be rejected. Can only be enabled from an HTTPS connection.',
+          type: yup.boolean().nullable(),
+        },
         loginAttempts: {
           description: 'Login attempts settings',
           properties: {
