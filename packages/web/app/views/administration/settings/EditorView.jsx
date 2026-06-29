@@ -89,12 +89,15 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   const categorySchema = schema.properties[category];
   if (!categorySchema) return null;
   if (subCategory) {
-    // Pass down highRisk from parent category to now top level subcategory
     const subCategorySchema = categorySchema.properties[subCategory];
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
+    const infoBanner = categorySchema.infoBanner || subCategorySchema.infoBanner;
+    const needsRestart = categorySchema.requiresRestart || subCategorySchema.requiresRestart;
     return {
       ...subCategorySchema,
       highRisk: isHighRisk,
+      infoBanner,
+      requiresRestart: needsRestart,
     };
   }
   return categorySchema;
@@ -128,6 +131,7 @@ export const EditorView = memo(
     dirty,
     handleShowWarningModal,
     scope,
+    globalSettings,
   }) => {
     const { facilityId } = values;
     const [category, setCategory] = useState(null);
@@ -178,6 +182,10 @@ export const EditorView = memo(
     };
 
     const getSettingValue = path => get(values.settings, getSettingPath(path));
+
+    const getGlobalSettingValue = globalSettings
+      ? path => get(globalSettings, getSettingPath(path))
+      : undefined;
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
@@ -265,6 +273,7 @@ export const EditorView = memo(
             <Category
               schema={schemaForCategory}
               getSettingValue={getSettingValue}
+              getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}

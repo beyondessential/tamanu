@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
@@ -75,7 +74,6 @@ function RootContent({ store }) {
           <ThemeProvider theme={theme}>
             <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
               <StateContextProviders store={store}>
-                <ReactQueryDevtools initialIsOpen={false} />
                 <CustomToastContainer
                   hideProgressBar
                   transition={Slide}

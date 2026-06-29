@@ -6,7 +6,10 @@ import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
+import { requireHttps } from '@tamanu/shared/utils';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { fhirRoutes } from '@tamanu/shared/routes/fhir';
+import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -21,6 +24,7 @@ import { addFacilityMiddleware } from './addFacilityMiddleware';
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
 export async function createApiApp({
+  store,
   sequelize,
   reportSchemaStores,
   models,
@@ -40,7 +44,12 @@ export async function createApiApp({
 
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
-  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
+  const websocketService = defineWebsocketService({
+    httpServer: server,
+    dbNotifier,
+    models,
+    app: express,
+  });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   express.use(
@@ -59,6 +68,7 @@ export async function createApiApp({
   express.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.store = store;
     req.reportSchemaStores = reportSchemaStores;
     req.syncConnection = syncConnection;
     req.deviceId = deviceId;
@@ -75,12 +85,15 @@ export async function createApiApp({
 
   express.use(settingsReaderMiddleware);
 
-  // index route for debugging connectivity
+  // index route for debugging connectivity (left accessible over HTTP for health checks)
   express.get('/', (req, res) => {
     res.send({
       index: true,
     });
   });
+
+  // Reject non-HTTPS requests when the security.requireHttps setting is enabled
+  express.use(requireHttps);
 
   const limiters = buildRateLimiters();
   // Apply a permissive global rate limit to every API request as a
@@ -89,7 +102,16 @@ export async function createApiApp({
   // both /api and /v1. Single buildRateLimiters() call avoids duplicate
   // MemoryStores and cleanup intervals.
   express.use('/', limiters.globalLimiter);
-  express.use('/', createRoutes(limiters));
+  const routes = createRoutes(limiters);
+  express.use('/', routes);
+
+  if (config.integrations?.fhir?.enabled) {
+    const ctx = { store };
+    const fhir = fhirRoutes(ctx);
+    log.info('FHIR integration enabled, mounting routes');
+    routes.use('/api/integration/fhir/mat', fhir);
+    routes.use('/v1/integration/fhir/mat', fhir);
+  }
 
   // Dis-allow all other routes
   express.get('/{*splat}', (req, res) => {

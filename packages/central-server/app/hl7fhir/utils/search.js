@@ -94,16 +94,3 @@ function getStartEndOfFns(dateString) {
       throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
   }
 }
-/*
-  References can have three different formats:
-  - id
-  - type/id
-  - Resource URL
-
-  This function extracts and returns the id in each case.
-  Read more: http://hl7.org/fhir/search.html#reference
-*/
-export function parseHL7Reference(reference) {
-  const params = reference.split('/');
-  return params[params.length - 1];
-}

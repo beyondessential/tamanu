@@ -1,53 +1,38 @@
 import { Command } from 'commander';
 
-import { log } from '@tamanu/shared/services/logging';
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
-import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
-import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { syncDatabaseServerVersion } from '@tamanu/database';
+import { runStartFhirWorker } from '@tamanu/shared/tasks';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
-import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
-export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
-  log.info(`Starting Central FHIR worker version ${pkg.version}`);
+const defaults = {
+  appType: CENTRAL_SERVER_APP_TYPES.FHIR_WORKER,
+  serverName: 'Central',
+  version: pkg.version,
+};
 
-  const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;
+export async function startFhirWorker(opts = {}) {
+  const {
+    skipMigrationCheck,
+    topics,
+    name,
+    appType = defaults.appType,
+    serverName = defaults.serverName,
+    version = defaults.version,
+  } = { ...defaults, ...opts };
+
   const dbKey = name ? `${appType}(${name})` : appType;
   const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
-  await syncDatabaseServerVersion({
-    models: context.store.models,
-    serverVersion: pkg.version,
+
+  return runStartFhirWorker({
+    context,
+    settings: context.settings,
+    serverName,
+    version,
+    topics,
   });
-
-  // Keep the worker's process-local settings cache in sync via NOTIFYs.
-  const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
-  context.onClose(() => dbNotifier.close());
-
-  if (!topics || topics === 'all') {
-    topics = null;
-  } else {
-    topics = topics.split(/,+\s*/).filter(Boolean);
-    log.info(`FHIR worker restricted to topics: ${topics.join(', ')}`);
-  }
-
-  const worker = await startFhirWorkerTasks({ store: context.store, topics });
-
-  for (const sig of ['SIGINT', 'SIGTERM']) {
-    process.once(sig, async () => {
-      log.info(`Received ${sig}, stopping fhir worker`);
-      await worker.stop();
-      context.close();
-    });
-  }
-
-  await context.waitForClose();
-};
+}
 
 export const startFhirWorkerCommand = new Command('startFhirWorker')
   .description('Start the Tamanu Central FHIR worker')

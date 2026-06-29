@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Alert } from '@material-ui/lab';
 import KeyIcon from '@mui/icons-material/Key';
 
 import { isSetting } from '@tamanu/settings';
@@ -22,6 +24,12 @@ const StyledSecretIcon = styled(KeyIcon)`
   flex-shrink: 0;
   font-size: 0.875rem;
   line-height: 1;
+`;
+
+const StyledRestartIcon = styled(RefreshIcon)`
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
+  color: ${Colors.orange};
 `;
 
 const Wrapper = styled.div`
@@ -96,6 +104,11 @@ const StyledHeading = styled(Heading4)`
   inline-size: fit-content;
 `;
 
+const InfoBannerAlert = styled(Alert)`
+  grid-column: 1 / -1;
+  margin-block-end: 0.5rem;
+`;
+
 const CategoryTitle = memo(({ name, path, description }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
@@ -110,37 +123,53 @@ const CategoryTitle = memo(({ name, path, description }) => {
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled, isSecret }) => (
-  <ThemedTooltip
-    disableHoverListener={!description && !disabled && !isSecret}
-    title={
-      disabled ? (
-        <TranslatedText
-          stringId="admin.settings.highRiskSettingTooltip"
-          fallback="User does not required permissions to update this setting"
-          data-testid="translatedtext-2xq4"
-        />
-      ) : isSecret ? (
-        <TranslatedText
-          stringId="admin.settings.secretSettingTooltip"
-          fallback="This is a secret setting. The current value is hidden."
-          data-testid="translatedtext-secret"
-        />
-      ) : (
-        description
-      )
-    }
-    data-testid="themedtooltip-2qoa"
-  >
-    <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-      {formatSettingName(name, path.split('.').pop())}
-      {disabled ? (
-        <StyledLockIcon data-testid="styledlockicon-x3w0" />
-      ) : (
-        isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
-      )}
-    </SettingNameLabel>
-  </ThemedTooltip>
+const SettingName = memo(({ name, path, description, disabled, isSecret, requiresRestart }) => (
+  <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+    <ThemedTooltip
+      disableHoverListener={!description && !disabled && !isSecret}
+      title={
+        disabled ? (
+          <TranslatedText
+            stringId="admin.settings.highRiskSettingTooltip"
+            fallback="User does not required permissions to update this setting"
+            data-testid="translatedtext-2xq4"
+          />
+        ) : isSecret ? (
+          <TranslatedText
+            stringId="admin.settings.secretSettingTooltip"
+            fallback="This is a secret setting. The current value is hidden."
+            data-testid="translatedtext-secret"
+          />
+        ) : (
+          description
+        )
+      }
+      data-testid="themedtooltip-2qoa"
+    >
+      <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+        {formatSettingName(name, path.split('.').pop())}
+        {disabled ? (
+          <StyledLockIcon data-testid="styledlockicon-x3w0" />
+        ) : (
+          isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
+        )}
+      </SettingNameLabel>
+    </ThemedTooltip>
+    {requiresRestart && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="admin.settings.requiresRestartTooltip"
+            fallback="Requires server restart to take effect"
+            data-testid="translatedtext-rr01"
+          />
+        }
+        data-testid="themedtooltip-rr01"
+      >
+        <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+      </ThemedTooltip>
+    )}
+  </SettingNameLabel>
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
@@ -159,6 +188,7 @@ export const Category = ({
   schema,
   path = '',
   getSettingValue,
+  getGlobalSettingValue,
   resolveSettingsPath,
   handleChangeSetting,
   facilityId,
@@ -176,6 +206,11 @@ export const Category = ({
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
+      {schema.infoBanner && (
+        <InfoBannerAlert severity="info" data-testid="infobanneralert-fw01">
+          {schema.infoBanner}
+        </InfoBannerAlert>
+      )}
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
         const testIdSuffix = newPath.replace(/\./g, '-');
@@ -186,12 +221,14 @@ export const Category = ({
           defaultValue,
           unit,
           highRisk,
+          requiresRestart,
           suggesterEndpoint,
           secret,
           editor,
           options,
         } = propertySchema;
 
+        const needsRestart = schema.requiresRestart || requiresRestart;
         const isSecret = Boolean(secret);
         const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
@@ -201,8 +238,8 @@ export const Category = ({
             <Category
               key={newPath}
               path={newPath}
-              // Pass down highRisk from parent category to now top level subcategory
-              schema={{ ...propertySchema, highRisk: isHighRisk }}
+              // Pass down inherited properties to the child category
+              schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
               getSettingValue={getSettingValue}
               resolveSettingsPath={resolveSettingsPath}
               handleChangeSetting={handleChangeSetting}
@@ -216,6 +253,7 @@ export const Category = ({
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
               disabled={disabled}
+              requiresRestart={needsRestart}
               path={newPath}
               name={name}
               description={description}
@@ -228,6 +266,7 @@ export const Category = ({
               value={getSettingValue(newPath)}
               settingsPath={resolveSettingsPath(newPath)}
               defaultValue={defaultValue}
+              globalValue={getGlobalSettingValue?.(newPath)}
               path={newPath}
               name={name}
               description={description}
