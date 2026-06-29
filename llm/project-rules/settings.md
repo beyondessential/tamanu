@@ -17,6 +17,12 @@ with `extractDefaults()` (e.g. `facilityDefaults`). Useful leaf flags:
 `exposedToWeb` / `exposedToPatientPortal` (sent to those frontends),
 `secret`, `highRisk`, `deprecated`, `unit`, `suggesterEndpoint`.
 
+A `secret: true` leaf must **not** declare a `defaultValue` (a schema test
+enforces this). The flag masks the value in the admin UI; it does not by itself
+encrypt storage — encryption is a separate opt-in path (`getSettingSecret` with a
+PSK) for high-value credentials, while most secret-flagged settings are read with
+a plain `get`.
+
 **Scope a setting by where it is read:** only read on facility → put it in
 `facility.ts`; only on central → `central.ts`; both → `global.ts`. Don't put a
 facility-only setting in `global.ts`.
@@ -58,6 +64,10 @@ Outside a request (tasks, sub-commands) the reader lives on the app context:
 Pre-auth/global reads with no facility construct one directly:
 `new ReadSettings(req.models)` — only when no facility id is available (e.g. the
 `browser-support` route). Prefer the request reader otherwise.
+
+`@tamanu/database` and `@tamanu/shared` both depend on `@tamanu/settings`, so code
+there (model methods, shared helpers) can `new ReadSettings(models)` directly when
+it only has `models` and no reader to hand.
 
 `get()` is async and reads from the DB, so settings can only be read from async
 code that runs after startup — not from bootstrap/module-load code.
