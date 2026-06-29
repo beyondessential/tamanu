@@ -69,7 +69,12 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`No FHIR patient with patient id ${patientId}`);
         }
 
-        const { patient, bundle: ipsJSON } = await generateIPSBundle(fhirPatient.id, user, models);
+        const { patient, bundle: ipsJSON } = await generateIPSBundle(
+          fhirPatient.id,
+          user,
+          models,
+          this.context.settings,
+        );
 
         const sublog = log.child({
           id: notification.id,

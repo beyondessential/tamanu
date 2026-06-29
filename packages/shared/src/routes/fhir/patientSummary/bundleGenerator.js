@@ -1,5 +1,4 @@
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
-import { ReadSettings } from '@tamanu/settings';
 
 import { NotFound, formatFhirDate, getFhirDataDictionaries } from '../../../utils/fhir';
 
@@ -14,9 +13,9 @@ import {
 
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
-export const generateIPSBundle = async (fhirPatientId, user, models) => {
+export const generateIPSBundle = async (fhirPatientId, user, models, settings) => {
   const dataDictionariesIps = getFhirDataDictionaries().ips;
-  const integrationsIps = await new ReadSettings(models).get('integrations.ips');
+  const integrationsIps = await settings.get('integrations.ips');
 
   if (!dataDictionariesIps) {
     throw new Error('Missing config: hl7.dataDictionaries.ips is required for IPS bundle generation');
