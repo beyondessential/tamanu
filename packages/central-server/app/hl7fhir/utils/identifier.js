@@ -1,6 +1,8 @@
-import config from 'config';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
-export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
+export function getIdentifierNamespace() {
+  return getFhirDataDictionaries().patientDisplayId;
+}
 
 export function decodeIdentifier(identifier) {
   if (typeof identifier !== 'string') {
@@ -17,5 +19,5 @@ export function isValidIdentifier(value) {
   if (!value) return true;
 
   const [namespace, displayId] = decodeIdentifier(value);
-  return namespace === IDENTIFIER_NAMESPACE && !!displayId;
+  return namespace === getIdentifierNamespace() && !!displayId;
 }

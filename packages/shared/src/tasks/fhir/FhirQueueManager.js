@@ -1,0 +1,261 @@
+import { SpanStatusCode } from '@opentelemetry/api';
+import theConfig from 'config';
+import ms from 'ms';
+import { hostname } from 'os';
+
+import { NOTIFY_CHANNELS } from '@tamanu/constants';
+
+import { getTracer } from '../../services/logging';
+import { defineDbNotifier } from '../../services/dbNotifier';
+import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
+
+export class FhirQueueManager {
+  queueProcessors = new Map();
+
+  heartbeat = null;
+
+  heartbeatIntervalMs = null;
+
+  worker = null;
+
+  config = theConfig.integrations?.fhir?.worker;
+
+  // if false, immediately reprocess the queue after a job is completed
+  // to work through the backlog promptly; this makes testing harder, so
+  // in "testMode" it's disabled.
+  testMode = false;
+
+  lastNotifyAt = null;
+
+  lastJobAt = null;
+
+  pendingCrash = false;
+
+  constructor(context, settings, log) {
+    this.models = context.models;
+    this.sequelize = context.sequelize;
+    this.settings = settings;
+    this.log = log;
+  }
+
+  // Called by FhirTopicQueueProcessor whenever it successfully grabs a job.
+  // Used together with `lastNotifyAt` to detect a stuck NOTIFY listener:
+  // if work is being processed but no notifications are arriving, the
+  // backstop in the heartbeat is silently carrying the worker.
+  recordJobGrabbed() {
+    this.lastJobAt = Date.now();
+  }
+
+  async start() {
+    const { FhirJobWorker } = this.models;
+    const { enabled } = this.config ?? {};
+
+    if (!enabled) {
+      this.log.info('FhirQueueManager: disabled');
+      return;
+    }
+
+    const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
+    this.log.debug('FhirQueueManager: got raw heartbeat interval', { heartbeatInterval });
+    const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
+    this.log.debug('FhirQueueManager: added some jitter to the heartbeat', { heartbeat });
+
+    this.worker = await FhirJobWorker.register({
+      version: 'unknown',
+      serverType: 'unknown',
+      hostname: hostname(),
+      ...(global.serverInfo ?? {}),
+    });
+    this.log.info('FhirQueueManager: registered', { workerId: this.worker?.id });
+
+    this.log.debug('FhirQueueManager: scheduling heartbeat', { intervalMs: heartbeat });
+    this.heartbeatIntervalMs = heartbeat;
+    this.heartbeat = setInterval(async () => {
+      if (this.pendingCrash) return;
+      try {
+        await this.worker.reload();
+        this.log.info('FhirQueueManager: heartbeat:', {
+          topics: this.worker.metadata.topics,
+          successfulJobs: this.worker.metadata.successfulJobs || 0,
+          failedJobs: this.worker.metadata.failedJobs || 0,
+          totalJobs: this.worker.metadata.totalJobs || 0,
+        });
+        await this.worker.heartbeat();
+
+        // Backstop in case a NOTIFY was missed (e.g. during pg-notify
+        // reconnect): poke every registered topic so the next heartbeat
+        // tick is the worst-case latency for picking up a queued job.
+        for (const topic of this.queueProcessors.keys()) {
+          this.processQueueNow(topic);
+        }
+
+        this.detectDeadListener();
+      } catch (err) {
+        this.log.error('FhirQueueManager: heartbeat failed', { err });
+      }
+    }, heartbeat).unref();
+
+    this.log.debug('FhirQueueManager: listen for postgres notifications');
+    this.lastNotifyAt = Date.now();
+    this.dbNotifier = await defineDbNotifier(this.sequelize.config, [NOTIFY_CHANNELS.JOBS]);
+    this.dbNotifier.listeners[NOTIFY_CHANNELS.JOBS](payload => {
+      this.lastNotifyAt = Date.now();
+      this.log.debug('FhirQueueManager: got postgres notification', { payload });
+      this.processQueueNow(payload.topic);
+    });
+  }
+
+  async setHandler(topic, handler) {
+    this.log.info('FhirQueueManager: setting topic handler', { topic });
+    await this.worker?.markAsHandling(topic);
+
+    const existingQueueProcessor = this.queueProcessors.get(topic);
+    if (existingQueueProcessor) {
+      existingQueueProcessor.stop(); // No need to await, let it gracefully stop all current jobs in the background
+    }
+
+    this.queueProcessors.set(topic, new FhirTopicQueueProcessor(this, topic, handler));
+  }
+
+  async stop() {
+    clearInterval(this.heartbeat);
+    this.heartbeat = null;
+
+    this.log.info('FhirQueueManager: removing all queue processors');
+
+    await Promise.all(Array.from(this.queueProcessors.values()).map(runner => runner.stop()));
+    this.queueProcessors.clear();
+
+    await this.worker?.deregister();
+    this.worker = null;
+
+    if (this.dbNotifier) {
+      this.log.info('FhirQueueManager: removing postgres notification listener');
+      await this.dbNotifier.close();
+      this.dbNotifier = null;
+    }
+  }
+
+  /**
+   * This is the total number of jobs that can be processed concurrently across all topics.
+   *
+   * @returns {number} Total capacity of the queue manager.
+   */
+  async totalCapacity() {
+    const concurrency =
+      this._concurrency ?? (await this.settings.get('fhir.worker.concurrency')) ?? 0;
+    return Math.max(0, concurrency);
+  }
+
+  /**
+   * How many concurrent jobs can be processed for a topic.
+   *
+   * This is calculated to evenly distribute the capacity among the topics.
+   * Every topic can run at least 1 job (regardless of total capacity), and the remaining capacity
+   * is divided evenly among the topics.
+   *
+   * @param {number} [capacity] - Pre-fetched capacity to avoid a redundant settings read.
+   * @returns {number} Amount of jobs to run in parallel for a topic.
+   */
+  async parallelisationPerTopic(capacity) {
+    const cap = capacity ?? (await this.totalCapacity());
+    return Math.max(
+      cap > 0 ? 1 : 0, // return at least 1 if there's any capacity
+      Math.floor(cap / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
+    );
+  }
+
+  /**
+   * Get the list of topics that are being processed.
+   *
+   * @returns {string[]} List of topics.
+   */
+  topics() {
+    return Array.from(this.queueProcessors.keys());
+  }
+
+  processQueueNow(topic) {
+    if (this.testMode) return;
+
+    // using allSettled to avoid 'uncaught promise rejection' errors
+    // and setImmediate to avoid growing the stack
+    setImmediate(() => {
+      if (this.pendingCrash) return;
+      Promise.allSettled([this.processQueue(topic)]);
+    }).unref();
+  }
+
+  // If we've been processing jobs but haven't received NOTIFYs for them,
+  // the LISTEN connection is dead (half-open TCP, server-side disconnect
+  // pg-notify didn't notice, etc.). Drain in-flight work and exit; the
+  // process supervisor will restart us with a fresh listener.
+  detectDeadListener() {
+    if (this.pendingCrash || this.testMode) return;
+    if (this.lastJobAt === null || this.lastNotifyAt === null) return;
+    const now = Date.now();
+    const sinceLastNotify = now - this.lastNotifyAt;
+    const sinceLastJob = now - this.lastJobAt;
+    if (sinceLastNotify > 2 * this.heartbeatIntervalMs && sinceLastJob < this.heartbeatIntervalMs) {
+      this.detonate({ sinceLastNotify, sinceLastJob });
+    }
+  }
+
+  async detonate({ sinceLastNotify, sinceLastJob }) {
+    if (this.pendingCrash) return;
+    this.pendingCrash = true;
+    this.log.error('FhirQueueManager: NOTIFY listener appears dead, draining and exiting', {
+      sinceLastNotifyMs: sinceLastNotify,
+      sinceLastJobMs: sinceLastJob,
+    });
+
+    try {
+      // processor.stop() returns null when no jobs are in flight; Promise.all
+      // treats nulls as already-resolved, so this works whether processors are
+      // mid-job or idle.
+      await Promise.all(Array.from(this.queueProcessors.values()).map(p => p.stop()));
+      this.log.error('FhirQueueManager: drained, exiting for restart');
+    } catch (err) {
+      this.log.error('FhirQueueManager: error during drain, exiting anyway', { err });
+    }
+    process.exit(1);
+  }
+
+  processQueue(topic) {
+    // start a new root span here to avoid tying this to any callers
+    return getTracer().startActiveSpan(
+      `FhirQueueManager.processQueue`,
+      { root: true },
+      async span => {
+        this.log.debug(`Starting to process the queue from worker ${this.worker.id}.`);
+        span.setAttributes({
+          'code.function': 'processQueue',
+          'job.worker': this.worker.id,
+          'job.topic': topic,
+        });
+
+        try {
+          const capacity = await this.totalCapacity();
+          if (capacity === 0) {
+            this.log.debug('FhirQueueManager: no capacity');
+            return;
+          }
+
+          const queueProcessor = this.queueProcessors.get(topic);
+          if (!queueProcessor) {
+            this.log.debug('FhirQueueManager: no processor for topic', { topic });
+            return;
+          }
+
+          await queueProcessor.processQueue(capacity);
+        } catch (err) {
+          this.log.debug('Trouble retrieving the backlog');
+          span.recordException(err);
+          span.setStatus({ code: SpanStatusCode.ERROR });
+          throw err;
+        } finally {
+          span.end();
+        }
+      },
+    );
+  }
+}
