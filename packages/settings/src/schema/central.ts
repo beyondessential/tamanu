@@ -372,6 +372,38 @@ export const centralSettings = {
     integrations: {
       description: 'Integrations with external services',
       properties: {
+        ips: {
+          description: 'International Patient Summary (IPS) settings',
+          properties: {
+            attester: {
+              description: 'Organisation that attests the IPS document',
+              type: yup.string(),
+              defaultValue: 'Ministry of Health',
+            },
+            author: {
+              description: 'Author line included in the IPS document',
+              type: yup.string(),
+              defaultValue:
+                'Tamanu is a free and open-source EHR for low resource and remote settings.',
+            },
+            email: {
+              description: 'Email sent to patients with their IPS',
+              properties: {
+                subject: {
+                  description: 'Subject line of the IPS email',
+                  type: yup.string(),
+                  defaultValue: 'Your International Patient Summary',
+                },
+                bodyText: {
+                  description: 'Body text of the IPS email',
+                  type: yup.string(),
+                  defaultValue:
+                    'Please scan the QR code attached to view your International Patient Summary',
+                },
+              },
+            },
+          },
+        },
         dhis2: {
           description: 'DHIS2 settings',
           properties: {

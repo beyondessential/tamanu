@@ -153,7 +153,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // SEND EMAIL
 
-        const { subject, bodyText } = config.integrations.ips.email;
+        const { subject, bodyText } = await this.context.settings.get('integrations.ips.email');
 
         const content = `
           ${bodyText} \n  Alternatively, use the following link ${fullUrl} \n

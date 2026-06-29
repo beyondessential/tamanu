@@ -335,14 +335,6 @@
       "requireClientHeaders": true
     },
 
-    "ips": {
-      "attester": "Ministry of Health",
-      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
-      "email": {
-        "subject": "Your International Patient Summary",
-        "bodyText": "Please scan the QR code attached to view your International Patient Summary"
-      }
-    },
     "fijiAspenMediciReport": {
       "enabled": false
     },
