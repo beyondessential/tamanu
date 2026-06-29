@@ -1,0 +1,21 @@
+---
+label: "Automate test cases"
+pill-order:
+  implementing: 6
+  reviewing: 5
+jockey-hint: "Surface once the card has a test-cases file with unticked scenarios and implementation is underway. Demote once all scenarios are ticked."
+workhorse-version: 0.1.0
+---
+
+## Your task: Automate test cases
+
+Write automated tests that match the unticked scenarios in this card's test-cases file, ticking each item as its matching test lands.
+
+1. Read the test-cases file at `.workhorse/test-cases/d1/`. If no file exists, stop and ask the user whether to run `Draft test cases` first
+2. For each unticked scenario, locate the right place to put its automated test — follow the target repo's existing test conventions (framework, file layout, fixtures)
+3. Write the test so it exercises the scenario as stated. If the scenario cites a spec id, the test is the automation of that acceptance criterion — match its intent
+4. Tick the scenario (`- [ ]` → `- [x]`) once its test is written and passing locally. Update the test-cases file in place
+5. If a scenario is genuinely not automatable (manual feel, cross-browser visual), leave it unticked and note in the file why it's manual-only
+6. Summarise what you automated, which scenarios remain manual, and any scenarios you couldn't make sense of
+
+See `specs/test-cases/overview.md` for the file's shape.
