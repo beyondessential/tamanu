@@ -59,7 +59,16 @@ export class EncounterMedicationPane extends BasePatientPane {
   }
 
   async clickFirstMedicationRow(): Promise<void> {
-    await this.tableBody.getByTestId('statusrow-fsiy').waitFor({ state: 'hidden' });
-    await this.tableBody.getByRole('row').first().click();
+    // The table always renders a single <tr>: a status row (loading/error/no-data,
+    // one cell with testid `statustablecell-rwkq`) until real data arrives, then data
+    // rows whose cells carry `styledtablecell-2gyy-<row>-<col>`. The `statusrow-fsiy`
+    // / `row-1kia` testids are never emitted to the DOM, so we cannot guard on them.
+    // Wait for a real data cell before clicking, otherwise on a slow backend we click
+    // the status row (no row handler) and the details modal never opens.
+    const firstDataCell = this.tableBody
+      .locator('[data-testid^="styledtablecell-2gyy-0-"]')
+      .first();
+    await firstDataCell.waitFor({ state: 'visible' });
+    await firstDataCell.click();
   }
 }
