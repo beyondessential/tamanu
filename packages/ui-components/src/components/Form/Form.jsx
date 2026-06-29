@@ -1,5 +1,4 @@
 import { Typography } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import { Formik, useFormikContext } from 'formik';
 import { isObject } from 'es-toolkit/compat';
 import React, { isValidElement, useEffect } from 'react';
@@ -8,7 +7,6 @@ import { ValidationError } from 'yup';
 
 import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import { useFormSubmission } from '../../contexts/FormSubmissionContext';
-import { IS_DEVELOPMENT } from '../../utils/env';
 import { Dialog } from '../Dialog';
 import { TranslatedText } from '../Translation';
 import { flattenObject } from './flattenObject';
@@ -80,15 +78,8 @@ export class Form extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    const { onSubmit, formType } = props;
-    const hasNonAsyncSubmitHandler =
-      IS_DEVELOPMENT &&
-      formType !== FORM_TYPES.SEARCH_FORM &&
-      onSubmit.constructor.name !== 'AsyncFunction';
-
     this.state = {
       validationErrors: {},
-      showWarningForNonAsyncSubmitHandler: hasNonAsyncSubmitHandler,
     };
   }
 
@@ -214,7 +205,6 @@ export class Form extends React.PureComponent {
     };
 
     const { render, style, className } = this.props;
-    const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
@@ -227,17 +217,6 @@ export class Form extends React.PureComponent {
           $clickable={!isSubmitting}
           data-testid="styledform-5o5i"
         >
-          {showWarningForNonAsyncSubmitHandler && (
-            <Alert
-              severity="warning"
-              onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
-              data-testid="alert-ygcm"
-            >
-              <AlertTitle data-testid="alerttitle-3i79">
-                DEV Warning: this form does not have async onSubmit (ignore if intentional)
-              </AlertTitle>
-            </Alert>
-          )}
           {render({
             ...formProps,
             setValues,
