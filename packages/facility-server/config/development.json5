@@ -4,7 +4,6 @@
     "secret": "insecure"
   },
   "db": {
-    "migrateOnStartup": true,
     "name": "tamanu-facility"
   },
   "sync": {

@@ -9,7 +9,6 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
@@ -439,9 +438,6 @@
     }
   },
   "scheduledReports": [],
-  "disk": {
-    "diskPath": "C:/",
-  },
   // Note: this config should be duplicated on the facility server if the same behavior is
   // desired for "this facility" and "all facilities"
   "reportConfig": {
