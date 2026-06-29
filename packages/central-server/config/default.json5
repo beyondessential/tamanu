@@ -463,13 +463,5 @@
   "allowMismatchedTimeZones": false,
   "socket.io": {
     enabled: true,
-  },
-  "telegramBot": {
-    apiToken: "",
-    webhook: {
-      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
-      url: "",
-      secret: ""
-    }
   }
 }

@@ -103,7 +103,6 @@ export class ApplicationContext {
     }
 
     this.telegramBotService = await defineSingletonTelegramBotService({
-      config,
       models: this.store.models,
       settings: this.settings,
     });
