@@ -6,12 +6,12 @@ import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { mailgunTransport } from './mailgunTransport.js';
 
-function createTransporter() {
-  // When `mail.transport` is set, it is passed through to nodemailer.createTransport()
-  // unchanged, so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.)
-  // or nodemailer transport plugin can be used. See https://nodemailer.com/transports/.
-  if (config.mail?.transport) {
-    return nodemailer.createTransport(config.mail.transport);
+function createTransporter(transport) {
+  // The `mail.transport` setting is passed through to nodemailer.createTransport() unchanged,
+  // so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.) or nodemailer
+  // transport plugin can be used. See https://nodemailer.com/transports/.
+  if (transport) {
+    return nodemailer.createTransport(transport);
   }
 
   // Legacy `mailgun` config: route the Mailgun HTTP API through nodemailer too, so there
@@ -63,8 +63,8 @@ function shouldRetrySendError(e) {
 }
 
 export class EmailService {
-  constructor() {
-    this.transporter = createTransporter();
+  constructor(transport) {
+    this.transporter = createTransporter(transport);
   }
 
   /**

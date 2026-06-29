@@ -64,7 +64,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
     const result = await this.context.emailService.sendEmail({
       to: toAddress,
-      from: getDefaultFromAddress(),
+      from: await getDefaultFromAddress(this.context.settings),
       subject: emailPlain.subject,
       text: transformedContent,
       attachment: emailPlain.attachment,

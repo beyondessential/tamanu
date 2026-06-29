@@ -155,6 +155,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.requestedByUserId,
       request.exportFormat,
       sleepAfterReport,
+      this.context.settings,
     );
 
     await reportRunner.run();
@@ -181,7 +182,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     for (const request of requests) {
       const reportId = request.getReportId();
 
-      if (!getDefaultFromAddress()) {
+      if (!(await getDefaultFromAddress(this.context.settings))) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,

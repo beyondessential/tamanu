@@ -118,6 +118,23 @@ export const centralSettings = {
         },
       },
     },
+    mail: {
+      description: 'Outgoing email settings (the legacy `mailgun` config is still used as a fallback)',
+      highRisk: true,
+      properties: {
+        from: {
+          description: 'Default sender address for outgoing email',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        transport: {
+          description:
+            'Nodemailer transport options, passed to createTransport() unchanged. Preferred over the legacy mailgun config when set.',
+          type: yup.object().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     sync: {
       description: 'Settings related to sync',
       highRisk: true,

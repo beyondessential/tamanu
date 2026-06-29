@@ -66,7 +66,7 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
     );
     for (const surveyResponse of surveyResponses) {
       const result = await this.context.emailService.sendEmail({
-        from: getDefaultFromAddress(),
+        from: await getDefaultFromAddress(this.context.settings),
         to: surveyResponse.survey.notifyEmailAddresses,
         subject: getTranslation(
           'surveyCompletionNotifier.emailSubject',

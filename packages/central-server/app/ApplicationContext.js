@@ -89,7 +89,7 @@ export class ApplicationContext {
 
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
-    this.emailService = new EmailService();
+    this.emailService = new EmailService(await this.settings.get('mail.transport'));
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting(this.store);

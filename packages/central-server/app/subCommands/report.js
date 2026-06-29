@@ -5,6 +5,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { ReadSettings } from '@tamanu/settings';
 import config from 'config';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
@@ -67,7 +68,8 @@ async function report(options) {
       };
     }
 
-    const emailService = new EmailService();
+    const settings = new ReadSettings(store.models);
+    const emailService = new EmailService(await settings.get('mail.transport'));
     const reportRunner = new ReportRunner(
       reportId,
       reportParameters,
@@ -78,6 +80,7 @@ async function report(options) {
       userId,
       format,
       sleepAfterReport,
+      settings,
     );
     log.info(
       `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,

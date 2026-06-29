@@ -51,7 +51,7 @@ resetPassword.post(
       throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
     } else {
       const token = await createOneTimeLogin(models, user);
-      await sendResetEmail(req.emailService, user, token);
+      await sendResetEmail(req.emailService, user, token, settings);
     }
 
     return res.send({ ok: 'ok' });
@@ -72,7 +72,7 @@ const createOneTimeLogin = async (models, user) => {
   return token;
 };
 
-const sendResetEmail = async (emailService, user, token) => {
+const sendResetEmail = async (emailService, user, token, settings) => {
   const emailText = `
       Hi ${user.displayName},
 
@@ -86,7 +86,7 @@ const sendResetEmail = async (emailService, user, token) => {
       tamanu.io`;
 
   const result = await emailService.sendEmail({
-    from: getDefaultFromAddress(),
+    from: await getDefaultFromAddress(settings),
     to: user.email,
     subject: 'Tamanu password reset',
     text: emailText,

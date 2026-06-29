@@ -28,6 +28,7 @@ export class ReportRunner {
     userId,
     exportFormat,
     sleepAfterReport,
+    settings,
   ) {
     this.reportId = reportId;
     this.parameters = parameters;
@@ -36,6 +37,7 @@ export class ReportRunner {
     this.reportSchemaStores = reportSchemaStores;
     this.emailService = emailService;
     this.userId = userId;
+    this.settings = settings;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
     // Export format is only used for emailed recipients. Local reports have the export format
     // defined in the recipients object and reports sent to s3 are always csv.
@@ -60,7 +62,7 @@ export class ReportRunner {
   async validate(reportModule, reportDataGenerator) {
     const localisation = await getLocalisation();
 
-    if (this.recipients.email && !getDefaultFromAddress()) {
+    if (this.recipients.email && !(await getDefaultFromAddress(this.settings))) {
       throw new Error('ReportRunner - Email config missing');
     }
 
@@ -258,7 +260,7 @@ export class ReportRunner {
       });
 
       const result = await this.emailService.sendEmail({
-        from: getDefaultFromAddress(),
+        from: await getDefaultFromAddress(this.settings),
         to: recipients,
         subject: 'Report delivery',
         text: `Report requested: ${reportName}`,
@@ -286,7 +288,7 @@ export class ReportRunner {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
       this.emailService.sendEmail({
-        from: getDefaultFromAddress(),
+        from: await getDefaultFromAddress(this.settings),
         to: user.email,
         subject: 'Failed to generate report',
         message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,

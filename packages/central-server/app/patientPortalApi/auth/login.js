@@ -23,7 +23,7 @@ const getOneTimeTokenEmail = async ({ email, token, settings }) => {
 
   return {
     to: email,
-    from: getDefaultFromAddress(),
+    from: await getDefaultFromAddress(settings),
     subject,
     text: content,
   };
