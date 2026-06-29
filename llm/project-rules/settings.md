@@ -65,9 +65,12 @@ Pre-auth/global reads with no facility construct one directly:
 `new ReadSettings(req.models)` — only when no facility id is available (e.g. the
 `browser-support` route). Prefer the request reader otherwise.
 
-`@tamanu/database` and `@tamanu/shared` both depend on `@tamanu/settings`, so code
-there (model methods, shared helpers) can `new ReadSettings(models)` directly when
-it only has `models` and no reader to hand.
+**Prefer threading over constructing.** Pass what's needed down from a caller that
+already has a reader — either the reader itself, or the resolved value (model
+methods usually take the value, e.g. a number, not a reader). Constructing
+`new ReadSettings(models)` is a fallback for code deep in `@tamanu/database` /
+`@tamanu/shared` (both depend on `@tamanu/settings`, so the import is fine) that
+only has `models` and can't reasonably be threaded a reader.
 
 `get()` is async and reads from the DB, so settings can only be read from async
 code that runs after startup — not from bootstrap/module-load code.
