@@ -184,6 +184,5 @@
   "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
-  "language": "en",
   "canonicalHostName": "http://localhost:4000",
 }
