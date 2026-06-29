@@ -491,9 +491,6 @@
       secret: ""
     }
   },
-  "patientCommunication": {
-    "retryThreshold": 20
-  },
   "tasking": {
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },

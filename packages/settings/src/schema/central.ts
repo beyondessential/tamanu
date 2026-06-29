@@ -70,6 +70,16 @@ export const centralSettings = {
         },
       },
     },
+    patientCommunication: {
+      description: 'Settings for patient communications (emails, telegram)',
+      properties: {
+        retryThreshold: {
+          description: 'Maximum number of send retries before a queued message is given up on',
+          type: yup.number().integer().positive(),
+          defaultValue: 20,
+        },
+      },
+    },
     notifications: {
       description: 'Settings for notifications',
       properties: {

@@ -24,7 +24,8 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
   async countQueue() {
     const { PatientCommunication } = this.context.store.models;
-    return PatientCommunication.countPendingMessages(this.channel);
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    return PatientCommunication.countPendingMessages(this.channel, retryThreshold);
   }
 
   async transformContent(emailRecord) {
@@ -38,7 +39,8 @@ export class BaseCommunicationProcessor extends ScheduledTask {
   async processEmails() {
     const { Patient, PatientCommunication } = this.context.store.models;
 
-    const emailsToBeSent = await PatientCommunication.getPendingMessages(this.channel, {
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    const emailsToBeSent = await PatientCommunication.getPendingMessages(this.channel, retryThreshold, {
       include: [{ model: Patient, as: 'patient' }],
       limit: this.config.limit,
     });
