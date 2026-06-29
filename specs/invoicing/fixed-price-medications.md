@@ -70,13 +70,13 @@ It maps 1:1 onto the same `InvoicePriceListItem` rows as the price tab — `flat
 ### Cell values & validation
 
 - Valid cell values are **`flatFee`** or **`perUnit`** (case-insensitive, trimmed). Any other value is an **import error**.
-- A value is **required in every cell** present in the tab — a blank cell is an **import error** (no implicit default). A product or price list simply absent from the tab is per-unit (its `isFixedPrice` stays `false`).
+- A **blank cell is skipped** — it means "no charging info here", so the row is left as per-unit / unchanged (a product or price list absent from the tab is per-unit, `isFixedPrice` stays `false`). This lets an exported sheet — which only fills cells where a price-list item exists — round-trip cleanly through a sparse matrix.
 - Fixed pricing is **only valid for medications** (product category `Drug`): `flatFee` on a **non-medication** product is an **import error**. `perUnit` is allowed on any product (it's the default and a no-op).
 - The charging tab is imported **after** the price tab (it depends on it), so it reuses the existing price-list-item rows and merges `isFixedPrice` onto them rather than creating duplicates.
 
 ### Export round-trip
 
-- Export emits the **Invoice Price List Charging** tab with an explicit `flatFee`/`perUnit` for every item (fixed → `flatFee`, otherwise `perUnit`), so an exported sheet re-imports identically with no blanks.
+- Export emits the **Invoice Price List Charging** tab for **medications only** (charging is meaningless for other product types), with an explicit `flatFee`/`perUnit` per medication item. Blank cells (medications with no item in a given price list) re-import as a skip, so the round-trip is lossless.
 
 ---
 

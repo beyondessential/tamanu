@@ -22,6 +22,7 @@ export class ProductMatrixByCodeExporter extends ModelExporter {
       valueField,
       valueExtractor,
       itemModelAttributes = [],
+      productWhere = {},
     } = this._config;
 
     // Fetch all parents (to determine columns/codes)
@@ -33,12 +34,13 @@ export class ProductMatrixByCodeExporter extends ModelExporter {
       },
     });
 
-    // Fetch all products
+    // Fetch products (optionally narrowed, e.g. the charging tab only exports medications)
     const products = await this.models.InvoiceProduct.findAll({
       attributes: ['id'],
       where: {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         deletedAt: null,
+        ...productWhere,
       },
     });
 

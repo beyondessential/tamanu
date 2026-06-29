@@ -122,8 +122,8 @@ describe('Invoice price list charging import', () => {
     expect(item.isFixedPrice).toBe(true);
   });
 
-  it('errors on a blank charging cell (explicit value required)', async () => {
-    const { InvoicePriceList } = models;
+  it('skips a blank charging cell (no error, nothing set)', async () => {
+    const { InvoicePriceList, InvoicePriceListItem } = models;
     await createMedication('prod-1');
     await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
 
@@ -134,8 +134,33 @@ describe('Invoice price list charging import', () => {
       },
     });
 
-    const { didntSendReason } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
-    expect(didntSendReason).toEqual('validationFailed');
+    const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
+    expect(errors).toBeEmpty();
+    // Blank is skipped — no item is created/flagged from the charging tab alone.
+    expect(await InvoicePriceListItem.count()).toBe(0);
+  });
+
+  it('handles a sparse charging sheet — sets the filled cell, skips the blank (round-trip safe)', async () => {
+    const { InvoicePriceList, InvoicePriceListItem } = models;
+    await createMedication('prod-1');
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'YAP' });
+
+    const buffer = buildWorkbook({
+      invoicePriceListCharging: {
+        headers: ['invoiceProductId', 'KOSRAE', 'YAP'],
+        rows: [{ invoiceProductId: 'prod-1', KOSRAE: 'flatFee', YAP: '' }],
+      },
+    });
+
+    const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
+    expect(errors).toBeEmpty();
+
+    const items = await InvoicePriceListItem.findAll();
+    expect(items).toHaveLength(1); // only the KOSRAE cell, YAP blank skipped
+    expect(items[0].isFixedPrice).toBe(true);
+    const kosrae = await InvoicePriceList.findOne({ where: { code: 'KOSRAE' } });
+    expect(items[0].invoicePriceListId).toBe(kosrae.id);
   });
 
   it('errors on an unknown charging value', async () => {

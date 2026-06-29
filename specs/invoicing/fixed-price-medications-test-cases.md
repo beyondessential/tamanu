@@ -45,7 +45,7 @@ The **Invoice Price List Charging** tab: rows = `invoiceProductId`, columns = pr
 - [ ] A `flatFee` cell for a medication sets `isFixedPrice = true`; `perUnit` sets `false`. *(Charging: maps to isFixedPrice)*
 - [ ] The charging tab **merges onto the existing price-list item** (same row): price from the price tab is preserved, `isFixedPrice` is set; no duplicate row is created. *(Charging: merges onto price item)*
 - [ ] `flatFee`/`perUnit` matching is **case-insensitive** and trims whitespace (e.g. `FlatFee`). *(Charging: case-insensitive)*
-- [ ] A **blank** cell raises an import error — an explicit value is required. *(Validation: blank errors)*
+- [ ] A **blank** cell is skipped (no error, nothing set) — a sparse sheet (value in one price-list column, blank in another) imports the filled cell only. *(Charging: blank = skip, round-trip safe)*
 - [ ] An **unknown** value (e.g. `sometimes`) raises an import error. *(Validation: unknown value errors)*
 - [ ] `flatFee` on a **non-medication** product raises an import error (fixed pricing is medications-only). *(Scope: flatFee on non-medication errors)*
 - [ ] `perUnit` on a **non-medication** product imports without error (`isFixedPrice = false`). *(Scope: perUnit allowed on any product)*
@@ -54,7 +54,7 @@ The **Invoice Price List Charging** tab: rows = `invoiceProductId`, columns = pr
 
 ## Export round-trip (integration)
 
-- [ ] Exporting the charging tab emits `flatFee` for fixed items and `perUnit` for the rest (an explicit value for every item, no blanks). *(Export: charging tab)*
+- [ ] Exporting the charging tab includes **medications only** (non-medication products are excluded), emitting `flatFee` for fixed and `perUnit` otherwise. *(Export: medications only)*
 - [ ] Export → re-import of the price and charging tabs reproduces identical `price` and `isFixedPrice` for every item. *(Export: lossless re-import)*
 
 ## Display / printout (manual)

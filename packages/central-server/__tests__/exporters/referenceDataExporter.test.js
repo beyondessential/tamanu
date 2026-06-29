@@ -772,31 +772,49 @@ describe('Reference data exporter', () => {
     );
   });
 
-  it('Should export the charging tab as flatFee/perUnit per product and price list', async () => {
-    const p1 = await models.InvoiceProduct.create({
-      id: 'prod-a',
-      code: 'PROD-A',
-      name: 'Product A',
+  it('Should export the charging tab for medications only, as flatFee/perUnit', async () => {
+    // Two medications (Drug) and one non-medication; only the medications should appear.
+    const med1 = await models.InvoiceProduct.create({
+      id: 'prod-med-1',
+      code: 'MED-1',
+      name: 'Medication 1',
       insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
     });
-    const p2 = await models.InvoiceProduct.create({
-      id: 'prod-b',
-      code: 'PROD-B',
-      name: 'Product B',
+    const med2 = await models.InvoiceProduct.create({
+      id: 'prod-med-2',
+      code: 'MED-2',
+      name: 'Medication 2',
       insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
+    });
+    const procedure = await models.InvoiceProduct.create({
+      id: 'prod-proc',
+      code: 'PROC',
+      name: 'Procedure',
+      insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
     });
     const pl = await models.InvoicePriceList.create({ id: 'pl-1', code: 'A', evaluationOrder: 1 });
 
     await models.InvoicePriceListItem.create({
-      id: 'item-a',
-      invoiceProductId: p1.id,
+      id: 'item-1',
+      invoiceProductId: med1.id,
       invoicePriceListId: pl.id,
       price: 2,
       isFixedPrice: true,
     });
     await models.InvoicePriceListItem.create({
-      id: 'item-b',
-      invoiceProductId: p2.id,
+      id: 'item-2',
+      invoiceProductId: med2.id,
+      invoicePriceListId: pl.id,
+      price: 5,
+      isFixedPrice: false,
+    });
+    // A non-medication item — must be excluded from the charging tab.
+    await models.InvoicePriceListItem.create({
+      id: 'item-3',
+      invoiceProductId: procedure.id,
       invoicePriceListId: pl.id,
       price: 50,
       isFixedPrice: false,
@@ -809,8 +827,8 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['invoiceProductId', 'A'],
-            ['prod-a', 'flatFee'],
-            ['prod-b', 'perUnit'],
+            ['prod-med-1', 'flatFee'],
+            ['prod-med-2', 'perUnit'],
           ],
           name: 'Invoice Price List Charging',
         },

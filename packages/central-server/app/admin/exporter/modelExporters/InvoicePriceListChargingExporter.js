@@ -1,4 +1,4 @@
-import { INVOICE_PRICE_LIST_CHARGING_VALUES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, INVOICE_PRICE_LIST_CHARGING_VALUES } from '@tamanu/constants';
 import { ProductMatrixByCodeExporter } from './ProductMatrixByCodeExporter';
 
 const { FLAT_FEE, PER_UNIT } = INVOICE_PRICE_LIST_CHARGING_VALUES;
@@ -10,9 +10,10 @@ export class InvoicePriceListChargingExporter extends ProductMatrixByCodeExporte
       itemModel: 'InvoicePriceListItem',
       parentIdField: 'invoicePriceListId',
       valueField: 'isFixedPrice',
-      // Emit an explicit charging type for every item so the sheet re-imports without blanks.
       valueExtractor: item => (item.isFixedPrice ? FLAT_FEE : PER_UNIT),
       itemModelAttributes: ['isFixedPrice'],
+      // Charging only applies to medications, so only export Drug products.
+      productWhere: { category: INVOICE_ITEMS_CATEGORIES.DRUG },
       tabName: 'Invoice Price List Charging',
     });
   }

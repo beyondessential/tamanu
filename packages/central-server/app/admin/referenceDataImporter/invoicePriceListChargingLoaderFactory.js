@@ -14,17 +14,9 @@ export function invoicePriceListChargingLoaderFactory() {
     itemModel: 'InvoicePriceListItem',
     parentIdField: 'invoicePriceListId',
     valueField: 'isFixedPrice',
-    // Every cell must be an explicit flatFee/perUnit; blanks are an error. Fixed pricing (flatFee)
-    // is only valid for medications.
+    // Cells are flatFee/perUnit; a blank means "no charging info here" and is skipped (the row is
+    // left as per-unit / unchanged). Fixed pricing (flatFee) is only valid for medications.
     valueExtractor: (value, isEmpty, product) => {
-      if (isEmpty) {
-        return {
-          parsedValue: null,
-          isValidValue: false,
-          errorMessage: `Charging type is required (flatFee or perUnit) for invoiceProductId '${product?.id}'`,
-        };
-      }
-
       const raw = `${value}`.trim().toLowerCase();
       if (raw !== FLAT_FEE_LOWER && raw !== PER_UNIT_LOWER) {
         return { parsedValue: null, isValidValue: false };
@@ -41,8 +33,9 @@ export function invoicePriceListChargingLoaderFactory() {
 
       return { parsedValue: isFixedPrice, isValidValue: true };
     },
-    // Require a value in every cell (blank -> error via the extractor above).
-    allowEmptyValues: true,
+    // Blank cells are skipped (not an error), so an exported sheet — which only fills cells where a
+    // price-list item exists — round-trips cleanly.
+    allowEmptyValues: false,
     messages: {
       duplicateCode: code => `duplicate price list code: ${code}`,
       missingParentByCode: code => `InvoicePriceList with code '${code}' does not exist`,
