@@ -21,6 +21,15 @@ with `extractDefaults()` (e.g. `facilityDefaults`). Useful leaf flags:
 `facility.ts`; only on central → `central.ts`; both → `global.ts`. Don't put a
 facility-only setting in `global.ts`.
 
+**Facility overrides.** A subtree may be declared in *both* `global.ts` and
+`facility.ts`. `buildSettings` resolves values through a deep-merge cascade in
+descending priority — facility-scope DB → global DB → facility defaults → global
+defaults — so a facility value overrides the global one for that facility, while
+the central reader sees only the global value. Use this when a globally-meaningful
+value also needs a per-facility override (e.g. `fhir`, `appointments`,
+`integrations`, `medications`, `templates`). The merge is deep, so the same
+subtree can hold some keys defined globally and others per-facility.
+
 ## Reading settings
 
 `ReadSettings.get('dot.path')` is **async** and returns the value merged over
