@@ -430,6 +430,289 @@ describe('CentralSyncManager.updateLookupTable', () => {
     expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
   });
 
+  it('only rebuilds the flagged models, leaving others untouched', async () => {
+    const patient = await models.Patient.create(fake(models.Patient));
+    const referenceData = await models.ReferenceData.create(fake(models.ReferenceData));
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Skip the initial build so both records count as historic (an incremental refresh skips them).
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      Math.max(
+        parseInt(patient.updatedAtSyncTick, 10),
+        parseInt(referenceData.updatedAtSyncTick, 10),
+      ) + 1,
+    );
+    await centralSyncManager.updateLookupTable();
+    expect(
+      await models.SyncLookup.findAll({ where: { recordId: { [Op.not]: SYSTEM_USER_UUID } } }),
+    ).toHaveLength(0);
+
+    // Flag only patients.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
+    await centralSyncManager.updateLookupTable();
+
+    // Only the patient is rebuilt; the (also historic) reference data is left out of the lookup.
+    const lookupData = await models.SyncLookup.findAll({
+      where: { recordId: { [Op.not]: SYSTEM_USER_UUID } },
+    });
+    expect(lookupData).toHaveLength(1);
+    expect(lookupData[0].recordId).toEqual(patient.id);
+  });
+
+  it('rebuild refreshes a row data without changing its tick', async () => {
+    const patient = await models.Patient.create(fake(models.Patient));
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Initial build puts the patient in the lookup at its base tick.
+    await centralSyncManager.updateLookupTable();
+    const before = await models.SyncLookup.findOne({
+      where: { recordId: patient.id, recordType: 'patients' },
+    });
+    expect(before.data.firstName).toEqual(patient.firstName);
+
+    // Simulate the materialised data drifting out of date.
+    await models.SyncLookup.update(
+      { data: { ...before.data, firstName: 'STALE' } },
+      { where: { recordId: patient.id, recordType: 'patients' } },
+    );
+
+    // A rebuild refreshes the data from the base table, but leaves the tick untouched.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
+    await centralSyncManager.updateLookupTable();
+
+    const after = await models.SyncLookup.findOne({
+      where: { recordId: patient.id, recordType: 'patients' },
+    });
+    expect(after.data.firstName).toEqual(patient.firstName); // refreshed, not 'STALE'
+    expect(after.updatedAtSyncTick).toEqual(before.updatedAtSyncTick); // tick unchanged
+  });
+
+  it('rebuilds prescriptions, resolving the patient via the ongoing link', async () => {
+    const patient = await models.Patient.create(fake(models.Patient));
+    const prescription = await models.Prescription.create(fake(models.Prescription));
+    await models.PatientOngoingPrescription.create({
+      ...fake(models.PatientOngoingPrescription),
+      prescriptionId: prescription.id,
+      patientId: patient.id,
+    });
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Skip the initial build so the prescription counts as historic.
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      parseInt(prescription.updatedAtSyncTick, 10) + 1,
+    );
+    await centralSyncManager.updateLookupTable();
+    expect(
+      await models.SyncLookup.findOne({
+        where: { recordId: prescription.id, recordType: 'prescriptions' },
+      }),
+    ).toBeNull();
+
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('prescriptions')`);
+    await centralSyncManager.updateLookupTable();
+
+    const lookup = await models.SyncLookup.findOne({
+      where: { recordId: prescription.id, recordType: 'prescriptions' },
+    });
+    expect(lookup).not.toBeNull();
+    expect(lookup.patientId).toEqual(patient.id); // resolved via patient_ongoing_prescriptions
+    expect(lookup.updatedAtSyncTick).toEqual(prescription.updatedAtSyncTick); // historic tick preserved
+  });
+
+  it('incremental carries a prescription over on an ongoing-link update, and a rebuild keeps that tick', async () => {
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 10);
+    const prescription = await models.Prescription.create(fake(models.Prescription));
+    const prescriptionTick = parseInt(prescription.updatedAtSyncTick, 10);
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Materialise the prescription first (no patient link yet). Not an initial build; the refresh
+    // advances the clock, so afterwards the prescription's own tick is historic.
+    await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, prescriptionTick - 1);
+    await centralSyncManager.updateLookupTable();
+
+    const initial = await models.SyncLookup.findOne({
+      where: { recordId: prescription.id, recordType: 'prescriptions' },
+    });
+    expect(initial).not.toBeNull();
+    expect(initial.patientId).toBeNull();
+    const initialTick = parseInt(initial.updatedAtSyncTick, 10);
+
+    // Link it to a patient at a much later tick — the prescription row itself doesn't change, so only
+    // the OR on patient_ongoing_prescriptions can carry it back into the lookup (no rebuild involved).
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, prescriptionTick + 1000);
+    const patient = await models.Patient.create(fake(models.Patient));
+    await models.PatientOngoingPrescription.create({
+      ...fake(models.PatientOngoingPrescription),
+      prescriptionId: prescription.id,
+      patientId: patient.id,
+    });
+
+    await centralSyncManager.updateLookupTable();
+
+    const afterLink = await models.SyncLookup.findOne({
+      where: { recordId: prescription.id, recordType: 'prescriptions' },
+    });
+    // Re-materialised with the new patient association and a bumped tick (so lagging clients re-pull).
+    expect(afterLink.patientId).toEqual(patient.id);
+    const bumpedTick = parseInt(afterLink.updatedAtSyncTick, 10);
+    expect(bumpedTick).toBeGreaterThan(initialTick);
+
+    // A subsequent rebuild refreshes the data but must keep that bumped tick — not regress it to the
+    // prescription's own (older) base tick.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('prescriptions')`);
+    await centralSyncManager.updateLookupTable();
+
+    const afterRebuild = await models.SyncLookup.findOne({
+      where: { recordId: prescription.id, recordType: 'prescriptions' },
+    });
+    expect(parseInt(afterRebuild.updatedAtSyncTick, 10)).toEqual(bumpedTick);
+    expect(afterRebuild.patientId).toEqual(patient.id);
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
+  });
+
+  it('one refresh both bumps an incremental change and preserves a rebuilt row tick', async () => {
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 10);
+    const rebuiltPatient = await models.Patient.create(fake(models.Patient));
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Materialise rebuiltPatient via a non-initial refresh, so its lookup tick is bumped above its
+    // own tick — that way "preserved" later is unambiguous (it differs from the base tick).
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      parseInt(rebuiltPatient.updatedAtSyncTick, 10) - 1,
+    );
+    await centralSyncManager.updateLookupTable();
+
+    const preserved = await models.SyncLookup.findOne({
+      where: { recordId: rebuiltPatient.id, recordType: 'patients' },
+    });
+    const preservedTick = parseInt(preserved.updatedAtSyncTick, 10);
+    expect(preservedTick).toBeGreaterThan(parseInt(rebuiltPatient.updatedAtSyncTick, 10));
+
+    // A brand-new patient created after that refresh = an incremental change for the next one.
+    const incrementalPatient = await models.Patient.create(fake(models.Patient));
+
+    // One refresh that does both passes: rebuild patients (flagged) AND pick up incrementalPatient.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
+    await centralSyncManager.updateLookupTable();
+
+    const rebuiltLookup = await models.SyncLookup.findOne({
+      where: { recordId: rebuiltPatient.id, recordType: 'patients' },
+    });
+    const incrementalLookup = await models.SyncLookup.findOne({
+      where: { recordId: incrementalPatient.id, recordType: 'patients' },
+    });
+
+    // The unchanged, rebuilt row keeps its tick...
+    expect(parseInt(rebuiltLookup.updatedAtSyncTick, 10)).toEqual(preservedTick);
+    // ...while the incrementally-added row is bumped above its own tick.
+    expect(parseInt(incrementalLookup.updatedAtSyncTick, 10)).toBeGreaterThan(
+      parseInt(incrementalPatient.updatedAtSyncTick, 10),
+    );
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
+  });
+
+  it('one refresh preserves a rebuilt prescription tick and bumps one updated via its ongoing link', async () => {
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 10);
+    const rebuiltPrescription = await models.Prescription.create(fake(models.Prescription));
+    const incrementalPrescription = await models.Prescription.create(fake(models.Prescription));
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Materialise both prescriptions via a non-initial refresh, so their lookup ticks are bumped
+    // above their own ticks (makes "preserved" unambiguous).
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      parseInt(rebuiltPrescription.updatedAtSyncTick, 10) - 1,
+    );
+    await centralSyncManager.updateLookupTable();
+
+    const preserved = await models.SyncLookup.findOne({
+      where: { recordId: rebuiltPrescription.id, recordType: 'prescriptions' },
+    });
+    const preservedTick = parseInt(preserved.updatedAtSyncTick, 10);
+    expect(preservedTick).toBeGreaterThan(parseInt(rebuiltPrescription.updatedAtSyncTick, 10));
+
+    // incrementalPrescription is unchanged itself, but gets linked to a patient (ongoing) at a much
+    // later tick — an incremental change carried only via patient_ongoing_prescriptions.
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 1000);
+    const patient = await models.Patient.create(fake(models.Patient));
+    await models.PatientOngoingPrescription.create({
+      ...fake(models.PatientOngoingPrescription),
+      prescriptionId: incrementalPrescription.id,
+      patientId: patient.id,
+    });
+
+    // One refresh, both passes: rebuild prescriptions (flagged) + carry over the ongoing-link change.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('prescriptions')`);
+    await centralSyncManager.updateLookupTable();
+
+    const rebuiltLookup = await models.SyncLookup.findOne({
+      where: { recordId: rebuiltPrescription.id, recordType: 'prescriptions' },
+    });
+    const incrementalLookup = await models.SyncLookup.findOne({
+      where: { recordId: incrementalPrescription.id, recordType: 'prescriptions' },
+    });
+
+    // The unchanged, rebuilt prescription keeps its tick...
+    expect(parseInt(rebuiltLookup.updatedAtSyncTick, 10)).toEqual(preservedTick);
+    // ...while the one whose ongoing link changed is bumped and resolves to the patient.
+    expect(incrementalLookup.patientId).toEqual(patient.id);
+    expect(parseInt(incrementalLookup.updatedAtSyncTick, 10)).toBeGreaterThan(
+      parseInt(incrementalPrescription.updatedAtSyncTick, 10),
+    );
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
+  });
+
   it('allows having the same recordId but different record_type in sync lookup table', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
     await models.ReferenceData.create(
@@ -747,7 +1030,8 @@ describe('CentralSyncManager.updateLookupTable', () => {
       type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
       info: {
         since: '6',
-        changesCount: 0,
+        incrementalCount: 0,
+        rebuildCount: 0,
         startedAt: expect.anything(),
         completedAt: expect.anything(),
       },
