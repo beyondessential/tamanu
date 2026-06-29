@@ -18,6 +18,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
     this.models = context.store.models;
     this.config = conf;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   getName() {
@@ -76,6 +77,10 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
+    const upcomingRecordsShouldBeGeneratedTimeFrame = await this.settings.get(
+      'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    );
+
     log.info('Running batched generating medication administration records', {
       recordCount: toProcess,
       batchCount,
@@ -94,6 +99,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
         try {
           await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
             prescription,
+            upcomingRecordsShouldBeGeneratedTimeFrame,
           );
         } catch (error) {
           log.error('Failed to generate medication administration records', {

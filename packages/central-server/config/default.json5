@@ -491,9 +491,6 @@
       secret: ""
     }
   },
-  "medicationAdministrationRecord": {
-    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
-  },
   "patientPortal": {
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
