@@ -129,6 +129,21 @@ describe('Reference data exporter', () => {
       // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
       expect(Buffer.isBuffer(result.body)).toBeTrue();
     });
+
+    it('checks the charging tab against the InvoicePriceListItem permission, not a InvoicePriceListCharging noun', async () => {
+      // The charging tab has no model/noun of its own; its permission maps to InvoicePriceListItem.
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'list', noun: 'InvoicePriceListItem' },
+      ]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['invoicePriceListCharging'] }))
+        .responseType('blob');
+
+      // Permission resolved (no "noun not defined" / forbidden error) and the file downloaded.
+      expect(Buffer.isBuffer(result.body)).toBeTrue();
+    });
   });
 
   it('Should export empty data if no data type selected', async () => {
