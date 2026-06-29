@@ -15,6 +15,7 @@ export interface Setting<T = any> {
    */
   defaultValue?: T;
   deprecated?: boolean;
+  requiresRestart?: boolean;
   /**
    * When true, this setting is stored encrypted and its value
    * cannot be retrieved via the admin UI - only set to new values.

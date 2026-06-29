@@ -1,6 +1,5 @@
-import config from 'config';
-
 import { LAB_REQUEST_STATUSES, FHIR_OBSERVATION_STATUS } from '@tamanu/constants';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
@@ -14,6 +13,7 @@ describe('Create Observation', () => {
   let ctx;
   let app;
   let resources;
+  let dataDicts;
   const fhirResources = {
     fhirPractitioner: null,
     fhirEncounter: null,
@@ -22,7 +22,8 @@ describe('Create Observation', () => {
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/Observation`;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
+    dataDicts = getFhirDataDictionaries();
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
@@ -75,7 +76,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -91,7 +92,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -123,7 +124,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -139,8 +140,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) =>
-              system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestExternalCodeSystem,
           ),
         },
         valueString: result,
@@ -185,7 +185,7 @@ describe('Create Observation', () => {
         code: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              system: dataDicts.serviceRequestLabTestCodeSystem,
               code: labTest.labTestType.code,
             },
           ],
@@ -221,7 +221,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -237,7 +237,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -278,7 +278,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -294,7 +294,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -333,7 +333,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -354,13 +354,13 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         method: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.observationMethodCodeSystem,
+              system: dataDicts.observationMethodCodeSystem,
               code: labTestMethod.code,
             },
           ],
@@ -395,7 +395,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -421,7 +421,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -466,7 +466,7 @@ describe('Create Observation', () => {
         code: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              system: dataDicts.serviceRequestLabTestCodeSystem,
               code: newTestType.code,
             },
           ],
@@ -503,7 +503,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: dataDicts.serviceRequestLabTestCodeSystem,
                 code: 'TEST_CODE',
               },
             ],
@@ -558,7 +558,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: dataDicts.serviceRequestLabTestCodeSystem,
                 code: invalidCode,
               },
             ],
@@ -612,8 +612,7 @@ describe('Create Observation', () => {
           status: FHIR_OBSERVATION_STATUS.FINAL,
           code: {
             coding: testCode.coding.filter(
-              ({ system }) =>
-                system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
             ),
           },
           method: {
@@ -639,7 +638,7 @@ describe('Create Observation', () => {
               diagnostics: expect.any(String),
               details: {
                 text: expect.stringContaining(
-                  `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
+                  `Invalid method, must provide at least one coding with a code and system '${dataDicts.observationMethodCodeSystem}'`,
                 ),
               },
             },

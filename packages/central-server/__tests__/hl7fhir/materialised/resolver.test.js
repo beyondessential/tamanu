@@ -22,7 +22,7 @@ describe(`FHIR reference resolution`, () => {
   let resources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
   });
@@ -241,6 +241,40 @@ describe(`FHIR reference resolution`, () => {
       await expect(FhirServiceRequest.resolveUpstreams()).rejects.toThrow(
         `ServiceRequest/${mat.id}`,
       );
+    });
+
+    it('fails fast when a row lock is held elsewhere, rather than stalling indefinitely', async () => {
+      // arrange: an unresolved resource that resolveUpstreams will try to rematerialise
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const { sequelize } = ctx.store;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationGroupId: resources.locationGroup.id,
+        }),
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      expect(mat.resolved).toBe(false);
+
+      // Hold a row lock on the materialised resource from a separate transaction so
+      // the rematerialisation UPDATE inside resolveUpstreams cannot acquire it. This
+      // simulates a resolver blocked on a lock held elsewhere (e.g. a long sync
+      // session). Without a lock timeout the job would sit in 'Started' forever; with
+      // one it errors and is retried instead.
+      const blockingTransaction = await sequelize.transaction();
+      try {
+        await sequelize.query('SELECT id FROM fhir.service_requests WHERE id = $id FOR UPDATE', {
+          bind: { id: mat.id },
+          transaction: blockingTransaction,
+        });
+
+        await expect(
+          FhirServiceRequest.resolveUpstreams({ lockTimeoutMs: 100 }),
+        ).rejects.toThrow(/lock timeout/i);
+      } finally {
+        await blockingTransaction.rollback();
+      }
     });
 
     describe('circular dependencies', () => {

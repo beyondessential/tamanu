@@ -17,13 +17,13 @@ function modelTrees() {
   // structure (letrec = "let recursive") by creating segments of structure and "tying"
   // them together at certain points. You can find this exact example in the fast-check
   // docs! https://dubzzz.github.io/fast-check/functions/letrec.html
-  const { tree } = fc.letrec((tie) => ({
+  const { tree } = fc.letrec(tie => ({
     tree: fc.oneof({ depthSize: 'large' }, tie('leaf'), tie('node')),
     node: fc.tuple(tie('tree'), tie('tree')),
     leaf: fc.constant('leaf'),
   }));
 
-  return tree.map((subTree) => pairsToModels(treeToPairs([subTree])));
+  return tree.map(subTree => pairsToModels(treeToPairs([subTree])));
 }
 
 class BaseSyncingModel extends Model {
@@ -45,7 +45,7 @@ class BaseSyncingModel extends Model {
 // higher nodes are models which are dependent on lower ones.
 function treeToPairs(tree, dependent = 0) {
   let i = 0;
-  return tree.flatMap((element) => {
+  return tree.flatMap(element => {
     if (element === 'leaf') {
       i += 1;
       return [[dependent, i].sort((a, b) => b - a)];
@@ -66,7 +66,7 @@ function pairsToUniqueItems(pairs) {
 function pairsToModels(pairs) {
   const models = Object.fromEntries(
     pairsToUniqueItems(pairs)
-      .map((i) => {
+      .map(i => {
         return [
           `Model${i}`,
           Object.defineProperty(
@@ -102,7 +102,7 @@ function pairsToModels(pairs) {
 describe('sortInDependencyOrder', () => {
   it('does not crash (fuzz test)', () => {
     fc.assert(
-      fc.property(modelTrees(), (models) => {
+      fc.property(modelTrees(), models => {
         const sorted = sortInDependencyOrder(models);
         expect(sorted.length).toEqual(Object.keys(models).length);
       }),
@@ -123,7 +123,7 @@ describe('sortInDependencyOrder', () => {
 
     const sorted = sortInDependencyOrder(models);
 
-    expect(sorted.map((model) => model.name)).toEqual(['Model4', 'Model3', 'Model2', 'Model1']);
+    expect(sorted.map(model => model.name)).toEqual(['Model4', 'Model3', 'Model2', 'Model1']);
   });
 
   it('sorts a reversed chain of models', () => {
@@ -140,7 +140,7 @@ describe('sortInDependencyOrder', () => {
 
     const sorted = sortInDependencyOrder(models);
 
-    expect(sorted.map((model) => model.name)).toEqual(['Model1', 'Model2', 'Model3', 'Model4']);
+    expect(sorted.map(model => model.name)).toEqual(['Model1', 'Model2', 'Model3', 'Model4']);
   });
 
   it('sorts a 2-chains tree', () => {
@@ -158,7 +158,7 @@ describe('sortInDependencyOrder', () => {
 
     const sorted = sortInDependencyOrder(models);
 
-    expect(sorted.map((model) => model.name)).toEqual([
+    expect(sorted.map(model => model.name)).toEqual([
       'Model4',
       'Model5',
       'Model2',
@@ -191,7 +191,7 @@ describe('sortInDependencyOrder', () => {
 
     const sorted = sortInDependencyOrder(models);
 
-    expect(sorted.map((model) => model.name)).toEqual(['Model3', 'Model4', 'Model1', 'Model2']);
+    expect(sorted.map(model => model.name)).toEqual(['Model3', 'Model4', 'Model1', 'Model2']);
   });
 
   // in these next ones, the node numbers are NM, where N is the depth of the node
@@ -219,7 +219,7 @@ describe('sortInDependencyOrder', () => {
 
     const sorted = sortInDependencyOrder(models);
 
-    expect(sorted.map((model) => model.name)).toEqual([
+    expect(sorted.map(model => model.name)).toEqual([
       'Model30',
       'Model31',
       'Model32',
@@ -282,7 +282,7 @@ describe('sortInDependencyOrder', () => {
     // group below, which roughly represent the levels of dependence. if you start from each
     // leaf in the graph, and count I, II, III, IV for each level of dependency, you can see
     // where the groups get made. these "reverse levels" are marked on the ascii art above.
-    expect(sorted.map((model) => model.name)).toEqual([
+    expect(sorted.map(model => model.name)).toEqual([
       // level 0 - no dependencies
       'Model31',
       'Model33',
@@ -312,5 +312,82 @@ describe('sortInDependencyOrder', () => {
       // level IV
       'Model10',
     ]);
+  });
+
+  it('emits ChangeLog FK targets (users) first even though they sort last alphabetically', () => {
+    const makeModel = (name, associations = {}) =>
+      Object.defineProperty(
+        class extends BaseSyncingModel {
+          static associations = associations;
+        },
+        'name',
+        { value: name },
+      );
+
+    const models = {
+      Appointment: makeModel('Appointment'),
+      InvoicePriceList: makeModel('InvoicePriceList'),
+      Patient: makeModel('Patient'),
+      User: makeModel('User'),
+    };
+
+    const changeLog = {
+      associations: {
+        updatedByUser: {
+          associationType: 'BelongsTo',
+          isSelfAssociation: false,
+          target: { name: 'User' },
+        },
+      },
+    };
+    const sequelize = { models: { ...models, ChangeLog: changeLog } };
+    for (const model of Object.values(models)) {
+      Object.defineProperty(model, 'sequelize', { value: sequelize, configurable: true });
+    }
+
+    const sorted = sortInDependencyOrder(models);
+
+    expect(sorted.map(model => model.name)).toEqual([
+      'User',
+      'Appointment',
+      'InvoicePriceList',
+      'Patient',
+    ]);
+  });
+
+  it('handles multiple ChangeLog FK targets without a dependency cycle', () => {
+    const makeModel = name =>
+      Object.defineProperty(
+        class extends BaseSyncingModel {
+          static associations = {};
+        },
+        'name',
+        { value: name },
+      );
+
+    const models = {
+      Appointment: makeModel('Appointment'),
+      Organization: makeModel('Organization'),
+      User: makeModel('User'),
+    };
+
+    const target = name => ({
+      associationType: 'BelongsTo',
+      isSelfAssociation: false,
+      target: { name },
+    });
+    const changeLog = {
+      associations: { updatedByUser: target('User'), organization: target('Organization') },
+    };
+    const sequelize = { models: { ...models, ChangeLog: changeLog } };
+    for (const model of Object.values(models)) {
+      Object.defineProperty(model, 'sequelize', { value: sequelize, configurable: true });
+    }
+
+    const sorted = sortInDependencyOrder(models).map(model => model.name);
+
+    expect(sorted).toHaveLength(3);
+    expect(sorted.indexOf('Appointment')).toBeGreaterThan(sorted.indexOf('User'));
+    expect(sorted.indexOf('Appointment')).toBeGreaterThan(sorted.indexOf('Organization'));
   });
 });

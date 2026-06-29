@@ -4,7 +4,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { sortInDependencyOrder } from '@tamanu/database';
 import { FAKE_UUID_PATTERN } from '@tamanu/utils/generateId';
 
-export function deleteAllTestIds({ models }) {
+export function deleteAllTestIds(models) {
   const sortedModels = sortInDependencyOrder(models).reverse();
   const existingInDb = sortedModels.filter(
     model => !model.CAN_DO || model.CAN_DO?.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE),

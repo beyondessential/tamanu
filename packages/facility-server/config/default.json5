@@ -88,6 +88,27 @@
     "username": "admin",
     "password": "admin"
   },
+  "integrations": {
+    "fhir": {
+      "enabled": false, // the HTTP routes
+      "worker": {
+        "enabled": false, // the materialisation worker
+      },
+    },
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
+      },
+    },
+  },
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
@@ -112,6 +133,10 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "fhirMissingResources": {
+      "enabled": false,
+      "schedule": "48 1 * * *" // once a day (better in off hours)
+    },
     "sendStatusToMetaServer": {
       "enabled": true,
       // every minute
@@ -134,13 +159,6 @@
       // every hour
       "schedule": "0 * * * *",
     },
-  },
-  "integrations": {
-    "mSupplyMed": {
-      "enabled": false,
-      "username": "",
-      "password": ""
-    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -194,4 +212,6 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "language": "en",
+  "canonicalHostName": "http://localhost:4000",
 }
