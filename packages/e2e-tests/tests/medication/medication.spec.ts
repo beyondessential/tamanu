@@ -17,7 +17,7 @@ test.describe('Medication requests', () => {
     test.setTimeout(60000);
 
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, page, encounter.id);
     await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
 
     await medicationRequestsPage.goto();
@@ -43,7 +43,7 @@ test.describe('Medication requests', () => {
     test.setTimeout(60000);
 
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, page, encounter.id);
     await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
 
     await medicationRequestsPage.goto();

@@ -17,7 +17,7 @@ test.describe('Medication - Patient', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
-    await createPatientOngoingPrescriptionViaApi(api, newPatient.id);
+    await createPatientOngoingPrescriptionViaApi(api, page, newPatient.id);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();
@@ -40,7 +40,7 @@ test.describe('Medication - Patient', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
-    await createPatientOngoingPrescriptionViaApi(api, newPatient.id);
+    await createPatientOngoingPrescriptionViaApi(api, page, newPatient.id);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();

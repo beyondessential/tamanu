@@ -77,7 +77,7 @@ test.describe('Medication - Encounter', () => {
 
     const currentUser = await getUser(api);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
@@ -102,7 +102,7 @@ test.describe('Medication - Encounter', () => {
 
     const currentUser = await getUser(api);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
@@ -124,7 +124,7 @@ test.describe('Medication - Encounter', () => {
 
     // Create encounter and prescription via API
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
 
     await patientDetailsPage.goToPatient(newPatient);
 

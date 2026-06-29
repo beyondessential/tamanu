@@ -233,6 +233,7 @@ export const createClinicEncounterViaApi = async (
 
 export const createEncounterPrescriptionViaApi = async (
   api: APIRequestContext,
+  page: Page,
   encounterId: string,
   overrides: Partial<{
     medicationId: string;
@@ -244,7 +245,11 @@ export const createEncounterPrescriptionViaApi = async (
 ) => {
   const user = await getUser(api);
 
-  const suggestUrl = constructFacilityUrl('/api/suggestions/drug?count=1');
+  // Pass facilityId so the suggester excludes drugs that are unavailable at this facility,
+  // matching the real prescribing UI. Otherwise the row click in the medication table is a
+  // no-op (the pane ignores clicks on unavailable medications) and the details modal never opens.
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1&facilityId=${facilityId}`);
   const suggestResponse = await api.get(suggestUrl);
   if (!suggestResponse.ok()) {
     throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
@@ -282,6 +287,7 @@ export const createEncounterPrescriptionViaApi = async (
 
 export const createPatientOngoingPrescriptionViaApi = async (
   api: APIRequestContext,
+  page: Page,
   patientId: string,
   overrides: Partial<{
     medicationId: string;
@@ -293,7 +299,11 @@ export const createPatientOngoingPrescriptionViaApi = async (
 ) => {
   const user = await getUser(api);
 
-  const suggestUrl = constructFacilityUrl('/api/suggestions/drug?count=1');
+  // Pass facilityId so the suggester excludes drugs that are unavailable at this facility,
+  // matching the real prescribing UI. Otherwise the row click in the medication table is a
+  // no-op (the pane ignores clicks on unavailable medications) and the details modal never opens.
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1&facilityId=${facilityId}`);
   const suggestResponse = await api.get(suggestUrl);
   if (!suggestResponse.ok()) {
     throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
