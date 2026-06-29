@@ -62,7 +62,7 @@ describe('HL7 Labs', () => {
   let createLabTest;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
 
     const { method, labTestType } = await prepopulate(models);

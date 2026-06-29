@@ -28,6 +28,13 @@ import {
   triageCategoriesSchema,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
+  fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
+  fhirCountParametersSchema,
+  fhirExtensionsSchema,
+  fhirNullLastNameSchema,
+  fhirAssignersSchema,
+  fhirDataDictionariesSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -487,6 +494,7 @@ export const globalSettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings',
+      highRisk: true,
       properties: {
         worker: {
           name: 'FHIR worker',
@@ -503,8 +511,15 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
+            concurrency: fhirWorkerConcurrencySchema,
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },
+        parameters: fhirCountParametersSchema,
+        extensions: fhirExtensionsSchema,
+        nullLastNameValue: fhirNullLastNameSchema,
+        assigners: fhirAssignersSchema,
+        dataDictionaries: fhirDataDictionariesSchema,
       },
     },
     fields: {
