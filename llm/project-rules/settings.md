@@ -1,9 +1,8 @@
 # Settings - Tamanu
 
 How runtime settings work, and how to read them. Settings are DB-backed and
-editable in the admin panel. A setting that has no stored value resolves to its
-schema `defaultValue`, so a migrated key behaves identically once it is in the
-schema.
+editable in the admin panel. A setting with no stored value resolves to its
+schema `defaultValue`.
 
 ## Schemas
 
@@ -51,17 +50,5 @@ Pre-auth/global reads with no facility construct one directly:
 `new ReadSettings(req.models)` — only when no facility id is available (e.g. the
 `browser-support` route). Prefer the request reader otherwise.
 
-## config → settings migration (TAM-6864)
-
-Moving a value out of `config`:
-
-1. Declare it in the appropriate schema (above) with the old config default.
-2. Replace `config.x` reads with `await settings.get('x')` using the right
-   reader. Only viable where the call site is **async** and runs after the DB /
-   settings reader exists — bootstrap/infra config (ports, DB, log path) stays in
-   `config`/env.
-3. Delete the migrated key from `config/default.json5`. No backwards-compat shim.
-
-Watch for config read as a **default function parameter** (e.g.
-`mergePatient(..., enabled = config.x.y)`) — many callers/tests rely on the
-default, so these are not quick wins; thread the reader in deliberately instead.
+`get()` is async and reads from the DB, so settings can only be read from async
+code that runs after startup — not from bootstrap/module-load code.
