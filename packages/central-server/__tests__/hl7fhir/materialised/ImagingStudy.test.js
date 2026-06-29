@@ -17,7 +17,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
   let resources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
 
     const {

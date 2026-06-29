@@ -9,7 +9,7 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
     let ctx;
     let app;
     beforeAll(async () => {
-      ctx = await createTestContext(requestHeaders['X-Tamanu-Client']);
+      ctx = await createTestContext({ initFhir: true });
       app = await ctx.baseApp.asRole('practitioner');
     });
     afterAll(() => ctx.close());

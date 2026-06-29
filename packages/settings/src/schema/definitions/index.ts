@@ -25,3 +25,12 @@ export { slidingFeeScaleDefault } from './slidingFeeScale';
 export { triageCategoriesDefault, triageCategoriesSchema } from './triageCategories';
 export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations';
 export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons';
+export {
+  fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
+  fhirCountParametersSchema,
+  fhirExtensionsSchema,
+  fhirNullLastNameSchema,
+  fhirAssignersSchema,
+  fhirDataDictionariesSchema,
+} from './fhir';

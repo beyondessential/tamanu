@@ -8,6 +8,8 @@ import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { requireHttps } from '@tamanu/shared/utils';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { fhirRoutes } from '@tamanu/shared/routes/fhir';
+import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -22,6 +24,7 @@ import { addFacilityMiddleware } from './addFacilityMiddleware';
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
 export async function createApiApp({
+  store,
   sequelize,
   reportSchemaStores,
   models,
@@ -65,6 +68,7 @@ export async function createApiApp({
   express.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.store = store;
     req.reportSchemaStores = reportSchemaStores;
     req.syncConnection = syncConnection;
     req.deviceId = deviceId;
@@ -98,7 +102,16 @@ export async function createApiApp({
   // both /api and /v1. Single buildRateLimiters() call avoids duplicate
   // MemoryStores and cleanup intervals.
   express.use('/', limiters.globalLimiter);
-  express.use('/', createRoutes(limiters));
+  const routes = createRoutes(limiters);
+  express.use('/', routes);
+
+  if (config.integrations?.fhir?.enabled) {
+    const ctx = { store };
+    const fhir = fhirRoutes(ctx);
+    log.info('FHIR integration enabled, mounting routes');
+    routes.use('/api/integration/fhir/mat', fhir);
+    routes.use('/v1/integration/fhir/mat', fhir);
+  }
 
   // Dis-allow all other routes
   express.get('/{*splat}', (req, res) => {
