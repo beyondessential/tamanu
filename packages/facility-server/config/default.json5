@@ -50,7 +50,6 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
     "reportSchemas": {
       "enabled": false,

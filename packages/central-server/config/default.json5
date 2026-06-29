@@ -9,7 +9,6 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
@@ -409,9 +408,6 @@
     }
   },
   "scheduledReports": [],
-  "disk": {
-    "diskPath": "C:/",
-  },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
     // Rate limit counters key off `req.ip` and therefore respect the
