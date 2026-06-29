@@ -52,12 +52,6 @@
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
-  "log": {
-    "path": "",
-    "consoleLevel": "http",
-    "color": true,
-    "timeless": false,
-  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,

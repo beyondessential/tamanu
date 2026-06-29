@@ -3,9 +3,6 @@
     "name": "tamanu-central-generate",
     "verbose": false
   },
-  "log": {
-    "consoleLevel": "info"
-  },
   "localisation": {
     "data": {
       "timeZone": "UTC",

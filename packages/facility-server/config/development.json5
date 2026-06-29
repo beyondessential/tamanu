@@ -11,8 +11,5 @@
     "email": "admin@tamanu.io",
     "password": "admin",
     "enabled": true
-  },
-  "log": {
-    "consoleLevel": "http"
   }
 }
