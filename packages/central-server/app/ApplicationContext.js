@@ -105,6 +105,7 @@ export class ApplicationContext {
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
       models: this.store.models,
+      settings: this.settings,
     });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {

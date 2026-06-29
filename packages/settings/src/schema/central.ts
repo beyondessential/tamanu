@@ -16,6 +16,11 @@ export const centralSettings = {
   name: 'Central server settings',
   description: 'Settings that apply only to a central server',
   properties: {
+    language: {
+      description: 'Default language for server-generated communications (emails, notifications)',
+      type: yup.string(),
+      defaultValue: 'en',
+    },
     ai: {
       name: 'AI',
       description: 'Settings for AI-powered features',

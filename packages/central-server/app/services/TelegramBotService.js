@@ -4,7 +4,7 @@ import TelegramBot from 'node-telegram-bot-api';
 
 /**
  *
- * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
+ * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} } }, settings: import('@tamanu/settings').ReadSettings, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineTelegramBotService = async (injector) => {
   //fallback to polling if webhook url is not set
@@ -95,7 +95,7 @@ export const defineTelegramBotService = async (injector) => {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
-      injector.config.language,
+      await injector.settings.get('language'),
       ['telegramRegistration'],
     );
 
@@ -141,7 +141,7 @@ export const defineTelegramBotService = async (injector) => {
     const chatId = message.chat.id;
 
     const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
-      injector.config.language,
+      await injector.settings.get('language'),
       ['telegramDeregistration'],
     );
 

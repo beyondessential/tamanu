@@ -501,7 +501,6 @@
   "patientCommunication": {
     "retryThreshold": 20
   },
-  "language": "en",
   "tasking": {
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },

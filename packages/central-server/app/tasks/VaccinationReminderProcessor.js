@@ -45,6 +45,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         transaction,
       });
 
+      const language = await this.context.settings.get('language');
       await this.context.store.sequelize.query(
         `
     with
@@ -91,7 +92,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
             communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
             communicationStatus: COMMUNICATION_STATUSES.QUEUED,
             communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
-            language: config.language,
+            language,
             subjectStringId: 'vaccinationReminder.message.subject',
             subjectFallback: 'Vaccination Reminder for :patientName',
             contentStringId: 'vaccinationReminder.message.content',

@@ -61,7 +61,7 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
       ],
     });
     const getTranslation = await this.context.store.models.TranslatedString?.getTranslationFunction(
-      config.language,
+      await this.context.settings.get('language'),
       ['surveyCompletionNotifier'],
     );
     for (const surveyResponse of surveyResponses) {
