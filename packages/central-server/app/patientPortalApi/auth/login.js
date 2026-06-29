@@ -72,7 +72,10 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
   }
 
   const oneTimeTokenService = new PortalOneTimeTokenService(models);
-  const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
+  const { token } = await oneTimeTokenService.createLoginToken(
+    portalUser.id,
+    await settings.get('patientPortal.loginTokenDurationMinutes'),
+  );
 
   // Send email with the 6-digit code
   const oneTimeTokenEmail = await getOneTimeTokenEmail({ email, token, settings });
@@ -89,7 +92,7 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
 
 export const login = ({ secret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, settings } = req;
     const { canonicalHostName } = config;
     const { models } = store;
     const { loginToken, email } = body;
@@ -120,7 +123,7 @@ export const login = ({ secret }) =>
       portalUserId: portalUserIdParam,
     });
 
-    const patientPortalTokenDuration = config.patientPortal.tokenDuration;
+    const patientPortalTokenDuration = await settings.get('patientPortal.tokenDuration');
 
     const token = await buildToken({ portalUserId: portalUser.id }, secret, {
       expiresIn: patientPortalTokenDuration,

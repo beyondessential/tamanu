@@ -471,10 +471,5 @@
       url: "",
       secret: ""
     }
-  },
-  "patientPortal": {
-    "tokenDuration": "24h",
-    "loginTokenDurationMinutes": 20,
-    "registerTokenDurationMinutes": 43800 // 1 month
   }
 }

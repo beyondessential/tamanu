@@ -106,6 +106,28 @@ export const centralSettings = {
         },
       },
     },
+    patientPortal: {
+      description: 'Patient portal settings',
+      properties: {
+        tokenDuration: {
+          description: 'Lifetime of an authenticated patient-portal session token',
+          type: yup.string(),
+          defaultValue: '24h',
+        },
+        loginTokenDurationMinutes: {
+          description: 'How long a patient-portal login code is valid',
+          type: yup.number().positive().integer(),
+          unit: 'minutes',
+          defaultValue: 20,
+        },
+        registerTokenDurationMinutes: {
+          description: 'How long a patient-portal registration link is valid',
+          type: yup.number().positive().integer(),
+          unit: 'minutes',
+          defaultValue: 43800,
+        },
+      },
+    },
     export: {
       description: 'Settings for admin data exports',
       properties: {
