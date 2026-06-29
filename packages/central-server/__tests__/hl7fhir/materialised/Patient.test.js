@@ -751,10 +751,13 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (given)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const firstName = 'John';
+      // `given` matches the materialised name.given array, which is [firstName, middleName].
+      // fake() assigns a random middleName, which occasionally starts with "John" and makes
+      // the "Bob" patient match too — pin middleName so only the explicit firstName counts.
       const patients = await Promise.all([
-        Patient.create(fake(Patient, { firstName })),
-        Patient.create(fake(Patient, { firstName })),
-        Patient.create(fake(Patient, { firstName: 'Bob' })),
+        Patient.create(fake(Patient, { firstName, middleName: null })),
+        Patient.create(fake(Patient, { firstName, middleName: null })),
+        Patient.create(fake(Patient, { firstName: 'Bob', middleName: null })),
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
