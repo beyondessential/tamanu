@@ -15,7 +15,7 @@ describe('HL7 Administered Vaccines', () => {
   let administeredVaccineId;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
     const {
       User,

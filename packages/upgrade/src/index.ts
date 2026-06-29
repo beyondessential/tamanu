@@ -14,6 +14,7 @@ import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './s
 import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
 export * from './step.js';
+export { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 
 const EARLIEST_MIGRATION = '1739968205100-addLSFFunction';
 const BASELINE_MIGRATION = '000_baseline';

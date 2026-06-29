@@ -96,7 +96,7 @@ describe(`Materialised FHIR - Immunization`, () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());

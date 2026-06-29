@@ -5,19 +5,24 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
-  return await openDatabase(key, {
+  const store = await openDatabase(key, {
     ...config.db,
     ...configOverrides,
     testMode,
   });
+
+  return store;
 };
 
-export async function initDatabase(configOverrides = {}) {
+export async function initDatabase(configOverrides = {}, key = 'main') {
   const testMode = process.env.NODE_ENV === 'test';
-  return getOrCreateConnection({
-    configOverrides,
-    primaryKeyDefault: testMode ? fakeUUID : undefined,
-  });
+  return getOrCreateConnection(
+    {
+      ...configOverrides,
+      primaryKeyDefault: testMode ? fakeUUID : undefined,
+    },
+    key,
+  );
 }
 
 export async function closeDatabase() {

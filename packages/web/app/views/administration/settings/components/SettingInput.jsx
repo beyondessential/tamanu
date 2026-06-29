@@ -436,6 +436,7 @@ export const SettingInput = ({
   description,
   value,
   defaultValue,
+  globalValue,
   handleChangeSetting,
   unit,
   typeSchema,
@@ -516,7 +517,6 @@ export const SettingInput = ({
   const [secretEdited, setSecretEdited] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-
   const isMaskedSecret = isSecret && value === SECRET_PLACEHOLDER;
 
   useEffect(() => {
@@ -548,6 +548,9 @@ export const SettingInput = ({
     }
   }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
 
+  const hasGlobalOverride =
+    !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
+
   const handleChangeValue = newValue => handleChangeSetting(path, newValue);
   const defaultHandleChange = e => handleChangeValue(e.target.value);
   const handleChangeSwitch = e => handleChangeValue(e.target.checked);
@@ -564,7 +567,8 @@ export const SettingInput = ({
     setShowSecretValue(prev => !prev);
   };
 
-  const displayValue = isUndefined(value) ? defaultValue : value;
+  const effectiveDefault = hasGlobalOverride ? globalValue : defaultValue;
+  const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
   // Parsed once per value so the list editor's per-item validation memo stays
