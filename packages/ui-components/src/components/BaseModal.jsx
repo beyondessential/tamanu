@@ -25,6 +25,10 @@ export const MODAL_TRANSITION_DURATION = 300;
     can be found in the docs: https://material-ui.com/api/dialog/#css
 */
 const Dialog = styled(MuiDialog)`
+  .MuiDialog-paperWidthSm {
+    max-width: 600px;
+  }
+
   .MuiDialog-paperWidthMd {
     max-width: 830px;
   }
