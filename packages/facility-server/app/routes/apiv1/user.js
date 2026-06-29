@@ -15,7 +15,6 @@ import {
 } from '../../utils/query';
 import { z } from 'zod';
 import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
-import config from 'config';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
@@ -229,7 +228,7 @@ const clinicianTasksQuerySchema = z.object({
 user.get(
   '/tasks',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, settings } = req;
     req.checkPermission('read', 'Tasking');
 
     const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
@@ -247,7 +246,9 @@ user.get(
       facilityId,
     } = query;
 
-    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = await settings[facilityId].get(
+      'tasking.upcomingTasksTimeFrame',
+    );
 
     const defaultOrder = [
       ['dueTime', 'ASC'],

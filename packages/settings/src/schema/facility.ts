@@ -192,6 +192,17 @@ export const facilitySettings = {
         },
       },
     },
+    tasking: {
+      description: 'Settings related to patient tasking',
+      properties: {
+        upcomingTasksTimeFrame: {
+          description: 'How far ahead to include upcoming (not-yet-due) tasks in task lists',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 8,
+        },
+      },
+    },
     vaccinations: vaccinationsSchema,
     medications: {
       name: 'Medication',
