@@ -3,7 +3,6 @@ import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
 
 export class MedicationDiscontinueModal {
   readonly page: Page;
-  readonly modal: Locator;
   readonly discontinuedByField: Locator;
   readonly discontinuedByInput: Locator;
   readonly discontinueReasonInput: Locator;
@@ -12,8 +11,7 @@ export class MedicationDiscontinueModal {
 
   constructor(page: Page) {
     this.page = page;
-    this.modal = page.getByTestId('medicationdiscontinuemodal-abc123');
-    this.discontinuedByField = page.getByTestId('field-discontinuingclinicianid-input');
+    this.discontinuedByField = page.getByTestId('field-discontinuingclinicianid-input-input');
     this.discontinuedByInput = this.discontinuedByField.locator('input');
     this.discontinueReasonInput = page
       .getByTestId('field-discontinuingreason-input')
@@ -23,7 +21,6 @@ export class MedicationDiscontinueModal {
   }
 
   async waitForModalToLoad(): Promise<void> {
-    await this.modal.waitFor({ state: 'visible' });
     await this.discontinuedByField.waitFor({ state: 'visible' });
   }
 
@@ -43,6 +40,6 @@ export class MedicationDiscontinueModal {
 
   async submit(): Promise<void> {
     await this.discontinueButton.click();
-    await this.modal.waitFor({ state: 'hidden' });
+    await this.discontinuedByField.waitFor({ state: 'hidden' });
   }
 }

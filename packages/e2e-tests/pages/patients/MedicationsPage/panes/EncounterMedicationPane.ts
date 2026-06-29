@@ -59,8 +59,7 @@ export class EncounterMedicationPane extends BasePatientPane {
   }
 
   async clickFirstMedicationRow(): Promise<void> {
-    const firstDataRow = this.tableBody.getByTestId('styledtablerow-b6kf').first();
-    await firstDataRow.waitFor({ state: 'visible' });
-    await firstDataRow.click();
+    await this.tableBody.getByTestId('statusrow-fsiy').waitFor({ state: 'hidden' });
+    await this.tableBody.getByRole('row').first().click();
   }
 }

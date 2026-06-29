@@ -18,8 +18,7 @@ export class PatientMedicationPane extends BasePatientPane {
   }
 
   async clickFirstOngoingMedicationRow(): Promise<void> {
-    const firstDataRow = this.ongoingMedicationsTableBody.getByTestId('styledtablerow-b6kf').first();
-    await firstDataRow.waitFor({ state: 'visible' });
-    await firstDataRow.click();
+    await this.ongoingMedicationsTableBody.getByTestId('statusrow-fsiy').waitFor({ state: 'hidden' });
+    await this.ongoingMedicationsTableBody.getByRole('row').first().click();
   }
 }
