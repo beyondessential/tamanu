@@ -1,8 +1,9 @@
 # Settings - Tamanu
 
 How runtime settings work, and how to read them. Settings are DB-backed and
-editable in the admin panel; they are the destination for values being migrated
-out of `config` (see "config → settings" below).
+editable in the admin panel. A setting that has no stored value resolves to its
+schema `defaultValue`, so a migrated key behaves identically once it is in the
+schema.
 
 ## Schemas
 
