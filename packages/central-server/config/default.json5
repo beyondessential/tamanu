@@ -446,11 +446,6 @@
       "includedPatientFieldIds": []
     }
   },
-  "notifications": {
-    "certificates": {
-      "labTestCategoryIds": []
-    }
-  },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
     // Rate limit counters key off `req.ip` and therefore respect the

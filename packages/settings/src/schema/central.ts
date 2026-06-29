@@ -65,6 +65,21 @@ export const centralSettings = {
         },
       },
     },
+    notifications: {
+      description: 'Settings for notifications',
+      properties: {
+        certificates: {
+          properties: {
+            labTestCategoryIds: {
+              description:
+                'Lab test categories whose published requests generate certificate notifications',
+              type: yup.array(yup.string()),
+              defaultValue: [],
+            },
+          },
+        },
+      },
+    },
     export: {
       description: 'Settings for admin data exports',
       properties: {
