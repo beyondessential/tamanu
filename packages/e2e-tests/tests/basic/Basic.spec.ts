@@ -129,6 +129,7 @@ test.describe('Basic tests', () => {
       })
       .toContain('0hrs 0mins');
     await emergencyPatientsPage.tableRows.first().click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     await patientDetailsPage.navigateToVitalsTab();
     const vitalsPageSection = new VitalsPage(patientDetailsPage.page);
     await vitalsPageSection.waitForSectionToLoad();
