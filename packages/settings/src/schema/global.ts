@@ -524,6 +524,13 @@ export const globalSettings = {
             },
             concurrency: fhirWorkerConcurrencySchema,
             resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
+            resolverLockTimeout: {
+              name: 'Resolver lock timeout',
+              description:
+                'How long the FHIR resolver waits to acquire row locks before failing the job, so a resolver blocked on locks held elsewhere errors and retries instead of stalling the queue indefinitely',
+              type: yup.string(),
+              defaultValue: '2 minutes',
+            },
           },
         },
         parameters: fhirCountParametersSchema,
