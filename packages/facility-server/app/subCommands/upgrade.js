@@ -8,10 +8,20 @@ export const upgradeCommand = new Command('upgrade')
   // or having to version match for the correct migrate command
   .alias('migrate')
   .description('Upgrade Tamanu installation')
-  .action(async () => {
+  .option(
+    '--dry-run',
+    'Run the upgrade in a transaction then roll back, without committing any changes',
+  )
+  .action(async (options) => {
     const { sequelize, models } = await initDatabase();
     try {
-      await upgrade({ sequelize, models, toVersion: VERSION, serverType: 'facility' });
+      await upgrade({
+        sequelize,
+        models,
+        toVersion: VERSION,
+        serverType: 'facility',
+        dryRun: Boolean(options.dryRun),
+      });
       process.exit(0);
     } catch (err) {
       console.error(err);
