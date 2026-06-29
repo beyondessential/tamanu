@@ -18,10 +18,12 @@ with `extractDefaults()` (e.g. `facilityDefaults`). Useful leaf flags:
 `secret`, `highRisk`, `deprecated`, `unit`, `suggesterEndpoint`.
 
 A `secret: true` leaf must **not** declare a `defaultValue` (a schema test
-enforces this). The flag masks the value in the admin UI; it does not by itself
-encrypt storage — encryption is a separate opt-in path (`getSettingSecret` with a
-PSK) for high-value credentials, while most secret-flagged settings are read with
-a plain `get`.
+enforces this — a default would have to live in source control). When saved
+through the admin panel the value is **stored encrypted** (AES, using the
+`crypto.settingsPsk` key) and masked in the UI, so it's never read back to the
+client. Read it with `getSettingSecret(settings, 'dot.path')`, which decrypts;
+a plain `get()` returns the raw encrypted blob (see `ai.anthropicApiKey`,
+`integrations.dhis2.password`).
 
 **Scope a setting by where it is read:** only read on facility → put it in
 `facility.ts`; only on central → `central.ts`; both → `global.ts`. Don't put a
@@ -74,3 +76,12 @@ only has `models` and can't reasonably be threaded a reader.
 
 `get()` is async and reads from the DB, so settings can only be read from async
 code that runs after startup — not from bootstrap/module-load code.
+
+## Settings, not config files
+
+New configurable values belong in the settings schema, **not** in the
+`config/*.json5` files. Config is reserved for deployment/bootstrap concerns
+that must be read synchronously before settings are available — DB connection,
+`serverFacilityId`, crypto key paths, ports. Anything an operator might tune at
+runtime should be a setting: it's DB-backed, admin-editable, and per-facility
+where needed, none of which a config file can do.
