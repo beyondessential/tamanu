@@ -491,9 +491,6 @@
       secret: ""
     }
   },
-  "tasking": {
-    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
-  },
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },

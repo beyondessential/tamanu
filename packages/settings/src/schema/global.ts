@@ -158,6 +158,17 @@ export const globalSettings = {
         }),
       defaultValue: null,
     },
+    tasking: {
+      description: 'Tasking settings',
+      properties: {
+        upcomingTasksShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) repeating tasks are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
+    },
     appointments: {
       description: 'Appointment settings',
       exposedToWeb: true,

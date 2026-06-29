@@ -189,10 +189,6 @@
   "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
-  "tasking": {
-    // upcomingTasksTimeFrame moved to settings (tasking.upcomingTasksTimeFrame)
-    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
-  },
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },

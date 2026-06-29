@@ -25,6 +25,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     this.models = context.store.models;
     this.config = conf;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   getName() {
@@ -131,6 +132,10 @@ export class GenerateRepeatingTasks extends ScheduledTask {
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
+    const upcomingTasksShouldBeGeneratedTimeFrame = await this.settings.get(
+      'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
+    );
+
     log.info('Running batched generating repeating tasks', {
       recordCount: toProcess,
       batchCount,
@@ -149,7 +154,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
         limit: batchSize,
       });
 
-      await Task.generateRepeatingTasks(tasks);
+      await Task.generateRepeatingTasks(tasks, upcomingTasksShouldBeGeneratedTimeFrame);
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
