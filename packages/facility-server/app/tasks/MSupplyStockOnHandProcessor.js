@@ -130,20 +130,20 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { enabled, username, password } = config.integrations.mSupplyMed;
-
-    if (!enabled) {
-      log.warn('MSupplyStockOnHandProcessor: mSupply integration is disabled, skipping');
-      return;
-    }
-
     if (this.serverFacilityIds.length > 1) {
       log.warn('MSupplyStockOnHandProcessor: omni server detected, skipping');
       return;
     }
     const [facilityId] = this.serverFacilityIds;
 
-    const { host, storeId, backoff } = await this.client.getSettings(facilityId);
+    const { enabled, username, password, host, storeId, backoff } =
+      await this.client.getSettings(facilityId);
+
+    if (!enabled) {
+      log.warn('MSupplyStockOnHandProcessor: mSupply integration is disabled, skipping');
+      return;
+    }
+
     if (!host || !username || !password || !storeId) {
       log.warn('MSupplyStockOnHandProcessor: integration not fully configured, skipping');
       return;

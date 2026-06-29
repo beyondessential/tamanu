@@ -1,4 +1,3 @@
-import config from 'config';
 import { fetch } from 'undici';
 
 import { log } from '@tamanu/shared/services/logging';
@@ -36,8 +35,7 @@ export class MSupplyClient {
   }
 
   async authenticate(facilityId) {
-    const { host, backoff } = await this.getSettings(facilityId);
-    const { username, password } = config.integrations.mSupplyMed;
+    const { host, backoff, username, password } = await this.getSettings(facilityId);
 
     const response = await fetchWithRetryBackoff(
       `${host}${GRAPHQL_ENDPOINT}`,

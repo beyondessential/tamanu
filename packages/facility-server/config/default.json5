@@ -86,11 +86,6 @@
         "enabled": false, // the materialisation worker
       },
     },
-    "mSupplyMed": {
-      "enabled": false,
-      "username": "",
-      "password": ""
-    },
     "ips": {
       "attester": "Ministry of Health",
       "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",

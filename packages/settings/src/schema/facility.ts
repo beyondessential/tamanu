@@ -91,11 +91,27 @@ export const facilitySettings = {
         mSupplyMed: {
           description: 'mSupplyMed settings',
           properties: {
+            enabled: {
+              description: 'Enable the mSupplyMed integration',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
             host: {
               description: 'The host of the open mSupply instance',
               type: yup
                 .string()
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
+              defaultValue: '',
+            },
+            username: {
+              description: 'Username for open mSupply API authentication',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            password: {
+              description: 'Password for open mSupply API authentication',
+              type: yup.string(),
+              secret: true,
               defaultValue: '',
             },
             storeId: {
