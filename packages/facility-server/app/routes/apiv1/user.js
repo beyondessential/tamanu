@@ -246,7 +246,7 @@ user.get(
       facilityId,
     } = query;
 
-    const upcomingTasksTimeFrame = await settings[facilityId].get(
+    const upcomingTasksTimeFrame = await settings[req.facilityId].get(
       'tasking.upcomingTasksTimeFrame',
     );
 

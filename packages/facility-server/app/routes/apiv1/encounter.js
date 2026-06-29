@@ -798,19 +798,18 @@ const encounterTasksQuerySchema = z.object({
     .optional()
     .default([TASK_STATUSES.TODO]),
   assignedTo: z.string().optional(),
-  facilityId: z.string(),
   page: z.coerce.number().optional().default(0),
   rowsPerPage: z.coerce.number().optional().default(10),
 });
 encounterRelations.get(
   '/:id/tasks',
   asyncHandler(async (req, res) => {
-    const { models, params, settings } = req;
+    const { models, params, settings, facilityId } = req;
     const { Task } = models;
     const { id: encounterId } = params;
 
     const query = await encounterTasksQuerySchema.parseAsync(req.query);
-    const { order, orderBy, assignedTo, statuses, page, rowsPerPage, facilityId } = query;
+    const { order, orderBy, assignedTo, statuses, page, rowsPerPage } = query;
 
     req.checkPermission('list', 'Tasking');
 

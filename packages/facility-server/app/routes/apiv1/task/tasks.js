@@ -341,7 +341,7 @@ taskRoutes.post(
 
       const hasRepeatedTasks = tasksData.some((task) => task.frequencyValue && task.frequencyUnit);
       if (hasRepeatedTasks) {
-        const upcomingTasksShouldBeGeneratedTimeFrame = await req.settings[req.facilityId]?.get(
+        const upcomingTasksShouldBeGeneratedTimeFrame = await req.settings[req.facilityId].get(
           'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
         );
         await Task.generateRepeatingTasks(tasksData, upcomingTasksShouldBeGeneratedTimeFrame);

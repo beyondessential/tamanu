@@ -555,7 +555,7 @@ const NoDataMessage = () => (
 );
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
-  const { ability, facilityId } = useAuth();
+  const { ability } = useAuth();
   const { encounter } = useEncounter();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
@@ -728,7 +728,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           onMouseEnterRow={handleMouseEnterRow}
           onMouseLeaveRow={handleMouseLeaveRow}
           hideHeader={data.length === 0}
-          fetchOptions={{ ...searchParameters, facilityId }}
+          fetchOptions={searchParameters}
           onDataFetched={onDataFetched}
           refreshCount={refreshCount}
           defaultRowsPerPage={25}

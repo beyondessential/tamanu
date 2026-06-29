@@ -31,7 +31,10 @@ export class PatientTelegramCommunicationProcessor extends ScheduledTask {
     const { PatientCommunication } = this.context.store.models;
     const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
 
-    const toProcess = await this.countQueue();
+    const toProcess = await PatientCommunication.countPendingMessages(
+      PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+      retryThreshold,
+    );
     if (toProcess === 0) return;
 
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
