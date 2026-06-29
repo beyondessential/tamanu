@@ -98,8 +98,9 @@ export async function createApi(ctx) {
   express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
   express.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 
-  // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  express.set('trust proxy', config.proxy.trusted);
+  // trust the x-forwarded-for header from proxies in the PROXY_TRUSTED env var
+  // (comma-separated list; defaults to `loopback` for a local reverse proxy)
+  express.set('trust proxy', process.env.PROXY_TRUSTED ?? 'loopback');
   express.use(getLoggingMiddleware());
 
   express.use((req, res, next) => {
