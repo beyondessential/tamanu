@@ -1,7 +1,4 @@
 {
-  "admin": {
-    "allowAdminRoutes": false
-  },
   "log": {
     "path": "",
     "consoleLevel": "http",
@@ -82,12 +79,6 @@
     "serverId": null,
     "timeoutMs": 20000,
   },
-  "senaite": {
-    "enabled": false,
-    "server": "https://192.168.33.100",
-    "username": "admin",
-    "password": "admin"
-  },
   "integrations": {
     "fhir": {
       "enabled": false, // the HTTP routes
@@ -159,13 +150,6 @@
       // every hour
       "schedule": "0 * * * *",
     },
-  },
-  // Note: this config should be duplicated on the central server if the same behavior is
-  // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
   },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
