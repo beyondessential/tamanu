@@ -112,7 +112,6 @@ export const facilitySettings = {
               description: 'Password for open mSupply API authentication',
               type: yup.string(),
               secret: true,
-              defaultValue: '',
             },
             storeId: {
               description: 'The ID of the store in the open mSupply instance',
