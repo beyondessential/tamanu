@@ -1,16 +1,22 @@
 /* eslint-disable no-unused-vars */
 import {
-  Op,
-  Utils,
-  DataTypes,
   Model as BaseModel,
+  DataTypes,
   type ModelAttributes,
+  Op,
   Sequelize,
+  Utils,
 } from 'sequelize';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
-import type { SyncHookSnapshotChanges, ModelSanitizeArgs, SessionConfig, SyncSnapshotAttributes } from '../types/sync';
+import type {
+  ModelSanitizeArgs,
+  SessionConfig,
+  SyncHookSnapshotChanges,
+  SyncSnapshotAttributes,
+} from '../types/sync';
+import { genericBeforeBulkDestroy, genericBeforeDestroy } from '../utils/beforeDestroyHooks';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -34,7 +40,9 @@ export class Model<
     _sessionConfig: SessionConfig,
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
-  declare static incomingSyncHook?: (changes: SyncSnapshotAttributes[]) => Promise<SyncHookSnapshotChanges | undefined>;
+  declare static incomingSyncHook?: (
+    changes: SyncSnapshotAttributes[],
+  ) => Promise<SyncHookSnapshotChanges | undefined>;
 
   static init(
     modelAttributes: ModelAttributes,
@@ -90,7 +98,7 @@ export class Model<
    * Generates a uuid via the database
    */
   static async generateDbUuid() {
-    const result: any  = await this.sequelize.query(`SELECT gen_random_uuid();`);
+    const result: any = await this.sequelize.query(`SELECT gen_random_uuid();`);
     return result[0][0].gen_random_uuid;
   }
 
@@ -128,32 +136,30 @@ export class Model<
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
     const models = this.sequelize.models;
-    const values = Object.entries(this.dataValues)
+    const resultInit = Object.entries(this.dataValues)
       .filter(([, val]) => val !== null)
-      .reduce(
-        (obj, [key, val]) => ({
-          ...obj,
-          [key]: val,
-        }),
-        {},
-      );
+      .reduce<Record<string, any>>((obj, [key, val]) => {
+        obj[key] = val;
+        return obj;
+      }, {});
 
     const references = (this.constructor as typeof Model).getListReferenceAssociations(models);
 
-    if (!references) return values;
+    if (!references) return resultInit;
 
     // Note that we don't call forResponse on the nested object, this is under the assumption that
     // if the structure of a nested object differs significantly from its database representation,
     // it's probably more correct to implement that as a separate endpoint rather than putting the
     // logic here.
-    return references.reduce((allValues: Record<string, any>, referenceName: string) => {
-      const { [referenceName]: referenceVal, ...otherValues } = allValues;
-      if (!referenceVal) return allValues;
-      return {
-        ...otherValues,
-        [firstLetterLowercase(referenceName)]: referenceVal.dataValues,
-      };
-    }, values);
+    return references.reduce<Record<string, any>>((result, referenceName) => {
+      const referenceVal = result[referenceName];
+      delete result[referenceName];
+
+      if (!referenceVal) return result;
+
+      result[firstLetterLowercase(referenceName)] = referenceVal.dataValues;
+      return result;
+    }, resultInit);
   }
 
   toJSON() {
@@ -164,7 +170,7 @@ export class Model<
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations(_models?: Models): any | undefined {
+  static getListReferenceAssociations(_models?: Models): readonly string[] | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //
