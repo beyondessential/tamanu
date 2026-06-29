@@ -403,6 +403,19 @@ export const centralSettings = {
         },
       },
     },
+    security: {
+      name: 'Security',
+      highRisk: true,
+      description: 'Security settings',
+      properties: {
+        requireHttps: {
+          name: 'Require HTTPS',
+          description:
+            'Reject client requests to the central server that do not arrive over HTTPS. Overrides the global `security.requireHttps` default for this server; leave unset to follow the global setting. Requires a TLS-terminating proxy that is listed in `proxy.trusted` and forwards the `X-Forwarded-Proto` header, otherwise all requests will be rejected. Can only be enabled from an HTTPS connection.',
+          type: yup.boolean().nullable(),
+        },
+      },
+    },
   },
 };
 
