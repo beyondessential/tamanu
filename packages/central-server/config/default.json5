@@ -9,6 +9,8 @@
     "verbose": false,
     "username": "",
     "password": "",
+    "migrateOnStartup": false,
+    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
@@ -36,6 +38,11 @@
       }
     }
   },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
+  },
   "metaServer": {
     "hosts": [
       "https://meta.tamanu.app",
@@ -46,6 +53,12 @@
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
+  "log": {
+    "path": "",
+    "consoleLevel": "http",
+    "color": true,
+    "timeless": false,
+  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,
@@ -53,6 +66,9 @@
     type: 'bugsnag',
     // paste your bugsnag API key here
     apiKey: '',
+  },
+  patientMerge:{
+    updateDependentRecordsForResyncEnabled: true
   },
   "sync": {
     "maxConcurrentSessions": 4,
@@ -121,13 +137,35 @@
       "tokenExpiry": 20
     }
   },
-  // Legacy fallback for outgoing email. `mail.from` / `mail.transport` are now settings;
-  // if `mail.from` is unset we fall back to `mailgun.from`, and if `mail.transport` is unset
-  // we fall back to this Mailgun config.
+  "export": {
+    "maxFileSizeInMB": 50
+  },
   "mailgun": {
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  // `mail.from` is the default sender address. It replaces the legacy `mailgun.from` key;
+  // if `mail.from` is unset we fall back to `mailgun.from`, so existing deployments keep
+  // working unchanged.
+  //
+  // `mail.transport` is preferred over `mailgun` when set. The value is passed through to
+  // nodemailer's createTransport() unchanged, so any SMTP option (host/port/secure/auth,
+  // service shortcuts, pooling, etc.) or nodemailer transport plugin can be used.
+  // See https://nodemailer.com/transports/. Example:
+  //   "mail": {
+  //     "from": "Tamanu <no-reply@example.com>",
+  //     "transport": {
+  //       "host": "smtp.example.com",
+  //       "port": 587,
+  //       "secure": false,
+  //       "pool": true,
+  //       "auth": { "user": "...", "pass": "..." }
+  //     }
+  //   }
+  "mail": {
+    "from": "",
+    "transport": null
   },
   "cors": {
     "allowedOrigin": ""
@@ -319,6 +357,14 @@
       "requireClientHeaders": true
     },
 
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary"
+      }
+    },
     "fijiAspenMediciReport": {
       "enabled": false
     },
@@ -393,6 +439,21 @@
     }
   },
   "scheduledReports": [],
+  "disk": {
+    "diskPath": "C:/",
+  },
+  // Note: this config should be duplicated on the facility server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
+    }
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
+  },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
     // Rate limit counters key off `req.ip` and therefore respect the
@@ -414,6 +475,17 @@
       "max": 30
     }
   },
+  "proxy": {
+    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
+    //
+    // This should only be set to servers we trust! `loopback` is a safe default
+    // because it means we only trust proxies running on the machine itself, e.g.
+    // local nginx.
+    //
+    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
+    // this shouldn't need to be changed.
+    "trusted": ["loopback"]
+  },
   "validateQuestionConfigs": {
     "enabled": true
   },
@@ -422,7 +494,31 @@
   // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false,
   "socket.io": {
     enabled: true,
+  },
+  "telegramBot": {
+    apiToken: "",
+    webhook: {
+      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
+      url: "",
+      secret: ""
+    }
+  },
+  "patientCommunication": {
+    "retryThreshold": 20
+  },
+  "language": "en",
+  "tasking": {
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "patientPortal": {
+    "tokenDuration": "24h",
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 43800 // 1 month
   }
 }

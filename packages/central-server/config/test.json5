@@ -35,6 +35,9 @@
     },
     "useHardcodedPermissions": false
   },
+  "log": {
+    "consoleLevel": "warn"
+  },
   "cors": {
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
@@ -102,6 +105,13 @@
       "enabled": true,
       "username": "admin",
       "password": "district"
+    }
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
     }
   },
   "validateQuestionConfigs": {
