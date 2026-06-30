@@ -431,7 +431,6 @@
   // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false,
   "socket.io": {
     enabled: true,
   }

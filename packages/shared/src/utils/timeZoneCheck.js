@@ -66,17 +66,4 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
   we've sorted those issues out.
   */
   log.info('Checking timezone consistency', zones);
-  /*
-  const unique = new Set(Object.values(zones));
-  if (unique.size > 1) {
-    const errorText = `Detected mismatched time zones. Details: ${JSON.stringify(zones)}.`;
-    if (config.allowMismatchedTimeZones) {
-      log.warn(errorText);
-    } else {
-      throw new InvalidConfigError(
-        `${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`,
-      );
-    }
-  }
-  */
 }
