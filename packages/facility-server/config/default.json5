@@ -44,7 +44,6 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "skipVersionCompatibilityCheck": false,
     "reportSchemas": {
       "enabled": false,
       "connections": {

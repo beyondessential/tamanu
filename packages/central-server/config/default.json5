@@ -9,7 +9,6 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
