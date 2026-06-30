@@ -20,6 +20,7 @@ const StyledConfirmModal = styled(ConfirmModal)`
 export const CancelNewPatientConfirmationModal = ({ open, onClose, onCancelConfirm }) => (
   <StyledConfirmModal
     open={open}
+    width={false}
     onCancel={onClose}
     onConfirm={onCancelConfirm}
     title={
