@@ -152,7 +152,7 @@ async function localLogin({ models, settings, email, password, deviceId }) {
     auth: { secret, tokenDuration },
     canonicalHostName,
   } = config;
-  const primaryTimeZone = getPrimaryTimeZone(config);
+  const primaryTimeZone = getPrimaryTimeZone();
   const { user } = await models.User.loginFromCredential(
     {
       email,

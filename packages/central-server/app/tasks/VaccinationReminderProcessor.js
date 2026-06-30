@@ -41,7 +41,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       });
 
       await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
-        replacements: { timezone: getPrimaryTimeZone(config) },
+        replacements: { timezone: getPrimaryTimeZone() },
         transaction,
       });
 

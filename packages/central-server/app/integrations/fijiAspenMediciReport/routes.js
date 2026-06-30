@@ -1,7 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { mapKeys, camelCase, upperFirst } from 'es-toolkit/compat';
 import { parseISO } from 'date-fns';
 import __cjs_date_fns_tz from 'date-fns-tz';
@@ -15,7 +14,7 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const routes = express.Router();
 
-const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
+const PRIMARY_TIME_ZONE = getPrimaryTimeZone();
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {

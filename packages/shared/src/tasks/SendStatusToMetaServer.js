@@ -99,7 +99,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
-        timezone: getPrimaryTimeZone(config),
+        timezone: getPrimaryTimeZone(),
         pgVersion: pgVersionResult[0].version,
       }),
     });

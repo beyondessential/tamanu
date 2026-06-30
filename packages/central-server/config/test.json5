@@ -106,6 +106,5 @@
   },
   "validateQuestionConfigs": {
     "enabled": true
-  },
-  "primaryTimeZone": "Pacific/Auckland"
+  }
 }
