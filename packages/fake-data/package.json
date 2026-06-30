@@ -5,11 +5,11 @@
   "description": "TODO",
   "main": "./src/index",
   "exports": {
-    ".": "./src",
-    "./populateDb": "./src/populateDb",
-    "./fake": "./src/fake",
+    ".": "./src/index.ts",
+    "./populateDb": "./src/populateDb/index.ts",
+    "./fake": "./src/fake/index.ts",
     "./fake/*": "./src/fake/*",
-    "./test-helpers": "./src/test-helpers",
+    "./test-helpers": "./src/test-helpers/index.js",
     "./test-helpers/*": "./src/test-helpers/*",
     "./services/*": "./src/services/*",
     "./utils/*": "./src/utils/*"

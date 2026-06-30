@@ -10,7 +10,6 @@ import {
   PermissionNoun,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
 
 async function getObjectIdsAndNamesByNoun(models) {
@@ -25,10 +24,6 @@ async function getObjectIdsAndNamesByNoun(models) {
         raw: true,
       });
       return [noun, records.map(r => ({ id: r.id, name: r.name }))];
-    }
-
-    if (noun === PermissionNoun.StaticReport) {
-      return [noun, REPORT_DEFINITIONS.map(r => ({ id: r.id, name: r.name }))];
     }
 
     if (models[noun]) {

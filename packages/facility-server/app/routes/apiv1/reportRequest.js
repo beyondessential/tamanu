@@ -15,7 +15,7 @@ reportRequest.post(
   '/',
   asyncHandler(async (req, res) => {
     const { models, body, user, getLocalisation } = req;
-    const { ReportRequest, ReportDefinitionVersion } = models;
+    const { ReportRequest } = models;
     const { reportId } = body;
     const reportRequestLog = createNamedLogger(REPORT_REQUEST_LOG_NAME, {
       reportId,
@@ -27,21 +27,18 @@ reportRequest.post(
     }
 
     const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportId);
 
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
       throw new NotFoundError('Report module not found');
     }
-    await checkReportModulePermissions(req, reportModule, reportId, body.parameters);
 
-    const isDatabaseDefinedReport = reportModule instanceof ReportDefinitionVersion;
+    assertReportEnabled(localisation, reportModule.reportDefinitionId);
+    await checkReportModulePermissions(req, reportModule, body.parameters);
 
     const newReportRequest = {
-      ...(isDatabaseDefinedReport
-        ? { reportDefinitionVersionId: reportId }
-        : { reportType: reportId }),
+      reportDefinitionVersionId: reportId,
       recipients: JSON.stringify({
         email: body.emailList,
       }),
