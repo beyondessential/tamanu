@@ -191,16 +191,6 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const { disabledReports } = localisation;
-      if (disabledReports.includes(reportId)) {
-        log.error(`Report "${reportId}" is disabled`);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Report "${reportId}" is disabled`,
-        });
-        return;
-      }
-
       const reportModule = await getReportModule(reportId, this.context.store.models);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
@@ -210,6 +200,17 @@ export class ReportRequestProcessor extends ScheduledTask {
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
           error: `Unable to find report generator for report ${request.id} of type ${reportId}`,
+        });
+        return;
+      }
+
+      const { disabledReports } = localisation;
+      const reportDefinitionId = reportModule.reportDefinitionId;
+      if (disabledReports.includes(reportDefinitionId)) {
+        log.error(`Report "${reportDefinitionId}" is disabled`);
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Report "${reportDefinitionId}" is disabled`,
         });
         return;
       }

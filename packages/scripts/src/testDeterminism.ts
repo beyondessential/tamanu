@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
-import { join } from 'node:path';
 
 import type { Sequelize } from '@tamanu/database';
 import type { Model } from '@tamanu/database/models/Model';
@@ -250,16 +249,41 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  const script = join(import.meta.dirname, 'fake.ts');
-  return spawnCommand('node', [
-    '--import',
-    'tsx',
-    script,
-    '--database',
-    database,
-    '--rounds',
-    rounds.toString(),
-  ]);
+  // Run as an inline script (like migrate()) rather than executing fake.ts from disk.
+  // After switching to an older commit, the on-disk fake.ts uses a static require() for
+  // @tamanu/fake-data/populateDb, which tsx's CJS hook can't resolve (directory export).
+  // Dynamic import() handles directory exports correctly.
+  const script = `
+    (async () => {
+      const { default: config } = await import('config');
+      const dbModule = await import('@tamanu/database/services/database');
+      const initDatabase = dbModule.initDatabase ?? dbModule.default?.initDatabase;
+      const fakeModule = await import('@tamanu/fake-data/populateDb');
+      const generateEachDataType = fakeModule.generateEachDataType ?? fakeModule.default?.generateEachDataType;
+
+      const { models, sequelize } = await initDatabase({ ...config.db, testMode: true, name: ${JSON.stringify(database)} });
+      let done = 0;
+      let errs = 0;
+      while (done < ${rounds} && errs < Math.max(10, ${rounds} / 10)) {
+        try {
+          await generateEachDataType(models);
+          done++;
+          process.stdout.write('.');
+        } catch (err) {
+          console.error(err);
+          process.stdout.write('!');
+          errs++;
+        }
+      }
+      console.log();
+      if (done < ${rounds} && errs > 0) throw new Error('encountered too many errors');
+      await sequelize.close();
+    })().catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
+  `;
+  return spawnCommand('node', ['--import', 'tsx', '-e', script]);
 }
 
 (async () => {

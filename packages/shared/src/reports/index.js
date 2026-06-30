@@ -1,19 +1,23 @@
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/constants';
 
+// Maps ReportDefinition IDs to their static module implementations.
+// Static reports have a ReportDefinition/Version record in the DB for permissions,
+// but their data generation is handled by code rather than a SQL query.
+const STATIC_REPORT_MODULES = {
+  [GENERIC_SURVEY_EXPORT_REPORT_ID]: genericSurveyExportLineList,
+};
+
 export async function getReportModule(reportId, models) {
-  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
+  const reportVersion = await models.ReportDefinitionVersion.findByPk(reportId);
 
-  if (dbDefinedReportModule) {
-    return dbDefinedReportModule;
+  if (!reportVersion) {
+    return null;
   }
 
-  if (reportId === GENERIC_SURVEY_EXPORT_REPORT_ID) {
-    return genericSurveyExportLineList;
+  const staticModule = STATIC_REPORT_MODULES[reportVersion.reportDefinitionId];
+  if (staticModule) {
+    reportVersion.dataGenerator = staticModule.dataGenerator;
   }
-
-  return null;
+  return reportVersion;
 }
-
-export { REPORT_DEFINITIONS } from './reportDefinitions';
-export { REPORT_OBJECTS } from './reportObjects';
