@@ -5,7 +5,7 @@ const GENERIC_SURVEY_EXPORT_VERSION_ID = 'db69159e-e291-49c6-a36c-958847f550e0';
 
 const QUERY_OPTIONS = JSON.stringify({
   parameters: [
-    { parameterField: 'VillageField' },
+    { parameterField: 'VillageField', name: 'village' },
     {
       parameterField: 'ParameterAutocompleteField',
       label: 'Survey',
