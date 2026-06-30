@@ -104,6 +104,13 @@
       "password": "district"
     }
   },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
+    }
+  },
   "validateQuestionConfigs": {
     "enabled": true
   }

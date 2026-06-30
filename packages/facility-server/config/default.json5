@@ -78,6 +78,19 @@
         "enabled": false, // the materialisation worker
       },
     },
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
+      },
+    },
   },
   "auth": {
     "saltRounds": 12,
@@ -145,5 +158,13 @@
       "max": 30
     }
   },
+  "tasking": {
+    "upcomingTasksTimeFrame": 8, // hours,
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "language": "en",
   "canonicalHostName": "http://localhost:4000",
 }

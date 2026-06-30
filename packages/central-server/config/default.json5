@@ -54,6 +54,9 @@
     // paste your bugsnag API key here
     apiKey: '',
   },
+  patientMerge:{
+    updateDependentRecordsForResyncEnabled: true
+  },
   "sync": {
     "maxConcurrentSessions": 4,
     "persistedCacheBatchSize": 20000,
@@ -121,13 +124,35 @@
       "tokenExpiry": 20
     }
   },
-  // Legacy fallback for outgoing email. `mail.from` / `mail.transport` are now settings;
-  // if `mail.from` is unset we fall back to `mailgun.from`, and if `mail.transport` is unset
-  // we fall back to this Mailgun config.
+  "export": {
+    "maxFileSizeInMB": 50
+  },
   "mailgun": {
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  // `mail.from` is the default sender address. It replaces the legacy `mailgun.from` key;
+  // if `mail.from` is unset we fall back to `mailgun.from`, so existing deployments keep
+  // working unchanged.
+  //
+  // `mail.transport` is preferred over `mailgun` when set. The value is passed through to
+  // nodemailer's createTransport() unchanged, so any SMTP option (host/port/secure/auth,
+  // service shortcuts, pooling, etc.) or nodemailer transport plugin can be used.
+  // See https://nodemailer.com/transports/. Example:
+  //   "mail": {
+  //     "from": "Tamanu <no-reply@example.com>",
+  //     "transport": {
+  //       "host": "smtp.example.com",
+  //       "port": 587,
+  //       "secure": false,
+  //       "pool": true,
+  //       "auth": { "user": "...", "pass": "..." }
+  //     }
+  //   }
+  "mail": {
+    "from": "",
+    "transport": null
   },
   "cors": {
     "allowedOrigin": ""
@@ -319,6 +344,14 @@
       "requireClientHeaders": true
     },
 
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary"
+      }
+    },
     "fijiAspenMediciReport": {
       "enabled": false
     },
@@ -393,6 +426,11 @@
     }
   },
   "scheduledReports": [],
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
+  },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
     // Rate limit counters key off `req.ip` and therefore respect the
@@ -419,5 +457,28 @@
   },
   "socket.io": {
     enabled: true,
+  },
+  "telegramBot": {
+    apiToken: "",
+    webhook: {
+      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
+      url: "",
+      secret: ""
+    }
+  },
+  "patientCommunication": {
+    "retryThreshold": 20
+  },
+  "language": "en",
+  "tasking": {
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "patientPortal": {
+    "tokenDuration": "24h",
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 43800 // 1 month
   }
 }

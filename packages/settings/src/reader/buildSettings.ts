@@ -1,22 +1,39 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { isArray, mergeWith } from 'es-toolkit/compat';
 
-import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
+import {
+  centralDefaults,
+  centralSettings,
+  facilityDefaults,
+  facilitySettings,
+  globalDefaults,
+  globalSettings,
+} from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
+import { SettingsConfigReader } from './readers/SettingsConfigReader';
 
-/** Returns the cascade of applicable settings readers, in descending order of priority */
+/**
+ * Returns the cascade of applicable settings readers, in descending order of priority.
+ * The config readers are a transitional fallback: they serve a deployment's local
+ * config value for any key that has no setting yet, so config moving into settings
+ * never changes behaviour. They sit below recorded settings and above schema defaults.
+ */
 function getReaderCascade(models: Models, facilityId?: string) {
   return facilityId
     ? [
         new SettingsDBReader(models, SETTINGS_SCOPES.FACILITY, facilityId),
         new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
+        new SettingsConfigReader(facilitySettings),
+        new SettingsConfigReader(globalSettings),
         new SettingsJSONReader(facilityDefaults),
         new SettingsJSONReader(globalDefaults),
       ]
     : [
         new SettingsDBReader(models, SETTINGS_SCOPES.CENTRAL),
         new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
+        new SettingsConfigReader(centralSettings),
+        new SettingsConfigReader(globalSettings),
         new SettingsJSONReader(centralDefaults),
         new SettingsJSONReader(globalDefaults),
       ];
