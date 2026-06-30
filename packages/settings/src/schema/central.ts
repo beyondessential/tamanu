@@ -188,9 +188,16 @@ export const centralSettings = {
         },
         transport: {
           description:
-            'Nodemailer transport options, passed to createTransport() unchanged. Preferred over the legacy mailgun config when set.',
+            'Nodemailer transport options (host/port/secure/auth.user/etc.), passed to createTransport(). Preferred over the legacy mailgun config when set. Put the SMTP password in mail.transportPassword, not here.',
           type: yup.object().nullable(),
           defaultValue: null,
+        },
+        transportPassword: {
+          name: 'SMTP password',
+          description:
+            'Password for mail.transport, merged into the transport auth at send time. Kept separate so the credential is encrypted and masked rather than stored in the transport object.',
+          type: yup.string(),
+          secret: true,
         },
       },
     },

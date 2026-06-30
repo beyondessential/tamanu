@@ -4,14 +4,20 @@ import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 import { mailgunTransport } from './mailgunTransport.js';
 
-function createTransporter(transport) {
+function createTransporter(transport, transportPassword) {
   // The `mail.transport` setting is passed through to nodemailer.createTransport() unchanged,
   // so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.) or nodemailer
-  // transport plugin can be used. See https://nodemailer.com/transports/.
+  // transport plugin can be used. See https://nodemailer.com/transports/. The SMTP password is
+  // kept out of the transport object (in the `mail.transportPassword` secret) and merged into
+  // its auth here, so the credential is encrypted and masked rather than stored in plain text.
   if (transport) {
-    return nodemailer.createTransport(transport);
+    const merged = transportPassword
+      ? { ...transport, auth: { ...transport.auth, pass: transportPassword } }
+      : transport;
+    return nodemailer.createTransport(merged);
   }
 
   // Legacy `mailgun` config: route the Mailgun HTTP API through nodemailer too, so there
@@ -63,8 +69,24 @@ function shouldRetrySendError(e) {
 }
 
 export class EmailService {
-  constructor(transport) {
-    this.transporter = createTransporter(transport);
+  constructor(transport, transportPassword) {
+    this.transporter = createTransporter(transport, transportPassword);
+  }
+
+  /**
+   * Build an EmailService from settings, resolving the `mail.transport` object and
+   * the `mail.transportPassword` secret (decrypted) separately.
+   */
+  static async fromSettings(settings) {
+    const transport = await settings.get('mail.transport');
+    let transportPassword;
+    try {
+      transportPassword = await getSettingSecret(settings, 'mail.transportPassword');
+    } catch (error) {
+      // Not configured is fine — transport may not need auth, or we fall back to mailgun.
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+    }
+    return new EmailService(transport, transportPassword);
   }
 
   /**

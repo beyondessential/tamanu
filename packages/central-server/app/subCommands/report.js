@@ -59,7 +59,7 @@ async function report(options) {
     }
 
     const settings = new ReadSettings(store.models);
-    const emailService = new EmailService(await settings.get('mail.transport'));
+    const emailService = await EmailService.fromSettings(settings);
     const reportRunner = new ReportRunner(
       reportId,
       reportParameters,
