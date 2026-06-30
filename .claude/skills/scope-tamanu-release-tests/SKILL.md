@@ -29,7 +29,7 @@ You are working inside a clone of the Tamanu repo, so read the history directly 
 
 Tamanu uses a **train-release model**. Each minor version is cut from `main` as a long-lived branch `release/X.Y` (package version `X.Y.0`) and only later published as a tag `vX.Y.Z` once it ships. Consequences:
 
-- A version may **not be tagged yet** — it can exist only as `release/X.Y`. Check tags first (`git fetch origin --tags && git tag --list 'v*'`); use `vX.Y.Z` if present, otherwise compare against `release/X.Y`. State which ref you used for each side.
+- A version may **not be tagged yet** — it can exist only as `release/X.Y`. Check tags first (`git fetch origin --tags && git tag --list 'vX.Y.*'`). A minor often has several patch tags (e.g. `vX.Y.0` … `vX.Y.6`): pick the **latest** patch tag for that minor, never an older one — an older patch shrinks the commit range and under-scopes Full/Smoke areas. If a side has no tag yet, or the `release/X.Y` branch tip is ahead of the latest tag (untagged hotfixes), compare against the `release/X.Y` tip instead. State which ref you used for each side.
 - Release branches are concurrent and can be cut at different dates, so lineage is not strictly linear; `main` is usually already on the next version.
 - `CHANGELOG.md` is unmaintained — do not rely on it. Reconstruct the change list from commit history. Commits follow conventional commits (`feat(scope)`, `fix(scope)`, etc.) and start with or reference the Linear card (`TAM-1234`, `EPI-1321`, `KAM-463`, ...) and the PR number.
 
@@ -80,7 +80,7 @@ Two signals:
 
 ## Workflow
 
-1. **Resolve refs.** List tags; pick `vX.Y.Z` or `release/X.Y` for each side. Record which you used.
+1. **Resolve refs.** List tags; for each side pick the **latest** `vX.Y.Z` patch tag for that minor, or the `release/X.Y` branch tip when it's ahead of the latest tag or nothing is tagged yet. Record which you used — an older patch tag would under-scope the diff.
 2. **Pull the diff.** `git log`/`git diff` between the refs; capture commit count, file count, and each commit's card/PR + scope.
 3. [parallel with 2] **Check migrations.** Diff the `packages/database/src/migrations` listing between refs. Note any new files.
 4. **Group by section.** Bucket every PR/commit into a section using scope + package path. If the user supplied a regression spreadsheet, map onto its sections instead of (or in addition to) the taxonomy.
