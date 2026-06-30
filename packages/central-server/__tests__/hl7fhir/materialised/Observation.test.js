@@ -275,7 +275,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -286,7 +286,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -499,7 +499,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -511,7 +511,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -752,7 +752,7 @@ describe('Create Observation', () => {
           status: FHIR_OBSERVATION_STATUS.FINAL,
           code: {
             coding: testCode.coding.filter(
-              ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
             ),
           },
           valueString: '100',
