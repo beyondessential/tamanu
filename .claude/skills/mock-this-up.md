@@ -1,1 +1,0 @@
-../../.agents/skills/mock-this-up.md

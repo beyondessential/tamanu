@@ -1,1 +1,0 @@
-../../.agents/skills/tech-design.md
