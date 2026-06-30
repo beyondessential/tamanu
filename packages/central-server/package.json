@@ -24,7 +24,7 @@
     "start-dev:test": "NODE_ENV=test MIGRATE_ON_STARTUP=true npm run start-watch",
     "start-watch": "node --import tsx --watch app",
     "start": "node --import tsx app",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test ALLOW_CONFIG_MUTATIONS=true jest",
     "test-watch": "npm run test -- --watch"
   },
   "devDependencies": {
