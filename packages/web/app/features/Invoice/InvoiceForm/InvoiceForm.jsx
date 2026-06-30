@@ -59,6 +59,8 @@ const FormFooter = styled.div`
   background: white;
   padding: 8px 4px 2px;
   border-radius: 3px;
+  min-height: 44px;
+  box-sizing: border-box;
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
@@ -181,27 +183,29 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                     );
                   })}
                 </Box>
-                {editable && (isReadOnlyForm || isAddForm) && (
+                {(isReadOnlyForm || isAddForm) && (
                   <FormFooter>
-                    <AddButton
-                      variant="text"
-                      onClick={() => {
-                        if (isReadOnlyForm) {
-                          setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                        } else {
-                          formArrayMethods.push(
-                            getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                          );
-                        }
-                      }}
-                      startIcon={<Plus />}
-                    >
-                      <TranslatedText
-                        stringId="invoice.form.action.addItem"
-                        fallback="Add item"
-                        data-testid="translatedtext-9vs0"
-                      />
-                    </AddButton>
+                    {editable && (
+                      <AddButton
+                        variant="text"
+                        onClick={() => {
+                          if (isReadOnlyForm) {
+                            setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                          } else {
+                            formArrayMethods.push(
+                              getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                            );
+                          }
+                        }}
+                        startIcon={<Plus />}
+                      >
+                        <TranslatedText
+                          stringId="invoice.form.action.addItem"
+                          fallback="Add item"
+                          data-testid="translatedtext-9vs0"
+                        />
+                      </AddButton>
+                    )}
                   </FormFooter>
                 )}
                 {editable && (isEditForm || isAddForm) && (
