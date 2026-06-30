@@ -66,15 +66,15 @@ export class ReportRunner {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const { disabledReports } = localisation;
-    if (disabledReports.includes(this.reportId)) {
-      throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
-    }
-
     if (!reportModule || !reportDataGenerator) {
       throw new Error(
         `ReportRunner - Unable to find report generator for report "${this.reportId}"`,
       );
+    }
+
+    const { disabledReports } = localisation;
+    if (disabledReports.includes(reportModule.reportDefinitionId)) {
+      throw new Error(`ReportRunner - Report "${reportModule.reportDefinitionId}" is disabled`);
     }
   }
 

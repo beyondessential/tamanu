@@ -9,7 +9,6 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
@@ -37,11 +36,6 @@
       }
     }
   },
-  debugging: {
-    // set a `tamanu-debug` header on a request with the value of this key
-    // and the errors will get stack traces.
-    apiErrorsToken: false,
-  },
   "metaServer": {
     "hosts": [
       "https://meta.tamanu.app",
@@ -59,9 +53,6 @@
     type: 'bugsnag',
     // paste your bugsnag API key here
     apiKey: '',
-  },
-  patientMerge:{
-    updateDependentRecordsForResyncEnabled: true
   },
   "sync": {
     "maxConcurrentSessions": 4,

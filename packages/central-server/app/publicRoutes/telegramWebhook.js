@@ -8,8 +8,8 @@ telegramWebhookRoutes.post(
   `/`,
   asyncHandler(async (req, res) => {
     log.info('Received telegram webhook', req.body);
-    const webhookSecret = (await req.ctx.settings.get('telegramBot.webhook.secret')) ?? '';
-    if (req.header('X-Telegram-Bot-Api-Secret-Token') !== webhookSecret)
+    const webhookSecret = await req.ctx.settings.get('telegramBot.webhook.secret');
+    if (!webhookSecret || req.header('X-Telegram-Bot-Api-Secret-Token') !== webhookSecret)
       return res.status(401).send('Invalid token');
 
     req.ctx.telegramBotService?.update(req.body);

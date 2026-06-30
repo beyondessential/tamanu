@@ -58,24 +58,30 @@ export function testReportPermissions(getCtx, makeRequest) {
   describe('static reports', () => {
     let app;
     let survey;
+    let reportVersionId;
     beforeAll(async () => {
       const { models } = ctx;
-      const { Program, Survey } = models;
+      const { Program, Survey, ReportDefinitionVersion } = models;
       const program = await Program.create(fake(Program));
       survey = await Survey.create({
         ...fake(Survey),
         programId: program.id,
       });
 
+      const version = await ReportDefinitionVersion.findOne({
+        where: { reportDefinitionId: GENERIC_SURVEY_EXPORT_REPORT_ID },
+      });
+      reportVersionId = version.id;
+
       app = await baseApp.asNewRole([
-        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', survey.id],
       ]);
     });
 
     it('should be able to run permitted static reports with "run" permissions', async () => {
       // Act
-      const res = await makeRequest(app, GENERIC_SURVEY_EXPORT_REPORT_ID, {
+      const res = await makeRequest(app, reportVersionId, {
         parameters: { surveyId: survey.id },
       });
 

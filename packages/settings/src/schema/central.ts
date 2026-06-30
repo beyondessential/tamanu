@@ -91,6 +91,17 @@ export const centralSettings = {
         },
       },
     },
+    patientMerge: {
+      description: 'Settings for merging patient records',
+      properties: {
+        updateDependentRecordsForResyncEnabled: {
+          description:
+            "When merging patients, re-stamp the unwanted patient's dependent records so they re-sync to connected devices",
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+      },
+    },
     notifications: {
       description: 'Settings for notifications',
       properties: {

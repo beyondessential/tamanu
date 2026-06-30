@@ -44,7 +44,6 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "skipVersionCompatibilityCheck": false,
     "reportSchemas": {
       "enabled": false,
       "connections": {
@@ -91,12 +90,6 @@
   },
   "serverFacilityId": null,
   "serverFacilityIds": null,
-  "debugging": {
-    // set a `tamanu-debug` header on a request with the value of this key
-    // and the errors will get stack traces.
-    apiErrorsToken: false,
-    "requestFailureRate": 0
-  },
   "schedules": {
     "refreshMaterializedView": {
       "upcomingVaccinations": {
