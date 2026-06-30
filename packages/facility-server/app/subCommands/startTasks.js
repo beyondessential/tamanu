@@ -41,11 +41,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
-  await performTimeZoneChecks({
-    remote: context.centralServer,
-    sequelize: context.sequelize,
-    config,
-  });
+  await performTimeZoneChecks({ sequelize: context.sequelize });
 
   const cancelTasks = startScheduledTasks(context, taskClasses);
   process.once('SIGTERM', () => {

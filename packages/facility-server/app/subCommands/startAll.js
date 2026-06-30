@@ -34,11 +34,7 @@ async function startApiSyncAndTasks(context) {
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
   });
 
-  await performTimeZoneChecks({
-    remote: context.centralServer,
-    sequelize: context.sequelize,
-    config,
-  });
+  await performTimeZoneChecks({ sequelize: context.sequelize });
 
   const { server } = await createApiApp(context);
 

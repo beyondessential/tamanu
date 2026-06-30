@@ -56,11 +56,7 @@ const startApp =
       context.syncManager = new FacilitySyncManager(context);
     }
 
-    await performTimeZoneChecks({
-      remote: context.centralServer,
-      sequelize: context.sequelize,
-      config,
-    });
+    await performTimeZoneChecks({ sequelize: context.sequelize });
 
     let server, port;
     switch (appType) {
