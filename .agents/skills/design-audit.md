@@ -16,7 +16,7 @@ Audit this card's design work against `.workhorse/design/` — the source of tru
 
 Work out what stage the card is at and audit accordingly:
 
-- **Mockups only** (specifying phase — this card has mockups but no UI code) — audit the HTML mockups in `.workhorse/design/mockups/{card-id}/`
+- **Mockups only** (specifying phase — this card has mockups but no UI code) — audit the HTML mockups in `.workhorse/design/mockups/d1/`
 - **Implementation** (implementing or reviewing phase — this card has UI code changes) — audit the shipped code on the card's branch
 - **Both** — audit both, and flag any places where the implementation drifted from what the mockups showed
 

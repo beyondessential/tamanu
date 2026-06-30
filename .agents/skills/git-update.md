@@ -7,7 +7,7 @@ workhorse-version: 0.1.0
 
 Rebase this card's branch onto its upstream. The upstream for this card is **`<base-branch>`** — use exactly this branch, not the workspace default. Cards that depend on a parent card rebase onto the parent's branch, not main.
 
-1. Run `git fetch origin` to refresh remote refs, then verify the fetch updated the upstream by comparing `git rev-parse origin/<base-branch>` before and after — if the SHA didn't change but `git ls-remote origin <base-branch>` reports a different SHA, abort and report the discrepancy rather than rebasing onto stale state
+1. Record the current upstream SHA with `git rev-parse origin/<base-branch>`, then run `git fetch origin` to refresh remote refs and re-read the SHA — if the SHA didn't change but `git ls-remote origin <base-branch>` reports a different SHA, abort and report the discrepancy rather than rebasing onto stale state
 2. Run `git rebase origin/<base-branch>` to rebase onto the upstream
 3. If a hard conflict occurs during rebase, resolve it step by step. Use the card's specs, description, and conversation history to decide which side to favour
 4. **Always check for soft conflicts** — even if the rebase completed cleanly, inspect the full diff between the old and new base against local specs and code for assumptions invalidated by upstream changes. Use your judgement about what matters
