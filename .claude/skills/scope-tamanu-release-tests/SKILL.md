@@ -38,12 +38,13 @@ Tamanu uses a **train-release model**. Each minor version is cut from `main` as 
 ```
 git fetch origin --tags
 git fetch origin release/<from-minor> release/<to-minor>
+# Refs: tags are global (vX.Y.Z); fetched branches are NOT local — reference them as origin/release/X.Y.
 git log --oneline --no-merges <from-ref>..<to-ref>      # commits + cards/PRs
-git diff --stat <from-ref>..<to-ref>                     # changed files by package
-git diff --name-only <from-ref>..<to-ref> -- packages/database/src/migrations   # new migrations
+git diff --stat <from-ref>..<to-ref>                    # changed files by package
+git diff --name-status <from-ref>..<to-ref> -- packages/database/src/migrations   # A = new migration, D = deleted
 ```
 
-Pull the Linear card and PR number out of each commit subject so every Full/Smoke row can cite one.
+Pull the Linear card and PR number out of each commit subject so every Full/Smoke row can cite one. Use `origin/release/X.Y` (not a bare `release/X.Y`) as a ref — `git fetch` does not create local branches. Tamanu cherry-picks hotfixes across release branches, so `<from>..<to>` can list a commit that is already in the "from" side under a different SHA; when a change looks duplicated, match on the card/PR, not the raw SHA.
 
 ## Tamanu functional sections
 
