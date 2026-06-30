@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import config from 'config';
 import { chunk, omit, omitBy } from 'es-toolkit/compat';
 import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
@@ -484,8 +483,7 @@ export async function mergePatient(
   models,
   keepPatientId,
   unwantedPatientId,
-  updateDependentRecordsForResyncEnabled = config.patientMerge
-    .updateDependentRecordsForResyncEnabled,
+  updateDependentRecordsForResyncEnabled = true,
 ) {
   const { sequelize } = models.Patient;
 
