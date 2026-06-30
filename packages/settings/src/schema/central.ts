@@ -179,7 +179,6 @@ export const centralSettings = {
           description:
             'Nodemailer transport options, passed to createTransport() unchanged. Preferred over the legacy mailgun config when set.',
           type: yup.object().nullable(),
-          // May carry SMTP credentials (auth.user/pass), so mask it like other secrets.
           secret: true,
           defaultValue: null,
         },
