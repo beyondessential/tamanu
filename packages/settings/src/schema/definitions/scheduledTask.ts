@@ -15,8 +15,8 @@ export const cronExpressionSchema = yup
   );
 
 // Common shape for a scheduled background task: on/off switch, cron schedule, and an
-// optional random start delay, plus any task-specific tuning knobs. Schedule changes
-// take effect when the server restarts.
+// optional random start delay, plus any task-specific tuning knobs. Everything here is
+// snapshot at server startup, so the whole schedules subtree is requiresRestart.
 export const scheduledTaskSchema = (
   { schedule, enabled = true, jitterTime = null }: {
     schedule: string;
@@ -34,7 +34,7 @@ export const scheduledTaskSchema = (
     },
     schedule: {
       name: 'Schedule',
-      description: 'Cron expression for when this task runs (applies on server restart)',
+      description: 'Cron expression for when this task runs',
       type: cronExpressionSchema,
       defaultValue: schedule,
       editor: SETTING_EDITORS.CRON,

@@ -523,8 +523,8 @@ export const centralSettings = {
     },
     schedules: {
       name: 'Scheduled tasks',
-      description:
-        'Cron schedules and tuning for central-server background tasks. Schedule changes take effect when the server restarts.',
+      description: 'Cron schedules and tuning for central-server background tasks',
+      requiresRestart: true,
       properties: {
         outpatientDischarger: scheduledTaskSchema(
           { schedule: '0 2 * * *' },
