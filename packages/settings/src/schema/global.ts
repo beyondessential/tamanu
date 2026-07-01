@@ -206,6 +206,7 @@ export const globalSettings = {
       type: yup.object(),
       defaultValue: {},
       exposedToWeb: true,
+      editor: SETTING_EDITORS.MAPPING,
     },
     disabledReports: {
       name: 'Disabled reports',

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { get, isEqual, isString, isUndefined, startCase } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
@@ -157,6 +157,7 @@ const SETTING_TYPES = {
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
   CRON: 'cron',
+  MAPPING: 'mapping',
   OBJECT: 'object',
   ARRAY: 'array',
 };
@@ -470,6 +471,127 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
   );
 };
 
+// A keyed map for the mapping editor, or null when the value can't be read as
+// a plain object — the caller falls back to the JSON editor.
+const parseMappingValue = value => {
+  const isPlainObject = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  if (isPlainObject(value)) return value;
+  if (value == null) return {};
+  if (isString(value)) {
+    if (value.trim() === '') return {};
+    try {
+      const parsed = JSON.parse(value);
+      if (isPlainObject(parsed)) return parsed;
+    } catch {
+      // not parseable — fall through to null
+    }
+    return null;
+  }
+  return null;
+};
+
+const mappingToRows = value =>
+  Object.entries(value ?? {}).map(([key, entry]) => ({ key, entry: entry ?? {} }));
+
+// Empty keys are still-in-progress rows and stay out of the setting; extra
+// properties beyond `label` on an entry are preserved untouched.
+const rowsToMapping = rows =>
+  rows.reduce(
+    (acc, { key, entry }) => (key.trim() ? { ...acc, [key.trim()]: entry } : acc),
+    {},
+  );
+
+/**
+ * Edits a keyed map of `{ label }` entries (e.g. imagingTypes) as add/remove
+ * key + label rows instead of hand-written JSON. Rows live in local state so a
+ * half-typed or duplicate key doesn't collapse the object mid-edit; the last
+ * row wins when keys collide, and colliding rows are flagged in place.
+ */
+const MappingSettingInput = ({ value, onChange, disabled, error }) => {
+  const [rows, setRows] = useState(() => mappingToRows(value));
+  const lastEmitted = useRef(value);
+
+  // Resync only on an external change (e.g. reset to default), never from our
+  // own onChange echo — that would clobber rows while a key is half-typed.
+  useEffect(() => {
+    if (!isEqual(value, lastEmitted.current)) {
+      setRows(mappingToRows(value));
+      lastEmitted.current = value;
+    }
+  }, [value]);
+
+  const emit = next => {
+    setRows(next);
+    const mapping = rowsToMapping(next);
+    lastEmitted.current = mapping;
+    onChange(mapping);
+  };
+
+  const updateRow = (index, patch) =>
+    emit(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  const removeRow = index => emit(rows.filter((_, i) => i !== index));
+  const addRow = () => emit([...rows, { key: '', entry: { label: '' } }]);
+
+  const duplicateKey = index => {
+    const key = rows[index].key.trim();
+    return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
+  };
+
+  return (
+    <ListInputWrapper data-testid="mappingsettinginput">
+      {rows.map((row, index) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <ListRow key={index} data-testid={`mappingsettinginput-row-${index}`}>
+          <StyledTextInput
+            value={row.key}
+            onChange={e => updateRow(index, { key: e.target.value })}
+            disabled={disabled}
+            placeholder="key"
+            error={duplicateKey(index)}
+            helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
+            inputProps={{ style: { fontFamily: 'monospace' } }}
+            style={{ width: '140px' }}
+            data-testid={`mappingsettinginput-key-${index}`}
+          />
+          <StyledTextInput
+            value={row.entry.label ?? ''}
+            onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
+            disabled={disabled}
+            placeholder="Label"
+            style={{ width: '177px' }}
+            data-testid={`mappingsettinginput-label-${index}`}
+          />
+          {!disabled && (
+            <RemoveItemButton
+              onClick={() => removeRow(index)}
+              size="small"
+              aria-label="remove entry"
+              data-testid={`mappingsettinginput-remove-${index}`}
+            >
+              <DeleteOutlineIcon style={{ fontSize: 18 }} />
+            </RemoveItemButton>
+          )}
+        </ListRow>
+      ))}
+      {rows.length === 0 && (
+        <EmptyListText data-testid="mappingsettinginput-empty">
+          <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
+        </EmptyListText>
+      )}
+      {!disabled && (
+        <AddItemButton
+          onClick={addRow}
+          startIcon={<AddIcon style={{ fontSize: 16 }} />}
+          data-testid="mappingsettinginput-add"
+        >
+          <TranslatedText stringId="general.action.add" fallback="Add" />
+        </AddItemButton>
+      )}
+      {error && <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>}
+    </ListInputWrapper>
+  );
+};
+
 export const SettingInput = ({
   path,
   settingsPath,
@@ -620,7 +742,8 @@ export const SettingInput = ({
     [isPrimitiveArray, displayValue],
   );
 
-  const typeKey = type === SETTING_TYPES.STRING && editor ? editor : type;
+  const typeKey =
+    editor && (type === SETTING_TYPES.STRING || type === SETTING_TYPES.OBJECT) ? editor : type;
 
   // Handle secret fields with password-style input
   if (isSecret) {
@@ -817,6 +940,25 @@ export const SettingInput = ({
         />
       );
     }
+    case SETTING_TYPES.MAPPING: {
+      // keyed maps use the row editor, unless the stored value is a string we
+      // can't read as an object — then fall through to the JSON editor so the
+      // raw text stays editable
+      const mappingValue = parseMappingValue(displayValue);
+      if (mappingValue !== null) {
+        return (
+          <LongTextFlexbox data-testid="flexbox-mapping">
+            <MappingSettingInput
+              value={mappingValue}
+              onChange={handleChangeValue}
+              disabled={disabled}
+              error={error}
+            />
+          </LongTextFlexbox>
+        );
+      }
+    }
+    // eslint-disable-next-line no-fallthrough
     case SETTING_TYPES.ARRAY:
       // primitive arrays use the list editor, unless the stored value is a
       // string we can't read as an array (arrayItems === null) — then fall
