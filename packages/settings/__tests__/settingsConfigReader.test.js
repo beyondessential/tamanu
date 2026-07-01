@@ -11,6 +11,7 @@ import config from 'config';
 import { SettingsConfigReader } from '../src/reader/readers/SettingsConfigReader';
 
 const readCentral = () => new SettingsConfigReader(SETTINGS_SCOPES.CENTRAL).getSettings();
+const readGlobal = () => new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL).getSettings();
 
 describe('SettingsConfigReader', () => {
   beforeEach(() => {
@@ -43,6 +44,11 @@ describe('SettingsConfigReader', () => {
     config.mailgun = { from: 'legacy@example.com' };
     config.mail = { from: 'new@example.com' };
     expect(await readCentral()).toEqual({ mail: { from: 'new@example.com' } });
+  });
+
+  it('un-nests a renamed subtree (localisation.data.country -> country)', async () => {
+    config.localisation = { data: { country: { name: 'Fiji', 'alpha-2': 'FJ' } } };
+    expect(await readGlobal()).toEqual({ country: { name: 'Fiji', 'alpha-2': 'FJ' } });
   });
 
   it('lifts every present leaf under a subtree row (schedules)', async () => {

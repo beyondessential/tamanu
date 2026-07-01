@@ -60,7 +60,7 @@ export class ReportRunner {
   }
 
   async validate(reportModule, reportDataGenerator) {
-    const localisation = await getLocalisation();
+    const localisation = await getLocalisation(this.settings);
 
     if (this.recipients.email && !(await getDefaultFromAddress(this.settings))) {
       throw new Error('ReportRunner - Email config missing');
@@ -217,7 +217,7 @@ export class ReportRunner {
    * @returns {Promise<string>}
    */
   async getReportName() {
-    const { country } = await getLocalisation();
+    const { country } = await getLocalisation(this.settings);
 
     let reportName = this.reportId;
 

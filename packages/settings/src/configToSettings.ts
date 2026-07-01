@@ -64,6 +64,30 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   },
   // Subtree row: lifts every scheduled-task knob under `schedules` in one go.
   { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
+  // Legacy `localisation` un-nested into top-level settings (central config only;
+  // facility servers never carried these keys).
+  { config: 'localisation.data.units', setting: 'units', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'localisation.data.country', setting: 'country', scope: SETTINGS_SCOPES.GLOBAL },
+  {
+    config: 'localisation.data.imagingTypes',
+    setting: 'imagingTypes',
+    scope: SETTINGS_SCOPES.GLOBAL,
+  },
+  {
+    config: 'localisation.data.disabledReports',
+    setting: 'disabledReports',
+    scope: SETTINGS_SCOPES.GLOBAL,
+  },
+  {
+    config: 'localisation.data.supportDeskUrl',
+    setting: 'supportDeskUrl',
+    scope: SETTINGS_SCOPES.GLOBAL,
+  },
+  {
+    config: 'localisation.labResultWidget',
+    setting: 'labResultWidget',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
 ];
 
 const schemaNodeAtPath = (

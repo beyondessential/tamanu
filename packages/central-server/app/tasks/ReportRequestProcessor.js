@@ -169,7 +169,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
-    const localisation = await getLocalisation();
+    const localisation = await getLocalisation(this.context.settings);
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,

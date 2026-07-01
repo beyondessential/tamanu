@@ -158,6 +158,68 @@ export const globalSettings = {
         }),
       defaultValue: null,
     },
+    country: {
+      name: 'Country',
+      description: 'The country this deployment serves, used on certificates and reports',
+      properties: {
+        name: {
+          name: 'Name',
+          description: 'Country name as shown on documents',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        'alpha-2': {
+          name: 'Alpha-2 code',
+          description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          defaultValue: '',
+        },
+        'alpha-3': {
+          name: 'Alpha-3 code',
+          description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          defaultValue: '',
+        },
+      },
+    },
+    units: {
+      name: 'Units',
+      description: 'Measurement units used for display',
+      properties: {
+        temperature: {
+          name: 'Temperature',
+          description: 'Unit for displaying body temperature',
+          type: yup.string().oneOf(['celsius', 'fahrenheit']),
+          defaultValue: 'celsius',
+          exposedToWeb: true,
+        },
+      },
+    },
+    imagingTypes: {
+      name: 'Imaging types',
+      description:
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+      type: yup.object(),
+      defaultValue: {},
+      exposedToWeb: true,
+    },
+    disabledReports: {
+      name: 'Disabled reports',
+      description: 'IDs of report definitions that cannot be run or requested on this deployment',
+      type: yup.array(yup.string().required()),
+      defaultValue: [],
+    },
+    supportDeskUrl: {
+      name: 'Support desk URL',
+      description: 'Where the in-app support links point',
+      type: yup.string(),
+      defaultValue: 'https://bes-support.zendesk.com/hc/en-us',
+      exposedToWeb: true,
+    },
     tasking: {
       description: 'Tasking settings',
       properties: {

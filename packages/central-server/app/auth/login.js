@@ -96,7 +96,7 @@ export const login = asyncHandler(async (req, res) => {
       ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId: device?.id })
       : undefined,
     user.allowedFacilities(),
-    getLocalisation(),
+    getLocalisation(settings),
     getPermissionsForRoles(models, user.role),
     models.Role.findByPk(user.role),
   ]);
