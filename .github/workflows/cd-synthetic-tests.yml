@@ -46,7 +46,7 @@ jobs:
             type=ref,event=branch
             type=raw,value=latest,enable=false
           labels: |
-            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.vendor=BES International
             org.opencontainers.image.title=Tamanu Synthetic Tests
             org.opencontainers.image.url=https://www.bes.au/products/tamanu/
             org.opencontainers.image.source=https://github.com/beyondessential/tamanu/

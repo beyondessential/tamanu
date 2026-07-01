@@ -2,7 +2,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
-const TEST_EMAIL = 'test@beyondessential.com.au';
+const TEST_EMAIL = 'test@bes.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
 const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
