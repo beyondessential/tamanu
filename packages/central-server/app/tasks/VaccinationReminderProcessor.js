@@ -1,4 +1,3 @@
-import config from 'config';
 import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
