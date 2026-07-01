@@ -33,4 +33,15 @@ describe('SettingsConfigReader', () => {
     expect(result).toEqual({ language: 'fr-FR' });
     expect(JSON.stringify(result)).not.toContain('super-secret');
   });
+
+  it('serves a renamed key at its setting path (mailgun.from -> mail.from)', async () => {
+    config.mailgun = { from: 'legacy@example.com' };
+    expect(await readCentral()).toEqual({ mail: { from: 'legacy@example.com' } });
+  });
+
+  it('prefers the newer config spelling when both map to the same setting', async () => {
+    config.mailgun = { from: 'legacy@example.com' };
+    config.mail = { from: 'new@example.com' };
+    expect(await readCentral()).toEqual({ mail: { from: 'new@example.com' } });
+  });
 });

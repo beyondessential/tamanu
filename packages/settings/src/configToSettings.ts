@@ -12,13 +12,14 @@ export interface ConfigToSetting {
 }
 
 // Source of truth for the config -> settings move (TAM-6864): one row per non-secret
-// key that left config. The config and setting paths match today, but diverge when a
-// key is renamed or reshuffled (e.g. dropping localisation nesting) — which no schema
-// walk could infer, and which is also why `scope` is stated rather than derived
-// (`integrations`/`patientPortal` exist in more than one scope). Drives both the
-// config fallback reader and the upgrade steps; drop a row once its key no longer
+// key that left config. The config and setting paths diverge when a key is renamed or
+// reshuffled (e.g. mailgun.from -> mail.from, dropping localisation nesting) — which
+// no schema walk could infer, and which is also why `scope` is stated rather than
+// derived (`integrations`/`patientPortal` exist in more than one scope). Drives both
+// the config fallback reader and the upgrade steps; drop a row once its key no longer
 // needs the config fallback. Secrets are intentionally excluded — they keep their own
-// getSettingSecret config fallback.
+// getSettingSecret config fallback. When two rows target the same setting, the later
+// row wins where both config values are present, so list the legacy spelling first.
 export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'language', setting: 'language', scope: SETTINGS_SCOPES.CENTRAL },
   {
@@ -46,11 +47,17 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'export.maxFileSizeInMB',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
+  { config: 'mailgun.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mail.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mail.transport', setting: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'integrations.ips.email',
     setting: 'integrations.ips.email',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  {
+    config: 'integrations.dhis2.username',
+    setting: 'integrations.dhis2.username',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
 ];
