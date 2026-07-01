@@ -12,6 +12,7 @@ import { SettingsConfigReader } from '../src/reader/readers/SettingsConfigReader
 
 const readCentral = () => new SettingsConfigReader(SETTINGS_SCOPES.CENTRAL).getSettings();
 const readGlobal = () => new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL).getSettings();
+const readFacility = () => new SettingsConfigReader(SETTINGS_SCOPES.FACILITY).getSettings();
 
 describe('SettingsConfigReader', () => {
   beforeEach(() => {
@@ -49,6 +50,17 @@ describe('SettingsConfigReader', () => {
   it('un-nests a renamed subtree (localisation.data.country -> country)', async () => {
     config.localisation = { data: { country: { name: 'Fiji', 'alpha-2': 'FJ' } } };
     expect(await readGlobal()).toEqual({ country: { name: 'Fiji', 'alpha-2': 'FJ' } });
+  });
+
+  it('serves facility-scoped rows and keeps secrets out of a subtree', async () => {
+    config.tasking = { upcomingTasksTimeFrame: 12 };
+    config.integrations = { mSupplyMed: { enabled: true, password: 'super-secret' } };
+    const result = await readFacility();
+    expect(result).toEqual({
+      tasking: { upcomingTasksTimeFrame: 12 },
+      integrations: { mSupplyMed: { enabled: true } },
+    });
+    expect(JSON.stringify(result)).not.toContain('super-secret');
   });
 
   it('lifts every present leaf under a subtree row (schedules)', async () => {

@@ -53,14 +53,40 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'mail.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mail.transport', setting: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
   {
-    config: 'integrations.ips.email',
-    setting: 'integrations.ips.email',
+    config: 'integrations.ips',
+    setting: 'integrations.ips',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   {
     config: 'integrations.dhis2.username',
     setting: 'integrations.dhis2.username',
     scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  { config: 'telegramBot', setting: 'telegramBot', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'notifications.certificates.labTestCategoryIds',
+    setting: 'notifications.certificates.labTestCategoryIds',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  {
+    config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    setting: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  {
+    config: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
+    setting: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
+    scope: SETTINGS_SCOPES.GLOBAL,
+  },
+  {
+    config: 'tasking.upcomingTasksTimeFrame',
+    setting: 'tasking.upcomingTasksTimeFrame',
+    scope: SETTINGS_SCOPES.FACILITY,
+  },
+  {
+    config: 'integrations.mSupplyMed',
+    setting: 'integrations.mSupplyMed',
+    scope: SETTINGS_SCOPES.FACILITY,
   },
   // Subtree row: lifts every scheduled-task knob under `schedules` in one go.
   { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
