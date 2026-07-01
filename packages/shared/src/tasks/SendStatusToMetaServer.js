@@ -23,13 +23,16 @@ export class SendStatusToMetaServer extends ScheduledTask {
       overrideConfig || context.schedules?.sendStatusToMetaServer || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
+    // Global-scope reader on both servers: facility has the keyed settings object
+    // (with .global), central's reader already includes the global scope.
+    this.globalSettings = context.settings?.global ?? context.settings;
     this.models = context.models || context.store.models;
     this.sequelize = context.sequelize || context.store.sequelize;
     this.serverType = serverType;
     this.version = version;
   }
 
-  async fetch(host, deviceKey, path, options) {
+  async fetch(host, deviceKey, path, options, timeoutMs) {
     const response = await fetch(`${host}/${path}`, {
       ...options,
       headers: {
@@ -40,7 +43,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         'User-Agent': `Tamanu/${this.version} Node.js/${process.version.replace(/^v/, '')}`,
         ...options.headers,
       },
-      timeout: config.metaServer.timeoutMs,
+      timeout: timeoutMs,
       dispatcher: new Agent({
         connect: {
           cert: deviceKey.makeCertificate(),
@@ -58,12 +61,13 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async fetchFromHosts(path, options) {
-    const metaServerHosts = getMetaServerHosts();
+    const metaServer = await this.globalSettings.get('metaServer');
+    const metaServerHosts = getMetaServerHosts(metaServer);
 
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
     for (const metaServerHost of metaServerHosts) {
       try {
-        const response = await this.fetch(metaServerHost, deviceKey, path, options);
+        const response = await this.fetch(metaServerHost, deviceKey, path, options, metaServer.timeoutMs);
         return response;
       } catch (error) {
         log.error(`Failed to fetch from meta server host: ${metaServerHost}`, { error });
@@ -76,7 +80,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
     this.metaServerId =
-      config.metaServer.serverId ||
+      (await this.globalSettings.get('metaServer.serverId')) ||
       (
         await this.fetchFromHosts('servers', {
           method: 'POST',

@@ -8,7 +8,9 @@ import type { Setting, SettingsSchema } from './types';
 import { ReaderSettingResult } from './reader/readers/Reader';
 
 export interface ConfigToSetting {
-  config: string; // legacy node-config path
+  // Legacy node-config path; use the array form when a config key itself
+  // contains a dot (e.g. ['socket.io', 'enabled'])
+  config: string | string[];
   setting: string; // settings key path (may differ from config once a key is renamed)
   scope: string; // a SETTINGS_SCOPES value
 }
@@ -128,6 +130,13 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'labResultWidget',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
+  { config: 'cors', setting: 'cors', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: ['socket.io'], setting: 'websocket', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 's3', setting: 's3', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'loadshedder', setting: 'loadshedder', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'rateLimit', setting: 'rateLimit', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'updateUrls', setting: 'updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];
 
 const schemaNodeAtPath = (
@@ -144,9 +153,11 @@ const schemaNodeAtPath = (
   return current;
 };
 
+// Config paths are handled as segment arrays so a config key containing a dot
+// (e.g. the legacy `socket.io` block) can be addressed as ['socket.io', ...].
 const liftConfigValue = (
   node: Setting | SettingsSchema,
-  configPath: string,
+  configPath: string[],
   settingPath: string,
   result: ReaderSettingResult,
 ) => {
@@ -156,7 +167,7 @@ const liftConfigValue = (
     return;
   }
   for (const [key, child] of Object.entries(node.properties)) {
-    liftConfigValue(child, `${configPath}.${key}`, `${settingPath}.${key}`, result);
+    liftConfigValue(child, [...configPath, key], `${settingPath}.${key}`, result);
   }
 };
 
@@ -175,7 +186,8 @@ export function configOverridesForScope(scope: string): ReaderSettingResult {
     if (entry.scope !== scope) continue;
     const node = schemaNodeAtPath(schema, entry.setting);
     if (!node) continue;
-    liftConfigValue(node, entry.config, entry.setting, result);
+    const configPath = Array.isArray(entry.config) ? entry.config : entry.config.split('.');
+    liftConfigValue(node, configPath, entry.setting, result);
   }
   return result;
 }

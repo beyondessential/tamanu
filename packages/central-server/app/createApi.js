@@ -85,13 +85,13 @@ export async function createApi(ctx) {
       strictTransportSecurity: false,
     }),
   );
-  express.use(loadshedder());
+  express.use(loadshedder(await ctx.settings.get('loadshedder')));
 
   // Apply a permissive global rate limit to every request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
   // endpoints are applied by the auth and patient-portal sub-routers so they
   // cover both /api and /v1 mounts consistently.
-  const limiters = buildRateLimiters();
+  const limiters = buildRateLimiters(await ctx.settings.get('rateLimit'));
   express.use(limiters.globalLimiter);
 
   express.use(compression());
@@ -109,7 +109,7 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(versionCompatibility);
+  express.use(versionCompatibility(await ctx.settings.get('updateUrls')));
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware

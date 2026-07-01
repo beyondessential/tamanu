@@ -539,6 +539,115 @@ export const centralSettings = {
         },
       },
     },
+    cors: {
+      description: 'Cross-origin access to the public routes (e.g. the lab result widget)',
+      properties: {
+        allowedOrigin: {
+          name: 'Allowed origin',
+          description:
+            'Origin allowed to call the public routes from a browser; unset disables cross-origin access',
+          type: yup.string(),
+          defaultValue: '',
+        },
+      },
+    },
+    websocket: {
+      description: 'Websocket server (live updates to connected clients)',
+      requiresRestart: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Whether the websocket server runs',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+      },
+    },
+    loadshedder: {
+      name: 'Load shedder',
+      description:
+        'Request queues that shed load under pressure; requests matching a queue’s path prefixes may be dropped when the queue is full',
+      requiresRestart: true,
+      properties: {
+        queues: {
+          name: 'Queues',
+          description:
+            'Checked in order; each entry has name, prefixes, maxActiveRequests, maxQueuedRequests and queueTimeout',
+          type: yup.array(yup.object()),
+          defaultValue: [
+            {
+              name: 'low_priority',
+              prefixes: ['/api/sync', '/api/attachment'],
+              maxActiveRequests: 4,
+              maxQueuedRequests: 8,
+              queueTimeout: 7500,
+            },
+            {
+              name: 'high_priority',
+              prefixes: ['/'],
+              maxActiveRequests: 8,
+              maxQueuedRequests: 32,
+              queueTimeout: 7500,
+            },
+          ],
+        },
+      },
+    },
+    s3: {
+      name: 'S3 storage',
+      description:
+        'S3 buckets used for report exports and the IPS viewer. Credentials come from the standard AWS environment variables, not settings.',
+      properties: {
+        region: {
+          name: 'Region',
+          description: 'Region of the report export bucket',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        bucketName: {
+          name: 'Bucket name',
+          description: 'Bucket for report exports',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        bucketPath: {
+          name: 'Bucket path',
+          description: 'Key prefix for report exports',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        ips: {
+          description: 'Bucket serving International Patient Summary documents',
+          properties: {
+            region: {
+              name: 'Region',
+              type: yup.string(),
+              defaultValue: 'ap-southeast-2',
+            },
+            bucketName: {
+              name: 'Bucket name',
+              type: yup.string(),
+              defaultValue: 'bes-tamanu-ips-public',
+            },
+            jsonBucketPath: {
+              name: 'JSON path',
+              type: yup.string(),
+              defaultValue: 'ips-demo',
+            },
+            viewerBucketPath: {
+              name: 'Viewer path',
+              type: yup.string(),
+              defaultValue: 'viewer',
+            },
+            publicUrl: {
+              name: 'Public URL',
+              type: yup.string(),
+              defaultValue: 'https://public.tamanu.io',
+            },
+          },
+        },
+      },
+    },
     scheduledReports: {
       name: 'Scheduled reports',
       description:

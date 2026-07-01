@@ -63,6 +63,11 @@ describe('SettingsConfigReader', () => {
     expect(JSON.stringify(result)).not.toContain('super-secret');
   });
 
+  it('lifts a config key containing a dot via an array path (socket.io -> websocket)', async () => {
+    config['socket.io'] = { enabled: false };
+    expect(await readCentral()).toEqual({ websocket: { enabled: false } });
+  });
+
   it('lifts every present leaf under a subtree row (schedules)', async () => {
     config.schedules = {
       outpatientDischarger: { schedule: '0 3 * * *', batchSize: 500 },

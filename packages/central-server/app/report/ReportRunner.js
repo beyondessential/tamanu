@@ -1,4 +1,3 @@
-import config from 'config';
 import fs from 'fs';
 import path from 'path';
 import { format as formatDate } from 'date-fns';
@@ -306,7 +305,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const { region, bucketName, bucketPath } = config.s3;
+    const { region, bucketName, bucketPath } = await this.settings.get('s3');
 
     if (!bucketPath) {
       throw new Error(`bucketPath must be set, e.g. 'au'`);

@@ -1,4 +1,3 @@
-import config from 'config';
 import path from 'path';
 import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
@@ -94,7 +93,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           jsonBucketPath,
           viewerBucketPath,
           publicUrl: s3PublicUrl,
-        } = config.s3.ips;
+        } = await this.context.settings.get('s3.ips');
 
         if (!jsonBucketPath) {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
