@@ -3,10 +3,10 @@ import config from 'config';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 
 import { MSupplyClient } from '../utils/MSupplyClient';
+import { getServerFacilityIds } from '../serverConfig';
 
 // mSupply's stockLines query does not support first/offset pagination,
 // so we fetch all lines in a single request. Per-facility catalogues are
@@ -48,7 +48,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     this.context = context;
     this.models = context.models;
     this.client = new MSupplyClient(context);
-    this.serverFacilityIds = selectFacilityIds(config);
+    this.serverFacilityIds = getServerFacilityIds();
   }
 
   async fetchStockLines(host, storeId, authToken, backoff) {

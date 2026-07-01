@@ -4,10 +4,10 @@ import { Op } from 'sequelize';
 import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { MSupplyClient } from '../utils/MSupplyClient';
+import { getServerFacilityIds } from '../serverConfig';
 
 const INTEGRATION_PLUGIN_CODE = 'bes-plugins';
 
@@ -37,7 +37,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.context = context;
     this.models = context.models;
     this.client = new MSupplyClient(context);
-    this.serverFacilityIds = selectFacilityIds(config);
+    this.serverFacilityIds = getServerFacilityIds();
     this.authToken = null;
   }
 
@@ -201,7 +201,9 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async getEnabledAt() {
-    const enabledAt = await this.models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+    const enabledAt = await this.models.LocalSystemFact.get(
+      FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
+    );
     if (enabledAt) return enabledAt;
 
     const newEnabledAt = new Date().toISOString();
@@ -254,7 +256,10 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     for (let i = 0; i < batchCount; i++) {
       const medications = await this.models.MedicationDispense.findAll({
         ...baseQuery,
-        order: [['createdAt', 'ASC'], ['id', 'ASC']],
+        order: [
+          ['createdAt', 'ASC'],
+          ['id', 'ASC'],
+        ],
         limit: batchSize,
         offset: i * batchSize,
       });

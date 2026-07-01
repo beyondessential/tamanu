@@ -4,16 +4,20 @@ import { TamanuApi } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
 
 import { ERROR_TYPE } from '@tamanu/errors';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
 import { version } from '../serverInfo';
+import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
 
   constructor({ deviceId }) {
-    const url = new URL(config.sync.host.trim());
+    const { host } = getSyncConfig();
+    if (!host) {
+      throw new Error('Facility server has no sync host configured');
+    }
+    const url = new URL(host);
     url.pathname = '/api';
 
     super({
@@ -83,7 +87,7 @@ export class CentralServerConnection extends TamanuApi {
       // ignore error
     }
 
-    const { email, password } = config.sync;
+    const { email, password } = getSyncConfig();
     log.info(`Logging in to ${this.host} as ${email}...`);
 
     return await this.login(email, password, {
@@ -108,7 +112,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
-    const facilityIds = selectFacilityIds(config);
+    const facilityIds = getServerFacilityIds();
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
@@ -163,7 +167,7 @@ export class CentralServerConnection extends TamanuApi {
   async initiatePull(sessionId, since) {
     // first, set the pull filter on the central server,
     // which will kick off a snapshot of changes to pull
-    const facilityIds = selectFacilityIds(config);
+    const facilityIds = getServerFacilityIds();
     const body = { since, facilityIds, deviceId: this.deviceId };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
