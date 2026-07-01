@@ -12,7 +12,7 @@ import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
 import { createApiApp } from '../createApiApp';
-import { startScheduledTasks } from '../tasks';
+import { resolveSchedules, startScheduledTasks } from '../tasks';
 import { startFhirWorker } from './startFhirWorker';
 
 import { version } from '../serverInfo';
@@ -32,6 +32,7 @@ async function startApiSyncAndTasks(context) {
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+    enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
 
   await performTimeZoneChecks({ sequelize: context.sequelize });
@@ -54,8 +55,8 @@ async function startApiSyncAndTasks(context) {
   });
 
   const syncTaskClass = [SyncTask];
-  const cancelTasks = startScheduledTasks(context);
-  const cancelSyncTask = startScheduledTasks(context, syncTaskClass);
+  const cancelTasks = await startScheduledTasks(context);
+  const cancelSyncTask = await startScheduledTasks(context, syncTaskClass);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');

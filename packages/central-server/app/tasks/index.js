@@ -97,7 +97,7 @@ async function getReportSchedulers(context) {
   const systemUser = await context.store.models.User.getSystemUser();
 
   const schedulers = [];
-  for (const options of config.scheduledReports) {
+  for (const options of await context.settings.get('scheduledReports')) {
     schedulers.push(
       new ReportRequestScheduler(context, { ...options, requestedByUserId: systemUser.id }),
     );

@@ -178,17 +178,18 @@ describe('mSupplyMedIntegrationProcessor', () => {
   });
 
   describe('when schedule config is invalid', () => {
-    afterAll(() => {
-      config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
-    });
-
     it('throws when batchSize or batchSleepAsyncDurationInMilliseconds is missing', async () => {
       const missingField = chance.pickone(['batchSize', 'batchSleepAsyncDurationInMilliseconds']);
-      config.schedules.mSupplyMedIntegrationProcessor = {
-        ...SCHEDULE_CONFIG,
-        [missingField]: undefined,
-      };
-      const task = new mSupplyMedIntegrationProcessor(context);
+      // A private context override: settings reads inside run() rebuild the shared
+      // context's settings tree (refilled from config), so mutating it can't hold
+      // the invalid value in place.
+      const task = new mSupplyMedIntegrationProcessor({
+        ...context,
+        schedules: {
+          ...context.schedules,
+          mSupplyMedIntegrationProcessor: { ...SCHEDULE_CONFIG, [missingField]: undefined },
+        },
+      });
       await expect(task.run()).rejects.toThrow(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
       );

@@ -42,7 +42,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.mSupplyStockOnHandProcessor;
+    const conf = context.schedules.mSupplyStockOnHandProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.context = context;

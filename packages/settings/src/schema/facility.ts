@@ -6,11 +6,13 @@ import {
 
 import { extractDefaults } from './utils';
 import {
+  batchingProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
+  scheduledTaskSchema,
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
@@ -186,6 +188,31 @@ export const facilitySettings = {
           type: emailSchema,
           defaultValue: null,
         },
+      },
+    },
+    schedules: {
+      name: 'Scheduled tasks',
+      description:
+        'Cron schedules and tuning for facility-server background tasks. On a server that serves several facilities, the first facility’s values apply.',
+      requiresRestart: true,
+      properties: {
+        refreshMaterializedView: {
+          description: 'Materialised view refreshers',
+          properties: {
+            upcomingVaccinations: scheduledTaskSchema({ schedule: '*/10 * * * *' }),
+          },
+        },
+        fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
+        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
+        mSupplyMedIntegrationProcessor: scheduledTaskSchema(
+          { schedule: '0 2 * * *', enabled: false },
+          batchingProperties(100, 50),
+        ),
+        mSupplyStockOnHandProcessor: scheduledTaskSchema({
+          schedule: '0 * * * *',
+          enabled: false,
+        }),
       },
     },
     sync: {

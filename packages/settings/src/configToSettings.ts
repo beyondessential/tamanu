@@ -63,6 +63,20 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'telegramBot', setting: 'telegramBot', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'scheduledReports', setting: 'scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'validateQuestionConfigs.enabled',
+    setting: 'validateQuestionConfigs.enabled',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  {
+    config: 'notifications.referralCreated',
+    setting: 'notifications.referralCreated',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  // Facility-server schedules; distinct from the central row above because the two
+  // servers' schema (and scope) differ while sharing the `schedules` config path.
+  { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.FACILITY },
   {
     config: 'notifications.certificates.labTestCategoryIds',
     setting: 'notifications.certificates.labTestCategoryIds',

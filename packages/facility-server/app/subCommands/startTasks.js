@@ -11,7 +11,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
-import { startScheduledTasks } from '../tasks';
+import { resolveSchedules, startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
@@ -36,6 +36,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+    enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
 
   context.centralServer = new CentralServerConnection(context);
@@ -43,7 +44,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
 
   await performTimeZoneChecks({ sequelize: context.sequelize });
 
-  const cancelTasks = startScheduledTasks(context, taskClasses);
+  const cancelTasks = await startScheduledTasks(context, taskClasses);
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();

@@ -30,7 +30,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.mSupplyMedIntegrationProcessor;
+    const conf = context.schedules.mSupplyMedIntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.scheduleConfig = conf;

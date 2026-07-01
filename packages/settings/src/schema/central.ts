@@ -118,6 +118,24 @@ export const centralSettings = {
             },
           },
         },
+        referralCreated: {
+          name: 'Referral created',
+          description: 'Generate an in-app notification whenever a referral is created',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
+    validateQuestionConfigs: {
+      description: 'Survey import validation',
+      properties: {
+        enabled: {
+          name: 'Validate question configs',
+          description:
+            'Reject survey imports whose question validation criteria or config do not match the expected shape for the question type',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
       },
     },
     telegramBot: {
@@ -520,6 +538,14 @@ export const centralSettings = {
           },
         },
       },
+    },
+    scheduledReports: {
+      name: 'Scheduled reports',
+      description:
+        'Reports generated automatically on a cron schedule, each entry configuring one ReportRequestScheduler',
+      type: yup.array(yup.object()),
+      defaultValue: [],
+      requiresRestart: true,
     },
     labResultWidget: {
       name: 'Lab result widget',

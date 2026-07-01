@@ -9,6 +9,7 @@ import { DEVICE_TYPES } from '@tamanu/constants';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
+import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
@@ -47,6 +48,7 @@ const startApp =
     context.timesync = await initTimesync({
       models: context.models,
       url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+      enabled: (await resolveSchedules(context)).timeSync.enabled,
     });
 
     if (appType === APP_TYPES.API) {

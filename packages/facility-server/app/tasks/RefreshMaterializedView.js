@@ -1,4 +1,3 @@
-import config from 'config';
 import __cjs_case from 'case';
 const { pascal, snake } = __cjs_case;
 
@@ -23,7 +22,7 @@ const buildRefreshMaterializedViewTask = viewName =>
     }
 
     constructor(context) {
-      const { schedule, jitterTime, enabled } = config.schedules.refreshMaterializedView[viewName];
+      const { schedule, jitterTime, enabled } = context.schedules.refreshMaterializedView[viewName];
       super(schedule, log, jitterTime, enabled);
       this.sequelize = context.sequelize;
       this.models = context.models;
