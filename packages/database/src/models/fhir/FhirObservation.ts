@@ -25,7 +25,7 @@ export class FhirObservation extends FhirResource {
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
-  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number } }>;
+  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number }; text?: string }>;
   declare performer?: Array<{ display?: string | null }>;
 
   static initModel(options: InitOptions, models: Models) {
@@ -81,10 +81,22 @@ export class FhirObservation extends FhirResource {
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
       referenceRange: yup.array().of(
-        yup.object({
-          low: FhirQuantity.asYup(),
-          high: FhirQuantity.asYup(),
-        }),
+        yup
+          .object({
+            low: FhirQuantity.asYup(),
+            high: FhirQuantity.asYup(),
+            text: yup.string(),
+          })
+          .test(
+            'text-or-numeric',
+            'referenceRange must specify either text or numeric bounds (low/high), not both',
+            value => {
+              if (!value) return true;
+              const hasText = Boolean(value.text);
+              const hasNumeric = value.low?.value != null || value.high?.value != null;
+              return !(hasText && hasNumeric);
+            },
+          ),
       ),
       performer: yup.array().of(FhirReference.asYup()),
     });
@@ -183,6 +195,7 @@ export class FhirObservation extends FhirResource {
       completedDate: getCurrentDateTimeString(),
       referenceRangeMin: firstReferenceRange?.low?.value ?? null,
       referenceRangeMax: firstReferenceRange?.high?.value ?? null,
+      referenceRangeText: firstReferenceRange?.text ?? null,
       labTestMethodId: labTestMethodId ?? null,
       laboratoryOfficer: this.getLaboratoryOfficerFromPerformer(),
     };

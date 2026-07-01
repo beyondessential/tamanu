@@ -119,10 +119,21 @@ describe('Reports', () => {
   });
 
   describe('post', () => {
+    let surveyReportVersionId;
+
     disableHardcodedPermissionsForSuite();
+
+    beforeAll(async () => {
+      const { models } = ctx;
+      const version = await models.ReportDefinitionVersion.findOne({
+        where: { reportDefinitionId: GENERIC_SURVEY_EXPORT_REPORT_ID },
+      });
+      surveyReportVersionId = version.id;
+    });
+
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
-      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`, {});
+      const result = await app.post(`/api/reports/${surveyReportVersionId}`, {});
       expect(result).toBeForbidden();
     });
 
@@ -144,10 +155,10 @@ describe('Reports', () => {
       });
 
       const app = await baseApp.asNewRole([
-        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', survey.id],
       ]);
-      const res = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
+      const res = await app.post(`/api/reports/${surveyReportVersionId}`).send({
         parameters: {
           surveyId: survey.id,
           fromDate: '2020-01-01',
