@@ -1,13 +1,6 @@
 import { DataTypes } from 'sequelize';
-import { EndpointKey } from 'mushi';
 
-import { SYNC_DIRECTIONS, FACT_DEVICE_KEY, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
-import {
-  encryptSecret,
-  decryptSecret,
-  readKeyFile,
-  getConfigKeyFilePath,
-} from '@tamanu/shared/utils/crypto';
+import { SYNC_DIRECTIONS, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
@@ -109,16 +102,6 @@ export class LocalSystemFact extends Model {
     await this.destroy({ where: { key } });
   }
 
-  static async getDeviceKey(): Promise<EndpointKey> {
-    const deviceKey = await this.get(FACT_DEVICE_KEY);
-    if (deviceKey) {
-      return new EndpointKey(deviceKey);
-    }
-    const newDeviceKey = EndpointKey.generateFor('ecdsa256');
-    await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
-    return newDeviceKey;
-  }
-
   static async getLookupModelsToRebuild(): Promise<string[]> {
     const value = await this.get(FACT_LOOKUP_MODELS_TO_REBUILD);
     if (!value) {
@@ -146,29 +129,5 @@ export class LocalSystemFact extends Model {
         },
       },
     );
-  }
-
-  /**
-   * Gets a decrypted secret from the local system facts table.
-   */
-  static async getSecret(key: FactName): Promise<string | null> {
-    const encryptedValue = await this.get(key);
-    if (!encryptedValue) {
-      return null;
-    }
-
-    const keyFilePath = getConfigKeyFilePath();
-    const keyBuffer = await readKeyFile(keyFilePath);
-    return decryptSecret(keyBuffer, encryptedValue);
-  }
-
-  /**
-   * Sets an encrypted secret in the local system facts table.
-   */
-  static async setSecret(key: FactName, value: string): Promise<void> {
-    const keyFilePath = getConfigKeyFilePath();
-    const keyBuffer = await readKeyFile(keyFilePath);
-    const encryptedValue = await encryptSecret(keyBuffer, value);
-    await this.set(key, encryptedValue);
   }
 }
