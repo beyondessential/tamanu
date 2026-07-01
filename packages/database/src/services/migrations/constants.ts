@@ -13,6 +13,7 @@ export const NON_SYNCING_TABLES = [
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
   'public.local_system_facts',
+  'public.local_system_secrets',
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
@@ -57,4 +58,7 @@ export const NON_LOGGED_TABLES = [
 
   // internal configuration
   'public.local_system_facts',
+
+  // server-only secrets (device key, reporting-role secret) — never log values
+  'public.local_system_secrets',
 ];

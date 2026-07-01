@@ -70,10 +70,12 @@ export class ApplicationContext {
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
     return this;
+  }
+
+  // Call after migrations: reporting reads its per-server secret from local_system_facts.
+  async initReportingStores() {
+    this.reportSchemaStores = await initReporting(this.store);
   }
 
   onClose(hook) {

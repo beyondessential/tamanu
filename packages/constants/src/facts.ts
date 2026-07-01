@@ -26,5 +26,10 @@ export const FACT_META_SERVER_ID = 'metaServerId';
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
+// Random per-server secret the reporting/raw role passwords are derived from.
+export const FACT_REPORTING_ROLE_SECRET = 'reportingRoleSecret';
+// When that secret was last (re)generated, for automatic age-based rotation.
+export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
+
 // Materialised views
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;
