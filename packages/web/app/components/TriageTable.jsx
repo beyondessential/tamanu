@@ -10,8 +10,9 @@ import { reloadPatient } from '../store';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
+import { LimitedLinesCell } from './FormattedTableCell';
 
-const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
+const ADMITTED_PRIORITY_COLOR = '#888888';
 
 const useColumns = () => {
   const { getSetting } = useSettings();
@@ -62,8 +63,8 @@ const useColumns = () => {
       key: 'displayId',
       title: (
         <TranslatedText
-          stringId="general.localisedField.displayId.label.short"
-          fallback="NHN"
+          stringId="patientList.triage.search.patientId.label"
+          fallback="Patient ID"
           data-testid="translatedtext-1wg9"
         />
       ),
@@ -72,8 +73,8 @@ const useColumns = () => {
       key: 'patientName',
       title: (
         <TranslatedText
-          stringId="general.patient.label"
-          fallback="Patient"
+          stringId="general.patientName.label"
+          fallback="Patient name"
           data-testid="translatedtext-h868"
         />
       ),
@@ -99,7 +100,21 @@ const useColumns = () => {
           data-testid="translatedtext-qa0c"
         />
       ),
-      accessor: row => <TranslatedSex sex={row.sex} data-testid="translatedsex-wqbc" />,
+      accessor: ({ sex }) => {
+        if (!sex) return null;
+        return <TranslatedSex sex={sex} short data-testid="translatedsex-triage" />;
+      },
+    },
+    {
+      key: 'clinician',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician-column"
+        />
+      ),
+      CellComponent: props => <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-clinician" />,
     },
     {
       key: 'locationGroupName',
@@ -126,7 +141,7 @@ const useColumns = () => {
   ];
 };
 
-export const TriageTable = React.memo(() => {
+export const TriageTable = React.memo(({ searchParameters = {} }) => {
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { category } = useParams();
@@ -145,7 +160,7 @@ export const TriageTable = React.memo(() => {
       verb="list"
       noun="Triage"
       endpoint="triage"
-      fetchOptions={{ facilityId }}
+      fetchOptions={{ facilityId, ...searchParameters }}
       columns={columns}
       noDataMessage={
         <TranslatedText

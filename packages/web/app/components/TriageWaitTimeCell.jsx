@@ -31,7 +31,7 @@ const ColourCell = styled(PlainCell)`
   color: white;
 `;
 
-const TriageCell = ({ arrivalTime, children }) => {
+const TriageCell = ({ arrivalTime, children, 'data-testid': dataTestId = 'colourcell-1o42' }) => {
   const { formatShortDateTime } = useDateTime();
   return (
     <Tooltip
@@ -47,8 +47,26 @@ const TriageCell = ({ arrivalTime, children }) => {
       placement="top"
       data-testid="tooltip-dfw8"
     >
-      <ColourCell data-testid="colourcell-1o42">{children}</ColourCell>
+      <ColourCell data-testid={dataTestId}>{children}</ColourCell>
     </Tooltip>
+  );
+};
+
+const SeenWaitTimeCell = ({ arrivalTime, closedTime, encounterTypeLabel, dataTestId }) => {
+  const { formatTime } = useDateTime();
+
+  return (
+    <TriageCell arrivalTime={arrivalTime} data-testid={dataTestId}>
+      <div>
+        <TranslatedText
+          stringId="patientList.triage.table.waitTime.cell.closedTime"
+          fallback="Seen at :triageDate"
+          replacements={{ triageDate: formatTime(closedTime) }}
+          data-testid="translatedtext-hfkc"
+        />
+      </div>
+      <div>{encounterTypeLabel}</div>
+    </TriageCell>
   );
 };
 
@@ -87,16 +105,34 @@ export const TriageWaitTimeCell = React.memo(
           </TriageCell>
         );
       case ENCOUNTER_TYPES.OBSERVATION:
+        return (
+          <SeenWaitTimeCell
+            arrivalTime={assumedArrivalTime}
+            closedTime={closedTime}
+            dataTestId="triagecell-observation"
+            encounterTypeLabel={
+              <TranslatedText
+                stringId="patientList.triage.table.waitTime.cell.activeEDCare"
+                fallback="Active ED care"
+                data-testid="translatedtext-active-ed-care"
+              />
+            }
+          />
+        );
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
-          <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-fk2v">
-            <TranslatedText
-              stringId="patientList.triage.table.waitTime.cell.closedTime"
-              fallback="Seen at :triageDate"
-              replacements={{ triageDate: formatTime(closedTime) }}
-              data-testid="translatedtext-hfkc"
-            />
-          </TriageCell>
+          <SeenWaitTimeCell
+            arrivalTime={assumedArrivalTime}
+            closedTime={closedTime}
+            dataTestId="triagecell-emergency"
+            encounterTypeLabel={
+              <TranslatedText
+                stringId="patientList.triage.table.waitTime.cell.emergencyShortStay"
+                fallback="Emerg. short stay"
+                data-testid="translatedtext-emergency-short-stay"
+              />
+            }
+          />
         );
       default:
         return (

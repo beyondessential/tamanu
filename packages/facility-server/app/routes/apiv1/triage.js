@@ -9,6 +9,9 @@ import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 
+import { createTriageFilters } from '../../utils/triageFilters';
+import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
+
 export const triage = express.Router();
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
@@ -131,7 +134,44 @@ const sortKeys = {
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
   locationGroupName: 'location_group_name',
+  clinician: 'UPPER(clinician.display_name)',
 };
+
+const triageListReplacements = filterReplacements => ({
+  ...filterReplacements,
+  triageEncounterTypes: [
+    ENCOUNTER_TYPES.TRIAGE,
+    ENCOUNTER_TYPES.OBSERVATION,
+    ENCOUNTER_TYPES.EMERGENCY,
+  ],
+  seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
+});
+
+const buildTriageListFromAndWhere = additionalWhere => `
+  FROM triages
+    LEFT JOIN encounters
+     ON (encounters.id = triages.encounter_id)
+    LEFT JOIN patients
+     ON (encounters.patient_id = patients.id)
+    LEFT JOIN users AS clinician
+     ON (clinician.id = encounters.examiner_id)
+    LEFT JOIN locations AS location
+     ON (encounters.location_id = location.id)
+    LEFT JOIN location_groups AS location_group
+      ON (location_group.id = location.location_group_id)
+    LEFT JOIN reference_data AS complaint
+      ON (triages.chief_complaint_id = complaint.id)
+    LEFT JOIN locations AS planned_location
+      ON (planned_location.id = encounters.planned_location_id)
+    LEFT JOIN location_groups AS planned_location_group
+      ON (planned_location.location_group_id = planned_location_group.id)
+    WHERE true
+    AND encounters.end_date IS NULL
+    AND location.facility_id = :facilityId
+    AND encounters.encounter_type IN (:triageEncounterTypes)
+    AND encounters.deleted_at is null
+    ${additionalWhere}
+`;
 
 triage.get(
   '/',
@@ -141,7 +181,7 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const { facilityId, orderBy = 'score', order = 'asc' } = query;
+    const { facilityId, orderBy = 'score', order = 'asc', page = 0, rowsPerPage } = query;
     const sortKey = sortKeys[orderBy];
 
     if (!sortKey) {
@@ -149,6 +189,34 @@ triage.get(
     }
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const shouldPaginate = rowsPerPage !== undefined && rowsPerPage !== null && rowsPerPage !== '';
+    const parsedPage = parseInt(page, 10) || 0;
+    const parsedRowsPerPage = shouldPaginate ? parseInt(rowsPerPage, 10) : null;
+
+    const filters = createTriageFilters(query);
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      query,
+    );
+
+    const additionalWhere = whereClauses ? `AND ${whereClauses}` : '';
+    const fromAndWhere = buildTriageListFromAndWhere(additionalWhere);
+    const replacements = {
+      ...triageListReplacements(filterReplacements),
+      facilityId,
+    };
+
+    const countResult = await db.query(`SELECT COUNT(1) AS count ${fromAndWhere}`, {
+      replacements,
+      type: QueryTypes.SELECT,
+    });
+
+    const count = parseInt(countResult[0].count, 10);
+
+    if (count === 0) {
+      res.send({ data: [], count });
+      return;
+    }
 
     const result = await db.query(
       `
@@ -170,41 +238,21 @@ triage.get(
           planned_location_group.name AS planned_location_group_name,
           planned_location.name AS planned_location_name,
           planned_location.id AS planned_location_id,
-          planned_location_group.id AS planned_location_group_id
-        FROM triages
-          LEFT JOIN encounters
-           ON (encounters.id = triages.encounter_id)
-          LEFT JOIN patients
-           ON (encounters.patient_id = patients.id)
-          LEFT JOIN locations AS location
-           ON (encounters.location_id = location.id)
-          LEFT JOIN location_groups AS location_group
-            ON (location_group.id = location.location_group_id)
-          LEFT JOIN reference_data AS complaint
-            ON (triages.chief_complaint_id = complaint.id)
-          LEFT JOIN locations AS planned_location
-            ON (planned_location.id = encounters.planned_location_id)
-          LEFT JOIN location_groups AS planned_location_group
-            ON (planned_location.location_group_id = planned_location_group.id)
-          WHERE true
-          AND encounters.end_date IS NULL
-          AND location.facility_id = :facilityId
-          AND encounters.encounter_type IN (:triageEncounterTypes)
-          AND encounters.deleted_at is null
+          planned_location_group.id AS planned_location_group_id,
+          clinician.display_name as clinician
+        ${fromAndWhere}
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
+        ${shouldPaginate ? 'LIMIT :limit OFFSET :offset' : ''}
       `,
       {
         model: Triage,
         type: QueryTypes.SELECT,
         mapToModel: true,
         replacements: {
-          facilityId,
-          triageEncounterTypes: [
-            ENCOUNTER_TYPES.TRIAGE,
-            ENCOUNTER_TYPES.OBSERVATION,
-            ENCOUNTER_TYPES.EMERGENCY,
-          ],
-          seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
+          ...replacements,
+          ...(shouldPaginate
+            ? { limit: parsedRowsPerPage, offset: parsedPage * parsedRowsPerPage }
+            : {}),
         },
       },
     );
@@ -212,7 +260,7 @@ triage.get(
 
     res.send({
       data: forResponse,
-      count: result.length,
+      count,
     });
   }),
 );
