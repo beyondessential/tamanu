@@ -74,7 +74,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
       patientId: patient.id,
     };
 
-    const newContact = await api.post(`/patient/reminderContact`, body);
+    const newContact = await api.post(`patient/reminderContact`, body);
     onContinue(newContact);
   };
 
