@@ -1,5 +1,4 @@
 import React from 'react';
-import config from 'config';
 import path from 'path';
 import { get } from 'es-toolkit/compat';
 import ReactPDF from '@react-pdf/renderer';
@@ -99,7 +98,7 @@ export const makeCovidVaccineCertificate = async ({
       logoSrc={logo}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
       language={language}
     />,
     fileName,
@@ -145,7 +144,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
     />,
     fileName,
   );
@@ -212,7 +211,7 @@ export const makeCovidCertificate = async ({
       logoSrc={logo}
       printedBy={printedBy}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
       certType={certType}
       language={language}
     />,

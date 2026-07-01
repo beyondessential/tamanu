@@ -1,4 +1,4 @@
-import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { upperFirst } from 'es-toolkit/compat';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
@@ -19,7 +19,7 @@ import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 jest.setTimeout(50000);
 
-const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+const PRIMARY_TIME_ZONE = getPrimaryTimeZone();
 
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time

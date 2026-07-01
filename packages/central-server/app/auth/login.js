@@ -104,7 +104,7 @@ export const login = asyncHandler(async (req, res) => {
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
   const { canonicalHostName: centralHost } = config;
-  const primaryTimeZone = getPrimaryTimeZone(config);
+  const primaryTimeZone = getPrimaryTimeZone();
   res.send({
     token,
     refreshToken,

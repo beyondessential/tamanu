@@ -3,7 +3,6 @@ import { Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
-import config from 'config';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
@@ -406,7 +405,7 @@ encounterRelations.get(
       req.checkPermission('list', 'MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-      const primaryTimeZone = getPrimaryTimeZone(config);
+      const primaryTimeZone = getPrimaryTimeZone();
       const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
       const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
       const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;

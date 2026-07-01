@@ -12,7 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentISO8601DateString } from '@tamanu/utils/dateTime';
 
-const primaryTimeZone = getPrimaryTimeZone(config);
+const primaryTimeZone = getPrimaryTimeZone();
 
 const buildRefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
