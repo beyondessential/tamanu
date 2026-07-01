@@ -382,13 +382,9 @@
       "password": ""
     }
   },
-  // on the central-server, don't read these values from config!
-  // use the getLocalisation() helper in packages/central-server/app/localisation.js
-  // this will ensure we can read these values from the database in the future
+  // Legacy block: these values have moved into settings (see CONFIG_TO_SETTINGS);
+  // anything still set here is served as a fallback until migrated on upgrade.
   "localisation": {
-    "allowInvalid": false,
-    // the labResultWidget and timeZone keys are here for legacy reasons
-    // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
       "categoryWhitelist": ["labTestCategory-COVID"],
       "testTypeWhitelist": ["labTestType-COVID"]
@@ -408,10 +404,6 @@
         // e.g.
         // "xRay": { "label": "X-Ray" }
       },
-      // The time zone setting is currently only used for Vaccine Certificates
-      // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
-      "timeZone": null,
-
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }

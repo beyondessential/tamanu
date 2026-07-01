@@ -1,5 +1,3 @@
-import config from 'config';
-
 /**
  * Assembles the legacy localisation shape from settings, so the login payload (and the
  * facility UserLocalisationCache fed from it) keeps its shape while the underlying values
@@ -13,14 +11,5 @@ export const getLocalisation = async settings => {
     settings.get('disabledReports'),
     settings.get('supportDeskUrl'),
   ]);
-  return {
-    units,
-    country,
-    imagingTypes,
-    disabledReports,
-    supportDeskUrl,
-    // Legacy, only used for vaccine certificates; stays in config until date fields
-    // finish migrating to date_time_strings.
-    timeZone: config.localisation?.data?.timeZone ?? null,
-  };
+  return { units, country, imagingTypes, disabledReports, supportDeskUrl };
 };
