@@ -76,7 +76,7 @@ export const makeCovidVaccineCertificate = async ({
   printedBy,
   printedDate,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(settings), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
@@ -115,7 +115,7 @@ export const makeVaccineCertificate = async ({
   printedDate,
   translations,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(settings), settings.getAll()]);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
