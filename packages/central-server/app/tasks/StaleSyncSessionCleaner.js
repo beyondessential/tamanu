@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -10,7 +9,7 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.staleSyncSessionCleaner;
+    const conf = context.schedules.staleSyncSessionCleaner;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;

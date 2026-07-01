@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
@@ -11,12 +10,7 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.surveyCompletionNotifierProcessor ?? {
-      enabled: true,
-      // every 30seconds /!\
-      schedule: '*/30 * * * * *',
-      limit: 100,
-    };
+    const conf = context.schedules.surveyCompletionNotifierProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;

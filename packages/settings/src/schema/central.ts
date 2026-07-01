@@ -1,14 +1,17 @@
 import * as yup from 'yup';
 
 import {
+  batchingProperties,
   durationStringSchema,
   dhis2IdSchemeSchema,
   emailSchema,
   formBuilderProperties,
+  limitProperty,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
   datelessTimeStringSchema,
+  scheduledTaskSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
 
@@ -516,6 +519,146 @@ export const centralSettings = {
             },
           },
         },
+      },
+    },
+    schedules: {
+      name: 'Scheduled tasks',
+      description:
+        'Cron schedules and tuning for central-server background tasks. Schedule changes take effect when the server restarts.',
+      properties: {
+        outpatientDischarger: scheduledTaskSchema(
+          { schedule: '0 2 * * *' },
+          batchingProperties(1000, 50),
+        ),
+        deceasedPatientDischarger: scheduledTaskSchema(
+          { schedule: '29 * * * *' },
+          batchingProperties(100, 50),
+        ),
+        patientEmailCommunicationProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          limitProperty(10),
+        ),
+        portalCommunicationProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          batchingProperties(100, 50),
+        ),
+        patientTelegramCommunicationProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          batchingProperties(100, 50),
+        ),
+        surveyCompletionNotifierProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          limitProperty(100),
+        ),
+        vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
+        patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
+        certificateNotificationProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          limitProperty(10),
+        ),
+        IPSRequestProcessor: scheduledTaskSchema({ schedule: '*/30 * * * * *' }, limitProperty(10)),
+        reportRequestProcessor: scheduledTaskSchema(
+          { schedule: '*/30 * * * * *' },
+          limitProperty(10),
+        ),
+        dhis2IntegrationProcessor: scheduledTaskSchema({ schedule: '0 2 * * *', enabled: false }),
+        automaticLabTestResultPublisher: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', enabled: false },
+          {
+            ...limitProperty(300),
+            results: {
+              name: 'Results',
+              description:
+                'Map of lab test type ID to the lab test method and result value to publish for it',
+              type: yup.object(),
+              defaultValue: {
+                'labTestType-RATPositive': {
+                  labTestMethodId: 'labTestMethod-RAT',
+                  result: 'Positive',
+                },
+                'labTestType-RATNegative': {
+                  labTestMethodId: 'labTestMethod-RAT',
+                  result: 'Negative',
+                },
+              },
+            },
+          },
+        ),
+        covidClearanceCertificatePublisher: scheduledTaskSchema({
+          schedule: '*/30 * * * *',
+          enabled: false,
+        }),
+        fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *' }),
+        plannedMoveTimeout: scheduledTaskSchema(
+          { schedule: '0 * * * *' },
+          {
+            timeoutHours: {
+              name: 'Timeout',
+              description: 'Cancel a planned patient move that has not completed within this long',
+              type: yup.number().integer().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+            ...batchingProperties(100, 50),
+          },
+        ),
+        staleSyncSessionCleaner: scheduledTaskSchema(
+          { schedule: '* * * * *' },
+          {
+            staleSessionSeconds: {
+              name: 'Stale session age',
+              description: 'Mark sync sessions with no activity for this long as errored',
+              type: yup.number().integer().positive(),
+              defaultValue: 3600,
+              unit: 'seconds',
+            },
+          },
+        ),
+        formBuilderChatCleaner: scheduledTaskSchema({ schedule: '*/15 * * * *' }),
+        snapshotTableCleaner: scheduledTaskSchema(
+          { schedule: '* 1-5 * * *' },
+          {
+            retentionHours: {
+              name: 'Retention',
+              description: 'Drop sync snapshot tables older than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+            ...batchingProperties(1000, 100),
+          },
+        ),
+        syncLookupRefresher: scheduledTaskSchema({ schedule: '*/20 * * * * *' }),
+        generateRepeatingTasks: scheduledTaskSchema(
+          { schedule: '0 1 * * *' },
+          batchingProperties(50, 50),
+        ),
+        generateMedicationAdministrationRecords: scheduledTaskSchema(
+          { schedule: '0 1 * * *' },
+          batchingProperties(50, 50),
+        ),
+        generateRepeatingAppointments: scheduledTaskSchema(
+          { schedule: '0 1 * * *' },
+          {
+            generateOffsetDays: {
+              name: 'Generation window',
+              description: 'How far ahead to generate occurrences of repeating appointments',
+              type: yup.number().integer().positive(),
+              defaultValue: 7,
+              unit: 'days',
+            },
+          },
+        ),
+        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        medicationDiscontinuer: scheduledTaskSchema({ schedule: '0 * * * *' }),
+        autoDeleteMedicationRequests: scheduledTaskSchema(
+          { schedule: '0 */6 * * *' },
+          batchingProperties(100, 50),
+        ),
+        programRegistryPltfuFlagger: scheduledTaskSchema(
+          { schedule: '0 3 * * *' },
+          batchingProperties(100, 50),
+        ),
       },
     },
     security: {

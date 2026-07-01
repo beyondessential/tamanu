@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
@@ -11,7 +10,7 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.autoDeleteMedicationRequests;
+    const conf = context.schedules.autoDeleteMedicationRequests;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;

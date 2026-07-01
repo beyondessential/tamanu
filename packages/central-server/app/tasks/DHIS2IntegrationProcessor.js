@@ -58,7 +58,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.dhis2IntegrationProcessor;
+    const conf = context.schedules.dhis2IntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;

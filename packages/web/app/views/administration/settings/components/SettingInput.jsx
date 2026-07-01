@@ -25,6 +25,7 @@ import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
+import { useParsedCronExpression } from '../../../../utils/useParsedCronExpression';
 import { formatSettingName } from '../EditorView';
 
 // Shared width for the main setting inputs so they all fill the input column
@@ -155,6 +156,7 @@ const SETTING_TYPES = {
   NUMBER: 'number',
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
+  CRON: 'cron',
   OBJECT: 'object',
   ARRAY: 'array',
 };
@@ -261,6 +263,45 @@ const MarkdownSettingInput = ({
           readOnly={disabled}
         />
       )}
+    </Flexbox>
+  );
+};
+
+const CronHelpText = styled.span`
+  color: ${props => (props.$invalid ? Colors.alert : Colors.midText)};
+  display: block;
+  font-size: 12px;
+  margin-block-start: 0.25rem;
+`;
+
+// Cron expression input: plain text field with a live human-readable preview of
+// the schedule underneath (or an invalid marker while the expression doesn't parse).
+const CronSettingInput = ({ value, onChange, error, disabled }) => {
+  const parsed = useParsedCronExpression(value);
+  return (
+    <Flexbox data-testid="flexbox-cron">
+      <div>
+        <StyledTextInput
+          value={value ?? ''}
+          onChange={onChange}
+          style={{ width: SETTING_INPUT_WIDTH }}
+          inputProps={{ style: { fontFamily: 'monospace' } }}
+          error={error}
+          helperText={error?.message}
+          disabled={disabled}
+          data-testid="styledtextinput-cron"
+        />
+        {value && (
+          <CronHelpText $invalid={parsed === null} data-testid="cron-parsed-preview">
+            {parsed ?? (
+              <TranslatedText
+                stringId="admin.settings.cron.invalid"
+                fallback="Invalid cron expression"
+              />
+            )}
+          </CronHelpText>
+        )}
+      </div>
     </Flexbox>
   );
 };
@@ -717,6 +758,15 @@ export const SettingInput = ({
             />
           )}
         </Flexbox>
+      );
+    case SETTING_TYPES.CRON:
+      return (
+        <CronSettingInput
+          value={displayValue}
+          onChange={defaultHandleChange}
+          error={error}
+          disabled={disabled}
+        />
       );
     case SETTING_TYPES.NUMBER:
       return (

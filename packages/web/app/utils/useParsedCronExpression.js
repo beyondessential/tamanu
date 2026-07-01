@@ -35,5 +35,10 @@ export const useParsedCronExpression = (expression) => {
 
   if (!expression || !cronstrue.locales.custom) return '';
 
-  return cronstrue.toString(expression, { locale: 'custom' });
+  try {
+    return cronstrue.toString(expression, { locale: 'custom' });
+  } catch (e) {
+    // Not a parseable cron expression (e.g. mid-typing in the settings editor)
+    return null;
+  }
 };

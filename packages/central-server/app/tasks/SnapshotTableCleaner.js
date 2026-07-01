@@ -1,4 +1,3 @@
-import config from 'config';
 import { subHours } from 'date-fns';
 import { Op } from 'sequelize';
 
@@ -19,7 +18,7 @@ export class SnapshotTableCleaner extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const conf = {
-      ...config.schedules.snapshotTableCleaner,
+      ...context.schedules.snapshotTableCleaner,
       ...overrideConfig,
     };
     const { schedule, jitterTime, enabled } = conf;

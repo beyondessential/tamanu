@@ -15,7 +15,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.vaccinationReminderProcessor;
+    const conf = context.schedules.vaccinationReminderProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;

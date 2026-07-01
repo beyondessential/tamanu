@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
@@ -9,7 +8,7 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 
 export class BaseCommunicationProcessor extends ScheduledTask {
   constructor(context, configKey, channel) {
-    const conf = config.schedules[configKey];
+    const conf = context.schedules[configKey];
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
 

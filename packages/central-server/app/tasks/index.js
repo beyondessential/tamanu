@@ -38,6 +38,10 @@ export { startFhirWorkerTasks } from '@tamanu/shared/tasks';
 export class InvalidConfigError extends Error {}
 
 export async function startScheduledTasks(context) {
+  // Resolved once at startup: schedule changes apply on server restart.
+  // eslint-disable-next-line require-atomic-updates
+  context.schedules = await context.settings.get('schedules');
+
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,

@@ -44,4 +44,14 @@ describe('SettingsConfigReader', () => {
     config.mail = { from: 'new@example.com' };
     expect(await readCentral()).toEqual({ mail: { from: 'new@example.com' } });
   });
+
+  it('lifts every present leaf under a subtree row (schedules)', async () => {
+    config.schedules = {
+      outpatientDischarger: { schedule: '0 3 * * *', batchSize: 500 },
+      notInTheSchema: { schedule: '* * * * *' },
+    };
+    expect(await readCentral()).toEqual({
+      schedules: { outpatientDischarger: { schedule: '0 3 * * *', batchSize: 500 } },
+    });
+  });
 });

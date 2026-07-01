@@ -2,7 +2,9 @@ import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { get, has, set } from 'es-toolkit/compat';
 
-import { getScopedSchema, getSettingAtPath } from './schema';
+import { getScopedSchema } from './schema';
+import { isSetting } from './schema/utils';
+import type { Setting, SettingsSchema } from './types';
 import { ReaderSettingResult } from './reader/readers/Reader';
 
 export interface ConfigToSetting {
@@ -60,21 +62,56 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'integrations.dhis2.username',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
+  // Subtree row: lifts every scheduled-task knob under `schedules` in one go.
+  { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
 ];
 
+const schemaNodeAtPath = (
+  schema: SettingsSchema,
+  path: string,
+): Setting | SettingsSchema | null => {
+  let current: Setting | SettingsSchema = schema;
+  for (const part of path.split('.')) {
+    if (isSetting(current)) return null;
+    const next: Setting | SettingsSchema | undefined = current.properties[part];
+    if (!next) return null;
+    current = next;
+  }
+  return current;
+};
+
+const liftConfigValue = (
+  node: Setting | SettingsSchema,
+  configPath: string,
+  settingPath: string,
+  result: ReaderSettingResult,
+) => {
+  if (isSetting(node)) {
+    if (node.secret) return;
+    if (has(config, configPath)) set(result, settingPath, get(config, configPath));
+    return;
+  }
+  for (const [key, child] of Object.entries(node.properties)) {
+    liftConfigValue(child, `${configPath}.${key}`, `${settingPath}.${key}`, result);
+  }
+};
+
 // Local config values for the keys mapped to `scope`, keyed by their setting path.
-// Skips secrets and any key absent from the scope's schema. Reads config via lodash
-// get/has (not config.get/has) so it works with the partial config mocks some tests
-// use and doesn't trip node-config's get()-triggered immutability.
+// A row may point at a single setting or a whole subtree (e.g. `schedules`) — for a
+// subtree, every non-secret leaf under it is lifted, with the keys below the row's
+// paths assumed unchanged. Skips secrets and any key absent from the scope's schema.
+// Reads config via lodash get/has (not config.get/has) so it works with the partial
+// config mocks some tests use and doesn't trip node-config's get()-triggered
+// immutability.
 export function configOverridesForScope(scope: string): ReaderSettingResult {
   const schema = getScopedSchema(scope);
   const result: ReaderSettingResult = {};
   if (!schema) return result;
   for (const entry of CONFIG_TO_SETTINGS) {
     if (entry.scope !== scope) continue;
-    const setting = getSettingAtPath(schema, entry.setting);
-    if (!setting || setting.secret) continue;
-    if (has(config, entry.config)) set(result, entry.setting, get(config, entry.config));
+    const node = schemaNodeAtPath(schema, entry.setting);
+    if (!node) continue;
+    liftConfigValue(node, entry.config, entry.setting, result);
   }
   return result;
 }
