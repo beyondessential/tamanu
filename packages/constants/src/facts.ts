@@ -23,6 +23,10 @@ export const FACT_DEVICE_KEY = 'deviceKey';
 export const FACT_FACILITY_IDS = 'facilityIds';
 export const FACT_META_SERVER_ID = 'metaServerId';
 
+// Set once the central server has seeded settings from its legacy config, so the
+// one-off migration doesn't re-run and resurrect a setting an operator has deleted.
+export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
+
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
