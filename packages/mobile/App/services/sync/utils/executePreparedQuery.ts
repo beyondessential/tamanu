@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { chunk } from 'lodash';
 import { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
+import { SyncDebugLog } from '../SyncDebugLog';
 
 const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>
   Array.from(
@@ -13,6 +14,23 @@ const quote = (identifier: string): string => `"${identifier}"`;
 
 // Since sync only sends populated columns, we need to check all rows to get all columns
 const getAllColumns = (rows: DataToPersist[]): string[] => [...new Set(rows.flatMap(Object.keys))];
+
+// Raw per-row insert: preserves @RelationId-backed FK columns that repository.insert drops.
+const insertRow = (repository: Repository<any>, row: DataToPersist): Promise<unknown> => {
+  const columns = Object.keys(row);
+  const sql = `INSERT INTO ${quote(repository.metadata.tableName)} (${columns
+    .map(quote)
+    .join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`;
+  return repository.query(sql, columns.map(col => row[col]));
+};
+
+const updateRow = (repository: Repository<any>, row: DataToPersist): Promise<unknown> => {
+  const columns = Object.keys(row).filter(col => col !== 'id');
+  const sql = `UPDATE ${quote(repository.metadata.tableName)} SET ${columns
+    .map(col => `${quote(col)} = ?`)
+    .join(', ')} WHERE id = ?`;
+  return repository.query(sql, [...columns.map(col => row[col]), row.id]);
+};
 
 /**
  * Much faster than typeorm bulk insert or save
@@ -42,15 +60,28 @@ export const executePreparedInsert = async (
     try {
       await repository.query(query, parameters);
     } catch (e: any) {
-      await Promise.all(
-        chunkRows.map(async row => {
-          try {
-            await repository.insert(row);
-          } catch (error: any) {
-            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
-          }
-        }),
-      );
+      SyncDebugLog.log(`Bulk insert failed for ${tableName}, falling back to row-by-row`, {
+        tableName,
+        error: e.message,
+        batchSize: chunkRows.length,
+        columns,
+      });
+      for (const row of chunkRows) {
+        try {
+          await insertRow(repository, row);
+        } catch (error: any) {
+          SyncDebugLog.log(`Insert failed for ${tableName}`, {
+            tableName,
+            recordId: row.id,
+            columns: Object.keys(row),
+            data: row,
+            error: error.message,
+          });
+          throw new Error(
+            `Insert failed with '${error.message}', recordId: ${row.id}, table: ${tableName}`,
+          );
+        }
+      }
     }
     progressCallback(chunkRows.length);
   }
@@ -85,6 +116,11 @@ export const executePreparedUpdate = async (
   for (const groupRows of rowsByColumnSignature.values()) {
     const columns = Object.keys(groupRows[0]);
     const updatableColumns = columns.filter(col => col !== 'id');
+    if (updatableColumns.length === 0) {
+      // Row carries only id, nothing to update; count as processed and skip (empty SET is invalid SQL).
+      progressCallback(groupRows.length);
+      continue;
+    }
     const updateColumnsQuoted = updatableColumns.map(quote);
     const cteColumns = [quote('id'), ...updateColumnsQuoted];
 
@@ -112,15 +148,13 @@ export const executePreparedUpdate = async (
       try {
         await repository.query(query, parameters);
       } catch (e: any) {
-        await Promise.all(
-          chunkRows.map(async row => {
-            try {
-              await repository.update({ id: row.id }, row);
-            } catch (error: any) {
-              throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
-            }
-          }),
-        );
+        for (const row of chunkRows) {
+          try {
+            await updateRow(repository, row);
+          } catch (error: any) {
+            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
+          }
+        }
       }
       progressCallback(chunkRows.length);
     }

@@ -19,6 +19,7 @@ import {
 } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
+import { SyncDebugLog } from './SyncDebugLog';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
@@ -202,9 +203,14 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
+      SyncDebugLog.clear();
       await this.runSync({ urgent });
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
+      SyncDebugLog.log('Sync failed', {
+        message: error?.message,
+        stack: error?.stack,
+      });
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
       // Reset all the values to default only if sync actually started, otherwise they should still be default values
@@ -237,6 +243,12 @@ export class MobileSyncManager {
     // the first step of sync is to start a session and retrieve the session id
 
     this.isInitialSync = pullSince === -1;
+
+    SyncDebugLog.log('Starting sync', {
+      isInitialSync: this.isInitialSync,
+      pullSince,
+      urgent,
+    });
 
     this.progressMaxByStage = this.isInitialSync
       ? STAGE_MAX_PROGRESS_INITIAL
@@ -364,6 +376,15 @@ export class MobileSyncManager {
       tablesForFullResync,
     );
 
+    SyncDebugLog.log('Pull initiated', {
+      isInitialSync: this.isInitialSync,
+      totalToPull,
+      pullUntil,
+      pullSince,
+      tableCount: tableNames.length,
+      tablesForFullResync,
+    });
+
     const pullParams: PullParams = {
       sessionId,
       recordTotal: totalToPull,
@@ -411,6 +432,10 @@ export class MobileSyncManager {
         await this.postPull(transactionEntityManager, pullUntil);
       });
     } catch (err) {
+      SyncDebugLog.log('Initial sync failed', {
+        message: err?.message,
+        stack: err?.stack,
+      });
       console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
       throw err;
     } finally {
@@ -459,6 +484,10 @@ export class MobileSyncManager {
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
+        SyncDebugLog.log('Incremental sync failed', {
+          message: err?.message,
+          stack: err?.stack,
+        });
         console.error(
           'MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync',
           err,
