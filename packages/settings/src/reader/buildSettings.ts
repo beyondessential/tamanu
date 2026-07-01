@@ -1,14 +1,7 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { isArray, mergeWith } from 'es-toolkit/compat';
 
-import {
-  centralDefaults,
-  centralSettings,
-  facilityDefaults,
-  facilitySettings,
-  globalDefaults,
-  globalSettings,
-} from '../schema';
+import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
 import { SettingsConfigReader } from './readers/SettingsConfigReader';
@@ -24,16 +17,16 @@ function getReaderCascade(models: Models, facilityId?: string) {
     ? [
         new SettingsDBReader(models, SETTINGS_SCOPES.FACILITY, facilityId),
         new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
-        new SettingsConfigReader(facilitySettings),
-        new SettingsConfigReader(globalSettings),
+        new SettingsConfigReader(SETTINGS_SCOPES.FACILITY),
+        new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL),
         new SettingsJSONReader(facilityDefaults),
         new SettingsJSONReader(globalDefaults),
       ]
     : [
         new SettingsDBReader(models, SETTINGS_SCOPES.CENTRAL),
         new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
-        new SettingsConfigReader(centralSettings),
-        new SettingsConfigReader(globalSettings),
+        new SettingsConfigReader(SETTINGS_SCOPES.CENTRAL),
+        new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL),
         new SettingsJSONReader(centralDefaults),
         new SettingsJSONReader(globalDefaults),
       ];
