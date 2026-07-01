@@ -9,6 +9,7 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -17,8 +18,8 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
       saltRounds,
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
     },
-    canonicalHostName,
   } = config;
+  const canonicalHostName = getCanonicalHostName();
 
   const refreshId = await getRandomBase64String(refreshIdLength);
   const refreshTokenJwtId = getRandomU32();
@@ -66,8 +67,8 @@ export const login = asyncHandler(async (req, res) => {
       tokenDuration,
       refreshToken: { secret: refreshSecret },
     },
-    canonicalHostName,
   } = config;
+  const canonicalHostName = getCanonicalHostName();
   const {
     store: {
       models,
@@ -103,7 +104,7 @@ export const login = asyncHandler(async (req, res) => {
 
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
-  const { canonicalHostName: centralHost } = config;
+  const centralHost = getCanonicalHostName();
   const primaryTimeZone = getPrimaryTimeZone();
   res.send({
     token,

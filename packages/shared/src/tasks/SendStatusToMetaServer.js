@@ -11,6 +11,7 @@ import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { getMetaServerHosts } from '../utils';
 import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
+import { getCanonicalHostName } from '../utils/canonicalHostName';
 
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
@@ -85,7 +86,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         await this.fetchFromHosts('servers', {
           method: 'POST',
           body: JSON.stringify({
-            host: config.canonicalHostName || path.join('http://', os.hostname()),
+            host: getCanonicalHostName() || path.join('http://', os.hostname()),
             kind: this.serverType,
           }),
         })

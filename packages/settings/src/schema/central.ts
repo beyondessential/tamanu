@@ -220,6 +220,29 @@ export const centralSettings = {
           type: yup.string(),
           secret: true,
         },
+        mailgun: {
+          description: 'Mailgun HTTP API backend, used when mail.transport is not set',
+          properties: {
+            domain: {
+              name: 'Domain',
+              description: 'Mailgun sending domain',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            url: {
+              name: 'API URL',
+              description: 'Mailgun API base URL, for non-US regions',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            apiKey: {
+              name: 'API key',
+              description: 'Mailgun API key',
+              type: yup.string(),
+              secret: true,
+            },
+          },
+        },
       },
     },
     sync: {

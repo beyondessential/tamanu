@@ -18,6 +18,7 @@ import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -62,7 +63,7 @@ export async function buildToken({
   impersonateRoleId = undefined,
 }) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
-  const { canonicalHostName = 'localhost' } = config;
+  const canonicalHostName = getCanonicalHostName() ?? 'localhost';
 
   let expirationTime;
   try {
@@ -307,7 +308,7 @@ export async function refreshHandler(req, res) {
 
 function createAuthMiddleware({ requireDeviceId }) {
   return async (req, res, next) => {
-    const { canonicalHostName = 'localhost' } = config;
+    const canonicalHostName = getCanonicalHostName() ?? 'localhost';
     const { models, settings } = req;
     try {
       const { token, user, facility, device, impersonateRoleId } =

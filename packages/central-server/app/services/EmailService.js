@@ -7,7 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 import { mailgunTransport } from './mailgunTransport.js';
 
-function createTransporter(transport, transportPassword) {
+function createTransporter(transport, transportPassword, mailgun) {
   // The `mail.transport` setting is passed through to nodemailer.createTransport() unchanged,
   // so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.) or nodemailer
   // transport plugin can be used. See https://nodemailer.com/transports/. The SMTP password is
@@ -20,9 +20,10 @@ function createTransporter(transport, transportPassword) {
     return nodemailer.createTransport(merged);
   }
 
-  // Legacy `mailgun` config: route the Mailgun HTTP API through nodemailer too, so there
-  // is a single send path regardless of which backend is configured.
-  const { apiKey, domain, url } = config.mailgun ?? {};
+  // Mailgun HTTP API routed through nodemailer too, so there is a single send
+  // path regardless of which backend is configured. Settings first; the raw
+  // config block is transitional and goes away with the config file.
+  const { apiKey, domain, url } = [mailgun, config.mailgun].find(m => m?.apiKey && m?.domain) ?? {};
   if (apiKey && domain) {
     return nodemailer.createTransport(mailgunTransport({ apiKey, domain, url }));
   }
@@ -69,8 +70,8 @@ function shouldRetrySendError(e) {
 }
 
 export class EmailService {
-  constructor(transport, transportPassword) {
-    this.transporter = createTransporter(transport, transportPassword);
+  constructor(transport, transportPassword, mailgun) {
+    this.transporter = createTransporter(transport, transportPassword, mailgun);
   }
 
   /**
@@ -79,6 +80,7 @@ export class EmailService {
    */
   static async fromSettings(settings) {
     const transport = await settings.get('mail.transport');
+    const mailgun = { ...(await settings.get('mail.mailgun')) };
     let transportPassword;
     try {
       transportPassword = await getSettingSecret(settings, 'mail.transportPassword');
@@ -86,7 +88,12 @@ export class EmailService {
       // Not configured is fine — transport may not need auth, or we fall back to mailgun.
       if (!(error instanceof SecretNotConfiguredError)) throw error;
     }
-    return new EmailService(transport, transportPassword);
+    try {
+      mailgun.apiKey = await getSettingSecret(settings, 'mail.mailgun.apiKey');
+    } catch (error) {
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+    }
+    return new EmailService(transport, transportPassword, mailgun);
   }
 
   /**

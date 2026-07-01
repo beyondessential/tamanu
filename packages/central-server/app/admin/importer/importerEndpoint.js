@@ -1,4 +1,3 @@
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import __cjs_inflection from 'inflection';
@@ -13,6 +12,7 @@ import { log } from '@tamanu/shared/services/logging/log';
 
 import { DataImportError, DryRun } from '../errors';
 import { coalesceStats } from '../stats';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const normMapping = {
   // singularize transforms 'reference data' to 'reference datum', which is not what we want
@@ -178,7 +178,7 @@ export function createDataImporterEndpoint(importer) {
       ...result,
       duration: (Date.now() - start) / 1000.0,
       serverInfo: {
-        host: config.canonicalHostName,
+        host: getCanonicalHostName(),
       },
     });
   });

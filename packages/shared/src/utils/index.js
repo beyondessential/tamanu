@@ -1,6 +1,7 @@
 export * from './buildVersionCompatibilityCheck';
 export * from './requireHttps';
 export * from './getMetaServerHosts';
+export * from './canonicalHostName';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';

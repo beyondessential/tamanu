@@ -52,6 +52,8 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'mailgun.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'mailgun.domain', setting: 'mail.mailgun.domain', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'mailgun.url', setting: 'mail.mailgun.url', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mail.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mail.transport', setting: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
   {

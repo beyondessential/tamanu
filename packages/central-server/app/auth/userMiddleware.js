@@ -9,12 +9,13 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
 import { SERVER_TYPES } from '@tamanu/constants';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 export const userMiddleware = asyncHandler(async (req, res, next) => {
   const {
     auth: { secret, tokenDuration },
-    canonicalHostName,
   } = config;
+  const canonicalHostName = getCanonicalHostName();
   const {
     store: {
       models: { User },
