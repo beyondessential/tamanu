@@ -1,1 +1,0 @@
-../../.agents/skills/acceptance-audit.md

@@ -2,7 +2,7 @@ import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
 import { initReporting } from '@tamanu/database/services/reporting';
-import { initBugsnag } from '@tamanu/shared/services/logging';
+import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
@@ -70,10 +70,23 @@ export class ApplicationContext {
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
     return this;
+  }
+
+  // Call after migrations: reporting reads its per-server secret from local_system_facts.
+  async initReportingStores() {
+    try {
+      this.reportSchemaStores = await initReporting(this.store);
+    } catch (error) {
+      // Reporting requires the app db role to manage the reporting roles (see
+      // ensureReportingRole). On an under-provisioned database that fails; the
+      // rest of the server works without reporting, so degrade instead of
+      // crash-looping the whole deployment.
+      log.error(
+        'initReporting failed; reporting schemas unavailable until the db grants are fixed',
+        { error },
+      );
+    }
   }
 
   onClose(hook) {

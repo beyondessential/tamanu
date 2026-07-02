@@ -4,7 +4,6 @@ import config from 'config';
 
 import { FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import {
-  createMockReportingSchemaAndRoles,
   seedDepartments,
   seedFacilities,
   seedLabTests,
@@ -136,10 +135,9 @@ class MockApplicationContext extends ApplicationContext {
       await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
     }
 
-    // create mock reporting schema + roles if test requires it
-    // init reporting instances for these roles
+    // Reporting reads its per-server secret from local_system_facts, so init it
+    // after setupFacilityDb has migrated.
     if (enableReportInstances) {
-      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reportSchemaStores = await initReporting(this.store);
     }
 

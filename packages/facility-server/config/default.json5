@@ -49,31 +49,16 @@
   "port": 4000,
   "deviceId": null,
   "db": {
+    // Set the DATABASE_URL env var to a connection string to supply
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below.
     "name": "tamanu-facility",
     "username": "",
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        },
-        "reporting": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        }
-      }
-    }
   },
   "metaServer": {
     "hosts": [
@@ -211,6 +196,12 @@
   },
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
+  "crypto": {
+    // Encryption key for local_system_secrets (encryption is mandatory).
+    // This committed key is for local dev/test ONLY; deploys override it via
+    // the CRYPTO_KEY_FILE env var pointing at a mounted secret.
+    "keyFile": "config/dev-secret.key"
   },
   "language": "en",
   "canonicalHostName": "http://localhost:4000",
