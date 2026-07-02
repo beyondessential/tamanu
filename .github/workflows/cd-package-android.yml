@@ -49,6 +49,11 @@ on:
         description: Central server override
         type: string
         required: false
+      architectures:
+        description: Comma-separated ABIs (e.g. arm64-v8a,x86_64 for BlueStacks/emulators)
+        type: string
+        required: false
+        default: arm64-v8a,x86_64
 
 jobs:
   build:
