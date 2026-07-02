@@ -3,7 +3,7 @@ import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'es-t
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { getScopedSchema, isSetting } from '@tamanu/settings';
+import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, TranslatedText } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';

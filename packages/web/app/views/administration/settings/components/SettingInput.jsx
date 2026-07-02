@@ -6,7 +6,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { SECRET_PLACEHOLDER } from '@tamanu/settings';
+import { SECRET_PLACEHOLDER } from '@tamanu/settings/schema';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
 import {

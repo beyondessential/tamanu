@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { centralDefaults, globalDefaults, facilityDefaults } from '@tamanu/settings';
+import { centralDefaults, globalDefaults, facilityDefaults } from '@tamanu/settings/schema';
 
 import { Modal } from '../../../../components/Modal';
 import { JSONEditor } from './JSONEditor';

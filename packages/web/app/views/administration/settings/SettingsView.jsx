@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { applyDefaults, validateSettings } from '@tamanu/settings';
+import { applyDefaults, validateSettings } from '@tamanu/settings/schema';
 import { Form } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 

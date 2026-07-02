@@ -5,7 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
 import KeyIcon from '@mui/icons-material/Key';
 
-import { isSetting } from '@tamanu/settings';
+import { isSetting } from '@tamanu/settings/schema';
 
 import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
 import { Colors } from '../../../../constants';
