@@ -1,1 +1,0 @@
-../../.agents/skills/spec-review.md
