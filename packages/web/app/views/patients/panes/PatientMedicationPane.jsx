@@ -694,6 +694,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
+          data-testid="ongoing-medications-table"
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}

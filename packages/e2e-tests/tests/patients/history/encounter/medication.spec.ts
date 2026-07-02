@@ -2,8 +2,10 @@ import { test, expect } from '@fixtures/baseFixture';
 import {
   createHospitalAdmissionEncounterViaAPI,
   createEncounterPrescriptionViaApi,
+  getUser,
 } from '@utils/apiHelpers';
 import { selectFieldOption } from '@utils/fieldHelpers';
+import { MedicationDetailsModal } from '@pages/patients/MedicationsPage/modals/MedicationDetailsModal';
 
 test.describe('Medication - Encounter', () => {
   test.describe.configure({ mode: 'parallel' });
@@ -65,12 +67,64 @@ test.describe('Medication - Encounter', () => {
     await expect(tableBody.getByRole('row').first()).toBeVisible();
   });
 
+  test('Discontinue medication defaults discontinued by to current user', async ({
+    page,
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const currentUser = await getUser(api);
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const medicationPane = await patientDetailsPage.navigateToMedicationTab();
+    await medicationPane.waitForPaneToLoad();
+
+    await medicationPane.clickFirstMedicationRow();
+
+    const detailsModal = new MedicationDetailsModal(page);
+    await detailsModal.waitForModalToLoad();
+    const discontinueModal = await detailsModal.clickDiscontinue();
+
+    expect(await discontinueModal.getDiscontinuedByValue()).toBe(currentUser.displayName);
+  });
+
+  test('Discontinue medication allows changing the discontinued by user', async ({
+    page,
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const currentUser = await getUser(api);
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const medicationPane = await patientDetailsPage.navigateToMedicationTab();
+    await medicationPane.waitForPaneToLoad();
+
+    await medicationPane.clickFirstMedicationRow();
+
+    const detailsModal = new MedicationDetailsModal(page);
+    await detailsModal.waitForModalToLoad();
+    const discontinueModal = await detailsModal.clickDiscontinue();
+
+    await discontinueModal.changeDiscontinuedBy(currentUser.displayName);
+    await discontinueModal.fillReason('Test reason');
+    await discontinueModal.submit();
+  });
+
   test('Send prescription to pharmacy', async ({ page, api, newPatient, patientDetailsPage }) => {
     test.setTimeout(60000);
 
     // Create encounter and prescription via API
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createEncounterPrescriptionViaApi(api, page, encounter.id);
 
     await patientDetailsPage.goToPatient(newPatient);
 

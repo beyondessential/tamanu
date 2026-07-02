@@ -576,7 +576,10 @@ export const MedicationDetails = ({
                     <Box display={'flex'} style={{ gap: '10px' }}>
                       {canDiscontinueMedication && (
                         <NoteModalActionBlocker>
-                          <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
+                          <OutlinedButton
+                            data-testid="medicationdetails-discontinue-button"
+                            onClick={() => setOpenDiscontinueModal(true)}
+                          >
                             <TranslatedText
                               stringId="medication.details.discontinue"
                               fallback="Discontinue"
