@@ -130,7 +130,8 @@ export class QueueManager {
 }
 
 export const loadshedder = options => {
-  const manager = new QueueManager(options.queues);
+  // No queues (e.g. partial settings in tests) means nothing sheds
+  const manager = new QueueManager(options?.queues ?? []);
 
   return asyncHandler(async (req, res, next) => {
     const queue = manager.getQueue(req.path);
