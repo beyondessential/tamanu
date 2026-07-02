@@ -1,11 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
 import { RateLimitedError } from '@tamanu/errors';
 import { COMMUNICATION_STATUSES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings';
 import { getRandomBase64String } from './utils';
 import { getDefaultFromAddress } from '../services/mailConfig';
 
@@ -59,9 +59,10 @@ resetPassword.post(
 );
 
 const createOneTimeLogin = async (models, user) => {
-  const token = await getRandomBase64String(config.auth.resetPassword.tokenLength);
+  const { tokenLength, tokenExpiry } = await new ReadSettings(models).get('auth.resetPassword');
+  const token = await getRandomBase64String(tokenLength);
 
-  const expiresAt = addMinutes(new Date(), config.auth.resetPassword.tokenExpiry);
+  const expiresAt = addMinutes(new Date(), tokenExpiry);
 
   await models.OneTimeLogin.create({
     userId: user.id,

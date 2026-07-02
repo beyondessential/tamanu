@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import bcrypt from 'bcrypt';
 import * as jose from 'jose';
 import { SERVER_TYPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
@@ -9,16 +8,15 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
-import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { getAuthSecret, getCanonicalHostName, getRefreshTokenSecret } from '@tamanu/shared/utils';
 
-const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
+const getRefreshToken = async (models, settings, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
-  const {
-    auth: {
-      saltRounds,
-      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
-    },
-  } = config;
+  const [refreshIdLength, refreshTokenDuration] = await Promise.all([
+    settings.get('auth.refreshToken.refreshIdLength'),
+    settings.get('auth.refreshToken.tokenDuration'),
+  ]);
+  const saltRounds = models.User.SALT_ROUNDS;
   const canonicalHostName = getCanonicalHostName();
 
   const refreshId = await getRandomBase64String(refreshIdLength);
@@ -61,13 +59,8 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 };
 
 export const login = asyncHandler(async (req, res) => {
-  const {
-    auth: {
-      secret,
-      tokenDuration,
-      refreshToken: { secret: refreshSecret },
-    },
-  } = config;
+  const secret = getAuthSecret();
+  const refreshSecret = getRefreshTokenSecret();
   const canonicalHostName = getCanonicalHostName();
   const {
     store: {
@@ -77,6 +70,7 @@ export const login = asyncHandler(async (req, res) => {
     body,
     settings,
   } = req;
+  const tokenDuration = await settings.get('auth.tokenDuration');
 
   const {
     token,
@@ -94,7 +88,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const [refreshToken, allowedFacilities, localisation, permissions, role] = await Promise.all([
     internalClient
-      ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId: device?.id })
+      ? getRefreshToken(models, settings, { refreshSecret, userId: user.id, deviceId: device?.id })
       : undefined,
     user.allowedFacilities(),
     getLocalisation(settings),

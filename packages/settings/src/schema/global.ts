@@ -96,6 +96,61 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        tokenDuration: {
+          name: 'Session token duration',
+          description: 'How long a login token stays valid, e.g. ‘1h’',
+          type: yup.string(),
+          defaultValue: '1h',
+        },
+        useHardcodedPermissions: {
+          name: 'Use hardcoded permissions',
+          description:
+            'Use the built-in role permissions instead of permissions imported into the database',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        refreshToken: {
+          description: 'Refresh tokens (kept by internal clients to renew a session)',
+          properties: {
+            tokenDuration: {
+              name: 'Duration',
+              description: 'How long a refresh token stays valid, e.g. ‘30d’',
+              type: yup.string(),
+              defaultValue: '30d',
+            },
+            absoluteExpiration: {
+              name: 'Absolute expiration',
+              description:
+                'When on, refreshing does not extend the expiry beyond the original window',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            refreshIdLength: {
+              name: 'Refresh ID length',
+              description: 'Length in bytes of the random refresh identifier',
+              type: yup.number().integer().positive(),
+              defaultValue: 54,
+            },
+          },
+        },
+        resetPassword: {
+          description: 'One-time password-reset logins',
+          properties: {
+            tokenLength: {
+              name: 'Token length',
+              description: 'Length in bytes of the reset token',
+              type: yup.number().integer().positive(),
+              defaultValue: 6,
+            },
+            tokenExpiry: {
+              name: 'Token expiry',
+              description: 'How long a reset token stays valid',
+              type: yup.number().integer().positive(),
+              defaultValue: 20,
+              unit: 'minutes',
+            },
+          },
+        },
       },
     },
     ageDisplayFormat: {

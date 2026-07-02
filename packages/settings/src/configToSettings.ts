@@ -137,6 +137,9 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 's3', setting: 's3', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'loadshedder', setting: 'loadshedder', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'rateLimit', setting: 'rateLimit', scope: SETTINGS_SCOPES.GLOBAL },
+  // Subtree row: lifts the auth behaviour knobs; the token secrets are absent from
+  // the schema (env vars), so the walk never lifts them.
+  { config: 'auth', setting: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'updateUrls', setting: 'updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];
