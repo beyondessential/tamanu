@@ -1,6 +1,6 @@
 import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { get, has, set } from 'es-toolkit/compat';
+import { get, has, isEqual, set } from 'es-toolkit/compat';
 
 import { getScopedSchema } from './schema';
 import { isSetting } from './schema/utils';
@@ -168,7 +168,13 @@ const liftConfigValue = (
 ) => {
   if (isSetting(node)) {
     if (node.secret) return;
-    if (has(config, configPath)) set(result, settingPath, get(config, configPath));
+    if (has(config, configPath)) {
+      const value = get(config, configPath);
+      // A value equal to the schema default carries no information (the defaults
+      // layer already provides it) and would shadow a renamed legacy lift for the
+      // same setting (e.g. default-empty mail.from over a set mailgun.from).
+      if (!isEqual(value, node.defaultValue)) set(result, settingPath, value);
+    }
     return;
   }
   for (const [key, child] of Object.entries(node.properties)) {

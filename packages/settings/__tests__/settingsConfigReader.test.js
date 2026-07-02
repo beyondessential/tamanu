@@ -47,6 +47,12 @@ describe('SettingsConfigReader', () => {
     expect(await readCentral()).toEqual({ mail: { from: 'new@example.com' } });
   });
 
+  it('does not let a default-equal value shadow a renamed legacy lift', async () => {
+    config.mailgun = { from: 'legacy@example.com' };
+    config.mail = { from: '' }; // shipped default config: equal to the schema default
+    expect(await readCentral()).toEqual({ mail: { from: 'legacy@example.com' } });
+  });
+
   it('un-nests a renamed subtree (localisation.data.country -> country)', async () => {
     config.localisation = { data: { country: { name: 'Fiji', 'alpha-2': 'FJ' } } };
     expect(await readGlobal()).toEqual({ country: { name: 'Fiji', 'alpha-2': 'FJ' } });
