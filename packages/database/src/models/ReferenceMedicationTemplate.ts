@@ -10,7 +10,7 @@ export class ReferenceMedicationTemplate extends Model {
   declare isPrn: boolean;
   declare isVariableDose: boolean;
   declare doseAmount?: number;
-  declare units: string;
+  declare dosingUnit: string;
   declare frequency: string;
   declare route: string;
   declare durationValue?: number;
@@ -39,7 +39,7 @@ export class ReferenceMedicationTemplate extends Model {
           defaultValue: false,
         },
         doseAmount: DataTypes.DECIMAL,
-        units: {
+        dosingUnit: {
           type: DataTypes.STRING,
           allowNull: false,
         },

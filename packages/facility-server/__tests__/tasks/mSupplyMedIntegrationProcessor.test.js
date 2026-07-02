@@ -76,7 +76,8 @@ async function createMedicationDispenses(
     const prescription = await Prescription.create(
       await createDummyPrescription(models, {
         medicationId,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'daily',
         route: 'oral',
       }),

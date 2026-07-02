@@ -7,7 +7,7 @@ export const OngoingPrescriptionSchema = z.object({
   medication: ReferenceDataSchema,
   // Dose fields
   doseAmount: z.coerce.number().nullish(),
-  units: z.string().nullish(),
+  dosingUnit: z.string().nullish(),
   // Frequency and duration
   frequency: z.string().nullish(),
   durationValue: z.coerce.number().nullish(),
