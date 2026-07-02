@@ -118,6 +118,7 @@ export async function createApi(ctx) {
     req.emailService = emailService;
     req.aiService = ctx.aiService;
     req.reportSchemaStores = reportSchemaStores;
+    req.isReportingSchemaEnabled = Boolean(reportSchemaStores);
     req.ctx = ctx;
     req.language = req.headers['language'];
     next();

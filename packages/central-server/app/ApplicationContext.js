@@ -91,9 +91,7 @@ export class ApplicationContext {
 
     this.emailService = await EmailService.fromSettings(this.settings);
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
+    this.reportSchemaStores = await initReporting(this.store);
 
     if (appType === CENTRAL_SERVER_APP_TYPES.API) {
       this.aiService = await AIService.init({

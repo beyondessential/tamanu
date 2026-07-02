@@ -5,25 +5,6 @@
     "pool": {
       "acquire": 5000,
     },
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "reporting": {
-          "pool": {
-            "max": 5
-          },
-          "username": "tamanu_reporting",
-          "password": "test"
-        },
-        "raw": {
-          "pool": {
-            "max": 5
-          },
-          "username": "tamanu_raw",
-          "password": "test"
-        }
-      }
-    }
   },
   "mailgun": {
     "from": "Tamanu test"

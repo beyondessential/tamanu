@@ -65,7 +65,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
     const metaServer = await this.globalSettings.get('metaServer');
     const metaServerHosts = getMetaServerHosts(metaServer);
 
-    const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
+    const deviceKey = await this.models.LocalSystemSecret.getDeviceKey();
     for (const metaServerHost of metaServerHosts) {
       try {
         const response = await this.fetch(metaServerHost, deviceKey, path, options, metaServer.timeoutMs);

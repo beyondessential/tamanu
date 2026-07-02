@@ -4,6 +4,10 @@
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
+    // Set the DATABASE_URL env var to a connection string to supply
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below.
     "name": "tamanu-central",
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
     "verbose": false,
@@ -16,25 +20,6 @@
       // "acquire": 60000,
       // "evict": 1000
     },
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        },
-        "reporting": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        }
-      }
-    }
   },
   "metaServer": {
     "hosts": [
@@ -472,5 +457,11 @@
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
     "registerTokenDurationMinutes": 43800 // 1 month
+  },
+  "crypto": {
+    // Encryption key for local_system_secrets (encryption is mandatory).
+    // This committed key is for local dev/test ONLY; deploys override it via
+    // the CRYPTO_KEY_FILE env var pointing at a mounted secret.
+    "keyFile": "config/dev-secret.key"
   }
 }

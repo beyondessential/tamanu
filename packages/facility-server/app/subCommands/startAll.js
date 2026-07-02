@@ -81,6 +81,7 @@ async function startAll({ skipMigrationCheck }) {
 
   const context = await new ApplicationContext().init({ appType: 'api' });
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
+  await context.initReportingStores();
 
   const fhirWorkers =
     process.env.NODE_ENV !== 'production'
