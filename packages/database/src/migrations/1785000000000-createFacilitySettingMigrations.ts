@@ -3,10 +3,12 @@ import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('facility_setting_migrations', {
     id: {
-      type: DataTypes.UUID,
+      // Deterministic composite id ("facilityId;key", see the upgrade step), so the
+      // migration produces identical rows every run — a random UUID pk would fail the
+      // migration-determinism check.
+      type: DataTypes.TEXT,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     created_at: {
       type: DataTypes.DATE,

@@ -12,6 +12,7 @@ vi.mock('@tamanu/settings', () => ({
 import { configOverridesForScope } from '@tamanu/settings';
 import {
   STEPS,
+  carrierId,
   facilityConfigRows,
 } from '../../src/steps/1785000000001-migrateFacilityConfigToSettings.js';
 
@@ -19,7 +20,7 @@ const step = STEPS[0];
 
 const makeArgs = () => ({
   models: {
-    FacilitySettingMigration: { create: vi.fn() },
+    FacilitySettingMigration: { upsert: vi.fn() },
     Facility: { findAll: vi.fn().mockResolvedValue([{ id: 'f1' }, { id: 'f2' }]) },
     LocalSystemFact: { get: vi.fn().mockResolvedValue(undefined), set: vi.fn() },
   },
@@ -65,13 +66,15 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
 
       await step.run(args);
 
-      expect(args.models.FacilitySettingMigration.create).toHaveBeenCalledTimes(2);
-      expect(args.models.FacilitySettingMigration.create).toHaveBeenCalledWith({
+      expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledTimes(2);
+      expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith({
+        id: 'f1;tasking.window',
         key: 'tasking.window',
         value: 12,
         facilityId: 'f1',
       });
-      expect(args.models.FacilitySettingMigration.create).toHaveBeenCalledWith({
+      expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith({
+        id: 'f2;tasking.window',
         key: 'tasking.window',
         value: 12,
         facilityId: 'f2',
@@ -89,11 +92,19 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
       await step.run(args);
 
       expect(args.models.Facility.findAll).not.toHaveBeenCalled();
-      expect(args.models.FacilitySettingMigration.create).not.toHaveBeenCalled();
+      expect(args.models.FacilitySettingMigration.upsert).not.toHaveBeenCalled();
       expect(args.models.LocalSystemFact.set).toHaveBeenCalledWith(
         FACT_FACILITY_CONFIG_MIGRATED,
         '2.99.0',
       );
+    });
+  });
+
+  describe('carrierId', () => {
+    it('is deterministic and escapes the separator', () => {
+      expect(carrierId('f1', 'tasking.window')).toBe('f1;tasking.window');
+      expect(carrierId('f1', 'tasking.window')).toBe(carrierId('f1', 'tasking.window'));
+      expect(carrierId('fac;i', 'a;b')).toBe('fac:i;a:b');
     });
   });
 });

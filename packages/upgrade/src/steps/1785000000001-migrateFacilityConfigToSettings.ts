@@ -5,6 +5,12 @@ import { get as getAtPath } from 'es-toolkit/compat';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
 
+// Deterministic id (same shape as patient_facilities' composite key) so every run
+// produces identical rows — a random UUID pk would fail the migration-determinism
+// check — and an interrupted run upserts rather than duplicating.
+export const carrierId = (facilityId: string, key: string) =>
+  `${facilityId.replaceAll(';', ':')};${key.replaceAll(';', ':')}`;
+
 // Flat {key, value} for each facility-scoped config value present locally. Secrets and
 // keys with no local config value are already dropped by configOverridesForScope.
 export const facilityConfigRows = () => {
@@ -35,7 +41,12 @@ export const STEPS: Steps = [
         const facilities = await Facility.findAll({ attributes: ['id'] });
         for (const { id: facilityId } of facilities) {
           for (const { key, value } of rows) {
-            await FacilitySettingMigration.create({ key, value, facilityId });
+            await FacilitySettingMigration.upsert({
+              id: carrierId(facilityId, key),
+              key,
+              value,
+              facilityId,
+            });
           }
         }
       }
