@@ -67,7 +67,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'scheduledReports', setting: 'scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'scheduledReports', setting: 'reporting.scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'validateQuestionConfigs.enabled',
     setting: 'validateQuestionConfigs.enabled',
@@ -119,7 +119,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   },
   {
     config: 'localisation.data.disabledReports',
-    setting: 'disabledReports',
+    setting: 'reporting.disabledReports',
     scope: SETTINGS_SCOPES.GLOBAL,
   },
   {

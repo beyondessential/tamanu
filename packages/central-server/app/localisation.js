@@ -8,7 +8,7 @@ export const getLocalisation = async settings => {
     settings.get('units'),
     settings.get('country'),
     settings.get('imagingTypes'),
-    settings.get('disabledReports'),
+    settings.get('reporting.disabledReports'),
     settings.get('supportDeskUrl'),
   ]);
   return { units, country, imagingTypes, disabledReports, supportDeskUrl };

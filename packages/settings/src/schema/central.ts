@@ -648,13 +648,18 @@ export const centralSettings = {
         },
       },
     },
-    scheduledReports: {
-      name: 'Scheduled reports',
-      description:
-        'Reports generated automatically on a cron schedule, each entry configuring one ReportRequestScheduler',
-      type: yup.array(yup.object()),
-      defaultValue: [],
-      requiresRestart: true,
+    reporting: {
+      description: 'Reporting',
+      properties: {
+        scheduledReports: {
+          name: 'Scheduled reports',
+          description:
+            'Reports generated automatically on a cron schedule, each entry configuring one ReportRequestScheduler',
+          type: yup.array(yup.object()),
+          defaultValue: [],
+          requiresRestart: true,
+        },
+      },
     },
     labResultWidget: {
       name: 'Lab result widget',

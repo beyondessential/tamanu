@@ -263,11 +263,17 @@ export const globalSettings = {
       exposedToWeb: true,
       editor: SETTING_EDITORS.MAPPING,
     },
-    disabledReports: {
-      name: 'Disabled reports',
-      description: 'IDs of report definitions that cannot be run or requested on this deployment',
-      type: yup.array(yup.string().required()),
-      defaultValue: [],
+    reporting: {
+      description: 'Reporting',
+      properties: {
+        disabledReports: {
+          name: 'Disabled reports',
+          description:
+            'IDs of report definitions that cannot be run or requested on this deployment',
+          type: yup.array(yup.string().required()),
+          defaultValue: [],
+        },
+      },
     },
     supportDeskUrl: {
       name: 'Support desk URL',
