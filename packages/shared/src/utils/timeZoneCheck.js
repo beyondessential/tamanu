@@ -2,16 +2,13 @@ import { QueryTypes } from 'sequelize';
 import { log } from '../services/logging';
 
 /**
- * The server's primary timezone (IANA) for all stored datetimes, from the
- * TAMANU_PRIMARY_TIMEZONE env var. Defaults to Australia/Melbourne when unset.
- *
- * A dedicated var (rather than the standard `TZ`) is deliberate: `TZ` also changes
- * Node's process-wide Date/Intl behaviour, which would couple our app-level primary
- * timezone to the OS clock and shift datetime-sensitive code/tests that assume the
- * process runs in UTC. Keeping it separate makes this a non-breaking config→env move.
+ * The server's primary timezone (IANA) for all stored datetimes, from the standard
+ * TZ env var (which deployments already set). Falls back to the system timezone —
+ * the same thing Node's Date uses when TZ is unset — so the process clock and the
+ * app-level primary timezone always agree.
  */
 export function getPrimaryTimeZone() {
-  return process.env.TAMANU_PRIMARY_TIMEZONE ?? 'Australia/Melbourne';
+  return process.env.TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 function getSystemTimeZone() {

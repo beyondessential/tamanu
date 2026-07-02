@@ -2,11 +2,9 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapKeys, camelCase, upperFirst } from 'es-toolkit/compat';
-import { parseISO } from 'date-fns';
 import __cjs_date_fns_tz from 'date-fns-tz';
-const { formatInTimeZone } = __cjs_date_fns_tz;
-import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+const { formatInTimeZone, zonedTimeToUtc } = __cjs_date_fns_tz;
+import { parseDateTime } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 import { InvalidOperationError, ForbiddenError } from '@tamanu/errors';
@@ -17,10 +15,13 @@ export const routes = express.Router();
 const PRIMARY_TIME_ZONE = getPrimaryTimeZone();
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
+// Formats a zone-less date_time_string (wall time in the primary timezone) as a
+// UTC instant. Explicit about the source timezone so the output never depends on
+// the process (TZ) or database session timezone.
 function formatDate(date) {
   if (!date) return date;
   return formatInTimeZone(
-    parseISO(formatFhirDate(date, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE)),
+    zonedTimeToUtc(date, PRIMARY_TIME_ZONE),
     '+00:00',
     "yyyy-MM-dd'T'HH:mm:ssXXX",
   ).replace(/Z$/, '+00:00');
@@ -36,7 +37,7 @@ function checkMediciReportPermission(req, _res, next) {
 
 const reportQuery = `
 SELECT 
-  last_updated::timestamptz at time zone 'UTC' as last_updated,
+  to_char(last_updated AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"') as last_updated,
   patient_id,
   first_name,
   last_name,
@@ -71,12 +72,12 @@ WHERE true
   AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated >= $from_date::timestamptz at time zone $timezone_string
+    THEN last_updated >= $from_date::timestamptz
   ELSE
     true
   END
   AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated <= $to_date::timestamptz at time zone $timezone_string
+    THEN last_updated <= $to_date::timestamptz
   ELSE
     true
   END
@@ -207,7 +208,6 @@ routes.get(
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: PRIMARY_TIME_ZONE,
         ...dischargeDateBind,
       },
     });
@@ -222,9 +222,9 @@ routes.get(
       return {
         ...encounter,
         weight: parseFloat(encounter.weight),
-        encounterStartDate: formatDate(new Date(encounter.encounterStartDate)),
-        encounterEndDate: formatDate(new Date(encounter.encounterEndDate)),
-        dischargeDate: formatDate(new Date(encounter.dischargeDate)),
+        encounterStartDate: formatDate(encounter.encounterStartDate),
+        encounterEndDate: formatDate(encounter.encounterEndDate),
+        dischargeDate: formatDate(encounter.dischargeDate),
         sex: upperFirst(encounter.sex),
         departments: encounter.departments?.map(department => ({
           ...department,
@@ -253,7 +253,7 @@ routes.get(
         })),
         hoursOfVentilation: 0,
         leaveDays: 0,
-        lastUpdated: formatDate(encounter.lastUpdated),
+        lastUpdated: encounter.lastUpdated,
         medications: encounter.medications
           ?.filter(medication => !medication.isSensitive)
           // eslint-disable-next-line no-unused-vars
