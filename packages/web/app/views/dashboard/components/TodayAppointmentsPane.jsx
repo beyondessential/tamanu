@@ -86,6 +86,18 @@ const StyledAppointmentTile = styled(AppointmentTile)`
   }
 `;
 
+const ViewAppointmentsLink = styled(Link)`
+  display: block;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+`;
+
 const NoDataContainer = styled.div`
   flex: 1;
   display: flex;
@@ -161,9 +173,9 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
               data-testid="translatedtext-8waw"
             />
-            <Link
-              href={`#/appointments/outpatients`}
-              style={{ textDecoration: 'underline', display: 'block' }}
+            <ViewAppointmentsLink
+              component="button"
+              onClick={() => navigate('/appointments/outpatients')}
               data-testid="link-ojzi"
             >
               <TranslatedText
@@ -171,7 +183,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
                 fallback="Outpatient appointments"
                 data-testid="translatedtext-n8rw"
               />
-            </Link>
+            </ViewAppointmentsLink>
           </Box>
         </NoDataContainer>
       ) : (
