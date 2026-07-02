@@ -5,10 +5,16 @@ vi.mock('@tamanu/settings', () => ({
   configOverridesForScope: vi.fn(),
 }));
 
+vi.mock('@tamanu/shared/utils/crypto', () => ({
+  encryptSecret: vi.fn().mockResolvedValue('S1:iv:ciphertext'),
+  getSettingsPskKeyBuffer: vi.fn().mockResolvedValue(Buffer.alloc(32)),
+}));
+
 import { configOverridesForScope } from '@tamanu/settings';
 import {
   STEPS,
   mergeConfigUnderExisting,
+  splitTransportPassword,
 } from '../../src/steps/1785000000000-migrateCentralConfigToSettings.js';
 
 const step = STEPS[0];
@@ -20,6 +26,20 @@ const makeArgs = () => ({
   },
   serverType: 'central',
   toVersion: '2.99.0',
+});
+
+describe('splitTransportPassword', () => {
+  it('moves an embedded SMTP password into the encrypted secret', async () => {
+    const overrides = { mail: { transport: { host: 'smtp', auth: { user: 'u', pass: 'pw' } } } };
+    const result = await splitTransportPassword(overrides);
+    expect(result.mail.transport).toEqual({ host: 'smtp', auth: { user: 'u' } });
+    expect(result.mail.transportPassword).toBe('S1:iv:ciphertext');
+  });
+
+  it('passes through when no password is embedded', async () => {
+    const overrides = { mail: { transport: { host: 'smtp' } } };
+    expect(await splitTransportPassword(overrides)).toEqual(overrides);
+  });
 });
 
 describe('mergeConfigUnderExisting', () => {
