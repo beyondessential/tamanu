@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
@@ -174,6 +174,18 @@ export const Sidebar = React.memo(({ items }) => {
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const extendSidebar = () => setIsRetracted(false);
+
+  // Expand the section matching the current route so navigating in from elsewhere
+  // (e.g. a link on the dashboard) opens the relevant section rather than leaving it collapsed.
+  useEffect(() => {
+    const sectionPath = currentPath.replace(/^\/|\/$/g, '').split('/')[0];
+    const matchingParent = items.find(
+      item => item.children && item.path.replace(/^\/|\/$/g, '') === sectionPath,
+    );
+    if (matchingParent) {
+      setSelectedParentItem(matchingParent.key);
+    }
+  }, [currentPath, items]);
 
   const onPathChanged = newPath => navigate(newPath);
 
