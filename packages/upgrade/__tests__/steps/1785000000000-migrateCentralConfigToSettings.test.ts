@@ -36,6 +36,17 @@ describe('splitTransportPassword', () => {
     expect(result.mail.transportPassword).toBe('S1:iv:ciphertext');
   });
 
+  it('keeps the password embedded when no settings key is provisioned', async () => {
+    const { encryptSecret } = await import('@tamanu/shared/utils/crypto');
+    (encryptSecret as any).mockRejectedValueOnce(new Error('no psk'));
+    const warn = vi.fn();
+    const overrides = { mail: { transport: { host: 'smtp', auth: { pass: 'pw' } } } };
+    const result = await splitTransportPassword(overrides, { warn } as any);
+    expect(result.mail.transport.auth.pass).toBe('pw');
+    expect(result.mail.transportPassword).toBe(undefined);
+    expect(warn).toHaveBeenCalled();
+  });
+
   it('passes through when no password is embedded', async () => {
     const overrides = { mail: { transport: { host: 'smtp' } } };
     expect(await splitTransportPassword(overrides)).toEqual(overrides);

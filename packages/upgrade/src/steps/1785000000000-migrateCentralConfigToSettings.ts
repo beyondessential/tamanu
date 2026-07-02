@@ -15,16 +15,27 @@ export const mergeConfigUnderExisting = (existing: object, overrides: object) =>
 // auth.pass). Settings keep that credential in the mail.transportPassword secret
 // instead, so split it out and encrypt it rather than persisting it in plain text.
 // Exported for tests.
-export const splitTransportPassword = async (overrides: any) => {
+export const splitTransportPassword = async (overrides: any, log?: StepArgs['log']) => {
   const pass = overrides?.mail?.transport?.auth?.pass;
   if (!pass) return overrides;
+  let encrypted;
+  try {
+    encrypted = await encryptSecret(await getSettingsPskKeyBuffer(), String(pass));
+  } catch (error) {
+    // No settings encryption key provisioned: leave the password embedded in the
+    // transport (matching legacy config behaviour) rather than failing the upgrade.
+    log?.warn(
+      'crypto.settingsPsk is not configured, so the SMTP password stays embedded in ' +
+        'mail.transport instead of the mail.transportPassword secret; configure the key ' +
+        'and re-save the password via the admin UI',
+      { error },
+    );
+    return overrides;
+  }
   delete overrides.mail.transport.auth.pass;
   if (isEmpty(overrides.mail.transport.auth)) delete overrides.mail.transport.auth;
   // eslint-disable-next-line require-atomic-updates
-  overrides.mail.transportPassword = await encryptSecret(
-    await getSettingsPskKeyBuffer(),
-    String(pass),
-  );
+  overrides.mail.transportPassword = encrypted;
   return overrides;
 };
 
@@ -40,9 +51,9 @@ export const STEPS: Steps = [
         serverType === 'central' && !(await LocalSystemFact.get(FACT_CENTRAL_CONFIG_MIGRATED))
       );
     },
-    async run({ toVersion, models: { Setting, LocalSystemFact } }: StepArgs) {
+    async run({ toVersion, log, models: { Setting, LocalSystemFact } }: StepArgs) {
       for (const scope of [SETTINGS_SCOPES.CENTRAL, SETTINGS_SCOPES.GLOBAL]) {
-        const overrides = await splitTransportPassword(configOverridesForScope(scope));
+        const overrides = await splitTransportPassword(configOverridesForScope(scope), log);
         if (isEmpty(overrides)) continue;
         const existing = (await Setting.get('', null, scope)) ?? {};
         await Setting.set('', mergeConfigUnderExisting(existing, overrides), scope);
