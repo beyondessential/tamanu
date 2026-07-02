@@ -1,10 +1,9 @@
-import config from 'config';
 import { Command } from 'commander';
 
 import { runStartFhirWorker } from '@tamanu/shared/tasks';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { ApplicationContext } from '../ApplicationContext';
+import { getServerFacilityIds } from '../serverConfig';
 import { version } from '../serverInfo';
 
 const defaults = {
@@ -27,7 +26,7 @@ export async function startFhirWorker(opts = {}) {
   const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const facilityIds = selectFacilityIds(config);
+  const facilityIds = getServerFacilityIds();
   // Per-facility ReadSettings (facility → global cascade). When multiple facilities are
   // configured, the first id matches ApplicationContext ordering; fhir.worker.* usually
   // resolves from the global layer anyway unless overridden per facility.

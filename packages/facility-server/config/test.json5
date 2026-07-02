@@ -21,6 +21,7 @@
   },
   "serverFacilityIds": ["balwyn", "kerang", "lake-charm"],
   "sync": {
+    "host": "https://central.main.cd.tamanu.app",
     "email": "test@example.com",
     "password": "test-password",
     "backoff": {
