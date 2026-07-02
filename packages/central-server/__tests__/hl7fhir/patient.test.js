@@ -10,7 +10,7 @@ import {
   getPatientWhereClause,
   patientToHL7Patient,
   patientToHL7PatientList,
-} from '../../dist/hl7fhir/patient';
+} from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
 
@@ -20,7 +20,7 @@ describe('HL7 Patient', () => {
   let req;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
     req = {
       baseUrl: 'Patient',

@@ -11,7 +11,7 @@ import {
   labTestToHL7Device,
   labTestToHL7DiagnosticReport,
   labTestToHL7Observation,
-} from '../../dist/hl7fhir/labTest';
+} from '../../app/hl7fhir/labTest';
 
 async function prepopulate(models) {
   // test category
@@ -62,7 +62,7 @@ describe('HL7 Labs', () => {
   let createLabTest;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
 
     const { method, labTestType } = await prepopulate(models);

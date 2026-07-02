@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { syncDatabaseServerVersion } from '@tamanu/database';
+import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
@@ -33,13 +34,14 @@ export const startApi = async ({ skipMigrationCheck }) => {
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;
-  const connectionPoolSnapshotHeadroom =
-    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  // Resolve so a pool size supplied via the connection-string query is seen here too.
+  const poolMax = resolveDbConfig(config.db)?.pool?.max;
+  const connectionPoolSnapshotHeadroom = poolMax - config?.sync?.numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
       `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
-        'config.db.pool.max': config.db?.pool?.max,
+        'config.db.pool.max': poolMax,
         'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },

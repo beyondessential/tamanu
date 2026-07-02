@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import { QueryTypes } from 'sequelize';
 import { z } from 'zod';
 

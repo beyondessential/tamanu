@@ -3,7 +3,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
-import { OutpatientDischarger } from '../../dist/tasks/OutpatientDischarger';
+import { OutpatientDischarger } from '../../app/tasks/OutpatientDischarger';
 import { createTestContext } from '../utilities';
 
 describe('Outpatient discharger', () => {

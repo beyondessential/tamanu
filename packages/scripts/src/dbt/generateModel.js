@@ -3,6 +3,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const YAML = require('yaml');
+// CommonJS require: es-toolkit/compat is ESM-only, so this script stays on lodash.
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
 
@@ -644,9 +645,12 @@ async function run(opts) {
   const serverConfig = config.util.loadFileConfigs(
     path.join('packages', 'central-server', 'config'),
   );
-  const dbConfig = config.util.extendDeep(serverConfig.db, config.db);
+  // Dynamic import (not require): tsx's CJS hook does not complete the extensionless
+  // exports these modules expose, but ESM import() does.
+  const { resolveDbConfig } = await import('@tamanu/database/services/connectionConfig');
+  const dbConfig = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db));
 
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
   let client;
   const dbName = 'tamanu-generate-model';
   try {

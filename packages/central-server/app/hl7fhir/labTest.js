@@ -1,5 +1,5 @@
-import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { convertISO9075toRFC3339 } from '@tamanu/utils/dateTime';
 
 import { labTestTypeToLOINCCode } from './loinc';
@@ -72,7 +72,8 @@ function labTestMethodToHL7Extension(labTestMethod) {
     return [];
   }
 
-  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const dataDicts = getFhirDataDictionaries();
+  const groupNamespace = `${dataDicts.testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
   return [
@@ -95,6 +96,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
+  const dataDicts = getFhirDataDictionaries();
 
   return {
     resourceType: 'DiagnosticReport',
@@ -102,7 +104,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: 'official',
-        system: config.hl7.dataDictionaries.labRequestDisplayId,
+        system: dataDicts.labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],

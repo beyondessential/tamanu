@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { numeralTranslation } from '@tamanu/shared/utils/numeralTranslation';
-import { isNaN } from 'lodash';
+import { isNaN } from 'es-toolkit/compat';
 
 // Foreign keys used to be more complicated nested objects requiring custom
 // validation, but they're just strings now. We could remove these validators entirely,

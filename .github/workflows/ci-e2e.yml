@@ -11,7 +11,6 @@ permissions:
   pull-requests: write
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
   NODE_MODULES_PATHS: |
@@ -100,12 +99,11 @@ jobs:
             --workspace=@tamanu/facility-server \
             --workspace=@tamanu/web-frontend
 
-      - name: Build servers & web-frontend
-        run: |
-          npm run build -- \
-            --filter=@tamanu/central-server... \
-            --filter=@tamanu/facility-server... \
-            --filter=@tamanu/web-frontend...
+      - name: Build web-frontend
+        run: npm run build --workspace=@tamanu/web-frontend
+      - name: Bundle default translations
+        # The migrate's upgrade step reads this; generate it from source before the servers migrate.
+        run: npm run package-default-translations --workspace @tamanu/upgrade
 
       - name: Setup postgres dbs
         run: |
@@ -221,6 +219,11 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }}
         working-directory: packages/e2e-tests
+        env:
+          # Load the tsx loader so the specs can import @tamanu workspace TypeScript
+          # source (which uses extensionless directory exports Node's ESM resolver alone
+          # cannot complete). Keeps the heap size from the workflow-level NODE_OPTIONS.
+          NODE_OPTIONS: --import tsx --max-old-space-size=6144
       - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v7
@@ -228,6 +231,20 @@ jobs:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
+      # The servers run detached with their stdout/stderr redirected to these files
+      # (see .github/scripts/e2e-test-setup.sh). They carry the http + verbose-SQL logs
+      # we need to see what the backend was doing while tests timed out, but were never
+      # uploaded — so failures could only be diagnosed from the front end. Keep them.
+      - name: Upload server logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-logs-${{ strategy.job-index }}
+          path: |
+            central-server.out
+            facility-server.out
+          retention-days: 7
+          if-no-files-found: warn
 
   e2e_failure_report:
     name: E2E Failure Report

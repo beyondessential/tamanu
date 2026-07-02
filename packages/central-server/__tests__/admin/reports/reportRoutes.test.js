@@ -1,6 +1,7 @@
 import { REPORT_DB_CONNECTIONS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { initReporting } from '@tamanu/database/services/reporting';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
-import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
+import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 import { User } from '@tamanu/database';
 import path from 'path';
 
@@ -63,14 +64,14 @@ describe('reportRoutes', () => {
     it('should not return reports with no versions', async () => {
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body).toHaveLength(0);
+      expect(res.body.find(r => r.id === testReport.id)).toBeUndefined();
     });
     it('should return a list of reports', async () => {
       await models.ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body).toHaveLength(1);
-      expect(res.body[0]).toMatchObject({
+      const found = res.body.find(r => r.id === testReport.id);
+      expect(found).toMatchObject({
         id: testReport.id,
         name: testReport.name,
       });
@@ -83,8 +84,9 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body[0].versionCount).toBe(2);
-      expect(new Date(res.body[0].lastUpdated)).toEqual(latestVersion.updatedAt);
+      const found = res.body.find(r => r.id === testReport.id);
+      expect(found.versionCount).toBe(2);
+      expect(new Date(found.lastUpdated)).toEqual(latestVersion.updatedAt);
     });
   });
 
@@ -423,6 +425,37 @@ describe('reportRoutes', () => {
       it('should return false if query is invalid', async () => {
         const query = 'some random non sql query';
         await expect(verifyQuery(query, [], ctx.store)).rejects.toThrow();
+      });
+
+      describe('on a reporting connection', () => {
+        let reportSchemaStores;
+        beforeAll(async () => {
+          reportSchemaStores = await initReporting(ctx.store);
+        });
+
+        it('verifies a valid read query', async () => {
+          await expect(
+            verifyQuery(
+              'select * from patients limit 1',
+              { parameters: [] },
+              { store: ctx.store, reportSchemaStores },
+              REPORT_DB_CONNECTIONS.RAW,
+            ),
+          ).resolves.not.toThrow();
+        });
+
+        it('rejects a write even via a trailing statement (unprivileged role)', async () => {
+          // EXPLAIN plans only the first statement; the trailing write runs as the
+          // unprivileged raw role and is rejected.
+          await expect(
+            verifyQuery(
+              'select 1; delete from patients',
+              { parameters: [] },
+              { store: ctx.store, reportSchemaStores },
+              REPORT_DB_CONNECTIONS.RAW,
+            ),
+          ).rejects.toThrow(/permission denied/);
+        });
       });
     });
   });

@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { unset, get as getAtPath, set as setAtPath } from 'lodash';
+import { unset, get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
+import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
 import {
   settingsCache,
@@ -216,6 +216,16 @@ adminRoutes.put(
     if (!settings || typeof settings !== 'object') {
       res.json({ code: 200 });
       return;
+    }
+
+    // Guard against locking everyone out: security.requireHttps can only be turned on from an
+    // HTTPS connection, which proves HTTPS reaches this server before it becomes mandatory.
+    // Use a truthy check (not === true) to match how the middleware reads the value (Boolean(...)),
+    // so e.g. a `1` cannot slip past the guard yet still trigger enforcement.
+    if (getAtPath(settings, 'security.requireHttps') && !req.secure) {
+      throw new ForbiddenError(
+        'security.requireHttps can only be enabled over an HTTPS connection. Reconnect over HTTPS and try again.',
+      );
     }
 
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);

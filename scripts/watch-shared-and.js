@@ -2,16 +2,8 @@ import concurrently from 'concurrently';
 
 const [workspace, ...args] = process.argv.slice(2);
 
-concurrently(
-  [
-    // running turbo build in raw:true mode will cause its output to interfere with
-    // the way the second process handles stdin (eg it will break jest-watch hotkeys)
-    { command: 'npm run build-watch --workspace @tamanu/shared', raw: false },
-    { command: 'npm run build-watch --workspace @tamanu/utils', raw: false },
-    { command: 'npm run build-watch --workspace @tamanu/database', raw: false },
-    { command: `sleep 2 && npm run ${args.join(' ')} --workspace ${workspace}`, raw: true },
-  ],
-  {
-    defaultInputTarget: 1,
-  },
-);
+// @tamanu/shared, @tamanu/utils and @tamanu/database are consumed from TypeScript source,
+// so the target watches them directly — dev servers via `node --watch` (their start-watch
+// script) and jest via its own watch mode. This wrapper just runs the target so the root
+// `*-start-dev` / `*-test-watch` scripts keep working.
+concurrently([{ command: `npm run ${args.join(' ')} --workspace ${workspace}`, raw: true }]);

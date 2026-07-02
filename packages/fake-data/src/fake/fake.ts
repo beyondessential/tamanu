@@ -1,10 +1,9 @@
 import { randomInt } from 'crypto';
-import { isFunction, snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'es-toolkit/compat';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
-
 import {
   ADMINISTRATION_FREQUENCIES,
   BLOOD_TYPES,
@@ -714,6 +713,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabTest: () => ({
     referenceRangeMin: null,
     referenceRangeMax: null,
+    referenceRangeText: null,
   }),
   Patient: () => {
     const sex = chance.pickone(Object.values(SEX_VALUES));

@@ -2,16 +2,24 @@ import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
 import { log } from '@tamanu/shared/services/logging';
 import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
+import { buildWebsocketHttpsGuard } from '@tamanu/shared/utils';
 
 /**
  *
- * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize, dbNotifier?: Awaited<ReturnType<import('@tamanu/shared/services/dbNotifier').defineDbNotifier>>}} injector
+ * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize, models: import('@tamanu/database/models'), app: import('express').Express, dbNotifier?: Awaited<ReturnType<import('@tamanu/shared/services/dbNotifier').defineDbNotifier>>}} injector
  * @returns
  */
 export const defineWebsocketService = async injector => {
+  const settings = new ReadSettings(injector.models);
   const socketServer = new Server(injector.httpServer, {
     path: WS_PATH,
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
+    // WebSocket upgrades bypass the Express middleware stack, so enforce security.requireHttps here.
+    allowRequest: buildWebsocketHttpsGuard({
+      getSettings: () => settings,
+      getTrustProxyFn: () => injector.app?.get('trust proxy fn'),
+    }),
   });
   const getSocketServer = () => socketServer;
 

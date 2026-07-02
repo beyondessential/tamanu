@@ -2,11 +2,10 @@
 # The general concept is to build in build-base, then copy into a slimmer run-base
 FROM node:26-alpine AS base
 WORKDIR /app
-COPY package.json package-lock.json turbo.jsonc COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 COPY patches/ patches/
 
 FROM base AS build-base
-ENV TURBO_TELEMETRY_DISABLED=1
 RUN apk add --no-cache \
   --virtual .build-deps \
   bash \

@@ -1,4 +1,4 @@
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 
 export const getReferenceDataCategoryFromRowConfig = configString => {
   try {

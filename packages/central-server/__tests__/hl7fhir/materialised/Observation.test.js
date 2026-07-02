@@ -1,6 +1,5 @@
-import config from 'config';
-
 import { LAB_REQUEST_STATUSES, FHIR_OBSERVATION_STATUS } from '@tamanu/constants';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
@@ -14,6 +13,7 @@ describe('Create Observation', () => {
   let ctx;
   let app;
   let resources;
+  let dataDicts;
   const fhirResources = {
     fhirPractitioner: null,
     fhirEncounter: null,
@@ -22,7 +22,8 @@ describe('Create Observation', () => {
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/Observation`;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
+    dataDicts = getFhirDataDictionaries();
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
@@ -75,7 +76,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -91,7 +92,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -123,7 +124,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -139,8 +140,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) =>
-              system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestExternalCodeSystem,
           ),
         },
         valueString: result,
@@ -185,7 +185,7 @@ describe('Create Observation', () => {
         code: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              system: dataDicts.serviceRequestLabTestCodeSystem,
               code: labTest.labTestType.code,
             },
           ],
@@ -221,7 +221,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -237,7 +237,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -255,6 +255,50 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
       expect(labTest.referenceRangeMin).toBe(referenceRangeMin);
       expect(labTest.referenceRangeMax).toBe(referenceRangeMax);
+    });
+
+    it('post an Observation with referenceRange text sets referenceRangeText on the labTest', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [{ text: 'Negative' }],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.referenceRangeText).toBe('Negative');
+      expect(labTest.referenceRangeMin).toBeNull();
+      expect(labTest.referenceRangeMax).toBeNull();
     });
 
     it('sets laboratoryOfficer from Observation.performer display when present', async () => {
@@ -278,7 +322,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -294,7 +338,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -333,7 +377,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -354,13 +398,13 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         method: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.observationMethodCodeSystem,
+              system: dataDicts.observationMethodCodeSystem,
               code: labTestMethod.code,
             },
           ],
@@ -395,7 +439,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -421,7 +465,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -435,6 +479,49 @@ describe('Create Observation', () => {
       expect(labTest.labTestMethodId).toBeNull();
       expect(labTest.referenceRangeMin).toBeNull();
       expect(labTest.referenceRangeMax).toBeNull();
+    });
+
+    it('clears referenceRangeText when a subsequent Observation omits referenceRange', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+      await labTest.update({ referenceRangeText: 'Negative' });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.referenceRangeText).toBeNull();
     });
 
     it('Will add a reflex test if the lab test code is not in the original request', async () => {
@@ -466,7 +553,7 @@ describe('Create Observation', () => {
         code: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              system: dataDicts.serviceRequestLabTestCodeSystem,
               code: newTestType.code,
             },
           ],
@@ -503,7 +590,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: dataDicts.serviceRequestLabTestCodeSystem,
                 code: 'TEST_CODE',
               },
             ],
@@ -558,7 +645,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: dataDicts.serviceRequestLabTestCodeSystem,
                 code: invalidCode,
               },
             ],
@@ -612,8 +699,7 @@ describe('Create Observation', () => {
           status: FHIR_OBSERVATION_STATUS.FINAL,
           code: {
             coding: testCode.coding.filter(
-              ({ system }) =>
-                system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
             ),
           },
           method: {
@@ -639,13 +725,54 @@ describe('Create Observation', () => {
               diagnostics: expect.any(String),
               details: {
                 text: expect.stringContaining(
-                  `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
+                  `Invalid method, must provide at least one coding with a code and system '${dataDicts.observationMethodCodeSystem}'`,
                 ),
               },
             },
           ],
         });
         expect(response.status).toBe(400);
+      });
+
+      it('returns 400 when a referenceRange entry has both text and numeric bounds', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          false,
+          { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        const testCode = mat.orderDetail[0];
+
+        const body = {
+          resourceType: 'Observation',
+          basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+          status: FHIR_OBSERVATION_STATUS.FINAL,
+          code: {
+            coding: testCode.coding.filter(
+              ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+            ),
+          },
+          valueString: '100',
+          referenceRange: [{ text: 'Negative', low: { value: 5 } }],
+        };
+
+        const response = await app.post(endpoint).send(body);
+        expect(response.status).toBe(400);
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            expect.objectContaining({
+              severity: 'error',
+              details: {
+                text: expect.stringContaining('text or numeric bounds'),
+              },
+            }),
+          ],
+        });
       });
     });
   });

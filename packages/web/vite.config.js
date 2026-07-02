@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import svgr from 'vite-plugin-svgr';
 import json5Plugin from 'vite-plugin-json5';
+import { tamanuSourceResolve } from '../../scripts/viteTamanuSourceResolve.mjs';
 
 /** @see https://vitejs.dev/config */
 export default async () => {
@@ -65,7 +66,7 @@ export default async () => {
       exclude: ['chunk-SVRLYAES'],
       include: ['buffer'],
     },
-    plugins: [react(), json5Plugin(), svgr()],
+    plugins: [tamanuSourceResolve, react(), json5Plugin(), svgr()],
     resolve: {
       // Consume @tamanu/* workspace packages' TypeScript source directly (via their
       // `source` export condition) so edits to shared packages hot-reload without a

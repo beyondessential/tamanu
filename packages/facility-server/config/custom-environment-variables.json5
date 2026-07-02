@@ -1,0 +1,7 @@
+{
+  // local_system_secrets encryption is mandatory, so the key file must resolve
+  // wherever the server boots. Deploys mount it and set CRYPTO_KEY_FILE.
+  "crypto": {
+    "keyFile": "CRYPTO_KEY_FILE"
+  }
+}

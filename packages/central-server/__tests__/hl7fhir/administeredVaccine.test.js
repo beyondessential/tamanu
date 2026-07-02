@@ -2,7 +2,7 @@ import { fake, fakeReferenceData, fakeUser } from '@tamanu/fake-data/fake';
 import {
   administeredVaccineToHL7Immunization,
   getAdministeredVaccineInclude,
-} from '../../dist/hl7fhir/administeredVaccine';
+} from '../../app/hl7fhir/administeredVaccine';
 import { createTestContext } from '../utilities';
 
 import { validate } from './hl7utilities';
@@ -15,7 +15,7 @@ describe('HL7 Administered Vaccines', () => {
   let administeredVaccineId;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
     const {
       User,

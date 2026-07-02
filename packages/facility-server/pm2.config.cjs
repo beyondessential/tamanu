@@ -2,16 +2,25 @@ const os = require('node:os');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
+// NOTE: We also explicitly set this value in the Dockerfile for when running in containers
+// but the two values should resolve to the same path
+process.env.NODE_CONFIG_DIR = cwd + '/config/';
+const config = require('config');
+
+const totalMemoryMB = Math.round(os.totalmem() / 1024 ** 2);
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
-const lowMemory = totalMemoryMB < 2500;
 
 const availableThreads = os.availableParallelism();
-const minimumApiScale = 2;
+const minimumApiScale = totalMemoryMB > 3000 ? 2 : 1;
 const maximumApiScale = 4; // more requires custom caddy config
-const defaultApiScale = Math.min(maximumApiScale, Math.max(minimumApiScale, Math.floor(availableThreads / 2)));
+const defaultApiScale = Math.min(
+  maximumApiScale,
+  Math.max(minimumApiScale, Math.floor(availableThreads / 2)),
+);
 
-const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+const lowMemory = totalMemoryMB < 2500;
 
 // Use the Node runtime bundled in runtime/ next to this config if present,
 // otherwise the node running this process.
@@ -26,16 +35,18 @@ function task(name, args, instances = 1, env = {}) {
   const base = {
     name,
     cwd,
-    script: './dist/index.js',
+    // Run from TypeScript source via the tsx loader.
+    script: './app/index.js',
     args,
     interpreter,
-    interpreter_args: `--max_old_space_size=${memory}`,
+    interpreter_args: `--import tsx --max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
     restart_delay: 5000,
     env: {
-      NODE_ENV: 'production',
       ...env,
+      NODE_ENV: 'production',
+      NODE_CONFIG_DIR: 'config/',
     },
   };
 
@@ -46,16 +57,28 @@ function task(name, args, instances = 1, env = {}) {
   return base;
 }
 
-module.exports ={
-  apps: lowMemory ? [
-    task('tamanu-all', 'startAll', 1, {
-      PORT: +process.env.TAMANU_API_PORT || 4000,
-    }),
-  ] : [
-    task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
-      PORT: +process.env.TAMANU_API_PORT || 4000,
-    }),
-    task('tamanu-tasks', 'startTasks'),
-    task('tamanu-sync', 'startSync'),
-  ],
-};
+const apps = lowMemory
+  ? [
+      task('tamanu-all', 'startAll', 1, {
+        PORT: +process.env.TAMANU_API_PORT || 4000,
+      }),
+    ]
+  : [
+      task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
+        PORT: +process.env.TAMANU_API_PORT || 4000,
+      }),
+      task('tamanu-tasks', 'startTasks'),
+      task('tamanu-sync', 'startSync'),
+    ];
+
+if (config?.integrations?.fhir?.worker?.enabled) {
+  apps.push(
+    task(
+      'tamanu-fhir-refresh',
+      'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream',
+    ),
+    task('tamanu-fhir-resolve', 'startFhirWorker --topics=fhir.resolver'),
+  );
+}
+
+module.exports = { apps };

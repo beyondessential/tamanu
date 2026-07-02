@@ -37,8 +37,6 @@ permissions:
   issues: read # to parse special deploy issues
   id-token: write # OIDC token for AWS (only for release tags)
 
-env:
-  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   # This job sets everything up. It parses the run metadata, event payload, PR or issue bodies,
@@ -231,7 +229,7 @@ jobs:
             sha-${{ needs.config.outputs.sha }}.${{ matrix.platform.arch }}
             type=raw,value=latest,enable=false
           labels: |
-            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.vendor=BES International
             org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
             org.opencontainers.image.url=https://www.bes.au/products/tamanu/
             org.opencontainers.image.source=https://github.com/beyondessential/tamanu/

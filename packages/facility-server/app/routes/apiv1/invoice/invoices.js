@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { keyBy, round } from 'lodash';
+import { keyBy, round } from 'es-toolkit/compat';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import {
   INVOICE_ITEMS_DISCOUNT_TYPES,
@@ -171,7 +171,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(crypto.randomUUID),
+        id: z.string().uuid().default(() => crypto.randomUUID()),
         percentage: z.coerce
           .number()
           .min(0)
@@ -184,7 +184,7 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(crypto.randomUUID),
+        id: z.string().uuid().default(() => crypto.randomUUID()),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -197,7 +197,7 @@ const updateInvoiceSchema = z
         sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(crypto.randomUUID),
+            id: z.string().uuid().default(() => crypto.randomUUID()),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),
