@@ -217,6 +217,7 @@ export function createApiv1({ authLimiter } = {}) {
         deviceId: device?.id,
         facilityId,
         impersonateRoleId: roleId ?? undefined,
+        expiresIn: await (req.settings.global ?? req.settings).get('auth.tokenDuration'),
       });
 
       const roleString = roleId || user.role;

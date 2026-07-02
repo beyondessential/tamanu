@@ -13,8 +13,6 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false,
-    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
@@ -22,11 +20,6 @@
       // "acquire": 60000,
       // "evict": 1000
     },
-  },
-  debugging: {
-    // set a `tamanu-debug` header on a request with the value of this key
-    // and the errors will get stack traces.
-    apiErrorsToken: false,
   },
   "metaServer": {
     "hosts": [
@@ -37,12 +30,6 @@
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
-  },
-  "log": {
-    "path": "",
-    "consoleLevel": "http",
-    "color": true,
-    "timeless": false,
   },
   errors: {
     // enable to send errors to a bug tracking service
@@ -380,13 +367,9 @@
       "password": ""
     }
   },
-  // on the central-server, don't read these values from config!
-  // use the getLocalisation() helper in packages/central-server/app/localisation.js
-  // this will ensure we can read these values from the database in the future
+  // Legacy block: these values have moved into settings (see CONFIG_TO_SETTINGS);
+  // anything still set here is served as a fallback until migrated on upgrade.
   "localisation": {
-    "allowInvalid": false,
-    // the labResultWidget and timeZone keys are here for legacy reasons
-    // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
       "categoryWhitelist": ["labTestCategory-COVID"],
       "testTypeWhitelist": ["labTestType-COVID"]
@@ -406,10 +389,6 @@
         // e.g.
         // "xRay": { "label": "X-Ray" }
       },
-      // The time zone setting is currently only used for Vaccine Certificates
-      // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
-      "timeZone": null,
-
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
@@ -424,16 +403,6 @@
     }
   },
   "scheduledReports": [],
-  "disk": {
-    "diskPath": "C:/",
-  },
-  // Note: this config should be duplicated on the facility server if the same behavior is
-  // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
-  },
   "notifications": {
     "certificates": {
       "labTestCategoryIds": []
@@ -460,26 +429,9 @@
       "max": 30
     }
   },
-  "proxy": {
-    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
-    //
-    // This should only be set to servers we trust! `loopback` is a safe default
-    // because it means we only trust proxies running on the machine itself, e.g.
-    // local nginx.
-    //
-    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
-    // this shouldn't need to be changed.
-    "trusted": ["loopback"]
-  },
   "validateQuestionConfigs": {
     "enabled": true
   },
-  // IANA tzdata timezone for all stored datetimes.
-  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
-  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "primaryTimeZone": null,
-  "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false,
   "socket.io": {
     enabled: true,
   },

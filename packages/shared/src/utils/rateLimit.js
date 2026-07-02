@@ -1,4 +1,3 @@
-import config from 'config';
 import { rateLimit } from 'express-rate-limit';
 
 import { RateLimitedError } from '@tamanu/errors';
@@ -10,11 +9,6 @@ import { log } from '../services/logging';
 const RATE_LIMITING_DISABLED = process.env.NODE_ENV === 'test';
 
 const noopMiddleware = (_req, _res, next) => next();
-
-const getRateLimitConfig = () => {
-  // tolerate the config section being absent so older local configs keep working
-  return config.has('rateLimit') ? config.get('rateLimit') : {};
-};
 
 // `express-rate-limit` keys off `req.ip`, which respects the `trust proxy`
 // setting configured on the express app. Rejections are surfaced through the
@@ -55,12 +49,11 @@ const DEFAULT_AUTH = { windowMs: 15 * 60 * 1000, max: 30 };
  * `skipSuccessfulRequests` for the auth limiter is always true and cannot be
  * overridden by config (spread order below).
  */
-export const buildRateLimiters = () => {
+export const buildRateLimiters = (rateLimitConfig = {}) => {
   if (RATE_LIMITING_DISABLED) {
     return { globalLimiter: noopMiddleware, authLimiter: noopMiddleware };
   }
 
-  const rateLimitConfig = getRateLimitConfig();
   if (rateLimitConfig.enabled === false) {
     return { globalLimiter: noopMiddleware, authLimiter: noopMiddleware };
   }

@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
 import {
   getAdministeredVaccines,
@@ -13,6 +12,7 @@ import {
   getProcedures,
 } from './patientData';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import { getAuthSecret } from '@tamanu/shared/utils';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -25,12 +25,12 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   const router = express.Router();
 
   // Auth routes
-  router.post('/login', limiter, login({ secret: config.auth.secret }));
+  router.post('/login', limiter, login({ secret: getAuthSecret() }));
   router.post('/request-login-token', limiter, requestLoginToken);
   router.post('/verify-registration', limiter, register);
 
   // Portal auth middleware
-  router.use(patientPortalMiddleware({ secret: config.auth.secret }));
+  router.use(patientPortalMiddleware({ secret: getAuthSecret() }));
 
   // Patient data routes
   router.get('/me', getPatient);

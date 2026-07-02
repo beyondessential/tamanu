@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { parseISO } from 'date-fns';
 import { literal, Op } from 'sequelize';
@@ -355,7 +354,7 @@ globalImagingRequests.get(
       { key: 'departmentId', operator: Op.eq },
     ]);
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-    const primaryTimeZone = getPrimaryTimeZone(config);
+    const primaryTimeZone = getPrimaryTimeZone();
 
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {

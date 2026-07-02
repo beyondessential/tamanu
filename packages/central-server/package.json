@@ -20,11 +20,11 @@
     "clean:deps": "rimraf -- node_modules",
     "setup-dev": "node --import tsx app setup",
     "shell": "node --import tsx app shell",
-    "start-dev": "npm run start-watch",
-    "start-dev:test": "NODE_ENV=test npm run start-watch",
+    "start-dev": "MIGRATE_ON_STARTUP=true TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland npm run start-watch",
+    "start-dev:test": "NODE_ENV=test MIGRATE_ON_STARTUP=true TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland npm run start-watch",
     "start-watch": "node --import tsx --watch app",
     "start": "node --import tsx app",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test TAMANU_PRIMARY_TIMEZONE=Pacific/Auckland ALLOW_CONFIG_MUTATIONS=true jest",
     "test-watch": "npm run test -- --watch"
   },
   "devDependencies": {

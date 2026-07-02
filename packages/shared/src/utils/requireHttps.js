@@ -33,7 +33,7 @@ export async function isHttpsRequired(settings) {
  * Rejects requests that did not arrive over HTTPS when the `security.requireHttps` setting is on.
  *
  * `req.secure` reflects the original client protocol via `X-Forwarded-Proto` because both servers
- * set `trust proxy` from `config.proxy.trusted` (loopback by default). Operators must therefore run
+ * set `trust proxy` from the `PROXY_TRUSTED` env var (loopback by default). Operators must therefore run
  * a TLS-terminating proxy that is trusted and forwards that header, or every request will be
  * rejected once the setting is enabled. Must run after `settingsReaderMiddleware` so `req.settings`
  * is available.

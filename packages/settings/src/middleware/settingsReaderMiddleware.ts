@@ -20,6 +20,8 @@ export const settingsReaderMiddleware = (req, _res, next) => {
         }),
         {},
       );
+      // Server-wide reads (mirrors ApplicationContext's settings shape)
+      req.settings.global = new ReadSettings(models);
     } else {
       req.settings = new ReadSettings(models);
     }

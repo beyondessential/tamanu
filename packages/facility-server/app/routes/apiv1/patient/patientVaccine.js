@@ -11,7 +11,6 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const patientVaccineRoutes = express.Router();
@@ -126,7 +125,9 @@ patientVaccineRoutes.get(
     let data;
     await req.db.transaction(async () => {
       // Set timezone to primary timezone this is because sequelize timezone is defaulted to UTC currently
-      await req.db.query(`SET TIME ZONE '${getPrimaryTimeZone(config)}'`);
+      await req.db.query('SET TIME ZONE :timezone', {
+        replacements: { timezone: getPrimaryTimeZone() },
+      });
       const results = await req.db.query(
         `SELECT
         sv.id "scheduledVaccineId",

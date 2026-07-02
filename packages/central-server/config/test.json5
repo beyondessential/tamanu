@@ -16,9 +16,6 @@
     },
     "useHardcodedPermissions": false
   },
-  "log": {
-    "consoleLevel": "warn"
-  },
   "cors": {
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
@@ -97,6 +94,5 @@
   },
   "validateQuestionConfigs": {
     "enabled": true
-  },
-  "primaryTimeZone": "Pacific/Auckland"
+  }
 }

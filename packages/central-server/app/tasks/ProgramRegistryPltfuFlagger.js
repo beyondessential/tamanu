@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op, QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -17,7 +16,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const conf = {
-      ...config.schedules.programRegistryPltfuFlagger,
+      ...context.schedules.programRegistryPltfuFlagger,
       ...overrideConfig,
     };
     const { schedule, jitterTime, enabled } = conf;

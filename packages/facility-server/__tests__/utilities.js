@@ -125,6 +125,8 @@ class MockApplicationContext extends ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+    // Mirrors resolveSchedules, so tests can construct tasks directly
+    this.schedules = await this.settings[facilityIds[0]].get('schedules');
 
     const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;

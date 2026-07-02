@@ -30,7 +30,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.mSupplyMedIntegrationProcessor;
+    const conf = context.schedules.mSupplyMedIntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.scheduleConfig = conf;
@@ -210,7 +210,15 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { enabled, username, password } = config.integrations.mSupplyMed;
+    // Ensure this facility is not an omni server
+    if (this.serverFacilityIds.length > 1) {
+      log.warn('This facility is an omni server, skipping mSupplyMedIntegrationProcessor');
+      return;
+    }
+    const [facilityId] = this.serverFacilityIds;
+
+    const { enabled, username, password, host, storeId, customerCode } =
+      await this.client.getSettings(facilityId);
 
     // If the integration is disabled, delete the enabled-at fact and skip
     if (!enabled) {
@@ -223,14 +231,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     // set it to the current date if it doesn't exist
     const enabledAt = await this.getEnabledAt();
 
-    // Ensure this facility is not an omni server
-    if (this.serverFacilityIds.length > 1) {
-      log.warn('This facility is an omni server, skipping mSupplyMedIntegrationProcessor');
-      return;
-    }
-    const [facilityId] = this.serverFacilityIds;
-
-    const { host, storeId, customerCode } = await this.client.getSettings(facilityId);
     if (!host || !username || !password || !storeId || !customerCode) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;

@@ -1,6 +1,5 @@
 import { context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -9,18 +8,18 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
 import { SERVER_TYPES } from '@tamanu/constants';
+import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
 
 export const userMiddleware = asyncHandler(async (req, res, next) => {
-  const {
-    auth: { secret, tokenDuration },
-    canonicalHostName,
-  } = config;
+  const secret = getAuthSecret();
+  const canonicalHostName = getCanonicalHostName();
   const {
     store: {
       models: { User },
     },
     settings,
   } = req;
+  const tokenDuration = await settings.get('auth.tokenDuration');
 
   const { token, user, device } = await User.loginFromAuthorizationHeader(
     req.get('authorization'),

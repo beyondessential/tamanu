@@ -114,7 +114,7 @@ describe('GenerateMedicationAdministrationRecords', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }));
+      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }), expect.any(Number));
     });
 
     it('should process multiple prescriptions', async () => {
@@ -129,13 +129,13 @@ describe('GenerateMedicationAdministrationRecords', () => {
       ).toHaveBeenCalledTimes(3);
       expect(
         models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription1.id }));
+      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription1.id }), expect.any(Number));
       expect(
         models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription2.id }));
+      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription2.id }), expect.any(Number));
       expect(
         models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription3.id }));
+      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription3.id }), expect.any(Number));
     });
   });
 
@@ -180,7 +180,7 @@ describe('GenerateMedicationAdministrationRecords', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }));
+      ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }), expect.any(Number));
     });
 
     it('should not generate records for discontinued prescriptions', async () => {
@@ -234,7 +234,7 @@ describe('GenerateMedicationAdministrationRecords', () => {
       prescriptions.forEach(prescription => {
         expect(
           models.MedicationAdministrationRecord.generateMedicationAdministrationRecords,
-        ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }));
+        ).toHaveBeenCalledWith(expect.objectContaining({ id: prescription.id }), expect.any(Number));
       });
     });
   });

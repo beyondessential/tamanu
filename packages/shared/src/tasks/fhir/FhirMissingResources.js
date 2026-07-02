@@ -8,7 +8,11 @@ import { Op } from 'sequelize';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context, overrideConfig = null) {
-    const conf = { ...config.schedules.fhirMissingResources, ...overrideConfig };
+    // context.schedules is settings-resolved on central; config covers other callers
+    const conf = {
+      ...(context.schedules?.fhirMissingResources ?? config.schedules.fhirMissingResources),
+      ...overrideConfig,
+    };
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log.child({ task: 'FhirMissingResources' }), jitterTime, enabled);
     this.config = conf;

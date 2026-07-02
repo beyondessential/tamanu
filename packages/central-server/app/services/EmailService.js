@@ -4,19 +4,26 @@ import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 import { mailgunTransport } from './mailgunTransport.js';
 
-function createTransporter() {
-  // When `mail.transport` is set, it is passed through to nodemailer.createTransport()
-  // unchanged, so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.)
-  // or nodemailer transport plugin can be used. See https://nodemailer.com/transports/.
-  if (config.mail?.transport) {
-    return nodemailer.createTransport(config.mail.transport);
+function createTransporter(transport, transportPassword, mailgun) {
+  // The `mail.transport` setting is passed through to nodemailer.createTransport() unchanged,
+  // so any SMTP option (host/port/secure/auth, service shortcuts, pooling, etc.) or nodemailer
+  // transport plugin can be used. See https://nodemailer.com/transports/. The SMTP password is
+  // kept out of the transport object (in the `mail.transportPassword` secret) and merged into
+  // its auth here, so the credential is encrypted and masked rather than stored in plain text.
+  if (transport) {
+    const merged = transportPassword
+      ? { ...transport, auth: { ...transport.auth, pass: transportPassword } }
+      : transport;
+    return nodemailer.createTransport(merged);
   }
 
-  // Legacy `mailgun` config: route the Mailgun HTTP API through nodemailer too, so there
-  // is a single send path regardless of which backend is configured.
-  const { apiKey, domain, url } = config.mailgun ?? {};
+  // Mailgun HTTP API routed through nodemailer too, so there is a single send
+  // path regardless of which backend is configured. Settings first; the raw
+  // config block is transitional and goes away with the config file.
+  const { apiKey, domain, url } = [mailgun, config.mailgun].find(m => m?.apiKey && m?.domain) ?? {};
   if (apiKey && domain) {
     return nodemailer.createTransport(mailgunTransport({ apiKey, domain, url }));
   }
@@ -63,8 +70,30 @@ function shouldRetrySendError(e) {
 }
 
 export class EmailService {
-  constructor() {
-    this.transporter = createTransporter();
+  constructor(transport, transportPassword, mailgun) {
+    this.transporter = createTransporter(transport, transportPassword, mailgun);
+  }
+
+  /**
+   * Build an EmailService from settings, resolving the `mail.transport` object and
+   * the `mail.transportPassword` secret (decrypted) separately.
+   */
+  static async fromSettings(settings) {
+    const transport = await settings.get('mail.transport');
+    const mailgun = { ...(await settings.get('mail.mailgun')) };
+    let transportPassword;
+    try {
+      transportPassword = await getSettingSecret(settings, 'mail.transportPassword');
+    } catch (error) {
+      // Not configured is fine — transport may not need auth, or we fall back to mailgun.
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+    }
+    try {
+      mailgun.apiKey = await getSettingSecret(settings, 'mail.mailgun.apiKey');
+    } catch (error) {
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+    }
+    return new EmailService(transport, transportPassword, mailgun);
   }
 
   /**

@@ -1,4 +1,3 @@
-import config from 'config';
 import semver from 'semver';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -15,10 +14,10 @@ function getShouldBypass(): {
   shouldBypass: boolean;
   reason: string | null;
 } {
-  if (config.db?.skipVersionCompatibilityCheck === true) {
+  if (process.env.DB_SKIP_VERSION_COMPATIBILITY_CHECK === 'true') {
     return {
       shouldBypass: true,
-      reason: 'db.skipVersionCompatibilityCheck is enabled',
+      reason: 'DB_SKIP_VERSION_COMPATIBILITY_CHECK is enabled',
     };
   }
   if (process.env.NODE_ENV !== 'production') {
@@ -62,7 +61,7 @@ export class DatabaseIncompatibleError extends Error {
       `Database version compatibility check failed. Database has been used with v${storedVersion}, but this server is v${serverVersion}.` +
         '\n\nThis could mean there’s been a partial rollback after an aborted upgrade. Possible recovery steps:' +
         `\n\n- if you’re confident the database is compatible, manually update the currentVersion row in local_system_facts to ${serverVersion};` +
-        '\n- set db.skipVersionCompatibilityCheck to true in config (not recommended).\n',
+        '\n- set the DB_SKIP_VERSION_COMPATIBILITY_CHECK env var to true (not recommended).\n',
     );
     this.name = 'DatabaseIncompatibleError';
     this.storedVersion = storedVersion;

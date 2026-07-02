@@ -46,6 +46,7 @@ describe('syncDatabaseServerVersion', () => {
 
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.DB_SKIP_VERSION_COMPATIBILITY_CHECK;
   });
 
   it('writes the server version when the fact is missing', async () => {
@@ -108,8 +109,8 @@ describe('syncDatabaseServerVersion', () => {
     });
   });
 
-  it('skips the check and write when db.skipVersionCompatibilityCheck is enabled', async () => {
-    (config as any).db.skipVersionCompatibilityCheck = true;
+  it('skips the check and write when DB_SKIP_VERSION_COMPATIBILITY_CHECK is enabled', async () => {
+    process.env.DB_SKIP_VERSION_COMPATIBILITY_CHECK = 'true';
     storedValue = '9.9.9';
 
     await syncDatabaseServerVersion({ models, serverVersion: '2.44.0' });
@@ -117,7 +118,7 @@ describe('syncDatabaseServerVersion', () => {
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
     expect(log.warn).toHaveBeenCalledWith('Bypassing database version compatibility check', {
-      reason: 'db.skipVersionCompatibilityCheck is enabled',
+      reason: 'DB_SKIP_VERSION_COMPATIBILITY_CHECK is enabled',
     });
   });
 
@@ -162,6 +163,6 @@ describe('DatabaseIncompatibleError', () => {
     expect(error.message).toContain('2.45.0');
     expect(error.message).toContain('2.44.0');
     expect(error.message).toContain('local_system_facts');
-    expect(error.message).toContain('db.skipVersionCompatibilityCheck');
+    expect(error.message).toContain('DB_SKIP_VERSION_COMPATIBILITY_CHECK');
   });
 });

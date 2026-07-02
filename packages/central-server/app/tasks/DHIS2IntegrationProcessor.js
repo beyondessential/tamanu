@@ -58,7 +58,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.dhis2IntegrationProcessor;
+    const conf = context.schedules.dhis2IntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
@@ -83,11 +83,10 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
    * chain: settings secret (DB) → config secret (encrypted file) → plain config.
    */
   async getDHIS2Credentials() {
+    // The legacy config username is served through the settings config fallback
+    // (see CONFIG_TO_SETTINGS), so reading settings covers both sources.
     const dhis2Settings = await this.context.settings.get('integrations.dhis2');
-    // Falsy fallback is intentional: empty-string default in the schema means
-    // "not configured", so we want to fall through to config in that case.
-    const username =
-      dhis2Settings?.username || config.integrations?.dhis2?.username || null;
+    const username = dhis2Settings?.username || null;
     const password = await this.getDHIS2Password();
     return { username, password };
   }

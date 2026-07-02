@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
+import config from 'config';
 import __cjs_bcrypt from 'bcrypt';
 const { compare } = __cjs_bcrypt;
-import config from 'config';
 import * as jose from 'jose';
 import ms from 'ms';
 import * as z from 'zod';
@@ -18,10 +18,9 @@ import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
+import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
 
-const { tokenDuration, secret } = config.auth;
-
-const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
+const jwtSecretKey = getAuthSecret() ?? crypto.randomBytes(32).toString('hex');
 
 const CENTRAL_LOGIN_INCOMPATIBLE_ERROR_TYPES = new Set([
   ERROR_TYPE.CLIENT_INCOMPATIBLE,
@@ -56,13 +55,13 @@ function shouldSkipCentralLoginForTest() {
 
 export async function buildToken({
   user,
-  expiresIn = tokenDuration ?? '1h',
+  expiresIn = '1h',
   deviceId = undefined,
   facilityId = undefined,
   impersonateRoleId = undefined,
 }) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
-  const { canonicalHostName = 'localhost' } = config;
+  const canonicalHostName = getCanonicalHostName() ?? 'localhost';
 
   let expirationTime;
   try {
@@ -148,18 +147,16 @@ export async function centralServerLogin({
 }
 
 async function localLogin({ models, settings, email, password, deviceId }) {
-  const {
-    auth: { secret, tokenDuration },
-    canonicalHostName,
-  } = config;
-  const primaryTimeZone = getPrimaryTimeZone(config);
+  const canonicalHostName = getCanonicalHostName();
+  const tokenDuration = await (settings.global ?? settings).get('auth.tokenDuration');
+  const primaryTimeZone = getPrimaryTimeZone();
   const { user } = await models.User.loginFromCredential(
     {
       email,
       password,
       deviceId,
     },
-    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: getAuthSecret() },
   );
 
   const allowedFacilities = await user.allowedFacilities();
@@ -307,14 +304,15 @@ export async function refreshHandler(req, res) {
 
 function createAuthMiddleware({ requireDeviceId }) {
   return async (req, res, next) => {
-    const { canonicalHostName = 'localhost' } = config;
+    const canonicalHostName = getCanonicalHostName() ?? 'localhost';
     const { models, settings } = req;
     try {
+      const globalSettings = settings.global ?? settings;
       const { token, user, facility, device, impersonateRoleId } =
         await models.User.loginFromAuthorizationHeader(req.get('authorization'), {
           log,
-          settings: settings.global ?? settings,
-          tokenDuration,
+          settings: globalSettings,
+          tokenDuration: await globalSettings.get('auth.tokenDuration'),
           tokenIssuer: canonicalHostName,
           tokenSecret: jwtSecretKey,
         });

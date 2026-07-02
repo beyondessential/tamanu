@@ -6,11 +6,13 @@ import {
 
 import { extractDefaults } from './utils';
 import {
+  batchingProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
+  scheduledTaskSchema,
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
@@ -91,12 +93,27 @@ export const facilitySettings = {
         mSupplyMed: {
           description: 'mSupplyMed settings',
           properties: {
+            enabled: {
+              description: 'Enable the mSupplyMed integration',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
             host: {
               description: 'The host of the open mSupply instance',
               type: yup
                 .string()
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
+            },
+            username: {
+              description: 'Username for open mSupply API authentication',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            password: {
+              description: 'Password for open mSupply API authentication',
+              type: yup.string(),
+              secret: true,
             },
             storeId: {
               description: 'The ID of the store in the open mSupply instance',
@@ -173,6 +190,31 @@ export const facilitySettings = {
         },
       },
     },
+    schedules: {
+      name: 'Scheduled tasks',
+      description:
+        'Cron schedules and tuning for facility-server background tasks. On a server that serves several facilities, the first facility’s values apply.',
+      requiresRestart: true,
+      properties: {
+        refreshMaterializedView: {
+          description: 'Materialised view refreshers',
+          properties: {
+            upcomingVaccinations: scheduledTaskSchema({ schedule: '*/10 * * * *' }),
+          },
+        },
+        fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
+        sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
+        mSupplyMedIntegrationProcessor: scheduledTaskSchema(
+          { schedule: '0 2 * * *', enabled: false },
+          batchingProperties(100, 50),
+        ),
+        mSupplyStockOnHandProcessor: scheduledTaskSchema({
+          schedule: '0 * * * *',
+          enabled: false,
+        }),
+      },
+    },
     sync: {
       description: 'Facility sync settings',
       exposedToWeb: true,
@@ -189,6 +231,17 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+        },
+      },
+    },
+    tasking: {
+      description: 'Settings related to patient tasking',
+      properties: {
+        upcomingTasksTimeFrame: {
+          description: 'How far ahead to include upcoming (not-yet-due) tasks in task lists',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 8,
         },
       },
     },

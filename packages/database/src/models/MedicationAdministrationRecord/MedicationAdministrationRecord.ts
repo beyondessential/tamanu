@@ -8,7 +8,6 @@ import {
   TASK_TYPES,
 } from '@tamanu/constants';
 import { addDays, addHours, addMonths, endOfDay, getDate, isValid, setDate, startOfDay } from 'date-fns';
-import config from 'config';
 import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
@@ -91,7 +90,10 @@ export class MedicationAdministrationRecord extends Model {
    *
    * @param prescription The prescription object for which to generate MARs.
    */
-  static async generateMedicationAdministrationRecords(prescription: Prescription) {
+  static async generateMedicationAdministrationRecords(
+    prescription: Prescription,
+    upcomingRecordsShouldBeGeneratedTimeFrame: number = 72,
+  ) {
     if (
       !prescription.frequency ||
       !prescription.startDate ||
@@ -128,10 +130,6 @@ export class MedicationAdministrationRecord extends Model {
         prescription.idealTimes,
       );
     }
-
-    // Get the upcoming records should be generated time frame
-    const upcomingRecordsShouldBeGeneratedTimeFrame =
-      config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
 
     let endDate = endOfDay(addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame));
 

@@ -96,6 +96,61 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        tokenDuration: {
+          name: 'Session token duration',
+          description: 'How long a login token stays valid, e.g. ‘1h’',
+          type: yup.string(),
+          defaultValue: '1h',
+        },
+        useHardcodedPermissions: {
+          name: 'Use hardcoded permissions',
+          description:
+            'Use the built-in role permissions instead of permissions imported into the database',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        refreshToken: {
+          description: 'Refresh tokens (kept by internal clients to renew a session)',
+          properties: {
+            tokenDuration: {
+              name: 'Duration',
+              description: 'How long a refresh token stays valid, e.g. ‘30d’',
+              type: yup.string(),
+              defaultValue: '30d',
+            },
+            absoluteExpiration: {
+              name: 'Absolute expiration',
+              description:
+                'When on, refreshing does not extend the expiry beyond the original window',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            refreshIdLength: {
+              name: 'Refresh ID length',
+              description: 'Length in bytes of the random refresh identifier',
+              type: yup.number().integer().positive(),
+              defaultValue: 54,
+            },
+          },
+        },
+        resetPassword: {
+          description: 'One-time password-reset logins',
+          properties: {
+            tokenLength: {
+              name: 'Token length',
+              description: 'Length in bytes of the reset token',
+              type: yup.number().integer().positive(),
+              defaultValue: 6,
+            },
+            tokenExpiry: {
+              name: 'Token expiry',
+              description: 'How long a reset token stays valid',
+              type: yup.number().integer().positive(),
+              defaultValue: 20,
+              unit: 'minutes',
+            },
+          },
+        },
       },
     },
     ageDisplayFormat: {
@@ -157,6 +212,182 @@ export const globalSettings = {
           }
         }),
       defaultValue: null,
+    },
+    country: {
+      name: 'Country',
+      description: 'The country this deployment serves, used on certificates and reports',
+      properties: {
+        name: {
+          name: 'Name',
+          description: 'Country name as shown on documents',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        'alpha-2': {
+          name: 'Alpha-2 code',
+          description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          defaultValue: '',
+        },
+        'alpha-3': {
+          name: 'Alpha-3 code',
+          description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          defaultValue: '',
+        },
+      },
+    },
+    units: {
+      name: 'Units',
+      description: 'Measurement units used for display',
+      properties: {
+        temperature: {
+          name: 'Temperature',
+          description: 'Unit for displaying body temperature',
+          type: yup.string().oneOf(['celsius', 'fahrenheit']),
+          defaultValue: 'celsius',
+          exposedToWeb: true,
+        },
+      },
+    },
+    imagingTypes: {
+      name: 'Imaging types',
+      description:
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+      type: yup.object(),
+      defaultValue: {},
+      exposedToWeb: true,
+      editor: SETTING_EDITORS.MAPPING,
+    },
+    reporting: {
+      description: 'Reporting',
+      properties: {
+        disabledReports: {
+          name: 'Disabled reports',
+          description:
+            'IDs of report definitions that cannot be run or requested on this deployment',
+          type: yup.array(yup.string().required()),
+          defaultValue: [],
+        },
+      },
+    },
+    supportDeskUrl: {
+      name: 'Support desk URL',
+      description: 'Where the in-app support links point',
+      type: yup.string(),
+      defaultValue: 'https://bes-support.zendesk.com/hc/en-us',
+      exposedToWeb: true,
+    },
+    rateLimit: {
+      name: 'Rate limiting',
+      description:
+        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      requiresRestart: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Whether rate limiting applies at all',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        global: {
+          description: 'Permissive limit applied to every request as a DoS backstop',
+          properties: {
+            windowMs: {
+              name: 'Window',
+              type: yup.number().integer().positive(),
+              defaultValue: 60000,
+              unit: 'ms',
+            },
+            max: {
+              name: 'Max requests',
+              description: 'Maximum requests per window per IP',
+              type: yup.number().integer().positive(),
+              defaultValue: 600,
+            },
+          },
+        },
+        auth: {
+          description:
+            'Stricter limit for unauthenticated endpoints (login, refresh, password reset); successful requests are not counted',
+          properties: {
+            windowMs: {
+              name: 'Window',
+              type: yup.number().integer().positive(),
+              defaultValue: 900000,
+              unit: 'ms',
+            },
+            max: {
+              name: 'Max requests',
+              description: 'Maximum failed requests per window per IP',
+              type: yup.number().integer().positive(),
+              defaultValue: 30,
+            },
+          },
+        },
+      },
+    },
+    medicationAdministrationRecord: {
+      description: 'Settings for medication administration records',
+      properties: {
+        upcomingRecordsShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) medication administration records are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
+    },
+    metaServer: {
+      name: 'Meta server',
+      description: 'The Tamanu meta server this deployment reports status to',
+      properties: {
+        updateUrls: {
+          description: 'Where outdated clients are sent to update',
+          properties: {
+            mobile: {
+              name: 'Mobile update URL',
+              description: 'URL template for mobile client updates ({minVersion} is substituted)',
+              type: yup.string(),
+              defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
+            },
+          },
+        },
+        hosts: {
+          name: 'Hosts',
+          description: 'Meta server base URLs',
+          type: yup.array(yup.string()),
+          defaultValue: ['https://meta.tamanu.app'],
+        },
+        serverId: {
+          name: 'Server ID',
+          description: 'Identifier for this deployment on the meta server',
+          type: yup.string().nullable(),
+          defaultValue: null,
+        },
+        timeoutMs: {
+          name: 'Timeout',
+          description: 'Timeout for meta server requests',
+          type: yup.number().integer().positive(),
+          defaultValue: 20000,
+          unit: 'ms',
+        },
+      },
+    },
+    tasking: {
+      description: 'Tasking settings',
+      properties: {
+        upcomingTasksShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) repeating tasks are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
     },
     appointments: {
       description: 'Appointment settings',

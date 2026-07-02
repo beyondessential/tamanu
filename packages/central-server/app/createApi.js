@@ -85,21 +85,22 @@ export async function createApi(ctx) {
       strictTransportSecurity: false,
     }),
   );
-  express.use(loadshedder());
+  express.use(loadshedder(await ctx.settings.get('loadshedder')));
 
   // Apply a permissive global rate limit to every request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
   // endpoints are applied by the auth and patient-portal sub-routers so they
   // cover both /api and /v1 mounts consistently.
-  const limiters = buildRateLimiters();
+  const limiters = buildRateLimiters(await ctx.settings.get('rateLimit'));
   express.use(limiters.globalLimiter);
 
   express.use(compression());
   express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
   express.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 
-  // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  express.set('trust proxy', config.proxy.trusted);
+  // trust the x-forwarded-for header from proxies in the PROXY_TRUSTED env var
+  // (comma-separated list; defaults to `loopback` for a local reverse proxy)
+  express.set('trust proxy', process.env.PROXY_TRUSTED ?? 'loopback');
   express.use(getLoggingMiddleware());
 
   express.use((req, res, next) => {
@@ -108,7 +109,7 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(versionCompatibility);
+  express.use(versionCompatibility(await ctx.settings.get('metaServer.updateUrls')));
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware

@@ -32,6 +32,9 @@ export const SETTINGS_SCOPES = {
 export const SETTING_EDITORS = {
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
+  CRON: 'cron',
+  // Keyed map of { label } entries edited as add/remove key+label rows
+  MAPPING: 'mapping',
 } as const;
 
 export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];

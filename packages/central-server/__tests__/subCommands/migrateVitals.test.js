@@ -4,6 +4,8 @@ import { initDatabase } from '../../app/database';
 jest.mock('../../app/database', () => ({
   initDatabase: jest.fn().mockResolvedValue({
     models: {
+      // Empty settings: the temperature unit falls through to the schema default
+      Setting: { get: jest.fn().mockResolvedValue({}) },
       Vitals: {
         count: jest.fn().mockResolvedValue(1),
         findAll: jest.fn().mockResolvedValue([

@@ -1,6 +1,7 @@
 import { createSecretKey, randomBytes, randomInt } from 'node:crypto';
-import config from 'config';
 import * as jose from 'jose';
+
+import { getAuthSecret } from '@tamanu/shared/utils';
 
 import { JWT_KEY_ALG, JWT_KEY_ID, SERVER_TYPES } from '@tamanu/constants';
 
@@ -14,7 +15,7 @@ export const stripUser = user => {
 
 export const buildToken = async (data, secret, options) => {
   if (!secret) {
-    secret = config.auth.secret ?? crypto.randomUUID();
+    secret = getAuthSecret() ?? crypto.randomUUID();
   }
 
   if (typeof secret === 'string') {

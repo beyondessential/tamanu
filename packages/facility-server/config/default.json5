@@ -1,13 +1,4 @@
 {
-  "admin": {
-    "allowAdminRoutes": false
-  },
-  "log": {
-    "path": "",
-    "consoleLevel": "http",
-    "color": true,
-    "timeless": false,
-  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,
@@ -57,8 +48,6 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false,
-    "skipVersionCompatibilityCheck": false,
   },
   "metaServer": {
     "hosts": [
@@ -66,12 +55,6 @@
     ],
     "serverId": null,
     "timeoutMs": 20000,
-  },
-  "senaite": {
-    "enabled": false,
-    "server": "https://192.168.33.100",
-    "username": "admin",
-    "password": "admin"
   },
   "integrations": {
     "fhir": {
@@ -105,12 +88,6 @@
   },
   "serverFacilityId": null,
   "serverFacilityIds": null,
-  "debugging": {
-    // set a `tamanu-debug` header on a request with the value of this key
-    // and the errors will get stack traces.
-    apiErrorsToken: false,
-    "requestFailureRate": 0
-  },
   "schedules": {
     "refreshMaterializedView": {
       "upcomingVaccinations": {
@@ -145,13 +122,6 @@
       "schedule": "0 * * * *",
     },
   },
-  // Note: this config should be duplicated on the central server if the same behavior is
-  // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
-  },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
     // Rate limit counters key off `req.ip` and therefore respect the
@@ -173,23 +143,6 @@
       "max": 30
     }
   },
-  "proxy": {
-    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
-    //
-    // This should only be set to servers we trust! `loopback` is a safe default
-    // because it means we only trust proxies running on the machine itself, e.g.
-    // local nginx.
-    //
-    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
-    // this shouldn't need to be changed.
-    "trusted": ["loopback"]
-  },
-  // IANA tzdata timezone for all stored datetimes.
-  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
-  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "primaryTimeZone": null,
-  "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false,
   "tasking": {
     "upcomingTasksTimeFrame": 8, // hours,
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours

@@ -1,5 +1,4 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
-import config from 'config';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '../timeZoneCheck';
@@ -68,7 +67,7 @@ export const getReportQueryReplacements = async (
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
 
-  const candidateTimezone = params.timezone ?? getPrimaryTimeZone(config);
+  const candidateTimezone = params.timezone ?? getPrimaryTimeZone();
   const timezone = isValidTimeZone(candidateTimezone) ? candidateTimezone : 'UTC';
 
   return {

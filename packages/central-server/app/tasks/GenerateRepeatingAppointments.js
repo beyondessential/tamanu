@@ -1,4 +1,3 @@
-import config from 'config';
 import { QueryTypes } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -11,7 +10,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.generateRepeatingAppointments;
+    const conf = context.schedules.generateRepeatingAppointments;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;

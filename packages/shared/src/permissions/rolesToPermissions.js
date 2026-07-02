@@ -1,4 +1,4 @@
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 
 //---------------------------------------------------------
@@ -44,16 +44,21 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
 
 // these functions allow testing permissions in isolation
 // they should ONLY be used in tests
-let useHardcodedPermissions = Boolean(config?.auth?.useHardcodedPermissions);
+let hardcodedPermissionsOverride = null;
 export function setHardcodedPermissionsUseForTestsOnly(val) {
-  useHardcodedPermissions = Boolean(val);
+  hardcodedPermissionsOverride = Boolean(val);
 }
 export function unsetUseHardcodedPermissionsUseForTestsOnly() {
-  useHardcodedPermissions = config.auth.useHardcodedPermissions;
+  hardcodedPermissionsOverride = null;
+}
+
+async function shouldUseHardcodedPermissions(models) {
+  if (hardcodedPermissionsOverride !== null) return hardcodedPermissionsOverride;
+  return Boolean(await new ReadSettings(models).get('auth.useHardcodedPermissions'));
 }
 
 export async function getPermissionsForRoles(models, roleString) {
-  if (useHardcodedPermissions) {
+  if (await shouldUseHardcodedPermissions(models)) {
     return getHardcodedPermissions(roleString);
   }
 

@@ -11,6 +11,7 @@ import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { getMetaServerHosts } from '../utils';
 import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
+import { getCanonicalHostName } from '../utils/canonicalHostName';
 
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
@@ -18,17 +19,21 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
   constructor(context, overrideConfig = null) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
+    // context.schedules is settings-resolved on central; facility still reads config
     const { schedule, jitterTime, enabled } =
-      overrideConfig || config.schedules.sendStatusToMetaServer;
+      overrideConfig || context.schedules?.sendStatusToMetaServer || config.schedules.sendStatusToMetaServer;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
+    // Global-scope reader on both servers: facility has the keyed settings object
+    // (with .global), central's reader already includes the global scope.
+    this.globalSettings = context.settings?.global ?? context.settings;
     this.models = context.models || context.store.models;
     this.sequelize = context.sequelize || context.store.sequelize;
     this.serverType = serverType;
     this.version = version;
   }
 
-  async fetch(host, deviceKey, path, options) {
+  async fetch(host, deviceKey, path, options, timeoutMs) {
     const response = await fetch(`${host}/${path}`, {
       ...options,
       headers: {
@@ -39,7 +44,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         'User-Agent': `Tamanu/${this.version} Node.js/${process.version.replace(/^v/, '')}`,
         ...options.headers,
       },
-      timeout: config.metaServer.timeoutMs,
+      timeout: timeoutMs,
       dispatcher: new Agent({
         connect: {
           cert: deviceKey.makeCertificate(),
@@ -57,12 +62,13 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async fetchFromHosts(path, options) {
-    const metaServerHosts = getMetaServerHosts();
+    const metaServer = await this.globalSettings.get('metaServer');
+    const metaServerHosts = getMetaServerHosts(metaServer);
 
     const deviceKey = await this.models.LocalSystemSecret.getDeviceKey();
     for (const metaServerHost of metaServerHosts) {
       try {
-        const response = await this.fetch(metaServerHost, deviceKey, path, options);
+        const response = await this.fetch(metaServerHost, deviceKey, path, options, metaServer.timeoutMs);
         return response;
       } catch (error) {
         log.error(`Failed to fetch from meta server host: ${metaServerHost}`, { error });
@@ -75,12 +81,12 @@ export class SendStatusToMetaServer extends ScheduledTask {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
     this.metaServerId =
-      config.metaServer.serverId ||
+      (await this.globalSettings.get('metaServer.serverId')) ||
       (
         await this.fetchFromHosts('servers', {
           method: 'POST',
           body: JSON.stringify({
-            host: config.canonicalHostName || path.join('http://', os.hostname()),
+            host: getCanonicalHostName() || path.join('http://', os.hostname()),
             kind: this.serverType,
           }),
         })
@@ -99,7 +105,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
-        timezone: getPrimaryTimeZone(config),
+        timezone: getPrimaryTimeZone(),
         pgVersion: pgVersionResult[0].version,
       }),
     });

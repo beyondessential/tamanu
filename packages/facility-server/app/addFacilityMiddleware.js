@@ -18,8 +18,9 @@ export const addFacilityMiddleware = async express => {
     next();
   });
 
-  // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  express.set('trust proxy', config.proxy.trusted);
+  // trust the x-forwarded-for header from proxies in the PROXY_TRUSTED env var
+  // (comma-separated list; defaults to `loopback` for a local reverse proxy)
+  express.set('trust proxy', process.env.PROXY_TRUSTED ?? 'loopback');
   express.use(getLoggingMiddleware());
 
   let errorMiddleware = null;
