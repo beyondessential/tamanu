@@ -106,6 +106,7 @@ const ListInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-block: 13px; // match SettingNameLabel/RowActions: the row band has no padding of its own
   width: ${SETTING_INPUT_WIDTH};
 `;
 
