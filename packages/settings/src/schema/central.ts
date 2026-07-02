@@ -127,32 +127,6 @@ export const centralSettings = {
         },
       },
     },
-    telegramBot: {
-      description: 'Telegram bot integration settings',
-      properties: {
-        apiToken: {
-          description: 'Telegram bot API token (enables the bot when set)',
-          type: yup.string(),
-          secret: true,
-        },
-        webhook: {
-          description: 'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
-          properties: {
-            url: {
-              description:
-                'External webhook URL, e.g. https://central.example.com/api/public/telegram-webhook',
-              type: yup.string(),
-              defaultValue: '',
-            },
-            secret: {
-              description: 'Secret token Telegram includes on webhook requests, used to verify them',
-              type: yup.string(),
-              secret: true,
-            },
-          },
-        },
-      },
-    },
     patientPortal: {
       description: 'Patient portal settings',
       properties: {
@@ -423,6 +397,32 @@ export const centralSettings = {
     integrations: {
       description: 'Integrations with external services',
       properties: {
+        telegram: {
+          description: 'Telegram bot integration settings',
+          properties: {
+            apiToken: {
+              description: 'Telegram bot API token (enables the bot when set)',
+              type: yup.string(),
+              secret: true,
+            },
+            webhook: {
+              description: 'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
+              properties: {
+                url: {
+                  description:
+                    'External webhook URL, e.g. https://central.example.com/api/public/telegram-webhook',
+                  type: yup.string(),
+                  defaultValue: '',
+                },
+                secret: {
+                  description: 'Secret token Telegram includes on webhook requests, used to verify them',
+                  type: yup.string(),
+                  secret: true,
+                },
+              },
+            },
+          },
+        },
         ips: {
           description: 'International Patient Summary (IPS) settings',
           properties: {
@@ -548,18 +548,6 @@ export const centralSettings = {
               },
             },
           },
-        },
-      },
-    },
-    cors: {
-      description: 'Cross-origin access to the public routes (e.g. the lab result widget)',
-      properties: {
-        allowedOrigin: {
-          name: 'Allowed origin',
-          description:
-            'Origin allowed to call the public routes from a browser; unset disables cross-origin access',
-          type: yup.string(),
-          defaultValue: '',
         },
       },
     },
@@ -831,6 +819,18 @@ export const centralSettings = {
       highRisk: true,
       description: 'Security settings',
       properties: {
+        cors: {
+          description: 'Cross-origin access to the public routes (e.g. the lab result widget)',
+          properties: {
+            allowedOrigin: {
+              name: 'Allowed origin',
+              description:
+                'Origin allowed to call the public routes from a browser; unset disables cross-origin access',
+              type: yup.string(),
+              defaultValue: '',
+            },
+          },
+        },
         requireHttps: {
           name: 'Require HTTPS',
           description:

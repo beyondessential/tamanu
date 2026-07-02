@@ -15,7 +15,7 @@ export const publicRoutes = express.Router();
 // are unavailable to browsers on other domains.
 publicRoutes.use(
   asyncHandler(async (req, res, next) => {
-    const allowedOrigin = await req.settings.get('cors.allowedOrigin');
+    const allowedOrigin = await req.settings.get('security.cors.allowedOrigin');
     if (allowedOrigin) {
       res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
     }

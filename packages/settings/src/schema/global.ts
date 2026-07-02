@@ -325,17 +325,6 @@ export const globalSettings = {
         },
       },
     },
-    updateUrls: {
-      description: 'Where outdated clients are sent to update',
-      properties: {
-        mobile: {
-          name: 'Mobile update URL',
-          description: 'URL template for mobile client updates ({minVersion} is substituted)',
-          type: yup.string(),
-          defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
-        },
-      },
-    },
     medicationAdministrationRecord: {
       description: 'Settings for medication administration records',
       properties: {
@@ -351,6 +340,17 @@ export const globalSettings = {
       name: 'Meta server',
       description: 'The Tamanu meta server this deployment reports status to',
       properties: {
+        updateUrls: {
+          description: 'Where outdated clients are sent to update',
+          properties: {
+            mobile: {
+              name: 'Mobile update URL',
+              description: 'URL template for mobile client updates ({minVersion} is substituted)',
+              type: yup.string(),
+              defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
+            },
+          },
+        },
         hosts: {
           name: 'Hosts',
           description: 'Meta server base URLs',

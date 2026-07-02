@@ -39,12 +39,12 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   {
     config: 'patientPortal.loginTokenDurationMinutes',
     setting: 'patientPortal.loginTokenDurationMinutes',
-    scope: SETTINGS_SCOPES.GLOBAL,
+    scope: SETTINGS_SCOPES.CENTRAL,
   },
   {
     config: 'patientPortal.registerTokenDurationMinutes',
     setting: 'patientPortal.registerTokenDurationMinutes',
-    scope: SETTINGS_SCOPES.GLOBAL,
+    scope: SETTINGS_SCOPES.CENTRAL,
   },
   {
     config: 'export.maxFileSizeInMB',
@@ -66,7 +66,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'integrations.dhis2.username',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
-  { config: 'telegramBot', setting: 'telegramBot', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'scheduledReports', setting: 'scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'validateQuestionConfigs.enabled',
@@ -132,7 +132,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'labResultWidget',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
-  { config: 'cors', setting: 'cors', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'cors', setting: 'security.cors', scope: SETTINGS_SCOPES.CENTRAL },
   { config: ['socket.io'], setting: 'websocket', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 's3', setting: 's3', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'loadshedder', setting: 'loadshedder', scope: SETTINGS_SCOPES.CENTRAL },
@@ -140,7 +140,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   // Subtree row: lifts the auth behaviour knobs; the token secrets are absent from
   // the schema (env vars), so the walk never lifts them.
   { config: 'auth', setting: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
-  { config: 'updateUrls', setting: 'updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];
 

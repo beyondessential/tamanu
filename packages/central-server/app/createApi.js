@@ -109,7 +109,7 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(versionCompatibility(await ctx.settings.get('updateUrls')));
+  express.use(versionCompatibility(await ctx.settings.get('metaServer.updateUrls')));
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware

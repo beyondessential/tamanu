@@ -82,7 +82,7 @@ export async function createApiApp({
     next();
   });
 
-  express.use(versionCompatibility(await settings.global.get('updateUrls')));
+  express.use(versionCompatibility(await settings.global.get('metaServer.updateUrls')));
 
   express.use(settingsReaderMiddleware);
 

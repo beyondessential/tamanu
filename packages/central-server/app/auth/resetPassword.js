@@ -5,7 +5,6 @@ import { addMinutes } from 'date-fns';
 import { RateLimitedError } from '@tamanu/errors';
 import { COMMUNICATION_STATUSES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { ReadSettings } from '@tamanu/settings';
 import { getRandomBase64String } from './utils';
 import { getDefaultFromAddress } from '../services/mailConfig';
 
@@ -50,7 +49,7 @@ resetPassword.post(
       log.info(`Trying to login with locked user account: ${email}`);
       throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
     } else {
-      const token = await createOneTimeLogin(models, user);
+      const token = await createOneTimeLogin(models, settings, user);
       await sendResetEmail(req.emailService, user, token, settings);
     }
 
@@ -58,8 +57,8 @@ resetPassword.post(
   }),
 );
 
-const createOneTimeLogin = async (models, user) => {
-  const { tokenLength, tokenExpiry } = await new ReadSettings(models).get('auth.resetPassword');
+const createOneTimeLogin = async (models, settings, user) => {
+  const { tokenLength, tokenExpiry } = await settings.get('auth.resetPassword');
   const token = await getRandomBase64String(tokenLength);
 
   const expiresAt = addMinutes(new Date(), tokenExpiry);
