@@ -38,6 +38,12 @@ const dialogPaperWidthStyles = Object.entries(MODAL_MAX_WIDTHS)
 const Dialog = styled(MuiDialog)`
   ${dialogPaperWidthStyles}
 
+  // The MUI v6 dialog paper is itself a scroll container (overflow-y: auto). Let the inner
+  // ModalContainer own scrolling instead, so tall content doesn't produce a second scrollbar.
+  .MuiDialog-paper {
+    overflow: hidden;
+  }
+
   @media print {
     .MuiPaper-root {
       print-color-adjust: exact;
@@ -60,6 +66,9 @@ const ModalContainer = styled.div`
   background-color: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
+  // min-height: 0 lets this shrink within the flex-column paper so it (not the paper)
+  // scrolls when content is taller than the modal.
+  min-height: 0;
 
   @media print {
     background: none;
