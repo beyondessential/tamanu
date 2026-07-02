@@ -8,10 +8,10 @@ Specs are the product-level source of truth for a workspace. The format serves t
 
 ## Information hierarchy
 
-Specs live in the workspace's configured specs directory (default `.workhorse/specs/`) as markdown files organised into directories. The directory structure is the hierarchy: **Product > Area > Subarea > ... > Spec**, with arbitrary nesting depth.
+Specs live in the workspace's configured specs directory (default `specs/`) as markdown files organised into directories. The directory structure is the hierarchy: **Product > Area > Subarea > ... > Spec**, with arbitrary nesting depth.
 
 ```
-.workhorse/specs/
+specs/
 ├── patient/
 │   ├── registration.md
 │   ├── allergies.md
