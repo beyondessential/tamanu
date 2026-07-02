@@ -1,1 +1,0 @@
-../../.agents/skills/draft-spec-changes.md

@@ -1,1 +1,0 @@
-../../.agents/skills/ascii-design.md

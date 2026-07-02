@@ -1,1 +1,0 @@
-../../.agents/skills/cherry-pick-changes.md

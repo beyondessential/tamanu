@@ -1,1 +1,0 @@
-../../.agents/skills/automate-test-cases.md
