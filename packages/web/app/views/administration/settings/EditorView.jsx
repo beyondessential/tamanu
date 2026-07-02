@@ -72,7 +72,8 @@ const recursiveJsonParse = obj => {
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
-  // If there are any top-level settings, move them to an uncategorised category
+  // Group any top-level settings under a synthetic category; it's not offered
+  // in the category dropdown but shown whenever no category is selected.
   if (Object.keys(uncategorised).length) {
     const categories = omitBy(schema.properties, isSetting);
     schema.properties = {
@@ -138,14 +139,20 @@ export const EditorView = memo(
     const [subCategory, setSubCategory] = useState(null);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
-    const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
+    // No category selected -> show the top-level settings (when the scope has any)
+    const effectiveCategory =
+      category ?? (UNCATEGORISED_KEY in scopedSchema.properties ? UNCATEGORISED_KEY : null);
+    const categoryOptions = useMemo(
+      () => getCategoryOptions(scopedSchema).filter(option => option.value !== UNCATEGORISED_KEY),
+      [scopedSchema],
+    );
     const subCategoryOptions = useMemo(
-      () => getSubCategoryOptions(scopedSchema, category),
-      [category, scopedSchema],
+      () => getSubCategoryOptions(scopedSchema, effectiveCategory),
+      [effectiveCategory, scopedSchema],
     );
     const schemaForCategory = useMemo(
-      () => getSchemaForCategory(scopedSchema, category, subCategory),
-      [scopedSchema, category, subCategory],
+      () => getSchemaForCategory(scopedSchema, effectiveCategory, subCategory),
+      [scopedSchema, effectiveCategory, subCategory],
     );
 
     const handleChangeScope = () => {
@@ -156,7 +163,7 @@ export const EditorView = memo(
     useEffect(handleChangeScope, [scope]);
 
     const handleChangeCategory = async e => {
-      const newCategory = e.target.value;
+      const newCategory = e.target.value ?? null; // null when cleared via the x
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
         if (!dismissChanges) return;
@@ -171,7 +178,7 @@ export const EditorView = memo(
     };
 
     const getSettingPath = path =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
+      `${effectiveCategory === UNCATEGORISED_KEY ? '' : `${effectiveCategory}.`}${
         subCategory ? `${subCategory}.` : ''
       }${path}`;
 
@@ -209,7 +216,6 @@ export const EditorView = memo(
         <CategoryOptions p={2} data-testid="categoryoptions-0h2x">
           <Box display="flex" alignItems="center" data-testid="box-e25e">
             <StyledSelectInput
-              required
               placeholder=""
               label={
                 <TranslatedText
@@ -268,7 +274,7 @@ export const EditorView = memo(
           </ButtonGroup>
         </CategoryOptions>
         <Divider data-testid="divider-tp55" />
-        {category && (
+        {schemaForCategory && (
           <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
             <Category
               schema={schemaForCategory}
