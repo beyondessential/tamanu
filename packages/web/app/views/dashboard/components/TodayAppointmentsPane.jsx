@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
-import { useNavigate } from 'react-router';
-import { Box, Link } from '@material-ui/core';
+import { Link, useNavigate } from 'react-router';
+import { Box } from '@material-ui/core';
 import { useDateTime } from '@tamanu/ui-components';
 
 import { Heading4, TranslatedText } from '../../../components';
@@ -86,6 +86,12 @@ const StyledAppointmentTile = styled(AppointmentTile)`
   }
 `;
 
+const ViewAppointmentsLink = styled(Link)`
+  display: block;
+  color: inherit;
+  text-decoration: underline;
+`;
+
 const NoDataContainer = styled.div`
   flex: 1;
   display: flex;
@@ -161,17 +167,13 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
               data-testid="translatedtext-8waw"
             />
-            <Link
-              href={`#/appointments/outpatients`}
-              style={{ textDecoration: 'underline', display: 'block' }}
-              data-testid="link-ojzi"
-            >
+            <ViewAppointmentsLink to="/appointments/outpatients" data-testid="link-ojzi">
               <TranslatedText
                 stringId="dashboard.appointments.todayAppointments.outpatientAppointments"
                 fallback="Outpatient appointments"
                 data-testid="translatedtext-n8rw"
               />
-            </Link>
+            </ViewAppointmentsLink>
           </Box>
         </NoDataContainer>
       ) : (
