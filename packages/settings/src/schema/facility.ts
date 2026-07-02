@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
+  INPATIENT_BUNDLED_CATEGORY_VALUES,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -243,6 +244,44 @@ export const facilitySettings = {
               type: yup.string().nullable(),
               defaultValue: null,
               suggesterEndpoint: 'department',
+            },
+          },
+        },
+      },
+    },
+    invoicing: {
+      name: 'Invoicing',
+      description: 'Settings for automatically adding fees to invoices',
+      properties: {
+        encounterFee: {
+          name: 'Encounter fee',
+          description: 'Automatic encounter fee for outpatient and emergency encounters',
+          properties: {
+            standardHoursStart: {
+              name: 'Standard hours start',
+              description:
+                'Start of standard (in-hours) time on weekdays. 24-hour time, e.g. 08:00. Weekday encounters starting outside standard hours get the after-hours fee; weekend encounters get the weekend fee.',
+              type: datelessTimeStringSchema,
+              defaultValue: '08:00',
+            },
+            standardHoursEnd: {
+              name: 'Standard hours end',
+              description: 'End of standard (in-hours) time on weekdays. 24-hour time, e.g. 17:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+          },
+        },
+        inpatientFee: {
+          name: 'Inpatient fee inclusions',
+          description: 'Item categories bundled into the admission fee',
+          properties: {
+            bundledCategories: {
+              name: 'Bundled categories',
+              description:
+                'Item categories bundled into the inpatient admission fee, so they are not auto-added to an admission invoice (still auto-added for outpatient/ER). Allowed values: imaging, lab, medication.',
+              type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
+              defaultValue: [],
             },
           },
         },
