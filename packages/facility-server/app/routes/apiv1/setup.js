@@ -19,7 +19,10 @@ import { version } from '../../serverInfo';
 // gated three ways: trusted source network, server still unconfigured, and valid
 // central super-admin creds. We gate the source (not the target host — central may
 // be on Tailscale) to stop a public attacker driving the probe (SSRF) or claiming
-// a fresh server.
+// a fresh server. Note the source gate is only as good as `req.ip`: behind a
+// reverse proxy not covered by `config.proxy.trusted`, requests appear to come
+// from the proxy's (private) address, so treat this as defence in depth — the
+// admin-credentials check is the real gate.
 const TRUSTED_SOURCE_RANGES = {
   ipv4: [
     '127.0.0.0/8',
