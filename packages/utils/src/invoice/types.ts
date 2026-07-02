@@ -4,8 +4,10 @@ export interface Product {
   id?: string;
   name?: string;
   insurable?: boolean;
+  category?: string;
   invoicePriceListItem?: {
     price?: number;
+    isFixedPrice?: boolean;
   };
 }
 
@@ -36,6 +38,7 @@ export interface InvoiceItem {
   id?: string;
   priceFinal?: number;
   manualEntryPrice?: number;
+  isFixedPriceFinal?: boolean;
   quantity?: number;
   product?: Product;
   discount?: InvoiceItemDiscount;

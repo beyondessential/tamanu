@@ -16,6 +16,7 @@ import {
   invoiceProductLoader,
 } from './loaders';
 import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
+import { invoicePriceListChargingLoaderFactory } from './invoicePriceListChargingLoaderFactory';
 import { invoiceInsurancePlanItemLoaderFactory } from './invoiceInsurancePlanItemLoaderFactory';
 import { invoicePriceListLoader } from './invoicePriceListLoader';
 
@@ -82,6 +83,15 @@ export default {
       return invoicePriceListItemLoaderFactory();
     },
     needs: ['invoicePriceList', 'invoiceProduct'],
+  },
+  invoicePriceListCharging: {
+    // Sets isFixedPrice on the same InvoicePriceListItem rows; runs after the price items exist
+    // so it reuses their ids and merges onto the same rows.
+    model: 'InvoicePriceListItem',
+    get loader() {
+      return invoicePriceListChargingLoaderFactory();
+    },
+    needs: ['invoicePriceList', 'invoiceProduct', 'invoicePriceListItem'],
   },
 
   // Insurance plans and items (mirror price lists & items)

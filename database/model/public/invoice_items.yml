@@ -111,3 +111,8 @@ sources:
           - name: price_final
             data_type: numeric
             description: "{{ doc('invoice_items__price_final') }}"
+          - name: is_fixed_price_final
+            data_type: boolean
+            description: "{{ doc('invoice_items__is_fixed_price_final') }}"
+            data_tests:
+              - not_null
