@@ -1,16 +1,16 @@
 ---
 name: security-audit
-description: Review an implementation for common security vulnerabilities (OWASP Top 10 and beyond), grouped by severity, with attention to this codebase's healthcare rules.
+description: "Review implementation for common security vulnerabilities"
+label: "Security audit"
+pill-order:
+  implementing: 5
+  reviewing: 5
+  complete: 4
+workhorse-version: 0.1.0
 ---
 
-## Security audit
+## Your task: Security audit
 
-Review the implementation for security concerns — the OWASP Top 10 and anything else you find. Use judgement about what matters for this code.
+Review the implementation for security concerns — the OWASP Top 10 and any other issues you find. Use your judgement about what matters for this code.
 
-For this codebase, pay particular attention to the healthcare/security rules in `llm/project-rules/coding-rules.md`:
-
-- Every API endpoint must enforce real permission checks (`req.ability.can()` + `req.flagPermissionChecked()`) — flag any route that doesn't.
-- No patient-identifiable data in logs (INFO level or above), error messages, or stack traces.
-- Parameterised queries only — never interpolate user input into SQL.
-
-Post findings grouped by severity, each with a specific file reference.
+Post findings grouped by severity with specific file references.

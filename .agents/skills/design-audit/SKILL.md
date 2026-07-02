@@ -1,22 +1,33 @@
 ---
 name: design-audit
-description: Audit a feature's mockups or UI implementation against the design system, flagging drift and re-styled unchanged regions.
+description: "Audit this card's mockups or implementation against the design library"
+label: "Design audit"
+pill-order:
+  specifying: 6
+  implementing: 3
+  reviewing: 3
+  complete: 2
+workhorse-version: 0.1.0
 ---
 
-## Design audit
+## Your task: Design audit
 
-Audit the feature's design work against the design system (`packages/web/app/constants/styles.js`, `packages/web/app/theme/theme.js`) and the rules in `.agents/skills/shared/design-sourcing.md`.
+Audit this card's design work against `.workhorse/design/` — the source of truth for the project's design direction.
 
 ### What to audit
 
-- **Mockups** — the HTML mockups under `specs/<area>/mockups/`, or
-- **Implementation** — the UI code changes on the branch, or
-- **Both** — and flag where the implementation drifted from what the mockups showed.
+Work out what stage the card is at and audit accordingly:
 
-### How
+- **Mockups only** (specifying phase — this card has mockups but no UI code) — audit the HTML mockups in `.workhorse/design/mockups/{card-id}/`
+- **Implementation** (implementing or reviewing phase — this card has UI code changes) — audit the shipped code on the card's branch
+- **Both** — audit both, and flag any places where the implementation drifted from what the mockups showed
 
-1. Review against both the high-level design principles and the pixel-level detail — use judgement about what matters here.
-2. Where the design system disagrees with older shipped code, the design system wins.
-3. **Flag unchanged aspects that have drifted** — a change should only re-style the feature it's about. Call out any surrounding region that's been re-styled or re-imagined, or where stale styling has leaked in (see "Preserving unchanged aspects" in `.agents/skills/shared/design-sourcing.md`).
+### How to audit
 
-Post findings as specific, actionable items, each tied to the design rule it relates to.
+1. Read `.workhorse/design/design-system.md` and any other guidance under `.workhorse/design/` (components, philosophy notes)
+2. Review against both the high-level principles and the pixel-level detail — use your judgement about what matters for this card
+3. Where `.workhorse/design/` disagrees with what's shipped elsewhere in the existing codebase, `.workhorse/design/` wins — it represents the agreed current direction
+4. **Flag unchanged aspects that have drifted.** A mockup or implementation should only change the styling and layout of the feature or tweak the card is about — surrounding regions should match the current implementation. Call out any place where unchanged regions have been re-styled or re-imagined, or where stale styling from older mockups (on other cards) has leaked in. See "Preserving unchanged aspects" in your system prompt
+5. Do not reference mockups from other cards as inspiration or comparison — each card's mockups are point-in-time artefacts, not canonical components
+
+Post findings as specific, actionable items. Reference the exact design-system rule each finding relates to.

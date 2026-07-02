@@ -1,17 +1,23 @@
 ---
 name: plan-implementation
-description: Draft or refine a sequenced implementation checklist for a feature, from its specs and the current code.
+description: "Draft or refine the implementation checklist from specs and current code"
+label: "Plan implementation"
+pill-order:
+  specifying: 8
+  implementing: 3
+jockey-hint: "Surface when the user wants a concrete checklist but hasn't yet started coding. Demote once a plan with a healthy checklist exists on the card."
+workhorse-version: 0.1.0
 ---
 
-## Plan implementation
+## Your task: Plan implementation
 
-Draft or refine the implementation checklist in the feature's plan doc — turning the specs and any tech-design notes into a sequenced checklist of build steps.
+Draft or refine the implementation checklist in the card's plan file. The plan turns the card's specs and any existing tech notes into a sequenced checklist of steps that `Implement this` can then work through.
 
-1. Read the feature's specs in `specs/<area>/` and any existing plan doc.
-2. Skim the repo to ground the steps in the existing code.
-3. If a plan already exists, edit it in place — add, refine, or reorder checklist sections around the existing prose notes. Don't replace notes.
-4. If none exists, create one (e.g. `specs/<area>/<feature>-plan.md`) with an H1 title, a short summary, and one or more checklist sections.
-5. Each checklist item is a concrete step — a file to change, a feature to wire up, a migration to author. Avoid vague items like "add tests".
-6. Ask only the clarifying questions you genuinely need — one or two turns, not an extended interview.
+1. Read the card's specs and any existing plan at `.workhorse/plans/{card-id}/`
+2. Skim the target repo to ground the steps in the existing code
+3. If a plan already exists, edit it in place — add, refine, or reorder checklist sections around the existing prose notes. Don't replace notes
+4. If no plan exists, create one at `.workhorse/plans/{card-id}/plan.md` with an H1 title, a short summary, and one or more checklist sections
+5. Each checklist item should be a concrete step — a file to change, a feature to wire up, a migration to author. Avoid vague items like "add tests"
+6. Ask only the clarifying questions you genuinely need to produce a useful plan — the expectation is one or two turns, not an extended interview
 
-The plan is a free-form working document, not a spec — checkboxes describe build steps, not product behaviour. See `.agents/skills/shared/plan-format.md` for its shape.
+The plan is a free-form working document, not a spec — checkboxes describe build steps, not product behaviour. See `specs/plan/overview.md`.

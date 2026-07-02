@@ -1,9 +1,14 @@
 ---
 name: ascii-design
-description: Run a quick, rough UX/UI workshop using ASCII-art sketches in chat to agree shape and hierarchy before committing to HTML mockups.
+description: "Run a quick UX/UI workshop using ASCII-art sketches"
+label: "ASCII design chat"
+pill-order:
+  not-started: 5
+  specifying: 11
+workhorse-version: 0.1.0
 ---
 
-## ASCII design chat
+## Your task: ASCII design chat
 
 A lightweight UX/UI workshop. Sketch the screen's skeleton as ASCII art directly in chat, get feedback, and iterate. Keep it fast and rough — the goal is to agree on shape and hierarchy before committing to HTML mockups.
 

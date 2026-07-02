@@ -1,15 +1,23 @@
 ---
 name: automate-test-cases
-description: Write automated tests for the unticked scenarios in a feature's test-cases doc, ticking each as its test lands.
+description: "Write automated tests for unticked scenarios in this card's test cases"
+label: "Automate test cases"
+pill-order:
+  implementing: 6
+  reviewing: 5
+jockey-hint: "Surface once the card has a test-cases file with unticked scenarios and implementation is underway. Demote once all scenarios are ticked."
+workhorse-version: 0.1.0
 ---
 
-## Automate test cases
+## Your task: Automate test cases
 
-Write automated tests that match the unticked scenarios in the feature's test-cases doc, ticking each item as its test lands.
+Write automated tests that match the unticked scenarios in this card's test-cases file, ticking each item as its matching test lands.
 
-1. Read the test-cases doc (see `.agents/skills/shared/test-cases-format.md`). If none exists, stop and ask whether to run `/draft-test-cases` first.
-2. For each unticked scenario, find the right place for its test — follow the repo's existing test conventions (framework, file layout, fixtures; see the testing rules in `llm/project-rules/`).
-3. Write the test so it exercises the scenario as stated. If it cites a spec id, the test is the automation of that criterion — match its intent.
-4. Tick the scenario (`- [ ]` → `- [x]`) once its test is written and passing locally; update the doc in place.
-5. If a scenario genuinely isn't automatable (manual feel, cross-browser visual), leave it unticked and note why it's manual-only.
-6. Summarise what you automated, what remains manual, and any scenarios you couldn't make sense of.
+1. Read the test-cases file at `.workhorse/test-cases/{card-id}/`. If no file exists, stop and ask the user whether to run `Draft test cases` first
+2. For each unticked scenario, locate the right place to put its automated test — follow the target repo's existing test conventions (framework, file layout, fixtures)
+3. Write the test so it exercises the scenario as stated. If the scenario cites a spec id, the test is the automation of that acceptance criterion — match its intent
+4. Tick the scenario (`- [ ]` → `- [x]`) once its test is written and passing locally. Update the test-cases file in place
+5. If a scenario is genuinely not automatable (manual feel, cross-browser visual), leave it unticked and note in the file why it's manual-only
+6. Summarise what you automated, which scenarios remain manual, and any scenarios you couldn't make sense of
+
+See `specs/test-cases/overview.md` for the file's shape.
