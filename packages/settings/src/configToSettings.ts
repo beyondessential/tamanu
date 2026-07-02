@@ -89,7 +89,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   {
     config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
     setting: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
-    scope: SETTINGS_SCOPES.CENTRAL,
+    scope: SETTINGS_SCOPES.GLOBAL,
   },
   {
     config: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame',

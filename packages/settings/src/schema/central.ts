@@ -73,17 +73,6 @@ export const centralSettings = {
         },
       },
     },
-    medicationAdministrationRecord: {
-      description: 'Settings for medication administration records',
-      properties: {
-        upcomingRecordsShouldBeGeneratedTimeFrame: {
-          description: 'How far ahead (hours) medication administration records are generated',
-          type: yup.number().positive(),
-          unit: 'hours',
-          defaultValue: 72,
-        },
-      },
-    },
     patientCommunication: {
       description: 'Settings for patient communications (emails, telegram)',
       properties: {

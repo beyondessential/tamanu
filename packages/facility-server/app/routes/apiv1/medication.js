@@ -140,7 +140,7 @@ medication.post(
   }),
 );
 
-const createEncounterPrescription = async ({ encounter, data, models }) => {
+const createEncounterPrescription = async ({ encounter, data, models, settings }) => {
   const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
 
   const prescription = await Prescription.create({ ...data, id: undefined });
@@ -148,7 +148,12 @@ const createEncounterPrescription = async ({ encounter, data, models }) => {
     encounterId: encounter.id,
     prescriptionId: prescription.id,
   });
-  await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+  await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+    prescription,
+    await settings.global.get(
+      'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    ),
+  );
   return prescription;
 };
 
@@ -177,7 +182,12 @@ medication.post(
     }
 
     const result = await db.transaction(async () => {
-      const prescription = await createEncounterPrescription({ encounter, data, models });
+      const prescription = await createEncounterPrescription({
+        encounter,
+        data,
+        models,
+        settings: req.settings,
+      });
       return prescription;
     });
 
@@ -222,6 +232,7 @@ medication.post(
           encounter,
           data,
           models,
+          settings: req.settings,
         });
         prescriptions.push(prescription);
       }
@@ -312,6 +323,7 @@ medication.post(
         const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
 
         const newPrescription = await createEncounterPrescription({
+          settings: req.settings,
           encounter,
           data: {
             ...prescription.toJSON(),

@@ -336,6 +336,17 @@ export const globalSettings = {
         },
       },
     },
+    medicationAdministrationRecord: {
+      description: 'Settings for medication administration records',
+      properties: {
+        upcomingRecordsShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) medication administration records are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
+    },
     metaServer: {
       name: 'Meta server',
       description: 'The Tamanu meta server this deployment reports status to',
