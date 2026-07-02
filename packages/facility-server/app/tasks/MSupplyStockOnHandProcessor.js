@@ -48,7 +48,6 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     this.context = context;
     this.models = context.models;
     this.client = new MSupplyClient(context);
-    this.serverFacilityIds = getServerFacilityIds();
   }
 
   async fetchStockLines(host, storeId, authToken, backoff) {
@@ -137,11 +136,18 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
       return;
     }
 
-    if (this.serverFacilityIds.length > 1) {
+    // Read at run time, not construction — tasks may start before first-run
+    // setup has configured the facility ids.
+    const serverFacilityIds = getServerFacilityIds() ?? [];
+    if (serverFacilityIds.length === 0) {
+      log.warn('MSupplyStockOnHandProcessor: no facility configured yet, skipping');
+      return;
+    }
+    if (serverFacilityIds.length > 1) {
       log.warn('MSupplyStockOnHandProcessor: omni server detected, skipping');
       return;
     }
-    const [facilityId] = this.serverFacilityIds;
+    const [facilityId] = serverFacilityIds;
 
     const { host, storeId, backoff } = await this.client.getSettings(facilityId);
     if (!host || !username || !password || !storeId) {

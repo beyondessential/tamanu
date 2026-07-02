@@ -37,7 +37,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.context = context;
     this.models = context.models;
     this.client = new MSupplyClient(context);
-    this.serverFacilityIds = getServerFacilityIds();
     this.authToken = null;
   }
 
@@ -225,12 +224,19 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     // set it to the current date if it doesn't exist
     const enabledAt = await this.getEnabledAt();
 
+    // Read at run time, not construction — tasks may start before first-run
+    // setup has configured the facility ids.
+    const serverFacilityIds = getServerFacilityIds() ?? [];
+    if (serverFacilityIds.length === 0) {
+      log.warn('No facility configured yet, skipping mSupplyMedIntegrationProcessor');
+      return;
+    }
     // Ensure this facility is not an omni server
-    if (this.serverFacilityIds.length > 1) {
+    if (serverFacilityIds.length > 1) {
       log.warn('This facility is an omni server, skipping mSupplyMedIntegrationProcessor');
       return;
     }
-    const [facilityId] = this.serverFacilityIds;
+    const [facilityId] = serverFacilityIds;
 
     const { host, storeId, customerCode } = await this.client.getSettings(facilityId);
     if (!host || !username || !password || !storeId || !customerCode) {
