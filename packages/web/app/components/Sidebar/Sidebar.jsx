@@ -182,9 +182,7 @@ export const Sidebar = React.memo(({ items }) => {
     const matchingParent = items.find(
       item => item.children && item.path.replace(/^\/|\/$/g, '') === sectionPath,
     );
-    if (matchingParent) {
-      setSelectedParentItem(matchingParent.key);
-    }
+    setSelectedParentItem(matchingParent?.key ?? '');
   }, [currentPath, items]);
 
   const onPathChanged = newPath => navigate(newPath);
