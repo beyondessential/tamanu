@@ -15,7 +15,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { tmpdir } from '@tamanu/shared/utils';
 
 import { getRandomBase64String } from '../../auth/utils';
-import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
+import { generateIPSBundle } from '@tamanu/shared/routes/fhir/patientSummary/bundleGenerator';
 import { QRCodeToFileAsync } from './helpers';
 
 // SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload

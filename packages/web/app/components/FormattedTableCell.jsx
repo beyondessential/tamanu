@@ -52,31 +52,37 @@ function round(float, { rounding } = {}) {
   return floatNumber.toFixed(rounding);
 }
 
-function getValidationState(float, config = {}, visibilityCriteria = {}) {
+function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
-  const { normalRange } = visibilityCriteria;
+  const { normalRange, rangeText } = visibilityCriteria;
 
-  if (!float && float !== 0) {
+  if (!normalizedValue && normalizedValue !== 0) {
     return {
       severity: INFO,
     };
   }
 
-  if (normalRange && float < normalRange.min) {
+  if (normalRange && normalizedValue < normalRange.min) {
     return {
       tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
       severity: ALERT,
     };
   }
-  if (normalRange && float > normalRange.max) {
+  if (normalRange && normalizedValue > normalRange.max) {
     return {
       tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
       severity: ALERT,
     };
   }
-  if (unit?.length > 2 && !isNaN(float)) {
+  if (rangeText && normalizedValue !== rangeText) {
     return {
-      tooltip: `${round(float, config)}${unit}`,
+      tooltip: `Outside normal range\n ${rangeText}`,
+      severity: ALERT,
+    };
+  }
+  if (unit?.length > 2 && !isNaN(normalizedValue)) {
+    return {
+      tooltip: `${round(normalizedValue, config)}${unit}`,
       severity: INFO,
     };
   }
@@ -255,10 +261,10 @@ export const RangeValidatedCell = React.memo(
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-    const float = round(value, config);
+    const normalizedValue = round(value, config);
     const { tooltip, severity } = useMemo(
-      () => getValidationState(float, config, validationCriteria),
-      [float, config, validationCriteria],
+      () => getValidationState(normalizedValue, config, validationCriteria),
+      [normalizedValue, config, validationCriteria],
     );
 
     const cell = (
@@ -271,7 +277,7 @@ export const RangeValidatedCell = React.memo(
         <ValueWrapper
           value={
             <>
-              {formatValue(value, config)}
+              {formatValue(normalizedValue, config)}
               {isEdited && <EditedOrnament />}
             </>
           }

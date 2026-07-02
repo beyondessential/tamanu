@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
-import { join } from 'node:path';
 
 import type { Sequelize } from '@tamanu/database';
 import type { Model } from '@tamanu/database/models/Model';
@@ -136,10 +136,14 @@ function summarise(hashes: TableHashes): string {
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const { initDatabase } = await import('@tamanu/database/services/database');
   const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
+  const { normaliseMigrationStorageExtensions } = await import('@tamanu/upgrade');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
+  // The init DB was migrated under old code that stored `.js` extensions; normalise to `.ts`
+  // before createMigrationInterface asserts it has been done.
+  await normaliseMigrationStorageExtensions(sequelize);
   const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();
@@ -245,16 +249,41 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  const script = join(import.meta.dirname, 'fake.ts');
-  return spawnCommand('node', [
-    '--import',
-    'tsx',
-    script,
-    '--database',
-    database,
-    '--rounds',
-    rounds.toString(),
-  ]);
+  // Run as an inline script (like migrate()) rather than executing fake.ts from disk.
+  // After switching to an older commit, the on-disk fake.ts uses a static require() for
+  // @tamanu/fake-data/populateDb, which tsx's CJS hook can't resolve (directory export).
+  // Dynamic import() handles directory exports correctly.
+  const script = `
+    (async () => {
+      const { default: config } = await import('config');
+      const dbModule = await import('@tamanu/database/services/database');
+      const initDatabase = dbModule.initDatabase ?? dbModule.default?.initDatabase;
+      const fakeModule = await import('@tamanu/fake-data/populateDb');
+      const generateEachDataType = fakeModule.generateEachDataType ?? fakeModule.default?.generateEachDataType;
+
+      const { models, sequelize } = await initDatabase({ ...config.db, testMode: true, name: ${JSON.stringify(database)} });
+      let done = 0;
+      let errs = 0;
+      while (done < ${rounds} && errs < Math.max(10, ${rounds} / 10)) {
+        try {
+          await generateEachDataType(models);
+          done++;
+          process.stdout.write('.');
+        } catch (err) {
+          console.error(err);
+          process.stdout.write('!');
+          errs++;
+        }
+      }
+      console.log();
+      if (done < ${rounds} && errs > 0) throw new Error('encountered too many errors');
+      await sequelize.close();
+    })().catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
+  `;
+  return spawnCommand('node', ['--import', 'tsx', '-e', script]);
 }
 
 (async () => {
@@ -381,12 +410,22 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--discard-changes', '--detach', commitBeforeMigration]);
     await runCommand('npm', ['install']);
+
+    // The old build system (build-all.mjs) doesn't understand --filter= and builds every package,
+    // including web-frontend, then runs scrapeTranslations.ts as part of @tamanu/upgrade's build.
+    // That scraper scanned dist dirs (unlike HEAD which skips them) and flagged bundled strings as
+    // duplicates. --shared-only skips web-frontend / patient-portal (nothing workspace-depends on
+    // them) so the scraper only sees source files, which are consistent.
+    // TODO: Remove this once all builds are on the new system
+    const rootPkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+    const isOldBuildSystem = (rootPkg.scripts?.build ?? '').includes('build-all.mjs');
     await runCommand('npm', [
       'run',
       'build',
       '--',
-      '--filter=@tamanu/database...',
-      '--filter=scripts...',
+      ...(isOldBuildSystem
+        ? ['--shared-only']
+        : ['--filter=@tamanu/database...', '--filter=scripts...']),
     ]);
 
     const initDb = dbConfig('init');
@@ -404,7 +443,13 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...']);
+    await runCommand('npm', [
+      'run',
+      'build',
+      '--',
+      '--filter=@tamanu/database...',
+      '--filter=@tamanu/upgrade...',
+    ]);
 
     console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;

@@ -6,6 +6,8 @@ import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { EmailService } from './services/EmailService';
 
@@ -80,13 +82,16 @@ export class ApplicationContext {
       return this;
     }
 
+    const fhirWorkerEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    await initFhirSettingsFromDb(this.settings);
+    await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled });
+
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
     this.emailService = new EmailService();
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
+    this.reportSchemaStores = await initReporting(this.store);
 
     if (appType === CENTRAL_SERVER_APP_TYPES.API) {
       this.aiService = await AIService.init({

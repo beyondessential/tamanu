@@ -2,10 +2,8 @@ import { Command } from 'commander';
 import path from 'path';
 
 import { log } from '@tamanu/shared/services/logging';
-import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
 import { initReporting } from '@tamanu/database/services/reporting';
-import config from 'config';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';
@@ -14,21 +12,12 @@ import { setupEnv } from '../env';
 const REPORT_HEAP_INTERVAL_MS = 1000;
 
 const validateReportId = async (reportId, models) => {
-  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
-
-  if (dbDefinedReportModule) {
-    return true;
-  }
-
-  const validNames = REPORT_DEFINITIONS.map(d => d.id);
-
-  if (!validNames.includes(reportId)) {
-    const nameOutput = validNames.map(n => `\n  ${n}`).join('');
+  const reportVersion = await models.ReportDefinitionVersion.findByPk(reportId);
+  if (!reportVersion) {
     throw new Error(
-      `invalid name '${reportId}', must be one of: ${nameOutput} \n (hint - supply name with --reportId <reportId>)`,
+      `invalid reportId '${reportId}': no ReportDefinitionVersion found with that ID`,
     );
   }
-
   return true;
 };
 
@@ -42,7 +31,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting(store) : null;
+  const reportSchemaStores = await initReporting(store);
   setupEnv();
   try {
     const { reportId, parameters, recipients, userId, format, sleepAfterReport } = options;

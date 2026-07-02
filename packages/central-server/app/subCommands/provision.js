@@ -13,7 +13,7 @@ import {
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { extractSecretPaths, getScopedSchema } from '@tamanu/settings';
+import { extractSecretPaths, getScopedSchema, ReadSettings } from '@tamanu/settings';
 import {
   encryptSecret,
   getSettingsPskKeyBuffer,
@@ -146,7 +146,7 @@ async function encryptSecretSettings(settings, scope) {
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initialiseDatabaseWithRetry();
 
-  checkIntegrationsConfig();
+  await checkIntegrationsConfig(new ReadSettings(store.models));
 
   const {
     users = {},

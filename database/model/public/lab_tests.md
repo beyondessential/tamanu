@@ -53,3 +53,7 @@ Custom reference range for this individual lab test, minimum value.
 {% docs lab_tests__reference_range_max %}
 Custom reference range for this individual lab test, maximum value.
 {% enddocs %}
+
+{% docs lab_tests__reference_range_text %}
+Custom non-numeric reference range for this individual lab test.
+{% enddocs %}

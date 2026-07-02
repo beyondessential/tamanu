@@ -645,10 +645,11 @@ async function run(opts) {
   const serverConfig = config.util.loadFileConfigs(
     path.join('packages', 'central-server', 'config'),
   );
-  const dbConfig = config.util.extendDeep(serverConfig.db, config.db);
-
   // Dynamic import (not require): tsx's CJS hook does not complete the extensionless
-  // directory export `@tamanu/database/services/database` exposes, but ESM import() does.
+  // exports these modules expose, but ESM import() does.
+  const { resolveDbConfig } = await import('@tamanu/database/services/connectionConfig');
+  const dbConfig = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db));
+
   const { initDatabase } = await import('@tamanu/database/services/database');
   let client;
   const dbName = 'tamanu-generate-model';

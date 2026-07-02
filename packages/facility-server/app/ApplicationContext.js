@@ -5,6 +5,8 @@ import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { closeDatabase, initDatabase } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -32,7 +34,10 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ appType, databaseOverrides } = {}) {
+  /** @type {Promise<void> | null} */
+  closePromise = null;
+
+  async init({ appType, databaseOverrides, dbKey } = {}) {
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -44,8 +49,12 @@ export class ApplicationContext {
     }
 
     const facilityIds = selectFacilityIds(config);
-    this.store = await initDatabase(databaseOverrides);
+    const key = dbKey ?? appType ?? 'main';
+    this.store = await initDatabase(databaseOverrides ?? {}, key);
     this.sequelize = this.store.sequelize;
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
     this.models = this.store.models;
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
@@ -53,10 +62,20 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
+
+    const fhirWorkerEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+
+    const facilityReaders = facilityIds.map(id => this.settings[id]);
+    await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
+
     return this;
+  }
+
+  // Call after migrations: reporting reads its per-server secret from local_system_facts.
+  async initReportingStores() {
+    this.reportSchemaStores = await initReporting(this.store);
   }
 
   onClose(hook) {
@@ -68,5 +87,9 @@ export class ApplicationContext {
       await hook();
     }
     await closeDatabase();
+  }
+
+  async waitForClose() {
+    return this.closePromise;
   }
 }

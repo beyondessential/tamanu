@@ -1,6 +1,13 @@
 /* eslint-disable no-unused-vars */
 import { snakeCase } from 'es-toolkit/compat';
-import { DataTypes, Sequelize, Utils, type InitOptions, type ModelAttributes } from 'sequelize';
+import {
+  DataTypes,
+  QueryTypes,
+  Sequelize,
+  Utils,
+  type InitOptions,
+  type ModelAttributes,
+} from 'sequelize';
 import { subMinutes } from 'date-fns';
 import {
   FHIR_DATETIME_PRECISION,
@@ -10,6 +17,7 @@ import {
 } from '@tamanu/constants';
 import type { Ability } from '@casl/ability';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { log } from '@tamanu/shared/services/logging';
 import { objectAsFhir } from '../../utils/fhir/utils';
 import { Model } from '../Model';
 import type { FhirTransactionBundle } from '@tamanu/shared/services/fhirTypes/bundle';
@@ -214,17 +222,37 @@ export class FhirResource extends Model {
     return upstream as T | undefined;
   }
 
-  static async resolveUpstreams() {
+  static async resolveUpstreams({ lockTimeoutMs }: { lockTimeoutMs?: number } = {}) {
     const unresolvedResources = await this.findAll({
       where: {
         resolved: false,
       },
     });
 
-    for (const unresolvedResource of unresolvedResources) {
+    for (const [index, unresolvedResource] of unresolvedResources.entries()) {
       try {
-        await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+        // Resolve each record in its own transaction so lock holds stay short and
+        // progress is preserved if a later record fails. When a lock timeout is
+        // configured, a record that can't acquire its locks in time fails fast
+        // (rather than blocking indefinitely) so the resolver job errors and retries.
+        await this.sequelize.transaction(async () => {
+          if (lockTimeoutMs) {
+            await this.sequelize.query("SELECT set_config('lock_timeout', $lockTimeoutMs, true)", {
+              type: QueryTypes.SELECT,
+              bind: { lockTimeoutMs: String(lockTimeoutMs) },
+            });
+          }
+          await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+        });
       } catch (error) {
+        // We rethrow rather than skip so the resolver job errors and retries instead
+        // of silently completing with records left unresolved. Records already
+        // committed above are kept; the rest stay resolved: false and are retried on
+        // the next run, so surface how many were left for operational visibility.
+        const unprocessedCount = unresolvedResources.length - index;
+        log.warn(
+          `resolveUpstreams: ${unprocessedCount} of ${unresolvedResources.length} ${this.fhirName} record(s) left unresolved after a failure; resolver will error and retry`,
+        );
         if (error instanceof Error) {
           // Rethrowing like this to preserve stacktrace while logging which resource failed to resolve
           const errorMessage = `Error resolving upstreams for ${this.fhirName}/${unresolvedResource.id}: ${error.message ?? error.toString() ?? ''}`;
