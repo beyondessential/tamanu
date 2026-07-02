@@ -91,7 +91,18 @@ export class ApplicationContext {
 
     this.emailService = new EmailService();
 
-    this.reportSchemaStores = await initReporting(this.store);
+    try {
+      this.reportSchemaStores = await initReporting(this.store);
+    } catch (error) {
+      // Reporting requires the app db role to manage the reporting roles (see
+      // ensureReportingRole). On an under-provisioned database that fails; the
+      // rest of the server works without reporting, so degrade instead of
+      // crash-looping the whole deployment.
+      log.error(
+        'initReporting failed; reporting schemas unavailable until the db grants are fixed',
+        { error },
+      );
+    }
 
     if (appType === CENTRAL_SERVER_APP_TYPES.API) {
       this.aiService = await AIService.init({
