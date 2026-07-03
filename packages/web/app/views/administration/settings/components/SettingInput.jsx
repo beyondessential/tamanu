@@ -572,7 +572,9 @@ const MappingSettingInput = ({
   const removeRow = index => emit(rows.filter((_, i) => i !== index));
   const addRow = () => emit([...rows, { key: '', entry: { label: '' } }]);
 
+  // Only reachable with free-text keys; the dropdown filters used keys out
   const duplicateKey = index => {
+    if (keyOptions?.length) return false;
     const key = rows[index].key.trim();
     return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
   };
