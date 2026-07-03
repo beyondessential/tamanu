@@ -530,6 +530,7 @@ const rowsToMapping = rows =>
  * row wins when keys collide, and colliding rows are flagged in place.
  */
 const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
+  const { submitCount } = useFormikContext();
   const [rows, setRows] = useState(() => mappingToRows(value));
   const lastEmitted = useRef(value);
 
@@ -558,17 +559,22 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
   const updateRow = (index, patch) =>
     emit(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   const removeRow = index => emit(rows.filter((_, i) => i !== index));
-  const addRow = () => emit([...rows, { key: '', entry: { label: '' }, __inProgress: true }]);
+  const addRow = () =>
+    emit([...rows, { key: '', entry: { label: '' }, __inProgress: true, __addedAt: submitCount }]);
 
   const duplicateKey = index => {
     const key = rows[index].key.trim();
     return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
   };
 
-  // Half-filled rows get a non-blocking hint on the missing side; they still
-  // stay out of the value, so saving is allowed and just omits them.
+  // Half-filled rows get a non-blocking hint on the missing side — but for an
+  // in-progress row only after a save attempt, not while mid-entry. Either way
+  // they stay out of the value, so saving is allowed and just omits them.
   const rowErrors = index => {
     const row = rows[index];
+    if (row.__inProgress && submitCount <= (row.__addedAt ?? 0)) {
+      return { keyError: duplicateKey(index) ? 'Duplicate key' : undefined };
+    }
     const hasKey = row.key.trim() !== '';
     const hasLabel = (row.entry.label ?? '').trim() !== '';
     return {
