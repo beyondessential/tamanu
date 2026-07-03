@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Investigate and fix
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 The card describes a bug. Diagnose the cause and apply the fix.
 
 1. **Read the card** — title, description, reproduction steps, error messages, attachments. Treat these as the report

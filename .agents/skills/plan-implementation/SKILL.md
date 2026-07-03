@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Plan implementation
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Draft or refine the implementation checklist in the card's plan file. The plan turns the card's specs and any existing tech notes into a sequenced checklist of steps that `Implement this` can then work through.
 
 1. Read the card's specs and any existing plan at `.workhorse/plans/{card-id}/`

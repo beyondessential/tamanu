@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Automate test cases
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Write automated tests that match the unticked scenarios in this card's test-cases file, ticking each item as its matching test lands.
 
 1. Read the test-cases file at `.workhorse/test-cases/{card-id}/`. If no file exists, stop and ask the user whether to run `Draft test cases` first
