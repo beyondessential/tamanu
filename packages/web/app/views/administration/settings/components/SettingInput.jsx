@@ -585,9 +585,7 @@ const MappingSettingInput = ({
     return {
       keyError: duplicateKey(index) ? 'Duplicate key' : undefined,
       labelError:
-        isSavedEntry && (row.entry.label ?? '').trim() === ''
-          ? 'Required — this entry will be removed if saved without a label'
-          : undefined,
+        isSavedEntry && (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
     };
   };
 
