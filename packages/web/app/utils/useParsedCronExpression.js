@@ -1,7 +1,6 @@
 import cronstrue from 'cronstrue';
 import { en as EnglishLocale } from 'cronstrue/locales/en';
 import { useTranslation } from '../contexts/Translation';
-import { useEffect } from 'react';
 
 /**
  * Connect translated strings to cron parser for custom translations
@@ -28,10 +27,12 @@ class CustomTranslatedLocale extends EnglishLocale {
 export const useParsedCronExpression = (expression) => {
   const { getTranslation } = useTranslation();
 
-  useEffect(() => {
-    if (cronstrue.locales.custom || !getTranslation) return;
+  // Register during render (idempotent global), not in an effect: an effect
+  // only runs after the first paint, leaving the preview blank until a
+  // re-render.
+  if (!cronstrue.locales.custom && getTranslation) {
     cronstrue.locales.custom = new CustomTranslatedLocale(getTranslation);
-  }, [getTranslation]);
+  }
 
   if (!expression || !cronstrue.locales.custom) return '';
 
