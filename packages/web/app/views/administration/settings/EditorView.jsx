@@ -3,10 +3,9 @@ import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'es-t
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { getScopedSchema, isSetting, validateSettings } from '@tamanu/settings/schema';
+import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, TranslatedText } from '../../../components';
-import { ConditionalTooltip } from '../../../components/Tooltip';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
@@ -159,22 +158,6 @@ export const EditorView = memo(
       [scopedSchema, effectiveCategory, subCategory],
     );
 
-    // Disable Save when the current settings would be rejected on submit, so an
-    // invalid value (e.g. a malformed cron) can't be submitted. Mirrors exactly
-    // what saveSettings validates, so the button reflects the real submit gate.
-    const [hasInvalidSetting, setHasInvalidSetting] = useState(false);
-    useEffect(() => {
-      let active = true;
-      const parsed = recursiveJsonParse(values.settings);
-      delete parsed.uncategorised;
-      validateSettings({ settings: parsed, scope })
-        .then(() => active && setHasInvalidSetting(false))
-        .catch(() => active && setHasInvalidSetting(true));
-      return () => {
-        active = false;
-      };
-    }, [values.settings, scope]);
-
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
@@ -280,30 +263,17 @@ export const EditorView = memo(
                 data-testid="translatedtext-pj7p"
               />
             </OutlinedButton>
-            <ConditionalTooltip
-              visible={dirty && hasInvalidSetting}
-              title={
-                <TranslatedText
-                  stringId="admin.settings.action.saveChanges.invalidTooltip"
-                  fallback="A setting has an invalid value — fix it before saving"
-                />
-              }
-              data-testid="conditionaltooltip-save"
+            <Button
+              onClick={saveSettings}
+              disabled={!dirty || isSubmitting}
+              data-testid="button-s1z4"
             >
-              <div>
-                <Button
-                  onClick={saveSettings}
-                  disabled={!dirty || isSubmitting || hasInvalidSetting}
-                  data-testid="button-s1z4"
-                >
-                  <TranslatedText
-                    stringId="admin.settings.action.saveChanges"
-                    fallback="Save changes"
-                    data-testid="translatedtext-yd0s"
-                  />
-                </Button>
-              </div>
-            </ConditionalTooltip>
+              <TranslatedText
+                stringId="admin.settings.action.saveChanges"
+                fallback="Save changes"
+                data-testid="translatedtext-yd0s"
+              />
+            </Button>
           </ButtonGroup>
         </CategoryOptions>
         <Divider data-testid="divider-tp55" />

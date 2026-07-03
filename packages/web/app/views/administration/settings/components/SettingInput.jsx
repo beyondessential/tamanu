@@ -537,13 +537,11 @@ const parseMappingValue = value => {
 const mappingToRows = value =>
   Object.entries(value ?? {}).map(([key, entry]) => ({ key, entry: entry ?? {} }));
 
-// Empty keys are still-in-progress rows and stay out of the setting; extra
-// properties beyond `label` on an entry are preserved untouched.
+// Every row is in the setting, keyless ones included (as ''), so any edit
+// dirties the form and submit-time validation sees the incomplete entries.
+// Extra properties beyond `label` on an entry are preserved untouched.
 const rowsToMapping = rows =>
-  rows.reduce(
-    (acc, { key, entry }) => (key.trim() ? { ...acc, [key.trim()]: entry } : acc),
-    {},
-  );
+  rows.reduce((acc, { key, entry }) => ({ ...acc, [key.trim()]: entry }), {});
 
 /**
  * Edits a keyed map of `{ label }` entries (e.g. imagingTypes) as add/remove
@@ -551,18 +549,14 @@ const rowsToMapping = rows =>
  * half-typed or duplicate key doesn't collapse the object mid-edit; the last
  * row wins when keys collide, and colliding rows are flagged in place.
  */
-const MappingSettingInput = ({
-  value,
-  onChange,
-  disabled,
-  error,
-  keyOptions,
-  settingsPath,
-  defaultValue,
-}) => {
-  const { initialValues } = useFormikContext();
+const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
+  const { submitCount } = useFormikContext();
   const [rows, setRows] = useState(() => mappingToRows(value));
   const lastEmitted = useRef(value);
+
+  // No errors while editing; a save attempt reveals them. submitCount resets
+  // when a save succeeds, so the slate cleans between saves.
+  const submitted = submitCount > 0;
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while a key is half-typed.
@@ -573,26 +567,9 @@ const MappingSettingInput = ({
     }
   }, [value]);
 
-  // The mapping as of the last save/load: an incomplete row whose entry exists
-  // here is about to lose something real and gets flagged; an incomplete row
-  // that was never saved is just mid-entry and stays quiet.
-  const initialFieldValue = get(initialValues?.settings, settingsPath);
-  const savedMapping = parseMappingValue(initialFieldValue) ?? defaultValue ?? {};
-
-  // A save replaces initialValues: rebuild from the saved value so incomplete
-  // rows are cleaned up rather than lingering.
-  useEffect(() => {
-    setRows(mappingToRows(value));
-    lastEmitted.current = value;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialFieldValue]);
-
-  const rowIsComplete = row => row.key.trim() !== '' && (row.entry.label ?? '').trim() !== '';
-
-  // only complete entries exist in the value, so it is always valid
   const emit = next => {
     setRows(next);
-    const mapping = rowsToMapping(next.filter(rowIsComplete));
+    const mapping = rowsToMapping(next);
     lastEmitted.current = mapping;
     onChange(mapping);
   };
@@ -603,19 +580,22 @@ const MappingSettingInput = ({
   const addRow = () => emit([...rows, { key: '', entry: { label: '' } }]);
 
   // Only reachable with free-text keys; the dropdown filters used keys out
-  const duplicateKey = index => {
-    if (keyOptions?.length) return false;
-    const key = rows[index].key.trim();
-    return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
-  };
+  const duplicateKeys = keyOptions?.length
+    ? []
+    : [
+        ...new Set(
+          rows
+            .map(row => row.key.trim())
+            .filter((key, index, keys) => key !== '' && keys.indexOf(key) !== index),
+        ),
+      ];
 
   const rowErrors = index => {
+    if (!submitted) return {};
     const row = rows[index];
-    const isSavedEntry = Boolean(savedMapping[row.key.trim()]);
     return {
-      keyError: duplicateKey(index) ? 'Duplicate key' : undefined,
-      labelError:
-        isSavedEntry && (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
+      keyError: row.key.trim() === '' ? 'Required' : undefined,
+      labelError: (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
     };
   };
 
@@ -635,14 +615,7 @@ const MappingSettingInput = ({
                 <SelectInput
                   label={index === 0 ? 'Type' : null}
                   value={row.key}
-                  // clearing the type of a saved entry removes the entry, same
-                  // as the trash — a keyless entry can't exist in the mapping,
-                  // and leaving a flagged husk behind reads as a failed save
-                  onChange={e =>
-                    e.target.value == null && savedMapping[row.key.trim()]
-                      ? removeRow(index)
-                      : updateRow(index, { key: e.target.value ?? '' })
-                  }
+                  onChange={e => updateRow(index, { key: e.target.value ?? '' })}
                   options={keyOptions.filter(
                     opt => opt.value === row.key || !usedKeys.has(opt.value),
                   )}
@@ -703,7 +676,16 @@ const MappingSettingInput = ({
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </AddItemButton>
       )}
-      {error && <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>}
+      {/* aggregate problems (duplicates, whole-setting rules) show down here;
+          empty required fields flag on their own rows */}
+      {submitted && duplicateKeys.length > 0 && (
+        <ListError data-testid="mappingsettinginput-duplicates">
+          Duplicate keys: {duplicateKeys.join(', ')}
+        </ListError>
+      )}
+      {submitted && error && (
+        <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>
+      )}
     </ObjectListWrapper>
   );
 };
@@ -752,7 +734,9 @@ const objectListFieldsFromSchema = innerType => {
     if (described?.type !== 'object') return null;
     const entries = Object.entries(described.fields ?? {}).map(([key, spec]) => {
       const kind = OBJECT_LIST_FIELD_KINDS[spec.type];
-      return kind ? { key, kind } : null;
+      if (!kind) return null;
+      const required = Boolean(spec.tests?.some(test => test?.name === 'required'));
+      return { key, kind, required };
     });
     return entries.length > 0 && entries.every(Boolean) ? entries : null;
   } catch {
@@ -859,27 +843,14 @@ const ObjectListFieldLabel = styled.label`
  * as add/remove per-item forms instead of hand-written JSON. The form fields
  * come from the setting's own shape (default items first, then current items).
  */
-const ObjectListSettingInput = ({
-  value,
-  fields,
-  innerType,
-  onChange,
-  disabled,
-  error,
-  settingsPath,
-}) => {
-  const { initialValues } = useFormikContext();
+const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, error }) => {
+  const { submitCount } = useFormikContext();
   const [rows, setRows] = useState(() => objectListToRows(value, fields));
   const lastEmitted = useRef(value);
 
-  const initialFieldValue = get(initialValues?.settings, settingsPath);
-  // A save replaces initialValues: rebuild from the saved value so incomplete
-  // rows are cleaned up rather than lingering.
-  useEffect(() => {
-    setRows(objectListToRows(value, fields));
-    lastEmitted.current = value;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialFieldValue]);
+  // No errors while editing; a save attempt reveals them. submitCount resets
+  // when a save succeeds, so the slate cleans between saves.
+  const submitted = submitCount > 0;
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while a list is half-typed.
@@ -890,44 +861,11 @@ const ObjectListSettingInput = ({
     }
   }, [value, fields]);
 
-  const rowIsEmpty = row =>
-    fields.every(
-      ({ key, kind }) => kind === 'boolean' || row[key] == null || String(row[key]).trim() === '',
-    );
-
-  const rowIsValid = row => {
-    if (!innerType) return !rowIsEmpty(row);
-    try {
-      innerType.validateSync(rowsToObjectList([row], fields)[0]);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const rowError = row => {
-    if (!innerType || row.__inProgress || rowIsEmpty(row)) return null;
-    try {
-      innerType.validateSync(rowsToObjectList([row], fields)[0]);
-      return null;
-    } catch (validationError) {
-      return validationError.message;
-    }
-  };
-
-  // in-progress rows are unflagged and held out of the value until first valid
+  // Every row is in the value, incomplete ones included, so any edit dirties
+  // the form and submit-time validation sees the incomplete items.
   const emit = next => {
-    const settled = next.map(row =>
-      row.__inProgress && rowIsValid(row) ? { ...row, __inProgress: undefined } : row,
-    );
-    setRows(settled);
-    const items = rowsToObjectList(
-      settled.filter(row => !row.__inProgress && !rowIsEmpty(row)),
-      fields,
-    ).map(item => {
-      delete item.__inProgress;
-      return item;
-    });
+    setRows(next);
+    const items = rowsToObjectList(next, fields);
     lastEmitted.current = items;
     onChange(items);
   };
@@ -938,19 +876,36 @@ const ObjectListSettingInput = ({
   const addRow = () =>
     emit([
       ...rows,
-      {
-        ...Object.fromEntries(
-          fields.map(({ key, kind }) => {
-            if (kind === 'boolean') return [key, false];
-            // an empty colour input renders as a black swatch, so make the
-            // value match what it shows
-            if (/^colou?r$/i.test(key)) return [key, '#000000'];
-            return [key, ''];
-          }),
-        ),
-        __inProgress: true,
-      },
+      Object.fromEntries(
+        fields.map(({ key, kind }) => {
+          if (kind === 'boolean') return [key, false];
+          // an empty colour input renders as a black swatch, so make the
+          // value match what it shows
+          if (/^colou?r$/i.test(key)) return [key, '#000000'];
+          return [key, ''];
+        }),
+      ),
     ]);
+
+  const fieldError = (row, { key, kind, required }) =>
+    submitted &&
+    required &&
+    kind !== 'boolean' &&
+    (row[key] == null || String(row[key]).trim() === '')
+      ? 'Required'
+      : undefined;
+
+  // Problems beyond empty required fields (those flag on the fields themselves)
+  const rowError = row => {
+    if (!submitted || !innerType) return null;
+    if (fields.some(field => fieldError(row, field))) return null;
+    try {
+      innerType.validateSync(rowsToObjectList([row], fields)[0]);
+      return null;
+    } catch (validationError) {
+      return validationError.message;
+    }
+  };
 
   return (
     <ObjectListWrapper data-testid="objectlistsettinginput">
@@ -958,42 +913,49 @@ const ObjectListSettingInput = ({
         // eslint-disable-next-line react/no-array-index-key
         <ObjectListItem key={index} data-testid={`objectlistsettinginput-item-${index}`}>
           <ObjectListItemFields>
-            {fields.map(({ key, kind }) => (
-              <ObjectListField key={key} $wide={kind === 'list'}>
-                {kind === 'boolean' ? (
-                  <>
-                    <ObjectListFieldLabel>{startCase(key)}</ObjectListFieldLabel>
-                    <Switch
-                      color="primary"
-                      checked={Boolean(row[key])}
-                      onChange={e => updateField(index, key, e.target.checked)}
+            {fields.map(field => {
+              const { key, kind } = field;
+              return (
+                <ObjectListField key={key} $wide={kind === 'list'}>
+                  {kind === 'boolean' ? (
+                    <>
+                      <ObjectListFieldLabel>{startCase(key)}</ObjectListFieldLabel>
+                      <Switch
+                        color="primary"
+                        checked={Boolean(row[key])}
+                        onChange={e => updateField(index, key, e.target.checked)}
+                        disabled={disabled}
+                        data-testid={`objectlistsettinginput-${index}-${key}`}
+                      />
+                    </>
+                  ) : kind === 'number' ? (
+                    <StyledNumberInput
+                      label={startCase(key)}
+                      value={row[key] ?? ''}
+                      onChange={e => updateField(index, key, e.target.value)}
                       disabled={disabled}
+                      error={Boolean(fieldError(row, field))}
+                      helperText={fieldError(row, field)}
+                      fullWidth
                       data-testid={`objectlistsettinginput-${index}-${key}`}
                     />
-                  </>
-                ) : kind === 'number' ? (
-                  <StyledNumberInput
-                    label={startCase(key)}
-                    value={row[key] ?? ''}
-                    onChange={e => updateField(index, key, e.target.value)}
-                    disabled={disabled}
-                    fullWidth
-                    data-testid={`objectlistsettinginput-${index}-${key}`}
-                  />
-                ) : (
-                  <StyledTextInput
-                    label={startCase(key)}
-                    value={row[key] ?? ''}
-                    onChange={e => updateField(index, key, e.target.value)}
-                    disabled={disabled}
-                    type={/^colou?r$/i.test(key) ? 'color' : undefined}
-                    placeholder={kind === 'list' ? 'comma, separated' : undefined}
-                    fullWidth
-                    data-testid={`objectlistsettinginput-${index}-${key}`}
-                  />
-                )}
-              </ObjectListField>
-            ))}
+                  ) : (
+                    <StyledTextInput
+                      label={startCase(key)}
+                      value={row[key] ?? ''}
+                      onChange={e => updateField(index, key, e.target.value)}
+                      disabled={disabled}
+                      error={Boolean(fieldError(row, field))}
+                      helperText={fieldError(row, field)}
+                      type={/^colou?r$/i.test(key) ? 'color' : undefined}
+                      placeholder={kind === 'list' ? 'comma, separated' : undefined}
+                      fullWidth
+                      data-testid={`objectlistsettinginput-${index}-${key}`}
+                    />
+                  )}
+                </ObjectListField>
+              );
+            })}
             {rowError(row) && (
               <ListError data-testid={`objectlistsettinginput-itemerror-${index}`}>
                 {rowError(row)}
@@ -1026,10 +988,13 @@ const ObjectListSettingInput = ({
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </AddItemButton>
       )}
-      {/* array-level rules only; item problems already show on their cards */}
-      {error && rows.every(row => !rowError(row)) && (
-        <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>
-      )}
+      {/* aggregate problems (whole-setting rules) show down here; item
+          problems already show on their cards and fields */}
+      {submitted &&
+        error &&
+        rows.every(row => !rowError(row) && !fields.some(field => fieldError(row, field))) && (
+          <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>
+        )}
     </ObjectListWrapper>
   );
 };
@@ -1396,8 +1361,6 @@ export const SettingInput = ({
           <LongTextFlexbox data-testid="flexbox-mapping">
             <MappingSettingInput
               value={mappingValue}
-              settingsPath={settingsPath}
-              defaultValue={defaultValue}
               onChange={handleChangeValue}
               disabled={disabled}
               error={error}
