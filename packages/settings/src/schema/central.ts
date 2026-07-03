@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 
+import { SETTING_EDITORS } from '@tamanu/constants';
+
 import {
   batchingProperties,
   durationStringSchema,
@@ -574,6 +576,7 @@ export const centralSettings = {
           description:
             'Checked in order; each entry has name, prefixes, maxActiveRequests, maxQueuedRequests and queueTimeout',
           type: yup.array(yup.object()),
+          editor: SETTING_EDITORS.OBJECT_LIST,
           defaultValue: [
             {
               name: 'low_priority',

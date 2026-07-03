@@ -163,6 +163,7 @@ const SETTING_TYPES = {
   MARKDOWN: 'markdown',
   CRON: 'cron',
   MAPPING: 'mapping',
+  OBJECT_LIST: 'objectList',
   OBJECT: 'object',
   ARRAY: 'array',
 };
@@ -274,14 +275,15 @@ const MarkdownSettingInput = ({
 };
 
 const CronHelpText = styled.span`
-  color: ${props => (props.$invalid ? Colors.alert : Colors.midText)};
+  color: ${Colors.midText};
   display: block;
   font-size: 12px;
   margin-block-start: 0.25rem;
 `;
 
 // Cron expression input: plain text field with a live human-readable preview of
-// the schedule underneath (or an invalid marker while the expression doesn't parse).
+// the schedule underneath. When the expression doesn't parse, the schema error
+// in the field's helperText is the only message shown (no separate invalid marker).
 const CronSettingInput = ({ value, onChange, error, disabled }) => {
   const parsed = useParsedCronExpression(value);
   return (
@@ -297,15 +299,8 @@ const CronSettingInput = ({ value, onChange, error, disabled }) => {
           disabled={disabled}
           data-testid="styledtextinput-cron"
         />
-        {value && (
-          <CronHelpText $invalid={parsed === null} data-testid="cron-parsed-preview">
-            {parsed ?? (
-              <TranslatedText
-                stringId="admin.settings.cron.invalid"
-                fallback="Invalid cron expression"
-              />
-            )}
-          </CronHelpText>
+        {value && parsed && (
+          <CronHelpText data-testid="cron-parsed-preview">{parsed}</CronHelpText>
         )}
       </div>
     </Flexbox>
@@ -542,57 +537,84 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
     return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
   };
 
+  // A complete entry needs both a key and a label; a fully-empty row is an
+  // in-progress entry (dropped on save), so flag a row only once it's
+  // half-filled — one field set without the other.
+  const rowErrors = index => {
+    const hasKey = rows[index].key.trim() !== '';
+    const hasLabel = (rows[index].entry.label ?? '').trim() !== '';
+    return {
+      keyError: duplicateKey(index)
+        ? 'Duplicate key'
+        : hasLabel && !hasKey
+          ? 'Required'
+          : undefined,
+      labelError: hasKey && !hasLabel ? 'Required' : undefined,
+    };
+  };
+
+  // Keys already assigned to other rows, so the dropdown can't offer them again
+  // and a duplicate can't be created (each row still keeps its own current key).
+  const usedKeys = new Set(rows.map(row => row.key.trim()).filter(Boolean));
+
   return (
     <ListInputWrapper data-testid="mappingsettinginput">
-      {rows.map((row, index) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <ListRow key={index} data-testid={`mappingsettinginput-row-${index}`}>
-          {keyOptions?.length ? (
-            <div style={{ width: '140px' }}>
-              <SelectInput
+      {rows.map((row, index) => {
+        const { keyError, labelError } = rowErrors(index);
+        return (
+          // eslint-disable-next-line react/no-array-index-key
+          <ListRow key={index} data-testid={`mappingsettinginput-row-${index}`}>
+            {keyOptions?.length ? (
+              <div style={{ width: '140px' }}>
+                <SelectInput
+                  value={row.key}
+                  onChange={e => updateRow(index, { key: e.target.value ?? '' })}
+                  options={keyOptions.filter(
+                    opt => opt.value === row.key || !usedKeys.has(opt.value),
+                  )}
+                  disabled={disabled}
+                  error={Boolean(keyError)}
+                  helperText={keyError}
+                  size="small"
+                  data-testid={`mappingsettinginput-key-${index}`}
+                />
+              </div>
+            ) : (
+              <StyledTextInput
                 value={row.key}
-                onChange={e => updateRow(index, { key: e.target.value ?? '' })}
-                options={keyOptions}
+                onChange={e => updateRow(index, { key: e.target.value })}
                 disabled={disabled}
-                error={duplicateKey(index)}
-                helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
-                size="small"
+                placeholder="key"
+                error={Boolean(keyError)}
+                helperText={keyError}
+                inputProps={{ style: { fontFamily: 'monospace' } }}
+                style={{ width: '140px' }}
                 data-testid={`mappingsettinginput-key-${index}`}
               />
-            </div>
-          ) : (
+            )}
             <StyledTextInput
-              value={row.key}
-              onChange={e => updateRow(index, { key: e.target.value })}
+              value={row.entry.label ?? ''}
+              onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
               disabled={disabled}
-              placeholder="key"
-              error={duplicateKey(index)}
-              helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
-              inputProps={{ style: { fontFamily: 'monospace' } }}
-              style={{ width: '140px' }}
-              data-testid={`mappingsettinginput-key-${index}`}
+              placeholder="Label"
+              error={Boolean(labelError)}
+              helperText={labelError}
+              style={{ width: '177px' }}
+              data-testid={`mappingsettinginput-label-${index}`}
             />
-          )}
-          <StyledTextInput
-            value={row.entry.label ?? ''}
-            onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
-            disabled={disabled}
-            placeholder="Label"
-            style={{ width: '177px' }}
-            data-testid={`mappingsettinginput-label-${index}`}
-          />
-          {!disabled && (
-            <RemoveItemButton
-              onClick={() => removeRow(index)}
-              size="small"
-              aria-label="remove entry"
-              data-testid={`mappingsettinginput-remove-${index}`}
-            >
-              <DeleteOutlineIcon style={{ fontSize: 18 }} />
-            </RemoveItemButton>
-          )}
-        </ListRow>
-      ))}
+            {!disabled && (
+              <RemoveItemButton
+                onClick={() => removeRow(index)}
+                size="small"
+                aria-label="remove entry"
+                data-testid={`mappingsettinginput-remove-${index}`}
+              >
+                <DeleteOutlineIcon style={{ fontSize: 18 }} />
+              </RemoveItemButton>
+            )}
+          </ListRow>
+        );
+      })}
       {rows.length === 0 && (
         <EmptyListText data-testid="mappingsettinginput-empty">
           <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
@@ -608,6 +630,205 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
         </AddItemButton>
       )}
       {error && <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>}
+    </ListInputWrapper>
+  );
+};
+
+// An array of flat objects for the object-list editor, or null when the value
+// (or any item) can't be edited as a little per-item form — the caller falls
+// back to the JSON editor.
+const parseObjectListValue = value => {
+  let items = value;
+  if (isString(items)) {
+    try {
+      items = JSON.parse(items);
+    } catch {
+      return null;
+    }
+  }
+  if (items == null) return [];
+  if (!Array.isArray(items)) return null;
+  const isFlat = item =>
+    item !== null &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    Object.values(item).every(
+      fieldValue =>
+        fieldValue == null ||
+        ['string', 'number', 'boolean'].includes(typeof fieldValue) ||
+        (Array.isArray(fieldValue) && fieldValue.every(entry => typeof entry === 'string')),
+    );
+  return items.every(isFlat) ? items : null;
+};
+
+// Field template for the per-item form: keys in first-seen order across the
+// default items (the canonical shape) then the current items, each with the
+// input kind inferred from its first non-null value.
+const deriveObjectListFields = (items, defaultItems) => {
+  const fields = new Map();
+  for (const item of [...defaultItems, ...items]) {
+    for (const [key, fieldValue] of Object.entries(item)) {
+      if (fields.has(key) || fieldValue == null) continue;
+      if (typeof fieldValue === 'number') fields.set(key, 'number');
+      else if (typeof fieldValue === 'boolean') fields.set(key, 'boolean');
+      else if (Array.isArray(fieldValue)) fields.set(key, 'list');
+      else fields.set(key, 'string');
+    }
+  }
+  if (fields.size === 0) return null;
+  return [...fields.entries()].map(([key, kind]) => ({ key, kind }));
+};
+
+// List fields display as comma-separated text so a trailing comma or spaces
+// don't get eaten mid-typing; converted back to arrays on emit.
+const objectListToRows = (items, fields) =>
+  items.map(item => {
+    const row = { ...item };
+    for (const { key, kind } of fields) {
+      if (kind === 'list') row[key] = (item[key] ?? []).join(', ');
+    }
+    return row;
+  });
+
+const rowsToObjectList = (rows, fields) =>
+  rows.map(row => {
+    const item = { ...row };
+    for (const { key, kind } of fields) {
+      if (kind === 'list') {
+        item[key] = String(row[key] ?? '')
+          .split(',')
+          .map(entry => entry.trim())
+          .filter(Boolean);
+      }
+      if (kind === 'number') {
+        const numeric = Number(row[key]);
+        if (row[key] === '' || row[key] == null) delete item[key];
+        else if (Number.isFinite(numeric)) item[key] = numeric;
+      }
+    }
+    return item;
+  });
+
+const ObjectListItem = styled.div`
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem;
+`;
+
+const ObjectListItemFields = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+`;
+
+const ObjectListFieldLabel = styled.label`
+  color: ${Colors.midText};
+  display: block;
+  font-size: 11px;
+  margin-block-end: 2px;
+`;
+
+/**
+ * Edits an array of flat objects (e.g. loadshedder queues, triage categories)
+ * as add/remove per-item forms instead of hand-written JSON. The form fields
+ * come from the setting's own shape (default items first, then current items).
+ */
+const ObjectListSettingInput = ({ value, fields, onChange, disabled, error }) => {
+  const [rows, setRows] = useState(() => objectListToRows(value, fields));
+  const lastEmitted = useRef(value);
+
+  // Resync only on an external change (e.g. reset to default), never from our
+  // own onChange echo — that would clobber rows while a list is half-typed.
+  useEffect(() => {
+    if (!isEqual(value, lastEmitted.current)) {
+      setRows(objectListToRows(value, fields));
+      lastEmitted.current = value;
+    }
+  }, [value, fields]);
+
+  const emit = next => {
+    setRows(next);
+    const items = rowsToObjectList(next, fields);
+    lastEmitted.current = items;
+    onChange(items);
+  };
+
+  const updateField = (index, key, fieldValue) =>
+    emit(rows.map((row, i) => (i === index ? { ...row, [key]: fieldValue } : row)));
+  const removeRow = index => emit(rows.filter((_, i) => i !== index));
+  const addRow = () =>
+    emit([
+      ...rows,
+      Object.fromEntries(fields.map(({ key, kind }) => [key, kind === 'boolean' ? false : ''])),
+    ]);
+
+  return (
+    <ListInputWrapper data-testid="objectlistsettinginput">
+      {rows.map((row, index) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <ObjectListItem key={index} data-testid={`objectlistsettinginput-item-${index}`}>
+          <ObjectListItemFields>
+            {fields.map(({ key, kind }) => (
+              <div key={key}>
+                <ObjectListFieldLabel>{startCase(key)}</ObjectListFieldLabel>
+                {kind === 'boolean' ? (
+                  <Switch
+                    color="primary"
+                    checked={Boolean(row[key])}
+                    onChange={e => updateField(index, key, e.target.checked)}
+                    disabled={disabled}
+                    data-testid={`objectlistsettinginput-${index}-${key}`}
+                  />
+                ) : kind === 'number' ? (
+                  <StyledNumberInput
+                    value={row[key] ?? ''}
+                    onChange={e => updateField(index, key, e.target.value)}
+                    disabled={disabled}
+                    data-testid={`objectlistsettinginput-${index}-${key}`}
+                  />
+                ) : (
+                  <StyledTextInput
+                    value={row[key] ?? ''}
+                    onChange={e => updateField(index, key, e.target.value)}
+                    disabled={disabled}
+                    placeholder={kind === 'list' ? 'comma, separated' : undefined}
+                    data-testid={`objectlistsettinginput-${index}-${key}`}
+                  />
+                )}
+              </div>
+            ))}
+          </ObjectListItemFields>
+          {!disabled && (
+            <RemoveItemButton
+              onClick={() => removeRow(index)}
+              size="small"
+              aria-label="remove entry"
+              data-testid={`objectlistsettinginput-remove-${index}`}
+            >
+              <DeleteOutlineIcon style={{ fontSize: 18 }} />
+            </RemoveItemButton>
+          )}
+        </ObjectListItem>
+      ))}
+      {rows.length === 0 && (
+        <EmptyListText data-testid="objectlistsettinginput-empty">
+          <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
+        </EmptyListText>
+      )}
+      {!disabled && (
+        <AddItemButton
+          onClick={addRow}
+          startIcon={<AddIcon style={{ fontSize: 16 }} />}
+          data-testid="objectlistsettinginput-add"
+        >
+          <TranslatedText stringId="general.action.add" fallback="Add" />
+        </AddItemButton>
+      )}
+      {error && <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>}
     </ListInputWrapper>
   );
 };
@@ -763,7 +984,10 @@ export const SettingInput = ({
   );
 
   const typeKey =
-    editor && (type === SETTING_TYPES.STRING || type === SETTING_TYPES.OBJECT) ? editor : type;
+    editor &&
+    (type === SETTING_TYPES.STRING || type === SETTING_TYPES.OBJECT || type === SETTING_TYPES.ARRAY)
+      ? editor
+      : type;
 
   // Handle secret fields with password-style input
   if (isSecret) {
@@ -974,6 +1198,28 @@ export const SettingInput = ({
               disabled={disabled}
               error={error}
               keyOptions={options}
+            />
+          </LongTextFlexbox>
+        );
+      }
+    }
+    // eslint-disable-next-line no-fallthrough
+    case SETTING_TYPES.OBJECT_LIST: {
+      // arrays of flat objects use the per-item form editor, unless the stored
+      // value can't be read that way — then fall through to the JSON editor
+      const objectListValue = parseObjectListValue(displayValue);
+      const objectListFields =
+        objectListValue &&
+        deriveObjectListFields(objectListValue, Array.isArray(defaultValue) ? defaultValue : []);
+      if (objectListFields) {
+        return (
+          <LongTextFlexbox data-testid="flexbox-objectlist">
+            <ObjectListSettingInput
+              value={objectListValue}
+              fields={objectListFields}
+              onChange={handleChangeValue}
+              disabled={disabled}
+              error={error}
             />
           </LongTextFlexbox>
         );

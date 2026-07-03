@@ -35,6 +35,8 @@ export const SETTING_EDITORS = {
   CRON: 'cron',
   // Keyed map of { label } entries edited as add/remove key+label rows
   MAPPING: 'mapping',
+  // Array of flat objects edited as add/remove per-item forms
+  OBJECT_LIST: 'objectList',
 } as const;
 
 export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];

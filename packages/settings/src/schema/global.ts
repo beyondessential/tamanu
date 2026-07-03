@@ -1419,6 +1419,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
@@ -1426,12 +1427,14 @@ export const globalSettings = {
       exposedToWeb: true,
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
       exposedToWeb: true,
       type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
@@ -1921,6 +1924,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: triageCategoriesSchema,
       defaultValue: triageCategoriesDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
@@ -1944,6 +1948,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     patientSearch: {
       description: 'Patient search configuration',
