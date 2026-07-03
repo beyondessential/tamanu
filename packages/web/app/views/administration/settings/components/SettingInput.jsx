@@ -390,40 +390,62 @@ const BoundsHint = ({ bounds }) => {
  * (min === max) becomes value-only editing.
  */
 const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error, bounds }) => {
+  const [rows, setRows] = useState(() => items.map(item => item ?? ''));
+  const lastEmitted = useRef(items);
+
+  // Resync only on an external change (e.g. reset to default), never from our
+  // own onChange echo — that would clobber rows while an item is half-typed.
+  useEffect(() => {
+    if (!isEqual(items, lastEmitted.current)) {
+      setRows(items.map(item => item ?? ''));
+      lastEmitted.current = items;
+    }
+  }, [items]);
+
+  // An empty row is an in-progress entry: kept in the editor, dropped from the
+  // emitted value, and not error-flagged until something is typed.
+  const rowIsEmpty = row => String(row ?? '').trim() === '';
+
+  const emit = next => {
+    setRows(next);
+    const emitted = next
+      .filter(row => !rowIsEmpty(row))
+      .map(row => (isNumeric ? coerceNumericInput(row) : row));
+    lastEmitted.current = emitted;
+    onChange(emitted);
+  };
+
   const itemErrors = useMemo(
     () =>
-      items.map(item => {
-        if (!innerType) return null;
+      rows.map(row => {
+        if (!innerType || rowIsEmpty(row)) return null;
         try {
-          innerType.validateSync(item);
+          innerType.validateSync(isNumeric ? coerceNumericInput(row) : row);
           return null;
         } catch (err) {
           return err.message;
         }
       }),
-    [items, innerType],
+    [rows, innerType, isNumeric],
   );
 
-  const atMax = bounds?.max != null && items.length >= bounds.max;
-  const atMin = bounds?.min != null && items.length <= bounds.min;
+  const atMax = bounds?.max != null && rows.length >= bounds.max;
+  const atMin = bounds?.min != null && rows.length <= bounds.min;
 
-  const updateItem = (index, rawValue) => {
-    const next = items.slice();
-    next[index] = isNumeric ? coerceNumericInput(rawValue) : rawValue;
-    onChange(next);
-  };
-  const removeItem = index => onChange(items.filter((_, i) => i !== index));
-  const addItem = () => onChange([...items, isNumeric ? 0 : '']);
+  const updateItem = (index, rawValue) =>
+    emit(rows.map((row, i) => (i === index ? rawValue : row)));
+  const removeItem = index => emit(rows.filter((_, i) => i !== index));
+  const addItem = () => emit([...rows, '']);
 
   const ItemInput = isNumeric ? StyledNumberInput : StyledTextInput;
 
   return (
     <ListInputWrapper data-testid="listsettinginput">
-      {items.map((item, index) => (
+      {rows.map((row, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <ListRow key={index} data-testid={`listsettinginput-row-${index}`}>
           <ItemInput
-            value={item ?? (isNumeric ? 0 : '')}
+            value={row}
             onChange={e => updateItem(index, e.target.value)}
             disabled={disabled}
             error={Boolean(itemErrors[index])}
@@ -445,7 +467,7 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
           )}
         </ListRow>
       ))}
-      {items.length === 0 && (
+      {rows.length === 0 && (
         <EmptyListText data-testid="listsettinginput-empty">
           <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
         </EmptyListText>
