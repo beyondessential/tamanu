@@ -565,8 +565,9 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
           // eslint-disable-next-line react/no-array-index-key
           <ListRow key={index} data-testid={`mappingsettinginput-row-${index}`}>
             {keyOptions?.length ? (
-              <div style={{ width: '140px' }}>
+              <MappingKeySelectWrapper>
                 <SelectInput
+                  label={index === 0 ? 'Type' : null}
                   value={row.key}
                   onChange={e => updateRow(index, { key: e.target.value ?? '' })}
                   options={keyOptions.filter(
@@ -575,28 +576,27 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
                   disabled={disabled}
                   error={Boolean(keyError)}
                   helperText={keyError}
-                  size="small"
                   data-testid={`mappingsettinginput-key-${index}`}
                 />
-              </div>
+              </MappingKeySelectWrapper>
             ) : (
               <StyledTextInput
+                label={index === 0 ? 'Key' : null}
                 value={row.key}
                 onChange={e => updateRow(index, { key: e.target.value })}
                 disabled={disabled}
-                placeholder="key"
                 error={Boolean(keyError)}
                 helperText={keyError}
                 inputProps={{ style: { fontFamily: 'monospace' } }}
-                style={{ width: '140px' }}
+                style={{ width: '170px' }}
                 data-testid={`mappingsettinginput-key-${index}`}
               />
             )}
             <StyledTextInput
+              label={index === 0 ? 'Label' : null}
               value={row.entry.label ?? ''}
               onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
               disabled={disabled}
-              placeholder="Label"
               error={Boolean(labelError)}
               helperText={labelError}
               style={{ width: '177px' }}
@@ -607,6 +607,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
                 onClick={() => removeRow(index)}
                 size="small"
                 aria-label="remove entry"
+                style={{ marginBlockStart: index === 0 ? 28 : 8 }}
                 data-testid={`mappingsettinginput-remove-${index}`}
               >
                 <DeleteOutlineIcon style={{ fontSize: 18 }} />
@@ -738,6 +739,15 @@ const ObjectListWrapper = styled(ListInputWrapper)`
   width: 480px;
 `;
 
+const MappingKeySelectWrapper = styled.div`
+  width: 170px;
+
+  [class*='-control'] {
+    height: 44px;
+    min-height: 44px;
+  }
+`;
+
 const ObjectListItem = styled.div`
   align-items: flex-start;
   background: ${Colors.white};
@@ -751,7 +761,7 @@ const ObjectListItem = styled.div`
 const ObjectListItemFields = styled.div`
   display: grid;
   flex: 1;
-  gap: 0.4rem 0.6rem;
+  gap: 0.85rem 0.6rem;
   grid-template-columns: 1fr 1fr;
   min-width: 0;
 `;
