@@ -254,8 +254,8 @@ export const facilitySettings = {
       description: 'Settings for automatically adding fees to invoices',
       properties: {
         encounterFee: {
-          name: 'Encounter fee',
-          description: 'Automatic encounter fee for outpatient and emergency encounters',
+          name: 'Automatic outpatient encounter fee',
+          description: 'Automatic encounter fee for outpatient encounters',
           properties: {
             standardHoursStart: {
               name: 'Standard hours start',
