@@ -9,6 +9,7 @@ import {
   VISIBILITY_STATUSES,
   SYSTEM_USER_UUID,
   ADMIN_USER_EMAIL,
+  SYNC_USER_EMAIL_SUFFIX,
 } from '@tamanu/constants';
 import {
   DatabaseDuplicateError,
@@ -63,6 +64,10 @@ const createUserFilters = (filterParams, models) => {
     // Exclude admin user
     {
       email: { [Op.ne]: ADMIN_USER_EMAIL },
+    },
+    // Exclude device sync users — managed by facility setup, not this panel
+    {
+      email: { [Op.notILike]: `%${SYNC_USER_EMAIL_SUFFIX}` },
     },
   ];
 
@@ -403,6 +408,14 @@ usersRouter.put(
     }
     // only allow updating the user if the user has the write permission for the all users
     req.checkPermission('write', subject('User', { id: String(Date.now()) }));
+
+    // Editing a sync user (especially its password) silently breaks that
+    // device's sync; rotate via the facility setup wizard instead.
+    if (user.email.toLowerCase().endsWith(SYNC_USER_EMAIL_SUFFIX)) {
+      throw new InvalidOperationError(
+        'Sync users are managed by facility setup and cannot be edited',
+      );
+    }
 
     const role = await Role.findByPk(fields.role);
     if (!role) {
