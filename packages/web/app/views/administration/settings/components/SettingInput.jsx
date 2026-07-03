@@ -661,9 +661,34 @@ const parseObjectListValue = value => {
   return items.every(isFlat) ? items : null;
 };
 
-// Field template for the per-item form: keys in first-seen order across the
-// default items (the canonical shape) then the current items, each with the
-// input kind inferred from its first non-null value.
+const OBJECT_LIST_FIELD_KINDS = {
+  string: 'string',
+  number: 'number',
+  boolean: 'boolean',
+  array: 'list',
+};
+
+// Field template from the item's yup schema (the authoritative shape, in
+// declaration order — this also surfaces optional fields like a `hidden` flag
+// that no current item carries yet). null when any declared field can't be
+// edited as a simple input, so the caller falls back to value sniffing / JSON.
+const objectListFieldsFromSchema = innerType => {
+  try {
+    const described = innerType?.describe?.();
+    if (described?.type !== 'object') return null;
+    const entries = Object.entries(described.fields ?? {}).map(([key, spec]) => {
+      const kind = OBJECT_LIST_FIELD_KINDS[spec.type];
+      return kind ? { key, kind } : null;
+    });
+    return entries.length > 0 && entries.every(Boolean) ? entries : null;
+  } catch {
+    return null;
+  }
+};
+
+// Fallback for schema-less arrays: keys in first-seen order across the default
+// items (the canonical shape) then the current items, each with the input kind
+// inferred from its first non-null value.
 const deriveObjectListFields = (items, defaultItems) => {
   const fields = new Map();
   for (const item of [...defaultItems, ...items]) {
@@ -815,6 +840,8 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
                     value={row[key] ?? ''}
                     onChange={e => updateField(index, key, e.target.value)}
                     disabled={disabled}
+                    // colour-ish string fields get the native colour picker
+                    type={/^colou?r$/i.test(key) ? 'color' : undefined}
                     placeholder={kind === 'list' ? 'comma, separated' : undefined}
                     data-testid={`objectlistsettinginput-${index}-${key}`}
                   />
@@ -1235,7 +1262,8 @@ export const SettingInput = ({
       const objectListValue = parseObjectListValue(displayValue);
       const objectListFields =
         objectListValue &&
-        deriveObjectListFields(objectListValue, Array.isArray(defaultValue) ? defaultValue : []);
+        (objectListFieldsFromSchema(typeSchema.innerType) ??
+          deriveObjectListFields(objectListValue, Array.isArray(defaultValue) ? defaultValue : []));
       if (objectListFields) {
         return (
           <LongTextFlexbox data-testid="flexbox-objectlist">
