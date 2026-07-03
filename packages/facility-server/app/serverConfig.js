@@ -103,15 +103,26 @@ function current() {
 function parseEnv() {
   const result = { host: null, email: null, password: null, facilityIds: null };
   if (process.env.SYNC_URL) {
-    const { host, email, password } = parseSyncUrl(process.env.SYNC_URL);
-    result.host = host;
-    result.email = email ?? null;
-    result.password = password ?? null;
+    let parsed;
+    try {
+      parsed = parseSyncUrl(process.env.SYNC_URL);
+    } catch {
+      throw new Error(
+        'SYNC_URL is not a valid URL (expected e.g. https://user:password@central.example.com)',
+      );
+    }
+    result.host = parsed.host;
+    result.email = parsed.email ?? null;
+    result.password = parsed.password ?? null;
   }
   if (process.env.SYNC_FACILITY_IDS) {
-    result.facilityIds = process.env.SYNC_FACILITY_IDS.split(',')
-      .map(id => id.trim())
-      .filter(Boolean);
+    result.facilityIds = [
+      ...new Set(
+        process.env.SYNC_FACILITY_IDS.split(',')
+          .map(id => id.trim())
+          .filter(Boolean),
+      ),
+    ];
   }
   return result;
 }

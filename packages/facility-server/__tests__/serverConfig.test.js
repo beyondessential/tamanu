@@ -88,6 +88,17 @@ describe('serverConfig', () => {
     expect(m.secretStore.get(FACT_SYNC_PASSWORD)).toBe('fact-pw');
   });
 
+  it('trims and dedupes SYNC_FACILITY_IDS', async () => {
+    process.env.SYNC_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
+    await initWith(makeModels());
+    expect(getServerFacilityIds()).toEqual(['env-a', 'env-b']);
+  });
+
+  it('rejects a malformed SYNC_URL with a clear error', async () => {
+    process.env.SYNC_URL = 'not a url';
+    await expect(initWith(makeModels())).rejects.toThrow('SYNC_URL is not a valid URL');
+  });
+
   it('falls back to legacy config when there are no env vars or facts', async () => {
     await initWith(makeModels());
 
