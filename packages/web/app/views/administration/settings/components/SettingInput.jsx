@@ -565,18 +565,19 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
     return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
   };
 
+  // Half-filled rows get a non-blocking hint on the missing side; they still
+  // stay out of the value, so saving is allowed and just omits them.
   const rowErrors = index => {
     const row = rows[index];
-    if (row.__inProgress) {
-      return { keyError: duplicateKey(index) ? 'Duplicate key' : undefined };
-    }
+    const hasKey = row.key.trim() !== '';
+    const hasLabel = (row.entry.label ?? '').trim() !== '';
     return {
       keyError: duplicateKey(index)
         ? 'Duplicate key'
-        : row.key.trim() === ''
+        : hasLabel && !hasKey
           ? 'Required'
           : undefined,
-      labelError: (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
+      labelError: hasKey && !hasLabel ? 'Required' : undefined,
     };
   };
 
