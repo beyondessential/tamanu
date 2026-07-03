@@ -734,27 +734,40 @@ const rowsToObjectList = (rows, fields) =>
     return item;
   });
 
+const ObjectListWrapper = styled(ListInputWrapper)`
+  width: 480px;
+`;
+
 const ObjectListItem = styled.div`
+  align-items: flex-start;
+  background: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
   display: flex;
   gap: 0.25rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
 `;
 
 const ObjectListItemFields = styled.div`
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.4rem 0.6rem;
+  grid-template-columns: 1fr 1fr;
+  min-width: 0;
+`;
+
+const ObjectListField = styled.div`
+  ${props => (props.$wide ? 'grid-column: 1 / -1;' : '')}
   min-width: 0;
 `;
 
 const ObjectListFieldLabel = styled.label`
-  color: ${Colors.midText};
+  color: ${Colors.darkText};
   display: block;
-  font-size: 11px;
-  margin-block-end: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  margin-block-end: 4px;
 `;
 
 /**
@@ -812,41 +825,46 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
     ]);
 
   return (
-    <ListInputWrapper data-testid="objectlistsettinginput">
+    <ObjectListWrapper data-testid="objectlistsettinginput">
       {rows.map((row, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <ObjectListItem key={index} data-testid={`objectlistsettinginput-item-${index}`}>
           <ObjectListItemFields>
             {fields.map(({ key, kind }) => (
-              <div key={key}>
-                <ObjectListFieldLabel>{startCase(key)}</ObjectListFieldLabel>
+              <ObjectListField key={key} $wide={kind === 'list'}>
                 {kind === 'boolean' ? (
-                  <Switch
-                    color="primary"
-                    checked={Boolean(row[key])}
-                    onChange={e => updateField(index, key, e.target.checked)}
-                    disabled={disabled}
-                    data-testid={`objectlistsettinginput-${index}-${key}`}
-                  />
+                  <>
+                    <ObjectListFieldLabel>{startCase(key)}</ObjectListFieldLabel>
+                    <Switch
+                      color="primary"
+                      checked={Boolean(row[key])}
+                      onChange={e => updateField(index, key, e.target.checked)}
+                      disabled={disabled}
+                      data-testid={`objectlistsettinginput-${index}-${key}`}
+                    />
+                  </>
                 ) : kind === 'number' ? (
                   <StyledNumberInput
+                    label={startCase(key)}
                     value={row[key] ?? ''}
                     onChange={e => updateField(index, key, e.target.value)}
                     disabled={disabled}
+                    fullWidth
                     data-testid={`objectlistsettinginput-${index}-${key}`}
                   />
                 ) : (
                   <StyledTextInput
+                    label={startCase(key)}
                     value={row[key] ?? ''}
                     onChange={e => updateField(index, key, e.target.value)}
                     disabled={disabled}
-                    // colour-ish string fields get the native colour picker
                     type={/^colou?r$/i.test(key) ? 'color' : undefined}
                     placeholder={kind === 'list' ? 'comma, separated' : undefined}
+                    fullWidth
                     data-testid={`objectlistsettinginput-${index}-${key}`}
                   />
                 )}
-              </div>
+              </ObjectListField>
             ))}
             {rowError(row) && (
               <ListError data-testid={`objectlistsettinginput-itemerror-${index}`}>
@@ -881,7 +899,7 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
         </AddItemButton>
       )}
       {error && <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>}
-    </ListInputWrapper>
+    </ObjectListWrapper>
   );
 };
 
