@@ -36,6 +36,7 @@ import {
   fhirNullLastNameSchema,
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
+  rateLimitSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -229,7 +230,10 @@ export const globalSettings = {
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
           type: yup
             .string()
-            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+            .matches(/^[A-Z]{2}$/, {
+              excludeEmptyString: true,
+              message: 'must be two uppercase letters',
+            }),
           defaultValue: '',
         },
         'alpha-3': {
@@ -237,7 +241,10 @@ export const globalSettings = {
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
           type: yup
             .string()
-            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+            .matches(/^[A-Z]{3}$/, {
+              excludeEmptyString: true,
+              message: 'must be three uppercase letters',
+            }),
           defaultValue: '',
         },
       },
@@ -303,55 +310,7 @@ export const globalSettings = {
       defaultValue: 'https://bes-support.zendesk.com/hc/en-us',
       exposedToWeb: true,
     },
-    rateLimit: {
-      name: 'Rate limiting',
-      description:
-        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
-      requiresRestart: true,
-      properties: {
-        enabled: {
-          name: 'Enabled',
-          description: 'Whether rate limiting applies at all',
-          type: yup.boolean(),
-          defaultValue: true,
-        },
-        global: {
-          description: 'Permissive limit applied to every request as a DoS backstop',
-          properties: {
-            windowMs: {
-              name: 'Window',
-              type: yup.number().integer().positive(),
-              defaultValue: 60000,
-              unit: 'ms',
-            },
-            max: {
-              name: 'Max requests',
-              description: 'Maximum requests per window per IP',
-              type: yup.number().integer().positive(),
-              defaultValue: 600,
-            },
-          },
-        },
-        auth: {
-          description:
-            'Stricter limit for unauthenticated endpoints (login, refresh, password reset); successful requests are not counted',
-          properties: {
-            windowMs: {
-              name: 'Window',
-              type: yup.number().integer().positive(),
-              defaultValue: 900000,
-              unit: 'ms',
-            },
-            max: {
-              name: 'Max requests',
-              description: 'Maximum failed requests per window per IP',
-              type: yup.number().integer().positive(),
-              defaultValue: 30,
-            },
-          },
-        },
-      },
-    },
+    rateLimit: rateLimitSchema,
     medicationAdministrationRecord: {
       description: 'Settings for medication administration records',
       properties: {

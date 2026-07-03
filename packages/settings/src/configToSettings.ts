@@ -67,7 +67,11 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'scheduledReports', setting: 'reporting.scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'scheduledReports',
+    setting: 'reporting.scheduledReports',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
   {
     config: 'validateQuestionConfigs.enabled',
     setting: 'validateQuestionConfigs.enabled',
@@ -140,6 +144,14 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   // Subtree row: lifts the auth behaviour knobs; the token secrets are absent from
   // the schema (env vars), so the walk never lifts them.
   { config: 'auth', setting: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
+  // Facility-local config overrides of these two migrate as facility-scope
+  // settings (facility overrides global); reads resolve via serverScopedSettings.
+  {
+    config: 'auth.tokenDuration',
+    setting: 'auth.tokenDuration',
+    scope: SETTINGS_SCOPES.FACILITY,
+  },
+  { config: 'rateLimit', setting: 'rateLimit', scope: SETTINGS_SCOPES.FACILITY },
   { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];

@@ -6,6 +6,7 @@ import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { suggestions } from '@tamanu/shared/services/suggestions';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
+import { serverScopedSettings } from '../../serverScopedSettings';
 
 import {
   authMiddleware,
@@ -217,7 +218,7 @@ export function createApiv1({ authLimiter } = {}) {
         deviceId: device?.id,
         facilityId,
         impersonateRoleId: roleId ?? undefined,
-        expiresIn: await (req.settings.global ?? req.settings).get('auth.tokenDuration'),
+        expiresIn: await serverScopedSettings(req.settings).get('auth.tokenDuration'),
       });
 
       const roleString = roleId || user.role;
