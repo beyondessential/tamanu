@@ -529,7 +529,16 @@ const rowsToMapping = rows =>
  * half-typed or duplicate key doesn't collapse the object mid-edit; the last
  * row wins when keys collide, and colliding rows are flagged in place.
  */
-const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
+const MappingSettingInput = ({
+  value,
+  onChange,
+  disabled,
+  error,
+  keyOptions,
+  settingsPath,
+  defaultValue,
+}) => {
+  const { initialValues } = useFormikContext();
   const [rows, setRows] = useState(() => mappingToRows(value));
   const lastEmitted = useRef(value);
 
@@ -542,15 +551,18 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
     }
   }, [value]);
 
+  // The mapping as of the last save/load: an incomplete row whose entry exists
+  // here is about to lose something real and gets flagged; an incomplete row
+  // that was never saved is just mid-entry and stays quiet.
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  const savedMapping = parseMappingValue(initialFieldValue) ?? defaultValue ?? {};
+
   const rowIsComplete = row => row.key.trim() !== '' && (row.entry.label ?? '').trim() !== '';
 
-  // in-progress rows are unflagged and held out of the value until first complete
+  // only complete entries exist in the value, so it is always valid
   const emit = next => {
-    const settled = next.map(row =>
-      row.__inProgress && rowIsComplete(row) ? { ...row, __inProgress: undefined } : row,
-    );
-    setRows(settled);
-    const mapping = rowsToMapping(settled.filter(row => !row.__inProgress));
+    setRows(next);
+    const mapping = rowsToMapping(next.filter(rowIsComplete));
     lastEmitted.current = mapping;
     onChange(mapping);
   };
@@ -558,7 +570,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
   const updateRow = (index, patch) =>
     emit(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   const removeRow = index => emit(rows.filter((_, i) => i !== index));
-  const addRow = () => emit([...rows, { key: '', entry: { label: '' }, __inProgress: true }]);
+  const addRow = () => emit([...rows, { key: '', entry: { label: '' } }]);
 
   const duplicateKey = index => {
     const key = rows[index].key.trim();
@@ -567,16 +579,13 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
 
   const rowErrors = index => {
     const row = rows[index];
-    if (row.__inProgress) {
-      return { keyError: duplicateKey(index) ? 'Duplicate key' : undefined };
-    }
+    const isSavedEntry = Boolean(savedMapping[row.key.trim()]);
     return {
-      keyError: duplicateKey(index)
-        ? 'Duplicate key'
-        : row.key.trim() === ''
-          ? 'Required'
+      keyError: duplicateKey(index) ? 'Duplicate key' : undefined,
+      labelError:
+        isSavedEntry && (row.entry.label ?? '').trim() === ''
+          ? 'Required — this entry will be removed if saved without a label'
           : undefined,
-      labelError: (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
     };
   };
 
@@ -600,7 +609,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
                   // as the trash — a keyless entry can't exist in the mapping,
                   // and leaving a flagged husk behind reads as a failed save
                   onChange={e =>
-                    e.target.value == null && !row.__inProgress
+                    e.target.value == null && savedMapping[row.key.trim()]
                       ? removeRow(index)
                       : updateRow(index, { key: e.target.value ?? '' })
                   }
@@ -1328,6 +1337,8 @@ export const SettingInput = ({
           <LongTextFlexbox data-testid="flexbox-mapping">
             <MappingSettingInput
               value={mappingValue}
+              settingsPath={settingsPath}
+              defaultValue={defaultValue}
               onChange={handleChangeValue}
               disabled={disabled}
               error={error}
