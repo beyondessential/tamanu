@@ -936,7 +936,15 @@ const ObjectListSettingInput = ({
     emit([
       ...rows,
       {
-        ...Object.fromEntries(fields.map(({ key, kind }) => [key, kind === 'boolean' ? false : ''])),
+        ...Object.fromEntries(
+          fields.map(({ key, kind }) => {
+            if (kind === 'boolean') return [key, false];
+            // an empty colour input renders as a black swatch, so make the
+            // value match what it shows
+            if (/^colou?r$/i.test(key)) return [key, '#000000'];
+            return [key, ''];
+          }),
+        ),
         __inProgress: true,
       },
     ]);
