@@ -6,13 +6,15 @@ Scenarios that verify per-facility category bundling: bundled categories don't a
 
 ## Per-state matrix
 
-- [ ] Yap (imaging, lab, meds bundled): on an **admission** encounter, ordering imaging / lab / administering meds; confirm none auto-add to the invoice (verifies spec: FEES)
-- [ ] Kosrae (only meds bundled): admission encounter; confirm meds don't auto-add but lab and imaging **do** (verifies spec: FEES)
+- [ ] Yap (imaging, lab, meds bundled): on an **admission** encounter, order imaging / lab / administer meds; confirm none auto-add to the invoice (verifies spec: FEES)
+- [ ] Kosrae (only meds bundled): admission encounter; confirm administered meds don't auto-add but lab and imaging **do** (verifies spec: FEES)
 - [ ] Chuuk / Pohnpei (nothing bundled): admission encounter; confirm all categories auto-add as normal (verifies spec: FEES)
+- [ ] Confirm bundling is per-category and per-facility from the single `invoicing.inpatientFee.bundledCategories` setting: change the list at one facility and confirm only the listed categories stop auto-adding, with other facilities unaffected (verifies spec: FEES)
 
 ## Outpatient/ER always charges
 
-- [ ] At a bundling facility, on an **outpatient/ER** encounter, order lab / imaging / administer meds; confirm each still auto-adds (bundling is admission-only) (verifies spec: FEES)
+- [ ] At a bundling facility (e.g. Yap), on an **outpatient** encounter, order lab / imaging / administer meds; confirm each still auto-adds (bundling is admission-only) (verifies spec: FEES)
+- [ ] At a bundling facility, on an **emergency/triage** encounter, order a bundled-category item; confirm it still auto-adds (verifies spec: FEES)
 
 ## Medications: discharge vs administered
 
@@ -21,11 +23,12 @@ Scenarios that verify per-facility category bundling: bundled categories don't a
 
 ## Procedures
 
-- [ ] Confirm procedures always auto-add — in every state, on admission and outpatient (never bundled) (verifies spec: FEES)
+- [ ] Confirm procedures always auto-add — including at a facility whose setting lists `procedure` (if configurable) and on an admission encounter — procedures are never bundled in any state (verifies spec: FEES)
 
 ## Pre-admission persistence
 
-- [ ] Add an item while the encounter is outpatient/ER, then make the encounter admission; confirm the pre-admission item keeps its **full price** and is not removed or re-evaluated (verifies spec: FEES)
+- [ ] Add a bundled-category item while the encounter is outpatient/ER, then change the encounter to admission; confirm the pre-admission item keeps its **full price** and is not removed, re-bundled, or re-evaluated (verifies spec: FEES)
+- [ ] After that type change, order a new bundled-category item on the now-admission encounter; confirm the new item does **not** auto-add (only pre-existing items are grandfathered) (verifies spec: FEES)
 
 ## Display
 

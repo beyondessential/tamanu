@@ -1,10 +1,7 @@
 # Ward-price scenario — test cases (TAM-6913)
 
-Scenarios that verify the distinct-location-per-night rule layered on top of the bed fee. Builds on the TAM-6900 bed-fee behaviour.
+Scenarios for the distinct-location-per-night rule layered on top of the bed fee. **TAM-6913 is deferred and unimplemented, and this rule is not yet part of the FEES spec** (the spec currently defines one location per overnight check). These scenarios describe the intended ward-price behaviour for when the ticket is picked up and its night-window boundary is settled.
 
 **Setup:** as for the bed fee, with a general ward and a private ward both configured as bed-fee products, and the overnight check time set.
 
-- [ ] Place a patient in the general ward at 08:00, move to the private ward at 17:00 the same day, still admitted at the 02:00 check; confirm billed **1 night general + 1 night private** (two lines, qty 1 each) (verifies spec: FEES)
-- [ ] Keep a patient in one location across a night; confirm exactly **1** night for that location (no double-count) (verifies spec: FEES)
-- [ ] Run a multi-night stay with one same-day double-occupancy night; confirm that night counts **each distinct location once** while other nights count normally (verifies spec: FEES)
-- [ ] Occupy a placeholder location only transiently during the window; confirm it is **excluded** from the night count (verifies spec: FEES)
+- [ ] Place a patient in the general ward at 08:00, move to the private ward at 17:00 the same day, still admitted at the 02:00 check; confirm billed **1 night general + 1 night private** (two lines, qty 1 each) — each distinct billable location occupied that night counts as one night- [ ] On that same double-occupancy day, confirm each of the two lines is priced at its own location's bed rate (general vs private)- [ ] Keep a patient in one location across a night; confirm exactly **1** night for that location (no double-count)- [ ] Run a multi-night stay with one same-day double-occupancy night; confirm that night counts **each distinct location once** while other nights count normally, and lines stay batched by location- [ ] Occupy a placeholder ("open ward") location only transiently within a night before landing in a billable ward; confirm the placeholder is **excluded** from the night count- [ ] Order a patient into a private ward but place them in a general ward waiting for one to free up, then move them once available (same day); confirm both wards are billed for that day per the doctor's-order / own-request scenario

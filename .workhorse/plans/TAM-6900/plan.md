@@ -62,4 +62,7 @@ Branch `feature/tam-6900-…`, stacked on `feature/tam-6901` (→ 6898 → epic)
 - **65+ bed-fee stop — excluded, confirmed by PM.** No age-based stop on the bed fee; age is not checked for bed-fee purposes.
 
 **Still open:**
-- Integration tests (location attribution, placeholder, batching) not yet run against a live DB.
+- Ward-price scenario (TAM-6913) — the distinct-location-per-night rule is deferred and unimplemented; not part of the FEES spec yet.
+
+**Known issues (follow-up ticket):**
+- **Soft-delete conflation in `recalculateBedFee`.** The recompute soft-deletes bed-fee lines for locations that no longer qualify, but the resurrection guard treats *any* soft-deleted line as cashier-removed. A location that stops qualifying and later re-qualifies (a ward-history or discharge-date correction) is therefore never re-charged — system-removal and cashier-removal are indistinguishable via `deletedAt`. Edge-case, correction-driven, medium severity. The correct fix needs an explicit cashier-removal signal (schema change + server/mobile migration); left as a follow-up.

@@ -14,7 +14,7 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 - [ ] All rates, age and patient-type variation, insurance eligibility and discounts come from the price-list engine; there is no separate pricing logic for fees.
 - [ ] Each bed is a priceable product, so bed rates use the same price-list engine as every other fee.
 - [ ] Where a fee needs to vary by department (walk-in pharmacy), a separate fee product carries that variation, so a facility keeps a single price list rather than a department dimension on the engine.
-- [ ] Invoicing on/off is a global setting. Per-state behaviour — the normal-hours window, the overnight bed-fee check time (default 02:00), and which item categories are bundled into the inpatient fee — is facility-scoped.
+- [ ] Invoicing on/off is a global setting. Per-state behaviour — the normal-hours window, the overnight bed-fee check time, and which item categories are bundled into the inpatient fee — is facility-scoped.
 - [ ] The nightly scheduler runs after the overnight bed-fee check time so a night is only charged once the check time has passed.
 - [ ] Auto-added fees behave like manual items: a cashier can adjust or remove them (for example on a public holiday). A fee a cashier has removed is not re-added on a later re-run or re-sync.
 - [ ] Invoice-item source types include encounter fee and bed fee.
@@ -22,9 +22,9 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 ### Encounter-type taxonomy
 
 - [ ] Outpatient covers clinic and imaging encounters.
-- [ ] Emergency covers triage, active ED and emergency short-stay encounters.
+- [ ] Emergency covers triage, active ED care and emergency short-stay encounters — one emergency family, all charged a single ED fee.
 - [ ] Inpatient covers admission encounters.
-- [ ] Vaccination and form-response encounters carry no encounter fee, though they remain part of the encounter-fee configuration surface for future use.
+- [ ] Vaccination and form-response encounters carry no encounter fee.
 
 ## Outpatient and ED fees
 
@@ -52,7 +52,7 @@ Walk-in pharmacy dispensing creates a clinic encounter — the same type as a re
 - [ ] When adding the fee, the encounter's department is compared to the configured pharmacy department: a match resolves the pharmacy product, otherwise the clinic selector runs.
 - [ ] Both the clinic and pharmacy products live on the one facility price list; there is no department-scoped list and no department dimension on the price-list engine.
 - [ ] Charging pharmacy is opt-in: where the pharmacy product is priced a flat pharmacy fee line is added; where it is left unpriced no fee line is added.
-- [ ] A clinic product that is present but unpriced still surfaces as a $0 line, so that misconfiguration stays visible; a facility suppresses a clinic fee by hiding the product.
+- [ ] Clinic and ED fees are opt-out: a product that is present but unpriced still surfaces as a $0 line so misconfiguration stays visible, and a facility suppresses the fee by hiding the product. Unpriced and hidden are distinct states — unpriced gives a $0 line, hidden gives no line. See `configuration-guide.md` for how products, prices and the hidden state are set up.
 
 ## Inpatient bed fee
 
@@ -61,20 +61,11 @@ A nightly scheduled job charges each qualifying night for currently-admitted pat
 - [ ] Each bed is a priceable product in a bed-fee category, so bed rates use the price-list engine rather than a price field on the location. Pricing is per location, because beds within a location group can differ in rate.
 - [ ] A bed fee is charged once per qualifying overnight: the first night on admission (a minimum of one night, covering same-day admit, death, abscond or leaving against medical advice), and each later night at the overnight check time if the patient is still admitted.
 - [ ] The rate is set by the patient's location at the overnight check.
-- [ ] Age is checked once for the stay; a mid-stay birthday does not change the rate.
-- [ ] Placeholder "open ward" locations are never charged.
+- [ ] Only a location with a bed-fee product is charged; placeholder "open ward" locations have no product and so carry no bed fee.
 - [ ] The invoice batches bed fees by location (for example ICU ×2, Ward 1 Bed 1 ×3) rather than one row per night; nightly charging recomputes the batched quantity rather than incrementing it.
 - [ ] The location for a past night is determined from the location change history, so it is resolvable at a time other than when the nightly job runs.
-- [ ] The overnight check time is configurable per facility (default 02:00) and evaluated in facility-local time.
+- [ ] The overnight check time is configurable per facility and evaluated in facility-local time.
 - [ ] A patient admitted from ED keeps the ED encounter fee and is also charged the bed fee's first night, with pre-admission items at full price, all on the one encounter invoice.
-
-## Ward-price scenario
-
-A patient can be admitted to a private ward based on a doctor's order or their own request. If a private room is unavailable at admission, the patient is placed in a general ward temporarily and moved once a private room frees up. The patient is billed for both wards for that day.
-
-- [ ] Where a patient occupies more than one billable location in a single night — placed in a general ward while waiting for a private room, then moved once one frees up — each distinct billable location occupied that night counts as one night, so the patient is billed a night for each.
-- [ ] A patient who stays in one location across a night is billed a single night for that location.
-- [ ] Placeholder locations occupied only transiently within a night are excluded from the night count.
 
 ## Inpatient fee inclusions and exclusions
 
@@ -84,8 +75,8 @@ For an admission, a facility can bundle selected clinical item categories into t
 - [ ] Where the admission fee bundles a category, items in that category do not auto-add for inpatients but still auto-add for outpatient and emergency encounters.
 - [ ] The exclusion applies only to the administered portion of medications; discharge medications are billed separately.
 - [ ] Pre-admission items keep their full price and are not retro-bundled on admission; existing items are not re-evaluated when the encounter type changes.
-- [ ] Procedures are never bundled in any state.
-- [ ] Items bundled into the inpatient fee are not shown as separate lines on the invoice.
+- [ ] Procedures always invoice separately, in every state.
+- [ ] Items bundled into the inpatient fee are absorbed into it rather than appearing as separate invoice lines.
 
 ### Inclusion table
 
