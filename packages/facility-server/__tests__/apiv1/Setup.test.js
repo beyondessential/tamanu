@@ -1,3 +1,5 @@
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
+
 import { createTestContext } from '../utilities';
 
 // The test config provides a sync host + credentials + facilities, so the server
@@ -24,12 +26,21 @@ describe('Setup endpoints', () => {
   });
 
   it('POST /public/setup/sync refuses a configured server (409)', async () => {
+    const password = 'sup3r-secret-pw';
     const result = await baseApp.post('/api/public/setup/sync').send({
       host: 'https://central.example.com',
       email: 'admin@example.com',
-      password: 'pw',
+      password,
       facilityIds: ['facility-a'],
     });
     expect(result.status).toBe(409);
+    // the endpoint must never echo the submitted credentials back
+    expect(JSON.stringify(result.body)).not.toContain(password);
+  });
+
+  it('never syncs the stores that hold sync credentials', () => {
+    const { LocalSystemFact, LocalSystemSecret } = ctx.models;
+    expect(LocalSystemFact.syncDirection).toBe(SYNC_DIRECTIONS.DO_NOT_SYNC);
+    expect(LocalSystemSecret.syncDirection).toBe(SYNC_DIRECTIONS.DO_NOT_SYNC);
   });
 });
