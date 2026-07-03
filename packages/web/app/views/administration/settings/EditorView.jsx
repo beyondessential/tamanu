@@ -206,8 +206,9 @@ export const EditorView = memo(
       setValues(submittedValues);
       const result = await submitForm(event);
       if (result?.validationError) {
-        // errors render inline once submitCount bumps; bring the first into view
-        requestAnimationFrame(() => {
+        // errors render inline once submitCount bumps; wait a beat for that
+        // render to flush, then bring the first into view
+        setTimeout(() => {
           const firstError = document.querySelector(
             '.Mui-error, [data-testid$="-error"], [data-testid$="-duplicates"], [data-testid*="-itemerror"]',
           );
@@ -220,7 +221,7 @@ export const EditorView = memo(
               e => notifyError(e.message),
             );
           }
-        });
+        }, 100);
         return;
       }
       if (result) {
