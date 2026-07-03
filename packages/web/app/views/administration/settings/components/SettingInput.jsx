@@ -507,7 +507,10 @@ const ListSettingInput = ({
       )}
       {/* array-level validation (e.g. min/max length) — per-item errors render
           on their own rows above */}
-      {error && <ListError data-testid="listsettinginput-error">{error.message}</ListError>}
+      {/* array-level rules only; item problems already show on their rows */}
+      {error && itemErrors.every(itemError => !itemError) && (
+        <ListError data-testid="listsettinginput-error">{error.message}</ListError>
+      )}
     </ListInputWrapper>
   );
 };
@@ -1023,7 +1026,10 @@ const ObjectListSettingInput = ({
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </AddItemButton>
       )}
-      {error && <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>}
+      {/* array-level rules only; item problems already show on their cards */}
+      {error && rows.every(row => !rowError(row)) && (
+        <ListError data-testid="objectlistsettinginput-error">{error.message}</ListError>
+      )}
     </ObjectListWrapper>
   );
 };
