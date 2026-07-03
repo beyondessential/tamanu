@@ -197,7 +197,7 @@ export const globalSettings = {
     },
     dateTimeLocale: {
       description:
-        "BCP-47 locale used for date/time formatting (e.g. 'en-GB'). When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes",
+        "BCP-47 locale used for date/time formatting. When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes. Locales beyond the suggested list can be set via the JSON editor",
       exposedToWeb: true,
       type: yup
         .string()
@@ -211,6 +211,17 @@ export const globalSettings = {
             return false;
           }
         }),
+      // Suggestions only — validation accepts any well-formed BCP-47 locale
+      options: [
+        { value: 'en-GB', label: 'English (UK) — 31/12/2026' },
+        { value: 'en-US', label: 'English (US) — 12/31/2026' },
+        { value: 'en-AU', label: 'English (Australia)' },
+        { value: 'en-NZ', label: 'English (New Zealand)' },
+        { value: 'fr-FR', label: 'French' },
+        { value: 'es-ES', label: 'Spanish' },
+        { value: 'pt-PT', label: 'Portuguese' },
+        { value: 'km-KH', label: 'Khmer' },
+      ],
       defaultValue: null,
     },
     country: {
