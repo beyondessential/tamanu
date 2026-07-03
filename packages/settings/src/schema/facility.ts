@@ -17,33 +17,12 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
-  rateLimitSchema,
 } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
-    auth: {
-      highRisk: true,
-      description: 'Authentication options (facility-level overrides)',
-      infoBanner:
-        'Facility overrides apply server-wide, resolved via the first facility configured on this server — values set for its other facilities have no effect.',
-      properties: {
-        tokenDuration: {
-          name: 'Session token duration',
-          description: 'How long a login token stays valid, e.g. ‘1h’',
-          type: yup.string(),
-          defaultValue: '1h',
-        },
-      },
-    },
-    rateLimit: {
-      ...rateLimitSchema,
-      description: 'Request rate limits, keyed off the client IP (facility-level overrides)',
-      infoBanner:
-        'Facility overrides apply server-wide, resolved via the first facility configured on this server — values set for its other facilities have no effect.',
-    },
     appointments: {
       description: 'Settings related to scheduling patient appointments and location bookings',
       properties: {

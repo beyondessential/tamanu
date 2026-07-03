@@ -40,4 +40,3 @@ export {
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
 } from './fhir';
-export { rateLimitSchema } from './rateLimit';

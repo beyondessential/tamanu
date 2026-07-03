@@ -12,7 +12,6 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
-import { serverScopedSettings } from '../serverScopedSettings';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { ReadSettings } from '@tamanu/settings';
 import { version } from '../../package.json';
@@ -149,7 +148,7 @@ export async function centralServerLogin({
 
 async function localLogin({ models, settings, email, password, deviceId }) {
   const canonicalHostName = getCanonicalHostName();
-  const tokenDuration = await serverScopedSettings(settings).get('auth.tokenDuration');
+  const tokenDuration = await (settings.global ?? settings).get('auth.tokenDuration');
   const primaryTimeZone = getPrimaryTimeZone();
   const { user } = await models.User.loginFromCredential(
     {
@@ -313,7 +312,7 @@ function createAuthMiddleware({ requireDeviceId }) {
         await models.User.loginFromAuthorizationHeader(req.get('authorization'), {
           log,
           settings: globalSettings,
-          tokenDuration: await serverScopedSettings(settings).get('auth.tokenDuration'),
+          tokenDuration: await globalSettings.get('auth.tokenDuration'),
           tokenIssuer: canonicalHostName,
           tokenSecret: jwtSecretKey,
         });
