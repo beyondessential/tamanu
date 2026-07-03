@@ -1,1 +1,0 @@
-../../.agents/skills/bug-review.md
