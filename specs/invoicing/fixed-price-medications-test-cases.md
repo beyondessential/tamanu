@@ -1,69 +1,66 @@
 # Fixed-price medications — test cases
 
-Verifies `docs/specs/invoicing/fixed-price-medications.md` (TAM-6897).
+Scenarios that verify fixed-price medications (spec: FPMED). They run across three layers: **calc** unit tests (`packages/utils/__test__/invoice.test.ts`), **import/export** integration tests (`packages/central-server/__tests__/importers/`, real XLSX + DB), and **manual UI/printout** checks. Scenarios cite the criterion they exercise; uncited ones are operational.
 
-Layers: **calc** unit tests (`packages/utils/__test__/invoice.test.ts`, vitest), **import/export** integration tests (`packages/central-server/__tests__/importers/`, real XLSX + DB), and **manual UI/printout** checks. Each scenario cites the criterion it verifies; uncited ones are operational.
+## Pricing calc
 
-## Pricing calc (unit)
+- [ ] Charge a fixed-price medication line (price $2.00) with quantity 30 and confirm the line total is $2.00, not $60.00. verifies spec: FPMED#charging-behaviour
+- [ ] Charge the same fixed-price line with quantity 1 and confirm the total is still $2.00 — identical across quantities. verifies spec: FPMED#charging-behaviour
+- [ ] Charge a per-unit medication line (price $2.00, quantity 30) and confirm the total is $60.00 — per-unit is the default. verifies spec: FPMED#charging-behaviour
+- [ ] Charge a non-medication product marked fixed price with quantity 30 and confirm it is still charged price × quantity — fixed pricing is ignored for non-medications. verifies spec: FPMED#charging-behaviour
+- [ ] Charge a fixed-price medication line that has no price and confirm it falls through to 0 with no quantity-multiplication artefacts. verifies spec: FPMED#charging-behaviour
 
-- [ ] A fixed-price medication line (category `Drug`, `invoicePriceListItem.isFixedPrice = true`, price $2.00) with quantity 30 returns a line total of $2.00, not $60.00. *(Pricing: charged once regardless of quantity)*
-- [ ] The same line with quantity 1 also returns $2.00 — the total is identical across quantities. *(Pricing: quantity is informational only)*
-- [ ] A medication line with `isFixedPrice = false` and price $2.00 × quantity 30 still returns $60.00 — per-unit remains the default. *(Pricing: per-unit is default)*
-- [ ] A non-medication product (e.g. category `Lab`) with `isFixedPrice = true` and quantity 30 is still charged price × quantity — the flag is ignored for non-medications. *(Scope: flag honoured only for medications)*
-- [ ] A medication line with `isFixedPrice = true` but no `invoicePriceListItem` price falls through to 0 (no quantity multiplication artefacts). *(Pricing)*
+## Discounts and insurance
 
-## Discounts & insurance (unit)
+- [ ] Apply a 10% discount to a $2.00 fixed-price line and confirm it discounts to $1.80 (discount off the fee, not fee × quantity). verifies spec: FPMED#discounts-and-insurance
+- [ ] Apply a fixed-amount discount to a fixed-price line and confirm it subtracts from the flat fee, not from fee × quantity. verifies spec: FPMED#discounts-and-insurance
+- [ ] Apply 80% insurance coverage to a $2.00 fixed-price line and confirm coverage is $1.60 and the patient owes $0.40, regardless of quantity. verifies spec: FPMED#discounts-and-insurance
+- [ ] Apply a 10% discount then 80% coverage to a $2.00 fixed-price line and confirm discounted $1.80, covered $1.44, patient $0.36 — coverage is off the discounted fee. verifies spec: FPMED#discounts-and-insurance
+- [ ] Compute net cost for a fixed-price line and confirm it equals the discounted fee minus coverage, with no quantity term. verifies spec: FPMED#discounts-and-insurance
+- [ ] Confirm insurance coverage on a fixed-price line is capped at the discounted flat fee and never exceeds it. verifies spec: FPMED#discounts-and-insurance
 
-- [ ] A 10% percentage discount on a $2.00 fixed line discounts to $1.80 (discount applies to the fee, not fee × quantity). *(Discounts: apply to the fixed fee)*
-- [ ] A fixed-amount discount on a fixed line subtracts from the flat fee, not from fee × quantity. *(Discounts)*
-- [ ] 80% insurance coverage on a $2.00 fixed line covers $1.60 and leaves the patient owing $0.40, regardless of quantity. *(Insurance: proportional to the fixed fee)*
-- [ ] Discount + insurance combined on a fixed line: coverage is computed off the discounted fixed fee (e.g. 10% discount then 80% coverage on $2.00 → discounted $1.80, covered $1.44, patient $0.36). *(Insurance: off discounted fee)*
-- [ ] `getInvoiceItemNetCost` for a fixed line equals discounted fee minus coverage with no quantity term. *(Insurance: net cost from flat fee)*
-- [ ] Insurance coverage on a fixed line is capped at the discounted fixed fee (never exceeds it). *(Insurance: coverage caps)*
+## Invoice totals
 
-## Invoice totals (unit / integration)
+- [ ] Summarise an invoice containing a fixed-price line and confirm the flat fee flows into the grand total, discount total, and insurer/patient totals with no quantity leak. verifies spec: FPMED#discounts-and-insurance
+- [ ] Summarise an invoice mixing a fixed-price medication line and a per-unit line and confirm each totals correctly and they sum. verifies spec: FPMED#charging-behaviour
 
-- [ ] An invoice summary including a fixed-price line sums the flat fee into the invoice total — quantity does not leak into the grand total, discount total, or insurer/patient totals. *(Insurance: totals computed from flat fee)*
-- [ ] An invoice mixing a fixed-price medication line and a per-unit line totals each correctly and sums them. *(Pricing + per-unit default)*
+## Manual edits
 
-## Manual edits (calc / UI)
+- [ ] Override the price on a fixed-price line to $3.50 and confirm it charges $3.50 (override × 1), not $3.50 × quantity. verifies spec: FPMED#manual-edits
+- [ ] Remove a fixed-price line and confirm it is deleted like any other item and not re-added by the medication recompute. verifies spec: FPMED#manual-edits
+- [ ] Add an ad-hoc item with no price-list entry, set a price and quantity, and confirm it charges price × quantity — ad-hoc items are never fixed. verifies spec: FPMED#manual-edits
 
-- [ ] Overriding the price on a fixed line to $3.50 charges $3.50 (override × 1), not $3.50 × quantity. *(Manual edits: stays fixed)*
-- [ ] A cashier can remove a fixed-price line like any other item, and a removed fixed line is not re-added by the medication recompute. *(Manual edits)*
-- [ ] A manually-added ad-hoc item (no `invoicePriceListItem`) with a price and quantity charges price × quantity — ad-hoc items are never fixed. *(Manual edits: ad-hoc always per-unit)*
+## When the fee applies
 
-## Trigger (integration)
+- [ ] Dispense/administer at least one unit of a medication on a fixed-price price list and confirm the line is added at the flat fee. verifies spec: FPMED#when-the-fee-applies
+- [ ] Prescribe a medication with nothing dispensed/administered and confirm no fixed-price line is added. verifies spec: FPMED#when-the-fee-applies
+- [ ] Increase the dispensed quantity on a fixed-price line (recompute) and confirm the charged amount is unchanged. verifies spec: FPMED#charging-behaviour
 
-- [ ] A medication on a fixed-price price list with at least one unit dispensed/administered adds the line at the flat fee. *(Trigger: fee lands once a unit is dispensed)*
-- [ ] A medication prescribed but with nothing dispensed/administered adds no fixed-price line. *(Trigger: no dispense → no fee)*
-- [ ] Increasing the dispensed quantity on a fixed line (recompute) leaves the charged amount unchanged. *(Pricing: quantity informational only)*
+## Import — charging tab
 
-## Import — charging tab (integration)
+The **Invoice Price List Charging** tab: rows = invoice products, columns = price-list codes, cells = `flatFee`/`perUnit`.
 
-The **Invoice Price List Charging** tab: rows = `invoiceProductId`, columns = price-list codes, cells = `flatFee`/`perUnit`. Maps onto `InvoicePriceListItem.isFixedPrice`.
+- [ ] Import a `flatFee` cell for a medication and confirm it becomes fixed price; import `perUnit` and confirm it becomes per-unit. verifies spec: FPMED#configuring-charging-type
+- [ ] Import a charging value for a medication that already has a price and confirm the charging type merges onto the existing price-list entry — price preserved, no duplicate row. verifies spec: FPMED#configuring-charging-type
+- [ ] Import `FlatFee` with odd casing and surrounding whitespace and confirm it is matched. verifies spec: FPMED#configuring-charging-type
+- [ ] Import a sparse sheet (a value in one price-list column, blank in another) and confirm only the filled cell is applied and the blank is skipped. verifies spec: FPMED#configuring-charging-type
+- [ ] Import an unknown cell value (e.g. `sometimes`) and confirm it raises an import error. verifies spec: FPMED#configuring-charging-type
+- [ ] Import `flatFee` against a non-medication product and confirm it raises an import error. verifies spec: FPMED#configuring-charging-type
+- [ ] Import `perUnit` against a non-medication product and confirm it imports without error as per-unit. verifies spec: FPMED#configuring-charging-type
+- [ ] Re-import the charging tab with a changed value and confirm it flips the charging type on the existing item. verifies spec: FPMED#configuring-charging-type
+- [ ] Import the price tab (plain numbers and `hidden`) and confirm it is unaffected by the charging tab.
 
-- [ ] A `flatFee` cell for a medication sets `isFixedPrice = true`; `perUnit` sets `false`. *(Charging: maps to isFixedPrice)*
-- [ ] The charging tab **merges onto the existing price-list item** (same row): price from the price tab is preserved, `isFixedPrice` is set; no duplicate row is created. *(Charging: merges onto price item)*
-- [ ] `flatFee`/`perUnit` matching is **case-insensitive** and trims whitespace (e.g. `FlatFee`). *(Charging: case-insensitive)*
-- [ ] A **blank** cell is skipped (no error, nothing set) — a sparse sheet (value in one price-list column, blank in another) imports the filled cell only. *(Charging: blank = skip, round-trip safe)*
-- [ ] An **unknown** value (e.g. `sometimes`) raises an import error. *(Validation: unknown value errors)*
-- [ ] `flatFee` on a **non-medication** product raises an import error (fixed pricing is medications-only). *(Scope: flatFee on non-medication errors)*
-- [ ] `perUnit` on a **non-medication** product imports without error (`isFixedPrice = false`). *(Scope: perUnit allowed on any product)*
-- [ ] Re-importing the charging tab with a changed value flips `isFixedPrice` on the existing item (row reused). *(Charging: updates existing items)*
-- [ ] The price tab (`invoicePriceListItem`) is unaffected — plain numbers and `hidden` import as before. *(Regression: price tab unchanged)*
+## Export round-trip
 
-## Export round-trip (integration)
+- [ ] Export the charging tab and confirm it includes medications only, emitting `flatFee` for fixed-price items and `perUnit` otherwise. verifies spec: FPMED#configuring-charging-type
+- [ ] Export then re-import the price and charging tabs and confirm identical price and charging type for every item. verifies spec: FPMED#configuring-charging-type
 
-- [ ] Exporting the charging tab includes **medications only** (non-medication products are excluded), emitting `flatFee` for fixed and `perUnit` otherwise. *(Export: medications only)*
-- [ ] Export → re-import of the price and charging tabs reproduces identical `price` and `isFixedPrice` for every item. *(Export: lossless re-import)*
+## Display / printout
 
-## Display / printout (manual)
-
-- [ ] On the invoice form, a fixed-price medication line shows the dispensed quantity (e.g. 30), unit price $2.00, and line total $2.00. *(Display: quantity as-is, total = flat fee)*
-- [ ] On the invoice PDF printout, the fixed line shows the same flat-fee total with no quantity multiplication. *(Display; `InvoiceRecordPrintout.jsx`)*
-- [ ] No fixed-price badge, struck-through unit price, or hidden column appears — v1 has no distinct treatment. *(Scope: distinct UI out of scope)*
+- [ ] On the invoice form, confirm a fixed-price medication line shows the dispensed quantity (e.g. 30), unit price $2.00, and line total $2.00. verifies spec: FPMED#display-on-the-invoice
+- [ ] On the invoice PDF printout, confirm the fixed-price line shows the same flat-fee total with no quantity multiplication. verifies spec: FPMED#display-on-the-invoice
 
 ## Migration / regression
 
-- [ ] The `isFixedPrice` column is added on `InvoicePriceListItem` (server only — invoicing has no mobile models); existing items default to `false`. *(Tech design: flag location)*
-- [ ] Existing per-unit price lists are unaffected after the migration — totals, discounts, and insurance for non-fixed items are unchanged. *(Regression)*
+- [ ] Apply the migration and confirm existing price-list items default to per-unit.
+- [ ] Confirm existing per-unit price lists are unaffected after the migration — totals, discounts, and insurance for non-fixed items are unchanged.
