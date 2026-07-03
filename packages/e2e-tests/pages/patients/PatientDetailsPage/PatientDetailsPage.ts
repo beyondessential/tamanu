@@ -24,13 +24,16 @@ import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { ReferralPane } from './panes/ReferralPane';
 import { EditEncounterModal } from './modals/EditEncounterModal';
+import { InvoicePane } from '../InvoicePage/panes/InvoicePane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
   readonly procedureTab: Locator;
+  readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
+  invoicePane?: InvoicePane;
   patientProcedurePane?: ProcedurePane;
   carePlanModal?: CarePlanModal;
   prepareDischargeModal?: PrepareDischargeModal;
@@ -262,6 +265,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
+    this.invoicingTab = this.page.getByTestId('styledtab-ccs8-invoicing');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
     this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
@@ -324,6 +328,19 @@ export class PatientDetailsPage extends BasePatientPage {
       this.labRequestPane = new LabRequestPane(this.page);
     }
     return this.labRequestPane;
+  }
+
+  // Opens the top encounter's Invoicing tab. The patient has a single fresh encounter in these
+  // specs, so the top row is that encounter.
+  async navigateToInvoicingTab(): Promise<InvoicePane> {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
+    await this.selectTab(this.invoicingTab);
+    if (!this.invoicePane) {
+      this.invoicePane = new InvoicePane(this.page);
+    }
+    await this.invoicePane.waitForLoad();
+    return this.invoicePane;
   }
   async navigateToNotesTab(): Promise<NotesPane> {
     // Navigate to the top encounter
