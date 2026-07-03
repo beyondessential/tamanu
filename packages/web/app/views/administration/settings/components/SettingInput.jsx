@@ -585,7 +585,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
   const usedKeys = new Set(rows.map(row => row.key.trim()).filter(Boolean));
 
   return (
-    <ListInputWrapper data-testid="mappingsettinginput">
+    <ObjectListWrapper data-testid="mappingsettinginput">
       {rows.map((row, index) => {
         const { keyError, labelError } = rowErrors(index);
         return (
@@ -658,7 +658,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
         </AddItemButton>
       )}
       {error && <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>}
-    </ListInputWrapper>
+    </ObjectListWrapper>
   );
 };
 
@@ -767,7 +767,7 @@ const ObjectListWrapper = styled(ListInputWrapper)`
 `;
 
 const MappingKeySelectWrapper = styled.div`
-  width: 210px;
+  width: 250px;
 
   [class*='-control'] {
     height: 44px;
