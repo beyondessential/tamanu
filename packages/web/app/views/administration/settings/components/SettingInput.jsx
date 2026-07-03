@@ -542,9 +542,15 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
     }
   }, [value]);
 
+  const rowIsComplete = row => row.key.trim() !== '' && (row.entry.label ?? '').trim() !== '';
+
+  // in-progress rows are unflagged and held out of the value until first complete
   const emit = next => {
-    setRows(next);
-    const mapping = rowsToMapping(next);
+    const settled = next.map(row =>
+      row.__inProgress && rowIsComplete(row) ? { ...row, __inProgress: undefined } : row,
+    );
+    setRows(settled);
+    const mapping = rowsToMapping(settled.filter(row => !row.__inProgress));
     lastEmitted.current = mapping;
     onChange(mapping);
   };
@@ -552,26 +558,25 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
   const updateRow = (index, patch) =>
     emit(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   const removeRow = index => emit(rows.filter((_, i) => i !== index));
-  const addRow = () => emit([...rows, { key: '', entry: { label: '' } }]);
+  const addRow = () => emit([...rows, { key: '', entry: { label: '' }, __inProgress: true }]);
 
   const duplicateKey = index => {
     const key = rows[index].key.trim();
     return key !== '' && rows.findIndex(row => row.key.trim() === key) !== index;
   };
 
-  // A complete entry needs both a key and a label; a fully-empty row is an
-  // in-progress entry (dropped on save), so flag a row only once it's
-  // half-filled — one field set without the other.
   const rowErrors = index => {
-    const hasKey = rows[index].key.trim() !== '';
-    const hasLabel = (rows[index].entry.label ?? '').trim() !== '';
+    const row = rows[index];
+    if (row.__inProgress) {
+      return { keyError: duplicateKey(index) ? 'Duplicate key' : undefined };
+    }
     return {
       keyError: duplicateKey(index)
         ? 'Duplicate key'
-        : hasLabel && !hasKey
+        : row.key.trim() === ''
           ? 'Required'
           : undefined,
-      labelError: hasKey && !hasLabel ? 'Required' : undefined,
+      labelError: (row.entry.label ?? '').trim() === '' ? 'Required' : undefined,
     };
   };
 
@@ -762,7 +767,7 @@ const ObjectListWrapper = styled(ListInputWrapper)`
 `;
 
 const MappingKeySelectWrapper = styled.div`
-  width: 170px;
+  width: 210px;
 
   [class*='-control'] {
     height: 44px;
@@ -845,9 +850,7 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
     }
   };
 
-  // A row stays in progress — held out of the emitted value and unflagged, so
-  // half-typed entries don't nag — until it first validates. From then on it's
-  // a real entry and problems show immediately.
+  // in-progress rows are unflagged and held out of the value until first valid
   const emit = next => {
     const settled = next.map(row =>
       row.__inProgress && rowIsValid(row) ? { ...row, __inProgress: undefined } : row,
@@ -1063,10 +1066,11 @@ export const SettingInput = ({
     }
 
     try {
+      // strict, as on save — unstricted validation casts schema defaults into the value first
       if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
-        typeSchema.validateSync(JSON.parse(value));
+        typeSchema.validateSync(JSON.parse(value), { strict: true });
       } else {
-        typeSchema.validateSync(value);
+        typeSchema.validateSync(value, { strict: true });
       }
       setError(null);
     } catch (err) {
