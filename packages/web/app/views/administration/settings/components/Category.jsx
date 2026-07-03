@@ -67,7 +67,7 @@ const SettingLine = styled(BodyText)`
   // :focus-within holds even if the menu portals out of this subtree).
   &:hover,
   &:focus-within {
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${Colors.primary10};
   }
 `;
 
