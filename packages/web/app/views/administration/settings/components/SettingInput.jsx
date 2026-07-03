@@ -767,7 +767,8 @@ const ObjectListWrapper = styled(ListInputWrapper)`
 `;
 
 const MappingKeySelectWrapper = styled.div`
-  width: 250px;
+  flex: 1;
+  min-width: 0;
 
   [class*='-control'] {
     height: 44px;
