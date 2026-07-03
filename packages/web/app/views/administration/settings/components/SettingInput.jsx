@@ -1356,7 +1356,7 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.MULTILINE: {
       return (
-        <LongTextFlexbox data-testid="flexbox-r6sr">
+        <JSONEditorFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
@@ -1368,7 +1368,7 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-        </LongTextFlexbox>
+        </JSONEditorFlexbox>
       );
     }
     case SETTING_TYPES.MARKDOWN: {
