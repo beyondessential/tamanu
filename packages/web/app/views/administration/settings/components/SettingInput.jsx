@@ -737,7 +737,7 @@ const ObjectListFieldLabel = styled.label`
  * as add/remove per-item forms instead of hand-written JSON. The form fields
  * come from the setting's own shape (default items first, then current items).
  */
-const ObjectListSettingInput = ({ value, fields, onChange, disabled, error }) => {
+const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, error }) => {
   const [rows, setRows] = useState(() => objectListToRows(value, fields));
   const lastEmitted = useRef(value);
 
@@ -750,9 +750,29 @@ const ObjectListSettingInput = ({ value, fields, onChange, disabled, error }) =>
     }
   }, [value, fields]);
 
+  // A fully-empty row is an in-progress entry: kept in the editor, dropped
+  // from the emitted value, and not error-flagged until something is typed.
+  const rowIsEmpty = row =>
+    fields.every(
+      ({ key, kind }) => kind === 'boolean' || row[key] == null || String(row[key]).trim() === '',
+    );
+
+  const rowError = row => {
+    if (!innerType || rowIsEmpty(row)) return null;
+    try {
+      innerType.validateSync(rowsToObjectList([row], fields)[0]);
+      return null;
+    } catch (validationError) {
+      return validationError.message;
+    }
+  };
+
   const emit = next => {
     setRows(next);
-    const items = rowsToObjectList(next, fields);
+    const items = rowsToObjectList(
+      next.filter(row => !rowIsEmpty(row)),
+      fields,
+    );
     lastEmitted.current = items;
     onChange(items);
   };
@@ -801,6 +821,11 @@ const ObjectListSettingInput = ({ value, fields, onChange, disabled, error }) =>
                 )}
               </div>
             ))}
+            {rowError(row) && (
+              <ListError data-testid={`objectlistsettinginput-itemerror-${index}`}>
+                {rowError(row)}
+              </ListError>
+            )}
           </ObjectListItemFields>
           {!disabled && (
             <RemoveItemButton
@@ -1217,6 +1242,7 @@ export const SettingInput = ({
             <ObjectListSettingInput
               value={objectListValue}
               fields={objectListFields}
+              innerType={typeSchema.innerType}
               onChange={handleChangeValue}
               disabled={disabled}
               error={error}

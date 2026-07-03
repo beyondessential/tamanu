@@ -575,7 +575,15 @@ export const centralSettings = {
           name: 'Queues',
           description:
             'Checked in order; each entry has name, prefixes, maxActiveRequests, maxQueuedRequests and queueTimeout',
-          type: yup.array(yup.object()),
+          type: yup.array(
+            yup.object({
+              name: yup.string().required(),
+              prefixes: yup.array(yup.string().required()).min(1),
+              maxActiveRequests: yup.number().integer().positive().required(),
+              maxQueuedRequests: yup.number().integer().min(0).required(),
+              queueTimeout: yup.number().integer().positive().required(),
+            }),
+          ),
           editor: SETTING_EDITORS.OBJECT_LIST,
           defaultValue: [
             {
