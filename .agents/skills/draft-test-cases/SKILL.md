@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Draft test cases
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Produce or refine the card's test-cases checklist — the concrete scenarios that verify this card is done. The file is read by both the tester running scenarios by hand and the implementing agent writing automated tests against them.
 
 1. Read the card's specs in `specs/` and any existing test cases at `.workhorse/test-cases/{card-id}/`

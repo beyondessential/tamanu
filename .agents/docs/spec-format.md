@@ -8,7 +8,7 @@ Specs are the product-level source of truth for a workspace. The format serves t
 
 ## Information hierarchy
 
-Specs live in the workspace's configured specs directory (default `specs/`) as markdown files organised into directories. The directory structure is the hierarchy: **Product > Area > Subarea > ... > Spec**, with arbitrary nesting depth.
+Specs live in `specs/` as markdown files organised into directories. The directory structure is the hierarchy: **Product > Area > Subarea > ... > Spec**, with arbitrary nesting depth.
 
 ```
 specs/
@@ -78,7 +78,7 @@ Code references are advisory, not load-bearing. They help a reader jump from an 
 
 - **Describe the system as it should be, not the changes to make.** Each spec is a coherent snapshot — it reads as "this is how the system works" rather than "change X to Y" or "no longer does Z". No references to "current behaviour", "remains unchanged", "now does", or "rather than the old way". The implementation agent works from the diff to know what's changing.
 - **Acceptance criteria are facts about behaviour, not instructions to a developer.**
-- **No implementation details.** Specs are written at a product-owner level. Avoid function names, database fields, model names, enum values, and technical identifiers. Write "the system checks whether all parent cards have been committed" rather than naming the field that tracks commit state; write "Spec complete" rather than an all-caps status constant. File paths inside the workspace's specs directory are acceptable because they're part of the product's information architecture.
+- **No implementation details.** Specs are written at a product-owner level. Avoid function names, database fields, model names, enum values, and technical identifiers. Write "the system checks whether all parent cards have been committed" rather than naming the field that tracks commit state; write "Spec complete" rather than an all-caps status constant. File paths inside `specs/` are acceptable because they're part of the product's information architecture.
 - **Stay within the spec's scope.** Each spec contains only sections that relate directly to its title and area. If content would make more sense in another spec, it belongs there — add a cross-reference (e.g. "see `editor/spec-editor.md`") rather than duplicating or misplacing it. When in doubt, ask: "would someone looking for this information expect to find it in a spec with this title?"
 - **Don't specify absences.** Document what the system does, not what it doesn't do. "We don't support X" or "X is not included" is not useful — if it's not in the spec, it's not in the system. If another spec needs updating because this feature changes its behaviour, update that spec declaratively.
 - **No point-in-time language.** Don't document transitions ("we used to do X, now we do Y", "this replaces Z"). Each spec is a snapshot of the desired system, not a changelog.

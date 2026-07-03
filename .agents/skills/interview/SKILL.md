@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Interview me
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Guide the user through developing comprehensive acceptance criteria. Read `.agents/docs/spec-format.md` first so the questions you ask, and the criteria you extract, conform to the spec writing conventions and information-architecture rules.
 
 Methodology:
