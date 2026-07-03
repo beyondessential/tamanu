@@ -93,4 +93,35 @@ describe('Admin sync credentials', () => {
     expect(second).toHaveSucceeded();
     expect(second.body.email).not.toBe(first.body.email);
   });
+
+  it('hides sync users from the admin users list', async () => {
+    const app = await baseApp.asRole('admin');
+    const provisioned = await app
+      .post(ENDPOINT)
+      .send({ deviceId: 'device-hidden', facilityIds: ['facility-hidden'] });
+    expect(provisioned).toHaveSucceeded();
+
+    const list = await app.get('/api/admin/users').query({ email: provisioned.body.email });
+    expect(list).toHaveSucceeded();
+    expect(list.body.data).toHaveLength(0);
+  });
+
+  it('refuses admin panel edits to sync users', async () => {
+    const app = await baseApp.asRole('admin');
+    const provisioned = await app
+      .post(ENDPOINT)
+      .send({ deviceId: 'device-locked', facilityIds: ['facility-locked'] });
+    expect(provisioned).toHaveSucceeded();
+
+    const user = await models.User.findOne({ where: { email: provisioned.body.email } });
+    const result = await app.put(`/api/admin/users/${user.id}`).send({
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      visibilityStatus: 'current',
+      newPassword: 'hunter2hunter2',
+      confirmPassword: 'hunter2hunter2',
+    });
+    expect(result).toHaveRequestError();
+  });
 });

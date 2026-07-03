@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
+import { SYNC_USER_EMAIL_SUFFIX } from '@tamanu/constants';
 
 const bodySchema = z.object({
   deviceId: z.string().trim().min(1),
@@ -12,7 +13,7 @@ const bodySchema = z.object({
 // device rather than the facility set so two servers serving the same
 // facilities can't overwrite each other's credentials.
 const syncUserEmail = deviceId =>
-  `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}@sync.tamanu`;
+  `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}${SYNC_USER_EMAIL_SUFFIX}`;
 
 // Provision (or rotate) a dedicated sync user and return its credentials, for a
 // facility's setup wizard. Mirrors the sync users the `provision` subcommand
