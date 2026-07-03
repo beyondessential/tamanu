@@ -1,15 +1,15 @@
-<!-- BEGIN:workhorse -->
+<!-- BEGIN:workhorse 0.1.0 -->
 # Workhorse framework
 
 This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Workhorse ships skills (invokable prompts) and reference docs into this repo to shape how AI agents work here.
 
-- **Skills** live at `.agents/skills/` — each markdown file is one named skill, with YAML frontmatter and a prompt body. `.claude/skills/` is a symlink to the same folder so Claude Code picks them up natively
+- **Skills** live at `.agents/skills/` — each skill is a folder containing a `SKILL.md` with YAML frontmatter and a prompt body. `.claude/skills/` is a symlink to the same folder so Claude Code picks them up natively
 - **Reference docs** live at `.agents/docs/` — long-form guidance that skill bodies cite by path (spec format conventions and similar)
-- **Specs** live at `.workhorse/specs/` (or the workspace's configured specs directory) — acceptance criteria for each piece of work
+- **Specs** live at `specs/` — acceptance criteria for each piece of work, organised into areas by subdirectory
 
-When picking up a task, read the skill whose filename matches what you're being asked to do — it describes how to approach the work and which reference docs to follow.
+When picking up a task, read the skill whose folder name matches what you're being asked to do — its `SKILL.md` describes how to approach the work and which reference docs to follow.
 
-Workhorse plants this section on first adoption and never modifies it again. Edit or remove it freely.
+Workhorse manages this section. Run the **Pull Workhorse updates** skill to bring it, the skills, and the reference docs up to the latest release — local edits you make here are preserved through a smart merge. Edit or remove it freely.
 <!-- END:workhorse -->
 
 # Tamanu - Development Guidelines for AI Assistants

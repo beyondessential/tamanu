@@ -10,6 +10,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Workshop ideas
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 The user wants to explore and refine an idea. Help them think through approaches, trade-offs, and possibilities. Generate mockups when a visual would help illustrate a concept. This is exploratory — follow the user's curiosity rather than driving toward a specific output.
 
 ### When generating mockups

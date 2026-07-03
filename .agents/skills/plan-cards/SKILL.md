@@ -13,6 +13,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Plan cards
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Workshop how to slice this card into smaller spawned cards and capture the breakdown in the card plan at `.workhorse/plans/{card-id}/card-plan.md`.
 
 **The card plan is not the implementation plan.** Do not edit `.workhorse/plans/{card-id}/plan.md` — that is a separate, free-form working document for tech-design notes and build steps. The card plan has a strict shape:
