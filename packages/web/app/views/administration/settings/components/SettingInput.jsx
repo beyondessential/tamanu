@@ -596,7 +596,14 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
                 <SelectInput
                   label={index === 0 ? 'Type' : null}
                   value={row.key}
-                  onChange={e => updateRow(index, { key: e.target.value ?? '' })}
+                  // clearing the type of a saved entry removes the entry, same
+                  // as the trash — a keyless entry can't exist in the mapping,
+                  // and leaving a flagged husk behind reads as a failed save
+                  onChange={e =>
+                    e.target.value == null && !row.__inProgress
+                      ? removeRow(index)
+                      : updateRow(index, { key: e.target.value ?? '' })
+                  }
                   options={keyOptions.filter(
                     opt => opt.value === row.key || !usedKeys.has(opt.value),
                   )}
