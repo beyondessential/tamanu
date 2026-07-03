@@ -4,6 +4,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
   BROWSER_SUPPORT_POLICIES,
+  IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
   PLATFORM_SUPPORT_POLICIES,
   SETTING_EDITORS,
@@ -259,6 +260,8 @@ export const globalSettings = {
       description:
         'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
       type: yup.object(),
+      // Keys offered by the mapping editor's key dropdown
+      options: IMAGING_TYPES_VALUES.map(value => ({ value, label: value })),
       defaultValue: {},
       exposedToWeb: true,
       editor: SETTING_EDITORS.MAPPING,

@@ -508,7 +508,7 @@ const rowsToMapping = rows =>
  * half-typed or duplicate key doesn't collapse the object mid-edit; the last
  * row wins when keys collide, and colliding rows are flagged in place.
  */
-const MappingSettingInput = ({ value, onChange, disabled, error }) => {
+const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
   const [rows, setRows] = useState(() => mappingToRows(value));
   const lastEmitted = useRef(value);
 
@@ -543,17 +543,32 @@ const MappingSettingInput = ({ value, onChange, disabled, error }) => {
       {rows.map((row, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <ListRow key={index} data-testid={`mappingsettinginput-row-${index}`}>
-          <StyledTextInput
-            value={row.key}
-            onChange={e => updateRow(index, { key: e.target.value })}
-            disabled={disabled}
-            placeholder="key"
-            error={duplicateKey(index)}
-            helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
-            inputProps={{ style: { fontFamily: 'monospace' } }}
-            style={{ width: '140px' }}
-            data-testid={`mappingsettinginput-key-${index}`}
-          />
+          {keyOptions?.length ? (
+            <div style={{ width: '140px' }}>
+              <SelectInput
+                value={row.key}
+                onChange={e => updateRow(index, { key: e.target.value ?? '' })}
+                options={keyOptions}
+                disabled={disabled}
+                error={duplicateKey(index)}
+                helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
+                size="small"
+                data-testid={`mappingsettinginput-key-${index}`}
+              />
+            </div>
+          ) : (
+            <StyledTextInput
+              value={row.key}
+              onChange={e => updateRow(index, { key: e.target.value })}
+              disabled={disabled}
+              placeholder="key"
+              error={duplicateKey(index)}
+              helperText={duplicateKey(index) ? 'Duplicate key' : undefined}
+              inputProps={{ style: { fontFamily: 'monospace' } }}
+              style={{ width: '140px' }}
+              data-testid={`mappingsettinginput-key-${index}`}
+            />
+          )}
           <StyledTextInput
             value={row.entry.label ?? ''}
             onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
@@ -954,6 +969,7 @@ export const SettingInput = ({
               onChange={handleChangeValue}
               disabled={disabled}
               error={error}
+              keyOptions={options}
             />
           </LongTextFlexbox>
         );
