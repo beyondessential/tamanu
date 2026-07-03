@@ -1,0 +1,35 @@
+{
+  "sheetName": "Encounter Fee",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "encounterFee-standard",
+      "code": "encounterFeeStandard",
+      "name": "Standard hours encounter fee",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "encounterFee-afterhours",
+      "code": "encounterFeeAfterHours",
+      "name": "After hours encounter fee",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "encounterFee-weekend",
+      "code": "encounterFeeWeekend",
+      "name": "Weekend encounter fee",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "encounterFee-emergency",
+      "code": "encounterFeeEmergency",
+      "name": "Emergency department fee",
+      "visibilityStatus": "current"
+    }
+  ]
+}
