@@ -6,6 +6,7 @@ import { Box, Divider } from '@material-ui/core';
 import { getScopedSchema, isSetting, validateSettings } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, TranslatedText } from '../../../components';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
@@ -279,17 +280,30 @@ export const EditorView = memo(
                 data-testid="translatedtext-pj7p"
               />
             </OutlinedButton>
-            <Button
-              onClick={saveSettings}
-              disabled={!dirty || isSubmitting || hasInvalidSetting}
-              data-testid="button-s1z4"
+            <ConditionalTooltip
+              visible={dirty && hasInvalidSetting}
+              title={
+                <TranslatedText
+                  stringId="admin.settings.action.saveChanges.invalidTooltip"
+                  fallback="A setting has an invalid value — fix it before saving"
+                />
+              }
+              data-testid="conditionaltooltip-save"
             >
-              <TranslatedText
-                stringId="admin.settings.action.saveChanges"
-                fallback="Save changes"
-                data-testid="translatedtext-yd0s"
-              />
-            </Button>
+              <div>
+                <Button
+                  onClick={saveSettings}
+                  disabled={!dirty || isSubmitting || hasInvalidSetting}
+                  data-testid="button-s1z4"
+                >
+                  <TranslatedText
+                    stringId="admin.settings.action.saveChanges"
+                    fallback="Save changes"
+                    data-testid="translatedtext-yd0s"
+                  />
+                </Button>
+              </div>
+            </ConditionalTooltip>
           </ButtonGroup>
         </CategoryOptions>
         <Divider data-testid="divider-tp55" />
