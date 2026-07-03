@@ -13,12 +13,15 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenSettings = (obj: unknown, parentKey = '') => {
+// Flattening stops at keys the schema declares as settings, so an object-typed
+// setting (e.g. imagingTypes) reaches its yup schema whole instead of
+// dissolving into leaf keys the schema doesn't know (and never validating).
+const flattenSettings = (obj: unknown, settingKeys: Set<string>, parentKey = '') => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (_.isObject(value) && !Array.isArray(value)) {
-      Object.assign(acc, flattenSettings(value, fullKey));
+    if (_.isObject(value) && !Array.isArray(value) && !settingKeys.has(fullKey)) {
+      Object.assign(acc, flattenSettings(value, settingKeys, fullKey));
     } else {
       acc[fullKey] = value;
     }
@@ -60,8 +63,8 @@ export const validateSettings = async ({
     throw new Error(`No schema found for scope: ${scope}`);
   }
 
-  const flattenedSettings = flattenSettings(settings);
   const flattenedSchema = flattenSchema(schemaValue);
+  const flattenedSettings = flattenSettings(settings, new Set(Object.keys(flattenedSchema)));
   const yupSchema = yup
     .object()
     .shape(flattenedSchema);

@@ -3,7 +3,7 @@ import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'es-t
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
+import { getScopedSchema, isSetting, validateSettings } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, TranslatedText } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
@@ -155,6 +155,22 @@ export const EditorView = memo(
       [scopedSchema, effectiveCategory, subCategory],
     );
 
+    // Disable Save when the current settings would be rejected on submit, so an
+    // invalid value (e.g. a malformed cron) can't be submitted. Mirrors exactly
+    // what saveSettings validates, so the button reflects the real submit gate.
+    const [hasInvalidSetting, setHasInvalidSetting] = useState(false);
+    useEffect(() => {
+      let active = true;
+      const parsed = recursiveJsonParse(values.settings);
+      delete parsed.uncategorised;
+      validateSettings({ settings: parsed, scope })
+        .then(() => active && setHasInvalidSetting(false))
+        .catch(() => active && setHasInvalidSetting(true));
+      return () => {
+        active = false;
+      };
+    }, [values.settings, scope]);
+
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
@@ -262,7 +278,7 @@ export const EditorView = memo(
             </OutlinedButton>
             <Button
               onClick={saveSettings}
-              disabled={!dirty || isSubmitting}
+              disabled={!dirty || isSubmitting || hasInvalidSetting}
               data-testid="button-s1z4"
             >
               <TranslatedText

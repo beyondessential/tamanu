@@ -221,6 +221,32 @@ describe('Schemas', () => {
         validateSettings({ settings: globalDefaults, scope: 'global' }),
       ).resolves.not.toThrow();
     });
+
+    // Object-typed settings must reach their schema whole (flattening stops at
+    // setting keys), so entry-level rules like imagingTypes' actually run.
+    it('Should validate object settings as a whole', async () => {
+      await expect(
+        validateSettings({ settings: { imagingTypes: {} }, scope: 'global' }),
+      ).resolves.not.toThrow();
+      await expect(
+        validateSettings({
+          settings: { imagingTypes: { xRay: { label: 'X-Ray' } } },
+          scope: 'global',
+        }),
+      ).resolves.not.toThrow();
+      await expect(
+        validateSettings({
+          settings: { imagingTypes: { xRay: { label: '' } } },
+          scope: 'global',
+        }),
+      ).rejects.toThrow('each imagingTypes entry must have a non-empty label');
+      await expect(
+        validateSettings({
+          settings: { imagingTypes: { notAnImagingType: { label: 'Nope' } } },
+          scope: 'global',
+        }),
+      ).rejects.toThrow('imagingTypes keys must be IMAGING_TYPES constants');
+    });
   });
 
   describe('Central settings', () => {

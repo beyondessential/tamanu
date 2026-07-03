@@ -259,7 +259,24 @@ export const globalSettings = {
       name: 'Imaging types',
       description:
         'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
-      type: yup.object(),
+      type: yup
+        .object()
+        .test(
+          'imaging-type-keys',
+          'imagingTypes keys must be IMAGING_TYPES constants',
+          value => !value || Object.keys(value).every(key => IMAGING_TYPES_VALUES.includes(key)),
+        )
+        .test(
+          'imaging-type-labels',
+          'each imagingTypes entry must have a non-empty label',
+          value =>
+            !value ||
+            Object.values(value).every(
+              entry =>
+                typeof (entry as { label?: unknown })?.label === 'string' &&
+                (entry as { label: string }).label.trim() !== '',
+            ),
+        ),
       // Keys offered by the mapping editor's key dropdown
       options: IMAGING_TYPES_VALUES.map(value => ({ value, label: value })),
       defaultValue: {},
