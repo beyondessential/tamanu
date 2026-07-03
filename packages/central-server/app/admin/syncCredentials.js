@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
-import { SYNC_USER_EMAIL_SUFFIX } from '@tamanu/constants';
+import { USER_KINDS } from '@tamanu/constants';
 
 const bodySchema = z.object({
   deviceId: z.string().trim().min(1),
@@ -13,7 +13,7 @@ const bodySchema = z.object({
 // device rather than the facility set so two servers serving the same
 // facilities can't overwrite each other's credentials.
 const syncUserEmail = deviceId =>
-  `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}${SYNC_USER_EMAIL_SUFFIX}`;
+  `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}@sync.tamanu`;
 
 // Provision (or rotate) a dedicated sync user and return its credentials, for a
 // facility's setup wizard. Mirrors the sync users the `provision` subcommand
@@ -37,11 +37,11 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
 
   const existing = await User.findOne({ where: { email } });
   if (existing) {
-    existing.set({ displayName, role: 'admin' });
+    existing.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
     await existing.setPassword(password);
     await existing.save();
   } else {
-    await User.create({ email, displayName, role: 'admin', password });
+    await User.create({ email, displayName, role: 'admin', kind: USER_KINDS.SYNC, password });
   }
 
   // Plaintext credential in the body — keep it out of any intermediary cache.

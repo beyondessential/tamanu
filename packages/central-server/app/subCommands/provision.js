@@ -11,6 +11,7 @@ import {
   PERMISSION_IMPORTABLE_DATA_TYPES,
   SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { extractSecretPaths, getScopedSchema, ReadSettings } from '@tamanu/settings';
@@ -312,7 +313,11 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...Object.entries(facilities)
       .map(
         ([id, { user, password }]) =>
-          user && password && [user, { displayName: `System: ${id} sync`, password }],
+          user &&
+          password && [
+            user,
+            { displayName: `System: ${id} sync`, kind: USER_KINDS.SYNC, password },
+          ],
       )
       .filter(Boolean),
   ];
