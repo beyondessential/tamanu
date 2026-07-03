@@ -102,6 +102,10 @@ const LongTextFlexbox = styled(Flexbox)`
   align-items: flex-start;
 `;
 
+const JSONEditorFlexbox = styled(LongTextFlexbox)`
+  margin-block: 13px;
+`;
+
 const ListInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -1000,7 +1004,7 @@ export const SettingInput = ({
     // eslint-disable-next-line no-fallthrough
     case SETTING_TYPES.OBJECT:
       return (
-        <Flexbox data-testid="flexbox-bpq4">
+        <JSONEditorFlexbox data-testid="flexbox-bpq4">
           <JSONEditor
             height="156px"
             width={SETTING_INPUT_WIDTH}
@@ -1010,7 +1014,7 @@ export const SettingInput = ({
             error={error}
             data-testid="jsoneditor-6t9w"
           />
-        </Flexbox>
+        </JSONEditorFlexbox>
       );
     default:
       return (
