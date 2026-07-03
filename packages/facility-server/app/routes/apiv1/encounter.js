@@ -201,10 +201,16 @@ encounter.put(
         await encounterObject.setDiets(dietIds);
       }
 
-      // A discharge (endDate) or ward move (locationId) changes the bed fee — recompute now so the
-      // final nights land on the invoice immediately, rather than waiting for the next nightly
-      // BedFeeCharger run (which would miss them entirely if the invoice is finalised first).
-      if (req.body.discharge || req.body.endDate != null || req.body.locationId != null) {
+      // An admission (encounterType change), discharge (endDate) or ward move (locationId) changes
+      // the bed fee — recompute now so the nights land on the invoice immediately, rather than
+      // waiting for the next nightly BedFeeCharger run (which would miss them entirely if the
+      // invoice is finalised first).
+      if (
+        req.body.discharge ||
+        req.body.endDate != null ||
+        req.body.locationId != null ||
+        req.body.encounterType != null
+      ) {
         const location = await models.Location.findByPk(encounterObject.locationId, {
           attributes: ['facilityId'],
         });
