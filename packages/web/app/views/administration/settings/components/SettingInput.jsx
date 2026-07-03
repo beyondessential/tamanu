@@ -389,9 +389,28 @@ const BoundsHint = ({ bounds }) => {
  * max you can't add, at min you can't remove — so a fixed-length array
  * (min === max) becomes value-only editing.
  */
-const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error, bounds }) => {
+const ListSettingInput = ({
+  items,
+  onChange,
+  disabled,
+  innerType,
+  isNumeric,
+  error,
+  bounds,
+  settingsPath,
+}) => {
+  const { initialValues } = useFormikContext();
   const [rows, setRows] = useState(() => items.map(item => item ?? ''));
   const lastEmitted = useRef(items);
+
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  // A save replaces initialValues: rebuild from the saved value so incomplete
+  // rows are cleaned up rather than lingering.
+  useEffect(() => {
+    setRows(items.map(item => item ?? ''));
+    lastEmitted.current = items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFieldValue]);
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while an item is half-typed.
@@ -556,6 +575,14 @@ const MappingSettingInput = ({
   // that was never saved is just mid-entry and stays quiet.
   const initialFieldValue = get(initialValues?.settings, settingsPath);
   const savedMapping = parseMappingValue(initialFieldValue) ?? defaultValue ?? {};
+
+  // A save replaces initialValues: rebuild from the saved value so incomplete
+  // rows are cleaned up rather than lingering.
+  useEffect(() => {
+    setRows(mappingToRows(value));
+    lastEmitted.current = value;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFieldValue]);
 
   const rowIsComplete = row => row.key.trim() !== '' && (row.entry.label ?? '').trim() !== '';
 
@@ -829,9 +856,27 @@ const ObjectListFieldLabel = styled.label`
  * as add/remove per-item forms instead of hand-written JSON. The form fields
  * come from the setting's own shape (default items first, then current items).
  */
-const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, error }) => {
+const ObjectListSettingInput = ({
+  value,
+  fields,
+  innerType,
+  onChange,
+  disabled,
+  error,
+  settingsPath,
+}) => {
+  const { initialValues } = useFormikContext();
   const [rows, setRows] = useState(() => objectListToRows(value, fields));
   const lastEmitted = useRef(value);
+
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  // A save replaces initialValues: rebuild from the saved value so incomplete
+  // rows are cleaned up rather than lingering.
+  useEffect(() => {
+    setRows(objectListToRows(value, fields));
+    lastEmitted.current = value;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFieldValue]);
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while a list is half-typed.
@@ -1362,6 +1407,7 @@ export const SettingInput = ({
           <LongTextFlexbox data-testid="flexbox-objectlist">
             <ObjectListSettingInput
               value={objectListValue}
+              settingsPath={settingsPath}
               fields={objectListFields}
               innerType={typeSchema.innerType}
               onChange={handleChangeValue}
@@ -1382,6 +1428,7 @@ export const SettingInput = ({
           <LongTextFlexbox data-testid="flexbox-list">
             <ListSettingInput
               items={arrayItems}
+              settingsPath={settingsPath}
               onChange={handleChangeValue}
               disabled={disabled}
               innerType={typeSchema.innerType}
