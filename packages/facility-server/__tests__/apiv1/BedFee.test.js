@@ -186,4 +186,20 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(nightsByProduct[bedProduct.id]).toBe(1);
     expect(nightsByProduct[bedProductB.id]).toBe(2);
   });
+
+  it('loads the bed-fee product source location in the invoice include', async () => {
+    // Regression: the invoice-response include must eager-load the Location source record, or the
+    // bed-fee line resolves no product code (and nothing in views that render via the source record).
+    const items = await admitAndRecompute({
+      locationId: bedLocation.id,
+      startDate: '2024-06-16 09:00:00',
+      endDate: '2024-06-16 14:00:00',
+    });
+    const invoice = await models.Invoice.findByPk(items[0].invoiceId, {
+      include: models.Invoice.getFullReferenceAssociations(),
+    });
+    const bedItem = invoice.items.find(item => item.productId === bedProduct.id);
+    expect(bedItem.product.sourceLocationRecord).toBeTruthy();
+    expect(bedItem.product.getProductCode()).toBe(bedLocation.code);
+  });
 });

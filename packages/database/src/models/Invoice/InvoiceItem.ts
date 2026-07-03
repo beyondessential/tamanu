@@ -151,6 +151,11 @@ export class InvoiceItem extends Model {
         attributes: ['code'],
       },
       {
+        model: models.Location,
+        as: 'sourceLocationRecord',
+        attributes: ['code', 'name'],
+      },
+      {
         model: models.InvoiceInsurancePlanItem,
         as: 'invoiceInsurancePlanItems',
         required: false,
