@@ -9,6 +9,7 @@ import { DynamicSelectField, TranslatedText } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
+import { SettingsSubmitContext } from './components/SettingsSubmitContext';
 import { notifyError } from '../../../utils';
 
 const SettingsWrapper = styled.div`
@@ -141,6 +142,7 @@ export const EditorView = memo(
     const { facilityId } = values;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
+    const [failedSubmits, setFailedSubmits] = useState(0);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     // No category selected -> show the top-level settings (when the scope has any)
@@ -175,6 +177,7 @@ export const EditorView = memo(
       }
       setSubCategory(null);
       setCategory(newCategory);
+      setFailedSubmits(0);
     };
 
     const handleChangeSubcategory = e => {
@@ -206,6 +209,7 @@ export const EditorView = memo(
       setValues(submittedValues);
       const result = await submitForm(event);
       if (result?.validationError) {
+        setFailedSubmits(count => count + 1);
         // errors render inline once submitCount bumps; wait a beat for that
         // render to flush, then bring the first into view
         setTimeout(() => {
@@ -225,6 +229,7 @@ export const EditorView = memo(
         return;
       }
       if (result) {
+        setFailedSubmits(0);
         resetForm({
           values: {
             ...submittedValues,
@@ -299,6 +304,7 @@ export const EditorView = memo(
         <Divider data-testid="divider-tp55" />
         {schemaForCategory && (
           <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
+            <SettingsSubmitContext.Provider value={failedSubmits}>
             <Category
               schema={schemaForCategory}
               getSettingValue={getSettingValue}
@@ -308,6 +314,7 @@ export const EditorView = memo(
               facilityId={facilityId}
               data-testid="category-cbjk"
             />
+            </SettingsSubmitContext.Provider>
           </CategoriesWrapper>
         )}
       </SettingsWrapper>

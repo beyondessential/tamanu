@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { get, isEqual, isString, isUndefined, startCase } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
@@ -27,6 +27,7 @@ import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutoco
 import { useSuggester } from '../../../../api';
 import { useParsedCronExpression } from '../../../../utils/useParsedCronExpression';
 import { formatSettingName } from '../EditorView';
+import { SettingsSubmitContext } from './SettingsSubmitContext';
 
 // Shared width for the main setting inputs so they all fill the input column
 // consistently (the grid's input track sizes to this).
@@ -550,13 +551,12 @@ const rowsToMapping = rows =>
  * row wins when keys collide, and colliding rows are flagged in place.
  */
 const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
-  const { submitCount } = useFormikContext();
   const [rows, setRows] = useState(() => mappingToRows(value));
   const lastEmitted = useRef(value);
 
-  // No errors while editing; a save attempt reveals them. submitCount resets
-  // when a save succeeds, so the slate cleans between saves.
-  const submitted = submitCount > 0;
+  // No errors while editing; a failed save attempt reveals them, and a
+  // successful save (or category change) cleans the slate.
+  const submitted = useContext(SettingsSubmitContext) > 0;
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while a key is half-typed.
@@ -844,13 +844,12 @@ const ObjectListFieldLabel = styled.label`
  * come from the setting's own shape (default items first, then current items).
  */
 const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, error }) => {
-  const { submitCount } = useFormikContext();
   const [rows, setRows] = useState(() => objectListToRows(value, fields));
   const lastEmitted = useRef(value);
 
-  // No errors while editing; a save attempt reveals them. submitCount resets
-  // when a save succeeds, so the slate cleans between saves.
-  const submitted = submitCount > 0;
+  // No errors while editing; a failed save attempt reveals them, and a
+  // successful save (or category change) cleans the slate.
+  const submitted = useContext(SettingsSubmitContext) > 0;
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while a list is half-typed.
