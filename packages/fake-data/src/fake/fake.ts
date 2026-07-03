@@ -794,6 +794,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
+    kind: 'user',
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),

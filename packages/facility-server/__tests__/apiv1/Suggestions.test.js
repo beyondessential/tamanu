@@ -594,6 +594,7 @@ describe('Suggestions', () => {
         email: 'sync.0123456789abcdef@sync.tamanu',
         displayName: 'System: facility-sync-test sync',
         role: 'admin',
+        kind: 'sync',
       });
 
       const result = await userApp.get('/api/suggestions/practitioner').query({ q: 'sync' });

@@ -59,6 +59,7 @@ describe('Admin sync credentials', () => {
     });
     expect(user).toBeTruthy();
     expect(user.role).toBe('admin');
+    expect(user.kind).toBe('sync');
     expect(user.displayName).toContain('sync');
     // password is stored hashed, not as the returned plaintext
     expect(user.password).not.toBe(result.body.password);

@@ -21,7 +21,7 @@ import {
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
-  SYNC_USER_EMAIL_SUFFIX,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -856,7 +856,7 @@ createSuggester(
   ({ search }) => ({
     displayName: { [Op.iLike]: search },
     // Machine accounts for device sync aren't clinicians
-    email: { [Op.notILike]: `%${SYNC_USER_EMAIL_SUFFIX}` },
+    kind: { [Op.ne]: USER_KINDS.SYNC },
     ...VISIBILITY_CRITERIA,
   }),
   {
