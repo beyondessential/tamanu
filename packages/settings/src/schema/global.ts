@@ -291,6 +291,7 @@ export const globalSettings = {
           description:
             'IDs of report definitions that cannot be run or requested on this deployment',
           type: yup.array(yup.string().required()),
+          suggesterEndpoint: 'reportDefinition',
           defaultValue: [],
         },
       },

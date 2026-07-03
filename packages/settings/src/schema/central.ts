@@ -105,6 +105,7 @@ export const centralSettings = {
               description:
                 'Lab test categories whose published requests generate certificate notifications',
               type: yup.array(yup.string()),
+              suggesterEndpoint: 'labTestCategory',
               defaultValue: [],
             },
           },
