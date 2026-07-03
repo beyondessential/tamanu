@@ -820,15 +820,23 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
     }
   }, [value, fields]);
 
-  // A fully-empty row is an in-progress entry: kept in the editor, dropped
-  // from the emitted value, and not error-flagged until something is typed.
   const rowIsEmpty = row =>
     fields.every(
       ({ key, kind }) => kind === 'boolean' || row[key] == null || String(row[key]).trim() === '',
     );
 
+  const rowIsValid = row => {
+    if (!innerType) return !rowIsEmpty(row);
+    try {
+      innerType.validateSync(rowsToObjectList([row], fields)[0]);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const rowError = row => {
-    if (!innerType || rowIsEmpty(row)) return null;
+    if (!innerType || row.__inProgress || rowIsEmpty(row)) return null;
     try {
       innerType.validateSync(rowsToObjectList([row], fields)[0]);
       return null;
@@ -837,12 +845,21 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
     }
   };
 
+  // A row stays in progress — held out of the emitted value and unflagged, so
+  // half-typed entries don't nag — until it first validates. From then on it's
+  // a real entry and problems show immediately.
   const emit = next => {
-    setRows(next);
-    const items = rowsToObjectList(
-      next.filter(row => !rowIsEmpty(row)),
-      fields,
+    const settled = next.map(row =>
+      row.__inProgress && rowIsValid(row) ? { ...row, __inProgress: undefined } : row,
     );
+    setRows(settled);
+    const items = rowsToObjectList(
+      settled.filter(row => !row.__inProgress && !rowIsEmpty(row)),
+      fields,
+    ).map(item => {
+      delete item.__inProgress;
+      return item;
+    });
     lastEmitted.current = items;
     onChange(items);
   };
@@ -853,7 +870,10 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
   const addRow = () =>
     emit([
       ...rows,
-      Object.fromEntries(fields.map(({ key, kind }) => [key, kind === 'boolean' ? false : ''])),
+      {
+        ...Object.fromEntries(fields.map(({ key, kind }) => [key, kind === 'boolean' ? false : ''])),
+        __inProgress: true,
+      },
     ]);
 
   return (

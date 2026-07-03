@@ -69,21 +69,24 @@ const recursiveJsonParse = obj => {
   }, {});
 };
 
+// Group any top-level settings under a synthetic category; it's not offered
+// in the category dropdown but shown whenever no category is selected. Copies
+// rather than mutates: the scoped schema is a shared singleton, and moving its
+// root leaves in place corrupts every later schema walk (applyDefaults,
+// validation), which then resolve those settings to undefined.
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
-  // Group any top-level settings under a synthetic category; it's not offered
-  // in the category dropdown but shown whenever no category is selected.
-  if (Object.keys(uncategorised).length) {
-    const categories = omitBy(schema.properties, isSetting);
-    schema.properties = {
-      ...categories,
+  if (Object.keys(uncategorised).length === 0) return schema;
+  return {
+    ...schema,
+    properties: {
+      ...omitBy(schema.properties, isSetting),
       [UNCATEGORISED_KEY]: {
         properties: uncategorised,
       },
-    };
-  }
-  return schema;
+    },
+  };
 };
 
 const getSchemaForCategory = (schema, category, subCategory) => {
