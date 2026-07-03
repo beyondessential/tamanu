@@ -117,12 +117,11 @@ export const SettingsView = () => {
       return { settings: savedSettings };
     } catch (error) {
       if (error instanceof ValidationError) {
-        error?.inner?.forEach(e => {
-          notifyError(e.message);
-        });
-      } else {
-        notifyError(`Error while saving settings: ${error.message}`);
+        // surfaced by the tab that submitted: inline + scroll in the editor,
+        // toasts in the JSON editor
+        return { validationError: error };
       }
+      notifyError(`Error while saving settings: ${error.message}`);
       return false;
     }
   };

@@ -82,6 +82,13 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     setValues({ ...values, settings: settingsObject });
 
     const submitted = await submitForm(event);
+    if (submitted?.validationError) {
+      const { validationError } = submitted;
+      (validationError.inner?.length ? validationError.inner : [validationError]).forEach(e =>
+        notifyError(e.message),
+      );
+      return;
+    }
     if (submitted) {
       turnOffEditMode();
     }

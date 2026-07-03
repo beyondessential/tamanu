@@ -9,6 +9,7 @@ import { DynamicSelectField, TranslatedText } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
+import { notifyError } from '../../../utils';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
@@ -204,6 +205,24 @@ export const EditorView = memo(
       const submittedValues = { ...values, settings: parsedSettings };
       setValues(submittedValues);
       const result = await submitForm(event);
+      if (result?.validationError) {
+        // errors render inline once submitCount bumps; bring the first into view
+        requestAnimationFrame(() => {
+          const firstError = document.querySelector(
+            '.Mui-error, [data-testid$="-error"], [data-testid$="-duplicates"], [data-testid*="-itemerror"]',
+          );
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            // the invalid setting is in another category
+            const { validationError } = result;
+            (validationError.inner?.length ? validationError.inner : [validationError]).forEach(
+              e => notifyError(e.message),
+            );
+          }
+        });
+        return;
+      }
       if (result) {
         resetForm({
           values: {
