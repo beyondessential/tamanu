@@ -74,6 +74,14 @@ describe('SettingsConfigReader', () => {
     expect(await readCentral()).toEqual({ websocket: { enabled: false } });
   });
 
+  it('serves clones, so merging into a lifted value cannot mutate config', async () => {
+    config.localisation = { data: { imagingTypes: { xRay: { label: 'X-Ray' } } } };
+    const first = await readGlobal();
+    first.imagingTypes.echocardiogram = { label: 'Echo' };
+    expect(config.localisation.data.imagingTypes.echocardiogram).toBeUndefined();
+    expect((await readGlobal()).imagingTypes.echocardiogram).toBeUndefined();
+  });
+
   it('lifts every present leaf under a subtree row (schedules)', async () => {
     config.schedules = {
       outpatientDischarger: { schedule: '0 3 * * *', batchSize: 500 },

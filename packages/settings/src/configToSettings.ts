@@ -1,6 +1,6 @@
 import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { get, has, isEqual, set } from 'es-toolkit/compat';
+import { cloneDeep, get, has, isEqual, set } from 'es-toolkit/compat';
 
 import { getScopedSchema } from './schema';
 import { isSetting } from './schema/utils';
@@ -173,7 +173,9 @@ const liftConfigValue = (
       // A value equal to the schema default carries no information (the defaults
       // layer already provides it) and would shadow a renamed legacy lift for the
       // same setting (e.g. default-empty mail.from over a set mailgun.from).
-      if (!isEqual(value, node.defaultValue)) set(result, settingPath, value);
+      // Cloned: node-config objects are immutable, and serving a reference lets
+      // the settings cascade's merge mutate them, crashing the read.
+      if (!isEqual(value, node.defaultValue)) set(result, settingPath, cloneDeep(value));
     }
     return;
   }

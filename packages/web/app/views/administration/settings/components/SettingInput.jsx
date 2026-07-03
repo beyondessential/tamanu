@@ -626,7 +626,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
               disabled={disabled}
               error={Boolean(labelError)}
               helperText={labelError}
-              style={{ width: '177px' }}
+              style={{ width: '210px' }}
               data-testid={`mappingsettinginput-label-${index}`}
             />
             {!disabled && (
@@ -767,12 +767,12 @@ const ObjectListWrapper = styled(ListInputWrapper)`
 `;
 
 const MappingKeySelectWrapper = styled.div`
-  flex: 1;
-  min-width: 0;
+  width: 210px;
 
   [class*='-control'] {
     height: 44px;
     min-height: 44px;
+    padding-right: 4px;
   }
 `;
 
