@@ -27,4 +27,9 @@ One of:
 - `global`
 - `central`
 - `facility`
+- `server` (machine-level, keyed by device_id)
+{% enddocs %}
+
+{% docs settings__device_id %}
+For server-scope (machine-level) settings: the device id of the facility server this row belongs to. Null for all other scopes.
 {% enddocs %}

@@ -17,6 +17,14 @@ export async function applyFacilitySettingMigrations(models: Models, ids: string
     // The carrier column is free-text; the setting path was validated when the row was written.
     const key = row.key as SettingPath;
     try {
+      if (row.deviceId) {
+        // Machine-level row: becomes a device-keyed server-scope setting, which
+        // syncs back down to (only) that device.
+        const existing = await Setting.get(key, null, SETTINGS_SCOPES.SERVER, row.deviceId);
+        if (existing !== undefined) continue;
+        await Setting.set(key, row.value, SETTINGS_SCOPES.SERVER, null, row.deviceId);
+        continue;
+      }
       const existing = await Setting.get(key, row.facilityId, SETTINGS_SCOPES.FACILITY);
       if (existing !== undefined) continue;
       await Setting.set(key, row.value, SETTINGS_SCOPES.FACILITY, row.facilityId);

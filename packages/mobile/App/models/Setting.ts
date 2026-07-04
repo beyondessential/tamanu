@@ -22,6 +22,11 @@ export class Setting extends BaseModel {
   @Column({ nullable: false })
   scope: string;
 
+  // Mirrors the server column; device-routed (server scope) rows never sync to
+  // mobile, so this stays null here.
+  @Column({ nullable: true })
+  deviceId?: string;
+
   @ManyToOne(() => Facility)
   facility: IFacility;
 
@@ -51,7 +56,9 @@ export class Setting extends BaseModel {
         new Brackets(qb => {
           qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
         }),
-      );
+      )
+      // guard against misrouted device-keyed (server scope) rows polluting reads
+      .andWhere('deviceId IS NULL');
 
     if (key) {
       settingsQueryBuilder.andWhere(

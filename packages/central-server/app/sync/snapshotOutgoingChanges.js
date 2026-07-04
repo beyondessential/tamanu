@@ -17,6 +17,7 @@ const snapshotChangesForModel = async (
   markedForSyncPatientsTable,
   sessionId,
   facilityIds,
+  deviceId,
   sessionConfig,
   config,
 ) => {
@@ -106,8 +107,9 @@ const snapshotChangesForModel = async (
           sessionId,
           since,
           // include replacement params used in some model specific sync filters outside of this file
-          // see e.g. Referral.buildSyncFilter
+          // see e.g. Referral.buildSyncFilter or Setting.buildSyncFilter
           facilityIds,
+          deviceId: deviceId ?? null,
           limit: CHUNK_SIZE,
           fromId,
         },
@@ -137,6 +139,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
     markedForSyncPatientsTable,
     sessionId,
     facilityIds,
+    deviceId,
     sessionConfig,
     config,
   ) => {
@@ -166,6 +169,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
           markedForSyncPatientsTable,
           sessionId,
           facilityIds,
+          deviceId,
           sessionConfig,
           config,
         );
@@ -259,29 +263,37 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND id > :fromId` : ''}
         AND (
-          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
-          --- or patient_id has to match the marked for sync patient_ids, eg: encounters
-          ${getPatientRelatedWhereClause(
-            store.models,
-            recordTypes,
-            patientCount,
-            markedForSyncPatientsTable,
-          )}
-          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
-          --- or facility_id has to match the current facility, eg: patient_facilities
-          AND (
-            facility_id IS NULL
-            OR
-            facility_id in (:facilityIds)
+          (
+            (
+              --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
+              --- or patient_id has to match the marked for sync patient_ids, eg: encounters
+              ${getPatientRelatedWhereClause(
+                store.models,
+                recordTypes,
+                patientCount,
+                markedForSyncPatientsTable,
+              )}
+              --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
+              --- or facility_id has to match the current facility, eg: patient_facilities
+              AND (
+                facility_id IS NULL
+                OR
+                facility_id in (:facilityIds)
+              )
+              --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
+              ${
+                syncAllLabRequests
+                  ? `
+                OR is_lab_request IS TRUE
+              `
+                  : ''
+              }
+            )
+            --- device-routed records (eg. server-scope settings) never broadcast...
+            AND device_id IS NULL
           )
-          --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
-          ${
-            syncAllLabRequests
-              ? `
-            OR is_lab_request IS TRUE
-          `
-              : ''
-          }
+          --- ...they sync only to the session pulling as that device
+          OR device_id = :deviceId
         )
         AND record_type IN (:recordTypes)
         ${
@@ -362,6 +374,7 @@ export const snapshotOutgoingChanges = withConfig(
           markedForSyncPatientsTable,
           sessionId,
           facilityIds,
+          deviceId,
           sessionConfig,
           config,
         );

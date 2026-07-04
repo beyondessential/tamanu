@@ -30,10 +30,17 @@ const SCOPE_OPTIONS = [
     label: 'Facility (Single Facility)',
     value: SETTINGS_SCOPES.FACILITY,
   },
+  {
+    label: 'Server (Single Facility Server)',
+    value: SETTINGS_SCOPES.SERVER,
+  },
 ];
 
+const formatLastSeen = lastSeenAt =>
+  lastSeenAt ? new Date(lastSeenAt).toLocaleDateString() : 'never seen';
+
 export const ScopeSelectorFields = React.memo(
-  ({ scope, onScopeChange, facilityId, onFacilityChange }) => {
+  ({ scope, onScopeChange, facilityId, onFacilityChange, deviceId, onDeviceChange }) => {
     const api = useApi();
     const { data: facilitiesArray = [], error } = useQuery(
       ['facilitiesList'],
@@ -42,10 +49,22 @@ export const ScopeSelectorFields = React.memo(
         enabled: scope === SETTINGS_SCOPES.FACILITY,
       },
     );
+    const { data: devicesArray = [], error: devicesError } = useQuery(
+      ['devicesList'],
+      () => api.get('admin/devices'),
+      {
+        enabled: scope === SETTINGS_SCOPES.SERVER,
+      },
+    );
 
-    const facilityOptions = facilitiesArray.map((facility) => ({
+    const facilityOptions = facilitiesArray.map(facility => ({
       label: facility.name,
       value: facility.id,
+    }));
+
+    const deviceOptions = devicesArray.map(device => ({
+      label: `${device.name ?? device.id} (last seen ${formatLastSeen(device.lastSeenAt)})`,
+      value: device.id,
     }));
 
     return (
@@ -66,6 +85,25 @@ export const ScopeSelectorFields = React.memo(
           error={!!error}
           data-testid="scopeselectinput-zxel"
         />
+        {scope === SETTINGS_SCOPES.SERVER && (
+          <ScopeDynamicSelectInput
+            name="deviceId"
+            options={deviceOptions}
+            label={
+              <TranslatedText
+                stringId="admin.settings.device.label"
+                fallback="Server device"
+                data-testid="translatedtext-device-label"
+              />
+            }
+            value={deviceId}
+            onChange={onDeviceChange}
+            required
+            isClearable={false}
+            error={!!devicesError}
+            data-testid="scopedynamicselectinput-device"
+          />
+        )}
         {scope === SETTINGS_SCOPES.FACILITY && (
           <ScopeDynamicSelectInput
             name="facilityId"

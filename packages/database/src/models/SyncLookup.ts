@@ -17,6 +17,7 @@ export class SyncLookup extends Model {
   declare isDeleted?: boolean;
   declare updatedAtByFieldSum?: number;
   declare pushedByDeviceId?: string;
+  declare deviceId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -33,6 +34,8 @@ export class SyncLookup extends Model {
         isDeleted: { type: DataTypes.BOOLEAN },
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
         pushedByDeviceId: { type: DataTypes.TEXT },
+        // Routing: a row with device_id set syncs only to that device's sessions.
+        deviceId: { type: DataTypes.TEXT },
       },
       {
         ...options,

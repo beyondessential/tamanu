@@ -359,6 +359,45 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
     });
   });
 
+  describe('device-routed records', () => {
+    it('routes server-scope settings only to their device through the lookup table', async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 10);
+      await models.Setting.set(
+        'sync.dynamicLimiter.maxLimit',
+        777,
+        'server',
+        null,
+        'device-pull-test',
+      );
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: 1000000,
+        },
+      });
+      await centralSyncManager.updateLookupTable();
+
+      const pulledSettingKeys = async deviceId => {
+        const { sessionId } = await centralSyncManager.startSession({ deviceId });
+        await waitForSession(centralSyncManager, sessionId);
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          { since: 1, facilityIds: [facility.id], deviceId },
+          () => true,
+        );
+        const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        return changes.filter(c => c.recordType === 'settings').map(c => c.data.key);
+      };
+
+      expect(await pulledSettingKeys('device-pull-test')).toContain('sync.dynamicLimiter.maxLimit');
+      expect(await pulledSettingKeys('some-other-device')).not.toContain(
+        'sync.dynamicLimiter.maxLimit',
+      );
+    });
+  });
+
   describe('handles concurrent transactions', () => {
     afterEach(async () => {
       // Revert to the original models
@@ -432,7 +471,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
-      
+
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
         [facility, program, survey].map(r => r.id).sort(),

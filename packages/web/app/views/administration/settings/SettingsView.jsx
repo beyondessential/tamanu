@@ -53,9 +53,11 @@ const tabs = [
     key: SETTING_TABS.EDITOR,
     icon: <SettingsIcon />,
     render: props => {
-      // Don't show the editor if the scope is facility and no facility is selected
-      const { facilityId, scope } = props.values;
-      const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
+      // Don't show the editor until the scope's target (facility/server) is selected
+      const { facilityId, deviceId, scope } = props.values;
+      const shouldShowEditor =
+        (scope !== SETTINGS_SCOPES.FACILITY || !!facilityId) &&
+        (scope !== SETTINGS_SCOPES.SERVER || !!deviceId);
       return (
         <TabContainer data-testid="tabcontainer-6tbj">
           <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
@@ -87,33 +89,34 @@ export const SettingsView = () => {
   const api = useApi();
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
+  const [deviceId, setDeviceId] = useState(null);
 
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useAdminSettingsQuery(
     scope,
     facilityId,
+    deviceId,
     {
       select: data => applyDefaults(data, scope),
     },
   );
 
-  const { data: globalSettings } = useAdminSettingsQuery(
-    SETTINGS_SCOPES.GLOBAL,
-    null,
-    {
-      enabled: scope === SETTINGS_SCOPES.FACILITY,
-      select: (data) => applyDefaults(data, SETTINGS_SCOPES.GLOBAL),
-    },
-  );
+  const { data: globalSettings } = useAdminSettingsQuery(SETTINGS_SCOPES.GLOBAL, null, null, {
+    enabled: scope === SETTINGS_SCOPES.FACILITY,
+    select: data => applyDefaults(data, SETTINGS_SCOPES.GLOBAL),
+  });
 
   const queryClient = useQueryClient();
 
   const handleSubmit = async ({ settings }) => {
     try {
       await validateSettings({ settings, scope });
-      await api.put('admin/settings', { settings, facilityId, scope });
-      const savedSettings = applyDefaults(await api.get('admin/settings', { scope, facilityId }), scope);
+      await api.put('admin/settings', { settings, facilityId, deviceId, scope });
+      const savedSettings = applyDefaults(
+        await api.get('admin/settings', { scope, facilityId, deviceId }),
+        scope,
+      );
       notifySuccess('Settings saved');
-      queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
+      queryClient.invalidateQueries(['scopedSettings', scope, facilityId, deviceId]);
       return { settings: savedSettings };
     } catch (error) {
       if (error instanceof ValidationError) {
@@ -142,7 +145,7 @@ export const SettingsView = () => {
       ) : (
         <Form
           enableReinitialize
-          initialValues={{ scope, facilityId, settings: settingsSnapshot }}
+          initialValues={{ scope, facilityId, deviceId, settings: settingsSnapshot }}
           onSubmit={handleSubmit}
           render={props => (
             <SettingsForm
@@ -151,6 +154,8 @@ export const SettingsView = () => {
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
+              deviceId={deviceId}
+              setDeviceId={setDeviceId}
               globalSettings={scope === SETTINGS_SCOPES.FACILITY ? globalSettings : undefined}
               data-testid="settingsform-lqhf"
             />
@@ -175,6 +180,8 @@ const SettingsForm = ({
   setScope,
   facilityId,
   setFacilityId,
+  deviceId,
+  setDeviceId,
   globalSettings,
 }) => {
   const { ability } = useAuth();
@@ -211,6 +218,16 @@ const SettingsForm = ({
     }
     setScope(newScope);
     setFacilityId(null);
+    setDeviceId(null);
+  };
+
+  const handleDeviceChange = async e => {
+    const newDeviceId = e.target.value;
+    if (newDeviceId !== deviceId && dirty) {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+    }
+    setDeviceId(newDeviceId);
   };
 
   const handleFacilityChange = async e => {
@@ -241,6 +258,8 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
+        deviceId={deviceId}
+        onDeviceChange={handleDeviceChange}
         globalSettings={globalSettings}
         data-testid="styledtabdisplay-teef"
       />

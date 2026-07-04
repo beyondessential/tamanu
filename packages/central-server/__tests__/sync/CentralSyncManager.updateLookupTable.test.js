@@ -180,6 +180,42 @@ describe('CentralSyncManager.updateLookupTable', () => {
     );
   });
 
+  it('carries device_id for device-routed records (server-scope settings)', async () => {
+    await models.Setting.set(
+      'sync.dynamicLimiter.maxLimit',
+      1234,
+      'server',
+      null,
+      'device-lookup-test',
+    );
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    await centralSyncManager.updateLookupTable();
+
+    const settingRow = await models.SyncLookup.findOne({
+      where: { recordType: 'settings' },
+    });
+    expect(settingRow).toEqual(
+      expect.objectContaining({
+        deviceId: 'device-lookup-test',
+        facilityId: null,
+        data: expect.objectContaining({
+          key: 'sync.dynamicLimiter.maxLimit',
+          scope: 'server',
+          deviceId: 'device-lookup-test',
+        }),
+      }),
+    );
+  });
+
   it('updates new changes from records into sync lookup table', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
 

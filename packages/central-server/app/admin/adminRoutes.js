@@ -2,7 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { unset, get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
 
-import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { Op } from 'sequelize';
+import { DEVICE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
@@ -132,15 +133,14 @@ adminRoutes.patch(
 // and mask/encrypt secret fields. Without a scope we have no way to know which
 // fields are secret, so allowing the call would silently bypass masking on read
 // and encryption on write.
-const requireScope = scope => {
+const requireScope = (scope, deviceId) => {
   if (!scope) {
     throw new InvalidParameterError('scope is required');
   }
-  // Server-scope settings are machine-local to each facility server: a row
-  // written here would sit on central and never sync anywhere. Edit them on
-  // the server itself.
-  if (scope === SETTINGS_SCOPES.SERVER) {
-    throw new InvalidParameterError('server scope settings are managed on the server itself');
+  // Server-scope (machine-level) rows are keyed by the target facility server's
+  // device id — without one there is no way to route the setting anywhere.
+  if (scope === SETTINGS_SCOPES.SERVER && !deviceId) {
+    throw new InvalidParameterError('server scope requires a deviceId');
   }
   const schema = getScopedSchema(scope);
   if (!schema) {
@@ -154,10 +154,10 @@ adminRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Setting');
     const { Setting } = req.store.models;
-    const { facilityId, scope } = req.query;
-    const schema = requireScope(scope);
+    const { facilityId, scope, deviceId } = req.query;
+    const schema = requireScope(scope, deviceId);
 
-    const data = await Setting.get('', facilityId, scope);
+    const data = await Setting.get('', facilityId, scope, deviceId);
 
     if (!data || typeof data !== 'object') {
       res.send(data);
@@ -181,7 +181,14 @@ adminRoutes.get(
  *     value, so the bulk write's isEqual check leaves the row alone
  *   - remove empty/null entries so the bulk cleanup soft-deletes them
  */
-async function resolveSecretsForSave(Setting, settings, schema, scope, facilityId) {
+async function resolveSecretsForSave(
+  Setting,
+  settings,
+  schema,
+  scope,
+  facilityId,
+  deviceId = null,
+) {
   const secretPaths = extractSecretPaths(schema);
   if (secretPaths.length === 0) return;
 
@@ -192,7 +199,7 @@ async function resolveSecretsForSave(Setting, settings, schema, scope, facilityI
 
     if (value === SECRET_PLACEHOLDER) {
       const existing = await Setting.findOne({
-        where: { key: path, scope, facilityId },
+        where: { key: path, scope, facilityId, deviceId },
       });
       if (existing) {
         setAtPath(settings, path, existing.value);
@@ -212,13 +219,33 @@ async function resolveSecretsForSave(Setting, settings, schema, scope, facilityI
   }
 }
 
+// Registered facility-server devices, for the server-scope settings device
+// picker. Mobiles also register as sync clients, and a server-scope setting
+// routed to a mobile would pollute its settings table — so only facility
+// servers are offered.
+// ponytail: id-prefix heuristic (initDeviceId's `<deviceType>-` convention); a
+// config-overridden deviceId can evade it — add a device type column if that bites.
+adminRoutes.get(
+  '/devices',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Setting');
+    const { Device } = req.store.models;
+    const devices = await Device.findAll({
+      attributes: ['id', 'name', 'scopes', 'lastSeenAt'],
+      where: { id: { [Op.like]: `${DEVICE_TYPES.FACILITY_SERVER}-%` } },
+      order: [['lastSeenAt', 'DESC']],
+    });
+    res.send(devices.map(device => device.forResponse()));
+  }),
+);
+
 adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
-    const { settings, scope, facilityId = null } = req.body;
-    const schema = requireScope(scope);
+    const { settings, scope, facilityId = null, deviceId = null } = req.body;
+    const schema = requireScope(scope, deviceId);
 
     if (!settings || typeof settings !== 'object') {
       res.json({ code: 200 });
@@ -235,8 +262,8 @@ adminRoutes.put(
       );
     }
 
-    await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
-    await Setting.set('', settings, scope, facilityId);
+    await resolveSecretsForSave(Setting, settings, schema, scope, facilityId, deviceId);
+    await Setting.set('', settings, scope, facilityId, deviceId);
     await req.aiService?.refreshContexts(req.ctx.settings);
     res.json({ code: 200 });
   }),

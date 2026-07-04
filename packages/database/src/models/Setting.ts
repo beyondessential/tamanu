@@ -1,5 +1,11 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'es-toolkit/compat';
+import {
+  isPlainObject,
+  get as getAtPath,
+  set as setAtPath,
+  isEqual,
+  keyBy,
+} from 'es-toolkit/compat';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
@@ -38,6 +44,7 @@ export class Setting extends Model {
   declare value?: Record<string, any>;
   declare scope: string;
   declare facilityId?: string;
+  declare deviceId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -53,6 +60,8 @@ export class Setting extends Model {
           allowNull: false,
           defaultValue: SETTINGS_SCOPES.GLOBAL,
         },
+        // Set for server-scope (machine-level) rows, which sync only to their device.
+        deviceId: { type: DataTypes.TEXT, allowNull: true },
       },
       {
         ...options,
@@ -93,7 +102,13 @@ export class Setting extends Model {
             // settings_alive_key_unique_without_facility_idx
             unique: true,
             fields: ['key', 'scope'],
-            where: { deleted_at: null, facility_id: null },
+            where: { deleted_at: null, facility_id: null, device_id: null },
+          },
+          {
+            // settings_alive_key_unique_per_device_idx
+            unique: true,
+            fields: ['key', 'device_id'],
+            where: { deleted_at: null, device_id: { [Op.ne]: null } },
           },
         ],
       },
@@ -115,6 +130,7 @@ export class Setting extends Model {
     key: SettingPath | '' = '',
     facilityId: string | null = null,
     scopeOverride: (typeof SETTINGS_SCOPES_VALUES)[number] | null = null,
+    deviceId: string | null = null,
   ) {
     const determineScope = () => {
       if (scopeOverride) {
@@ -145,6 +161,9 @@ export class Setting extends Model {
           : {}),
         facilityId: {
           ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
+        },
+        deviceId: {
+          ...(deviceId ? { [Op.eq]: deviceId } : { [Op.is]: null }),
         },
       },
 
@@ -177,8 +196,9 @@ export class Setting extends Model {
     value: unknown,
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
+    deviceId: string | null = null,
   ) {
-    const records = buildSettingsRecords(key, value, facilityId, scope);
+    const records = buildSettingsRecords(key, value, facilityId, scope, deviceId);
     const schema = getScopedSchema(scope);
     const defaultsForScope = extractDefaults(schema);
 
@@ -187,6 +207,7 @@ export class Setting extends Model {
         key: records.map(r => r.key),
         scope,
         facilityId,
+        deviceId,
       },
       paranoid: false,
     });
@@ -237,19 +258,22 @@ export class Setting extends Model {
           },
           scope,
           facilityId,
+          deviceId,
         },
       },
     );
   }
 
   static buildSyncFilter() {
-    return `WHERE (facility_id in (:facilityIds) OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
+    // device_id routes machine-level (server scope) rows to only their device.
+    return `WHERE (facility_id in (:facilityIds) OR scope = '${SETTINGS_SCOPES.GLOBAL}' OR device_id = :deviceId) AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
   static async buildSyncLookupQueryDetails() {
     return {
       select: await buildSyncLookupSelect(this, {
         facilityId: 'settings.facility_id',
+        deviceId: 'settings.device_id',
       }),
     };
   }
@@ -294,11 +318,24 @@ function buildSettingsRecords(
   value: unknown,
   facilityId: string | null,
   scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-): { key: string; value: unknown; facilityId: string | null; scope: string }[] {
+  deviceId: string | null = null,
+): {
+  key: string;
+  value: unknown;
+  facilityId: string | null;
+  scope: string;
+  deviceId: string | null;
+}[] {
   if (isPlainObject(value)) {
     return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
+      buildSettingsRecords(
+        [keyPrefix, k].filter(Boolean).join('.'),
+        v,
+        facilityId,
+        scope,
+        deviceId,
+      ),
     );
   }
-  return [{ key: keyPrefix, value, facilityId, scope }];
+  return [{ key: keyPrefix, value, facilityId, scope, deviceId }];
 }

@@ -46,7 +46,8 @@ const updateLookupTableForModel = async (
             facility_id,
             encounter_id,
             is_lab_request,
-            updated_at_by_field_sum
+            updated_at_by_field_sum,
+            device_id
           )
           ${select || (await buildSyncLookupSelect(model))}
           FROM
@@ -93,7 +94,8 @@ const updateLookupTableForModel = async (
             facility_id = EXCLUDED.facility_id,
             updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
             is_deleted = EXCLUDED.is_deleted,
-            pushed_by_device_id = EXCLUDED.pushed_by_device_id
+            pushed_by_device_id = EXCLUDED.pushed_by_device_id,
+            device_id = EXCLUDED.device_id
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",
@@ -128,12 +130,12 @@ export const updateLookupTable = withConfig(
   async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
-        (m) =>
+        m =>
           ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
             m.syncDirection,
           ),
       )
-      .map((m) => m.tableName);
+      .map(m => m.tableName);
 
     if (invalidModelNames.length) {
       throw new Error(

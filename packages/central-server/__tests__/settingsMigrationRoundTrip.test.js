@@ -1,7 +1,8 @@
-import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { FACT_DEVICE_ID, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
 import { STEPS as FACILITY_STEPS } from '../../upgrade/src/steps/1785000000001-migrateFacilityConfigToSettings';
+import { STEPS as SERVER_STEPS } from '../../upgrade/src/steps/1783100000000-migrateServerConfigToSettings';
 import { applyFacilitySettingMigrations } from '../../database/src/sync/applyFacilitySettingMigrations';
 import config from 'config';
 import { cloneDeep, merge } from 'es-toolkit/compat';
@@ -16,7 +17,13 @@ const logStub = { info: () => {}, warn: () => {}, error: () => {}, debug: () => 
 // fallback reader -> central migration step -> facility carrier -> central apply.
 const LEGACY_CONFIG = {
   mailgun: { from: 'legacy@roundtrip.test' },
-  mail: { transport: { host: 'smtp.example.test', port: 587, auth: { user: 'mailer', pass: 'sekrit-smtp' } } },
+  mail: {
+    transport: {
+      host: 'smtp.example.test',
+      port: 587,
+      auth: { user: 'mailer', pass: 'sekrit-smtp' },
+    },
+  },
   schedules: { outpatientDischarger: { schedule: '30 3 * * *' } },
   localisation: { data: { country: { name: 'Fiji', 'alpha-2': 'FJ', 'alpha-3': 'FJI' } } },
   integrations: {
@@ -24,6 +31,7 @@ const LEGACY_CONFIG = {
     mSupplyMed: { enabled: true, username: 'msu', password: 'mspw' },
   },
   tasking: { upcomingTasksTimeFrame: 9, upcomingTasksShouldBeGeneratedTimeFrame: 96 },
+  sync: { dynamicLimiter: { maxLimit: 20000 } },
 };
 
 describe('config->settings migration round trip', () => {
@@ -56,20 +64,39 @@ describe('config->settings migration round trip', () => {
 
   it('central step: seeds settings, existing wins, secrets split and encrypted', async () => {
     // operator value that must survive
-    await Setting.set('schedules.outpatientDischarger.schedule', '0 5 * * *', SETTINGS_SCOPES.CENTRAL);
+    await Setting.set(
+      'schedules.outpatientDischarger.schedule',
+      '0 5 * * *',
+      SETTINGS_SCOPES.CENTRAL,
+    );
 
     const args = { models, serverType: 'central', toVersion: '9.9.9', log: logStub };
     expect(await CENTRAL_STEPS[0].check(args)).toBe(true);
     await CENTRAL_STEPS[0].run(args);
 
     // existing-wins
-    expect(await Setting.get('schedules.outpatientDischarger.schedule', null, SETTINGS_SCOPES.CENTRAL)).toBe('0 5 * * *');
+    expect(
+      await Setting.get('schedules.outpatientDischarger.schedule', null, SETTINGS_SCOPES.CENTRAL),
+    ).toBe('0 5 * * *');
     // renamed lift
-    expect(await Setting.get('mail.from', null, SETTINGS_SCOPES.CENTRAL)).toBe('legacy@roundtrip.test');
+    expect(await Setting.get('mail.from', null, SETTINGS_SCOPES.CENTRAL)).toBe(
+      'legacy@roundtrip.test',
+    );
     // un-nested localisation (global scope, from central config)
-    expect(await Setting.get('country', null, SETTINGS_SCOPES.GLOBAL)).toMatchObject({ name: 'Fiji', 'alpha-3': 'FJI' });
-    expect(await Setting.get('tasking.upcomingTasksShouldBeGeneratedTimeFrame', null, SETTINGS_SCOPES.GLOBAL)).toBe(96);
-    expect(await Setting.get('integrations.dhis2.username', null, SETTINGS_SCOPES.CENTRAL)).toBe('dhis-user');
+    expect(await Setting.get('country', null, SETTINGS_SCOPES.GLOBAL)).toMatchObject({
+      name: 'Fiji',
+      'alpha-3': 'FJI',
+    });
+    expect(
+      await Setting.get(
+        'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
+        null,
+        SETTINGS_SCOPES.GLOBAL,
+      ),
+    ).toBe(96);
+    expect(await Setting.get('integrations.dhis2.username', null, SETTINGS_SCOPES.CENTRAL)).toBe(
+      'dhis-user',
+    );
 
     // no settings PSK in the test env: the graceful path keeps the password
     // embedded rather than failing the upgrade (encryption path unit-tested)
@@ -79,10 +106,14 @@ describe('config->settings migration round trip', () => {
       port: 587,
       auth: { user: 'mailer', pass: 'sekrit-smtp' },
     });
-    expect(await Setting.get('mail.transportPassword', null, SETTINGS_SCOPES.CENTRAL)).toBe(undefined);
+    expect(await Setting.get('mail.transportPassword', null, SETTINGS_SCOPES.CENTRAL)).toBe(
+      undefined,
+    );
 
     // schema-secrets are never lifted
-    expect(await Setting.get('integrations.telegram.apiToken', null, SETTINGS_SCOPES.CENTRAL)).toBe(undefined);
+    expect(await Setting.get('integrations.telegram.apiToken', null, SETTINGS_SCOPES.CENTRAL)).toBe(
+      undefined,
+    );
 
     // idempotent
     expect(await CENTRAL_STEPS[0].check(args)).toBe(false);
@@ -114,9 +145,65 @@ describe('config->settings migration round trip', () => {
     // one facility already has an operator value: apply must skip it
     await Setting.set('tasking.upcomingTasksTimeFrame', 4, SETTINGS_SCOPES.FACILITY, f2.id);
 
-    await applyFacilitySettingMigrations(models, rows.map(r => r.id));
-    expect(await Setting.get('tasking.upcomingTasksTimeFrame', f1.id, SETTINGS_SCOPES.FACILITY)).toBe(9);
-    expect(await Setting.get('tasking.upcomingTasksTimeFrame', f2.id, SETTINGS_SCOPES.FACILITY)).toBe(4);
-    expect((await Setting.get('integrations.mSupplyMed', f1.id, SETTINGS_SCOPES.FACILITY)).username).toBe('msu');
+    await applyFacilitySettingMigrations(
+      models,
+      rows.map(r => r.id),
+    );
+    expect(
+      await Setting.get('tasking.upcomingTasksTimeFrame', f1.id, SETTINGS_SCOPES.FACILITY),
+    ).toBe(9);
+    expect(
+      await Setting.get('tasking.upcomingTasksTimeFrame', f2.id, SETTINGS_SCOPES.FACILITY),
+    ).toBe(4);
+    expect(
+      (await Setting.get('integrations.mSupplyMed', f1.id, SETTINGS_SCOPES.FACILITY)).username,
+    ).toBe('msu');
+  });
+
+  it('server step + central apply: device-keyed carrier round trip', async () => {
+    const deviceId = 'facility-roundtrip-device';
+    await models.LocalSystemFact.set(FACT_DEVICE_ID, deviceId);
+
+    const args = { models, serverType: 'facility', toVersion: '9.9.9', log: logStub };
+    expect(await SERVER_STEPS[0].check(args)).toBe(true);
+    await SERVER_STEPS[0].run(args);
+    expect(await SERVER_STEPS[0].check(args)).toBe(false); // fact-gated
+
+    const rows = await models.FacilitySettingMigration.findAll({
+      where: { deviceId },
+    });
+    const limiterRow = rows.find(r => r.key === 'sync.dynamicLimiter');
+    expect(limiterRow.value).toMatchObject({ maxLimit: 20000 });
+    expect(limiterRow.facilityId).toBe(null);
+
+    await applyFacilitySettingMigrations(
+      models,
+      rows.map(r => r.id),
+    );
+    expect(
+      await Setting.get('sync.dynamicLimiter.maxLimit', null, SETTINGS_SCOPES.SERVER, deviceId),
+    ).toBe(20000);
+    // routed to the device, invisible to other devices and to the plain server read
+    expect(
+      await Setting.get(
+        'sync.dynamicLimiter.maxLimit',
+        null,
+        SETTINGS_SCOPES.SERVER,
+        'other-device',
+      ),
+    ).toBe(undefined);
+    expect(await Setting.get('sync.dynamicLimiter.maxLimit', null, SETTINGS_SCOPES.SERVER)).toBe(
+      undefined,
+    );
+
+    // re-apply must not clobber an operator's newer central value
+    await Setting.set('sync.dynamicLimiter.maxLimit', 555, SETTINGS_SCOPES.SERVER, null, deviceId);
+    await applyFacilitySettingMigrations(
+      models,
+      rows.map(r => r.id),
+    );
+    expect(
+      await Setting.get('sync.dynamicLimiter.maxLimit', null, SETTINGS_SCOPES.SERVER, deviceId),
+    ).toBe(555);
   });
 });

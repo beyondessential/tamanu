@@ -13,7 +13,8 @@ export class FacilitySettingMigration extends Model {
   declare id: string;
   declare key: string;
   declare value: unknown;
-  declare facilityId: string;
+  declare facilityId?: string;
+  declare deviceId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -21,6 +22,8 @@ export class FacilitySettingMigration extends Model {
         id: primaryKey,
         key: { type: DataTypes.TEXT, allowNull: false },
         value: { type: DataTypes.JSONB, allowNull: false },
+        // Set for machine-level (server scope) rows, which have no facility.
+        deviceId: { type: DataTypes.TEXT, allowNull: true },
       },
       {
         ...options,

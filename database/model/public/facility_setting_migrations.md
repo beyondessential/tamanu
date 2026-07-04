@@ -19,3 +19,7 @@ JSON value from the legacy config file.
 {% docs facility_setting_migrations__facility_id %}
 The [facility](#!/source/source.tamanu.tamanu.facilities) the setting is scoped to.
 {% enddocs %}
+
+{% docs facility_setting_migrations__device_id %}
+For machine-level (server scope) carrier rows: the device id of the facility server the value came from. Null for facility-scoped rows, which use facility_id instead.
+{% enddocs %}

@@ -67,3 +67,9 @@ sources:
                       - global
                       - central
                       - facility
+          - name: device_id
+            data_type: text
+            description: "{{ doc('settings__device_id') }}"
+            config:
+              meta:
+                masking: text

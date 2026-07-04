@@ -79,3 +79,9 @@ sources:
           - name: pushed_by_device_id
             data_type: text
             description: "{{ doc('sync_lookup__pushed_by_device_id') }}"
+          - name: device_id
+            data_type: text
+            description: "{{ doc('sync_lookup__device_id') }}"
+            config:
+              meta:
+                masking: text

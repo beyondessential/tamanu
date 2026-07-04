@@ -110,7 +110,7 @@ describe('snapshotOutgoingChanges', () => {
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
       expect(
-        Object.keys(syncRecord.data).every((key) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
+        Object.keys(syncRecord.data).every(key => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
       ).toBe(true);
     }),
   );
@@ -202,7 +202,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -265,7 +265,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async (transaction) => {
+      const after = ctx.store.sequelize.transaction(async transaction => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -288,7 +288,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -348,7 +348,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async (transaction) => {
+      const after = ctx.store.sequelize.transaction(async transaction => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -363,6 +363,79 @@ describe('snapshotOutgoingChanges', () => {
       expect(result).toEqual(1);
     }),
   );
+
+  describe('device-routed records', () => {
+    const snapshotForDevice = async deviceId => {
+      const { SyncSession, LocalSystemFact } = models;
+      const startTime = new Date();
+      const syncSession = await SyncSession.create({
+        startTime,
+        lastConnectionTime: startTime,
+      });
+      const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        [''],
+        tock - 1,
+      );
+      // snapshot everything from the beginning of time so the settings rows
+      // created in the arrange step are always in range
+      await snapshotOutgoingChanges(
+        ctx.store,
+        { Setting: models.Setting },
+        0,
+        0,
+        fullSyncPatientsTable,
+        syncSession.id,
+        [''],
+        deviceId,
+        simplestSessionConfig,
+      );
+      const records = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      return records.filter(r => r.recordType === 'settings').map(r => r.data.key);
+    };
+
+    it(
+      'routes server-scope settings only to their own device',
+      withErrorShown(async () => {
+        const { Setting } = models;
+        await Setting.set(
+          'sync.dynamicLimiter.maxLimit',
+          4321,
+          'server',
+          null,
+          'device-under-test',
+        );
+
+        const ownKeys = await snapshotForDevice('device-under-test');
+        expect(ownKeys).toContain('sync.dynamicLimiter.maxLimit');
+
+        const otherKeys = await snapshotForDevice('some-other-device');
+        expect(otherKeys).not.toContain('sync.dynamicLimiter.maxLimit');
+
+        // a session with no device id (older clients) must not receive it either
+        const noDeviceKeys = await snapshotForDevice(null);
+        expect(noDeviceKeys).not.toContain('sync.dynamicLimiter.maxLimit');
+      }),
+    );
+
+    it(
+      'still broadcasts global settings to device sessions',
+      withErrorShown(async () => {
+        const { Setting } = models;
+        await Setting.set('supportDeskUrl', 'https://device-routing.test', 'global');
+        const keys = await snapshotForDevice('device-under-test');
+        expect(keys).toContain('supportDeskUrl');
+      }),
+    );
+  });
 
   describe('syncAllLabRequests', () => {
     const setupTestData = async () => {
@@ -503,7 +576,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,
@@ -553,7 +626,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,

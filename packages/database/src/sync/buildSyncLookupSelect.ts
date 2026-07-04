@@ -8,6 +8,7 @@ interface Columns {
   facilityId?: string;
   encounterId?: string;
   isLabRequestValue?: string;
+  deviceId?: string;
 }
 
 /**
@@ -32,7 +33,7 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
   const isFullyRebuilding =
     await model.sequelize.models.LocalSystemFact.isLookupRebuildingModel(table);
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
-  const { patientId, facilityId, encounterId, isLabRequestValue } = columns;
+  const { patientId, facilityId, encounterId, isLabRequestValue, deviceId } = columns;
 
   return `
     SELECT
@@ -43,13 +44,14 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
       sync_device_ticks.device_id,
       json_build_object(
         ${Object.keys(attributes)
-          .filter((a) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-          .map((a) => `'${a}', ${table}.${snake(a)}`)}
+          .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+          .map(a => `'${a}', ${table}.${snake(a)}`)}
       ),
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},
       ${encounterId || 'NULL'},
       ${isLabRequestValue || 'FALSE'},
-      ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}
+      ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'},
+      ${deviceId || 'NULL'}
   `;
 }
