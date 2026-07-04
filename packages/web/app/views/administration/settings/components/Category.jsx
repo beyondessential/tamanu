@@ -71,10 +71,11 @@ const SettingLine = styled(BodyText)`
   }
 `;
 
-// the row's third column: the reset-to-default action, top-aligned so it sits
-// against the first line of tall inputs (multiline, list, JSON) too
+// the row's third column: the reset-to-default action, centred against the
+// row's input like the label is
 const RowActions = styled.div`
-  align-self: start;
+  align-items: center;
+  align-self: stretch;
   display: flex;
   justify-content: flex-end;
   margin-block: 13px;
@@ -86,6 +87,7 @@ const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
   // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
   align-items: center;
+  align-self: center;
   display: inline-flex;
   gap: 0.25rem;
   margin-block: 13px;
