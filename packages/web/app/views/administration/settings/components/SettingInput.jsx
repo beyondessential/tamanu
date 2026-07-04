@@ -50,7 +50,7 @@ const StyledNumberInput = styled(NumberInput)`
 `;
 
 const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
-  width: ${SETTING_INPUT_WIDTH};
+  width: 480px;
 
   .MuiInputBase-root.Mui-disabled {
     background: ${Colors.background};
