@@ -220,7 +220,7 @@ export const EditorView = memo(
         // render to flush, then bring the first into view
         setTimeout(() => {
           const firstError = document.querySelector(
-            '.Mui-error, [data-testid$="-error"], [data-testid$="-duplicates"], [data-testid*="-itemerror"]',
+            '.Mui-error, [data-error-anchor], [data-testid$="-error"], [data-testid$="-duplicates"], [data-testid*="-itemerror"]',
           );
           if (firstError) {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -228,7 +228,8 @@ export const EditorView = memo(
             // the invalid setting is in another category
             const { validationError } = result;
             (validationError.inner?.length ? validationError.inner : [validationError]).forEach(
-              e => notifyError(e.message),
+              e =>
+                notifyError(e.message.length > 160 ? `${e.message.slice(0, 160)}…` : e.message),
             );
           }
         }, 100);

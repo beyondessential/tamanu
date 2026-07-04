@@ -1432,7 +1432,10 @@ export const SettingInput = ({
     // eslint-disable-next-line no-fallthrough
     case SETTING_TYPES.OBJECT:
       return (
-        <JSONEditorFlexbox data-testid="flexbox-bpq4">
+        <JSONEditorFlexbox
+          data-error-anchor={shownError ? 'true' : undefined}
+          data-testid="flexbox-bpq4"
+        >
           <JSONEditor
             height="156px"
             width={SETTING_INPUT_WIDTH}
