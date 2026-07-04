@@ -1222,6 +1222,8 @@ export const SettingInput = ({
               onChange={defaultHandleChange}
               disabled={disabled}
               individualChips
+              menuPlacement="auto"
+              menuPosition="fixed"
               suggester={suggester}
               value={suggesterDisplayValue}
               error={shownError}
