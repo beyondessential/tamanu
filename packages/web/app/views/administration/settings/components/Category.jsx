@@ -90,8 +90,8 @@ const SettingNameLabel = styled(LargeBodyText)`
   gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
-  // inset from the band's left edge (the container itself has no padding)
-  margin-inline-start: 1.25rem;
+  // inset from the band's left edge, plus one step per nesting level
+  margin-inline-start: ${props => 1.25 + (props.$indent ?? 0) * 1.25}rem;
   font-size: 15px;
   inline-size: fit-content;
 `;
@@ -99,8 +99,8 @@ const SettingNameLabel = styled(LargeBodyText)`
 const StyledHeading = styled(Heading4)`
   grid-column: 1 / -1;
   margin-block: 1rem;
-  // align the heading text with the row labels' left inset
-  margin-inline-start: 1.25rem;
+  // align with the row labels' left inset, plus one step per nesting level
+  margin-inline-start: ${props => 1.25 + (props.$indent ?? 0) * 1.25}rem;
   inline-size: fit-content;
 `;
 
@@ -109,7 +109,7 @@ const InfoBannerAlert = styled(Alert)`
   margin-block-end: 0.5rem;
 `;
 
-const CategoryTitle = memo(({ name, path, description }) => {
+const CategoryTitle = memo(({ name, path, description, depth }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
@@ -118,13 +118,20 @@ const CategoryTitle = memo(({ name, path, description }) => {
       title={description}
       data-testid="themedtooltip-j5ux"
     >
-      <StyledHeading data-testid="styledheading-js44">{categoryTitle}</StyledHeading>
+      <StyledHeading $indent={depth} data-testid="styledheading-js44">
+        {categoryTitle}
+      </StyledHeading>
     </ThemedTooltip>
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled, isSecret, requiresRestart }) => (
-  <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+const SettingName = memo(
+  ({ name, path, description, disabled, isSecret, requiresRestart, depth }) => (
+  <SettingNameLabel
+    $indent={depth}
+    color={disabled && 'textTertiary'}
+    data-testid="settingnamelabel-xr19"
+  >
     <ThemedTooltip
       disableHoverListener={!description && !disabled && !isSecret}
       title={
@@ -187,6 +194,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 export const Category = ({
   schema,
   path = '',
+  depth = 0,
   getSettingValue,
   getGlobalSettingValue,
   resolveSettingsPath,
@@ -203,6 +211,7 @@ export const Category = ({
       <CategoryTitle
         name={schema.name}
         path={path}
+        depth={depth}
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
@@ -238,6 +247,7 @@ export const Category = ({
             <Category
               key={newPath}
               path={newPath}
+              depth={depth + 1}
               // Pass down inherited properties to the child category
               schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
               getSettingValue={getSettingValue}
@@ -252,6 +262,7 @@ export const Category = ({
         return (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
+              depth={depth}
               disabled={disabled}
               requiresRestart={needsRestart}
               path={newPath}
