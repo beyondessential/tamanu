@@ -15,6 +15,7 @@ import {
   datelessTimeStringSchema,
   scheduledTaskSchema,
   urlSchema,
+  msDurationSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
 
@@ -136,7 +137,7 @@ export const centralSettings = {
       properties: {
         tokenDuration: {
           description: 'Lifetime of an authenticated patient-portal session token',
-          type: yup.string(),
+          type: msDurationSchema,
           defaultValue: '24h',
         },
         loginTokenDurationMinutes: {
@@ -556,6 +557,7 @@ export const centralSettings = {
       },
     },
     websocket: {
+      highRisk: true,
       description: 'Websocket server (live updates to connected clients)',
       requiresRestart: true,
       properties: {
@@ -568,6 +570,7 @@ export const centralSettings = {
       },
     },
     loadshedder: {
+      highRisk: true,
       name: 'Load shedder',
       description:
         'Request queues that shed load under pressure; requests matching a queue’s path prefixes may be dropped when the queue is full',
@@ -607,6 +610,7 @@ export const centralSettings = {
       },
     },
     s3: {
+      highRisk: true,
       name: 'S3 storage',
       description:
         'S3 buckets used for report exports and the IPS viewer. Credentials come from the standard AWS environment variables, not settings.',

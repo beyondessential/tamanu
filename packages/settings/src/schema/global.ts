@@ -37,6 +37,7 @@ import {
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
   urlSchema,
+  msDurationSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -101,7 +102,7 @@ export const globalSettings = {
         tokenDuration: {
           name: 'Session token duration',
           description: 'How long a login token stays valid, e.g. ‘1h’',
-          type: yup.string(),
+          type: msDurationSchema,
           defaultValue: '1h',
         },
         useHardcodedPermissions: {
@@ -117,7 +118,7 @@ export const globalSettings = {
             tokenDuration: {
               name: 'Duration',
               description: 'How long a refresh token stays valid, e.g. ‘30d’',
-              type: yup.string(),
+              type: msDurationSchema,
               defaultValue: '30d',
             },
             absoluteExpiration: {
@@ -305,6 +306,7 @@ export const globalSettings = {
       exposedToWeb: true,
     },
     rateLimit: {
+      highRisk: true,
       name: 'Rate limiting',
       description:
         'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
@@ -365,6 +367,7 @@ export const globalSettings = {
       },
     },
     metaServer: {
+      highRisk: true,
       name: 'Meta server',
       description: 'The Tamanu meta server this deployment reports status to',
       properties: {

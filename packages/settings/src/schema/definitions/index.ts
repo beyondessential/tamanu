@@ -41,3 +41,4 @@ export {
   fhirDataDictionariesSchema,
 } from './fhir';
 export { urlSchema } from './url';
+export { msDurationSchema } from './msDuration';
