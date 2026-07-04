@@ -1121,6 +1121,18 @@ export const SettingInput = ({
   const hasGlobalOverride =
     !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
 
+  // Errors show live once the user has changed the field this session (typing
+  // past a limit, emptying a required value); untouched fields stay quiet
+  // until a save attempt surfaces them.
+  const { initialValues } = useFormikContext();
+  const submitted = useContext(SettingsSubmitContext) > 0;
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  const initialDisplayValue = isUndefined(initialFieldValue)
+    ? (hasGlobalOverride ? globalValue : defaultValue)
+    : initialFieldValue;
+  const touchedThisSession = !isEqual(normalize(value ?? initialDisplayValue), normalize(initialDisplayValue));
+  const shownError = touchedThisSession || submitted ? error : null;
+
   const handleChangeValue = newValue => handleChangeSetting(path, newValue);
   const defaultHandleChange = e => handleChangeValue(e.target.value);
   const handleChangeSwitch = e => handleChangeValue(e.target.checked);
@@ -1171,8 +1183,8 @@ export const SettingInput = ({
             value={secretDisplayValue}
             onChange={handleSecretChange}
             style={{ width: SETTING_INPUT_WIDTH }}
-            error={error}
-            helperText={error?.message}
+            error={shownError}
+            helperText={shownError?.message}
             disabled={disabled}
             type={secretInputType}
             autoComplete="new-password"
@@ -1220,8 +1232,8 @@ export const SettingInput = ({
               disabled={disabled}
               suggester={suggester}
               value={suggesterDisplayValue}
-              error={error}
-              helperText={error?.message}
+              error={shownError}
+              helperText={shownError?.message}
             />
           </Flexbox>
         );
@@ -1233,8 +1245,8 @@ export const SettingInput = ({
               disabled={disabled}
               suggester={suggester}
               value={suggesterDisplayValue}
-              error={error}
-              helperText={error?.message}
+              error={shownError}
+              helperText={shownError?.message}
             />
           </Flexbox>
         );
@@ -1274,8 +1286,8 @@ export const SettingInput = ({
               isClearable={false}
               style={{ width: SETTING_INPUT_WIDTH }}
               options={selectOptions}
-              error={error}
-              helperText={error?.message}
+              error={shownError}
+              helperText={shownError?.message}
               disabled={disabled}
               data-testid="selectinput-settings-string-enum"
             />
@@ -1284,8 +1296,8 @@ export const SettingInput = ({
               value={displayValue ?? ''}
               onChange={defaultHandleChange}
               style={{ width: SETTING_INPUT_WIDTH }}
-              error={error}
-              helperText={error?.message}
+              error={shownError}
+              helperText={shownError?.message}
               disabled={disabled}
               data-testid="styledtextinput-fpam"
             />
@@ -1297,7 +1309,7 @@ export const SettingInput = ({
         <CronSettingInput
           value={displayValue}
           onChange={defaultHandleChange}
-          error={error}
+          error={shownError}
           disabled={disabled}
         />
       );
@@ -1310,8 +1322,8 @@ export const SettingInput = ({
             // flex (not a fixed width) so the input fills the column but still
             // leaves room for the unit label beside it
             style={{ flex: 1, minWidth: 0 }}
-            error={error}
-            helperText={error?.message}
+            error={shownError}
+            helperText={shownError?.message}
             disabled={disabled}
             data-testid="stylednumberinput-v04t"
           />
@@ -1327,8 +1339,8 @@ export const SettingInput = ({
             style={{ width: SETTING_INPUT_WIDTH, minHeight: '156px' }}
             multiline
             rows={6}
-            error={error}
-            helperText={error?.message}
+            error={shownError}
+            helperText={shownError?.message}
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
@@ -1362,7 +1374,7 @@ export const SettingInput = ({
               value={mappingValue}
               onChange={handleChangeValue}
               disabled={disabled}
-              error={error}
+              error={shownError}
               keyOptions={options}
             />
           </LongTextFlexbox>
@@ -1388,7 +1400,7 @@ export const SettingInput = ({
               innerType={typeSchema.innerType}
               onChange={handleChangeValue}
               disabled={disabled}
-              error={error}
+              error={shownError}
             />
           </LongTextFlexbox>
         );
@@ -1409,7 +1421,7 @@ export const SettingInput = ({
               disabled={disabled}
               innerType={typeSchema.innerType}
               isNumeric={arrayInnerType === 'number'}
-              error={error}
+              error={shownError}
               bounds={arrayLengthBounds}
             />
           </LongTextFlexbox>
@@ -1427,7 +1439,7 @@ export const SettingInput = ({
             editMode={!disabled}
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
             onChange={handleChangeJSON}
-            error={error}
+            error={shownError}
             data-testid="jsoneditor-6t9w"
           />
         </JSONEditorFlexbox>
