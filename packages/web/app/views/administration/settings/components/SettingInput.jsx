@@ -1430,23 +1430,34 @@ export const SettingInput = ({
     // falls through to the JSON editor for arrays of objects/arrays, and for
     // primitive arrays whose stored value isn't a readable array
     // eslint-disable-next-line no-fallthrough
-    case SETTING_TYPES.OBJECT:
+    case SETTING_TYPES.OBJECT: {
+      const jsonErrorText =
+        shownError &&
+        (shownError.message.length > 200
+          ? `${shownError.message.slice(0, 200)}…`
+          : shownError.message);
       return (
         <JSONEditorFlexbox
           data-error-anchor={shownError ? 'true' : undefined}
           data-testid="flexbox-bpq4"
         >
-          <JSONEditor
-            height="156px"
-            width={SETTING_INPUT_WIDTH}
-            editMode={!disabled}
-            value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
-            onChange={handleChangeJSON}
-            error={shownError}
-            data-testid="jsoneditor-6t9w"
-          />
+          <div>
+            <JSONEditor
+              height="156px"
+              width={SETTING_INPUT_WIDTH}
+              editMode={!disabled}
+              value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
+              onChange={handleChangeJSON}
+              error={shownError}
+              data-testid="jsoneditor-6t9w"
+            />
+            {jsonErrorText && (
+              <ListError data-testid="jsoneditor-error-text">{jsonErrorText}</ListError>
+            )}
+          </div>
         </JSONEditorFlexbox>
       );
+    }
     default:
       return (
         <LargeBodyText data-testid="largebodytext-e29s">
