@@ -91,6 +91,12 @@ const prepareSchema = scope => {
   };
 };
 
+// The synthetic root group renders untitled; a real category falls back to its
+// key when the schema has no display name, so leaf-only categories (with no
+// nested headings) still show what they are.
+const withDisplayName = (node, key) =>
+  key === UNCATEGORISED_KEY ? node : { ...node, name: node.name ?? formatSettingName(null, key) };
+
 const getSchemaForCategory = (schema, category, subCategory) => {
   const categorySchema = schema.properties[category];
   if (!categorySchema) return null;
@@ -100,13 +106,13 @@ const getSchemaForCategory = (schema, category, subCategory) => {
     const infoBanner = categorySchema.infoBanner || subCategorySchema.infoBanner;
     const needsRestart = categorySchema.requiresRestart || subCategorySchema.requiresRestart;
     return {
-      ...subCategorySchema,
+      ...withDisplayName(subCategorySchema, subCategory),
       highRisk: isHighRisk,
       infoBanner,
       requiresRestart: needsRestart,
     };
   }
-  return categorySchema;
+  return withDisplayName(categorySchema, category);
 };
 
 const getSubCategoryOptions = (schema, category) => {
