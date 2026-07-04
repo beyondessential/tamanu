@@ -390,28 +390,13 @@ const BoundsHint = ({ bounds }) => {
  * max you can't add, at min you can't remove — so a fixed-length array
  * (min === max) becomes value-only editing.
  */
-const ListSettingInput = ({
-  items,
-  onChange,
-  disabled,
-  innerType,
-  isNumeric,
-  error,
-  bounds,
-  settingsPath,
-}) => {
-  const { initialValues } = useFormikContext();
+const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error, bounds }) => {
   const [rows, setRows] = useState(() => items.map(item => item ?? ''));
   const lastEmitted = useRef(items);
 
-  const initialFieldValue = get(initialValues?.settings, settingsPath);
-  // A save replaces initialValues: rebuild from the saved value so incomplete
-  // rows are cleaned up rather than lingering.
-  useEffect(() => {
-    setRows(items.map(item => item ?? ''));
-    lastEmitted.current = items;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialFieldValue]);
+  // No errors while editing; a failed save attempt reveals them, and a
+  // successful save (or category change) cleans the slate.
+  const submitted = useContext(SettingsSubmitContext) > 0;
 
   // Resync only on an external change (e.g. reset to default), never from our
   // own onChange echo — that would clobber rows while an item is half-typed.
@@ -422,15 +407,11 @@ const ListSettingInput = ({
     }
   }, [items]);
 
-  // An empty row is an in-progress entry: kept in the editor, dropped from the
-  // emitted value, and not error-flagged until something is typed.
-  const rowIsEmpty = row => String(row ?? '').trim() === '';
-
+  // Every row is in the value, empty ones included, so any edit dirties the
+  // form and submit-time validation sees the incomplete items.
   const emit = next => {
     setRows(next);
-    const emitted = next
-      .filter(row => !rowIsEmpty(row))
-      .map(row => (isNumeric ? coerceNumericInput(row) : row));
+    const emitted = next.map(row => (isNumeric ? coerceNumericInput(row) : row));
     lastEmitted.current = emitted;
     onChange(emitted);
   };
@@ -438,7 +419,7 @@ const ListSettingInput = ({
   const itemErrors = useMemo(
     () =>
       rows.map(row => {
-        if (!innerType || rowIsEmpty(row)) return null;
+        if (!submitted || !innerType) return null;
         try {
           innerType.validateSync(isNumeric ? coerceNumericInput(row) : row);
           return null;
@@ -446,7 +427,7 @@ const ListSettingInput = ({
           return err.message;
         }
       }),
-    [rows, innerType, isNumeric],
+    [rows, innerType, isNumeric, submitted],
   );
 
   const atMax = bounds?.max != null && rows.length >= bounds.max;
@@ -508,8 +489,9 @@ const ListSettingInput = ({
       )}
       {/* array-level validation (e.g. min/max length) — per-item errors render
           on their own rows above */}
-      {/* array-level rules only; item problems already show on their rows */}
-      {error && itemErrors.every(itemError => !itemError) && (
+      {/* aggregate problems (whole-setting rules) show down here; item
+          problems already show on their rows */}
+      {submitted && error && itemErrors.every(itemError => !itemError) && (
         <ListError data-testid="listsettinginput-error">{error.message}</ListError>
       )}
     </ListInputWrapper>
@@ -1416,7 +1398,6 @@ export const SettingInput = ({
           <LongTextFlexbox data-testid="flexbox-list">
             <ListSettingInput
               items={arrayItems}
-              settingsPath={settingsPath}
               onChange={handleChangeValue}
               disabled={disabled}
               innerType={typeSchema.innerType}
