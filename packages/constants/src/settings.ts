@@ -27,6 +27,9 @@ export const SETTINGS_SCOPES = {
   CENTRAL: 'central',
   GLOBAL: 'global',
   FACILITY: 'facility',
+  // Machine-level knobs for a facility server: stored only in that server's own
+  // DB (facility_id null), never synced, not editable from the central admin.
+  SERVER: 'server',
 } as const;
 
 export const SETTING_EDITORS = {

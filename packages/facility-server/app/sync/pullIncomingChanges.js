@@ -11,9 +11,24 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
+// Machine-level tuning (scope 'server' settings) threaded in by the sync
+// manager; config is the fallback for callers without a server reader.
+const resolveTuning = tuning => ({
+  persistedCacheBatchSize: tuning.persistedCacheBatchSize ?? config.sync.persistedCacheBatchSize,
+  pauseBetweenCacheBatchInMilliseconds:
+    tuning.pauseBetweenCacheBatchInMilliseconds ?? config.sync.pauseBetweenCacheBatchInMilliseconds,
+  dynamicLimiter: tuning.dynamicLimiter ?? config.sync.dynamicLimiter,
+});
 
-export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+export const pullIncomingChanges = async (
+  centralServer,
+  sequelize,
+  sessionId,
+  since,
+  tuning = {},
+) => {
+  const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds, dynamicLimiter } =
+    resolveTuning(tuning);
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
@@ -23,7 +38,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
-  let limit = calculatePageLimit();
+  let limit = calculatePageLimit(undefined, undefined, dynamicLimiter);
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -52,11 +67,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     const recordsToSave = records.map(r => {
       delete r.sortOrder;
       return {
-      ...r,
-      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    };
-  });
+        ...r,
+        data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
+        direction: SYNC_SESSION_DIRECTION.INCOMING,
+      };
+    });
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -69,14 +84,21 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
 
-    limit = calculatePageLimit(limit, pullTime);
+    limit = calculatePageLimit(limit, pullTime, dynamicLimiter);
   }
 
   log.info('FacilitySyncManager.pulled', { durationMs: Date.now() - start });
   return { totalPulled: totalToPull, pullUntil };
 };
 
-export const streamIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+export const streamIncomingChanges = async (
+  centralServer,
+  sequelize,
+  sessionId,
+  since,
+  tuning = {},
+) => {
+  const { persistedCacheBatchSize } = resolveTuning(tuning);
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the

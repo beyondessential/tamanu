@@ -60,10 +60,11 @@ export class FacilitySyncManager {
 
   currentStartTime = 0;
 
-  constructor({ models, sequelize, centralServer }) {
+  constructor({ models, sequelize, centralServer, settings }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
+    this.settings = settings;
   }
 
   isSyncRunning() {
@@ -246,11 +247,15 @@ export class FacilitySyncManager {
     const pull = (await this.centralServer.streaming())
       ? streamIncomingChanges
       : pullIncomingChanges;
+    // Machine-level pull tuning; contexts without a server reader (some tests)
+    // fall back to config inside pullIncomingChanges.
+    const syncTuning = (await this.settings?.server?.get('sync')) ?? {};
     const { totalPulled, pullUntil } = await pull(
       this.centralServer,
       this.sequelize,
       sessionId,
       pullSince,
+      syncTuning,
     );
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {

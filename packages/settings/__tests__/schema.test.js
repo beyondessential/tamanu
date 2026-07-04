@@ -3,6 +3,7 @@ import {
   globalDefaults,
   centralDefaults,
   facilityDefaults,
+  serverDefaults,
   getKeysByFlag,
   globalSettings,
   facilitySettings,
@@ -317,6 +318,23 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: facilityDefaults, scope: 'facility' }),
       ).resolves.not.toThrow();
+    });
+  });
+
+  describe('Server settings', () => {
+    it('Should validate itself', async () => {
+      await expect(
+        validateSettings({ settings: serverDefaults, scope: 'server' }),
+      ).resolves.not.toThrow();
+    });
+
+    it('Should throw error for invalid settings', async () => {
+      await expect(
+        validateSettings({
+          settings: { sync: { persistedCacheBatchSize: -5 } },
+          scope: 'server',
+        }),
+      ).rejects.toThrow(yup.ValidationError);
     });
   });
 

@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { unset, get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
 
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
@@ -134,6 +135,12 @@ adminRoutes.patch(
 const requireScope = scope => {
   if (!scope) {
     throw new InvalidParameterError('scope is required');
+  }
+  // Server-scope settings are machine-local to each facility server: a row
+  // written here would sit on central and never sync anywhere. Edit them on
+  // the server itself.
+  if (scope === SETTINGS_SCOPES.SERVER) {
+    throw new InvalidParameterError('server scope settings are managed on the server itself');
   }
   const schema = getScopedSchema(scope);
   if (!schema) {

@@ -3,11 +3,15 @@ import { ExposedFlag, SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { globalSettings } from '../schema/global';
 import { facilitySettings } from '../schema/facility';
 import { centralSettings } from '../schema/central';
 
 const allSchemas = [globalSettings, facilitySettings, centralSettings];
+
+// Cache key for the machine-scope reader; can't collide with a facility id.
+const SERVER_CACHE_KEY = 'scope:server';
 const getSchemasForSettingsContext = (facilityId?: string): SettingsSchema[] =>
   facilityId ? [facilitySettings, globalSettings] : [centralSettings, globalSettings];
 
@@ -36,9 +40,15 @@ export const getKeysByFlag = (
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
-  constructor(models: Models, facilityId?: string) {
+  scope?: string;
+  constructor(models: Models, facilityId?: string, scope?: string) {
     this.models = models;
     this.facilityId = facilityId;
+    this.scope = scope;
+  }
+
+  private get cacheKey() {
+    return this.scope === SETTINGS_SCOPES.SERVER ? SERVER_CACHE_KEY : this.facilityId;
   }
 
   async get<T extends string | number | object>(key: Path): Promise<T> {
@@ -66,10 +76,10 @@ export class ReadSettings<Path = SettingPath> {
   }
 
   async getAll() {
-    let settings = settingsCache.getAllSettings(this.facilityId);
+    let settings = settingsCache.getAllSettings(this.cacheKey);
     if (!settings) {
-      settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.setAllSettings(settings, this.facilityId);
+      settings = await buildSettings(this.models, this.facilityId, this.scope);
+      settingsCache.setAllSettings(settings, this.cacheKey);
     }
     return settings;
   }

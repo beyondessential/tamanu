@@ -67,7 +67,11 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'scheduledReports', setting: 'reporting.scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'scheduledReports',
+    setting: 'reporting.scheduledReports',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
   {
     config: 'validateQuestionConfigs.enabled',
     setting: 'validateQuestionConfigs.enabled',
@@ -106,6 +110,19 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     setting: 'integrations.mSupplyMed',
     scope: SETTINGS_SCOPES.FACILITY,
   },
+  // Machine-level sync tuning: SERVER scope rows are written locally by the
+  // facility server's own upgrade step (no carrier — they never leave the box).
+  {
+    config: 'sync.persistedCacheBatchSize',
+    setting: 'sync.persistedCacheBatchSize',
+    scope: SETTINGS_SCOPES.SERVER,
+  },
+  {
+    config: 'sync.pauseBetweenCacheBatchInMilliseconds',
+    setting: 'sync.pauseBetweenCacheBatchInMilliseconds',
+    scope: SETTINGS_SCOPES.SERVER,
+  },
+  { config: 'sync.dynamicLimiter', setting: 'sync.dynamicLimiter', scope: SETTINGS_SCOPES.SERVER },
   // Subtree row: lifts every scheduled-task knob under `schedules` in one go.
   { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
   // Legacy `localisation` un-nested into top-level settings (central config only;

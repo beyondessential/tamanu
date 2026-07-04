@@ -1,6 +1,7 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
@@ -62,6 +63,8 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+    // Machine-level knobs (scope 'server'): local rows only, never synced.
+    this.settings.server = new ReadSettings(this.models, undefined, SETTINGS_SCOPES.SERVER);
 
     const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;

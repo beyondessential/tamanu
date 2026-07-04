@@ -30,6 +30,7 @@ export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
 // Set once a facility server has snapshotted its facility-scoped config into the
 // FacilitySettingMigration carrier to push up to central, so it runs only once.
 export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
+export const FACT_SERVER_CONFIG_MIGRATED = 'serverConfigMigratedToSettings';
 
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
