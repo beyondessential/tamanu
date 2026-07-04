@@ -70,12 +70,14 @@ export const facilitySettings = {
             },
             labTestCategories: {
               description: 'List of valid lab test categories',
-              type: yup.array().of(yup.string()),
+              type: yup.array().of(yup.string().required()),
+              suggesterEndpoint: 'labTestCategory',
               defaultValue: [],
             },
             labTestTypes: {
               description: 'List of valid lab test types',
-              type: yup.array().of(yup.string()),
+              type: yup.array().of(yup.string().required()),
+              suggesterEndpoint: 'labTestType',
               defaultValue: [],
             },
             labTestResults: {
