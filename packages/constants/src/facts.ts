@@ -31,6 +31,7 @@ export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
 // FacilitySettingMigration carrier to push up to central, so it runs only once.
 export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 export const FACT_SERVER_CONFIG_MIGRATED = 'serverConfigMigratedToSettings';
+export const FACT_FHIR_OVERRIDES_MIGRATED = 'fhirFacilityOverridesMigratedToServerScope';
 
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';

@@ -23,31 +23,17 @@ export function resetFhirSettings() {
  * Load FHIR settings from the database at server startup.
  * Cached for the process lifetime (these settings have requiresRestart: true in the schema).
  *
- * @param {ReadSettings} globalSettings - global-scoped settings reader
- * @param {ReadSettings[]} [facilitySettings] - facility-scoped settings readers.
- *   resourceMaterialisationEnabled is union-merged across facilities so a single
- *   worker pool materialises everything needed.
+ * @param {ReadSettings} settingsReader - central reader on central; the server
+ *   (machine-scope) reader on facility servers, whose cascade resolves the
+ *   per-server resourceMaterialisationEnabled override before the global value.
  */
-export async function initFhirSettingsFromDb(globalSettings, facilitySettings = []) {
+export async function initFhirSettingsFromDb(settingsReader) {
   if (loaded) return;
 
-  const fhir = await globalSettings.get('fhir');
-
-  const globalMatEnabled = fhir.worker.resourceMaterialisationEnabled;
-
-  const perFacilityResults = await Promise.all(
-    facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
-  );
-  let mergedMatEnabled = { ...globalMatEnabled };
-  for (const perFacility of perFacilityResults) {
-    if (!perFacility) continue;
-    for (const [key, val] of Object.entries(perFacility)) {
-      if (val) mergedMatEnabled[key] = true;
-    }
-  }
+  const fhir = await settingsReader.get('fhir');
 
   settings = {
-    resourceMaterialisationEnabled: mergedMatEnabled,
+    resourceMaterialisationEnabled: fhir.worker.resourceMaterialisationEnabled,
     extensions: fhir.extensions,
     nullLastNameValue: fhir.nullLastNameValue,
     assigners: fhir.assigners,

@@ -1,18 +1,34 @@
 import * as yup from 'yup';
 
 import { extractDefaults } from './utils';
+import { fhirResourceMaterialisationSchema } from './definitions';
 
 /**
- * Machine-level settings for a facility server. Rows live only in that server's
- * own DB (scope 'server', facility_id null): the sync filter never sends them
- * anywhere, and the central admin panel refuses the scope — they are edited on
- * the machine itself (psql/bestool). This is the home for per-server tuning that
- * makes no sense keyed by facility on a multi-facility server.
+ * Machine-level settings for a facility server, keyed by its device id. Rows
+ * are authored on central (admin panel, Server scope) and sync only to the
+ * device they belong to. This is the home for per-server settings that make no
+ * sense keyed by facility on a multi-facility server. Keys declared both here
+ * and in the global schema (e.g. fhir) resolve server row -> global row ->
+ * defaults, mirroring the facility-overrides-global cascade.
  */
 export const serverSettings = {
   name: 'Server settings',
-  description: 'Machine-level settings for this facility server, stored locally and never synced',
+  description: 'Machine-level settings for a facility server, keyed by its device id',
   properties: {
+    fhir: {
+      name: 'FHIR',
+      description: 'FHIR integration settings (server-level overrides)',
+      highRisk: true,
+      properties: {
+        worker: {
+          name: 'FHIR worker',
+          description: 'FHIR worker settings',
+          properties: {
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
+          },
+        },
+      },
+    },
     sync: {
       description: 'Sync throughput tuning for this server',
       highRisk: true,

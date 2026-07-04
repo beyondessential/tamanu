@@ -3,6 +3,7 @@ import supertest from 'supertest';
 import config from 'config';
 
 import { FACT_FACILITY_IDS } from '@tamanu/constants/facts';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import {
   seedDepartments,
   seedFacilities,
@@ -125,14 +126,14 @@ class MockApplicationContext extends ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+    this.settings.server = new ReadSettings(this.models, undefined, SETTINGS_SCOPES.SERVER);
     // Mirrors resolveSchedules, so tests can construct tasks directly
     this.schedules = await this.settings[facilityIds[0]].get('schedules');
 
     const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
 
-    const facilityReaders = facilityIds.map(id => this.settings[id]);
-    await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    await initFhirSettingsFromDb(this.settings.server);
     if (initFhirTriggers) {
       await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
     }

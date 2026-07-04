@@ -13,14 +13,17 @@ import { SettingsConfigReader } from './readers/SettingsConfigReader';
  * never changes behaviour. They sit below recorded settings and above schema defaults.
  */
 function getReaderCascade(models: Models, facilityId?: string, scope?: string) {
-  // Machine-level settings: local rows only (facility_id null, never synced),
-  // config fallback for keys mid-move, then schema defaults. No global
-  // fallthrough — server keys live in exactly one schema.
+  // Machine-level settings, keyed by this machine's device id. Global sits
+  // below server in the cascade so a dual-declared key (e.g. fhir) is a true
+  // per-server override of the global value, mirroring the facility cascade.
   if (scope === SETTINGS_SCOPES.SERVER) {
     return [
       new SettingsDBReader(models, SETTINGS_SCOPES.SERVER),
+      new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
       new SettingsConfigReader(SETTINGS_SCOPES.SERVER),
+      new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL),
       new SettingsJSONReader(serverDefaults),
+      new SettingsJSONReader(globalDefaults),
     ];
   }
   return facilityId

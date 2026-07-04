@@ -3,6 +3,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
 import { STEPS as FACILITY_STEPS } from '../../upgrade/src/steps/1785000000001-migrateFacilityConfigToSettings';
 import { STEPS as SERVER_STEPS } from '../../upgrade/src/steps/1783100000000-migrateServerConfigToSettings';
+import { STEPS as FHIR_STEPS } from '../../upgrade/src/steps/1783100000001-moveFhirOverridesToServerScope';
 import { applyFacilitySettingMigrations } from '../../database/src/sync/applyFacilitySettingMigrations';
 import config from 'config';
 import { cloneDeep, merge } from 'es-toolkit/compat';
@@ -205,5 +206,62 @@ describe('config->settings migration round trip', () => {
     expect(
       await Setting.get('sync.dynamicLimiter.maxLimit', null, SETTINGS_SCOPES.SERVER, deviceId),
     ).toBe(555);
+  });
+
+  it('fhir step: replays the per-facility union merge as one device row', async () => {
+    const KEY = 'fhir.worker.resourceMaterialisationEnabled';
+    const f3 = await models.Facility.create(fake(models.Facility));
+    const f4 = await models.Facility.create(fake(models.Facility));
+    const orphanFacility = await models.Facility.create(fake(models.Facility));
+
+    // both facilities last synced from the same facility server
+    const startTime = new Date();
+    await models.SyncSession.create({
+      startTime,
+      lastConnectionTime: startTime,
+      parameters: { deviceId: 'facility-fhir-device', facilityIds: [f3.id, f4.id] },
+    });
+    // a mobile session must not win the mapping
+    await models.SyncSession.create({
+      startTime: new Date(startTime.getTime() + 1000),
+      lastConnectionTime: startTime,
+      parameters: { deviceId: 'mobile-xyz', facilityIds: [f3.id], isMobile: true },
+    });
+
+    // Encounter/Specimen default to false, so these become real rows (Setting.set
+    // skips default-equal values); Organization: false is a no-op under the merge.
+    await Setting.set(
+      KEY,
+      { Encounter: true, Organization: false },
+      SETTINGS_SCOPES.FACILITY,
+      f3.id,
+    );
+    await Setting.set(KEY, { Specimen: true }, SETTINGS_SCOPES.FACILITY, f4.id);
+    await Setting.set(KEY, { Immunization: true }, SETTINGS_SCOPES.FACILITY, orphanFacility.id);
+
+    const args = {
+      models,
+      sequelize: ctx.store.sequelize,
+      serverType: 'central',
+      toVersion: '9.9.9',
+      log: logStub,
+    };
+    expect(await FHIR_STEPS[0].check(args)).toBe(true);
+    await FHIR_STEPS[0].run(args);
+    expect(await FHIR_STEPS[0].check(args)).toBe(false); // fact-gated
+
+    // any-true merge across the device's facilities; falses are no-ops
+    expect(await Setting.get(KEY, null, SETTINGS_SCOPES.SERVER, 'facility-fhir-device')).toEqual({
+      Encounter: true,
+      Specimen: true,
+    });
+    // nothing routed to the mobile device
+    expect(await Setting.get(KEY, null, SETTINGS_SCOPES.SERVER, 'mobile-xyz')).toBe(undefined);
+    // migrated facility rows are gone; the unmapped facility's row is left alone
+    expect(await Setting.get(KEY, f3.id, SETTINGS_SCOPES.FACILITY)).toBe(undefined);
+    expect(await Setting.get(KEY, f4.id, SETTINGS_SCOPES.FACILITY)).toBe(undefined);
+    expect(await Setting.get(KEY, orphanFacility.id, SETTINGS_SCOPES.FACILITY)).toEqual({
+      Immunization: true,
+    });
   });
 });
