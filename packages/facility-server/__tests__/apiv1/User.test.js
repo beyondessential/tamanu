@@ -873,4 +873,22 @@ describe('User', () => {
       });
     });
   });
+
+  describe('user list', () => {
+    it('should not include device sync users', async () => {
+      const app = await baseApp.asRole('practitioner');
+      const syncUser = await models.User.create({
+        email: 'sync.fedcba9876543210@sync.tamanu',
+        displayName: 'System: user-list-test sync',
+        role: 'admin',
+        kind: 'sync',
+      });
+
+      const result = await app.get('/api/user');
+      expect(result).toHaveSucceeded();
+      const ids = result.body.data.map(({ id }) => id);
+      expect(ids).not.toContain(syncUser.id);
+      expect(ids).toContain(app.user.id);
+    });
+  });
 });
