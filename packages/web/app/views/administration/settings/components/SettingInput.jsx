@@ -59,6 +59,12 @@ const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
 
   .react-select__value-container {
     flex-wrap: wrap;
+    gap: 4px;
+    padding-block: 6px;
+  }
+
+  .react-select__multi-value {
+    margin: 0;
   }
 
   .MuiInputBase-root.Mui-disabled {
@@ -1224,6 +1230,7 @@ export const SettingInput = ({
               individualChips
               menuPlacement="auto"
               menuPosition="fixed"
+              maxMenuHeight={190}
               suggester={suggester}
               value={suggesterDisplayValue}
               error={shownError}
