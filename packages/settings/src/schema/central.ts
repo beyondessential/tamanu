@@ -14,6 +14,7 @@ import {
   questionCodeIdsDescription,
   datelessTimeStringSchema,
   scheduledTaskSchema,
+  urlSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
 
@@ -198,7 +199,7 @@ export const centralSettings = {
             url: {
               name: 'API URL',
               description: 'Mailgun API base URL, for non-US regions',
-              type: yup.string(),
+              type: urlSchema,
               defaultValue: '',
             },
             apiKey: {
@@ -414,7 +415,7 @@ export const centralSettings = {
                 url: {
                   description:
                     'External webhook URL, e.g. https://central.example.com/api/public/telegram-webhook',
-                  type: yup.string(),
+                  type: urlSchema,
                   defaultValue: '',
                 },
                 secret: {
@@ -653,7 +654,7 @@ export const centralSettings = {
             },
             publicUrl: {
               name: 'Public URL',
-              type: yup.string(),
+              type: urlSchema,
               defaultValue: 'https://public.tamanu.io',
             },
           },

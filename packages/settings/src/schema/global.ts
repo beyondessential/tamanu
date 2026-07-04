@@ -36,6 +36,7 @@ import {
   fhirNullLastNameSchema,
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
+  urlSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -299,7 +300,7 @@ export const globalSettings = {
     supportDeskUrl: {
       name: 'Support desk URL',
       description: 'Where the in-app support links point',
-      type: yup.string(),
+      type: urlSchema,
       defaultValue: 'https://bes-support.zendesk.com/hc/en-us',
       exposedToWeb: true,
     },
@@ -373,7 +374,7 @@ export const globalSettings = {
             mobile: {
               name: 'Mobile update URL',
               description: 'URL template for mobile client updates ({minVersion} is substituted)',
-              type: yup.string(),
+              type: urlSchema,
               defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
             },
           },
@@ -381,7 +382,7 @@ export const globalSettings = {
         hosts: {
           name: 'Hosts',
           description: 'Meta server base URLs',
-          type: yup.array(yup.string()),
+          type: yup.array(urlSchema.required()),
           defaultValue: ['https://meta.tamanu.app'],
         },
         serverId: {

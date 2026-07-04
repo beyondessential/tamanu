@@ -40,3 +40,4 @@ export {
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
 } from './fhir';
+export { urlSchema } from './url';
