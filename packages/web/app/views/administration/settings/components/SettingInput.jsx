@@ -52,6 +52,15 @@ const StyledNumberInput = styled(NumberInput)`
 const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
   width: 480px;
 
+  .react-select__control {
+    height: auto;
+    min-height: 44px;
+  }
+
+  .react-select__value-container {
+    flex-wrap: wrap;
+  }
+
   .MuiInputBase-root.Mui-disabled {
     background: ${Colors.background};
   }
@@ -1212,6 +1221,7 @@ export const SettingInput = ({
             <StyledMultiAutocompleteInput
               onChange={defaultHandleChange}
               disabled={disabled}
+              individualChips
               suggester={suggester}
               value={suggesterDisplayValue}
               error={shownError}
