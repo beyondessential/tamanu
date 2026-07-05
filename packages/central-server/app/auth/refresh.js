@@ -104,7 +104,7 @@ export const refresh = asyncHandler(async (req, res) => {
       userId: user.id,
       refreshId: newRefreshId,
       // If absolute expiration pass through the exp from the old token
-      ...(absoluteExpiration && { exp: contents.exp }),
+      ...(absoluteExpiration && { exp: contents.payload.exp }),
     },
     refreshSecret,
     {

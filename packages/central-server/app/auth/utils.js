@@ -21,14 +21,22 @@ export const buildToken = async (data, secret, options) => {
     secret = createSecretKey(new TextEncoder().encode(secret));
   }
 
-  return await new jose.SignJWT(data)
+  const { exp, ...claims } = data;
+  const jwt = new jose.SignJWT(claims)
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
     .setJti(randomBytes(32).toString('base64url'))
     .setIssuedAt()
     .setIssuer(options.issuer)
-    .setAudience(options.audience)
-    .setExpirationTime(options.expiresIn)
-    .sign(secret);
+    .setAudience(options.audience);
+
+  if (options.expiresIn) {
+    jwt.setExpirationTime(options.expiresIn);
+  } else if (exp !== undefined) {
+    // Absolute expiration: reuse the original token's expiry instead of sliding the window
+    jwt.setExpirationTime(exp);
+  }
+
+  return await jwt.sign(secret);
 };
 
 export const getRandomBase64String = async (length, encoding = 'base64') => {

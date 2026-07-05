@@ -57,6 +57,23 @@ describe('JWT Token Validation', () => {
       expect(decoded.userId.length).toBeGreaterThan(0);
     });
 
+    it('Should create JWT tokens with an absolute expiration when expiresIn is omitted', async () => {
+      const { buildToken } = require('../../app/auth/utils');
+
+      const absoluteExp = Math.floor(Date.now() / 1000) + 3600;
+      const token = await buildToken(
+        { userId: 'test-user-id', exp: absoluteExp },
+        null,
+        {
+          audience: JWT_TOKEN_TYPES.REFRESH,
+          issuer: config.canonicalHostName,
+        },
+      );
+
+      const decoded = jose.decodeJwt(token);
+      expect(decoded.exp).toBe(absoluteExp);
+    });
+
     it('Should create JWT tokens with optional deviceId and facilityId', async () => {
       const { buildToken } = require('../../app/auth/utils');
       const { User, Device, Facility } = models;
