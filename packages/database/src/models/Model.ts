@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { isNull, omitBy } from 'es-toolkit';
 import {
   Model as BaseModel,
   DataTypes,
@@ -136,12 +137,7 @@ export class Model<
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
     const models = this.sequelize.models;
-    const resultInit = Object.entries(this.dataValues)
-      .filter(([, val]) => val !== null)
-      .reduce<Record<string, any>>((obj, [key, val]) => {
-        obj[key] = val;
-        return obj;
-      }, {});
+    const resultInit = omitBy(this.dataValues, isNull);
 
     const references = (this.constructor as typeof Model).getListReferenceAssociations(models);
 
