@@ -147,7 +147,8 @@ Root manifest uses **npm workspaces** and `package-lock.json`. Common commands:
 Existing root `overrides` pin shared versions (React, MUI, axios, etc.). Prefer manifest bumps that
 make an override unnecessary; do not add new overrides without the security exception above.
 
-PR/commits: use `deps` scope if the repo allows, otherwise try `chore(deps)`, then fall back to asking the user. For example, ‘deps: bump `concurrently` 9.2.3 → 10.0.3’.
+PR/commits: use `deps` scope if the repo allows, otherwise try `chore(deps)`, then fall back to
+asking the user. For example, ‘deps: bump `concurrently` 9.2.3 → 10.0.3’.
 
 ## Briefing the user
 
