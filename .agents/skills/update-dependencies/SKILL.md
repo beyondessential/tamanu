@@ -129,7 +129,7 @@ install-only.
 3. **Lint and typecheck** if the repo provides them for the touched area.
 4. **Run tests** for packages that depend on the bumped dependency (directly or transitively).
 
-Narrow scope when possible (e.g. turbo/npm workspace filters for one package). Expand to root-level
+Narrow scope when possible (e.g. npm workspace filters for one package). Expand to root-level
 scripts when the bump is shared (React, TypeScript, ESLint, etc.) or ownership is unclear.
 
 ### Tamanu (this repo)
@@ -142,7 +142,7 @@ Root manifest uses **npm workspaces** and `package-lock.json`. Common commands:
 | Full test suite | `npm run test`                                                                 |
 | Lint            | `npm run lint-all`                                                             |
 | Single package  | `npm run facility-test`, `npm run central-test`, `npm run web-unit-test`, etc. |
-| Turbo filter    | `turbo build --filter=@tamanu/facility-server...`                              |
+| Workspace scope | `npm run build --workspace=@tamanu/facility-server`                            |
 
 Existing root `overrides` pin shared versions (React, MUI, axios, etc.). Prefer manifest bumps that
 make an override unnecessary; do not add new overrides without the security exception above.
