@@ -74,11 +74,11 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-imagingType-MRI",
+      "invoiceProductId": "invoiceProduct-imagingType-mri",
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-imagingType-XRay",
+      "invoiceProductId": "invoiceProduct-imagingType-xRay",
       "insurancePlan1": 50
     },
     {
