@@ -94,7 +94,7 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
       fake(models.Department, { facilityId: facility.id, code: 'E2E-DEPT' }),
     );
 
-    edProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY);
+    edProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY_STANDARD);
     standardProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.STANDARD);
     bedProduct = await models.InvoiceProduct.create(
       fake(models.InvoiceProduct, {
@@ -148,7 +148,7 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
       locationId: edLocation.id,
       departmentId: department.id,
       encounterType: ENCOUNTER_TYPES.TRIAGE,
-      startDate: '2024-06-16 10:00:00', // ED triage → ED fee added at create
+      startDate: '2024-06-18 10:00:00', // Tue in-hours ED triage → ED standard fee added at create
     });
 
     // Admit from ED to a ward bed. submittedTime dates the ward move so the overnight (02:00)
@@ -157,8 +157,8 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
     const put = await app.put(`/api/encounter/${encounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       locationId: wardLocation.id,
-      submittedTime: '2024-06-16 12:00:00',
-      endDate: '2024-06-18 09:00:00',
+      submittedTime: '2024-06-18 12:00:00',
+      endDate: '2024-06-20 09:00:00',
     });
     expect(put).toHaveSucceeded();
 
@@ -166,16 +166,13 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
     const bedLine = items.find(i => i.productId === bedProduct.id);
     expect(items.map(i => i.productId)).toContain(edProduct.id); // ED fee remains
     expect(bedLine).toBeDefined(); // bed-fee nights charged for the ward stay
-    expect(bedLine.quantity).toBe(2); // 02:00 checks on the 17th and 18th
+    expect(bedLine.quantity).toBe(2); // 02:00 checks on the 19th and 20th
   });
 
-  // KNOWN GAP (not fixed here): the PUT bed-fee recompute only fires when the body carries
-  // discharge/endDate/locationId (guard at packages/facility-server/app/routes/apiv1/encounter.js:207).
   // Admitting a patient in place — changing encounterType to ADMISSION with no location change —
-  // does not recompute, so no bed fee is charged for the admission night until a later trigger
-  // (ward move, discharge, or the nightly BedFeeCharger). This test documents that gap; it is
-  // skipped so the suite stays green. Unskip once the guard also fires on an encounterType change
-  // to ADMISSION. The assertion below is what SHOULD hold.
+  // still recomputes the bed fee: the PUT recompute guard fires on an encounterType change
+  // (packages/facility-server/app/routes/apiv1/encounter.js), so the admission night is charged
+  // immediately rather than waiting for a later ward move, discharge, or the nightly BedFeeCharger.
   it('charges a bed fee when admitted in place (encounterType change, same location)', async () => {
     const patient = await freshPatient();
     const encounter = await createEncounter({
@@ -184,7 +181,7 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
       locationId: wardLocation.id, // ward has a bed-fee product
       departmentId: department.id,
       encounterType: ENCOUNTER_TYPES.TRIAGE,
-      startDate: '2024-06-16 10:00:00',
+      startDate: '2024-06-18 10:00:00',
     });
 
     // Admit in place: only the encounter type changes — no locationId, endDate, or discharge.

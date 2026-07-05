@@ -14,7 +14,7 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 - [ ] All rates, age and patient-type variation, insurance eligibility and discounts come from the price-list engine; there is no separate pricing logic for fees.
 - [ ] Each bed is a priceable product, so bed rates use the same price-list engine as every other fee.
 - [ ] Where a fee needs to vary by department (walk-in pharmacy), a separate fee product carries that variation, so a facility keeps a single price list rather than a department dimension on the engine.
-- [ ] Invoicing on/off is a global setting. Per-state behaviour — the normal-hours window, the overnight bed-fee check time, and which item categories are bundled into the inpatient fee — is facility-scoped.
+- [ ] Invoicing on/off is a global setting. Per-state behaviour — the outpatient and emergency normal-hours windows, the overnight bed-fee check time, and which item categories are bundled into the inpatient fee — is facility-scoped.
 - [ ] The nightly scheduler runs after the overnight bed-fee check time so a night is only charged once the check time has passed.
 - [ ] Auto-added fees behave like manual items: a cashier can adjust or remove them (for example on a public holiday). A fee a cashier has removed is not re-added on a later re-run or re-sync.
 - [ ] Invoice-item source types include encounter fee and bed fee.
@@ -22,7 +22,7 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 ### Encounter-type taxonomy
 
 - [ ] Outpatient covers clinic and imaging encounters.
-- [ ] Emergency covers triage, active ED care and emergency short-stay encounters — one emergency family, all charged a single ED fee.
+- [ ] Emergency covers triage, active ED care and emergency short-stay encounters — one emergency family, all charged the ED fee.
 - [ ] Inpatient covers admission encounters.
 - [ ] Vaccination and form-response encounters carry no encounter fee.
 
@@ -39,7 +39,9 @@ Both an outpatient fee and an emergency fee still apply when a patient is admitt
 - [ ] Three clinic encounter-fee products (standard, after-hours, weekend) are identified by stable codes; the per-facility amount comes from the price list, and fees are optionally age-based and insurance-eligible through it.
 - [ ] There is one fee line per encounter, anchored to the encounter, so re-runs and re-syncs update the same line and never duplicate it. The initial fee is set when the invoice is created; an encounter-level change adds the fee only if no line already exists for the same product.
 - [ ] Adding the fee at start rather than at discharge means it survives the end-of-day clinic auto-discharge.
-- [ ] A single ED fee covers triage, active ED and emergency short stay, selected at encounter creation for the emergency family.
+- [ ] The emergency (ED) fee covers triage, active ED and emergency short stay, added once at encounter creation. Its amount is bucketed by start time — standard-hours, after-hours (weekday) or weekend — the same way as the outpatient fee.
+- [ ] The emergency in-hours window is configured separately from the outpatient window (defaulting to the same hours), so a state can run different ED in-hours; the weekend window likewise runs from the emergency window's Friday close to its Monday open.
+- [ ] Three emergency encounter-fee products (standard, after-hours, weekend) are identified by stable codes and priced per facility on the price list; a state that doesn't distinguish weekend ED care can leave the weekend product unpriced and it falls back to the after-hours ED product.
 - [ ] A patient admitted directly from ED keeps the ED encounter fee, which was added at triage creation and is not removed by the encounter-type change.
 - [ ] Public holidays are not automated; a cashier adjusts the fee where required.
 

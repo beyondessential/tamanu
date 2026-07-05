@@ -254,19 +254,34 @@ export const facilitySettings = {
       description: 'Settings for automatically adding fees to invoices',
       properties: {
         encounterFee: {
-          name: 'Automatic outpatient encounter fee',
-          description: 'Automatic encounter fee for outpatient encounters',
+          name: 'Automatic encounter fee',
+          description: 'Automatic encounter fee for outpatient and emergency encounters',
           properties: {
             standardHoursStart: {
-              name: 'Standard hours start',
+              name: 'Outpatient standard hours start',
               description:
-                'Start of standard (in-hours) time on weekdays. 24-hour time, e.g. 08:00. Weekday encounters starting outside standard hours get the after-hours fee; weekend encounters get the weekend fee.',
+                'Start of standard (in-hours) time on weekdays for outpatient encounters. 24-hour time, e.g. 08:00. Weekday encounters starting outside standard hours get the after-hours fee; weekend encounters get the weekend fee.',
               type: datelessTimeStringSchema,
               defaultValue: '08:00',
             },
             standardHoursEnd: {
-              name: 'Standard hours end',
-              description: 'End of standard (in-hours) time on weekdays. 24-hour time, e.g. 17:00.',
+              name: 'Outpatient standard hours end',
+              description:
+                'End of standard (in-hours) time on weekdays for outpatient encounters. 24-hour time, e.g. 17:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+            emergencyStandardHoursStart: {
+              name: 'Emergency standard hours start',
+              description:
+                'Start of standard (in-hours) time on weekdays for emergency (ED) encounters. 24-hour time, e.g. 08:00. Weekday ED encounters starting outside standard hours get the after-hours ED fee; weekend ED encounters get the weekend ED fee.',
+              type: datelessTimeStringSchema,
+              defaultValue: '08:00',
+            },
+            emergencyStandardHoursEnd: {
+              name: 'Emergency standard hours end',
+              description:
+                'End of standard (in-hours) time on weekdays for emergency (ED) encounters. 24-hour time, e.g. 17:00.',
               type: datelessTimeStringSchema,
               defaultValue: '17:00',
             },

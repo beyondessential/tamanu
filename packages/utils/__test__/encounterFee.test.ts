@@ -8,10 +8,12 @@ const base = {
   facilityTimeZone: null,
   standardHoursStart: '08:00',
   standardHoursEnd: '17:00',
+  emergencyStandardHoursStart: '08:00',
+  emergencyStandardHoursEnd: '17:00',
 };
 
 describe('selectEncounterFeeCode', () => {
-  it('returns the ED fee for emergency-family encounters', () => {
+  it('buckets emergency-family encounters into the ED standard-hours fee in hours', () => {
     for (const encounterType of [
       ENCOUNTER_TYPES.TRIAGE,
       ENCOUNTER_TYPES.EMERGENCY,
@@ -19,8 +21,48 @@ describe('selectEncounterFeeCode', () => {
     ]) {
       expect(
         selectEncounterFeeCode({ ...base, encounterType, startDateTime: '2024-06-18 10:00:00' }),
-      ).toBe(ENCOUNTER_FEE_CODES.EMERGENCY);
+      ).toBe(ENCOUNTER_FEE_CODES.EMERGENCY_STANDARD);
     }
+  });
+
+  it('buckets emergency-family encounters by time of day, like clinic', () => {
+    // Tue 18:30 → after-hours; Sat 11:00 → weekend.
+    expect(
+      selectEncounterFeeCode({
+        ...base,
+        encounterType: ENCOUNTER_TYPES.TRIAGE,
+        startDateTime: '2024-06-18 18:30:00',
+      }),
+    ).toBe(ENCOUNTER_FEE_CODES.EMERGENCY_AFTER_HOURS);
+    expect(
+      selectEncounterFeeCode({
+        ...base,
+        encounterType: ENCOUNTER_TYPES.EMERGENCY,
+        startDateTime: '2024-06-22 11:00:00',
+      }),
+    ).toBe(ENCOUNTER_FEE_CODES.EMERGENCY_WEEKEND);
+  });
+
+  it('buckets emergency encounters against the emergency hours window, independently of clinic hours', () => {
+    // Emergency hours 09:00–12:00, clinic hours 08:00–17:00. A Tue 13:00 encounter is
+    // after-hours for ED but standard for clinic.
+    const edHours = { emergencyStandardHoursStart: '09:00', emergencyStandardHoursEnd: '12:00' };
+    expect(
+      selectEncounterFeeCode({
+        ...base,
+        ...edHours,
+        encounterType: ENCOUNTER_TYPES.TRIAGE,
+        startDateTime: '2024-06-18 13:00:00',
+      }),
+    ).toBe(ENCOUNTER_FEE_CODES.EMERGENCY_AFTER_HOURS);
+    expect(
+      selectEncounterFeeCode({
+        ...base,
+        ...edHours,
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+        startDateTime: '2024-06-18 13:00:00',
+      }),
+    ).toBe(ENCOUNTER_FEE_CODES.STANDARD);
   });
 
   it('buckets a weekday clinic encounter in standard hours', () => {

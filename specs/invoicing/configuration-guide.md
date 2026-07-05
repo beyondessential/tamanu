@@ -35,29 +35,31 @@ Price lists are filled in as a **matrix** on the price-list-item tab: the first 
 
 # 3. Outpatient & ED encounter fees
 
-A fee is added automatically when an encounter starts. The amount is chosen by **encounter type and start time**:
+A fee is added automatically when an encounter starts. Both outpatient and ED fees are chosen by **encounter type and start time**:
 
 | Fee | Applies to | Reference-data code |
 | --- | --- | --- |
-| Standard hours | Clinic, weekday in-hours | `encounterFeeStandard` |
-| After hours | Clinic, weekday out-of-hours | `encounterFeeAfterHours` |
-| Weekend | Clinic, weekend | `encounterFeeWeekend` |
-| Emergency | Triage / Active ED / Emergency short stay | `encounterFeeEmergency` |
+| Standard hours | Outpatient (clinic), weekday in-hours | `encounterFeeStandard` |
+| After hours | Outpatient, weekday out-of-hours | `encounterFeeAfterHours` |
+| Weekend | Outpatient, weekend | `encounterFeeWeekend` |
+| ED standard hours | Emergency (triage / active ED / short stay), weekday in-hours | `encounterFeeEmergencyStandard` |
+| ED after hours | Emergency, weekday out-of-hours | `encounterFeeEmergencyAfterHours` |
+| ED weekend | Emergency, weekend | `encounterFeeEmergencyWeekend` |
 
 ### Set up the fee products
 
-Add rows to the **`encounterFee`** reference-data tab using the four codes above (and a display name). Importing them creates the matching Invoice Products. Then price each one per facility on the price-list-item matrix.
+Add rows to the **`encounterFee`** reference-data tab using the six codes above (and a display name). Importing them creates the matching Invoice Products. Then price each one per facility on the price-list-item matrix.
 
-You don't have to run a separate weekend fee — if you only price `encounterFeeStandard` and `encounterFeeAfterHours`, weekend encounters fall back to the after-hours fee. Add `encounterFeeWeekend` only where a state wants a distinct weekend rate.
+You don't have to run a separate weekend fee — for either outpatient or ED, if you only price the standard and after-hours codes, weekend encounters fall back to the after-hours fee. Add the weekend code only where a state wants a distinct weekend rate.
 
-### Set the in-hours window
+### Set the in-hours windows
 
-The weekday standard-hours window is a per-facility setting (24-hour, facility-local time):
+Outpatient and ED each have their own weekday standard-hours window (per-facility, 24-hour, facility-local time). They default to the same hours:
 
-- `invoicing.encounterFee.standardHoursStart` (default `08:00`)
-- `invoicing.encounterFee.standardHoursEnd` (default `17:00`)
+- `invoicing.encounterFee.standardHoursStart` / `standardHoursEnd` — outpatient (defaults `08:00` / `17:00`)
+- `invoicing.encounterFee.emergencyStandardHoursStart` / `emergencyStandardHoursEnd` — emergency/ED (defaults `08:00` / `17:00`)
 
-Encounters starting outside this window on a weekday get the after-hours fee; the weekend runs from Friday's close to Monday's open. Public holidays aren't automated — a cashier adjusts those.
+Encounters starting outside their window on a weekday get the after-hours fee; each weekend runs from that window's Friday close to Monday open. Set the ED window differently from the outpatient window where a state runs different ED in-hours. Public holidays aren't automated — a cashier adjusts those.
 
 ### Walk-in pharmacy (charging some facilities, not others)
 

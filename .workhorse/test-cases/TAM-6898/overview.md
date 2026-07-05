@@ -2,7 +2,7 @@
 
 Scenarios that verify the encounter fee is added correctly at encounter start, buckets by facility-local time, handles the ED and pharmacy cases, and stays idempotent.
 
-**Setup:** invoicing enabled globally (`features.invoicing.enabled` → `true`); a facility with the normal-hours window configured (`invoicing.encounterFee.standardHoursStart` / `…End`) and standard / after-hours / weekend / ED fee products priced in a matching price list; a dedicated pharmacy department (`medications.medicationDispensing.automaticEncounterDepartmentId`); a `pharmacyEncounterFee` product priced on the facility price list to charge pharmacy, or left unpriced to skip it. Manual scenarios below were exercised at facility-1 with fees priced on the catch-all facility price list (standard $50, after-hours $80, weekend $120, ED $150, pharmacy $25).
+**Setup:** invoicing enabled globally (`features.invoicing.enabled` → `true`); a facility with the outpatient and emergency normal-hours windows configured (`invoicing.encounterFee.standardHoursStart` / `…End` and `…emergencyStandardHoursStart` / `…End`) and the six encounter-fee products — outpatient standard / after-hours / weekend and ED standard / after-hours / weekend — priced in a matching price list; a dedicated pharmacy department (`medications.medicationDispensing.automaticEncounterDepartmentId`); a `pharmacyEncounterFee` product priced on the facility price list to charge pharmacy, or left unpriced to skip it. Earlier manual scenarios were exercised at facility-1 (outpatient standard $50, after-hours $80, weekend $120, pharmacy $25); the ED fee is now time-bucketed, so the ED bucket products need pricing and the ED cases below re-testing.
 
 ## Outpatient bucketing
 
@@ -25,8 +25,11 @@ Scenarios that verify the encounter fee is added correctly at encounter start, b
 
 ## ED fee
 
-- [x] Create a triage encounter; confirm one ED fee line is added at creation (verifies spec: FEES)
-- [ ] Create emergency and observation (emergency short-stay) encounters; confirm each gets an ED fee line from the same single ED product (verifies spec: FEES)
+- [ ] Create a weekday in-hours triage encounter; confirm one **ED standard-hours** fee line is added at creation (verifies spec: FEES)
+- [ ] Create emergency and observation (emergency short-stay) encounters in hours; confirm each gets the **ED standard-hours** fee (one emergency family) (verifies spec: FEES)
+- [ ] Create emergency-family encounters at a weekday evening and on a weekend; confirm the **ED after-hours** and **ED weekend** fees respectively — the ED fee is time-bucketed like the outpatient fee (verifies spec: FEES)
+- [ ] Set the emergency hours window different from the outpatient window; confirm an ED encounter buckets against the **emergency** window while a clinic encounter at the same time still buckets against the **outpatient** window (verifies spec: FEES)
+- [ ] Leave the ED weekend product unpriced; confirm a weekend ED encounter falls back to the **ED after-hours** product (verifies spec: FEES)
 - [ ] Admit a patient directly from ED (triage → admission); confirm the ED fee remains on the invoice (added at triage, not removed by the type change) (verifies spec: FEES)
 
 ## Idempotency and cashier editing

@@ -35,13 +35,17 @@ export const INVOICE_ITEMS_CATEGORIES = {
 
 // Stable reference-data codes for the clinic/ED encounter-fee products. A data admin imports
 // `encounterFee` reference data with these codes and prices them per facility via price lists.
-// The fee selector resolves a clinic/ED encounter to one of these buckets; the weekend product
-// is optional and falls back to the after-hours product where a state doesn't distinguish them.
+// Outpatient (clinic) and emergency (ED) encounters each resolve to a standard / after-hours /
+// weekend bucket, evaluated against their own facility hours window; the weekend product is
+// optional and falls back to the matching after-hours product where a state doesn't distinguish
+// them.
 export const ENCOUNTER_FEE_CODES = {
   STANDARD: 'encounterFeeStandard',
   AFTER_HOURS: 'encounterFeeAfterHours',
   WEEKEND: 'encounterFeeWeekend',
-  EMERGENCY: 'encounterFeeEmergency',
+  EMERGENCY_STANDARD: 'encounterFeeEmergencyStandard',
+  EMERGENCY_AFTER_HOURS: 'encounterFeeEmergencyAfterHours',
+  EMERGENCY_WEEKEND: 'encounterFeeEmergencyWeekend',
 };
 
 // A walk-in pharmacy dispensing encounter charges its own flat fee, separate from the clinic

@@ -330,11 +330,15 @@ export class Invoice extends Model {
       facilityTimeZone,
       standardHoursStart,
       standardHoursEnd,
+      emergencyStandardHoursStart,
+      emergencyStandardHoursEnd,
       pharmacyDepartmentId,
     ] = await Promise.all([
       settings.get('facilityTimeZone'),
       settings.get('invoicing.encounterFee.standardHoursStart'),
       settings.get('invoicing.encounterFee.standardHoursEnd'),
+      settings.get('invoicing.encounterFee.emergencyStandardHoursStart'),
+      settings.get('invoicing.encounterFee.emergencyStandardHoursEnd'),
       settings.get('medications.medicationDispensing.automaticEncounterDepartmentId'),
     ]);
 
@@ -346,12 +350,14 @@ export class Invoice extends Model {
 
     const product = isPharmacyEncounter
       ? await this.resolvePharmacyFeeProduct()
-      : await this.resolveClinicFeeProduct({
+      : await this.resolveClinicOrEmergencyFeeProduct({
           encounter,
           primaryTimeZone,
           facilityTimeZone: facilityTimeZone as string | null,
           standardHoursStart: standardHoursStart as string,
           standardHoursEnd: standardHoursEnd as string,
+          emergencyStandardHoursStart: emergencyStandardHoursStart as string,
+          emergencyStandardHoursEnd: emergencyStandardHoursEnd as string,
         });
     if (!product) {
       return;
@@ -393,18 +399,22 @@ export class Invoice extends Model {
     });
   }
 
-  private static async resolveClinicFeeProduct({
+  private static async resolveClinicOrEmergencyFeeProduct({
     encounter,
     primaryTimeZone,
     facilityTimeZone,
     standardHoursStart,
     standardHoursEnd,
+    emergencyStandardHoursStart,
+    emergencyStandardHoursEnd,
   }: {
     encounter: Encounter;
     primaryTimeZone: string;
     facilityTimeZone: string | null;
     standardHoursStart: string;
     standardHoursEnd: string;
+    emergencyStandardHoursStart: string;
+    emergencyStandardHoursEnd: string;
   }) {
     const feeCode = selectEncounterFeeCode({
       encounterType: encounter.encounterType as EncounterType,
@@ -413,6 +423,8 @@ export class Invoice extends Model {
       facilityTimeZone,
       standardHoursStart,
       standardHoursEnd,
+      emergencyStandardHoursStart,
+      emergencyStandardHoursEnd,
     });
     if (!feeCode) {
       return null;
@@ -423,14 +435,24 @@ export class Invoice extends Model {
       REFERENCE_TYPES.ENCOUNTER_FEE,
       feeCode,
     );
-    if (product || feeCode !== ENCOUNTER_FEE_CODES.WEEKEND) {
+    if (product) {
       return product;
     }
-    // No distinct weekend product configured → fall back to the after-hours product.
+
+    // No distinct weekend product configured → fall back to the matching after-hours product
+    // (clinic weekend → clinic after-hours, ED weekend → ED after-hours).
+    const weekendFallbacks: Record<string, string> = {
+      [ENCOUNTER_FEE_CODES.WEEKEND]: ENCOUNTER_FEE_CODES.AFTER_HOURS,
+      [ENCOUNTER_FEE_CODES.EMERGENCY_WEEKEND]: ENCOUNTER_FEE_CODES.EMERGENCY_AFTER_HOURS,
+    };
+    const fallbackCode = weekendFallbacks[feeCode];
+    if (!fallbackCode) {
+      return null;
+    }
     return this.findEncounterFeeProduct(
       INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
       REFERENCE_TYPES.ENCOUNTER_FEE,
-      ENCOUNTER_FEE_CODES.AFTER_HOURS,
+      fallbackCode,
     );
   }
 

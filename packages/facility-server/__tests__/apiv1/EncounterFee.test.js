@@ -29,6 +29,8 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
   let pharmacyDepartment;
   let standardProduct;
   let edProduct;
+  let edAfterHoursProduct;
+  let edWeekendProduct;
   let pharmacyProduct;
   let facilityPriceList;
   let settings;
@@ -115,7 +117,9 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     );
 
     standardProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.STANDARD);
-    edProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY);
+    edProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY_STANDARD);
+    edAfterHoursProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY_AFTER_HOURS);
+    edWeekendProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.EMERGENCY_WEEKEND);
     pharmacyProduct = await createFeeProduct(PHARMACY_ENCOUNTER_FEE_CODE, {
       referenceType: REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE,
       category: INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
@@ -139,6 +143,8 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     );
     await priceListItem(facilityPriceList.id, standardProduct.id);
     await priceListItem(facilityPriceList.id, edProduct.id, { price: 80 });
+    await priceListItem(facilityPriceList.id, edAfterHoursProduct.id, { price: 120 });
+    await priceListItem(facilityPriceList.id, edWeekendProduct.id, { price: 150 });
   });
 
   afterAll(() => ctx.close());
@@ -149,10 +155,26 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     expect(items[0].productId).toBe(standardProduct.id);
   });
 
-  it('adds the single ED fee to a triage encounter', async () => {
+  it('adds the ED standard-hours fee to a weekday in-hours triage encounter', async () => {
     const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.TRIAGE });
     expect(items).toHaveLength(1);
     expect(items[0].productId).toBe(edProduct.id);
+  });
+
+  it('buckets an emergency-family encounter by time of day, using the emergency hours', async () => {
+    const afterHours = await addFeeFor({
+      encounterType: ENCOUNTER_TYPES.TRIAGE,
+      startDate: '2024-06-18 18:30:00', // Tuesday evening → ED after-hours
+    });
+    expect(afterHours).toHaveLength(1);
+    expect(afterHours[0].productId).toBe(edAfterHoursProduct.id);
+
+    const weekend = await addFeeFor({
+      encounterType: ENCOUNTER_TYPES.OBSERVATION,
+      startDate: '2024-06-22 11:00:00', // Saturday → ED weekend
+    });
+    expect(weekend).toHaveLength(1);
+    expect(weekend[0].productId).toBe(edWeekendProduct.id);
   });
 
   it('adds no fee for an encounter type that is not invoiceable', async () => {

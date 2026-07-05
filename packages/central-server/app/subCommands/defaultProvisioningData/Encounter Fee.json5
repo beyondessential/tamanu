@@ -26,9 +26,21 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "encounterFee-emergency",
-      "code": "encounterFeeEmergency",
-      "name": "Emergency department fee",
+      "id": "encounterFee-emergency-standard",
+      "code": "encounterFeeEmergencyStandard",
+      "name": "Emergency department fee (standard hours)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "encounterFee-emergency-afterhours",
+      "code": "encounterFeeEmergencyAfterHours",
+      "name": "Emergency department fee (after hours)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "encounterFee-emergency-weekend",
+      "code": "encounterFeeEmergencyWeekend",
+      "name": "Emergency department fee (weekend)",
       "visibilityStatus": "current"
     }
   ]
