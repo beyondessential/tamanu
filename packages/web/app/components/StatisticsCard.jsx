@@ -98,7 +98,7 @@ export const StatisticsCard = React.memo(
 
 StatisticsCard.propTypes = {
   title: PropTypes.node.isRequired,
-  level: PropTypes.string.isRequired,
+  level: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
   Footer: PropTypes.node,
