@@ -14,7 +14,7 @@ describe('computeBedFeeChargeInstants', () => {
       startDateTime: '2024-06-16 09:00:00',
       endDateTime: '2024-06-16 14:00:00',
     });
-    expect(instants).toEqual(['2024-06-16 09:00:00']); // falls back to the admission night
+    expect(instants).toEqual(['2024-06-16 14:00:00']); // falls back to the end-of-stay instant (current location)
   });
 
   it('charges one night for a single overnight stay', () => {
@@ -45,7 +45,7 @@ describe('computeBedFeeChargeInstants', () => {
       startDateTime: '2024-06-16 18:00:00',
       endDateTime: '2024-06-17 01:00:00', // before the 02:00 check
     });
-    expect(instants).toEqual(['2024-06-16 18:00:00']); // admission night only
+    expect(instants).toEqual(['2024-06-17 01:00:00']); // min one night, anchored to the end of the stay
   });
 
   it('counts an overnight check on the admission day itself (charge the night admitted in)', () => {

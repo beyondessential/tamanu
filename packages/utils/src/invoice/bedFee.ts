@@ -21,8 +21,10 @@ const toIso9075 = (zoned: Temporal.ZonedDateTime, timeZone: string): string =>
  * the night they were admitted in.
  *
  * The result is never empty — a patient admitted and gone before the first overnight check still
- * owes their admission night, so it falls back to [startDateTime]. So total nights = array length,
- * which for an N-night stay (admit day D, discharge day D+N) is N.
+ * owes their admission night, so it falls back to a single instant at the end of the stay (now for
+ * a still-admitted patient, or the discharge time). Anchoring the fallback to the end makes the
+ * night follow the patient's current location, so an early ward move is reflected immediately.
+ * Total nights = array length, which for an N-night stay (admit day D, discharge day D+N) is N.
  *
  * Each instant is later resolved to the location the patient occupied at that time — the rate is
  * set by the location at the overnight check.
@@ -56,5 +58,8 @@ export const computeBedFeeChargeInstants = ({
     check = check.add({ days: 1 });
   }
 
-  return instants.length > 0 ? instants : [startDateTime];
+  // Minimum one night: a stay that hasn't crossed an overnight check still owes a night. Anchor
+  // the fallback to the end of the stay (now for a still-admitted patient, or the discharge time)
+  // so the night follows the patient's current location — an early ward move is reflected at once.
+  return instants.length > 0 ? instants : [endDateTime];
 };

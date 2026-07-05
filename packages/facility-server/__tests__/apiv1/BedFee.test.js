@@ -187,6 +187,66 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(nightsByProduct[bedProductB.id]).toBe(2);
   });
 
+  it('charges the minimum-one-night to the current location after an early ward move (before any check)', async () => {
+    // Admitted to bed A at 09:00, moved to bed B at 11:00, discharged 14:00 the same day — no 02:00
+    // check is crossed, so the minimum-one-night falls back to the location at the end of the stay (B).
+    const locationB = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-EARLY' }),
+    );
+    const bedProductB = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.BED_FEE],
+        sourceRecordId: locationB.id,
+      }),
+    );
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      locationId: locationB.id, // current location after the move
+      departmentId: department.id,
+      examinerId: user.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate: '2024-06-16 09:00:00',
+      endDate: '2024-06-16 14:00:00',
+    });
+    const invoice = await models.Invoice.create({
+      encounterId: encounter.id,
+      displayId: `INV-${encounter.id.slice(0, 8)}`,
+      date: '2024-06-16 09:00:00',
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+
+    // Bed A from admission, moved to bed B at 11:00 — both before the next 02:00 check.
+    await models.EncounterHistory.create(
+      fake(models.EncounterHistory, {
+        encounterId: encounter.id,
+        locationId: bedLocation.id,
+        departmentId: department.id,
+        examinerId: user.id,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        date: '2024-06-16 09:00:00',
+      }),
+    );
+    await models.EncounterHistory.create(
+      fake(models.EncounterHistory, {
+        encounterId: encounter.id,
+        locationId: locationB.id,
+        departmentId: department.id,
+        examinerId: user.id,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        date: '2024-06-16 11:00:00',
+      }),
+    );
+
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(items).toHaveLength(1);
+    expect(items[0].productId).toBe(bedProductB.id); // current location, not the admission bed
+    expect(items[0].quantity).toBe(1);
+  });
+
   it('loads the bed-fee product source location in the invoice include', async () => {
     // Regression: the invoice-response include must eager-load the Location source record, or the
     // bed-fee line resolves no product code (and nothing in views that render via the source record).

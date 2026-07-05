@@ -63,6 +63,7 @@ A nightly scheduled job charges each qualifying night for currently-admitted pat
 - [ ] Each bed is a priceable product in a bed-fee category, so bed rates use the price-list engine rather than a price field on the location. Pricing is per location, because beds within a location group can differ in rate.
 - [ ] A bed fee is charged once per qualifying overnight: the first night on admission (a minimum of one night, covering same-day admit, death, abscond or leaving against medical advice), and each later night at the overnight check time if the patient is still admitted.
 - [ ] The rate is set by the patient's location at the overnight check.
+- [ ] Before the first overnight check, the minimum-one-night follows the patient's current location, so an early ward move updates its attribution immediately.
 - [ ] Only a location with a bed-fee product is charged; placeholder "open ward" locations have no product and so carry no bed fee.
 - [ ] The invoice batches bed fees by location (for example ICU ×2, Ward 1 Bed 1 ×3) rather than one row per night; nightly charging recomputes the batched quantity rather than incrementing it.
 - [ ] The location for a past night is determined from the location change history, so it is resolvable at a time other than when the nightly job runs.

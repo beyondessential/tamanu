@@ -21,6 +21,8 @@ Scenarios that verify the per-night bed fee: admission night, multi-night accrua
 
 - [ ] Move a patient ICU 2 nights then Ward 1 Bed 1 for 3 nights; confirm **two** lines: ICU qty 2, Ward 1 Bed 1 qty 3 (batched by location, not one row per night) (verifies spec: FEES)
 - [ ] Change a patient's location mid-day; confirm the night is attributed to the location occupied **at the 02:00 check**, resolved from the location change history (verifies spec: FEES)
+- [ ] Admit a patient to priced location A, move them to priced location B, and keep them admitted through the next overnight check; confirm the first night is charged to (and priced at) B — the location occupied at the check — and A is not charged (verifies spec: FEES)
+- [ ] Admit a patient to location A and move them to priced location B before any overnight check; confirm the provisional minimum-one-night immediately follows the current location — charged to B, not A, even before the first check (verifies spec: FEES)
 - [ ] Move a patient out of a location so it no longer qualifies on recompute; confirm the stale bed-fee line for the vacated location is removed (verifies spec: FEES)
 - [ ] Confirm the bed-fee rate matches the configured price-list item for that location — beds are priceable products and rate is per location (verifies spec: FEES)
 - [ ] Confirm the bed-fee line resolves its Location source so its product code renders in invoice views / PDF
@@ -32,6 +34,7 @@ Scenarios that verify the per-night bed fee: admission night, multi-night accrua
 ## Exclusions
 
 - [x] Place a patient in an "open ward" placeholder location; confirm **no** bed-fee line for that location (verifies spec: FEES)
+- [ ] Admit a patient to an "open ward" placeholder (no bed-fee product, so no fee), move them to a priced location, and keep them admitted through the next overnight check; confirm a bed-fee line for the priced location is charged from that check onward (moving from an unpriced to a priced location starts charging) (verifies spec: FEES)
 
 ## Combined with ED
 
