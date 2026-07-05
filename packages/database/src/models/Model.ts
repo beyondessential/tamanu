@@ -147,15 +147,14 @@ export class Model<
     // if the structure of a nested object differs significantly from its database representation,
     // it's probably more correct to implement that as a separate endpoint rather than putting the
     // logic here.
-    return references.reduce<Record<string, any>>((result, referenceName) => {
+    const result = resultInit as Record<string, any>;
+    for (const referenceName of references) {
       const referenceVal = result[referenceName];
       delete result[referenceName];
-
-      if (!referenceVal) return result;
-
+      if (!referenceVal) continue;
       result[firstLetterLowercase(referenceName)] = referenceVal.dataValues;
-      return result;
-    }, resultInit);
+    }
+    return result;
   }
 
   toJSON() {
