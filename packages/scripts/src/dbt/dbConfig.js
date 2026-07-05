@@ -6,8 +6,11 @@ const path = require('node:path');
 const pg = require('pg');
 
 async function dbConfig(packageName) {
+  // Dynamic import (not require): tsx's CJS hook does not complete the extensionless
+  // export for connectionConfig, but ESM import() does.
+  const { resolveDbConfig } = await import('@tamanu/database/services/connectionConfig');
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
+  const db = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db)); // merge with NODE_CONFIG
 
   const client = new pg.Client({
     host: db.host,

@@ -5,25 +5,6 @@
     "pool": {
       "acquire": 5000,
     },
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "reporting": {
-          "pool": {
-            "max": 5
-          },
-          "username": "tamanu_reporting",
-          "password": "test"
-        },
-        "raw": {
-          "pool": {
-            "max": 5
-          },
-          "username": "tamanu_raw",
-          "password": "test"
-        }
-      }
-    }
   },
   "mailgun": {
     "from": "Tamanu test"
@@ -95,20 +76,7 @@
       "enabled": true
     },
     "fhir": {
-      "enabled": true,
-      "worker": {
-        "resourceMaterialisationEnabled": {
-          "Patient": true,
-          "ServiceRequest": true,
-          "DiagnosticReport": true,
-          "Encounter": true,
-          "Immunization": true,
-          "Practitioner": true,
-          "MediciReport": true,
-          "Specimen": true,
-          "Organization": true
-        }
-      }
+      "enabled": true
     },
     "omniLab": {
       "enabled": true,

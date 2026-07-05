@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 import { LOGIN_ATTEMPT_OUTCOMES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { SETTING_KEYS } from '@tamanu/constants';
 
-const TEST_EMAIL = 'test@beyondessential.com.au';
+const TEST_EMAIL = 'test@bes.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
 const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';

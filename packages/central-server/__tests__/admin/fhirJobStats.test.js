@@ -5,7 +5,7 @@ describe('FHIR job stats', () => {
   let app;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('admin');
     await ctx.store.models.FhirJob.truncate();
   });

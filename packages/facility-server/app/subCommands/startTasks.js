@@ -28,6 +28,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   const context = await new ApplicationContext().init({ appType: 'tasks' });
 
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
+  await context.initReportingStores();
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);

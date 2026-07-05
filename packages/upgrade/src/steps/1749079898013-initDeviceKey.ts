@@ -5,12 +5,14 @@ import { END, needsMigration } from '../step.js';
 export const STEPS: Steps = [
   {
     at: END,
-    after: [needsMigration('1739968205100-addLSFFunction.ts')],
-    async check({ models: { LocalSystemFact } }: StepArgs) {
-      return !(await LocalSystemFact.get(FACT_DEVICE_KEY));
+    // The device key now lives in local_system_secrets (kept out of
+    // local_system_facts so the raw reporting role can't read it).
+    after: [needsMigration('1782200000000-createLocalSystemSecretsTable.ts')],
+    async check({ models: { LocalSystemSecret } }: StepArgs) {
+      return !(await LocalSystemSecret.get(FACT_DEVICE_KEY));
     },
-    async run({ models: { LocalSystemFact } }: StepArgs) {
-      await LocalSystemFact.getDeviceKey();
+    async run({ models: { LocalSystemSecret } }: StepArgs) {
+      await LocalSystemSecret.getDeviceKey();
     },
   },
 ];

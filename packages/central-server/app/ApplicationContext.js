@@ -6,6 +6,8 @@ import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { EmailService } from './services/EmailService';
 
@@ -80,12 +82,26 @@ export class ApplicationContext {
       return this;
     }
 
+    const fhirWorkerEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    await initFhirSettingsFromDb(this.settings);
+    await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled });
+
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
     this.emailService = new EmailService();
 
-    if (config.db.reportSchemas?.enabled) {
+    try {
       this.reportSchemaStores = await initReporting(this.store);
+    } catch (error) {
+      // Reporting requires the app db role to manage the reporting roles (see
+      // ensureReportingRole). On an under-provisioned database that fails; the
+      // rest of the server works without reporting, so degrade instead of
+      // crash-looping the whole deployment.
+      log.error(
+        'initReporting failed; reporting schemas unavailable until the db grants are fixed',
+        { error },
+      );
     }
 
     if (appType === CENTRAL_SERVER_APP_TYPES.API) {

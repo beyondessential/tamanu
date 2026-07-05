@@ -28,6 +28,13 @@ import {
   triageCategoriesSchema,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
+  fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
+  fhirCountParametersSchema,
+  fhirExtensionsSchema,
+  fhirNullLastNameSchema,
+  fhirAssignersSchema,
+  fhirDataDictionariesSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -170,6 +177,17 @@ export const globalSettings = {
           description: 'The maximum number of months allowed when creating location assignments',
           type: yup.number().min(1),
           defaultValue: 24,
+        },
+      },
+    },
+    reportingDb: {
+      description: 'Reporting database settings',
+      properties: {
+        secretRotationDays: {
+          description:
+            'Auto-rotate the reporting/raw role secret once it is older than this many days (new passwords take effect as servers restart). 0 disables rotation.',
+          type: yup.number().integer().min(0),
+          defaultValue: 90,
         },
       },
     },
@@ -487,6 +505,7 @@ export const globalSettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings',
+      highRisk: true,
       properties: {
         worker: {
           name: 'FHIR worker',
@@ -503,8 +522,22 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
+            concurrency: fhirWorkerConcurrencySchema,
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
+            resolverLockTimeout: {
+              name: 'Resolver lock timeout',
+              description:
+                'How long the FHIR resolver waits to acquire row locks before failing the job, so a resolver blocked on locks held elsewhere errors and retries instead of stalling the queue indefinitely',
+              type: yup.string(),
+              defaultValue: '2 minutes',
+            },
           },
         },
+        parameters: fhirCountParametersSchema,
+        extensions: fhirExtensionsSchema,
+        nullLastNameValue: fhirNullLastNameSchema,
+        assigners: fhirAssignersSchema,
+        dataDictionaries: fhirDataDictionariesSchema,
       },
     },
     fields: {
@@ -1396,6 +1429,12 @@ export const globalSettings = {
       highRisk: true,
       description: 'Security settings',
       properties: {
+        requireHttps: {
+          name: 'Require HTTPS',
+          description:
+            'Reject client requests that do not arrive over HTTPS. Acts as the default for every server; leave unset to let the central and per-facility settings decide, or set it here to apply to all servers at once (a central or facility setting still overrides this). Requires a TLS-terminating proxy that is listed in `proxy.trusted` and forwards the `X-Forwarded-Proto` header, otherwise all requests will be rejected. Can only be enabled from an HTTPS connection.',
+          type: yup.boolean().nullable(),
+        },
         loginAttempts: {
           description: 'Login attempts settings',
           properties: {

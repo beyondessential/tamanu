@@ -1,3 +1,17 @@
+<!-- BEGIN:workhorse 0.1.0 -->
+# Workhorse framework
+
+This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Workhorse ships skills (invokable prompts) and reference docs into this repo to shape how AI agents work here.
+
+- **Skills** live at `.agents/skills/` — each skill is a folder containing a `SKILL.md` with YAML frontmatter and a prompt body. `.claude/skills/` is a symlink to the same folder so Claude Code picks them up natively
+- **Reference docs** live at `.agents/docs/` — long-form guidance that skill bodies cite by path (spec format conventions and similar)
+- **Specs** live at `specs/` — acceptance criteria for each piece of work, organised into areas by subdirectory
+
+When picking up a task, read the skill whose folder name matches what you're being asked to do — its `SKILL.md` describes how to approach the work and which reference docs to follow.
+
+Workhorse manages this section. Run the **Pull Workhorse updates** skill to bring it, the skills, and the reference docs up to the latest release — local edits you make here are preserved through a smart merge. Edit or remove it freely.
+<!-- END:workhorse -->
+
 # Tamanu - Development Guidelines for AI Assistants
 
 This file contains rules and patterns that AI assistants should follow when working on this codebase.
@@ -15,6 +29,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translations**: See @llm/project-rules/translations.md for the TranslatedText / TranslatedEnum / TranslatedReferenceData system and string ID conventions
 - **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
+- **Settings**: See @llm/project-rules/settings.md for the settings schemas, reading settings (central vs facility readers), and why new config belongs in settings rather than config files
 - **Endpoint (integration) tests**: See @llm/project-rules/endpoint-integration-tests.md for central/facility HTTP route tests (supertest, auth, CRUD, validation)
 - **Playwright E2E**: See @llm/project-rules/playwright-e2e.md for E2E test structure, page objects, and Playwright best practices (`packages/e2e-tests`)
 

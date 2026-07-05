@@ -229,7 +229,7 @@ export const practitioner = [
   { verb: 'write', noun: 'PatientSecondaryId' },
   { verb: 'create', noun: 'PatientSecondaryId' },
 
-  { verb: 'run', noun: 'StaticReport' },
+  { verb: 'run', noun: 'ReportDefinition', objectId: 'generic-survey-export-line-list' },
 
   { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
   { verb: 'write', noun: 'TreatmentPlanNote' },
