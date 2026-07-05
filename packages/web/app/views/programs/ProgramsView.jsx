@@ -134,6 +134,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
+      encounterId: params?.encounterId ?? null,
       endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, survey),
       facilityId,
