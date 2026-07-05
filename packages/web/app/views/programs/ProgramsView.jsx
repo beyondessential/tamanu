@@ -34,7 +34,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const params = useParams();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
-  const { encounter, loadEncounter } = useEncounter();
+  const { loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
   const [changelogOpen, setChangelogOpen] = useState(false);
@@ -139,7 +139,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       facilityId,
     });
     dispatch(reloadPatient(patient.id));
-    if (params?.encounterId && encounter && !encounter.endDate) {
+    if (params?.encounterId) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
       queryClient.resetQueries(['patientFields', patient.id]);
@@ -198,7 +198,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       onSuccess: async () => {
         dispatch(reloadPatient(patient.id));
         queryClient.invalidateQueries(['surveyResponseAnswer', 'latest-answer', patient.id]);
-        if (params?.encounterId && encounter && !encounter.endDate) {
+        if (params?.encounterId) {
           navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
         } else {
           queryClient.resetQueries(['patientFields', patient.id]);
