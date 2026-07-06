@@ -5,8 +5,7 @@ import { TranslatedReferenceData } from '../components/Translation';
  * @param location: { name: string, locationGroup: { name: string } }
  * @returns {string}
  */
-
-export const getFullLocationName = (location) => {
+export const getFullLocationName = location => {
   // Attempt to return the location group name and the location name. eg. Ward 2, Bed 1
   if (location?.locationGroup?.name) {
     return (
@@ -36,5 +35,5 @@ export const getFullLocationName = (location) => {
     );
   }
 
-  return '-';
+  return '—'; // em dash
 };
