@@ -61,9 +61,6 @@ const TableRow = styled.tr(
 
 const Th = styled.th.attrs({ scope: 'row' })`
   font-weight: inherit;
-  && {
-    padding: 0;
-  }
 `;
 
 const UnstyledButton = styled(UnstyledHtmlButton)`
