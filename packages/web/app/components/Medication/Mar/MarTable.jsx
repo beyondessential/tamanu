@@ -9,6 +9,7 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
+import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table`
@@ -24,8 +25,8 @@ const Table = styled.table`
     border-block-start: var(--mar-border);
   }
 
-  thead th,
-  tbody th[scope='rowgroup'] {
+  /* If cell is non-interactive, pad. Else let button(s) fill cell & delegate padding to them. */
+  & :is(th, td):not(:has(${TableCellButton})) {
     padding: 10px;
   }
 
@@ -96,26 +97,26 @@ const TimeSlotLabel = styled.div`
   text-transform: capitalize;
 `;
 
-function EmptyStateRow({ children, selectedDate, style, ...props }) {
-  return (
-    <tr {...props} style={{ ...style, fontWeight: '500' }}>
-      <td>{children}</td>
-      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
-        <BorderlessCell
-          key={startTime}
-          startTime={startTime}
-          endTime={endTime}
-          selectedDate={selectedDate}
-        />
-      ))}
-    </tr>
-  );
-}
+const EmptyStateRow = styled(({ children, selectedDate, ...props }) => (
+  <tr {...props}>
+    <td>{children}</td>
+    {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+      <BorderlessCell
+        key={startTime}
+        startTime={startTime}
+        endTime={endTime}
+        selectedDate={selectedDate}
+      />
+    ))}
+  </tr>
+))`
+  font-weight: 500;
+`;
 
 function RowSkeleton({ selectedDate }) {
   return Array.from({ length: 2 }).map((_, index) => (
     <tr key={index}>
-      <th style={{ padding: 10 }}>
+      <th>
         <Skeleton width="min(40ch, 100%)" />
         <Skeleton width="min(25ch, 100%)" />
       </th>
