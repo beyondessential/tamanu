@@ -17,9 +17,9 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
 
   const onSubmit = useCallback(() => {
     onChangeFilters();
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-    );
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index, {
+      screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
+    });
   }, [navigation, onChangeFilters]);
 
   const onClearFilters = useCallback(() => {
