@@ -5,7 +5,7 @@ import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Box from '@mui/material/Box';
 import { addHours, isSameDay } from 'date-fns';
 import React, { useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import {
   ADMINISTRATION_STATUS,
@@ -30,34 +30,53 @@ import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import { StatusPopper } from './StatusPopper';
+import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const StatusContainer = styled.td`
+const StatusContainer = styled(
+  ({
+    canCreateMar,
+    canViewMar,
+    children,
+    disabled,
+    isDiscontinued,
+    isEnd,
+    isPaused,
+    onClick,
+    status,
+    ...props
+  }) => (
+    <td
+      data-discontinued={isDiscontinued || undefined}
+      data-ended={isEnd || undefined}
+      data-paused={isPaused || undefined}
+      {...props}
+    >
+      <TableCellButton
+        disabled={disabled || !(canCreateMar || (status && canViewMar))}
+        onClick={onClick}
+      >
+        {children}
+      </TableCellButton>
+    </td>
+  ),
+)`
   position: relative;
-  ${p =>
-    !p.$disabledClick &&
-    (p.canCreateMar || (p.status && p.canViewMar)) &&
-    css`
-      cursor: pointer;
-    `};
-  ${p =>
-    (p.isDiscontinued || p.isEnd || p.isPaused) &&
-    css`
-      background-image: linear-gradient(${p => p.theme.palette.divider} 1px, transparent 1px);
-      background-size: 100% 5px;
-      background-position: 0 2.5px;
-    `}
-  ${p =>
-    p.isDisabled || p.isDiscontinued || p.isEnd
-      ? css`
-          background-color: ${Colors.background};
-          color: ${p => p.theme.palette.text.tertiary};
-        `
-      : css`
-          &:hover {
-            background-color: ${p.$disabledClick ? 'transparent' : p.theme.palette.action.hover};
-          }
-        `}
+
+  &[data-discontinued='true'],
+  &[data-ended='true'],
+  &[data-paused='true'] {
+    background-image: linear-gradient(${p => p.theme.palette.divider} 1px, transparent 1px);
+    background-size: 100% 5px;
+    background-position: 0 2.5px;
+  }
+
+  &[data-disabled='true'],
+  &[data-discontinued='true'],
+  &[data-ended='true'] {
+    background-color: ${p => p.theme.palette.background.default};
+    color: ${p => p.theme.palette.text.tertiary};
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -559,7 +578,7 @@ export const MarStatus = ({
         canCreateMar={canCreateMar}
         canViewMar={canViewMar}
         status={status}
-        $disabledClick={!canView}
+        disabled={!canView}
       >
         <ConditionalTooltip
           visible={Boolean(content)}
