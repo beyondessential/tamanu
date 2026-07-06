@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CssBaseline } from '@material-ui/core';
-import { ThemeProvider } from 'styled-components';
+import { StyleSheetManager, ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -57,6 +57,14 @@ const StateContextProviders = ({ children, store }) => (
   </EncounterNotesProvider>
 );
 
+function StyledComponentsProvider({ children }) {
+  return (
+    <StyleSheetManager disableVendorPrefixes>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </StyleSheetManager>
+  );
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -71,7 +79,7 @@ function RootContent({ store }) {
     <StylesProvider injectFirst>
       <MuiLatestThemeProvider theme={theme}>
         <MuiThemeProvider theme={theme}>
-          <ThemeProvider theme={theme}>
+          <StyledComponentsProvider>
             <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
               <StateContextProviders store={store}>
                 <CustomToastContainer
@@ -90,7 +98,7 @@ function RootContent({ store }) {
                 <RoutingApp />
               </StateContextProviders>
             </MuiLocalisationProvider>
-          </ThemeProvider>
+          </StyledComponentsProvider>
         </MuiThemeProvider>
       </MuiLatestThemeProvider>
     </StylesProvider>
