@@ -16,7 +16,7 @@ export class SetupWizardPage extends BasePage {
 
   constructor(page: Page) {
     super(page, '/');
-    this.heading = page.getByRole('heading', { name: 'Set up this server' });
+    this.heading = page.getByText('Set up this server');
     this.host = page.locator('input[name="host"]');
     this.email = page.locator('input[name="email"]');
     this.password = page.locator('input[name="password"]');
