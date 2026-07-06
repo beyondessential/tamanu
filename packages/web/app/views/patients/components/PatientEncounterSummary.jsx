@@ -28,38 +28,41 @@ import { getFullLocationName } from '../../../utils/location';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-inline-start: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
 `;
 
 const Container = styled.div`
   ${Border};
-  background: ${Colors.white};
+  background-color: ${p => p.theme.palette.background.paper};
   transition: color 0.2s ease;
 `;
 
 const NoVisitContainer = styled.div`
   ${Border};
-  display: flex;
   align-items: center;
+  background-color: ${p => p.theme.palette.background.paper};
+  display: flex;
   justify-content: space-between;
-  background: ${Colors.white};
-  padding: 28px 30px;
+  padding-block: 28px;
+  padding-inline: 30px;
 `;
 
 const Header = styled.div`
+  align-items: center;
+  border-block-end: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  padding: 18px 20px 18px 16px;
-  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  padding-block: 18px;
+  padding-inline: 16px 20px;
 `;
 
 const Content = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
   grid-row-gap: 8px;
-  padding: 12px 20px 12px 16px;
+  grid-template-columns: 1fr 1fr;
+  padding-block: 12px;
+  padding-inline: 16px 20px;
 `;
 
 const ContentItem = styled.div`
@@ -74,22 +77,22 @@ const Title = styled(Typography)`
 `;
 
 const BoldTitle = styled(Title)`
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 500;
   color: ${props => props.theme.palette.text.primary};
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.33333333;
   margin-right: 5px;
 `;
 
 const NoVisitTitle = styled(BoldTitle)`
   font-size: 20px;
-  line-height: 28px;
+  line-height: 1.4;
 `;
 
 const ContentLabel = styled.span`
-  font-weight: 500;
   color: ${Colors.darkContentText};
-  margin-right: 5px;
+  font-weight: 500;
+  margin-inline-end: 5px;
 `;
 
 const ContentText = styled.span`
