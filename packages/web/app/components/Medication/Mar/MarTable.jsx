@@ -1,41 +1,47 @@
-import { isSameDay } from 'date-fns';
 import { partition } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
+import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table.attrs({ role: 'table' })`
-  --mar-table-border: 1px solid ${p => p.theme.palette.divider};
+  --mar-border: 1px solid ${p => p.theme.palette.divider};
+  --mar-current-time-border: ${p => p.theme.palette.primary.main};
   border-collapse: collapse;
   font-size: 12px;
   inline-size: 100%;
   position: relative;
 
-  & col[aria-current='time'] {
-    border: 1px solid ${p => p.theme.palette.primary.main};
-    color: ${p => p.theme.palette.primary.main};
-  }
-
   & :is(th, td) {
     padding: 10px;
-    border-block-start: var(--mar-table-border);
-    border-inline-start: var(--mar-table-border);
+    border-block-start: var(--mar-border);
+    border-inline-start: var(--mar-border);
     &:last-child {
-      border-block-end: var(--mar-table-border);
-      border-inline-end: var(--mar-table-border);
+      border-block-end: var(--mar-border);
+      border-inline-end: var(--mar-border);
     }
+  }
+
+  & :is(th, td)[aria-current='time'] {
+    border-inline: 1px solid var(--mar-current-time-border);
+  }
+  & thead tr:first-of-type :is(th, td)[aria-current='time'] {
+    border-block-start: 1px solid var(--mar-current-time-border);
+    color: ${p => p.theme.palette.primary.main};
+  }
+  & tbody:last-of-type tr:last-of-type :is(th, td)[aria-current='time'] {
+    border-block-end: 1px solid var(--mar-current-time-border);
   }
 `;
 
-const HeaderRow = styled.thead.attrs({ role: 'rowgroup' })`
+const TableHead = styled.thead.attrs({ role: 'rowgroup' })`
   position: sticky;
   top: 0;
   z-index: 10;
@@ -104,30 +110,32 @@ const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
   z-index: 5;
 `;
 
-function HeadingRow(props) {
+const StyledTableRow = styled.tr`
+  td,
+  th {
+    border-inline: none;
+  }
+`;
+
+function HeadingRowSpacer(props) {
+  const current = useIsCurrentTimeSlot(props);
+  return <th aria-current={current ? 'time' : undefined} aria-hidden />;
+}
+
+function HeadingRow({ selectedDate, ...props }) {
   return (
-    <tr>
-      {/* Not using colspan attribute so col[aria-current='time'] style is uninterrupted */}
+    <StyledTableRow>
       <HeadingTableCell {...props} />
-      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime }) => (
-        <th aria-hidden key={startTime} style={{ borderInline: 'none' }} />
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+        <HeadingRowSpacer
+          key={startTime}
+          startTime={startTime}
+          endTime={endTime}
+          selectedDate={selectedDate}
+        />
       ))}
-    </tr>
+    </StyledTableRow>
   );
-}
-
-function useIsCurrentTimeSlot({ startTime, endTime, selectedDate }) {
-  const { getFacilityNowDate } = useDateTime();
-  const facilityNow = getFacilityNowDate();
-  const now = facilityNow.getTime();
-  const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
-  const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
-  return startDate <= now && now <= endDate && isSameDay(selectedDate, facilityNow);
-}
-
-function Col({ startTime, endTime, selectedDate }) {
-  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
-  return <col aria-current={current ? 'time' : undefined} />;
 }
 
 // Convert time string to locale-specific time string no timezone conversion is applied
@@ -174,33 +182,24 @@ export const MarTable = ({ selectedDate }) => {
 
   return (
     <Table columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
-      <colgroup>
-        <col />
-        {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
-          <Col
-            key={startTime}
-            startTime={startTime}
-            endTime={endTime}
-            selectedDate={selectedDate}
-          />
-        ))}
-      </colgroup>
-      <HeaderRow>
-        <HeadingCell>
-          <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
-        </HeadingCell>
-        {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ periodLabel, startTime, endTime }) => (
-          <TimeSlotHeader
-            key={startTime}
-            periodLabel={periodLabel}
-            startTime={startTime}
-            endTime={endTime}
-            selectedDate={selectedDate}
-          />
-        ))}
-      </HeaderRow>
+      <TableHead>
+        <tr>
+          <HeadingCell>
+            <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
+          </HeadingCell>
+          {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ periodLabel, startTime, endTime }) => (
+            <TimeSlotHeader
+              key={startTime}
+              periodLabel={periodLabel}
+              startTime={startTime}
+              endTime={endTime}
+              selectedDate={selectedDate}
+            />
+          ))}
+        </tr>
+      </TableHead>
       <tbody>
-        <HeadingRow>
+        <HeadingRow selectedDate={selectedDate}>
           <TranslatedText
             fallback="Scheduled medication"
             stringId="medication.mar.scheduledMedication.label"
@@ -230,7 +229,7 @@ export const MarTable = ({ selectedDate }) => {
         )}
       </tbody>
       <tbody>
-        <HeadingRow>
+        <HeadingRow selectedDate={selectedDate}>
           <TranslatedText fallback="PRN medication" stringId="medication.mar.prnMedication.label" />
         </HeadingRow>
 
