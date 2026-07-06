@@ -22,5 +22,9 @@ export {
   SECRET_PLACEHOLDER,
 } from './schema';
 export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
-export { CONFIG_TO_SETTINGS, configOverridesForScope } from './configToSettings';
+export {
+  CONFIG_TO_SETTINGS,
+  CONFIG_TO_SECRET_SETTINGS,
+  configOverridesForScope,
+} from './configToSettings';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

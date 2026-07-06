@@ -67,7 +67,11 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
     scope: SETTINGS_SCOPES.CENTRAL,
   },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'scheduledReports', setting: 'reporting.scheduledReports', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'scheduledReports',
+    setting: 'reporting.scheduledReports',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
   {
     config: 'validateQuestionConfigs.enabled',
     setting: 'validateQuestionConfigs.enabled',
@@ -204,3 +208,38 @@ export function configOverridesForScope(scope: string): ReaderSettingResult {
   }
   return result;
 }
+
+export interface ConfigToSecret {
+  config: string; // legacy config path (dot notation)
+  setting: string; // encrypted setting path (may differ once a key is renamed)
+  scope: string; // a SETTINGS_SCOPES value
+  // True when the config value is itself an encrypted config secret (`S1:`, read
+  // with the config key file) rather than plaintext — it must be decrypted before
+  // being re-encrypted into the setting.
+  encryptedInConfig?: boolean;
+}
+
+// Credential secrets to copy from config into encrypted settings on upgrade. Kept
+// SEPARATE from CONFIG_TO_SETTINGS so a plaintext/encrypted config value never feeds
+// the (non-secret) config fallback reader; the upgrade step re-encrypts each into
+// its setting. mail.transportPassword is handled separately (it rides inside the
+// non-secret mail.transport object). ai.anthropicApiKey has no config source.
+export const CONFIG_TO_SECRET_SETTINGS: ConfigToSecret[] = [
+  {
+    config: 'integrations.dhis2.password',
+    setting: 'integrations.dhis2.password',
+    scope: SETTINGS_SCOPES.CENTRAL,
+    encryptedInConfig: true,
+  },
+  {
+    config: 'telegramBot.apiToken',
+    setting: 'integrations.telegram.apiToken',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  {
+    config: 'telegramBot.webhook.secret',
+    setting: 'integrations.telegram.webhook.secret',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  { config: 'mailgun.apiKey', setting: 'mail.mailgun.apiKey', scope: SETTINGS_SCOPES.CENTRAL },
+];

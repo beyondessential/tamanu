@@ -1,19 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FACT_CENTRAL_CONFIG_MIGRATED, SETTINGS_SCOPES } from '@tamanu/constants';
 
+vi.mock('config', () => ({ __esModule: true, default: {} }));
+
 vi.mock('@tamanu/settings', () => ({
   configOverridesForScope: vi.fn(),
+  CONFIG_TO_SECRET_SETTINGS: [
+    {
+      config: 'integrations.dhis2.password',
+      setting: 'integrations.dhis2.password',
+      scope: 'central',
+      encryptedInConfig: true,
+    },
+    { config: 'mailgun.apiKey', setting: 'mail.mailgun.apiKey', scope: 'central' },
+  ],
 }));
 
+const { SecretNotConfiguredError } = vi.hoisted(() => ({
+  SecretNotConfiguredError: class SecretNotConfiguredError extends Error {},
+}));
 vi.mock('@tamanu/shared/utils/crypto', () => ({
   encryptSecret: vi.fn().mockResolvedValue('S1:iv:ciphertext'),
   getSettingsPskKeyBuffer: vi.fn().mockResolvedValue(Buffer.alloc(32)),
+  getConfigSecret: vi.fn(),
+  SecretNotConfiguredError,
 }));
 
+import config from 'config';
 import { configOverridesForScope } from '@tamanu/settings';
+import { getConfigSecret } from '@tamanu/shared/utils/crypto';
 import {
   STEPS,
   mergeConfigUnderExisting,
+  migrateSecrets,
   splitTransportPassword,
 } from '../../src/steps/1785000000000-migrateCentralConfigToSettings.js';
 
@@ -21,7 +40,7 @@ const step = STEPS[0];
 
 const makeArgs = () => ({
   models: {
-    Setting: { get: vi.fn().mockResolvedValue({}), set: vi.fn() },
+    Setting: { get: vi.fn().mockResolvedValue({}), set: vi.fn(), setSecret: vi.fn() },
     LocalSystemFact: { get: vi.fn().mockResolvedValue(undefined), set: vi.fn() },
   },
   serverType: 'central',
@@ -50,6 +69,65 @@ describe('splitTransportPassword', () => {
   it('passes through when no password is embedded', async () => {
     const overrides = { mail: { transport: { host: 'smtp' } } };
     expect(await splitTransportPassword(overrides)).toEqual(overrides);
+  });
+});
+
+describe('migrateSecrets', () => {
+  const makeSetting = (existing = undefined) => ({
+    get: vi.fn().mockResolvedValue(existing),
+    setSecret: vi.fn(),
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete (config as any).mailgun;
+    (getConfigSecret as any).mockRejectedValue(new SecretNotConfiguredError('none'));
+  });
+
+  it('re-encrypts a plaintext config secret into the setting', async () => {
+    (config as any).mailgun = { apiKey: 'plain-key' };
+    const Setting = makeSetting();
+    await migrateSecrets(Setting as any, 'central');
+    expect(Setting.setSecret).toHaveBeenCalledWith('mail.mailgun.apiKey', 'plain-key', 'central');
+  });
+
+  it('decrypts an encrypted config secret before re-encrypting it', async () => {
+    (getConfigSecret as any).mockImplementation(async (name: string) =>
+      name === 'integrations.dhis2.password'
+        ? 'decrypted-dhis2'
+        : Promise.reject(new SecretNotConfiguredError('none')),
+    );
+    const Setting = makeSetting();
+    await migrateSecrets(Setting as any, 'central');
+    expect(Setting.setSecret).toHaveBeenCalledWith(
+      'integrations.dhis2.password',
+      'decrypted-dhis2',
+      'central',
+    );
+  });
+
+  it('never overwrites an existing secret setting', async () => {
+    (config as any).mailgun = { apiKey: 'plain-key' };
+    const Setting = makeSetting('S1:already:set');
+    await migrateSecrets(Setting as any, 'central');
+    expect(Setting.setSecret).not.toHaveBeenCalled();
+  });
+
+  it('skips unconfigured secrets', async () => {
+    const Setting = makeSetting(); // no config value, getConfigSecret rejects
+    await migrateSecrets(Setting as any, 'central');
+    expect(Setting.setSecret).not.toHaveBeenCalled();
+  });
+
+  it('warns without failing when the settings PSK is missing', async () => {
+    (config as any).mailgun = { apiKey: 'plain-key' };
+    const Setting = makeSetting();
+    Setting.setSecret.mockRejectedValue(new Error('no psk'));
+    const warn = vi.fn();
+    await expect(
+      migrateSecrets(Setting as any, 'central', { warn } as any),
+    ).resolves.toBeUndefined();
+    expect(warn).toHaveBeenCalled();
   });
 });
 
