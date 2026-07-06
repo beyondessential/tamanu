@@ -306,6 +306,8 @@ export const ADMINISTRATION_FREQUENCIES = {
   EVERY_4_HOURS: 'Every 4 hours',
   EVERY_6_HOURS: 'Every 6 hours',
   EVERY_8_HOURS: 'Every 8 hours',
+  HOURLY: 'Hourly',
+  HALF_HOURLY: 'Half-hourly',
   EVERY_SECOND_DAY: 'Every second day',
   ONCE_A_WEEK: 'Once a week',
   ONCE_A_MONTH: 'Once a month',
@@ -335,6 +337,22 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
   [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: ['q4h', '4h', '4 hourly', '4 hrly'],
   [ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS]: ['q6h', '6h', '6 hourly', '6 hrly'],
   [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: ['q8h', '8h', '8 hourly', '8 hrly'],
+  [ADMINISTRATION_FREQUENCIES.HOURLY]: [
+    'Each hour',
+    'Q1h',
+    '1/24',
+    'Every hour',
+    'Every 60 mins',
+    'Every one hour',
+  ],
+  [ADMINISTRATION_FREQUENCIES.HALF_HOURLY]: [
+    'Each half-hour',
+    'Q30m',
+    '30/60',
+    'Every half hour',
+    'Every 30 mins',
+    'Every thirty mins',
+  ],
   [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: ['QOD', 'Q.O.D.', 'Every other day'],
   [ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK]: ['Weekly', 'Once weekly'],
   [ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH]: [
@@ -401,6 +419,30 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: {
     startTimes: ['06:00', '14:00', '22:00'],
     dosesPerDay: 3,
+  },
+  [ADMINISTRATION_FREQUENCIES.HOURLY]: {
+    // prettier-ignore
+    startTimes: [
+      '00:00', '01:00', '02:00', '03:00', '04:00', '05:00',
+      '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
+      '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+      '18:00', '19:00', '20:00', '21:00', '22:00', '23:00',
+    ],
+    dosesPerDay: 24,
+  },
+  [ADMINISTRATION_FREQUENCIES.HALF_HOURLY]: {
+    // prettier-ignore
+    startTimes: [
+      '00:00', '00:30', '01:00', '01:30', '02:00', '02:30',
+      '03:00', '03:30', '04:00', '04:30', '05:00', '05:30',
+      '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
+      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+      '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+      '18:00', '18:30', '19:00', '19:30', '20:00', '20:30',
+      '21:00', '21:30', '22:00', '22:30', '23:00', '23:30',
+    ],
+    dosesPerDay: 48,
   },
   [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
     startTimes: ['06:00'],
