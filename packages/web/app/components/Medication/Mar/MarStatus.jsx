@@ -1,8 +1,8 @@
-import { Box } from '@material-ui/core';
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import Box from '@mui/material/Box';
 import { addHours, isSameDay } from 'date-fns';
 import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
@@ -390,7 +390,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.GIVEN:
         return (
           <IconWrapper>
-            <CheckCircleIcon style={{ color: Colors.green }} />
+            <CheckCircleRoundedIcon style={{ color: Colors.green }} />
             {isAlert && <HighPriorityOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
@@ -398,7 +398,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.NOT_GIVEN:
         return (
           <IconWrapper>
-            <CancelIcon style={{ color: Colors.alert }} />
+            <CancelRoundedIcon style={{ color: Colors.alert }} />
             {isAlert && <HighPriorityOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
