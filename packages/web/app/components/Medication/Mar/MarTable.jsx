@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { useEncounter } from '../../../contexts/Encounter';
@@ -177,12 +177,15 @@ const formatSlotTime = (timeStr, locale) =>
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
   const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
+  const { locale } = useDateTime();
   return (
     <TimeSlotHeaderContainer aria-current={current ? 'time' : undefined}>
       <TimeSlotText>
         {periodLabel && <TimeSlotLabel>{periodLabel}</TimeSlotLabel>}
         <div>
-          {formatSlotTime(startTime)}&thinsp;&ndash;&thinsp;{formatSlotTime(endTime)}
+          {formatSlotTime(startTime, locale)}
+          &thinsp;&ndash;&thinsp;
+          {formatSlotTime(endTime, locale)}
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
