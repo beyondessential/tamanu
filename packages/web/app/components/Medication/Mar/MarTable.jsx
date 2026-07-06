@@ -25,6 +25,11 @@ const Table = styled.table`
     border-block-start: var(--mar-border);
   }
 
+  /* Hideous hack so children with ‘block-size: 100%’ actually fill table cells */
+  & :is(th, td) {
+    block-size: 0;
+  }
+
   /* If cell is non-interactive, pad. Else let button(s) fill cell & delegate padding to them. */
   & :is(th, td):not(:has(${TableCellButton})) {
     padding: 10px;
