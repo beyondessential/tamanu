@@ -67,7 +67,6 @@ const Title = styled(Typography)`
   line-height: 24px;
   font-weight: 400;
   color: ${props => props.theme.palette.text.secondary};
-  text-transform: capitalize;
 `;
 
 const BoldTitle = styled(Title)`
@@ -91,7 +90,6 @@ const ContentLabel = styled.span`
 
 const ContentText = styled.span`
   color: ${Colors.midContentText};
-  text-transform: capitalize;
 `;
 
 const ButtonRow = styled(Box)`
