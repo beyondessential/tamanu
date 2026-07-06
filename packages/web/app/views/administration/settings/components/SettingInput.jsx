@@ -680,9 +680,7 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
           Duplicate keys: {duplicateKeys.join(', ')}
         </ListError>
       )}
-      {/* With a key dropdown the only whole-setting rule is the key allow-list,
-          which the dropdown already enforces, so the schema error is just noise. */}
-      {submitted && !keyOptions?.length && error && (
+      {submitted && error && (
         <ListError data-testid="mappingsettinginput-error">{error.message}</ListError>
       )}
     </ObjectListWrapper>
