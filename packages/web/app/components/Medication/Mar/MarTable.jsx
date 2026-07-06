@@ -83,6 +83,8 @@ const TimeSlotText = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  line-height: 1.25;
+  min-block-size: 2lh;
   rotate: 0.5turn;
   text-orientation: sideways;
   writing-mode: vertical-rl;
