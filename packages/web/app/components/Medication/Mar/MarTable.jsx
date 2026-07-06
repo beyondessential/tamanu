@@ -278,7 +278,7 @@ export const MarTable = ({ selectedDate }) => {
             />
           ))
         ) : (
-          <EmptyStateRow>
+          <EmptyStateRow selectedDate={selectedDate}>
             <TranslatedText
               fallback="No PRN medication to display"
               stringId="medication.mar.noPrnMedication.label"
