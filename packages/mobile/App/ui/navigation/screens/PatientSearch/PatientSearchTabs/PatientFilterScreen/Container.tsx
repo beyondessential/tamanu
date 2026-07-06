@@ -13,7 +13,14 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
     navigation.navigate(
       Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
     );
-  }, []);
+  }, [navigation]);
+
+  const onSubmit = useCallback(() => {
+    onChangeFilters();
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index, {
+      screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
+    });
+  }, [navigation, onChangeFilters]);
 
   const onClearFilters = useCallback(() => {
     fields.forEach(fieldData => {
@@ -32,12 +39,12 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
           break;
       }
     });
-  }, []);
+  }, [fields]);
 
   return (
     <Screen
       onCancel={onNavigateBack}
-      onSubmit={onChangeFilters}
+      onSubmit={onSubmit}
       onClear={onClearFilters}
     />
   );
