@@ -16,6 +16,7 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   DateDisplay,
   EditedOrnament,
+  TAMANU_COLORS,
   TranslatedEnum,
   TranslatedText,
   useDateTime,
@@ -24,7 +25,6 @@ import {
 } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
@@ -75,7 +75,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   inset-inline-end: 0;
   position: absolute;
   &.MuiSvgIcon-root {
-    color: ${Colors.alert};
+    color: ${p => p.theme.palette.error.main};
     font-size: 18px;
   }
 `;
@@ -107,7 +107,7 @@ const DiscontinuedDivider = styled.div`
   left: 0;
   width: 2px;
   height: 100%;
-  background-color: ${Colors.midText};
+  background-color: ${p => p.theme.palette.text.tertiary};
 `;
 
 const TooltipText = styled.div`
@@ -389,7 +389,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.GIVEN:
         return (
           <IconWrapper>
-            <CheckCircleRoundedIcon style={{ color: Colors.green }} />
+            <CheckCircleRoundedIcon style={{ color: TAMANU_COLORS.green }} />
             {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
@@ -397,7 +397,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.NOT_GIVEN:
         return (
           <IconWrapper>
-            <CancelRoundedIcon style={{ color: Colors.alert }} />
+            <CancelRoundedIcon style={{ color: TAMANU_COLORS.alert }} />
             {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
@@ -406,7 +406,7 @@ export const MarStatus = ({
         if (isPast) {
           return isPrn ? null : (
             <IconWrapper>
-              <HelpOutlineIcon style={{ color: Colors.darkOrange }} />
+              <HelpOutlineIcon style={{ color: TAMANU_COLORS.darkOrange }} />
             </IconWrapper>
           );
         }
