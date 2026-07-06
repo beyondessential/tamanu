@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import {
@@ -10,8 +10,10 @@ import {
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import {
+  TAMANU_COLORS,
   TranslatedReferenceData,
   TranslatedText,
+  UnstyledHtmlButton,
   useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
@@ -43,18 +45,48 @@ const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDat
   return result;
 };
 
-const TableRow = styled.tr`
-  ${props => props.discontinued && `text-decoration: line-through;`}
-  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
-  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
+const TableRow = styled.tr(
+  props => css`
+    ${props.discontinued &&
+    css`
+      text-decoration: line-through;
+    `}
+    ${props.isPausing &&
+    css`
+      color: ${TAMANU_COLORS.softText};
+      font-style: italic;
+    `}
+  `,
+);
+
+const Th = styled.th.attrs({ scope: 'row' })`
+  font-weight: inherit;
+  && {
+    padding: 0;
+  }
 `;
 
-const RowHeader = styled.th.attrs({ scope: 'row' })`
-  font-weight: inherit;
-  &:hover {
+const UnstyledButton = styled(UnstyledHtmlButton)`
+  block-size: 100%;
+  inline-size: 100%;
+  padding: 10px;
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+  &:not(:disabled):is(:active, :focus-visible, :hover) {
     background-color: ${p => p.theme.palette.action.hover};
   }
 `;
+
+function RowHeader({ children, disabled, onClick, ...props }) {
+  return (
+    <Th {...props}>
+      <UnstyledButton disabled={disabled} onClick={onClick}>
+        {children}
+      </UnstyledButton>
+    </Th>
+  );
+}
 
 const MedicationName = styled.span`
   font-weight: 500;
@@ -94,7 +126,7 @@ export const MarTableRow = ({
   const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
 
-  const [openMedicationDetails, setOpenMedicationDetails] = useState(false);
+  const [medicationDetailsOpen, setMedicationDetailsOpen] = useState(false);
   const [openModifyHistory, setOpenModifyHistory] = useState(false);
 
   const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
@@ -102,6 +134,11 @@ export const MarTableRow = ({
   const handleViewChangeClick = event => {
     event.stopPropagation();
     setOpenModifyHistory(true);
+  };
+
+  const openMedicationDetails = () => {
+    if (isSensitive && !canViewSensitiveMedications) return;
+    setMedicationDetailsOpen(true);
   };
 
   const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
@@ -113,22 +150,13 @@ export const MarTableRow = ({
     queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
   };
 
-  const handleRowClick = () => {
-    if (isSensitive && !canViewSensitiveMedications) {
-      return;
-    }
-    setOpenMedicationDetails(true);
-  };
-
   return (
     <>
-      <TableRow
-        discontinued={discontinued}
-        isPausing={isPausing}
-        onClick={handleRowClick}
-        $disabled={isSensitive && !canViewSensitiveMedications}
-      >
-        <RowHeader>
+      <TableRow discontinued={discontinued} isPausing={isPausing}>
+        <RowHeader
+          disabled={isSensitive && !canViewSensitiveMedications}
+          onClick={openMedicationDetails}
+        >
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
@@ -189,10 +217,10 @@ export const MarTableRow = ({
           ),
         )}
       </TableRow>
-      {openMedicationDetails && (
+      {medicationDetailsOpen && (
         <MedicationDetails
           initialMedication={medication}
-          onClose={() => setOpenMedicationDetails(false)}
+          onClose={() => setMedicationDetailsOpen(false)}
           onReloadTable={handleRefreshMar}
         />
       )}
