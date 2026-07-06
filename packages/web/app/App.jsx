@@ -6,7 +6,7 @@ import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store
 import { useLocation } from 'react-router';
 
 import { TAMANU_COLORS } from '@tamanu/ui-components';
-import { LoginView, FacilitySelectionView } from './views';
+import { LoginView, FacilitySelectionView, SetupWizardView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
@@ -34,14 +34,16 @@ const AppContentsContainer = styled.div`
 `;
 
 export function App({ sidebar, children }) {
-  const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
+  const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
+  const isServerAlive = Boolean(serverStatus);
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
   const location = useLocation();
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
-    window?.localStorage?.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
+    window?.localStorage?.getItem('DISABLE_SINGLE_TAB') ||
+    process.env.DISABLE_SINGLE_TAB === 'true';
 
   // Browser/device support is decided server-side against configurable settings
   // (see the /public/browser-support endpoint), so it can be loosened/tightened
@@ -67,6 +69,7 @@ export function App({ sidebar, children }) {
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
+  if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 

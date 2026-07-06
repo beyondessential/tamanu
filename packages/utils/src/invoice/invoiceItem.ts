@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getDiscountedPrice } from './discount';
 import type { InvoiceItem, InsurancePlanItem } from './types';
 
@@ -16,11 +16,28 @@ export const getInvoiceItemPrice = (invoiceItem: InvoiceItem): number => {
 };
 
 /**
+ * Whether a product is configured for fixed pricing on its price-list item. Fixed pricing is
+ * only honoured for medications in v1.
+ */
+export const isFixedPriceProduct = (product: InvoiceItem['product']): boolean =>
+  product?.category === INVOICE_ITEMS_CATEGORIES.DRUG &&
+  Boolean(product?.invoicePriceListItem?.isFixedPrice);
+
+/**
+ * Once finalised the snapshotted `isFixedPriceFinal` is authoritative in both directions, so a
+ * later price-list change can't retroactively flip a finalised line.
+ */
+export const isFixedPriceItem = (invoiceItem: InvoiceItem): boolean => {
+  if (invoiceItem.priceFinal != null) return Boolean(invoiceItem.isFixedPriceFinal);
+  return isFixedPriceProduct(invoiceItem.product);
+};
+
+/**
  * Get the price of an invoice item row
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
-  const quantity = invoiceItem.quantity || 0;
+  const quantity = isFixedPriceItem(invoiceItem) ? 1 : invoiceItem.quantity ?? 0;
   return new Decimal(price).times(quantity).toNumber();
 };
 

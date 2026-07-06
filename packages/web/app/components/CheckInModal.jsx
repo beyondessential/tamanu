@@ -77,9 +77,8 @@ export const CheckInModal = React.memo(
         title={
           <TranslatedText
             stringId="patient.modal.checkIn.title"
-            fallback="Admit or check-in | :encounterType"
+            fallback="Admit or check in | :encounterType"
             replacements={{ encounterType: getEncounterTypeLabel(props?.encounterType) }}
-            data-testid="translatedtext-s67c"
           />
         }
         open={open}

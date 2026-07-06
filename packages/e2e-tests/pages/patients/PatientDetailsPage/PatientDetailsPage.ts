@@ -1,30 +1,31 @@
-import { Locator, Page, expect } from '@playwright/test';
-import type { Patient } from '@tamanu/database';
-import { constructFacilityUrl } from '@utils/navigation';
 import { routes } from '@config/routes';
-import { BasePatientPage } from '../BasePatientPage';
-import { PatientVaccinePane } from './panes/PatientVaccinePane';
-import { CarePlanModal } from './modals/CarePlanModal';
-import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
-import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
-import { format } from 'date-fns';
+import { Locator, Page, expect } from '@playwright/test';
+import { constructFacilityUrl } from '@utils/navigation';
 import { fillMuiDateField } from '@utils/testHelper';
-import { NotesPane } from '../NotesPage/panes/notesPane';
-import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
-import { CreateEncounterModal } from './modals/CreateEncounterModal';
-import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
-import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
+import { format } from 'date-fns';
+
+import type { Patient } from '@tamanu/database';
 import { AllPatientsPage } from '../AllPatientsPage';
+import { BasePatientPage } from '../BasePatientPage';
+import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
+import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
-import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { NotesPane } from '../NotesPage/panes/notesPane';
+import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
+import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
-import { DocumentsPane } from './panes/DocumentsPane';
-import { TasksPane } from '../TaskPage/panes/TasksPane';
-import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
-import { ReferralPane } from './panes/ReferralPane';
+import { CarePlanModal } from './modals/CarePlanModal';
+import { CreateEncounterModal } from './modals/CreateEncounterModal';
 import { EditEncounterModal } from './modals/EditEncounterModal';
 import { InvoicePane } from '../InvoicePage/panes/InvoicePane';
+import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
+import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
+import { DocumentsPane } from './panes/DocumentsPane';
+import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
+import { PatientVaccinePane } from './panes/PatientVaccinePane';
+import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -126,7 +127,10 @@ export class PatientDetailsPage extends BasePatientPage {
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton = this.page.getByRole('button', { name: 'Prepare discharge', exact: true });
+    this.prepareDischargeButton = this.page.getByRole('button', {
+      name: 'Prepare discharge',
+      exact: true,
+    });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
@@ -212,9 +216,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .filter({ hasText: 'Other patient issuesAdd' })
       .getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
-    this.savedIssueType = this.page
-      .getByTestId('collapse-0a33')
-      .getByTestId('field-lwpd-select');
+    this.savedIssueType = this.page.getByTestId('collapse-0a33').getByTestId('field-lwpd-select');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
@@ -266,20 +268,34 @@ export class PatientDetailsPage extends BasePatientPage {
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.invoicingTab = this.page.getByTestId('styledtab-ccs8-invoicing');
-    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
-    this.patientDetailsTab=this.page.getByTestId('tab-details');
-    this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
-    this.threeDotMenuButton=this.page.getByTestId('stylediconbutton-szh8');
-    this.editEncounterMenuItem=this.page.getByTestId('menuitem-0');
-    this.movePatientButton=this.page.getByRole('button', { name: 'Move patient' });
-    this.addDiagnosisButton=this.page.getByTestId('adddiagnosisbutton-2ij9');
-    this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
-    this.diagnosisCategory=this.page.getByTestId('category-vwwx');
-    this.diagnosisName=this.page.getByTestId('diagnosisname-vvn4');
+    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Department' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.dietLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Diet' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.locationLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Location' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.admitOrCheckinButton = this.page
+      .getByTestId('component-enxe')
+      .filter({ hasText: 'Admit or check in' });
+    this.patientDetailsTab = this.page.getByTestId('tab-details');
+    this.arrowDownIconMenuButton = this.page.getByTestId('menubutton-dc8o');
+    this.threeDotMenuButton = this.page.getByTestId('stylediconbutton-szh8');
+    this.editEncounterMenuItem = this.page.getByTestId('menuitem-0');
+    this.movePatientButton = this.page.getByRole('button', { name: 'Move patient' });
+    this.addDiagnosisButton = this.page.getByTestId('adddiagnosisbutton-2ij9');
+    this.diagnosisContainer = this.page.getByTestId('diagnosislistcontainer-dqkk');
+    this.diagnosisCategory = this.page.getByTestId('category-vwwx');
+    this.diagnosisName = this.page.getByTestId('diagnosisname-vvn4');
   }
 
   /**
@@ -394,7 +410,6 @@ export class PatientDetailsPage extends BasePatientPage {
     }
     return this.referralPane;
   }
-
 
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });

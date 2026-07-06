@@ -1,9 +1,10 @@
-import config from 'config';
 import { Server } from 'socket.io';
 
 import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import { buildWebsocketHttpsGuard } from '@tamanu/shared/utils';
+
+import { getServerFacilityIds } from '../serverConfig';
 
 /**
  *
@@ -11,9 +12,9 @@ import { buildWebsocketHttpsGuard } from '@tamanu/shared/utils';
  * @returns
  */
 export const defineWebsocketService = injector => {
-  const facilityIds = config.serverFacilityId
-    ? [config.serverFacilityId]
-    : config.serverFacilityIds ?? [];
+  // Resolved facility ids (facts/env/config), not raw config. Empty until
+  // first-run setup completes; the https guard treats no readers as not-required.
+  const facilityIds = getServerFacilityIds() ?? [];
   const settingsByFacility = facilityIds.reduce(
     (byFacility, facilityId) => ({
       ...byFacility,

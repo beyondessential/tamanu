@@ -18,6 +18,10 @@ export class SyncTask extends ScheduledTask {
   }
 
   async run() {
+    // Not configured yet (first-run setup) — skip until the runtime is wired up.
+    if (!this.context.syncManager) {
+      return;
+    }
     return this.context.syncManager.triggerSync({
       type: 'scheduled',
       urgent: false,

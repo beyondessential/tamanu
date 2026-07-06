@@ -18,6 +18,8 @@ import {
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
 
+import { getSyncConfig } from '../serverConfig';
+
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
@@ -122,7 +124,7 @@ export class FacilitySyncManager {
       );
     }
 
-    const { email, password } = this.constructor.config.sync;
+    const { email, password } = getSyncConfig();
     if (!email || !password) {
       throw new Error('Sync credentials are not configured');
     }

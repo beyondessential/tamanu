@@ -1,6 +1,6 @@
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
 import { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
@@ -152,6 +152,14 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,
         });
+      }
+
+      // Machine accounts (device sync users) never belong in suggestions
+      const hasKind = this.model
+        .getRepository()
+        .metadata.columns.find(col => col.propertyName === 'kind');
+      if (hasKind) {
+        query = query.andWhere('entity.kind != :syncKind', { syncKind: USER_KINDS.SYNC });
       }
 
       query = query.orderBy('entity_display_label', 'ASC').limit(25);

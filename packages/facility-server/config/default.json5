@@ -18,7 +18,11 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central.main.cd.tamanu.app",
+    // Sync host + credentials are now resolved from local system facts, set via
+    // the SYNC_URL env var or the first-run setup wizard. These config keys are
+    // a deprecated fallback (one backwards-compatible version) — leave empty to
+    // use SYNC_URL / the wizard.
+    "host": "",
     "email": "",
     "password": "",
     "timeout": 10000,

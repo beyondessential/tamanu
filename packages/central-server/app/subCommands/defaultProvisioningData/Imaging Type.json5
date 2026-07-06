@@ -8,32 +8,32 @@
   ],
   "data": [
     {
-      "id": "imagingType-XRay",
-      "code": "XRay",
+      "id": "imagingType-xRay",
+      "code": "xRay",
       "name": "X-Ray",
       "visibilityStatus": "current"
     },
     {
-      "id": "imagingType-CTScan",
-      "code": "CTScan",
+      "id": "imagingType-ctScan",
+      "code": "ctScan",
       "name": "CT Scan",
       "visibilityStatus": "current"
     },
     {
-      "id": "imagingType-Ultrasound",
-      "code": "Ultrasound",
+      "id": "imagingType-ultrasound",
+      "code": "ultrasound",
       "name": "Ultrasound",
       "visibilityStatus": "current"
     },
     {
-      "id": "imagingType-Echocardiogram",
-      "code": "Echocardiogram",
+      "id": "imagingType-echocardiogram",
+      "code": "echocardiogram",
       "name": "Echocardiogram",
       "visibilityStatus": "current"
     },
     {
-      "id": "imagingType-MRI",
-      "code": "MRI",
+      "id": "imagingType-mri",
+      "code": "mri",
       "name": "MRI",
       "visibilityStatus": "current"
     }
