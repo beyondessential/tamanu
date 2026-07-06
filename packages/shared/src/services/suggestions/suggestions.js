@@ -855,8 +855,8 @@ createSuggester(
   'User',
   ({ search }) => ({
     displayName: { [Op.iLike]: search },
-    // Machine accounts for device sync aren't clinicians
-    kind: { [Op.ne]: USER_KINDS.SYNC },
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    kind: USER_KINDS.USER,
     ...VISIBILITY_CRITERIA,
   }),
   {

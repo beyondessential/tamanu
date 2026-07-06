@@ -22,6 +22,7 @@ export const ADMIN_USER_EMAIL = 'admin@tamanu.io';
 export const USER_KINDS = {
   USER: 'user',
   SYNC: 'sync',
+  SYSTEM: 'system',
 } as const;
 export type UserKind = (typeof USER_KINDS)[keyof typeof USER_KINDS];
 

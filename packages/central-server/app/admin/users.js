@@ -65,9 +65,9 @@ const createUserFilters = (filterParams, models) => {
     {
       email: { [Op.ne]: ADMIN_USER_EMAIL },
     },
-    // Exclude device sync users — managed by facility setup, not this panel
+    // Only list human users; machine accounts (sync, system) opt out by kind
     {
-      kind: { [Op.ne]: USER_KINDS.SYNC },
+      kind: USER_KINDS.USER,
     },
   ];
 

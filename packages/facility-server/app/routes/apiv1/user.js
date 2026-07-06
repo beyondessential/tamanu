@@ -399,8 +399,8 @@ const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get(
   '/',
   paginatedGetList('User', '', {
-    // Machine accounts for device sync aren't clinicians
-    additionalFilters: { kind: { [Op.ne]: USER_KINDS.SYNC } },
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    additionalFilters: { kind: USER_KINDS.USER },
   }),
 );
 user.use(globalUserRequests);
