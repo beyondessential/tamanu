@@ -117,8 +117,8 @@ export const MarTableRow = ({
   } = medication;
   const { toFacilityDateTime } = useDateTime();
   const { ability } = useAuth();
-  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
-  const isSensitive = medicationRef.referenceDrug?.isSensitive;
+  const canView =
+    !medicationRef.referenceDrug?.isSensitive || ability.can('read', 'SensitiveMedication');
 
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -137,7 +137,7 @@ export const MarTableRow = ({
   };
 
   const openMedicationDetails = () => {
-    if (isSensitive && !canViewSensitiveMedications) return;
+    if (!canView) return;
     setMedicationDetailsOpen(true);
   };
 
@@ -148,10 +148,7 @@ export const MarTableRow = ({
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
-        <RowHeader
-          disabled={isSensitive && !canViewSensitiveMedications}
-          onClick={openMedicationDetails}
-        >
+        <RowHeader disabled={!canView} onClick={openMedicationDetails}>
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
