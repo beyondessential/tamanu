@@ -97,8 +97,10 @@ const initialiseDatabaseWithRetry = async () => {
  * @param {string} file - File path
  */
 function validateFullReferenceDataImport(workbook) {
-  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+  // 'user' has special logic and 'administeredVaccine' is a special case used for existing
+  // deployments. 'invoicePriceListCharging' is an optional overlay on price-list items (absent =
+  // per-unit, the default), so a complete seed doesn't require charging data.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine', 'invoicePriceListCharging'];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
