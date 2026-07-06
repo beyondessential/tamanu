@@ -7,21 +7,20 @@ import styled from 'styled-components';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 import {
   ConfirmCancelRow,
+  Field,
   Form,
   FormGrid,
   TextField,
   TimeDisplay,
   TranslatedText,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { FormModal } from '../../FormModal';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants/styles';
-import { useTranslation } from '../../../contexts/Translation';
-import { Field } from '../../Field';
+import { FormModal } from '../../FormModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
-    max-width: 670px;
+    max-inline-size: 670px;
   }
 `;
 
@@ -31,30 +30,31 @@ const StyledDivider = styled(Divider)`
 `;
 
 const DetailsContainer = styled(Box)`
-  padding: 12px 16px;
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${p => p.theme.palette.background.paper};
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  padding-block: 12px;
+  padding-inline: 16px;
   position: relative;
 `;
 
 const MidText = styled(Box)`
+  color: ${p => p.theme.palette.text.tertiary};
   font-size: 14px;
-  line-height: 18px;
-  color: ${Colors.midText};
+  line-height: 1.3;
 `;
 
 const DarkestText = styled(Box)`
+  color: ${p => p.theme.palette.text.primary};
   font-size: 14px;
-  line-height: 18px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  line-height: 1.3;
 `;
 
 const VerticalSeparator = styled.div`
-  width: 1px;
-  background-color: ${Colors.outline};
+  background-color: ${p => p.theme.palette.divider};
   margin: 0 20px;
+  width: 1px;
 `;
 export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) => {
   const queryClient = useQueryClient();
