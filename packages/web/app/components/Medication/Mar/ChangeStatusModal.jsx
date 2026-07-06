@@ -21,7 +21,6 @@ import {
   useSuggester,
   useTranslation,
 } from '@tamanu/ui-components';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
