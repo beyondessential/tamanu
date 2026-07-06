@@ -2,7 +2,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { applyDefaults, validateSettings } from '@tamanu/settings/schema';
@@ -116,7 +115,9 @@ export const SettingsView = () => {
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
       return { settings: savedSettings };
     } catch (error) {
-      if (error instanceof ValidationError) {
+      // Match on name, not instanceof: @tamanu/settings bundles its own yup, so a
+      // ValidationError it throws fails an instanceof check against web's yup.
+      if (error?.name === 'ValidationError') {
         // surfaced by the tab that submitted: inline + scroll in the editor,
         // toasts in the JSON editor
         return { validationError: error };
