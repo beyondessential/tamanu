@@ -13,7 +13,6 @@ import {
   TAMANU_COLORS,
   TranslatedReferenceData,
   TranslatedText,
-  UnstyledHtmlButton,
   useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
@@ -25,6 +24,7 @@ import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarStatus } from './MarStatus';
+import TableCellButton from './TableCellButton';
 
 /**
  * @param {{ dueAt: string, id?: string }[]} [medicationAdministrationRecords]
@@ -63,24 +63,12 @@ const Th = styled.th.attrs({ scope: 'row' })`
   font-weight: inherit;
 `;
 
-const UnstyledButton = styled(UnstyledHtmlButton)`
-  block-size: 100%;
-  inline-size: 100%;
-  padding: 10px;
-  &:not(:disabled) {
-    cursor: pointer;
-  }
-  &:not(:disabled):is(:active, :focus-visible, :hover) {
-    background-color: ${p => p.theme.palette.action.hover};
-  }
-`;
-
 function RowHeader({ children, disabled, onClick, ...props }) {
   return (
     <Th {...props}>
-      <UnstyledButton disabled={disabled} onClick={onClick}>
+      <TableCellButton disabled={disabled} onClick={onClick}>
         {children}
-      </UnstyledButton>
+      </TableCellButton>
     </Th>
   );
 }
