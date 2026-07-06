@@ -1855,6 +1855,16 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
+            [ADMINISTRATION_FREQUENCIES.HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.HALF_HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
             [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
               description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
               type: yup.boolean(),
