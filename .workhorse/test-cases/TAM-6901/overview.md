@@ -33,3 +33,15 @@ Scenarios that verify per-facility category bundling: bundled categories don't a
 ## Display
 
 - [ ] Confirm bundled items are **absent** from the invoice (not added at all, not added-then-hidden) (verifies spec: FEES)
+
+## Kitchen-sink journey (one patient, mixed categories, partial bundling)
+
+- [ ] At a facility bundling **`["lab", "medication"]` only** (imaging and procedures not bundled), run one continuous patient journey and confirm the final invoice matches the expected set below (verifies spec: FEES):
+  1. **Pre-admission (ED/outpatient):** order a lab and prescribe + **administer** a medication (record a GIVEN MAR dose) → both appear on the invoice at full price.
+  2. **Admit** the patient (encounter type → admission) → the pre-admission lab and med lines **remain unchanged** (grandfathered — not removed, not retro-bundled, quantities untouched).
+  3. Post-admission, order a **new lab** → **not** added (lab is bundled for admissions).
+  4. Post-admission, order **imaging** → **added** (imaging isn't bundled at this facility).
+  5. Post-admission, prescribe a new med, **administer** a dose (MAR) → **not** added; then **dispense that med as a discharge pharmacy order** (qty > 0) → the **discharge** quantity is added, consolidated onto that med's single line (administered portion excluded, discharge portion billed).
+  6. Post-admission, perform a **procedure** → **added** (procedures are never bundled).
+  - **Expected final invoice:** pre-admission lab (full) + pre-admission med (full) + post-admission imaging + post-admission procedure + the post-admission med line at its **discharge** quantity only. **Absent:** the post-admission lab, and any administered-only portion of the post-admission med.
+  - **Bonus (timing):** administer a further dose of the post-admission med *after* the discharge order — confirm it does **not** increase the invoice (doses given after the discharge pharmacy order aren't counted, and the administered portion is bundled here anyway).
