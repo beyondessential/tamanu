@@ -145,11 +145,6 @@ export const MarTableRow = ({
     marDate: selectedDate,
   });
 
-  const handleRefreshMar = () => {
-    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-    queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
-  };
-
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
@@ -221,7 +216,10 @@ export const MarTableRow = ({
         <MedicationDetails
           initialMedication={medication}
           onClose={() => setMedicationDetailsOpen(false)}
-          onReloadTable={handleRefreshMar}
+          onReloadTable={() => {
+            queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+            queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
+          }}
         />
       )}
       <PrescriptionChangeHistoryModal
