@@ -1,5 +1,5 @@
 import Skeleton from '@mui/material/Skeleton';
-import { partition } from 'lodash';
+import { partition } from 'es-toolkit';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
