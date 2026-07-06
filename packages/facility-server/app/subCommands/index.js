@@ -8,5 +8,7 @@ export { startTasksCommand } from './startTasks';
 export { startFhirWorkerCommand } from './startFhirWorker';
 export { fhirCommand } from './fhir';
 export { shellCommand } from './shell';
+export { resetSyncConfigCommand } from './resetSyncConfig';
+export { setupSyncCommand } from './setupSync';
 export { upgradeCommand } from './upgrade';
 export * from './migrateAppointmentsToLocationGroups';

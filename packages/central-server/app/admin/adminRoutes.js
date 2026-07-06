@@ -30,6 +30,7 @@ import { referenceDataManageRouter } from './referenceDataManage';
 import { reportsRouter } from './reports/reportRoutes';
 import { roleRouter, rolesRouter } from './roles';
 import { syncLastCompleted } from './sync';
+import { provisionSyncCredentials } from './syncCredentials';
 import { templateRoutes } from './template';
 import { translationRouter } from './translation';
 import { userPreferencesRouter } from './userPreferences';
@@ -76,6 +77,7 @@ adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
+adminRoutes.post('/syncCredentials', provisionSyncCredentials);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 

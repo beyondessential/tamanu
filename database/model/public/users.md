@@ -48,3 +48,9 @@ How many devices this user can register (when `features.deviceRegistrationQuota`
 
 See [`devices`](#!/source/source.tamanu.tamanu.devices) for more.
 {% enddocs %}
+
+{% docs users__kind %}
+Distinguishes machine accounts from humans: `user` for ordinary accounts, `sync` for the per-device accounts facility servers authenticate with to sync, and `system` for the built-in system user (all-zero uuid).
+
+Only `user` accounts appear in the admin user list, exports, and clinician suggestions; the machine kinds (`sync`, `system`) are excluded, and sync users can only be managed by re-running facility setup.
+{% enddocs %}

@@ -4,11 +4,11 @@ import { omit } from 'es-toolkit/compat';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { closeDatabase, initDatabase } from './database';
+import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
@@ -48,7 +48,6 @@ export class ApplicationContext {
       }
     }
 
-    const facilityIds = selectFacilityIds(config);
     const key = dbKey ?? appType ?? 'main';
     this.store = await initDatabase(databaseOverrides ?? {}, key);
     this.sequelize = this.store.sequelize;
@@ -56,6 +55,10 @@ export class ApplicationContext {
       this.onClose(resolve);
     });
     this.models = this.store.models;
+
+    // Resolve the sync target/facilities from local system facts now the DB is up.
+    await initServerConfig({ context: this });
+    const facilityIds = getServerFacilityIds() ?? [];
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);

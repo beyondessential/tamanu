@@ -14,7 +14,7 @@ import {
   makeFilter,
 } from '../../utils/query';
 import { z } from 'zod';
-import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_TYPES, USER_KINDS } from '@tamanu/constants';
 import config from 'config';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { add } from 'date-fns';
@@ -396,5 +396,11 @@ user.get(
 user.get('/:id', simpleGet('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
-globalUserRequests.get('/', paginatedGetList('User'));
+globalUserRequests.get(
+  '/',
+  paginatedGetList('User', '', {
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    additionalFilters: { kind: USER_KINDS.USER },
+  }),
+);
 user.use(globalUserRequests);
