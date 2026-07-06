@@ -159,7 +159,6 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
     tabBarIcon: TabScreenIcon(HomeLogoIcon),
     tabBarLabel: getTranslation('general.home', 'Home'),
     tabBarTestID: 'HOME',
-    unmountOnBlur: true,
   };
   const ReportScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(ReportsIcon),
