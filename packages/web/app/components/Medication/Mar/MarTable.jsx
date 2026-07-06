@@ -14,6 +14,7 @@ import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 const Table = styled.table`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
   --mar-current-time-border: ${p => p.theme.palette.primary.main};
+  border-block-end: var(--mar-border);
   border-collapse: collapse;
   font-size: 12px;
   inline-size: 100%;
@@ -21,9 +22,6 @@ const Table = styled.table`
 
   & tr {
     border-block-start: var(--mar-border);
-    &:last-of-type {
-      border-block-end: var(--mar-border);
-    }
   }
 
   & :is(th, td) {
