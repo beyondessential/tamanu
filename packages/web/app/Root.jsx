@@ -1,31 +1,32 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CssBaseline } from '@material-ui/core';
-import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
-import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Slide } from 'react-toastify';
+import { StyleSheetManager, ThemeProvider } from 'styled-components';
+
 import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
+import { ClearIcon } from './components/Icons/ClearIcon';
+import { AuthProvider } from './contexts/Auth';
+import { EncounterProvider } from './contexts/Encounter';
+import { EncounterNotesProvider } from './contexts/EncounterNotes';
+import { ImagingRequestsProvider } from './contexts/ImagingRequests';
+import { LabRequestProvider } from './contexts/LabRequest';
+import { LocalisationProvider } from './contexts/Localisation';
+import { MedicationsProvider } from './contexts/Medications';
+import { NoteModalProvider } from './contexts/NoteModal';
+import { PatientSearchProvider } from './contexts/PatientSearch';
+import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
+import { SettingsProvider } from './contexts/Settings';
+import { SyncStateProvider } from './contexts/SyncState';
+import { TranslationProvider } from './contexts/Translation';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
-import { EncounterProvider } from './contexts/Encounter';
-import { AuthProvider } from './contexts/Auth';
-import { LabRequestProvider } from './contexts/LabRequest';
-import { ImagingRequestsProvider } from './contexts/ImagingRequests';
-import { PatientSearchProvider } from './contexts/PatientSearch';
-import { EncounterNotesProvider } from './contexts/EncounterNotes';
-import { SyncStateProvider } from './contexts/SyncState';
-import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
-import { TranslationProvider } from './contexts/Translation';
-import { LocalisationProvider } from './contexts/Localisation';
-import { SettingsProvider } from './contexts/Settings';
-import { ClearIcon } from './components/Icons/ClearIcon';
-import { NoteModalProvider } from './contexts/NoteModal';
-import { createBrowserRouter, RouterProvider } from 'react-router';
-import { MedicationsProvider } from './contexts/Medications';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterNotesProvider>
@@ -57,6 +58,14 @@ const StateContextProviders = ({ children, store }) => (
   </EncounterNotesProvider>
 );
 
+function StyledComponentsProvider({ children }) {
+  return (
+    <StyleSheetManager disableVendorPrefixes>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </StyleSheetManager>
+  );
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -71,7 +80,7 @@ function RootContent({ store }) {
     <StylesProvider injectFirst>
       <MuiLatestThemeProvider theme={theme}>
         <MuiThemeProvider theme={theme}>
-          <ThemeProvider theme={theme}>
+          <StyledComponentsProvider>
             <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
               <StateContextProviders store={store}>
                 <CustomToastContainer
@@ -90,7 +99,7 @@ function RootContent({ store }) {
                 <RoutingApp />
               </StateContextProviders>
             </MuiLocalisationProvider>
-          </ThemeProvider>
+          </StyledComponentsProvider>
         </MuiThemeProvider>
       </MuiLatestThemeProvider>
     </StylesProvider>
