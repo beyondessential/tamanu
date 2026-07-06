@@ -1,6 +1,6 @@
 # Fixed-price medications — implementation plan
 
-## Tech notes
+# Tech notes
 
 - Flag lives on `InvoicePriceListItem` as `is_fixed_price` boolean (default `false`), modelled on `is_hidden`.
 - `is_hidden` and `is_fixed_price` are mutually exclusive — enforce in import + a check constraint.
