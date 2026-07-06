@@ -205,7 +205,7 @@ export const MarTable = ({ selectedDate }) => {
     },
   );
   const medications =
-    medicationsData?.data?.sort((a, b) => {
+    medicationsData?.data?.toSorted((a, b) => {
       if (a.discontinued === b.discontinued) return 0;
       return a.discontinued ? 1 : -1;
     }) ?? [];
