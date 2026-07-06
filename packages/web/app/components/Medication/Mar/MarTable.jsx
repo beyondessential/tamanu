@@ -115,7 +115,7 @@ function EmptyStateRow({ children, selectedDate, style, ...props }) {
 function RowSkeleton({ selectedDate }) {
   return Array.from({ length: 2 }).map((_, index) => (
     <tr key={index}>
-      <th>
+      <th style={{ padding: 10 }}>
         <Skeleton width="min(40ch, 100%)" />
         <Skeleton width="min(25ch, 100%)" />
       </th>
