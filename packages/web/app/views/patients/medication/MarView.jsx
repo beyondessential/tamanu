@@ -1,17 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { set } from 'date-fns';
-import { useDateTime } from '@tamanu/ui-components';
+import React, { useEffect, useRef, useState } from 'react';
 
+import { useDateTime } from '@tamanu/ui-components';
 import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
-import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
-
-const MarContainer = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
-  border-right: 1px solid ${Colors.outline};
-`;
 
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
@@ -46,9 +39,9 @@ export const MarView = () => {
   const [selectedDate, setSelectedDate] = useFacilityDate();
 
   return (
-    <MarContainer>
+    <div>
       <MarHeader selectedDate={selectedDate} onDateChange={setSelectedDate} />
       <MarTable selectedDate={selectedDate} />
-    </MarContainer>
+    </div>
   );
 };
