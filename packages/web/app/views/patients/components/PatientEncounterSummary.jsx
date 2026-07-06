@@ -107,7 +107,6 @@ const DeathLocationDisplay = ({ deathData }) => {
       <TranslatedText
         stringId="death.outsideHealthFacility.label"
         fallback="Died outside health facility"
-        data-testid="translatedtext-n2t4"
       />
     );
   }
@@ -118,18 +117,11 @@ const DeathLocationDisplay = ({ deathData }) => {
         fallback={deathData.facility.name}
         value={deathData?.facility.id}
         category="facility"
-        data-testid="translatedreferencedata-w40f"
       />
     );
   }
 
-  return (
-    <TranslatedText
-      stringId="general.fallback.unknown"
-      fallback="Unknown"
-      data-testid="translatedtext-p25g"
-    />
-  );
+  return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 };
 
 const DataStatusMessage = ({ message }) => (
@@ -142,10 +134,19 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
-
-  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
-  );
+  const {
+    data: deathData,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ['patientDeathSummary', patient.id],
+    queryFn: async () =>
+      await api.get(
+        `patient/${encodeURIComponent(patient.id)}/death`,
+        {},
+        { showUnknownErrorToast: false },
+      ),
+  });
 
   if (isLoading) {
     return (
