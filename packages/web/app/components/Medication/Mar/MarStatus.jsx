@@ -31,6 +31,7 @@ import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import { StatusPopper } from './StatusPopper';
+import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const StatusContainer = styled.td`
   position: relative;
@@ -254,6 +255,11 @@ export const MarStatus = ({
   });
   const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > facilityNow;
   const isCurrent = getIsCurrent({ timeSlot, selectedDate, now: facilityNow });
+  const isCurrentTimeSlot = useIsCurrentTimeSlot({
+    startTime: timeSlot.startTime,
+    endTime: timeSlot.endTime,
+    selectedDate,
+  });
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
@@ -540,6 +546,7 @@ export const MarStatus = ({
   return (
     <>
       <StatusContainer
+        aria-current={isCurrentTimeSlot ? 'time' : undefined}
         aria-selected={isSelected}
         ref={containerRef}
         onClick={onSelected}
