@@ -11,7 +11,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const Table = styled.table.attrs({ role: 'table' })`
+const Table = styled.table`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
   --mar-current-time-border: ${p => p.theme.palette.primary.main};
   border-collapse: collapse;
