@@ -80,12 +80,12 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   }
 `;
 
-function HighPriorityOrnament(props) {
+function AlertOrnament(props) {
   const { getTranslation } = useTranslation();
   return (
     <StyledPriorityHighIcon
       aria-hidden={undefined}
-      aria-label={getTranslation('general.highPriority.label', 'High priority')}
+      aria-label={getTranslation('medication.mar.alert', 'Alert.')}
       {...props}
     />
   );
@@ -110,9 +110,12 @@ const DiscontinuedDivider = styled.div`
   background-color: ${Colors.midText};
 `;
 
-const TooltipText = styled.p`
+const TooltipText = styled.div`
   margin-block: 0;
   text-wrap: balance;
+  p {
+    margin-block: 0;
+  }
 `;
 
 const getIsPast = ({ timeSlot, selectedDate, now }) => {
@@ -391,7 +394,7 @@ export const MarStatus = ({
         return (
           <IconWrapper>
             <CheckCircleRoundedIcon style={{ color: Colors.green }} />
-            {isAlert && <HighPriorityOrnament />}
+            {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
         );
@@ -399,7 +402,7 @@ export const MarStatus = ({
         return (
           <IconWrapper>
             <CancelRoundedIcon style={{ color: Colors.alert }} />
-            {isAlert && <HighPriorityOrnament />}
+            {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
         );
@@ -465,11 +468,20 @@ export const MarStatus = ({
         case ADMINISTRATION_STATUS.NOT_GIVEN:
           return (
             <TooltipText>
-              {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
-              {isAlert && !isError && (
-                <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+              {isError && (
+                <p>
+                  <TranslatedText stringId="medication.mar.error" fallback="Error." />
+                </p>
               )}
-              {reasonNotGiven?.name}
+              {isAlert && !isError && (
+                <p>
+                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+                </p>
+              )}
+              <p>
+                <TranslatedText stringId="medication.mar.notGiven" fallback="Not given." />
+              </p>
+              <p>{reasonNotGiven?.name}</p>
             </TooltipText>
           );
         case ADMINISTRATION_STATUS.GIVEN: {
@@ -478,7 +490,9 @@ export const MarStatus = ({
               <Box>
                 {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
                 {isAlert && !isError && (
-                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+                  <p>
+                    <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+                  </p>
                 )}
               </Box>
               {marDoses?.map(
@@ -515,10 +529,8 @@ export const MarStatus = ({
               <TooltipText>
                 <TranslatedText
                   stringId="medication.mar.missed.tooltip"
-                  fallback="Missed. Due at :dueAt"
-                  replacements={{
-                    dueAt: formatTime(dueAt),
-                  }}
+                  fallback="Missed. Due at :dueAt."
+                  replacements={{ dueAt: formatTime(dueAt) }}
                 />
               </TooltipText>
             );
@@ -527,10 +539,8 @@ export const MarStatus = ({
             <TooltipText>
               <TranslatedText
                 stringId="medication.mar.dueAt.tooltip"
-                fallback="Due at :dueAt"
-                replacements={{
-                  dueAt: formatTime(dueAt),
-                }}
+                fallback="Due at :dueAt."
+                replacements={{ dueAt: formatTime(dueAt) }}
               />
             </TooltipText>
           );
