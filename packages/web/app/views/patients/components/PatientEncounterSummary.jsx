@@ -1,26 +1,30 @@
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
-import { useQuery } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, DateDisplay } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { DeathCertificateModal } from '../../../components/PatientPrinting';
-import { useApi } from '../../../api';
-import { getFullLocationName } from '../../../utils/location';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientCurrentEncounterQuery } from '../../../api/queries';
+
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import {
+  Button,
+  ButtonWithPermissionCheck,
+  DateDisplay,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
-} from '../../../components/Translation';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+  useApi,
+} from '@tamanu/ui-components';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { DeathCertificateModal } from '../../../components/PatientPrinting';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
+import { getFullLocationName } from '../../../utils/location';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
