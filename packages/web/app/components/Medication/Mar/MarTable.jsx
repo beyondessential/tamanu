@@ -79,8 +79,9 @@ const TimeSlotText = styled.div`
 `;
 
 const TimeSlotLabel = styled.div`
-  text-transform: capitalize;
   color: ${p => p.theme.palette.text.primary};
+  font-weight: 500;
+  text-transform: capitalize;
 `;
 
 const FullSpanTableCell = styled.td.attrs({
