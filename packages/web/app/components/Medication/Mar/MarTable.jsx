@@ -10,6 +10,8 @@ import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
+import { Skeleton } from '@mui/material';
+import { style } from '@mui/system';
 
 const Table = styled.table.attrs({ role: 'table' })`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
@@ -19,9 +21,15 @@ const Table = styled.table.attrs({ role: 'table' })`
   inline-size: 100%;
   position: relative;
 
+  & tr {
+    border-block-start: var(--mar-border);
+    &:last-of-type {
+      border-block-end: var(--mar-border);
+    }
+  }
+
   & :is(th, td) {
     padding: 10px;
-    border-block-start: var(--mar-border);
     border-inline-start: var(--mar-border);
     &:last-child {
       border-block-end: var(--mar-border);
@@ -90,16 +98,42 @@ const TimeSlotLabel = styled.div`
   text-transform: capitalize;
 `;
 
-const FullSpanTableCell = styled.td.attrs({
-  colSpan: MEDICATION_ADMINISTRATION_TIME_SLOTS.length + 1,
-})``;
-
-function EmptyStateRow(props) {
+function EmptyStateRow({ children, selectedDate, style, ...props }) {
   return (
-    <tr>
-      <FullSpanTableCell {...props} />
+    <tr {...props} style={{ ...style, fontWeight: '500' }}>
+      <td>{children}</td>
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+        <BorderlessCell
+          key={startTime}
+          startTime={startTime}
+          endTime={endTime}
+          selectedDate={selectedDate}
+        />
+      ))}
     </tr>
   );
+}
+
+function RowSkeleton({ selectedDate }) {
+  return Array.from({ length: 2 }).map((_, index) => (
+    <tr key={index}>
+      <th>
+        <Skeleton width="min(40ch, 100%)" />
+        <Skeleton width="min(25ch, 100%)" />
+      </th>
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+        <TableCell
+          key={startTime}
+          startTime={startTime}
+          endTime={endTime}
+          selectedDate={selectedDate}
+          style={{ padding: 0 }}
+        >
+          <Skeleton variant="rectangular" height="calc(2lh + 20px)" />
+        </TableCell>
+      ))}
+    </tr>
+  ));
 }
 
 const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
@@ -110,31 +144,30 @@ const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
   z-index: 5;
 `;
 
-const StyledTableRow = styled.tr`
-  td,
-  th {
+function TableCell({ startTime, endTime, selectedDate, ...props }) {
+  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
+  return <td aria-current={current ? 'time' : undefined} aria-hidden {...props} />;
+}
+
+const BorderlessCell = styled(TableCell)`
+  &:not([aria-current='time']) {
     border-inline: none;
   }
 `;
 
-function HeadingRowSpacer(props) {
-  const current = useIsCurrentTimeSlot(props);
-  return <th aria-current={current ? 'time' : undefined} aria-hidden />;
-}
-
-function HeadingRow({ selectedDate, ...props }) {
+function HeadingRow({ children, selectedDate, ...props }) {
   return (
-    <StyledTableRow>
-      <HeadingTableCell {...props} />
+    <tr {...props}>
+      <HeadingTableCell as="th">{children}</HeadingTableCell>
       {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
-        <HeadingRowSpacer
+        <BorderlessCell
           key={startTime}
           startTime={startTime}
           endTime={endTime}
           selectedDate={selectedDate}
         />
       ))}
-    </StyledTableRow>
+    </tr>
   );
 }
 
@@ -198,7 +231,7 @@ export const MarTable = ({ selectedDate }) => {
           ))}
         </tr>
       </TableHead>
-      <tbody>
+      <tbody aria-busy={isLoadingMedications}>
         <HeadingRow selectedDate={selectedDate}>
           <TranslatedText
             fallback="Scheduled medication"
@@ -206,9 +239,7 @@ export const MarTable = ({ selectedDate }) => {
           />
         </HeadingRow>
         {isLoadingMedications ? (
-          <EmptyStateRow>
-            <TranslatedText stringId="general.table.loading" fallback="Loading…" />
-          </EmptyStateRow>
+          <RowSkeleton selectedDate={selectedDate} />
         ) : scheduledMedications.length ? (
           scheduledMedications.map(medication => (
             <MarTableRow
@@ -220,7 +251,7 @@ export const MarTable = ({ selectedDate }) => {
             />
           ))
         ) : (
-          <EmptyStateRow>
+          <EmptyStateRow selectedDate={selectedDate}>
             <TranslatedText
               fallback="No scheduled medication to display"
               stringId="medication.mar.noScheduledMedication.label"
@@ -228,15 +259,13 @@ export const MarTable = ({ selectedDate }) => {
           </EmptyStateRow>
         )}
       </tbody>
-      <tbody>
+      <tbody aria-busy={isLoadingMedications}>
         <HeadingRow selectedDate={selectedDate}>
           <TranslatedText fallback="PRN medication" stringId="medication.mar.prnMedication.label" />
         </HeadingRow>
 
         {isLoadingMedications ? (
-          <EmptyStateRow>
-            <TranslatedText stringId="general.table.loading" fallback="Loading…" />
-          </EmptyStateRow>
+          <RowSkeleton selectedDate={selectedDate} />
         ) : prnMedications.length ? (
           prnMedications.map(medication => (
             <MarTableRow
