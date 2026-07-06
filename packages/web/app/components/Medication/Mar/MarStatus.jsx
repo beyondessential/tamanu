@@ -224,7 +224,6 @@ export const MarStatus = ({
   onAnchorElChange,
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
-  const { getEnumTranslation } = useTranslation();
   const { formatTime, getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
   const facilityNow = getFacilityNowDate();
