@@ -1,3 +1,4 @@
+import Skeleton from '@mui/material/Skeleton';
 import { partition } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -6,12 +7,9 @@ import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { TranslatedText } from '@tamanu/ui-components';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
-import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
-import { Skeleton } from '@mui/material';
-import { style } from '@mui/system';
 
 const Table = styled.table.attrs({ role: 'table' })`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
@@ -137,7 +135,7 @@ function RowSkeleton({ selectedDate }) {
 }
 
 const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
-  color: ${Colors.midText};
+  color: ${p => p.theme.palette.text.tertiary};
   font-size: 14px;
   font-weight: 500;
   position: sticky;
