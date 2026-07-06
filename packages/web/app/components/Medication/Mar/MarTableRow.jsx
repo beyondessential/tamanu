@@ -171,7 +171,7 @@ export const MarTableRow = ({
               .filter(Boolean)
               .join(', ')}
           </div>
-          <Box color={!isPausing ? Colors.midText : undefined}>
+          <Box color={!isPausing ? TAMANU_COLORS.midText : undefined}>
             <span>{notes}</span>
             {displayedPharmacyNote && (
               <span>
