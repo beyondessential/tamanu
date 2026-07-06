@@ -114,18 +114,18 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-imagingType-MRI",
+      "id": "invoiceProduct-imagingType-mri",
       "name": "MRI",
       "category": "ImagingType",
-      "sourceRecordId": "imagingType-MRI",
+      "sourceRecordId": "imagingType-mri",
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-imagingType-XRay",
+      "id": "invoiceProduct-imagingType-xRay",
       "name": "XRay",
       "category": "ImagingType",
-      "sourceRecordId": "imagingType-XRay",
+      "sourceRecordId": "imagingType-xRay",
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },

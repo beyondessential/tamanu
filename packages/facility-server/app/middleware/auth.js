@@ -12,7 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../serverConfig';
 import { ReadSettings } from '@tamanu/settings';
 import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
@@ -34,7 +34,8 @@ const CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES = new Set([
 
 function shouldThrowCentralLoginError(error) {
   return (
-    error.type?.startsWith(ERROR_TYPE.AUTH) || CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES.has(error.type)
+    error.type?.startsWith(ERROR_TYPE.AUTH) ||
+    CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES.has(error.type)
   );
 }
 
@@ -115,7 +116,7 @@ export async function centralServerLogin({
   const response = await centralServer.login(email, password, {
     scopes: [],
     body: {
-      facilityIds: selectFacilityIds(config),
+      facilityIds: getServerFacilityIds(),
       facilityDeviceId,
     },
     backoff: {
@@ -240,7 +241,7 @@ export async function loginHandler(req, res, next) {
       });
 
     // check if user has access to any facilities on this server
-    const serverFacilities = selectFacilityIds(config);
+    const serverFacilities = getServerFacilityIds();
     const availableFacilities = await models.User.filterAllowedFacilities(
       allowedFacilities,
       serverFacilities,

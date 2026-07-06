@@ -141,9 +141,11 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
-  // The init DB was migrated under old code that stored `.js` extensions; normalise to `.ts`
-  // before createMigrationInterface asserts it has been done.
+  // The baseline DB is built at the pre-migration commit, which may pre-date the build-less
+  // switch and so hold `.js` storage records. upgrade() normalises these before consulting
+  // migrations; do the same here so createMigrationInterface's guard doesn't trip.
   await normaliseMigrationStorageExtensions(sequelize);
+
   const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();

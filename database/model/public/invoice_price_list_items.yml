@@ -66,3 +66,8 @@ sources:
             description: "{{ doc('invoice_price_list_items__is_hidden') }}"
             data_tests:
               - not_null
+          - name: is_fixed_price
+            data_type: boolean
+            description: "{{ doc('invoice_price_list_items__is_fixed_price') }}"
+            data_tests:
+              - not_null

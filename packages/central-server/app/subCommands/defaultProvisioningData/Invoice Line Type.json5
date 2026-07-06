@@ -24,28 +24,28 @@
     },
     {
       "id": "a90c9c46-5d0d-4e9b-bf43-3835fce72c29",
-      "itemId": "imagingType-XRay",
+      "itemId": "imagingType-xRay",
       "itemType": "imagingType",
       "name": "X Ray",
       "price": "15"
     },
     {
       "id": "a90c9c46-5d0d-4e9b-bf43-3835fce72c30",
-      "itemId": "imagingType-CTScan",
+      "itemId": "imagingType-ctScan",
       "itemType": "imagingType",
       "name": "CT Scan",
       "price": "70"
     },
     {
       "id": "a90c9c46-5d0d-4e9b-bf43-3835fce72c31",
-      "itemId": "imagingType-Ultrasound",
+      "itemId": "imagingType-ultrasound",
       "itemType": "imagingType",
       "name": "Ultrasound",
       "price": "40"
     },
     {
       "id": "a90c9c46-5d0d-4e9b-bf43-3835fce72c32",
-      "itemId": "imagingType-Echocardiogram",
+      "itemId": "imagingType-echocardiogram",
       "itemType": "imagingType",
       "name": "ECG",
       "price": "150"

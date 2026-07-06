@@ -11,6 +11,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Draft spec changes
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Produce spec edits directly from the card description — no extended interview.
 
 **Read `.agents/docs/spec-format.md` first.** It defines the writing conventions, the information-architecture rules, and the fold-vs-create-vs-split guidance you must follow. Every edit you make has to conform to it.

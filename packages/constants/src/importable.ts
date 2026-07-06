@@ -73,12 +73,20 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
   INVOICE_PRICE_LIST: 'invoicePriceList',
   INVOICE_PRICE_LIST_ITEM: 'invoicePriceListItem',
+  INVOICE_PRICE_LIST_CHARGING: 'invoicePriceListCharging',
   INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
   INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
+
+// Importable data types whose import/export permission is checked against a different model than
+// upperFirst(dataType) — e.g. the charging tab reads/writes InvoicePriceListItem rows, so its
+// permission noun is InvoicePriceListItem (there is no InvoicePriceListCharging model/noun).
+export const IMPORTABLE_PERMISSION_NOUN_OVERRIDES: Record<string, string> = {
+  [OTHER_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: 'InvoicePriceListItem',
+};
 
 // Reference data imported through the program importer rather than the reference data importer
 export const PROGRAM_REFERENCE_TYPES = {

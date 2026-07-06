@@ -2,13 +2,14 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { MSupplyStockOnHandProcessor } from '../../app/tasks/MSupplyStockOnHandProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../../app/serverConfig';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 
-jest.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: jest.fn(() => ['balwyn']),
+jest.mock('../../app/serverConfig', () => ({
+  ...jest.requireActual('../../app/serverConfig'),
+  getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 
 jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
@@ -77,7 +78,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     models = context.models;
 
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
-    selectFacilityIds.mockReturnValue([FACILITY_ID]);
+    getServerFacilityIds.mockReturnValue([FACILITY_ID]);
 
     await models.Setting.set(
       'integrations.mSupplyMed',
@@ -92,7 +93,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    selectFacilityIds.mockReturnValue([FACILITY_ID]);
+    getServerFacilityIds.mockReturnValue([FACILITY_ID]);
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
 
     await models.Setting.set(
@@ -121,7 +122,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips on omni server', async () => {
-      selectFacilityIds.mockReturnValue(['facility-a', 'facility-b']);
+      getServerFacilityIds.mockReturnValue(['facility-a', 'facility-b']);
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();
@@ -207,9 +208,7 @@ describe('MSupplyStockOnHandProcessor', () => {
       mockStockLinesErrorResponse('Store not found');
 
       const task = new MSupplyStockOnHandProcessor(context);
-      await expect(task.run()).rejects.toThrow(
-        'mSupply stockLines query failed: Store not found',
-      );
+      await expect(task.run()).rejects.toThrow('mSupply stockLines query failed: Store not found');
     });
   });
 
@@ -217,9 +216,24 @@ describe('MSupplyStockOnHandProcessor', () => {
     it('aggregates multiple stock lines for the same item code', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
-        makeStockLine({ code: 'MED-002', availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 20 }),
+        makeStockLine({
+          code: 'MED-001',
+          availableNumberOfPacks: 5,
+          totalNumberOfPacks: 10,
+          packSize: 10,
+        }),
+        makeStockLine({
+          code: 'MED-001',
+          availableNumberOfPacks: 3,
+          totalNumberOfPacks: 5,
+          packSize: 10,
+        }),
+        makeStockLine({
+          code: 'MED-002',
+          availableNumberOfPacks: 2,
+          totalNumberOfPacks: 2,
+          packSize: 20,
+        }),
       ];
 
       const result = task.aggregateStockByCode(stockLines);
@@ -231,9 +245,25 @@ describe('MSupplyStockOnHandProcessor', () => {
     it('skips stock lines without an item code', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
-        makeStockLine({ code: null, availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
-        { id: 'no-item', item: null, availableNumberOfPacks: 1, totalNumberOfPacks: 1, packSize: 1 },
+        makeStockLine({
+          code: 'MED-001',
+          availableNumberOfPacks: 5,
+          totalNumberOfPacks: 10,
+          packSize: 10,
+        }),
+        makeStockLine({
+          code: null,
+          availableNumberOfPacks: 3,
+          totalNumberOfPacks: 5,
+          packSize: 10,
+        }),
+        {
+          id: 'no-item',
+          item: null,
+          availableNumberOfPacks: 1,
+          totalNumberOfPacks: 1,
+          packSize: 1,
+        },
       ];
 
       const result = task.aggregateStockByCode(stockLines);
@@ -245,7 +275,13 @@ describe('MSupplyStockOnHandProcessor', () => {
     it('treats missing packSize as 1', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        { id: 's1', item: { code: 'MED-001' }, availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: null },
+        {
+          id: 's1',
+          item: { code: 'MED-001' },
+          availableNumberOfPacks: 5,
+          totalNumberOfPacks: 10,
+          packSize: null,
+        },
       ];
 
       const result = task.aggregateStockByCode(stockLines);
@@ -298,14 +334,34 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('updates existing stock entries for matching medications', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
-        { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK },
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
+        {
+          referenceDrugId: referenceDrugId2,
+          facilityId: FACILITY_ID,
+          quantity: 0,
+          stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK,
+        },
       ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 10, totalNumberOfPacks: 10, packSize: 5 }),
-        makeStockLine({ code: drugCode2, availableNumberOfPacks: 0, totalNumberOfPacks: 0, packSize: 1 }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 10,
+          totalNumberOfPacks: 10,
+          packSize: 5,
+        }),
+        makeStockLine({
+          code: drugCode2,
+          availableNumberOfPacks: 0,
+          totalNumberOfPacks: 0,
+          packSize: 1,
+        }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -327,16 +383,23 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('updates existing stock entries on subsequent runs', async () => {
-      await models.ReferenceDrugFacility.bulkCreate([{
-        referenceDrugId: referenceDrugId1,
-        facilityId: FACILITY_ID,
-        quantity: 100,
-        stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
-      }]);
+      await models.ReferenceDrugFacility.bulkCreate([
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: 100,
+          stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+        },
+      ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 5 }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 2,
+          totalNumberOfPacks: 2,
+          packSize: 5,
+        }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -351,13 +414,28 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('skips medications without a matching reference data code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
       ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: 'NON-EXISTENT-CODE', availableNumberOfPacks: 99, totalNumberOfPacks: 99, packSize: 1 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 3, totalNumberOfPacks: 3, packSize: 1 }),
+        makeStockLine({
+          code: 'NON-EXISTENT-CODE',
+          availableNumberOfPacks: 99,
+          totalNumberOfPacks: 99,
+          packSize: 1,
+        }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 3,
+          totalNumberOfPacks: 3,
+          packSize: 1,
+        }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -373,13 +451,28 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('skips stock lines without an item code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
       ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: null, availableNumberOfPacks: 50, totalNumberOfPacks: 50, packSize: 1 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 7, totalNumberOfPacks: 7, packSize: 1 }),
+        makeStockLine({
+          code: null,
+          availableNumberOfPacks: 50,
+          totalNumberOfPacks: 50,
+          packSize: 1,
+        }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 7,
+          totalNumberOfPacks: 7,
+          packSize: 1,
+        }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -394,13 +487,28 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('aggregates multiple stock lines for the same drug', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        {
+          referenceDrugId: referenceDrugId1,
+          facilityId: FACILITY_ID,
+          quantity: null,
+          stockStatus: DRUG_STOCK_STATUSES.UNKNOWN,
+        },
       ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 4, totalNumberOfPacks: 4, packSize: 10 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 6, totalNumberOfPacks: 6, packSize: 10 }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 4,
+          totalNumberOfPacks: 4,
+          packSize: 10,
+        }),
+        makeStockLine({
+          code: drugCode1,
+          availableNumberOfPacks: 6,
+          totalNumberOfPacks: 6,
+          packSize: 10,
+        }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);

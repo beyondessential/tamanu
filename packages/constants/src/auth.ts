@@ -17,6 +17,15 @@ export const TEST_PATIENT_ID = 'h1627394-3778-4c31-a510-9fcb88efdbf3';
 
 export const ADMIN_USER_EMAIL = 'admin@tamanu.io';
 
+// Distinguishes machine accounts from humans; sync users are minted per device
+// for facility sync (see central admin/syncCredentials and provision).
+export const USER_KINDS = {
+  USER: 'user',
+  SYNC: 'sync',
+  SYSTEM: 'system',
+} as const;
+export type UserKind = (typeof USER_KINDS)[keyof typeof USER_KINDS];
+
 export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 
 // When adding more scopes here, you need to consider:

@@ -1,28 +1,29 @@
-import { addDays, subDays, isSameDay } from 'date-fns';
-import React, { useState } from 'react';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
+import IconButton from '@mui/material/IconButton';
 import {
   ButtonWithPermissionCheck,
+  ConditionalTooltip,
   DateDisplay as DateDisplayComponent,
+  TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { Heading3, TranslatedText } from '../..';
-import { IconButton } from '@material-ui/core';
+import { addDays, isSameDay, subDays } from 'date-fns';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useEncounter } from '../../../contexts/Encounter';
-import { ConditionalTooltip } from '../../Tooltip';
-import { MedicationModal } from '../MedicationModal';
-import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
-const Wrapper = styled.div`
+import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { Heading3 } from '../../Typography';
+import { MedicationModal } from '../MedicationModal';
+
+const Header = styled.header`
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: ${Colors.white};
-  padding: 2px 12px;
+  padding-block: 2px;
+  padding-inline: 12px;
 `;
 
 const DateSelectWrapper = styled.div`
@@ -32,10 +33,10 @@ const DateSelectWrapper = styled.div`
 `;
 
 const DateDisplay = styled.div`
+  color: ${p => p.theme.palette.text.secondary};
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.darkText};
-  padding: 0 4px;
+  padding-inline: 4px;
 `;
 
 const StepperButton = styled(IconButton)`
@@ -81,7 +82,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const isEncounterDischarged = !!encounter?.endDate;
 
   return (
-    <Wrapper>
+    <Header>
       <MedicationModal
         open={createMedicationModalOpen}
         encounterId={encounter?.id}
@@ -98,7 +99,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           visible={isPreviousDayDisabled}
           title={
             <TranslatedText
-              fallback="Can't select date prior to encounter start date"
+              fallback="Can’t select date prior to encounter start date"
               stringId="medication.mar.tooltip.encounterStartDate"
             />
           }
@@ -139,7 +140,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
               title={
                 <TranslatedText
                   stringId="medication.action.newPrescription.tooltip"
-                  fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
+                  fallback="A new prescription can’t be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
                 />
               }
             >
@@ -158,6 +159,6 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           </NoteModalActionBlocker>
         )}
       </ButtonWrapper>
-    </Wrapper>
+    </Header>
   );
 };

@@ -5,8 +5,10 @@ import { log } from '../services/logging';
 
 // Rate limiting is disabled automatically during tests to keep existing
 // test suites (which rapidly hammer endpoints like /login from the same
-// loopback IP) deterministic.
-const RATE_LIMITING_DISABLED = process.env.NODE_ENV === 'test';
+// loopback IP) deterministic. TEST_RATE_LIMITING=enabled opts back in so the
+// limiters themselves can be tested.
+const rateLimitingDisabled = () =>
+  process.env.NODE_ENV === 'test' && process.env.TEST_RATE_LIMITING !== 'enabled';
 
 const noopMiddleware = (_req, _res, next) => next();
 
@@ -50,7 +52,7 @@ const DEFAULT_AUTH = { windowMs: 15 * 60 * 1000, max: 30 };
  * overridden by config (spread order below).
  */
 export const buildRateLimiters = (rateLimitConfig = {}) => {
-  if (RATE_LIMITING_DISABLED) {
+  if (rateLimitingDisabled()) {
     return { globalLimiter: noopMiddleware, authLimiter: noopMiddleware };
   }
 

@@ -2,7 +2,7 @@ import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
 
-import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
@@ -12,6 +12,7 @@ import { fhirRoutes } from '@tamanu/shared/routes/fhir';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
+import { getServerFacilityIds } from './serverConfig';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -84,7 +85,9 @@ export async function createApiApp({
 
   express.use(versionCompatibility(await settings.global.get('metaServer.updateUrls')));
 
-  express.use(settingsReaderMiddleware);
+  // Resolved facility ids (facts/env/config), not raw config — so a
+  // facts-configured server gets its per-facility settings readers.
+  express.use(buildSettingsReaderMiddleware(getServerFacilityIds));
 
   // index route for debugging connectivity (left accessible over HTTP for health checks)
   express.get('/', (req, res) => {

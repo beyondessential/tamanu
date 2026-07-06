@@ -18,6 +18,7 @@ import {
   SERVER_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
+  USER_KINDS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import {
@@ -47,6 +48,7 @@ export class User extends Model {
   declare password?: string;
   declare displayName: string;
   declare role: string;
+  declare kind: string;
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
@@ -145,6 +147,11 @@ export class User extends Model {
         role: {
           type: DataTypes.STRING,
           defaultValue: 'practitioner',
+          allowNull: false,
+        },
+        kind: {
+          type: DataTypes.STRING,
+          defaultValue: USER_KINDS.USER,
           allowNull: false,
         },
         phoneNumber: {

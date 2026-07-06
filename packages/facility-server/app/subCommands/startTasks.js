@@ -1,24 +1,21 @@
-import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
-import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
-import { CentralServerConnection, FacilitySyncManager } from '../sync';
-import { resolveSchedules, startScheduledTasks } from '../tasks';
+import { getServerFacilityIds } from '../serverConfig';
+import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
+import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
 export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
   log.info(`Starting facility task runner version ${version}`, {
-    serverFacilityIds: selectFacilityIds(config),
+    serverFacilityIds: getServerFacilityIds(),
   });
 
   log.info(`Process info`, {
@@ -34,21 +31,15 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
-  context.timesync = await initTimesync({
-    models: context.models,
-    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-    enabled: (await resolveSchedules(context)).timeSync.enabled,
-  });
-
-  context.centralServer = new CentralServerConnection(context);
-  context.syncManager = syncManager ?? new FacilitySyncManager(context);
-
-  await performTimeZoneChecks({ sequelize: context.sequelize });
+  const isConfigured = await setupSyncRuntime(context, { syncManager });
 
   const cancelTasks = await startScheduledTasks(context, taskClasses);
+  // If booted unconfigured, start syncing once first-run setup completes.
+  const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();
+    cancelConfigPoll();
   });
 }
 

@@ -13,6 +13,8 @@ workhorse-version: 0.1.0
 
 ## Your task: Implement this
 
+If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
+
 Implement the work described by this card. The starting point varies — figure out which one applies before writing code.
 
 ### Work out what you're implementing

@@ -2,17 +2,22 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { mSupplyMedIntegrationProcessor } from '../../app/tasks/mSupplyMedIntegrationProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../../app/serverConfig';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { createDummyPatient, createDummyEncounter, createDummyPrescription } from '@tamanu/database/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  createDummyPrescription,
+} from '@tamanu/database/demoData/patients';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
 import { REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts';
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-jest.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: jest.fn(() => ['balwyn']),
+jest.mock('../../app/serverConfig', () => ({
+  ...jest.requireActual('../../app/serverConfig'),
+  getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 
 jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
@@ -110,7 +115,7 @@ describe('mSupplyMedIntegrationProcessor', () => {
     models = context.models;
 
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
-    selectFacilityIds.mockReturnValue([facilityId]);
+    getServerFacilityIds.mockReturnValue([facilityId]);
 
     await models.Setting.set(
       'integrations.mSupplyMed',
@@ -159,17 +164,17 @@ describe('mSupplyMedIntegrationProcessor', () => {
   // Reset mocks and config before each test
   beforeEach(() => {
     jest.clearAllMocks();
-    selectFacilityIds.mockReturnValue([facilityId]);
+    getServerFacilityIds.mockReturnValue([facilityId]);
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
   });
 
   describe('when server is an omni server', () => {
     afterAll(() => {
-      selectFacilityIds.mockReturnValue([facilityId]);
+      getServerFacilityIds.mockReturnValue([facilityId]);
     });
 
     it('skips run when server has multiple facility ids', async () => {
-      selectFacilityIds.mockReturnValue(['balwyn', 'kerang']);
+      getServerFacilityIds.mockReturnValue(['balwyn', 'kerang']);
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
 
@@ -286,7 +291,9 @@ describe('mSupplyMedIntegrationProcessor', () => {
     });
 
     it('does not update enabled-at fact if it is already set', async () => {
-      const previousEnabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+      const previousEnabledAt = await models.LocalSystemFact.get(
+        FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
+      );
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
       const enabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
