@@ -5,8 +5,8 @@ import { useDateTime } from '@tamanu/ui-components';
 
 /**
  * @param {Object} props
- * @param {`${string}:${string}`} props.startTime - Time slot start in HH:mm format
- * @param {`${string}:${string}`} props.endTime - Time slot end in HH:mm format
+ * @param {`${number}:${number}`} props.startTime - Time slot start in HH:mm format
+ * @param {`${number}:${number}`} props.endTime - Time slot end in HH:mm format
  * @param {Date} props.selectedDate - Calendar date shown in the MAR
  */
 export function useIsCurrentTimeSlot({ startTime, endTime, selectedDate }) {
