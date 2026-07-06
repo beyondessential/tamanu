@@ -14,7 +14,7 @@ import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 const Table = styled.table`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
   --mar-current-time-border: ${p => p.theme.palette.primary.main};
-  border-block-end: var(--mar-border);
+  border: var(--mar-border);
   border-collapse: collapse;
   font-size: 12px;
   inline-size: 100%;
@@ -24,13 +24,13 @@ const Table = styled.table`
     border-block-start: var(--mar-border);
   }
 
-  & :is(th, td) {
+  thead th,
+  tbody th[scope='rowgroup'] {
     padding: 10px;
+  }
+
+  & :where(th, td):not(:first-child) {
     border-inline-start: var(--mar-border);
-    &:last-child {
-      border-block-end: var(--mar-border);
-      border-inline-end: var(--mar-border);
-    }
   }
 
   & :is(th, td)[aria-current='time'] {
