@@ -123,28 +123,44 @@ const ConfirmButton = styled(Button).attrs({ fullWidth: true })`
 `;
 
 const StyledNumberFieldWrapper = styled.div`
-  position: relative;
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  display: grid;
+  font-size: 11px;
+  grid-template-columns: 1fr auto;
+  padding: 1px;
+
+  &:has(:focus-within) {
+    border-color: ${p => p.theme.palette.primary.main};
+  }
+
+  .MuiTextField-root,
+  .MuiInputBase-root,
+  .MuiInputBase-input {
+    font-size: inherit;
+    block-size: 100%;
+  }
 
   .MuiInputBase-input {
-    font-size: 11px;
-    height: 17px;
-    padding: 1px calc(${p => p.$units.length}ch + 5px) 1px 3px;
-    width: 41px;
-
+    padding: 0;
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0px;
     }
+    &:is(:focus, :focus-visible) {
+      border: 0;
+      outline: 0;
+    }
+  }
+
+  .MuiOutlinedInput-notchedOutline {
+    display: none;
   }
 `;
 
 const InputSuffix = styled.span`
   color: ${p => p.theme.palette.text.tertiary};
-  font-size: 11px;
-  inset-block-start: 1.7px;
-  inset-inline-end: 3px;
-  position: absolute;
 `;
 
 const StyledTimePicker = styled(Field).attrs({
@@ -311,13 +327,7 @@ const GivenScreen = ({
                 <RemoveCircleOutlineIcon />
               </DoseButton>
               <StyledNumberFieldWrapper $units={dosingUnit}>
-                <Field
-                  name="doseAmount"
-                  component={NumberField}
-                  inputRef={doseInputRef}
-                  min={0.25}
-                  step={0.25}
-                />
+                <Field name="doseAmount" component={NumberField} min={0.25} step={0.25} />
                 <InputSuffix>
                   <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
                   <RequiredOrnament />
