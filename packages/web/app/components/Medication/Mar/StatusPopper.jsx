@@ -250,16 +250,8 @@ const GivenScreen = ({
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getFacilityNowDate, toStoredDateTime } = useDateTime();
-  const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
-
-  // Measure the DoseContainer width when component mounts
-  useLayoutEffect(() => {
-    if (doseInputRef.current) {
-      setContainerWidth(doseInputRef.current.offsetWidth + 62);
-    }
-  }, []);
 
   const { mutateAsync: updateMarToGiven, isLoading: isUpdatingMarToGiven } = useGivenMarMutation(
     marId,
@@ -325,7 +317,7 @@ const GivenScreen = ({
               handleSubmit(values);
             }}
           />
-          <FormContainer style={{ inlineSize: containerWidth }}>
+          <FormContainer>
             <DoseContainer>
               <DoseButton
                 disabled={values.doseAmount <= 0.25}
