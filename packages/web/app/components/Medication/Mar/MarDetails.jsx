@@ -234,8 +234,7 @@ export const MarDetails = ({
   });
 
   const isEncounterDischarged = !!encounter?.endDate;
-  const canEditMar = ability.can('write', 'MedicationAdministration');
-  const canEditMarRecord = canEditMar && !isEncounterDischarged;
+  const canEditMar = ability.can('write', 'MedicationAdministration') && !isEncounterDischarged;
 
   const onSubmit = async (data, { setFieldValue }) => {
     const isDoseAmountNotMatch =
@@ -326,7 +325,7 @@ export const MarDetails = ({
                     <FormGrid style={{ width: '100%' }}>
                       <div style={{ gridColumn: '1 / -1', width: 'fit-content' }}>
                         <ConditionalTooltip
-                          visible={!canEditMarRecord}
+                          visible={!canEditMar}
                           title={
                             isEncounterDischarged ? (
                               <TranslatedText
@@ -355,7 +354,7 @@ export const MarDetails = ({
                             }
                             name="isError"
                             component={CheckField}
-                            disabled={!canEditMarRecord}
+                            disabled={!canEditMar}
                           />
                         </ConditionalTooltip>
                       </div>
@@ -420,7 +419,7 @@ export const MarDetails = ({
                       enumValues={ADMINISTRATION_STATUS_LABELS}
                     />
                   </DarkestText>
-                  {canEditMarRecord && (
+                  {canEditMar && (
                     <NoteModalActionBlocker>
                       <StyledEditButton
                         disableRipple
@@ -457,12 +456,9 @@ export const MarDetails = ({
                         </MidText>
                         <DarkestText mt="3px">{marInfo.recordedByUser.displayName}</DarkestText>
                       </Box>
-                      {canEditMarRecord && (
+                      {canEditMar && (
                         <NoteModalActionBlocker>
-                          <StyledEditButton
-                            disableRipple
-                            onClick={() => void setShowEditDoseModal({})}
-                          >
+                          <StyledEditButton disableRipple onClick={() => setShowEditDoseModal({})}>
                             <StyledEditIcon />
                           </StyledEditButton>
                         </NoteModalActionBlocker>
@@ -496,7 +492,7 @@ export const MarDetails = ({
                               </Box>
                             )}
                           </DoseIndex>
-                          {dose.doseIndex !== 0 && !dose.isRemoved && canEditMarRecord && (
+                          {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
                             <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
@@ -549,7 +545,7 @@ export const MarDetails = ({
                             </MidText>
                             <DarkestText mt="3px">{dose.recordedByUser.displayName}</DarkestText>
                           </Box>
-                          {canEditMarRecord && (
+                          {canEditMar && (
                             <NoteModalActionBlocker>
                               <StyledEditButton
                                 disableRipple
@@ -671,7 +667,7 @@ export const MarDetails = ({
                           </FormGrid>
                         </div>
                       ))}
-                      {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMarRecord && (
+                      {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMar && (
                         <NoteModalActionBlocker>
                           <AddAdditionalDoseButton
                             onClick={() =>
@@ -727,7 +723,7 @@ export const MarDetails = ({
           )}
         />
       </StyledFormModal>
-      {!!showChangeStatusModal && (
+      {showChangeStatusModal && (
         <ChangeStatusModal
           open={showChangeStatusModal}
           onClose={() => void setShowChangeStatusModal(false)}
