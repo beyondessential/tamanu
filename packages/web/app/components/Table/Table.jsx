@@ -357,14 +357,7 @@ const StatusRow = React.memo(({ className, colSpan, children, textColor, statusC
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
-    if (isLoading)
-      return (
-        <TranslatedText
-          stringId="general.table.loading"
-          fallback="Loading…"
-          data-testid="translatedtext-yvlt"
-        />
-      );
+    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading…" />;
     if (errorMessage) return errorMessage;
     if (isEmpty || !data.length) return noDataMessage;
     return null;

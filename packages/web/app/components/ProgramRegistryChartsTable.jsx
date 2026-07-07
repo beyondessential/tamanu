@@ -105,6 +105,7 @@ export const ProgramRegistryChartsTable = React.memo(({
       <StyledDynamicColumnTable
         columns={columns}
         data={data}
+        rowIdKey="dataElementId"
         elevated={false}
         errorMessage={error?.message}
         count={data.length}
