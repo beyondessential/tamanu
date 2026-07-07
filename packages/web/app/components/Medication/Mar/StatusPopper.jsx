@@ -42,8 +42,7 @@ const StyledPaper = styled(Paper)`
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-block: 8px solid transparent;
     z-index: 2;
     ${p =>
       p.$placement === 'right'
@@ -64,8 +63,7 @@ const StyledPaper = styled(Paper)`
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 9px solid transparent;
-    border-bottom: 9px solid transparent;
+    border-block: 9px solid transparent;
     z-index: 1;
     ${p =>
       p.$placement === 'right'
