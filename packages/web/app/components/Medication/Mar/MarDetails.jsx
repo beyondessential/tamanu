@@ -142,14 +142,14 @@ const AddAdditionalDoseButton = styled.a`
 const StyledTimePickerField = styled(Field)`
   width: 100%;
   .MuiInputBase-root {
+    background-color: ${p => p.theme.palette.background.paper};
+    color: ${p => p.theme.palette.text.primary};
     font-size: 14px;
-    color: ${Colors.darkestText};
-    background-color: ${Colors.white};
     &.Mui-disabled {
       background-color: inherit;
     }
     &.Mui-disabled .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.outline};
+      border-color: ${p => p.theme.palette.divider};
     }
     .MuiSvgIcon-root {
       font-size: 22px;
@@ -163,7 +163,7 @@ const StyledTimePickerField = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.primary} !important;
+      border-color: ${p => p.theme.palette.primary.main} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
       border-color: ${Colors.softText};
