@@ -2,52 +2,32 @@
 
 ## Overview
 
-Tamanu's labs subsystem covers the full request lifecycle — order a lab request, collect and record a sample, receive it at the laboratory, enter and verify results, then publish and print. It also syncs with external laboratory systems (e.g. SENAITE) over the FHIR API. This project groups a set of enhancements across that lifecycle. The specific improvements are still being scoped — this PRD maps the areas open for enhancement so individual pieces can be broken out into cards.
+A set of enhancements across Tamanu's labs subsystem, compiled from the planned cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by priority.
 
-The lab request moves through these statuses: `Sample not collected` → `Reception pending` → `Results pending` → `Interim results` → `To be verified` → `Verified` → `Published`, with side branches for `Cancelled`, `Rejected`, `Invalidated`, `Entered in error`, and `Deleted`.
+## Background: how lab requests work today
 
-## Request creation
+Useful context that spans several of the requirements below.
 
-- The lab request form (`LabRequestForm`) is a multi-step flow supporting three request types: panel, individual test, and superset
-- Captures test category, priority, laboratory, sample collection details, and notes
-- _Candidate enhancements to be defined during scoping — detailed shape can be filled in during card shaping._
+- A lab request is created through a multi-step form supporting three request types: **individual test**, **panel** (a named group of test types), and **superset** (a group of panels).
+- Test/panel selection uses a two-pane picker (`TestSelector`): the left pane lists selectable panels or tests with their **category**; the right pane shows the current selection.
+- A request moves through: `Sample not collected` → `Reception pending` → `Results pending` → `Interim results` → `To be verified` → `Verified` → `Published`, with side branches for `Cancelled`, `Rejected`, `Invalidated`, `Entered in error`, `Deleted`.
+- Results are entered per lab test (free text, number, or select), with reference ranges, then verified and published.
 
-## Reception & sample handling
+## Requirements
 
-- Sample recording (`Record sample` / sample details) captures collection time and specimen details before the request can advance out of `Sample not collected`
-- Reception at the laboratory transitions the request through `Reception pending` and `Results pending`
-- Change laboratory, change priority, and change status actions are available from the lab request view
-- _Candidate enhancements to be defined during scoping._
+Priority-ordered. Only cards we've talked through are detailed; the rest will be added as we pull them from Linear.
 
-## Results entry & verification
+### TAM-2053 — See the test types within a panel when requesting
 
-- Results are entered per lab test (`Enter results`), with result types of free text, number, or select
-- Individual lab tests support numeric and non-numeric reference ranges (recently extended — see `feat(labs): TAM-6820`)
-- Results progress through `Interim results` → `To be verified` → `Verified` → `Published`
-- Result history is retained (`NASS-1875`)
-- A results interpretation / conclusion field flows through to the FHIR DiagnosticReport
-- _Candidate enhancements to be defined during scoping._
+**Requested by:** Palau (originally raised ~2022; re-raised by Bellory, April 2026; Mark Hunt / Lab team, 2024).
 
-## External laboratory integration (FHIR / SENAITE)
+**Problem.** Not all clinicians remember by heart which individual test types a panel contains. Because the request form never shows a panel's contents, a clinician can add an individual test that is already included in a panel they've selected — producing a **double entry** (a duplicate request for the same lab result).
 
-- Lab requests materialise as FHIR ServiceRequest and results as DiagnosticReport
-- External labs can specify result method, custom reference ranges, and the laboratory officer via the FHIR API
-- Invalidation and rejected-status workflows are mapped between Tamanu and the external lab
-- _Candidate enhancements to be defined during scoping._
+**How it works today.** When requesting by panel, the selector shows each panel's name and category but never the individual test types inside it. There is no signal that an individually-selected test overlaps with a selected panel.
 
-## Printing & reporting
+**Desired behaviour.** The individual test types within a panel are visible to the clinician while building a lab request, so they can avoid requesting a test that a chosen panel already covers. Detailed interaction and layout can be filled in during design.
 
-- Print request, print label, print results, and print interim report actions exist on the lab request view, gated by the `features.labRequest.enableLabResultsPrintout` setting
-- Multiple lab requests can be printed together
-- _Candidate enhancements to be defined during scoping._
-
-## Listing & search
-
-- The lab request listing (`LabRequestListingView`) groups requests as Active vs Completed and supports search/filter
-- _Candidate enhancements to be defined during scoping._
-
-## Open questions
-
-- What are the specific enhancements in scope for this project? The sections above are the candidate areas; each needs concrete requirements before it becomes a card.
-- Which enhancements are frontend-only versus requiring model/migration or FHIR materialisation changes?
-- Are any of these driven by a particular deployment or external-lab integration requirement?
+**Open questions (to resolve before design):**
+- Scope: is this purely *making panel contents visible* (clinician self-corrects), or should the system also *actively flag or prevent* a duplicate when an individual test overlaps with a selected panel?
+- Where the clinician most needs to see panel contents: while browsing panels (to choose), after selecting (to confirm), or both.
+- Does this extend to the **superset** request type (panels within a superset, and the tests within those), and to the **individual** type (surfacing which panel(s) a test belongs to)?
