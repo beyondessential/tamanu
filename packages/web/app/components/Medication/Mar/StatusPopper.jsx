@@ -349,7 +349,6 @@ export const GivenScreen = ({
                   textField: {
                     error: errors.timeGiven,
                     id: timeGivenInputId,
-                    InputProps: { placeholder: '--:-- --' },
                   },
                   digitalClockSectionItem: {
                     sx: { fontSize: '14px' },
