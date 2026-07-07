@@ -31,8 +31,13 @@ import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { WarningModal } from '../WarningModal';
 
 const StyledPaper = styled(Paper)`
-  box-shadow: 0px 8px 32px 0px #00000026;
   border-radius: 5px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  box-shadow: 0 8px 32px 0 oklch(0 0 0 / 15%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
   position: relative;
 
   &::before {
@@ -78,13 +83,6 @@ const StyledPaper = styled(Paper)`
             margin-left: 1px;
           `}
   }
-`;
-
-const PopperContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 11px 14px;
 `;
 
 const DoseContainer = styled.div`
@@ -187,9 +185,8 @@ const StyledTimePicker = styled(Field)`
 `;
 
 const FormContainer = styled.div`
-  min-inline-size: 150px;
-  padding-block: 11px;
-  padding-inline: 14px;
+  min-inline-size: 7.5rem;
+  inline-size: 7.5rem;
 `;
 
 const ErrorMessage = styled.div`
@@ -212,7 +209,7 @@ const StyledButton = styled(Button).attrs({
 
 const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
-    <PopperContent>
+    <>
       <NoteModalActionBlocker>
         <StyledButton $color={TAMANU_COLORS.green} onClick={onGivenClick}>
           <TranslatedText stringId="medication.status.given" fallback="Given" />
@@ -224,13 +221,13 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
         </StyledButton>
       </NoteModalActionBlocker>
-    </PopperContent>
+    </>
   );
 };
 
 const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven }) => {
   return (
-    <PopperContent>
+    <>
       {reasonsNotGiven?.data?.map(reason => (
         <Button
           key={reason.id}
@@ -241,7 +238,7 @@ const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven
           <TranslatedText stringId={reason.name} fallback={reason.name} />
         </Button>
       ))}
-    </PopperContent>
+    </>
   );
 };
 
