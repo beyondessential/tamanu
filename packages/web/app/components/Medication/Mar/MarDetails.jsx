@@ -15,6 +15,7 @@ import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medica
 import {
   AutocompleteField,
   Button,
+  ConditionalTooltip,
   Field,
   Form,
   FormGrid,
@@ -41,7 +42,6 @@ import { CheckField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { FormModal } from '../../FormModal';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
@@ -50,42 +50,44 @@ import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
-    max-width: 670px;
+    max-inline-size: 670px;
   }
 `;
 const Container = styled.div`
-  padding: 16px 0px 34px;
+  padding-block: 16px;
+  padding-inline: 0;
 `;
 
 const DetailsContainer = styled(Box)`
-  padding: 12px 16px;
-  border: 1px solid ${Colors.outline};
+  background-color: ${p => p.theme.palette.background.paper};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  border: 1px solid ${p => p.theme.palette.divider};
+  padding-block: 12px;
+  padding-inline: 16px;
   position: relative;
 `;
 
 const MidText = styled(Box)`
+  color: ${p => p.theme.palette.text.tertiary};
   font-size: 14px;
-  line-height: 18px;
-  color: ${Colors.midText};
+  line-height: 1.3;
 `;
 
 const DarkText = styled(Box)`
-  font-size: 14px;
-  line-height: 18px;
   color: ${Colors.darkText};
+  font-size: 14px;
+  line-height: 1.3;
 `;
 
 const DarkestText = styled(Box)`
+  color: ${p => p.theme.palette.text.primary};
   font-size: 14px;
-  line-height: 18px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  line-height: 1.3;
 `;
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
+  color: ${p => p.theme.palette.error.main};
   font-size: 16px;
 `;
 
@@ -98,7 +100,7 @@ const StyledEditButton = styled(IconButton)`
 `;
 
 const StyledEditIcon = styled(Edit)`
-  color: ${Colors.primary};
+  color: ${p => p.theme.palette.primary.main};
   font-size: 20px;
 `;
 
@@ -107,26 +109,27 @@ const HorizontalSeparator = styled.hr`
 `;
 
 const VerticalSeparator = styled.div`
+  background-color: ${p => p.theme.palette.divider};
+  margin-block: 0;
+  margin-inline: 20px;
   width: 1px;
-  background-color: ${Colors.outline};
-  margin: 0 20px;
 `;
 
 const StyledAddIcon = styled(Add)`
-  color: ${Colors.primary};
+  color: ${p => p.theme.palette.primary.main};
   font-size: 18px;
 `;
 
 const AddAdditionalDoseButton = styled.a`
-  color: ${Colors.primary};
+  align-items: center;
+  color: ${p => p.theme.palette.primary.main};
+  cursor: pointer;
+  display: flex;
   font-size: 14px;
   font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
   height: fit-content;
-  padding-top: 14px;
-  display: flex;
-  align-items: center;
+  padding-block-start: 14px;
+  text-decoration: none;
 
   &:hover {
     text-decoration: underline;
@@ -173,14 +176,14 @@ const DoseIndex = styled(Box)`
 `;
 
 const RemoveDoseText = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 18px;
-  color: ${Colors.darkestText};
+  align-items: center;
+  color: ${p => p.theme.palette.text.primary};
   cursor: pointer;
   display: flex;
-  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
   gap: 4px;
+  line-height: 1.3;
   text-decoration: underline;
 
   .MuiSvgIcon-root {
@@ -189,15 +192,15 @@ const RemoveDoseText = styled.div`
 `;
 
 const RequiredMark = styled.span`
-  color: ${Colors.alert};
+  color: ${p => p.theme.palette.error.main};
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${p => p.theme.palette.error.main};
   font-size: 12px;
-  margin: 4px 2px 2px;
   font-weight: 500;
-  line-height: 15px;
+  line-height: 1.25;
+  margin: 4px 2px 2px;
 `;
 
 export const MarDetails = ({
