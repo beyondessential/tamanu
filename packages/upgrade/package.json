@@ -33,6 +33,7 @@
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "config": "^3.3.9",
     "es-toolkit": "^1.48.1",
     "sequelize": "^6.37.8",
     "toposort": "^2.0.2",

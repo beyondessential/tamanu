@@ -21,6 +21,7 @@ import {
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -854,6 +855,8 @@ createSuggester(
   'User',
   ({ search }) => ({
     displayName: { [Op.iLike]: search },
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    kind: USER_KINDS.USER,
     ...VISIBILITY_CRITERIA,
   }),
   {

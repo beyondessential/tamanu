@@ -68,7 +68,7 @@ async function runUpgrade({
   });
 
   const fromVersion =
-    (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch((err) => {
+    (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch(err => {
       log.error('Failed to get current version, likely because there is not one recorded yet', err);
       return null;
     })) ?? '0.0.0';
@@ -178,7 +178,7 @@ async function runUpgrade({
     const beforeMigrations = onlyMigrations(step.before);
     if (
       beforeMigrations.length > 0 &&
-      beforeMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
+      beforeMigrations.every(need => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no before:Migration that has not already run, skipping');
       continue;
@@ -189,7 +189,7 @@ async function runUpgrade({
     const afterMigrations = onlyMigrations(step.after);
     if (
       afterMigrations.length > 0 &&
-      afterMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
+      afterMigrations.every(need => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no after:Migration that had not already run, skipping');
       continue;

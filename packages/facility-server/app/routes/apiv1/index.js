@@ -53,6 +53,8 @@ import { referral } from './referral';
 import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
+import { setupSyncHandler } from './setup';
+import { isServerConfigured } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -93,15 +95,21 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.post('/login', limiter, loginHandler);
   apiv1.use('/resetPassword', limiter, resetPassword);
   apiv1.use('/changePassword', limiter, changePassword);
-  
+
   apiv1.get(
     '/public/ping',
     asyncHandler((req, res) => {
       req.flagPermissionChecked();
-      return res.send({ ok: 'ok' });
+      // setupRequired drives the first-run setup wizard, folded into the alive
+      // check the web app already makes rather than a separate endpoint/request.
+      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
     }),
   );
-  
+
+  // First-run setup: records the host + credentials + facilities. Rate-limited
+  // (it does an outbound login probe) and trusted-network gated in the handler.
+  apiv1.post('/public/setup/sync', limiter, setupSyncHandler);
+
   apiv1.get(
     '/public/translation/languageOptions',
     asyncHandler(async (req, res) => {
@@ -111,23 +119,23 @@ export function createApiv1({ authLimiter } = {}) {
       res.send(response);
     }),
   );
-  
+
   apiv1.get(
     '/public/translation/:language',
     asyncHandler(async (req, res) => {
       // Everyone can access translations
       req.flagPermissionChecked();
-  
+
       const {
         models: { TranslatedString },
         params: { language },
       } = req;
-  
+
       const translatedStringRecords = await TranslatedString.findAll({
         where: { language },
         attributes: ['stringId', 'text'],
       });
-  
+
       res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
     }),
   );
@@ -156,11 +164,11 @@ export function createApiv1({ authLimiter } = {}) {
   );
 
   apiv1.use(authMiddleware);
-  
+
   apiv1.use(constructPermission);
-  
+
   apiv1.use(attachAuditUserToDbSession);
-  
+
   apiv1.delete(
     '/admin/settings/cache',
     asyncHandler(async (req, res) => {
@@ -248,7 +256,7 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use(referenceDataRoutes); // see below for specifics
   apiv1.use(syncRoutes); // see below for specifics
   apiv1.use('/telegram', telegramRoutes);
-  
+
   // patient data endpoints
   patientDataRoutes.use('/allergy', allergy);
   patientDataRoutes.use('/appointments', appointments);
@@ -276,7 +284,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/tasks', tasks);
   patientDataRoutes.use('/notifications', notifications);
   patientDataRoutes.use('/ai', ai);
-  
+
   // reference data endpoints
   referenceDataRoutes.use('/asset', asset);
   referenceDataRoutes.use('/attachment', attachment);
@@ -300,17 +308,16 @@ export function createApiv1({ authLimiter } = {}) {
   referenceDataRoutes.use('/user', user);
   referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
   referenceDataRoutes.use('/translation', translation);
-  
+
   // sync endpoints
   syncRoutes.use('/sync', sync);
   syncRoutes.use('/syncHealth', syncHealth);
   syncRoutes.use('/patientFacility', patientFacility);
-  
+
   // Random record picker for tests / synthetic load (see packages/synthetic-tests RandomEntityFetcher).
   // Off by default in non-test environments; set TAMANU_ENABLE_SYNTHETIC_RANDOM_API=true to enable.
   const enableRandomRecordApi =
-    process.env.NODE_ENV === 'test' ||
-    process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
+    process.env.NODE_ENV === 'test' || process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
 
   if (enableRandomRecordApi) {
     apiv1.use('/random', random);
