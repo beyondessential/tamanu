@@ -358,17 +358,15 @@ export const GivenScreen = ({
               {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
             </OuterLabelFieldWrapper>
 
-            <div>
-              <ConfirmButton
-                onClick={submitForm}
-                variant="outlined"
-                size="small"
-                disabled={!values.doseAmount || isUpdatingMarToGiven}
-                isSubmitting={isUpdatingMarToGiven}
-              >
-                <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-              </ConfirmButton>
-            </div>
+            <ConfirmButton
+              onClick={submitForm}
+              variant="outlined"
+              size="small"
+              disabled={!values.doseAmount || isUpdatingMarToGiven}
+              isSubmitting={isUpdatingMarToGiven}
+            >
+              <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+            </ConfirmButton>
           </>
         </>
       )}
