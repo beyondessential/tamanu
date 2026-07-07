@@ -4,7 +4,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Box from '@mui/material/Box';
 import { addHours, isSameDay } from 'date-fns';
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -33,36 +33,42 @@ import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const StatusContainer = styled(function ({
-  canCreateMar,
-  canViewMar,
-  children,
-  disabled,
-  isDiscontinued,
-  isEnd,
-  isPaused,
-  onClick,
-  status,
-  ...props
-}) {
-  const isInactive = isDiscontinued || isEnd || isPaused;
-  return (
-    <td
-      data-discontinued={isDiscontinued || undefined}
-      data-ended={isEnd || undefined}
-      data-inactive={isInactive || undefined}
-      data-paused={isPaused || undefined}
-      {...props}
-    >
-      <TableCellButton
-        disabled={disabled || isInactive || !(canCreateMar || (status && canViewMar))}
-        onClick={onClick}
+const StatusContainer = styled(
+  forwardRef(function StatusContainer(
+    {
+      canCreateMar,
+      canViewMar,
+      children,
+      disabled,
+      isDiscontinued,
+      isEnd,
+      isPaused,
+      onClick,
+      status,
+      ...props
+    },
+    ref,
+  ) {
+    const isInactive = isDiscontinued || isEnd || isPaused;
+    return (
+      <td
+        ref={ref}
+        data-discontinued={isDiscontinued || undefined}
+        data-ended={isEnd || undefined}
+        data-inactive={isInactive || undefined}
+        data-paused={isPaused || undefined}
+        {...props}
       >
-        {children}
-      </TableCellButton>
-    </td>
-  );
-})`
+        <TableCellButton
+          disabled={disabled || isInactive || !(canCreateMar || (status && canViewMar))}
+          onClick={onClick}
+        >
+          {children}
+        </TableCellButton>
+      </td>
+    );
+  }),
+)`
   position: relative;
 
   &[data-inactive='true'] {
@@ -264,7 +270,6 @@ export const MarStatus = ({
   const [isSelected, setIsSelected] = useState(false);
 
   const [showWarningModal, setShowWarningModal] = useState('');
-  const [selectedElement, setSelectedElement] = useState(null);
   const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
 
   const containerRef = useRef(null);
@@ -350,7 +355,7 @@ export const MarStatus = ({
       isMultipleDoses ||
       isError);
 
-  const onSelected = event => {
+  const onSelected = () => {
     if (!canView || anchorEl || isDiscontinued || isDisabled || isEnd || !canViewMar) return;
 
     if (status) {
@@ -362,7 +367,6 @@ export const MarStatus = ({
       return;
     }
 
-    setSelectedElement(event.currentTarget);
     if (isPaused) {
       setShowWarningModal(MAR_WARNING_MODAL.PAUSED);
       return;
@@ -375,13 +379,12 @@ export const MarStatus = ({
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
     }
-    handleStatusPopperOpen(event);
+    handleStatusPopperOpen();
   };
 
-  const handleStatusPopperOpen = eventOrElement => {
+  const handleStatusPopperOpen = () => {
     setIsSelected(true);
-    const element = eventOrElement.currentTarget || eventOrElement;
-    onAnchorElChange(element);
+    onAnchorElChange(containerRef.current);
   };
 
   const handleClose = () => {
@@ -401,9 +404,7 @@ export const MarStatus = ({
 
   const handleConfirm = () => {
     setShowWarningModal('');
-    if (selectedElement) {
-      handleStatusPopperOpen({ currentTarget: selectedElement });
-    }
+    handleStatusPopperOpen();
   };
 
   const renderStatus = () => {
