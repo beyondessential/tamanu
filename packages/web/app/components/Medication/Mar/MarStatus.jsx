@@ -54,7 +54,7 @@ const StatusContainer = styled(
       {...props}
     >
       <TableCellButton
-        disabled={disabled || !(canCreateMar || (status && canViewMar))}
+        disabled={disabled || isDiscontinued || isEnd || !(canCreateMar || (status && canViewMar))}
         onClick={onClick}
       >
         {children}
