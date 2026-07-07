@@ -166,6 +166,9 @@ describe('mSupplyMedIntegrationProcessor', () => {
     jest.clearAllMocks();
     getServerFacilityIds.mockReturnValue([facilityId]);
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
+    // Tasks read the schedule from the context snapshot (createTestContext resolves it
+    // once at setup); refresh it so the config set above is what the task sees.
+    context.schedules = { ...context.schedules, mSupplyMedIntegrationProcessor: SCHEDULE_CONFIG };
   });
 
   describe('when server is an omni server', () => {
