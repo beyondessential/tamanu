@@ -175,13 +175,6 @@ const StyledTimePicker = styled(Field)`
       border-color: ${TAMANU_COLORS.softText};
     }
   }
-
-  /* Add error message styling */
-  .error-message {
-    color: ${p => p.theme.palette.error.main};
-    font-size: 10px;
-    margin-block-start: 2px;
-  }
 `;
 
 const FormContainer = styled.div`
