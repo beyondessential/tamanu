@@ -88,6 +88,12 @@ const StyledPaper = styled(Paper)`
   }
 `;
 
+const StyledForm = styled(Form)`
+  > * + * {
+    margin-block-start: 8px;
+  }
+`;
+
 const DoseContainer = styled.div`
   display: flex;
   align-items: center;
@@ -97,16 +103,15 @@ const DoseContainer = styled.div`
 `;
 
 const DoseButton = styled(IconButton).attrs({ size: 'small' })`
-  margin: -5px;
   &.${iconButtonClasses.root} {
     padding: 0;
+    color: ${p => p.theme.palette.primary.main};
+    &:disabled {
+      color: ${TAMANU_COLORS.softText};
+    }
   }
   svg {
-    color: ${p => p.theme.palette.text.primary};
     font-size: 16px;
-  }
-  &:disabled svg {
-    color: ${TAMANU_COLORS.softText};
   }
 `;
 
@@ -148,7 +153,6 @@ const InputSuffix = styled.span`
 `;
 
 const StyledTimePicker = styled(Field)`
-  margin-bottom: 7px;
   .MuiInputBase-root {
     background-color: ${p => p.theme.palette.background.paper};
     color: ${p => p.theme.palette.text.primary};
@@ -284,7 +288,7 @@ const GivenScreen = ({
   };
 
   return (
-    <Form
+    <StyledForm
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ setFieldValue, values, submitForm, errors }) => (
