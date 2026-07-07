@@ -87,15 +87,11 @@ export const SettingsView = () => {
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
 
+  // Snapshot holds only this scope's explicit overrides (no schema defaults filled);
+  // un-set settings read as undefined so the editor shows the effective value.
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useAdminSettingsQuery(
     scope,
     facilityId,
-    {
-      // Facility keeps only its explicit overrides (no schema defaults filled), so
-      // un-overridden settings read as undefined and the editor shows the inherited
-      // global value — matching the runtime facility -> global reader cascade.
-      select: data => (scope === SETTINGS_SCOPES.FACILITY ? data : applyDefaults(data, scope)),
-    },
   );
 
   const { data: globalSettings } = useAdminSettingsQuery(
@@ -113,9 +109,7 @@ export const SettingsView = () => {
     try {
       await validateSettings({ settings, scope });
       await api.put('admin/settings', { settings, facilityId, scope });
-      const fetched = await api.get('admin/settings', { scope, facilityId });
-      const savedSettings =
-        scope === SETTINGS_SCOPES.FACILITY ? fetched : applyDefaults(fetched, scope);
+      const savedSettings = await api.get('admin/settings', { scope, facilityId });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
       return { settings: savedSettings };

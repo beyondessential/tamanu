@@ -1,8 +1,19 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'es-toolkit/compat';
+import {
+  capitalize,
+  cloneDeep,
+  get,
+  isEqual,
+  isPlainObject,
+  omitBy,
+  pickBy,
+  set,
+  startCase,
+} from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
+import { useFormikContext } from 'formik';
 import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, TranslatedText } from '../../../components';
@@ -132,6 +143,20 @@ const getCategoryOptions = schema =>
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
+// A field cleared to "no override" is stored as `undefined` (lodash set leaves the
+// key present), so strip undefined leaves and now-empty objects before comparing —
+// matching an initial state where the key was simply absent.
+const stripEmpty = value => {
+  if (!isPlainObject(value)) return value;
+  return Object.entries(value).reduce((acc, [key, val]) => {
+    if (val === undefined) return acc;
+    const stripped = stripEmpty(val);
+    if (isPlainObject(stripped) && Object.keys(stripped).length === 0) return acc;
+    acc[key] = stripped;
+    return acc;
+  }, {});
+};
+
 export const EditorView = memo(
   ({
     values,
@@ -140,15 +165,22 @@ export const EditorView = memo(
     submitForm,
     resetForm,
     isSubmitting,
-    dirty,
     handleShowWarningModal,
     scope,
     globalSettings,
   }) => {
     const { facilityId } = values;
+    const { initialValues } = useFormikContext();
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
     const [failedSubmits, setFailedSubmits] = useState(0);
+
+    // Real changes only: a value returned to its inherited/default (stored as
+    // undefined) is not a change, unlike Formik's built-in `dirty`.
+    const hasChanges = useMemo(
+      () => !isEqual(stripEmpty(values.settings), stripEmpty(initialValues?.settings)),
+      [values.settings, initialValues],
+    );
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     // No category selected -> show the top-level settings (when the scope has any)
@@ -176,7 +208,7 @@ export const EditorView = memo(
 
     const handleChangeCategory = async e => {
       const newCategory = e.target.value ?? null; // null when cleared via the x
-      if (newCategory !== category && dirty) {
+      if (newCategory !== category && hasChanges) {
         const dismissChanges = await handleShowWarningModal();
         if (!dismissChanges) return;
         await resetForm();
@@ -286,7 +318,7 @@ export const EditorView = memo(
           <ButtonGroup data-testid="buttongroup-oe3l">
             <OutlinedButton
               onClick={() => resetForm()}
-              disabled={!dirty}
+              disabled={!hasChanges}
               data-testid="outlinedbutton-mhaq"
             >
               <TranslatedText
@@ -297,7 +329,7 @@ export const EditorView = memo(
             </OutlinedButton>
             <Button
               onClick={saveSettings}
-              disabled={!dirty || isSubmitting}
+              disabled={!hasChanges || isSubmitting}
               data-testid="button-s1z4"
             >
               <TranslatedText

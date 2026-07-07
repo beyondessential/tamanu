@@ -1142,6 +1142,7 @@ export const SettingInput = ({
   }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
 
   const hasGlobalValue = !isUndefined(globalValue);
+  const effectiveDefault = hasGlobalValue ? globalValue : defaultValue;
 
   // Errors show live once the user has changed the field this session (typing
   // past a limit, emptying a required value); untouched fields stay quiet
@@ -1149,13 +1150,17 @@ export const SettingInput = ({
   const { initialValues } = useFormikContext();
   const submitted = useContext(SettingsSubmitContext) > 0;
   const initialFieldValue = get(initialValues?.settings, settingsPath);
-  const initialDisplayValue = isUndefined(initialFieldValue)
-    ? (hasGlobalValue ? globalValue : defaultValue)
-    : initialFieldValue;
+  const initialDisplayValue = isUndefined(initialFieldValue) ? effectiveDefault : initialFieldValue;
   const touchedThisSession = !isEqual(normalize(value ?? initialDisplayValue), normalize(initialDisplayValue));
   const shownError = touchedThisSession || submitted ? error : null;
 
-  const handleChangeValue = newValue => handleChangeSetting(path, newValue);
+  // A value set back to its effective value (inherited global or schema default)
+  // means "no override", so clear it — Save won't stay dirty and no redundant row persists.
+  const handleChangeValue = newValue =>
+    handleChangeSetting(
+      path,
+      isEqual(normalize(newValue), normalize(effectiveDefault)) ? undefined : newValue,
+    );
   const defaultHandleChange = e => handleChangeValue(e.target.value);
   const handleChangeSwitch = e => handleChangeValue(e.target.checked);
   const handleChangeNumber = e => handleChangeValue(Number(e.target.value));
@@ -1171,7 +1176,6 @@ export const SettingInput = ({
     setShowSecretValue(prev => !prev);
   };
 
-  const effectiveDefault = hasGlobalValue ? globalValue : defaultValue;
   const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
