@@ -198,19 +198,20 @@ export const ResetToDefaultButton = ({
   onReset,
   'data-testid': dataTestId,
 }) => {
-  // On the facility editor a setting with a distinct global value inherits that
-  // value, so the baseline to reset to (and compare against) is the global value
-  // rather than the schema default.
-  const hasGlobalOverride =
-    !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
-  const resetValue = hasGlobalOverride ? globalValue : defaultValue;
-  const isUnchanged = isEqual(normalize(value), normalize(resetValue));
+  // On the facility editor a setting that also exists globally inherits the global
+  // value; reset clears the override so it inherits again, and is labelled to say
+  // so. Facility-only settings (no global value passed) inherit the schema default.
+  const hasGlobalValue = !isUndefined(globalValue);
+  const inheritedValue = hasGlobalValue ? globalValue : defaultValue;
+  // Undefined means no override is set, so it's already at the inherited value —
+  // nothing to reset. Only an explicit override that differs is resettable.
+  const isUnchanged = isUndefined(value) || isEqual(normalize(value), normalize(inheritedValue));
   return (
     <ConditionalTooltip
       visible={isUnchanged}
       title={
         isUnchanged &&
-        (hasGlobalOverride ? (
+        (hasGlobalValue ? (
           <TranslatedText
             stringId="admin.settings.action.resetToGlobal.unchangedTooltip"
             fallback="This setting already matches the global value"
@@ -227,10 +228,10 @@ export const ResetToDefaultButton = ({
       <div>
         <DefaultSettingButton
           disabled={isUnchanged}
-          onClick={() => onReset(resetValue)}
+          onClick={onReset}
           data-testid={dataTestId ?? 'defaultsettingbutton-4vbq'}
         >
-          {hasGlobalOverride ? (
+          {hasGlobalValue ? (
             <TranslatedText
               stringId="admin.settings.action.resetToGlobal"
               fallback="Reset to global"
@@ -1140,8 +1141,7 @@ export const SettingInput = ({
     }
   }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
 
-  const hasGlobalOverride =
-    !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
+  const hasGlobalValue = !isUndefined(globalValue);
 
   // Errors show live once the user has changed the field this session (typing
   // past a limit, emptying a required value); untouched fields stay quiet
@@ -1150,7 +1150,7 @@ export const SettingInput = ({
   const submitted = useContext(SettingsSubmitContext) > 0;
   const initialFieldValue = get(initialValues?.settings, settingsPath);
   const initialDisplayValue = isUndefined(initialFieldValue)
-    ? (hasGlobalOverride ? globalValue : defaultValue)
+    ? (hasGlobalValue ? globalValue : defaultValue)
     : initialFieldValue;
   const touchedThisSession = !isEqual(normalize(value ?? initialDisplayValue), normalize(initialDisplayValue));
   const shownError = touchedThisSession || submitted ? error : null;
@@ -1171,7 +1171,7 @@ export const SettingInput = ({
     setShowSecretValue(prev => !prev);
   };
 
-  const effectiveDefault = hasGlobalOverride ? globalValue : defaultValue;
+  const effectiveDefault = hasGlobalValue ? globalValue : defaultValue;
   const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 

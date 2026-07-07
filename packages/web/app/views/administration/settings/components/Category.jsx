@@ -253,6 +253,7 @@ export const Category = ({
               // Pass down inherited properties to the child category
               schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
               getSettingValue={getSettingValue}
+              getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={resolveSettingsPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
@@ -300,7 +301,7 @@ export const Category = ({
                   value={getSettingValue(newPath)}
                   defaultValue={defaultValue}
                   globalValue={getGlobalSettingValue?.(newPath)}
-                  onReset={resetValue => handleChangeSetting(newPath, resetValue)}
+                  onReset={() => handleChangeSetting(newPath, undefined)}
                 />
               </RowActions>
             )}
