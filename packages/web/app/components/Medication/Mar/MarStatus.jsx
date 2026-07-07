@@ -83,7 +83,7 @@ const StatusContainer = styled(
     color: ${p => p.theme.palette.text.tertiary};
   }
 
-  &[aria-selected='true'] {
+  &&[aria-selected='true'] {
     background-color: ${p => p.theme.palette.background.paper};
     border: 1px solid ${p => p.theme.palette.primary.main};
   }
