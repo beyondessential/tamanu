@@ -299,7 +299,8 @@ export const Category = ({
                 <ResetToDefaultButton
                   value={getSettingValue(newPath)}
                   defaultValue={defaultValue}
-                  onReset={() => handleChangeSetting(newPath, defaultValue)}
+                  globalValue={getGlobalSettingValue?.(newPath)}
+                  onReset={resetValue => handleChangeSetting(newPath, resetValue)}
                 />
               </RowActions>
             )}

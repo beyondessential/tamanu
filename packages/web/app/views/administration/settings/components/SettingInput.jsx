@@ -191,31 +191,56 @@ const normalize = val => (val === null || val === '' ? '' : val);
  * (not bundled with the input) so it lines up across every row. Disabled — with
  * an explanatory tooltip — when the value already equals the default.
  */
-export const ResetToDefaultButton = ({ value, defaultValue, onReset, 'data-testid': dataTestId }) => {
-  const isUnchangedFromDefault = isEqual(normalize(value), normalize(defaultValue));
+export const ResetToDefaultButton = ({
+  value,
+  defaultValue,
+  globalValue,
+  onReset,
+  'data-testid': dataTestId,
+}) => {
+  // On the facility editor a setting with a distinct global value inherits that
+  // value, so the baseline to reset to (and compare against) is the global value
+  // rather than the schema default.
+  const hasGlobalOverride =
+    !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
+  const resetValue = hasGlobalOverride ? globalValue : defaultValue;
+  const isUnchanged = isEqual(normalize(value), normalize(resetValue));
   return (
     <ConditionalTooltip
-      visible={isUnchangedFromDefault}
+      visible={isUnchanged}
       title={
-        isUnchangedFromDefault && (
+        isUnchanged &&
+        (hasGlobalOverride ? (
+          <TranslatedText
+            stringId="admin.settings.action.resetToGlobal.unchangedTooltip"
+            fallback="This setting already matches the global value"
+          />
+        ) : (
           <TranslatedText
             stringId="admin.settings.action.resetToDefault.unchangedTooltip"
             fallback="This setting is already at its default value"
           />
-        )
+        ))
       }
       data-testid="conditionaltooltip-qp1v"
     >
       <div>
         <DefaultSettingButton
-          disabled={isUnchangedFromDefault}
-          onClick={onReset}
+          disabled={isUnchanged}
+          onClick={() => onReset(resetValue)}
           data-testid={dataTestId ?? 'defaultsettingbutton-4vbq'}
         >
-          <TranslatedText
-            stringId="admin.settings.action.resetToDefault"
-            fallback="Reset to default"
-          />
+          {hasGlobalOverride ? (
+            <TranslatedText
+              stringId="admin.settings.action.resetToGlobal"
+              fallback="Reset to global"
+            />
+          ) : (
+            <TranslatedText
+              stringId="admin.settings.action.resetToDefault"
+              fallback="Reset to default"
+            />
+          )}
         </DefaultSettingButton>
       </div>
     </ConditionalTooltip>
