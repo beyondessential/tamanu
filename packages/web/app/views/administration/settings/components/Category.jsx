@@ -4,6 +4,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
 import KeyIcon from '@mui/icons-material/Key';
+import WarningIcon from '@mui/icons-material/WarningAmber';
 
 import { isSetting } from '@tamanu/settings/schema';
 
@@ -27,6 +28,12 @@ const StyledSecretIcon = styled(KeyIcon)`
 `;
 
 const StyledRestartIcon = styled(RefreshIcon)`
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
+  color: ${Colors.orange};
+`;
+
+const StyledHighRiskIcon = styled(WarningIcon)`
   font-size: 1.125rem;
   margin-inline-start: 0.25rem;
   color: ${Colors.orange};
@@ -128,7 +135,7 @@ const CategoryTitle = memo(({ name, path, description, depth }) => {
 });
 
 const SettingName = memo(
-  ({ name, path, description, disabled, isSecret, requiresRestart, depth }) => (
+  ({ name, path, description, disabled, isSecret, requiresRestart, highRisk, depth }) => (
   <SettingNameLabel
     $indent={depth}
     color={disabled && 'textTertiary'}
@@ -176,6 +183,20 @@ const SettingName = memo(
         data-testid="themedtooltip-rr01"
       >
         <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+      </ThemedTooltip>
+    )}
+    {highRisk && !disabled && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="admin.settings.highRiskWarningTooltip"
+            fallback="High-risk setting — changes can have significant effects"
+            data-testid="translatedtext-hr01"
+          />
+        }
+        data-testid="themedtooltip-hr01"
+      >
+        <StyledHighRiskIcon data-testid="styledhighriskicon-hr01" />
       </ThemedTooltip>
     )}
   </SettingNameLabel>
@@ -272,6 +293,7 @@ export const Category = ({
               name={name}
               description={description}
               isSecret={isSecret}
+              highRisk={schema.highRisk || highRisk}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
