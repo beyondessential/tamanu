@@ -146,7 +146,11 @@ const InputSuffix = styled.span`
   position: absolute;
 `;
 
-const StyledTimePicker = styled(Field)`
+const StyledTimePicker = styled(Field).attrs({
+  component: TimePickerField,
+  format: 'hh:mmaa',
+  timeSteps: { minutes: 1 },
+})`
   .MuiInputBase-root {
     background-color: ${p => p.theme.palette.background.paper};
     color: ${p => p.theme.palette.text.primary};
@@ -339,9 +343,6 @@ const GivenScreen = ({
                 onChange={value => {
                   setFieldValue('timeGiven', value);
                 }}
-                component={TimePickerField}
-                format="hh:mmaa"
-                timeSteps={{ minutes: 1 }}
                 error={errors.timeGiven}
                 slotProps={{
                   textField: {
