@@ -11,6 +11,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 | 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Highest | **Yes** — new ordering workflow | Detailed — 1 open question |
 | 2 | _TBC_ | _Awaiting card_ | Second | _TBC_ | Not yet added |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | Third | **Minimal** — surface an existing field on the tile | Detailed |
+| 4 | TAM-1888 | Auto-cancel lab requests left in "Sample not collected", with a per-project timeframe | High | **No** — backend + a per-project setting | Detailed — open questions |
 
 **Design work key:**
 - **Yes** — needs design work: new screens, flows, or components for the designer to produce.
@@ -71,3 +72,23 @@ Once selected, panels and individual tests do not need to be visually distinguis
 **Desired behaviour.** The specimen type is shown next to the sample collected date & time on the lab request view, so lab staff can check it at a glance before transitioning the request — without opening the sample details modal.
 
 **Rationale / current cost.** Because the specimen type isn't visible up front, wrong assignments slip through to SENAITE. The workaround is for the lab to phone the doctor to cancel and re-order the request so the correct specimen type can be assigned.
+
+### 4. TAM-1888 — Auto-cancel lab requests with no sample collected
+
+**Priority:** Fourth (High).
+
+**Requested by:** Palau and Nauru.
+
+**Problem.** Lab requests that never have a sample collected pile up in the `Sample not collected` status — Palau has over 900, Nauru nearly 800. This large pool of active requests overloads the API, especially after lab reference-data updates trigger mass re-materialisation, causing integration delays with SENAITE. The backlog grows over time, so API optimisations alone won't keep pace.
+
+**How it works today.** Requests stay in `Sample not collected` indefinitely until someone cancels them. Cancellation sets the status to `Cancelled` with a reason and an accompanying note. There is no automatic clean-up.
+
+**Desired behaviour.** The system automatically cancels lab requests that have been left in `Sample not collected` (no sample details entered) beyond a configurable age. Each project can set its own cancellation timeframe (e.g. 24, 48, 72 hours). Auto-cancellation is an option a project enables.
+
+**Rationale / current cost.** Palau and Nauru don't have capacity to check daily whether each request has had a sample collected. The current workarounds are on-call developers running mass cancellations, and carefully managing reference-data updates to limit integration delays.
+
+**Open questions (to resolve before build):**
+- **Timeframe origin & config shape:** is the age measured from request creation (request date & time)? Is the timeframe a free numeric value (hours/days) or a fixed set of options (24/48/72)? Confirm it's a per-facility/global setting with a per-project enable toggle.
+- **Identifiability:** should auto-cancelled requests carry a distinct cancellation reason (and note) so they're distinguishable from manually cancelled ones in the record and reporting?
+- **Scope of what's cancelled:** only requests still in `Sample not collected` — confirm no other active statuses are ever auto-cancelled.
+- **Timezone basis:** the age cut-off is evaluated against the primary timezone / facility timezone (relevant to what "after 24 hours" means across facilities).
