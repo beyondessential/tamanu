@@ -1,29 +1,20 @@
-import React from 'react';
-import styled from 'styled-components';
-import { ButtonWithPermissionCheck, AutocompleteInput } from '@tamanu/ui-components';
-import { NOTE_TYPES } from '@tamanu/constants';
+import React, { useState } from 'react';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import { TableButtonRow } from '../../../components';
-import { useSuggester } from '../../../api';
+import { NotesSearchBar } from '../../../components/SearchBar';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
-import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useNoteModal } from '../../../contexts/NoteModal';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
-const StyledAutocompleteInput = styled(AutocompleteInput)`
-  width: 200px;
-`;
-
 export const NotesPane = React.memo(({ encounter, disabled }) => {
-  const { noteTypeId, setNoteTypeId } = useEncounterNotesQuery();
+  // Filters are intentionally kept in local state so they reset whenever the user
+  // navigates away from and back to the notes pane.
+  const [searchParameters, setSearchParameters] = useState({});
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
-  const noteTypeSuggester = useSuggester('noteType', {
-    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE,
-  });
 
   const noteModalOnSaved = async createdNote => {
     updateNoteModalProps({ note: createdNote });
@@ -42,36 +33,32 @@ export const NotesPane = React.memo(({ encounter, disabled }) => {
 
   return (
     <TabPane>
-      <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledAutocompleteInput
-          onChange={e => setNoteTypeId(e.target.value)}
-          value={noteTypeId}
-          name="noteType"
-          suggester={noteTypeSuggester}
-          isClearable={false}
-          data-testid="styledtranslatedselectfield-oy9y"
-        />
-        <NoteModalActionBlocker>
-          <ButtonWithPermissionCheck
-            onClick={handleOpenNewNote}
-            disabled={disabled}
-            verb="create"
-            noun="EncounterNote"
-            data-testid="buttonwithpermissioncheck-qbou"
-          >
-            <TranslatedText
-              stringId="note.action.new"
-              fallback="New note"
-              data-testid="translatedtext-r2fu"
-            />
-          </ButtonWithPermissionCheck>
-        </NoteModalActionBlocker>
-      </TableButtonRow>
+      <NotesSearchBar
+        searchParameters={searchParameters}
+        setSearchParameters={setSearchParameters}
+        extraActions={
+          <NoteModalActionBlocker>
+            <ButtonWithPermissionCheck
+              onClick={handleOpenNewNote}
+              disabled={disabled}
+              verb="create"
+              noun="EncounterNote"
+              data-testid="buttonwithpermissioncheck-qbou"
+            >
+              <TranslatedText
+                stringId="note.action.new"
+                fallback="New note"
+                data-testid="translatedtext-r2fu"
+              />
+            </ButtonWithPermissionCheck>
+          </NoteModalActionBlocker>
+        }
+      />
       <NoteTableWithPermission
         encounterId={encounter.id}
         verb="write"
         noun="EncounterNote"
-        noteTypeId={noteTypeId}
+        searchParameters={searchParameters}
         noteModalOnSaved={noteModalOnSaved}
         data-testid="notetablewithpermission-ngp2"
       />

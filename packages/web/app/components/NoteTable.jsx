@@ -282,9 +282,10 @@ const NoteTable = ({
   encounterId,
   hasPermission: hasEncounterNoteWritePermission,
   noteModalOnSaved,
-  noteTypeId,
+  searchParameters = {},
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
+  const { noteTypeId } = searchParameters;
   const { openNoteModal } = useNoteModal();
   const [selectedNote, setSelectedNote] = useState(null);
   const [isNoteChangelogModalOpen, setIsNoteChangelogModalOpen] = useState(false);
@@ -361,9 +362,8 @@ const NoteTable = ({
         hideHeader
         allowExport={false}
         columns={COLUMNS}
-        key={noteTypeId}
         endpoint={`encounter/${encounterId}/notes`}
-        fetchOptions={{ noteTypeId }}
+        fetchOptions={{ ...searchParameters, facilityId }}
         elevated={false}
         noDataBackgroundColor={Colors.background}
         noDataMessage={
