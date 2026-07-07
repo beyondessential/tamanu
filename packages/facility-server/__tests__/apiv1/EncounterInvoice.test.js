@@ -1186,8 +1186,13 @@ describe('Encounter invoice', () => {
       let notGivenReason;
       let drug;
       let drugProduct;
+      let drugWithConversion;
+      let drugProductWithConversion;
 
-      async function createEncounterPrescription(encounterType = ENCOUNTER_TYPES.ADMISSION) {
+      async function createEncounterPrescription(
+        encounterType = ENCOUNTER_TYPES.ADMISSION,
+        medicationId = drug.id,
+      ) {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           encounterType,
@@ -1205,7 +1210,7 @@ describe('Encounter invoice', () => {
         const { body: prescription } = await app
           .post(`/api/medication/encounterPrescription/${encounter.id}`)
           .send({
-            medicationId: drug.id,
+            medicationId,
             prescriberId: user.id,
             doseAmount: 1,
             dosingUnit: 'mg',
@@ -1239,6 +1244,26 @@ describe('Encounter invoice', () => {
             category: INVOICE_ITEMS_CATEGORIES.DRUG,
             sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
             sourceRecordId: drug.id,
+          }),
+        );
+        drugWithConversion = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Drug with conversion',
+            code: 'drug-with-conversion',
+          }),
+        );
+        await models.ReferenceDrug.create(
+          fake(models.ReferenceDrug, {
+            referenceDataId: drugWithConversion.id,
+            unitConversion: 5,
+          }),
+        );
+        drugProductWithConversion = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.DRUG,
+            sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+            sourceRecordId: drugWithConversion.id,
           }),
         );
       });
@@ -1539,6 +1564,65 @@ describe('Encounter invoice', () => {
         const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result2).toHaveSucceeded();
         expect(result2.body.items[0].quantity).toBe(15);
+      });
+
+      it('should apply unit conversion when summing multiple MAR doses', async () => {
+        // unitConversion: 5 — doses are in mg, dispensing unit is 5mg tablets
+        // 3 MARs × doseAmount 2 = 6mg total → Math.ceil(6 / 5) = 2 tablets
+        const { encounter, prescription } = await createEncounterPrescription(
+          ENCOUNTER_TYPES.ADMISSION,
+          drugWithConversion.id,
+        );
+
+        for (let i = 0; i < 3; i++) {
+          await app.post(`/api/medication/medication-administration-record/given`).send({
+            prescriptionId: prescription.id,
+            dose: {
+              doseAmount: 2,
+              givenTime: getCurrentDateTimeString(),
+            },
+            dueAt: getCurrentDateTimeString(),
+          });
+        }
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items[0]).toMatchObject({
+          sourceRecordId: prescription.id,
+          productId: drugProductWithConversion.id,
+          quantity: 2, // Math.ceil(6 / 5) = 2
+        });
+      });
+
+      it('should round up once after summing all MAR doses, not per dose', async () => {
+        // unitConversion: 5 — doses are in mg, dispensing unit is 5mg tablets
+        // 4 MARs × doseAmount 1 = 4mg total → Math.ceil(4 / 5) = 1 tablet
+        // If rounding happened per dose: Math.ceil(1 / 5) = 1 per MAR × 4 = 4 (wrong)
+        const { encounter, prescription } = await createEncounterPrescription(
+          ENCOUNTER_TYPES.ADMISSION,
+          drugWithConversion.id,
+        );
+
+        for (let i = 0; i < 4; i++) {
+          await app.post(`/api/medication/medication-administration-record/given`).send({
+            prescriptionId: prescription.id,
+            dose: {
+              doseAmount: 1,
+              givenTime: getCurrentDateTimeString(),
+            },
+            dueAt: getCurrentDateTimeString(),
+          });
+        }
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items[0]).toMatchObject({
+          sourceRecordId: prescription.id,
+          productId: drugProductWithConversion.id,
+          quantity: 1, // Math.ceil(4 / 5) = 1, not 4
+        });
       });
     });
   });
