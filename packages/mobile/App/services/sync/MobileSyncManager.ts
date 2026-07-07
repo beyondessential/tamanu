@@ -29,6 +29,7 @@ import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 import { type TransactingModel } from './utils/getModelsForDirection';
 import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
 import { deferForeignKeys } from './utils/deferForeignKeys';
+import { checkForeignKeys } from './utils/checkForeignKeys';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -408,6 +409,10 @@ export class MobileSyncManager {
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
+        await checkForeignKeys(
+          transactionEntityManager,
+          sortedModels.map(model => model.getTableName()),
+        );
         await this.postPull(transactionEntityManager, pullUntil);
       });
     } catch (err) {
@@ -457,6 +462,10 @@ export class MobileSyncManager {
         );
         const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
+        await checkForeignKeys(
+          transactionEntityManager,
+          sortedModels.map(model => model.getTableName()),
+        );
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
         console.error(
