@@ -1,4 +1,4 @@
-import { ClickAwayListener, Fade, IconButton, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, IconButton, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
@@ -539,15 +539,9 @@ export const StatusPopper = ({
       }}
       style={{ zIndex: 1300 }}
     >
-      {({ TransitionProps }) => (
-        <Fade {...TransitionProps} timeout={250}>
-          <div>
-            <ClickAwayListener onClickAway={handleClose}>
-              <StyledPaper $placement={placement}>{getContent()}</StyledPaper>
-            </ClickAwayListener>
-          </div>
-        </Fade>
-      )}
+      <ClickAwayListener onClickAway={handleClose}>
+        <StyledPaper $placement={placement}>{getContent()}</StyledPaper>
+      </ClickAwayListener>
     </Popper>
   );
 };
