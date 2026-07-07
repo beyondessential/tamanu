@@ -1,4 +1,3 @@
-import config from 'config';
 import path from 'node:path';
 import os from 'node:os'
 import { QueryTypes } from 'sequelize';
@@ -19,9 +18,9 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
   constructor(context, overrideConfig = null) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
-    // context.schedules is settings-resolved on central; facility still reads config
+    // schedules is settings-resolved before task startup on both server types
     const { schedule, jitterTime, enabled } =
-      overrideConfig || context.schedules?.sendStatusToMetaServer || config.schedules.sendStatusToMetaServer;
+      overrideConfig || context.schedules?.sendStatusToMetaServer || {};
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     // Global-scope reader on both servers: facility has the keyed settings object
