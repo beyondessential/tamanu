@@ -1,5 +1,5 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { isArray, mergeWith } from 'es-toolkit/compat';
+import { cloneDeep, isArray, mergeWith } from 'es-toolkit/compat';
 
 import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
@@ -38,8 +38,10 @@ export async function buildSettings(models: Models, facilityId?: string) {
   for (const reader of readers) {
     const value = await reader.getSettings();
     if (value) {
+      // Clone: mergeWith mutates its first arg, and some readers return shared
+      // module-level objects (schema defaults, config) that must not be polluted.
       settings = mergeWith(
-        value,
+        cloneDeep(value),
         settings, // Prioritise previous value
         (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
       );
