@@ -10,7 +10,7 @@ All fees run through one fee engine and one pricing mechanism, so a facility man
 
 ## Shared principles
 
-- [ ] Outpatient, emergency and bed fees are all invoice products priced through the price-list system; they differ only in which product applies and when it is added — the outpatient and emergency fees at encounter start, the bed fee per qualifying night.
+- [x] Outpatient, emergency and bed fees are all invoice products priced through the price-list system; they differ only in which product applies and when it is added — the outpatient and emergency fees at encounter start, the bed fee per qualifying night.
 - [ ] All rates, age and patient-type variation, insurance eligibility and discounts come from the price-list engine; there is no separate pricing logic for fees.
 - [ ] Each bed is a priceable product, so bed rates use the same price-list engine as every other fee.
 - [ ] Where a fee needs to vary by department (walk-in pharmacy), a separate fee product carries that variation, so a facility keeps a single price list rather than a department dimension on the engine.
