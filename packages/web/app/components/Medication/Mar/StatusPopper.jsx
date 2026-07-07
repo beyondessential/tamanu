@@ -351,9 +351,7 @@ const GivenScreen = ({
             >
               <StyledTimePicker
                 name="timeGiven"
-                onChange={value => {
-                  setFieldValue('timeGiven', value);
-                }}
+                onChange={value => void setFieldValue('timeGiven', value)}
                 error={errors.timeGiven}
                 slotProps={{
                   textField: {
