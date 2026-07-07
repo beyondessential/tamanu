@@ -327,7 +327,7 @@ export const MarDetails = ({
                       <MidText mt="15px">
                         <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
                       </MidText>
-                      <DarkestText mt="3px">{marInfo.errorNotes || '-'}</DarkestText>
+                      <DarkestText mt="3px">{marInfo.errorNotes || '—' /* em dash */}</DarkestText>
                     </Box>
                   ) : (
                     <FormGrid style={{ width: '100%' }}>
