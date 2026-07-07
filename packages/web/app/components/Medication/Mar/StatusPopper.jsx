@@ -1,10 +1,10 @@
 import { ClickAwayListener, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
 import { addHours, set } from 'date-fns';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useId, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import * as yup from 'yup';
 
@@ -15,6 +15,7 @@ import {
   Field,
   Form,
   NumberField,
+  OuterLabelFieldWrapper,
   RequiredOrnament,
   TAMANU_COLORS,
   TranslatedEnum,
@@ -113,13 +114,6 @@ const DoseButton = styled(IconButton).attrs({ size: 'small' })`
   svg {
     font-size: 16px;
   }
-`;
-
-const TimeGivenTitle = styled.div`
-  color: ${p => p.theme.palette.text.secondary};
-  font-size: 12px;
-  font-weight: 500;
-  margin-block-end: 3px;
 `;
 
 const ConfirmButton = styled(Button).attrs({ fullWidth: true })`
@@ -249,6 +243,7 @@ const GivenScreen = ({
   const { encounter } = useEncounter();
   const { getFacilityNowDate, toStoredDateTime } = useDateTime();
   const doseInputRef = useRef(null);
+  const timeGivenInputId = useId();
   const [showWarningModal, setShowWarningModal] = useState(null);
 
   const { mutateAsync: updateMarToGiven, isLoading: isUpdatingMarToGiven } = useGivenMarMutation(
@@ -331,32 +326,36 @@ const GivenScreen = ({
               </DoseButton>
             </DoseContainer>
 
-            <TimeGivenTitle>
-              <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
-              <RequiredOrnament />
-            </TimeGivenTitle>
-            <StyledTimePicker
-              name="timeGiven"
-              onChange={value => {
-                setFieldValue('timeGiven', value);
-              }}
-              component={TimePickerField}
-              format="hh:mmaa"
-              timeSteps={{ minutes: 1 }}
-              error={errors.timeGiven}
-              slotProps={{
-                textField: {
-                  InputProps: {
-                    placeholder: '--:-- --',
+            <OuterLabelFieldWrapper
+              label={
+                <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
+              }
+              htmlFor={timeGivenInputId}
+              required
+              size="small"
+            >
+              <StyledTimePicker
+                name="timeGiven"
+                onChange={value => {
+                  setFieldValue('timeGiven', value);
+                }}
+                component={TimePickerField}
+                format="hh:mmaa"
+                timeSteps={{ minutes: 1 }}
+                error={errors.timeGiven}
+                slotProps={{
+                  textField: {
+                    error: errors.timeGiven,
+                    id: timeGivenInputId,
+                    InputProps: { placeholder: '--:-- --' },
                   },
-                  error: errors.timeGiven,
-                },
-                digitalClockSectionItem: {
-                  sx: { fontSize: '14px' },
-                },
-              }}
-            />
-            {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+                  digitalClockSectionItem: {
+                    sx: { fontSize: '14px' },
+                  },
+                }}
+              />
+              {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+            </OuterLabelFieldWrapper>
 
             <div>
               <ConfirmButton
