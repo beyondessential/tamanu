@@ -27,12 +27,7 @@ export class Suggester {
 
   async fetch(suffix, queryParameters) {
     const requestedAt = Date.now();
-    // Suggester lookups are best-effort and degrade gracefully (fetchSuggestions -> [],
-    // fetchCurrentOption -> undefined), so a per-keystroke miss or a stored value whose
-    // reference no longer exists shouldn't raise a global "network request failed" toast.
-    const data = await this.api.get(`${this.endpoint}${suffix}`, queryParameters, {
-      showUnknownErrorToast: false,
-    });
+    const data = await this.api.get(`${this.endpoint}${suffix}`, queryParameters);
     if (this.lastUpdatedAt < requestedAt) {
       this.cachedData = data;
       this.lastUpdatedAt = requestedAt;
