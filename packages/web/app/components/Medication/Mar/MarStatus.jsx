@@ -33,49 +33,52 @@ import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const StatusContainer = styled(
-  ({
-    canCreateMar,
-    canViewMar,
-    children,
-    disabled,
-    isDiscontinued,
-    isEnd,
-    isPaused,
-    onClick,
-    status,
-    ...props
-  }) => (
+const StatusContainer = styled(function ({
+  canCreateMar,
+  canViewMar,
+  children,
+  disabled,
+  isDiscontinued,
+  isEnd,
+  isPaused,
+  onClick,
+  status,
+  ...props
+}) {
+  const isInactive = isDiscontinued || isEnd || isPaused;
+  return (
     <td
       data-discontinued={isDiscontinued || undefined}
       data-ended={isEnd || undefined}
+      data-inactive={isInactive || undefined}
       data-paused={isPaused || undefined}
       {...props}
     >
       <TableCellButton
-        disabled={disabled || isDiscontinued || isEnd || !(canCreateMar || (status && canViewMar))}
+        disabled={disabled || isInactive || !(canCreateMar || (status && canViewMar))}
         onClick={onClick}
       >
         {children}
       </TableCellButton>
     </td>
-  ),
-)`
+  );
+})`
   position: relative;
 
-  &[data-discontinued='true'],
-  &[data-ended='true'],
-  &[data-paused='true'] {
+  &[data-inactive='true'] {
     background-image: linear-gradient(${p => p.theme.palette.divider} 1px, transparent 1px);
     background-size: 100% 5px;
     background-position: 0 2.5px;
   }
 
-  &[data-disabled='true'],
   &[data-discontinued='true'],
   &[data-ended='true'] {
     background-color: ${p => p.theme.palette.background.default};
     color: ${p => p.theme.palette.text.tertiary};
+  }
+
+  &[aria-selected='true'] {
+    border: 1px solid ${p => p.theme.palette.primary.main};
   }
 `;
 
