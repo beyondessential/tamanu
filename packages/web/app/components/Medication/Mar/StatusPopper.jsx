@@ -106,18 +106,18 @@ const DoseButton = styled(IconButton)`
 `;
 
 const TimeGivenTitle = styled.div`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${p => p.theme.palette.text.secondary};
   font-size: 12px;
   font-weight: 500;
-  margin-bottom: 3px;
+  margin-block-end: 3px;
 `;
 
 const ConfirmButton = styled(Button)`
-  min-width: 95px;
-  width: 100%;
-  height: 32px;
+  block-size: 32px;
   font-size: 12px;
-  margin-top: 7px;
+  inline-size: 100%;
+  margin-block-start: 7px;
+  min-inline-size: 95px;
 `;
 
 const StyledNumberFieldWrapper = styled.div`
@@ -143,21 +143,21 @@ const StyledNumberFieldWrapper = styled.div`
 `;
 
 const InputSuffix = styled.span`
+  color: ${p => p.theme.palette.text.tertiary};
   font-size: 11px;
+  inset-block-start: 1.7px;
+  inset-inline-end: 3px;
   position: absolute;
-  right: 3px;
-  top: 1.7px;
-  color: ${TAMANU_COLORS.midText};
 `;
 
 const StyledTimePicker = styled(Field)`
   margin-bottom: 7px;
   .MuiInputBase-root {
+    background-color: ${p => p.theme.palette.background.paper};
+    color: ${p => p.theme.palette.text.primary};
     font-size: 12px;
     height: 32px;
     width: 100%;
-    color: ${TAMANU_COLORS.darkestText};
-    background-color: ${TAMANU_COLORS.white};
     .MuiButtonBase-root {
       padding: 5px;
     }
@@ -171,7 +171,7 @@ const StyledTimePicker = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.primary} !important;
+      border-color: ${p => p.theme.palette.primary.main} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
       border-color: ${TAMANU_COLORS.softText};
@@ -180,24 +180,25 @@ const StyledTimePicker = styled(Field)`
 
   /* Add error message styling */
   .error-message {
-    color: ${TAMANU_COLORS.alert};
+    color: ${p => p.theme.palette.error.main};
     font-size: 10px;
-    margin-top: 2px;
+    margin-block-start: 2px;
   }
 `;
 
 const FormContainer = styled.div`
-  padding: 11px 14px;
-  width: ${p => p.$width}px;
-  min-width: 150px;
+  min-inline-size: 150px;
+  padding-block: 11px;
+  padding-inline: 14px;
 `;
 
 const ErrorMessage = styled.div`
-  color: ${TAMANU_COLORS.alert};
+  color: ${p => p.theme.palette.error.main};
   font-size: 12px;
-  margin: 4px 2px 2px;
   font-weight: 500;
-  line-height: 15px;
+  line-height: 1.25;
+  margin-block: 4px 2px;
+  margin-inline: 2px;
 `;
 
 const StyledButton = styled(Button).attrs({
@@ -334,7 +335,7 @@ const GivenScreen = ({
               handleSubmit(values);
             }}
           />
-          <FormContainer $width={containerWidth}>
+          <FormContainer style={{ inlineSize: containerWidth }}>
             <DoseContainer>
               <DoseButton
                 disabled={values.doseAmount <= 0.25}
