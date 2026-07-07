@@ -41,9 +41,7 @@ const Label = styled(Value)`
 `;
 
 const Separator = styled.hr`
-  border: none;
-  border-top: 1px solid ${Colors.outline};
-  margin: 6px 0 16px;
+  margin-block: 6px 16px;
 `;
 
 const DateTimeContainer = styled.div`

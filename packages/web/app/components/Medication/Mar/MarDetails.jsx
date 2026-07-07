@@ -103,9 +103,7 @@ const StyledEditIcon = styled(Edit)`
 `;
 
 const HorizontalSeparator = styled.hr`
-  border: none;
-  border-top: 1px solid ${Colors.outline};
-  margin: 14px 0;
+  margin-block: 14px;
 `;
 
 const VerticalSeparator = styled.div`
