@@ -37,6 +37,8 @@ const StyledPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  inline-size: 8rem;
+  min-inline-size: 8rem;
   padding: 10px;
   position: relative;
 
@@ -177,11 +179,6 @@ const StyledTimePicker = styled(Field)`
   }
 `;
 
-const FormContainer = styled.div`
-  min-inline-size: 7.5rem;
-  inline-size: 7.5rem;
-`;
-
 const ErrorMessage = styled.div`
   color: ${p => p.theme.palette.error.main};
   font-size: 12px;
@@ -316,7 +313,7 @@ const GivenScreen = ({
               handleSubmit(values);
             }}
           />
-          <FormContainer>
+          <>
             <DoseContainer>
               <DoseButton
                 disabled={values.doseAmount <= 0.25}
@@ -378,7 +375,7 @@ const GivenScreen = ({
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
               </ConfirmButton>
             </div>
-          </FormContainer>
+          </>
         </>
       )}
       initialValues={{
