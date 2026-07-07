@@ -78,6 +78,7 @@ const StatusContainer = styled(function ({
   }
 
   &[aria-selected='true'] {
+    background-color: ${p => p.theme.palette.background.paper};
     border: 1px solid ${p => p.theme.palette.primary.main};
   }
 `;
