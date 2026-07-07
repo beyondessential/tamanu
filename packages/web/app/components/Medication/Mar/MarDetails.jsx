@@ -91,17 +91,20 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   font-size: 16px;
 `;
 
-const StyledEditButton = styled(IconButton)`
+const StyledEditIcon = styled(Edit)`
+  color: ${p => p.theme.palette.primary.main};
+  font-size: 20px;
+`;
+
+const EditButton = styled(IconButton).attrs({
+  children: <StyledEditIcon />,
+  disableRipple: true,
+})`
   position: absolute !important;
   right: 10px;
   top: 10px;
   padding: 0 !important;
   background-color: inherit !important;
-`;
-
-const StyledEditIcon = styled(Edit)`
-  color: ${p => p.theme.palette.primary.main};
-  font-size: 20px;
 `;
 
 const HorizontalSeparator = styled.hr`
@@ -413,12 +416,7 @@ export const MarDetails = ({
                   </DarkestText>
                   {canEditMar && (
                     <NoteModalActionBlocker>
-                      <StyledEditButton
-                        disableRipple
-                        onClick={() => void setShowChangeStatusModal(true)}
-                      >
-                        <StyledEditIcon />
-                      </StyledEditButton>
+                      <EditButton onClick={() => void setShowChangeStatusModal(true)} />
                     </NoteModalActionBlocker>
                   )}
                 </DetailsContainer>
@@ -450,9 +448,7 @@ export const MarDetails = ({
                       </Box>
                       {canEditMar && (
                         <NoteModalActionBlocker>
-                          <StyledEditButton disableRipple onClick={() => setShowEditDoseModal({})}>
-                            <StyledEditIcon />
-                          </StyledEditButton>
+                          <EditButton onClick={() => setShowEditDoseModal({})} />
                         </NoteModalActionBlocker>
                       )}
                     </DetailsContainer>
@@ -539,12 +535,9 @@ export const MarDetails = ({
                           </Box>
                           {canEditMar && (
                             <NoteModalActionBlocker>
-                              <StyledEditButton
-                                disableRipple
-                                onClick={() => setShowEditDoseModal(dose)}
-                              >
+                              <EditButton disableRipple onClick={() => setShowEditDoseModal(dose)}>
                                 <StyledEditIcon />
-                              </StyledEditButton>
+                              </EditButton>
                             </NoteModalActionBlocker>
                           )}
                         </DetailsContainer>
