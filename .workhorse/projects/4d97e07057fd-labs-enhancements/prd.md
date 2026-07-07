@@ -12,6 +12,15 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 | 2 | _TBC_ | _Awaiting card_ | Second | _TBC_ | Not yet added |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | Third | **Minimal** — surface an existing field on the tile | Detailed |
 
+**Design work key:**
+- **Yes** — needs design work: new screens, flows, or components for the designer to produce.
+- **Minimal** — small UI change (e.g. surfacing an existing field); light or no dedicated design needed.
+- **No** — no design work; developer can implement from the requirement directly.
+
+**Status key:**
+- **Detailed** — requirement talked through and written up; any remaining gaps noted as open questions.
+- **Not yet added** — card identified but not yet worked through.
+
 ## Background: how lab requests work today
 
 Useful context that spans several of the requirements below.
