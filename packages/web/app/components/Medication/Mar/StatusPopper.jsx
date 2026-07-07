@@ -1,9 +1,10 @@
-import { ClickAwayListener, IconButton, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { addHours, set } from 'date-fns';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import * as yup from 'yup';
 
@@ -90,19 +91,23 @@ const StyledPaper = styled(Paper)`
 const DoseContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 7px;
-  gap: 5px;
+  justify-content: center;
+  gap: 4px;
+  inline-size: 100%;
 `;
 
-const DoseButton = styled(IconButton)`
-  padding: 5px;
+const DoseButton = styled(IconButton).attrs({ size: 'small' })`
   margin: -5px;
-  svg {
-    color: ${p => (p.disabled ? TAMANU_COLORS.softText : TAMANU_COLORS.primary)};
-    width: 14px;
-    height: 14px;
+  &.${iconButtonClasses.root} {
+    padding: 0;
   }
-  ${p => p.$hidden && 'opacity: 0;'}
+  svg {
+    color: ${p => p.theme.palette.text.primary};
+    font-size: 16px;
+  }
+  &:disabled svg {
+    color: ${TAMANU_COLORS.softText};
+  }
 `;
 
 const TimeGivenTitle = styled.div`
@@ -112,12 +117,9 @@ const TimeGivenTitle = styled.div`
   margin-block-end: 3px;
 `;
 
-const ConfirmButton = styled(Button)`
+const ConfirmButton = styled(Button).attrs({ fullWidth: true })`
   block-size: 32px;
   font-size: 12px;
-  inline-size: 100%;
-  margin-block-start: 7px;
-  min-inline-size: 95px;
 `;
 
 const StyledNumberFieldWrapper = styled.div`
@@ -127,10 +129,8 @@ const StyledNumberFieldWrapper = styled.div`
     font-size: 11px;
     height: 17px;
     padding: 1px calc(${p => p.$units.length}ch + 5px) 1px 3px;
-    text-align: center;
     width: 41px;
 
-    /* Remove the spinner arrows */
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -257,19 +257,6 @@ const GivenScreen = ({
       },
     },
   );
-  const handleDecreaseDose = (doseAmount, setFieldValue) => {
-    if (doseAmount <= 0.25) return;
-    setFieldValue('doseAmount', doseAmount - 0.25);
-  };
-
-  const handleIncreaseDose = (doseAmount, setFieldValue) => {
-    if (!doseAmount) {
-      setFieldValue('doseAmount', 0.5);
-      return;
-    }
-    setFieldValue('doseAmount', doseAmount + 0.5);
-  };
-
   const handleSubmit = async ({ timeGiven, doseAmount }) => {
     if (
       Number(doseAmount) !== Number(prescriptionDoseAmount) &&
@@ -313,22 +300,28 @@ const GivenScreen = ({
           <>
             <DoseContainer>
               <DoseButton
+                onClick={() => doseInputRef.current?.stepDown()}
                 disabled={values.doseAmount <= 0.25}
-                onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}
-                $hidden={isVariableDose}
+                style={isVariableDose ? { visibility: 'hidden' } : undefined}
               >
                 <RemoveCircleOutlineIcon />
               </DoseButton>
-              <StyledNumberFieldWrapper $units={dosingUnit} ref={doseInputRef}>
-                <Field name="doseAmount" component={NumberField} min={0.25} />
+              <StyledNumberFieldWrapper $units={dosingUnit}>
+                <Field
+                  name="doseAmount"
+                  component={NumberField}
+                  inputRef={doseInputRef}
+                  min={0.25}
+                  step={0.25}
+                />
                 <InputSuffix>
                   <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
                   <RequiredOrnament />
                 </InputSuffix>
               </StyledNumberFieldWrapper>
               <DoseButton
-                onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}
-                $hidden={isVariableDose}
+                onClick={() => doseInputRef.current?.stepUp()}
+                style={isVariableDose ? { visibility: 'hidden' } : undefined}
               >
                 <AddCircleOutlineIcon />
               </DoseButton>
