@@ -450,10 +450,7 @@ export const MarDetails = ({
                       </Box>
                       {canEditMar && (
                         <NoteModalActionBlocker>
-                          <StyledEditButton
-                            disableRipple
-                            onClick={() => void setShowEditDoseModal({})}
-                          >
+                          <StyledEditButton disableRipple onClick={() => setShowEditDoseModal({})}>
                             <StyledEditIcon />
                           </StyledEditButton>
                         </NoteModalActionBlocker>
@@ -488,7 +485,7 @@ export const MarDetails = ({
                             )}
                           </DoseIndex>
                           {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-                            <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
+                            <RemoveDoseText onClick={() => setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
                                 stringId="medication.mar.action.removeAdditionalDose"
@@ -718,7 +715,7 @@ export const MarDetails = ({
           )}
         />
       </StyledFormModal>
-      {!!showChangeStatusModal && (
+      {showChangeStatusModal && (
         <ChangeStatusModal
           open={showChangeStatusModal}
           onClose={() => void setShowChangeStatusModal(false)}
