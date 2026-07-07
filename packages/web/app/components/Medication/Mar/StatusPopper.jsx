@@ -89,11 +89,6 @@ const PopperContent = styled.div`
   padding: 11px 14px;
 `;
 
-const StyledButton = styled(Button)`
-  color: ${p => p.$color};
-  border-color: ${p => p.$color} !important;
-`;
-
 const DoseContainer = styled.div`
   display: flex;
   align-items: center;
@@ -143,6 +138,9 @@ const StyledNumberFieldWrapper = styled.div`
       -webkit-appearance: none;
       margin: 0px;
     }
+
+    /* For Firefox */
+    -moz-appearance: textfield;
   }
 `;
 
@@ -204,17 +202,26 @@ const ErrorMessage = styled.div`
   line-height: 15px;
 `;
 
+const StyledButton = styled(Button).attrs({
+  color: 'inherit',
+  variant: 'outlined',
+})`
+  border-color: ${p => p.$color};
+  color: ${p => p.$color};
+  transition-property: none;
+`;
+
 const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
     <PopperContent>
       <NoteModalActionBlocker>
-        <StyledButton onClick={onGivenClick} variant="outlined" $color={TAMANU_COLORS.green}>
+        <StyledButton $color={TAMANU_COLORS.green} onClick={onGivenClick}>
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
       <hr aria-hidden />
       <NoteModalActionBlocker>
-        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={TAMANU_COLORS.alert}>
+        <StyledButton $color={TAMANU_COLORS.alert} onClick={onNotGivenClick}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
         </StyledButton>
       </NoteModalActionBlocker>
