@@ -276,8 +276,7 @@ const GivenScreen = ({
     setFieldValue('doseAmount', doseAmount + 0.5);
   };
 
-  const handleSubmit = async data => {
-    const { timeGiven, doseAmount } = data;
+  const handleSubmit = async ({ timeGiven, doseAmount }) => {
     if (
       Number(doseAmount) !== Number(prescriptionDoseAmount) &&
       !showWarningModal &&
