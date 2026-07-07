@@ -1,4 +1,4 @@
-import { ClickAwayListener, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
@@ -32,7 +32,8 @@ import { TimePickerField } from '../../Field/TimePickerField';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { WarningModal } from '../WarningModal';
 
-const StyledPaper = styled(Paper)`
+const StyledPaper = styled.div`
+  background-color: ${p => p.theme.palette.background.paper};
   border-radius: 5px;
   border: 1px solid ${p => p.theme.palette.divider};
   box-shadow: 0 8px 32px 0 oklch(0 0 0 / 15%);
