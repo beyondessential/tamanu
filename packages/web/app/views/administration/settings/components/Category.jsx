@@ -266,11 +266,15 @@ const SettingName = memo(
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
-  // Exact search hits (and groups holding one) first — flags only exist on
-  // search-filtered schema copies, so the category view is unaffected.
+  // Search ordering — flags only exist on search-filtered schema copies, so
+  // the category view is unaffected. Exact hits (and groups holding one)
+  // first, then by match tier (strong matches lead, weak ones sink).
   const aExact = Boolean(a1.__exactMatch || a1.__hasExactMatch);
   const bExact = Boolean(b1.__exactMatch || b1.__hasExactMatch);
   if (aExact !== bExact) return aExact ? -1 : 1;
+  const aTier = a1.__matchTier ?? Infinity;
+  const bTier = b1.__matchTier ?? Infinity;
+  if (aTier !== bTier) return aTier - bTier;
   const aName = a1.name || a0;
   const bName = b1.name || b0;
   const isTopLevelA = isSetting(a1);

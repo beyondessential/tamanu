@@ -81,7 +81,15 @@ describe('filterSettingsSchema', () => {
     expect(filterSettingsSchema(schema, 'zzz-no-such-setting')).toBeNull();
   });
 
-  it('matches at word starts only, including camelCase boundaries', () => {
+  it('does not mutate the input schema', () => {
+    const before = JSON.stringify(schema);
+    filterSettingsSchema(schema, 'from');
+    expect(JSON.stringify(schema)).toBe(before);
+  });
+
+  // Rank-don't-hide: weaker matches are kept but carry a worse (higher) tier,
+  // so the results view sorts them below the strong ones instead of hiding them.
+  describe('match tiers', () => {
     const pagey = {
       properties: {
         ageDisplayFormat: { type: 'string', name: 'Age display format' },
@@ -93,60 +101,51 @@ describe('filterSettingsSchema', () => {
         },
       },
     };
-    // "age" must not surface pageSize (substring inside a word)...
-    expect(Object.keys(filterSettingsSchema(pagey, 'age').properties)).toEqual([
-      'ageDisplayFormat',
-    ]);
-    // ...but "page" still matches the camelCase segment
-    const paged = filterSettingsSchema(pagey, 'page');
-    expect(paged.properties.fhir.properties.maxPageSize).toBeTruthy();
-    expect(paged.properties.fhir.properties.defaultCount).toBeUndefined();
-  });
 
-  it('does not mutate the input schema', () => {
-    const before = JSON.stringify(schema);
-    filterSettingsSchema(schema, 'from');
-    expect(JSON.stringify(schema)).toBe(before);
-  });
+    it('ranks word-start name hits above mid-word description hits', () => {
+      const result = filterSettingsSchema(pagey, 'age');
+      // "age" starts a word only in Age display format; "page" hits are kept but sink
+      expect(result.properties.ageDisplayFormat.__matchTier).toBe(1);
+      expect(result.properties.fhir.__matchTier).toBeGreaterThan(1);
+    });
 
-  it('prefers setting-name matches over category-name matches', () => {
-    const fielded = {
-      properties: {
-        // category display name mentions "previously"; its key/paths don't
-        fields: { name: 'Previously localised fields', properties: {
-          displayId: { type: 'string' },
-        } },
-        reports: { properties: {
-          previouslyUsed: { type: 'boolean', name: 'Previously used' },
-        } },
-      },
-    };
-    // setting-name tier wins: only the setting shows
-    expect(Object.keys(filterSettingsSchema(fielded, 'previously').properties)).toEqual([
-      'reports',
-    ]);
-    // with no setting hit, the category-name tier is reachable
-    expect(Object.keys(filterSettingsSchema(fielded, 'localised').properties)).toEqual(['fields']);
-  });
+    it('ranks name hits above description hits', () => {
+      const result = filterSettingsSchema(pagey, 'page');
+      const { maxPageSize, defaultCount } = result.properties.fhir.properties;
+      expect(maxPageSize.__matchTier).toBe(1); // camelCase word-start in the key
+      expect(defaultCount.__matchTier).toBeGreaterThan(maxPageSize.__matchTier);
+    });
 
-  it('prefers name/path matches over description matches', () => {
-    const tiered = {
-      properties: {
-        relayMode: { type: 'string', name: 'Relay mode' },
-        transportHost: { type: 'string', description: 'SMTP relay hostname' },
-      },
-    };
-    // both mention "relay", but only the name match shows while one exists
-    expect(Object.keys(filterSettingsSchema(tiered, 'relay').properties)).toEqual(['relayMode']);
-    // description tier still reachable when no name/path matches
-    expect(Object.keys(filterSettingsSchema(tiered, 'smtp').properties)).toEqual([
-      'transportHost',
-    ]);
-  });
+    it('ranks setting-name hits above category-name hits', () => {
+      const fielded = {
+        properties: {
+          // category display name mentions "previously"; its key/paths don't
+          fields: {
+            name: 'Previously localised fields',
+            properties: { displayId: { type: 'string' } },
+          },
+          reports: {
+            properties: { previouslyUsed: { type: 'boolean', name: 'Previously used' } },
+          },
+        },
+      };
+      const result = filterSettingsSchema(fielded, 'previously');
+      expect(result.properties.reports.__matchTier).toBe(1);
+      expect(result.properties.fields.__matchTier).toBe(3);
+      // the category-name match still brings its whole subtree
+      expect(result.properties.fields.properties.displayId).toBeTruthy();
+    });
 
-  it('falls back to substring matching when word-start finds nothing', () => {
-    // no word starts with "nation", but vaccinations contains it
-    const result = filterSettingsSchema(schema, 'nation');
-    expect(Object.keys(result.properties)).toEqual(['vaccinations']);
+    it('ranks substring name hits below word-start ones but above description hits', () => {
+      const tiered = {
+        properties: {
+          donation: { type: 'string', name: 'Donation' },
+          notes: { type: 'string', description: 'Shown on the nation-wide report' },
+        },
+      };
+      const result = filterSettingsSchema(tiered, 'nation');
+      expect(result.properties.donation.__matchTier).toBe(2);
+      expect(result.properties.notes.__matchTier).toBe(5);
+    });
   });
 });
