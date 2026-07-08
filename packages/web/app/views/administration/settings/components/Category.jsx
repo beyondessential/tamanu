@@ -123,9 +123,10 @@ const InfoBannerAlert = styled(Alert)`
   margin-inline-end: 1.25rem;
 `;
 
-// Same colour as the row hover band so highlights read as part of one system.
+// One step up the primary ramp from the row hover band (primary10), so the
+// highlight stays visible when its row is hovered.
 const Mark = styled.mark`
-  background-color: ${Colors.primary10};
+  background-color: ${Colors.primary30};
   border-radius: 2px;
   color: inherit;
 `;
