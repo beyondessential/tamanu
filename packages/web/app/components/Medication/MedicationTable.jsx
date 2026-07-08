@@ -340,7 +340,11 @@ export const EncounterMedicationTable = ({
     const openMedicationId = searchParams.get('openMedicationId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
-      navigate(location.pathname, { replace: true });
+      searchParams.delete('openMedicationId');
+      navigate(
+        { pathname: location.pathname, search: searchParams.toString() },
+        { replace: true },
+      );
     }
   }, []);
 
