@@ -40,8 +40,6 @@ const StyledSelectInput = styled(SelectInput)`
 `;
 
 const StyledSearchInput = styled(SearchInput)`
-  // Preferred width matching the selects, but yields (down to a usable floor)
-  // before crowding the sub-category select or wrapping the action buttons.
   flex: 0 1 18.75rem;
   min-width: 11rem;
 `;
@@ -62,9 +60,7 @@ const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: end;
-  // Breathing room between the selects and the search/actions group; when the
-  // window narrows the search field shrinks (see StyledSearchInput) rather
-  // than anything wrapping or crushing.
+  // the search field shrinks before anything wraps or crushes
   gap: 1rem;
 `;
 
@@ -83,8 +79,6 @@ const CategoriesWrapper = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
-  // Never squash the actions: keep them one line and let the search shrink or
-  // the group wrap instead.
   flex-shrink: 0;
   white-space: nowrap;
 `;
@@ -205,15 +199,11 @@ export const EditorView = memo(
     const [subCategory, setSubCategory] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [failedSubmits, setFailedSubmits] = useState(0);
-    // A single character matches half the schema and means nothing yet — the
-    // category view stays put until the query is at least two characters.
+    // a single character matches half the schema
     const MIN_SEARCH_LENGTH = 2;
-    // Broad queries can match hundreds of settings; deferring lets typing stay
-    // responsive (React keeps showing the previous results and time-slices the
-    // re-filter/re-render in the background) instead of freezing per keystroke.
+    // defer filtering so broad queries don't freeze typing
     const deferredSearchQuery = useDeferredValue(searchQuery);
-    // Drives what the body renders (and so path resolution); may lag isSearching
-    // by a beat while a deferred render is pending.
+    // drives the rendered body; lags the input while a deferred render is pending
     const isSearchRender = deferredSearchQuery.trim().length >= MIN_SEARCH_LENGTH;
 
     // Real changes only: a value returned to its inherited/default (stored as
@@ -240,22 +230,16 @@ export const EditorView = memo(
       [scopedSchema, effectiveCategory, subCategory],
     );
 
-    // Search is scoped to the current selection: within the selected
-    // category/sub-category when one is chosen, across every category
-    // otherwise. The unscoped case filters the raw scoped schema (not
-    // prepareSchema's copy) so root-level settings keep their real top-level
-    // paths, and results render from the root so headings and inherited flags
-    // (highRisk, requiresRestart) flow through the normal Category recursion.
-    // Yields { schema, meta } — meta carries the per-node match metadata the
-    // results view sorts and annotates by — or null when nothing matches.
+    // Search within the selection when a category is chosen, across everything
+    // otherwise (filtering the raw scoped schema, not prepareSchema's copy, so
+    // root-level settings keep their real paths). Null when nothing matches.
     const searchResult = useMemo(() => {
       if (!isSearchRender) return null;
       const baseSchema = category ? schemaForCategory : getScopedSchema(scope);
       if (!baseSchema) return null;
       const filtered = filterSettingsSchema(baseSchema, deferredSearchQuery);
-      // Scoped search keeps the category's heading for context, but the scope
-      // root's own name ("Central server settings") is not a category heading —
-      // drop it so unscoped results don't render it as a bogus title.
+      // the scope root's name ("Central server settings") is not a category
+      // heading — drop it for unscoped results
       if (!filtered || category) return filtered;
       const rootWithoutName = { ...filtered.schema };
       delete rootWithoutName.name;
@@ -277,10 +261,7 @@ export const EditorView = memo(
         if (!dismissChanges) return;
         await resetForm();
       }
-      // Picking a category is an explicit "show me this category": drop any
-      // active query rather than silently keeping it as a filter the user has
-      // to notice over in the search box. (Typing a query with a category
-      // selected still scopes to it — that combination is deliberate.)
+      // picking a category is a fresh intent — drop any active query
       setSearchQuery('');
       setSubCategory(null);
       setCategory(newCategory);
@@ -292,11 +273,8 @@ export const EditorView = memo(
       setSubCategory(e.target.value);
     };
 
-    // Unscoped search renders from the schema root, so its paths are already
-    // complete; the category view AND category-scoped search render from the
-    // selected category, so paths need the selection prefixed. Keyed to
-    // isSearchRender (not isSearching) so path semantics always match the tree
-    // currently on screen, even mid-deferral.
+    // Unscoped search renders from the schema root, so paths are already
+    // complete; the category view and scoped search need the selection prefixed.
     const getSettingPath = path =>
       isSearchRender && !category
         ? path

@@ -13,31 +13,18 @@ export const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const NO_MATCH = Infinity;
 
 /**
- * Filters `schema` to the settings matching `query`, case-insensitively.
- * Rank-don't-hide: nothing that matches is dropped; instead every kept node
- * gets match metadata the results view sorts by, so strong matches lead and
- * weak ones sink instead of vanishing. Tiers, best first: setting name/path
- * before category name/path before description (leaf-only — group descriptions
- * are invisible in results), and word-start matches ("age" → "Age display
- * format", never "page") before substring-anywhere ones ("nation" →
- * Vaccinations). A group whose own name or path matches keeps its whole
- * subtree, and the group structure above each match is kept so results render
- * with their category headings.
+ * Filters `schema` to the settings matching `query`, case-insensitively,
+ * keeping the group structure above each match. Rank-don't-hide: every match
+ * is kept and tiered (setting name/path > category name/path > description,
+ * word-start > substring) so the view sorts strong matches first instead of
+ * hiding weak ones. A group whose own name or path matches keeps its whole
+ * subtree.
  *
- * Returns `{ schema, meta }` — a filtered copy plus a WeakMap from its nodes to
- * `{ tier, exact, hasExact, matchedDescription }`:
- * - `tier`: the node's best tier (own or descendant); lower sorts first
- * - `exact`: the query equals the node's whole display name; sorts before
- *   everything
- * - `hasExact`: a group holding an exact match somewhere below
- * - `matchedDescription`: the description contains the query, so the view
- *   surfaces it inline (a tooltip-only hit reads as an inexplicable result)
- * Keeping metadata out of the schema nodes means the domain shape never grows
- * presentation fields, and unfiltered schemas can't carry stale flags.
- *
- * Returns null when nothing matches, and the schema unchanged (empty meta) for
- * an empty query. Copies rather than mutates: the scoped schema is a shared
- * singleton and mutating it corrupts every later schema walk.
+ * Returns `{ schema, meta }`: a filtered copy plus a WeakMap from its nodes to
+ * `{ tier, exact, hasExact, matchedDescription }` — kept out of the schema so
+ * the domain shape never grows presentation fields. Null when nothing matches;
+ * the schema unchanged for an empty query. Copies rather than mutates: the
+ * scoped schema is a shared singleton.
  */
 export const filterSettingsSchema = (schema, query) => {
   const meta = new WeakMap();
@@ -53,9 +40,8 @@ export const filterSettingsSchema = (schema, query) => {
     const name = displayName(node, key);
     if (atWordStart(name) || atWordStart(path)) return isLeaf ? 1 : 3;
     if (anywhere(name) || anywhere(path)) return isLeaf ? 2 : 4;
-    // Description tiers are leaf-only: a group's description is never shown in
-    // the results, and a hit there would drag in its entire subtree of
-    // non-matching settings with nothing visible to explain why.
+    // leaf-only: group descriptions are never shown, and a hit there would
+    // drag in a whole subtree with nothing visible to explain why
     if (!isLeaf) return NO_MATCH;
     if (atWordStart(node.description)) return 5;
     if (anywhere(node.description)) return 6;
@@ -83,9 +69,8 @@ export const filterSettingsSchema = (schema, query) => {
     let bestChild = NO_MATCH;
     let hasExact = false;
     for (const [childKey, child] of Object.entries(node.properties)) {
-      // An own-matched group keeps its whole subtree: children that didn't
-      // match themselves ride along as-is (they can't need metadata — an exact
-      // or description hit would have made them match).
+      // an own-matched group keeps its whole subtree; non-matching children
+      // ride along as-is (a hit would have made them match)
       const kept =
         filterNode(child, childKey, path ? `${path}.${childKey}` : childKey) ??
         (ownMatched ? child : null);

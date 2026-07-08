@@ -123,29 +123,25 @@ const InfoBannerAlert = styled(Alert)`
   margin-inline-end: 1.25rem;
 `;
 
-// One step up the primary ramp from the row hover band (primary10), so the
-// highlight stays visible when its row is hovered.
+// a step above the hover band (primary10) so highlights survive row hover
 const Mark = styled.mark`
   background-color: ${Colors.primary30};
   border-radius: 2px;
   color: inherit;
 `;
 
-// Description line shown under a setting's name when a search hit is in the
-// description — otherwise the match reason is invisible (tooltip-only).
+// description shown under the row when the search hit is in it
 const MatchedDescription = styled(BodyText)`
   color: ${Colors.midText};
   font-size: 13px;
   grid-column: 1 / -1;
   margin-block: -8px 13px;
-  // The name's text inset is the outer label's per-depth margin PLUS the
-  // nested inner label's base 1.25rem — match both so this aligns with it.
+  // outer label's per-depth margin + inner label's base 1.25rem
   margin-inline-start: ${props => 2.5 + (props.$indent ?? 0) * 1.25}rem;
   max-inline-size: 60ch;
 `;
 
-// Wraps each occurrence of `query` in text with a highlight mark. Substring
-// (not word-start) so it explains rows from either matching tier.
+// substring (not word-start) so it explains rows from either matching tier
 const highlightMatches = (text, query) => {
   const needle = query?.trim();
   if (!needle) return text;
@@ -220,8 +216,7 @@ const SettingName = memo(
       data-testid="themedtooltip-2qoa"
     >
       <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-        {/* single span: the label is inline-flex with a gap, so bare highlight
-            fragments would render as separate flex items with gaps between */}
+        {/* one span: the label is inline-flex with a gap, so bare fragments would gap apart */}
         <span>
           {searchQuery
             ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
@@ -265,9 +260,8 @@ const SettingName = memo(
   </SettingNameLabel>
 ));
 
-// Search ordering comes from the filter's metadata (absent outside search, so
-// the category view is unaffected): exact hits (and groups holding one) first,
-// then by match tier (strong matches lead, weak ones sink).
+// search ordering from the filter's metadata (absent outside search):
+// exact hits first, then match tier
 const sortProperties = searchMeta => ([a0, a1], [b0, b1]) => {
   const aMeta = searchMeta?.get(a1);
   const bMeta = searchMeta?.get(b1);
@@ -343,10 +337,6 @@ export const Category = ({
         const disabled = !canWriteHighRisk && isHighRisk;
         const isMultiEntry =
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
-        // When a search hit is in the description, surface it under the row —
-        // the tooltip-only description makes such matches look inexplicable.
-        // The metadata comes from filterSettingsSchema, the single source of
-        // match logic; it only exists for search-filtered schema copies.
         const showMatchedDescription =
           Boolean(searchQuery) && Boolean(searchMeta?.get(propertySchema)?.matchedDescription);
 
