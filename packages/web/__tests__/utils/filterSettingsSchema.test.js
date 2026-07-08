@@ -34,14 +34,12 @@ describe('filterSettingsSchema', () => {
     expect(Object.keys(result.properties.mail.properties)).toEqual(['from']);
   });
 
-  it('matches on dotted path and description', () => {
+  it('matches on dotted path but not description', () => {
     const byPath = filterSettingsSchema(schema, 'mail.transport.host');
     expect(byPath.properties.mail.properties.transport.properties.host).toBeTruthy();
 
-    const byDescription = filterSettingsSchema(schema, 'smtp relay');
-    expect(Object.keys(byDescription.properties)).toEqual(['mail']);
-    expect(byDescription.properties.mail.properties.transport.properties.host).toBeTruthy();
-    expect(byDescription.properties.mail.properties.from).toBeUndefined();
+    // descriptions are invisible in the results, so matching on them reads as noise
+    expect(filterSettingsSchema(schema, 'smtp relay')).toBeNull();
   });
 
   it('keeps the whole subtree when a group itself matches', () => {
@@ -74,12 +72,14 @@ describe('filterSettingsSchema', () => {
         },
       },
     };
-    // "age" must not surface page/pageSize (substring inside a word)...
+    // "age" must not surface pageSize (substring inside a word)...
     expect(Object.keys(filterSettingsSchema(pagey, 'age').properties)).toEqual([
       'ageDisplayFormat',
     ]);
-    // ...but "page" still matches both the camelCase segment and the prose word
-    expect(filterSettingsSchema(pagey, 'page').properties.fhir).toBeTruthy();
+    // ...but "page" still matches the camelCase segment
+    const paged = filterSettingsSchema(pagey, 'page');
+    expect(paged.properties.fhir.properties.maxPageSize).toBeTruthy();
+    expect(paged.properties.fhir.properties.defaultCount).toBeUndefined();
   });
 
   it('does not mutate the input schema', () => {

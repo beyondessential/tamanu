@@ -18,8 +18,9 @@ const matches = (needleRegExp, ...haystacks) =>
 
 /**
  * Returns a copy of `schema` containing only the settings matching `query`
- * (case-insensitive at word starts, against display name, dotted key path, and
- * description),
+ * (case-insensitive at word starts, against display name and dotted key path —
+ * not description: it's invisible in the results, so matches on it read as
+ * noise),
  * keeping the group structure above each match so results render with their
  * category headings. A group whose own name or path matches keeps its whole
  * subtree. Returns null when nothing matches, and the schema unchanged for an
@@ -32,7 +33,7 @@ export const filterSettingsSchema = (schema, query) => {
   const needleRegExp = new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(needle)}`);
 
   const filterNode = (node, key, path) => {
-    if (matches(needleRegExp, displayName(node, key), path, node.description)) return node;
+    if (matches(needleRegExp, displayName(node, key), path)) return node;
     if (isSetting(node) || !node.properties) return null;
     const properties = {};
     for (const [childKey, child] of Object.entries(node.properties)) {
