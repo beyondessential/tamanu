@@ -33,6 +33,18 @@ describe('getSettingsPskKeyBuffer', () => {
     setSettingsPskSource(async () => other);
     expect(await getSettingsPskKeyBuffer()).toEqual(Buffer.from(other, 'hex'));
   });
+
+  // Buffer.from(x, 'hex') silently drops bad chars, so a corrupt/empty PSK must be
+  // rejected here rather than surfacing later as an opaque "Decryption failed".
+  it.each([
+    ['an empty string', ''],
+    ['a non-hex string', 'not-a-valid-hex-psk'],
+    ['a too-short hex string', 'abcd'],
+    ['odd-length hex', 'a'.repeat(63)],
+  ])('rejects %s with a clear error instead of a silent bad key', async (_label, badPsk) => {
+    setSettingsPskSource(async () => badPsk);
+    await expect(getSettingsPskKeyBuffer()).rejects.toThrow(/Settings PSK must be exactly 64 hex/);
+  });
 });
 
 describe('ensureSettingsPsk', () => {
