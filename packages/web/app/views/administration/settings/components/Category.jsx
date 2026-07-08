@@ -15,6 +15,7 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
+import { escapeRegExp } from '../filterSettingsSchema';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;
@@ -148,8 +149,7 @@ const MatchedDescription = styled(BodyText)`
 const highlightMatches = (text, query) => {
   const needle = query?.trim();
   if (!needle) return text;
-  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const matcher = new RegExp(escaped, 'gi');
+  const matcher = new RegExp(escapeRegExp(needle), 'gi');
   const parts = [];
   let last = 0;
   let match;
@@ -265,15 +265,17 @@ const SettingName = memo(
   </SettingNameLabel>
 ));
 
-const sortProperties = ([a0, a1], [b0, b1]) => {
-  // Search ordering — flags only exist on search-filtered schema copies, so
-  // the category view is unaffected. Exact hits (and groups holding one)
-  // first, then by match tier (strong matches lead, weak ones sink).
-  const aExact = Boolean(a1.__exactMatch || a1.__hasExactMatch);
-  const bExact = Boolean(b1.__exactMatch || b1.__hasExactMatch);
+// Search ordering comes from the filter's metadata (absent outside search, so
+// the category view is unaffected): exact hits (and groups holding one) first,
+// then by match tier (strong matches lead, weak ones sink).
+const sortProperties = searchMeta => ([a0, a1], [b0, b1]) => {
+  const aMeta = searchMeta?.get(a1);
+  const bMeta = searchMeta?.get(b1);
+  const aExact = Boolean(aMeta?.exact || aMeta?.hasExact);
+  const bExact = Boolean(bMeta?.exact || bMeta?.hasExact);
   if (aExact !== bExact) return aExact ? -1 : 1;
-  const aTier = a1.__matchTier ?? Infinity;
-  const bTier = b1.__matchTier ?? Infinity;
+  const aTier = aMeta?.tier ?? Infinity;
+  const bTier = bMeta?.tier ?? Infinity;
   if (aTier !== bTier) return aTier - bTier;
   const aName = a1.name || a0;
   const bName = b1.name || b0;
@@ -296,11 +298,12 @@ export const Category = ({
   handleChangeSetting,
   facilityId,
   searchQuery,
+  searchMeta,
 }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
-  const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
+  const sortedProperties = Object.entries(schema.properties).sort(sortProperties(searchMeta));
 
   return (
     <Wrapper data-testid="wrapper-sc1t">
@@ -342,10 +345,10 @@ export const Category = ({
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
         // When a search hit is in the description, surface it under the row —
         // the tooltip-only description makes such matches look inexplicable.
-        // The flag is set by filterSettingsSchema, the single source of match
-        // logic; it only exists on search-filtered schema copies.
+        // The metadata comes from filterSettingsSchema, the single source of
+        // match logic; it only exists for search-filtered schema copies.
         const showMatchedDescription =
-          Boolean(searchQuery) && Boolean(propertySchema.__matchedDescription);
+          Boolean(searchQuery) && Boolean(searchMeta?.get(propertySchema)?.matchedDescription);
 
         if (!type) {
           return (
@@ -361,6 +364,7 @@ export const Category = ({
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
               searchQuery={searchQuery}
+              searchMeta={searchMeta}
               data-testid={`category-9y74-${testIdSuffix}`}
             />
           );

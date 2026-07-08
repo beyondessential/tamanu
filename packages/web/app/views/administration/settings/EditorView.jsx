@@ -246,7 +246,9 @@ export const EditorView = memo(
     // prepareSchema's copy) so root-level settings keep their real top-level
     // paths, and results render from the root so headings and inherited flags
     // (highRisk, requiresRestart) flow through the normal Category recursion.
-    const searchResultSchema = useMemo(() => {
+    // Yields { schema, meta } — meta carries the per-node match metadata the
+    // results view sorts and annotates by — or null when nothing matches.
+    const searchResult = useMemo(() => {
       if (!isSearchRender) return null;
       const baseSchema = category ? schemaForCategory : getScopedSchema(scope);
       if (!baseSchema) return null;
@@ -422,7 +424,7 @@ export const EditorView = memo(
           </SearchAndActions>
         </CategoryOptions>
         <Divider data-testid="divider-tp55" />
-        {isSearchRender && !searchResultSchema && (
+        {isSearchRender && !searchResult && (
           <NoSearchResults data-testid="nosearchresults-s3ar">
             <TranslatedText
               stringId="admin.settings.search.noResults"
@@ -431,17 +433,18 @@ export const EditorView = memo(
             />
           </NoSearchResults>
         )}
-        {(isSearchRender ? searchResultSchema : schemaForCategory) && (
+        {(isSearchRender ? searchResult?.schema : schemaForCategory) && (
           <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
             <SettingsSubmitContext.Provider value={failedSubmits}>
             <Category
-              schema={isSearchRender ? searchResultSchema : schemaForCategory}
+              schema={isSearchRender ? searchResult.schema : schemaForCategory}
               getSettingValue={getSettingValue}
               getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
               searchQuery={isSearchRender ? deferredSearchQuery : undefined}
+              searchMeta={isSearchRender ? searchResult.meta : undefined}
               data-testid="category-cbjk"
             />
             </SettingsSubmitContext.Provider>

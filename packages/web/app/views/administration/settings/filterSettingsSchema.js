@@ -8,46 +8,46 @@ const displayName = (node, key) => node.name || capitalize(startCase(key));
 // "max page size"), then lowercase for case-insensitive comparison.
 const normalise = text => text.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
 
-const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const NO_MATCH = Infinity;
 
 /**
- * Returns a copy of `schema` containing every setting matching `query`,
- * case-insensitively. Rank-don't-hide: nothing that matches is dropped;
- * instead each kept node carries a match tier the results view sorts by, so
- * strong matches lead and weak ones sink instead of vanishing. Tiers, best
- * first: setting name/path before category name/path before description, and
- * word-start matches ("age" → "Age display format", never "page") before
- * substring-anywhere ones ("nation" → Vaccinations). A group whose own name or
- * path matches keeps its whole subtree, and the group structure above each
- * match is kept so results render with their category headings. Returns null
- * when nothing matches, and the schema unchanged for an empty query. Copies
- * rather than mutates: the scoped schema is a shared singleton and mutating it
- * corrupts every later schema walk.
+ * Filters `schema` to the settings matching `query`, case-insensitively.
+ * Rank-don't-hide: nothing that matches is dropped; instead every kept node
+ * gets match metadata the results view sorts by, so strong matches lead and
+ * weak ones sink instead of vanishing. Tiers, best first: setting name/path
+ * before category name/path before description (leaf-only — group descriptions
+ * are invisible in results), and word-start matches ("age" → "Age display
+ * format", never "page") before substring-anywhere ones ("nation" →
+ * Vaccinations). A group whose own name or path matches keeps its whole
+ * subtree, and the group structure above each match is kept so results render
+ * with their category headings.
  *
- * Presentation flags on kept nodes (single source of truth for match logic —
- * the view never re-derives matches):
- * - `__matchTier`: the node's best tier (own or descendant); lower sorts first
- * - `__exactMatch`: the query equals the node's whole display name; sorts
- *   before everything
- * - `__hasExactMatch`: a group holding an exact match somewhere below
- * - `__matchedDescription`: the description contains the query, so the view
+ * Returns `{ schema, meta }` — a filtered copy plus a WeakMap from its nodes to
+ * `{ tier, exact, hasExact, matchedDescription }`:
+ * - `tier`: the node's best tier (own or descendant); lower sorts first
+ * - `exact`: the query equals the node's whole display name; sorts before
+ *   everything
+ * - `hasExact`: a group holding an exact match somewhere below
+ * - `matchedDescription`: the description contains the query, so the view
  *   surfaces it inline (a tooltip-only hit reads as an inexplicable result)
+ * Keeping metadata out of the schema nodes means the domain shape never grows
+ * presentation fields, and unfiltered schemas can't carry stale flags.
+ *
+ * Returns null when nothing matches, and the schema unchanged (empty meta) for
+ * an empty query. Copies rather than mutates: the scoped schema is a shared
+ * singleton and mutating it corrupts every later schema walk.
  */
 export const filterSettingsSchema = (schema, query) => {
+  const meta = new WeakMap();
   const needle = normalise(query.trim());
-  if (!needle) return schema;
+  if (!needle) return { schema, meta };
 
   const wordStart = new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(needle)}`);
   const atWordStart = text => typeof text === 'string' && wordStart.test(normalise(text));
   const anywhere = text => typeof text === 'string' && normalise(text).includes(needle);
 
-  // Tiers, lower is better: setting names outrank category names outrank
-  // descriptions, and within each, word-start matches outrank
-  // substring-anywhere ones. Leaf paths carry their category prefix, so a
-  // category hit usually surfaces its settings at the name tiers anyway; the
-  // category tiers matter when only the category's display name matches.
   const tierOf = (node, key, path) => {
     const isLeaf = isSetting(node) || !node.properties;
     const name = displayName(node, key);
@@ -69,34 +69,41 @@ export const filterSettingsSchema = (schema, query) => {
 
     if (isSetting(node) || !node.properties) {
       if (own === NO_MATCH) return null;
-      const out = { ...node, __matchTier: own };
-      if (isExact(node, key)) out.__exactMatch = true;
-      if (anywhere(node.description)) out.__matchedDescription = true;
+      const out = { ...node };
+      meta.set(out, {
+        tier: own,
+        exact: isExact(node, key),
+        matchedDescription: anywhere(node.description),
+      });
       return out;
     }
 
     const ownMatched = own !== NO_MATCH;
     const properties = {};
     let bestChild = NO_MATCH;
-    let hasExactMatch = false;
+    let hasExact = false;
     for (const [childKey, child] of Object.entries(node.properties)) {
       // An own-matched group keeps its whole subtree: children that didn't
-      // match themselves ride along as-is (they can't need flags — an exact or
-      // description hit would have made them match).
+      // match themselves ride along as-is (they can't need metadata — an exact
+      // or description hit would have made them match).
       const kept =
         filterNode(child, childKey, path ? `${path}.${childKey}` : childKey) ??
         (ownMatched ? child : null);
       if (kept) {
         properties[childKey] = kept;
-        bestChild = Math.min(bestChild, kept.__matchTier ?? NO_MATCH);
-        hasExactMatch ||= Boolean(kept.__exactMatch || kept.__hasExactMatch);
+        const childMeta = meta.get(kept);
+        bestChild = Math.min(bestChild, childMeta?.tier ?? NO_MATCH);
+        hasExact ||= Boolean(childMeta?.exact || childMeta?.hasExact);
       }
     }
     if (!ownMatched && Object.keys(properties).length === 0) return null;
 
-    const out = { ...node, properties, __matchTier: Math.min(own, bestChild) };
-    if (hasExactMatch) out.__hasExactMatch = true;
-    if (isExact(node, key)) out.__exactMatch = true;
+    const out = { ...node, properties };
+    meta.set(out, {
+      tier: Math.min(own, bestChild),
+      exact: isExact(node, key),
+      hasExact,
+    });
     return out;
   };
 
@@ -108,5 +115,5 @@ export const filterSettingsSchema = (schema, query) => {
     if (kept) properties[key] = kept;
   }
   if (Object.keys(properties).length === 0) return null;
-  return { ...schema, properties };
+  return { schema: { ...schema, properties }, meta };
 };

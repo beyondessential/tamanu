@@ -25,55 +25,54 @@ const schema = {
 
 describe('filterSettingsSchema', () => {
   it('returns the schema unchanged for an empty query', () => {
-    expect(filterSettingsSchema(schema, '  ')).toBe(schema);
+    expect(filterSettingsSchema(schema, '  ').schema).toBe(schema);
   });
 
   it('matches on setting display name, keeping the group structure above it', () => {
-    const result = filterSettingsSchema(schema, 'from address');
+    const { schema: result } = filterSettingsSchema(schema, 'from address');
     expect(Object.keys(result.properties)).toEqual(['mail']);
     expect(Object.keys(result.properties.mail.properties)).toEqual(['from']);
   });
 
   it('matches on dotted path and description', () => {
-    const byPath = filterSettingsSchema(schema, 'mail.transport.host');
+    const byPath = filterSettingsSchema(schema, 'mail.transport.host').schema;
     expect(byPath.properties.mail.properties.transport.properties.host).toBeTruthy();
 
-    const byDescription = filterSettingsSchema(schema, 'smtp relay');
+    const byDescription = filterSettingsSchema(schema, 'smtp relay').schema;
     expect(byDescription.properties.mail.properties.transport.properties.host).toBeTruthy();
     expect(byDescription.properties.mail.properties.from).toBeUndefined();
   });
 
-  it('flags matched descriptions for the results view', () => {
-    const result = filterSettingsSchema(schema, 'smtp relay');
-    expect(result.properties.mail.properties.transport.properties.host.__matchedDescription).toBe(
-      true,
-    );
+  it('reports matched descriptions in the metadata for the results view', () => {
+    const { schema: result, meta } = filterSettingsSchema(schema, 'smtp relay');
+    const host = result.properties.mail.properties.transport.properties.host;
+    expect(meta.get(host).matchedDescription).toBe(true);
   });
 
-  it('flags exact display-name matches and the groups above them', () => {
-    const result = filterSettingsSchema(schema, 'from address');
-    expect(result.properties.mail.properties.from.__exactMatch).toBe(true);
-    expect(result.properties.mail.__hasExactMatch).toBe(true);
-    // word-start-but-not-exact hits carry no exact flag
+  it('reports exact display-name matches and the groups above them', () => {
+    const { schema: result, meta } = filterSettingsSchema(schema, 'from address');
+    expect(meta.get(result.properties.mail.properties.from).exact).toBe(true);
+    expect(meta.get(result.properties.mail).hasExact).toBe(true);
+    // word-start-but-not-exact hits are not exact
     const partial = filterSettingsSchema(schema, 'from');
-    expect(partial.properties.mail.properties.from.__exactMatch).toBeUndefined();
+    expect(partial.meta.get(partial.schema.properties.mail.properties.from).exact).toBe(false);
   });
 
   it('keeps the whole subtree when a group itself matches', () => {
-    const result = filterSettingsSchema(schema, 'mail');
+    const { schema: result, meta } = filterSettingsSchema(schema, 'mail');
     const mail = result.properties.mail;
     expect(Object.keys(mail.properties)).toEqual(Object.keys(schema.properties.mail.properties));
     expect(mail.properties.transport.properties.host).toBeTruthy();
     // "mail" equals the group's display name exactly
-    expect(mail.__exactMatch).toBe(true);
+    expect(meta.get(mail).exact).toBe(true);
   });
 
   it('matches root-level settings and startCase-derived names', () => {
     // key vaccinations has no name; "reminder days" derives from the key reminderDays
-    const result = filterSettingsSchema(schema, 'reminder days');
+    const result = filterSettingsSchema(schema, 'reminder days').schema;
     expect(Object.keys(result.properties)).toEqual(['vaccinations']);
 
-    const topLevel = filterSettingsSchema(schema, 'top level');
+    const topLevel = filterSettingsSchema(schema, 'top level').schema;
     expect(Object.keys(topLevel.properties)).toEqual(['topLevelFlag']);
   });
 
@@ -81,7 +80,7 @@ describe('filterSettingsSchema', () => {
     expect(filterSettingsSchema(schema, 'zzz-no-such-setting')).toBeNull();
   });
 
-  it('does not mutate the input schema', () => {
+  it('does not mutate or annotate the input schema', () => {
     const before = JSON.stringify(schema);
     filterSettingsSchema(schema, 'from');
     expect(JSON.stringify(schema)).toBe(before);
@@ -103,17 +102,17 @@ describe('filterSettingsSchema', () => {
     };
 
     it('ranks word-start name hits above mid-word description hits', () => {
-      const result = filterSettingsSchema(pagey, 'age');
+      const { schema: result, meta } = filterSettingsSchema(pagey, 'age');
       // "age" starts a word only in Age display format; "page" hits are kept but sink
-      expect(result.properties.ageDisplayFormat.__matchTier).toBe(1);
-      expect(result.properties.fhir.__matchTier).toBeGreaterThan(1);
+      expect(meta.get(result.properties.ageDisplayFormat).tier).toBe(1);
+      expect(meta.get(result.properties.fhir).tier).toBeGreaterThan(1);
     });
 
     it('ranks name hits above description hits', () => {
-      const result = filterSettingsSchema(pagey, 'page');
+      const { schema: result, meta } = filterSettingsSchema(pagey, 'page');
       const { maxPageSize, defaultCount } = result.properties.fhir.properties;
-      expect(maxPageSize.__matchTier).toBe(1); // camelCase word-start in the key
-      expect(defaultCount.__matchTier).toBeGreaterThan(maxPageSize.__matchTier);
+      expect(meta.get(maxPageSize).tier).toBe(1); // camelCase word-start in the key
+      expect(meta.get(defaultCount).tier).toBeGreaterThan(meta.get(maxPageSize).tier);
     });
 
     it('ranks setting-name hits above category-name hits', () => {
@@ -129,9 +128,9 @@ describe('filterSettingsSchema', () => {
           },
         },
       };
-      const result = filterSettingsSchema(fielded, 'previously');
-      expect(result.properties.reports.__matchTier).toBe(1);
-      expect(result.properties.fields.__matchTier).toBe(3);
+      const { schema: result, meta } = filterSettingsSchema(fielded, 'previously');
+      expect(meta.get(result.properties.reports).tier).toBe(1);
+      expect(meta.get(result.properties.fields).tier).toBe(3);
       // the category-name match still brings its whole subtree
       expect(result.properties.fields.properties.displayId).toBeTruthy();
     });
@@ -152,7 +151,7 @@ describe('filterSettingsSchema', () => {
           },
         },
       };
-      const result = filterSettingsSchema(grouped, 'age');
+      const result = filterSettingsSchema(grouped, 'age').schema;
       expect(Object.keys(result.properties)).toEqual(['ageDisplayFormat']);
     });
 
@@ -163,9 +162,9 @@ describe('filterSettingsSchema', () => {
           notes: { type: 'string', description: 'Shown on the nation-wide report' },
         },
       };
-      const result = filterSettingsSchema(tiered, 'nation');
-      expect(result.properties.donation.__matchTier).toBe(2);
-      expect(result.properties.notes.__matchTier).toBe(5);
+      const { schema: result, meta } = filterSettingsSchema(tiered, 'nation');
+      expect(meta.get(result.properties.donation).tier).toBe(2);
+      expect(meta.get(result.properties.notes).tier).toBe(5);
     });
   });
 });
