@@ -394,4 +394,163 @@ describe('Note', () => {
       });
     });
   });
+
+  describe('Search and filter', () => {
+    let encounter = null;
+    let authorA = null; // the requesting user
+    let authorB = null;
+    let authorC = null;
+
+    const makeNote = (props) =>
+      models.Note.create({
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        recordId: encounter.id,
+        noteTypeId: NOTE_TYPES.OTHER,
+        authorId: authorA.id,
+        ...props,
+      });
+
+    const getNotes = (queryString) =>
+      app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=20&${queryString}`);
+
+    const contentsOf = (response) => response.body.data.map((n) => n.content).sort();
+
+    beforeAll(async () => {
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      authorA = app.user;
+      authorB = testUser;
+      authorC = await models.User.create({
+        email: 'authorc@something.com',
+        displayName: 'Author C',
+        password: 'abcdefg123456',
+        role: 'practitioner',
+      });
+
+      await makeNote({ content: 'alpha apple', date: '2024-01-10 09:00:00', authorId: authorA.id });
+      await makeNote({ content: 'beta banana', date: '2024-02-10 09:00:00', authorId: authorB.id });
+      // authored by A, on behalf of C
+      await makeNote({
+        content: 'gamma cherry',
+        date: '2024-03-10 09:00:00',
+        authorId: authorA.id,
+        onBehalfOfId: authorC.id,
+      });
+      await makeNote({
+        content: 'delta treatment',
+        date: '2024-04-10 09:00:00',
+        authorId: authorA.id,
+        noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
+      });
+      // an edited note: original written by A, revised by B
+      const epsilonRoot = await makeNote({
+        content: 'epsilon original',
+        date: '2024-05-10 09:00:00',
+        authorId: authorA.id,
+      });
+      await makeNote({
+        content: 'epsilon edited',
+        date: '2024-05-11 09:00:00',
+        authorId: authorB.id,
+        revisedById: epsilonRoot.id,
+      });
+    });
+
+    describe('free text search', () => {
+      it('filters notes by a contains match on the content', async () => {
+        const response = await getNotes('search=banana');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['beta banana']);
+      });
+
+      it('is case-insensitive', async () => {
+        const response = await getNotes('search=BANANA');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['beta banana']);
+      });
+
+      it('matches the latest revision content, not superseded revisions', async () => {
+        const edited = await getNotes('search=edited');
+        expect(contentsOf(edited)).toEqual(['epsilon edited']);
+
+        const original = await getNotes('search=original');
+        expect(original.body.data).toHaveLength(0);
+      });
+    });
+
+    describe('author filter', () => {
+      it('matches notes authored by the selected user', async () => {
+        const response = await getNotes(`authorId=${authorB.id}`);
+        expect(response).toHaveSucceeded();
+        // authored 'beta banana' and edited the epsilon note
+        expect(contentsOf(response)).toEqual(['beta banana', 'epsilon edited']);
+      });
+
+      it('matches notes written on behalf of the selected user', async () => {
+        const response = await getNotes(`authorId=${authorC.id}`);
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['gamma cherry']);
+      });
+
+      it('matches the original author even when someone else edited the note', async () => {
+        const response = await getNotes(`authorId=${authorA.id}`);
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(
+          ['alpha apple', 'gamma cherry', 'delta treatment', 'epsilon edited'].sort(),
+        );
+      });
+    });
+
+    describe('date range filter', () => {
+      it('filters between both boundaries using the original note date', async () => {
+        const response = await getNotes('fromDate=2024-02-01&toDate=2024-03-31');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['beta banana', 'gamma cherry'].sort());
+      });
+
+      it('applies only a lower bound when just fromDate is set', async () => {
+        const response = await getNotes('fromDate=2024-04-01');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['delta treatment', 'epsilon edited'].sort());
+      });
+
+      it('applies only an upper bound when just toDate is set', async () => {
+        const response = await getNotes('toDate=2024-01-31');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['alpha apple']);
+      });
+
+      it('filters edited notes by their original date, not the latest revision date', async () => {
+        // epsilon's original note is 2024-05-10, its latest revision is 2024-05-11
+        const response = await getNotes('fromDate=2024-05-10&toDate=2024-05-10');
+        expect(response).toHaveSucceeded();
+        expect(contentsOf(response)).toEqual(['epsilon edited']);
+      });
+    });
+
+    it('applies multiple filters together', async () => {
+      const response = await getNotes(`authorId=${authorB.id}&search=banana`);
+      expect(response).toHaveSucceeded();
+      expect(contentsOf(response)).toEqual(['beta banana']);
+    });
+
+    it('pins treatment plan notes to the top of filtered results', async () => {
+      const response = await getNotes(`authorId=${authorA.id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.data[0].noteTypeId).toBe(NOTE_TYPES.TREATMENT_PLAN);
+      expect(response.body).toHaveProperty('count', 4);
+    });
+
+    it('returns non-treatment-plan results in reverse chronological order', async () => {
+      const response = await getNotes('');
+      expect(response).toHaveSucceeded();
+      const nonTreatmentDates = response.body.data
+        .filter((n) => n.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN)
+        .map((n) => n.revisedBy?.date || n.date);
+      expect(nonTreatmentDates).toEqual([...nonTreatmentDates].sort().reverse());
+    });
+  });
 });
