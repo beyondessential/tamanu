@@ -62,11 +62,10 @@ const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: end;
-  // Breathing room between the selects and the search/actions group; wrap the
-  // right group onto its own line rather than crushing it when both selects
-  // are showing on a narrow window.
+  // Breathing room between the selects and the search/actions group; when the
+  // window narrows the search field shrinks (see StyledSearchInput) rather
+  // than anything wrapping or crushing.
   gap: 1rem;
-  flex-wrap: wrap;
 `;
 
 const CategoriesWrapper = styled.div`
