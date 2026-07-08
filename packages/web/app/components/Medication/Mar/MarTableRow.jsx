@@ -59,19 +59,15 @@ const TableRow = styled.tr(
   `,
 );
 
-const Th = styled.th.attrs({ scope: 'row' })`
+const TableRowHeader = styled(({ children, disabled, onClick, ...props }) => (
+  <th scope="row" {...props}>
+    <TableCellButton disabled={disabled} onClick={onClick}>
+      {children}
+    </TableCellButton>
+  </th>
+))`
   font-weight: inherit;
 `;
-
-function RowHeader({ children, disabled, onClick, ...props }) {
-  return (
-    <Th {...props}>
-      <TableCellButton disabled={disabled} onClick={onClick}>
-        {children}
-      </TableCellButton>
-    </Th>
-  );
-}
 
 const MedicationName = styled.span`
   font-weight: 500;
@@ -133,7 +129,7 @@ export const MarTableRow = ({
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
-        <RowHeader disabled={!canView} onClick={openMedicationDetails}>
+        <TableRowHeader disabled={!canView} onClick={openMedicationDetails}>
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
@@ -176,7 +172,7 @@ export const MarTableRow = ({
               </>
             )}
           </Box>
-        </RowHeader>
+        </TableRowHeader>
         {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
           (record, index, array) => (
             <MarStatus
