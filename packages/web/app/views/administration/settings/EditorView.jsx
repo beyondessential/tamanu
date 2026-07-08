@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import {
   capitalize,
   cloneDeep,
@@ -16,11 +16,13 @@ import { Box, Divider } from '@material-ui/core';
 import { useFormikContext } from 'formik';
 import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
 
-import { DynamicSelectField, TranslatedText } from '../../../components';
+import { DynamicSelectField, SearchInput, TranslatedText } from '../../../components';
+import { useTranslation } from '../../../contexts/Translation';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
 import { SettingsSubmitContext } from './components/SettingsSubmitContext';
+import { filterSettingsSchema } from './filterSettingsSchema';
 import { notifyError } from '../../../utils';
 
 const SettingsWrapper = styled.div`
@@ -35,6 +37,21 @@ const StyledDynamicSelectField = styled(DynamicSelectField)`
 
 const StyledSelectInput = styled(SelectInput)`
   width: 18.75rem;
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  width: 18.75rem;
+`;
+
+const SearchAndActions = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 1.5rem;
+`;
+
+const NoSearchResults = styled(Box)`
+  padding: 1.25rem;
+  color: ${Colors.midText};
 `;
 
 const CategoryOptions = styled(Box)`
@@ -171,9 +188,19 @@ export const EditorView = memo(
   }) => {
     const { facilityId } = values;
     const { initialValues } = useFormikContext();
+    const { getTranslation } = useTranslation();
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const [failedSubmits, setFailedSubmits] = useState(0);
+    const isSearching = searchQuery.trim().length > 0;
+    // Broad queries can match hundreds of settings; deferring lets typing stay
+    // responsive (React keeps showing the previous results and time-slices the
+    // re-filter/re-render in the background) instead of freezing per keystroke.
+    const deferredSearchQuery = useDeferredValue(searchQuery);
+    // Drives what the body renders (and so path resolution); may lag isSearching
+    // by a beat while a deferred render is pending.
+    const isSearchRender = deferredSearchQuery.trim().length > 0;
 
     // Real changes only: a value returned to its inherited/default (stored as
     // undefined) is not a change, unlike Formik's built-in `dirty`.
@@ -199,9 +226,20 @@ export const EditorView = memo(
       [scopedSchema, effectiveCategory, subCategory],
     );
 
+    // Search spans every category, so filter the raw scoped schema (not
+    // prepareSchema's copy): root-level settings keep their real top-level
+    // paths, and results render from the root so headings and inherited flags
+    // (highRisk, requiresRestart) flow through the normal Category recursion.
+    const searchResultSchema = useMemo(
+      () =>
+        isSearchRender ? filterSettingsSchema(getScopedSchema(scope), deferredSearchQuery) : null,
+      [isSearchRender, scope, deferredSearchQuery],
+    );
+
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
+      setSearchQuery('');
     };
 
     useEffect(handleChangeScope, [scope]);
@@ -222,10 +260,16 @@ export const EditorView = memo(
       setSubCategory(e.target.value);
     };
 
+    // Search results render from the schema root, so their paths are already
+    // complete; category view paths need the selected category prefixed. Keyed
+    // to isSearchRender (not isSearching) so path semantics always match the
+    // tree currently on screen, even mid-deferral.
     const getSettingPath = path =>
-      `${effectiveCategory === UNCATEGORISED_KEY ? '' : `${effectiveCategory}.`}${
-        subCategory ? `${subCategory}.` : ''
-      }${path}`;
+      isSearchRender
+        ? path
+        : `${effectiveCategory === UNCATEGORISED_KEY ? '' : `${effectiveCategory}.`}${
+            subCategory ? `${subCategory}.` : ''
+          }${path}`;
 
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(values.settings);
@@ -294,6 +338,7 @@ export const EditorView = memo(
               value={category}
               onChange={handleChangeCategory}
               options={categoryOptions}
+              disabled={isSearching}
               data-testid="styledselectinput-kvyx"
             />
             {subCategoryOptions && (
@@ -310,11 +355,20 @@ export const EditorView = memo(
                   value={subCategory}
                   onChange={handleChangeSubcategory}
                   options={subCategoryOptions}
+                  disabled={isSearching}
                   data-testid="styleddynamicselectfield-d62r"
                 />
               </Box>
             )}
           </Box>
+          <SearchAndActions data-testid="searchandactions-s3ar">
+            <StyledSearchInput
+              placeholder={getTranslation('admin.settings.search.placeholder', 'Search settings')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onClear={() => setSearchQuery('')}
+              data-testid="styledsearchinput-s3ar"
+            />
           <ButtonGroup data-testid="buttongroup-oe3l">
             <OutlinedButton
               onClick={() => resetForm()}
@@ -339,13 +393,23 @@ export const EditorView = memo(
               />
             </Button>
           </ButtonGroup>
+          </SearchAndActions>
         </CategoryOptions>
         <Divider data-testid="divider-tp55" />
-        {schemaForCategory && (
+        {isSearchRender && !searchResultSchema && (
+          <NoSearchResults data-testid="nosearchresults-s3ar">
+            <TranslatedText
+              stringId="admin.settings.search.noResults"
+              fallback="No settings match your search"
+              data-testid="translatedtext-s3nr"
+            />
+          </NoSearchResults>
+        )}
+        {(isSearchRender ? searchResultSchema : schemaForCategory) && (
           <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
             <SettingsSubmitContext.Provider value={failedSubmits}>
             <Category
-              schema={schemaForCategory}
+              schema={isSearchRender ? searchResultSchema : schemaForCategory}
               getSettingValue={getSettingValue}
               getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={getSettingPath}
