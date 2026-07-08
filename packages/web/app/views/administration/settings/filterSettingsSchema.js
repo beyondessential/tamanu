@@ -53,6 +53,10 @@ export const filterSettingsSchema = (schema, query) => {
     const name = displayName(node, key);
     if (atWordStart(name) || atWordStart(path)) return isLeaf ? 1 : 3;
     if (anywhere(name) || anywhere(path)) return isLeaf ? 2 : 4;
+    // Description tiers are leaf-only: a group's description is never shown in
+    // the results, and a hit there would drag in its entire subtree of
+    // non-matching settings with nothing visible to explain why.
+    if (!isLeaf) return NO_MATCH;
     if (atWordStart(node.description)) return 5;
     if (anywhere(node.description)) return 6;
     return NO_MATCH;

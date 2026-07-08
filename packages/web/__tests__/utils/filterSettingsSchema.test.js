@@ -136,6 +136,26 @@ describe('filterSettingsSchema', () => {
       expect(result.properties.fields.properties.displayId).toBeTruthy();
     });
 
+    it('ignores group descriptions — they are invisible in results', () => {
+      const grouped = {
+        properties: {
+          ageDisplayFormat: { type: 'string', name: 'Age display format' },
+          layouts: {
+            properties: {
+              // group description contains "homepage" ⊃ "age"; must NOT drag
+              // the whole subtree in (nothing visible would explain it)
+              mobileModules: {
+                description: 'The homepage modules on mobile',
+                properties: { programRegistries: { type: 'boolean' } },
+              },
+            },
+          },
+        },
+      };
+      const result = filterSettingsSchema(grouped, 'age');
+      expect(Object.keys(result.properties)).toEqual(['ageDisplayFormat']);
+    });
+
     it('ranks substring name hits below word-start ones but above description hits', () => {
       const tiered = {
         properties: {
