@@ -22,10 +22,6 @@ Boolean indicating if the medication dose is variable.
 The amount of medication per dose.
 {% enddocs %}
 
-{% docs reference_medication_templates__units %}
-The unit for the dose amount (e.g., mg, mL).
-{% enddocs %}
-
 {% docs reference_medication_templates__frequency %}
 How often the medication should be administered (e.g., BID, TID, QID).
 {% enddocs %}
@@ -52,4 +48,8 @@ The quantity of medication to be dispensed upon patient discharge.
 
 {% docs reference_medication_templates__is_ongoing %}
 A boolean indicating if the medication is ongoing
+{% enddocs %}
+
+{% docs reference_medication_templates__dosing_unit %}
+The unit for the dose amount (e.g., mg, mL).
 {% enddocs %}

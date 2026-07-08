@@ -167,7 +167,8 @@ export async function createDummyPrescription(models, overrides = {}) {
     prescriberId: await randomUser(models),
     medicationId: await randomReferenceId(models, 'drug'),
     doseAmount: 1,
-    units: chance.word(),
+    dosingUnit: chance.word(),
+    dispensingUnit: chance.word(),
     frequency: chance.word(),
     ...overrides,
   };

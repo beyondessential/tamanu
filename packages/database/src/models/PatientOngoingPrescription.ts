@@ -89,7 +89,7 @@ export class PatientOngoingPrescription extends Model {
           where: {
             medicationId: prescription.medicationId,
             doseAmount: prescription.doseAmount,
-            units: prescription.units,
+            dosingUnit: prescription.dosingUnit,
             route: prescription.route,
             frequency: prescription.frequency,
             discontinued: {

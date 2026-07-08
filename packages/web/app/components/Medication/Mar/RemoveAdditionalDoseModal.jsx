@@ -93,7 +93,7 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
           </MidText>
           <DarkestText mt={'3px'}>
             {getMarDoseDisplay(
-              { doseAmount: dose.doseAmount, units: medication.units },
+              { doseAmount: dose.doseAmount, dosingUnit: medication.dosingUnit },
               getEnumTranslation,
             )}
           </DarkestText>

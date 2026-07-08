@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useSettings, useTranslation, useDateTime } from '@tamanu/ui-components';
-import { DRUG_UNIT_LABELS } from '@tamanu/constants';
-import { pluralize } from 'inflection';
+import { getDrugUnitLabel } from '../../../utils/medications';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
 
@@ -140,9 +139,7 @@ const LabelFooterText = styled.div`
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   if (!quantity) return '';
   if (!units) return `${quantity}`;
-  const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
-  const translatedUnit = quantity > 1 ? pluralize(enumTranslation) : enumTranslation;
-  return `${quantity} ${translatedUnit.toLowerCase()}`;
+  return `${quantity} ${getDrugUnitLabel(units, quantity, getEnumTranslation).toLowerCase()}`;
 };
 
 const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {

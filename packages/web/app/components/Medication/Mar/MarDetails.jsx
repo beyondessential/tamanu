@@ -24,7 +24,7 @@ import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { isWithinTimeSlot } from '../../../utils/medications';
+import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -515,7 +515,7 @@ export const MarDetails = ({
                             </MidText>
                             <DarkestText mt={'3px'}>
                               {getMarDoseDisplay(
-                                { doseAmount: dose.doseAmount, units: medication.units },
+                                { doseAmount: dose.doseAmount, dosingUnit: medication.dosingUnit },
                                 getEnumTranslation,
                               )}
                             </DarkestText>
@@ -601,7 +601,10 @@ export const MarDetails = ({
                             <Field
                               name={`doses.${index}.doseAmount`}
                               component={NumberField}
-                              label={`Dose given (${medication?.units})`}
+                              label={
+                                <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
+                              }
+                              unit={medication?.dosingUnit ? getDrugUnitLabel(medication.dosingUnit, values.doses[index]?.doseAmount, getEnumTranslation) : undefined}
                               required
                             />
                             <div>
