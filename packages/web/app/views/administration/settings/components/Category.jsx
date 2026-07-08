@@ -82,8 +82,6 @@ const SettingLine = styled(BodyText)`
 // the row's third column: the reset-to-default action, centred against the
 // row's input like the label is
 const RowActions = styled.div`
-  // Centre against single-line inputs; top-align against tall multi-entry
-  // editors so the action doesn't float mid-column far from anything.
   align-items: ${props => (props.$alignTop ? 'flex-start' : 'center')};
   align-self: stretch;
   display: flex;
@@ -97,8 +95,6 @@ const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
   // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
   align-items: center;
-  // Centre against single-line inputs; top-align against tall multi-entry
-  // editors so the name reads with the first entry rather than mid-column.
   align-self: ${props => (props.$alignTop ? 'start' : 'center')};
   display: inline-flex;
   gap: 0.25rem;
@@ -273,8 +269,6 @@ export const Category = ({
         const isSecret = Boolean(secret);
         const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
-        // Tall add/remove editors: name and actions top-align instead of
-        // floating centred against a many-entry column.
         const isMultiEntry =
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
 
