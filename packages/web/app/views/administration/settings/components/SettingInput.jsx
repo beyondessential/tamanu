@@ -50,7 +50,7 @@ const StyledNumberInput = styled(NumberInput)`
 `;
 
 const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
-  width: 480px;
+  width: ${SETTING_INPUT_WIDTH};
 
   .react-select__control {
     height: auto;

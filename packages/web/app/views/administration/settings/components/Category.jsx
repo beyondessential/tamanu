@@ -6,6 +6,7 @@ import { Alert } from '@material-ui/lab';
 import KeyIcon from '@mui/icons-material/Key';
 import WarningIcon from '@mui/icons-material/WarningAmber';
 
+import { SETTING_EDITORS } from '@tamanu/constants';
 import { isSetting } from '@tamanu/settings/schema';
 
 import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
@@ -81,7 +82,9 @@ const SettingLine = styled(BodyText)`
 // the row's third column: the reset-to-default action, centred against the
 // row's input like the label is
 const RowActions = styled.div`
-  align-items: center;
+  // Centre against single-line inputs; top-align against tall multi-entry
+  // editors so the action doesn't float mid-column far from anything.
+  align-items: ${props => (props.$alignTop ? 'flex-start' : 'center')};
   align-self: stretch;
   display: flex;
   justify-content: flex-end;
@@ -94,7 +97,9 @@ const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
   // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
   align-items: center;
-  align-self: center;
+  // Centre against single-line inputs; top-align against tall multi-entry
+  // editors so the name reads with the first entry rather than mid-column.
+  align-self: ${props => (props.$alignTop ? 'start' : 'center')};
   display: inline-flex;
   gap: 0.25rem;
   margin-block: 13px;
@@ -116,6 +121,9 @@ const StyledHeading = styled(Heading4)`
 const InfoBannerAlert = styled(Alert)`
   grid-column: 1 / -1;
   margin-block-end: 0.5rem;
+  // align with the heading's inset at this nesting level
+  margin-inline-start: ${props => 1.25 + (props.$indent ?? 0) * 1.25}rem;
+  margin-inline-end: 1.25rem;
 `;
 
 const CategoryTitle = memo(({ name, path, description, depth }) => {
@@ -135,9 +143,10 @@ const CategoryTitle = memo(({ name, path, description, depth }) => {
 });
 
 const SettingName = memo(
-  ({ name, path, description, disabled, isSecret, requiresRestart, highRisk, depth }) => (
+  ({ name, path, description, disabled, isSecret, requiresRestart, highRisk, depth, alignTop }) => (
   <SettingNameLabel
     $indent={depth}
+    $alignTop={alignTop}
     color={disabled && 'textTertiary'}
     data-testid="settingnamelabel-xr19"
   >
@@ -239,7 +248,7 @@ export const Category = ({
         data-testid="categorytitle-0pic"
       />
       {schema.infoBanner && (
-        <InfoBannerAlert severity="info" data-testid="infobanneralert-fw01">
+        <InfoBannerAlert severity="info" $indent={depth} data-testid="infobanneralert-fw01">
           {schema.infoBanner}
         </InfoBannerAlert>
       )}
@@ -264,6 +273,10 @@ export const Category = ({
         const isSecret = Boolean(secret);
         const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
+        // Tall add/remove editors: name and actions top-align instead of
+        // floating centred against a many-entry column.
+        const isMultiEntry =
+          editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
 
         if (!type) {
           return (
@@ -294,6 +307,7 @@ export const Category = ({
               description={description}
               isSecret={isSecret}
               highRisk={schema.highRisk || highRisk}
+              alignTop={isMultiEntry}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
@@ -318,7 +332,7 @@ export const Category = ({
             {/* actions column: reset to default — not shown for secrets (set
                 only, never reset) or when the user can't edit this setting */}
             {!disabled && !isSecret && (
-              <RowActions>
+              <RowActions $alignTop={isMultiEntry}>
                 <ResetToDefaultButton
                   value={getSettingValue(newPath)}
                   defaultValue={defaultValue}
