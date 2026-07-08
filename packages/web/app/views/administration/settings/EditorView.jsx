@@ -257,7 +257,8 @@ export const EditorView = memo(
       // root's own name ("Central server settings") is not a category heading —
       // drop it so unscoped results don't render it as a bogus title.
       if (!filtered || category) return filtered;
-      const { name, ...rootWithoutName } = filtered.schema;
+      const rootWithoutName = { ...filtered.schema };
+      delete rootWithoutName.name;
       return { ...filtered, schema: rootWithoutName };
     }, [isSearchRender, category, schemaForCategory, scope, deferredSearchQuery]);
 
