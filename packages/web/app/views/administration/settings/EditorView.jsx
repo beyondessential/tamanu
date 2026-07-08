@@ -252,7 +252,13 @@ export const EditorView = memo(
       if (!isSearchRender) return null;
       const baseSchema = category ? schemaForCategory : getScopedSchema(scope);
       if (!baseSchema) return null;
-      return filterSettingsSchema(baseSchema, deferredSearchQuery);
+      const filtered = filterSettingsSchema(baseSchema, deferredSearchQuery);
+      // Scoped search keeps the category's heading for context, but the scope
+      // root's own name ("Central server settings") is not a category heading —
+      // drop it so unscoped results don't render it as a bogus title.
+      if (!filtered || category) return filtered;
+      const { name, ...rootWithoutName } = filtered.schema;
+      return { ...filtered, schema: rootWithoutName };
     }, [isSearchRender, category, schemaForCategory, scope, deferredSearchQuery]);
 
     const handleChangeScope = () => {
