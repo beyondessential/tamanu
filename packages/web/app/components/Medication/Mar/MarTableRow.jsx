@@ -33,15 +33,13 @@ import TableCellButton from './TableCellButton';
  */
 const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
   const result = Array(MEDICATION_ADMINISTRATION_TIME_SLOTS.length).fill(null);
-
-  medicationAdministrationRecords.forEach(record => {
+  for (const record of medicationAdministrationRecords) {
     const facilityDueAt = toFacilityDateTime(record.dueAt);
     const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
-    if (!facilityTime) return;
+    if (!facilityTime) continue;
     const windowIndex = findAdministrationTimeSlotFromIdealTime(facilityTime).index;
     result[windowIndex] = record;
-  });
-
+  }
   return result;
 };
 
