@@ -7,7 +7,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext, withDateUnsafelyFaked } from '../utilities';
 
-const TEST_EMAIL = 'test@beyondessential.com.au';
+const TEST_EMAIL = 'test@bes.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
 const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';

@@ -257,6 +257,50 @@ describe('Create Observation', () => {
       expect(labTest.referenceRangeMax).toBe(referenceRangeMax);
     });
 
+    it('post an Observation with referenceRange text sets referenceRangeText on the labTest', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [{ text: 'Negative' }],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.referenceRangeText).toBe('Negative');
+      expect(labTest.referenceRangeMin).toBeNull();
+      expect(labTest.referenceRangeMax).toBeNull();
+    });
+
     it('sets laboratoryOfficer from Observation.performer display when present', async () => {
       const result = '100';
       const performerDisplay = 'Dr FHIR Performer';
@@ -435,6 +479,49 @@ describe('Create Observation', () => {
       expect(labTest.labTestMethodId).toBeNull();
       expect(labTest.referenceRangeMin).toBeNull();
       expect(labTest.referenceRangeMax).toBeNull();
+    });
+
+    it('clears referenceRangeText when a subsequent Observation omits referenceRange', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+      await labTest.update({ referenceRangeText: 'Negative' });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.referenceRangeText).toBeNull();
     });
 
     it('Will add a reflex test if the lab test code is not in the original request', async () => {
@@ -645,6 +732,47 @@ describe('Create Observation', () => {
           ],
         });
         expect(response.status).toBe(400);
+      });
+
+      it('returns 400 when a referenceRange entry has both text and numeric bounds', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          false,
+          { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        const testCode = mat.orderDetail[0];
+
+        const body = {
+          resourceType: 'Observation',
+          basedOn: [{ type: 'ServiceRequest', reference: `ServiceRequest/${serviceRequestId}` }],
+          status: FHIR_OBSERVATION_STATUS.FINAL,
+          code: {
+            coding: testCode.coding.filter(
+              ({ system }) => system === dataDicts.serviceRequestLabTestCodeSystem,
+            ),
+          },
+          valueString: '100',
+          referenceRange: [{ text: 'Negative', low: { value: 5 } }],
+        };
+
+        const response = await app.post(endpoint).send(body);
+        expect(response.status).toBe(400);
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            expect.objectContaining({
+              severity: 'error',
+              details: {
+                text: expect.stringContaining('text or numeric bounds'),
+              },
+            }),
+          ],
+        });
       });
     });
   });

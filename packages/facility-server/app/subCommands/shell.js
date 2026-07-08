@@ -1,21 +1,19 @@
-import config from 'config';
 import repl from 'repl';
 import { homedir } from 'os';
 import { join } from 'path';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { prepareDatabaseForStartup } from '../database';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { getServerFacilityIds } from '../serverConfig';
 
 export const shell = async ({ skipMigrationCheck }) => {
-  const facilityIds = selectFacilityIds(config);
-  log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
-
   const context = await new ApplicationContext().init();
+  const facilityIds = getServerFacilityIds() ?? [];
+  log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
 
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
 

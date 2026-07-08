@@ -6,6 +6,7 @@ import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/tran
 import {
   Button,
   DateDisplay,
+  getCurrentLanguageCode,
   PatientDataDisplayField,
   PlainTimeDisplay,
   SignatureAnswerResult,
@@ -62,13 +63,20 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
-      return parseFloat(answer).toFixed(1);
+      return parseFloat(answer).toLocaleString(getCurrentLanguageCode(), {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      });
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return <ViewPhotoLink imageId={answer} data-testid="viewphotolink-w78m" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+      return Number.parseFloat(answer).toLocaleString(getCurrentLanguageCode(), {
+        minimumSignificantDigits: 1,
+        maximumSignificantDigits: 6, // Probably excessive (delegate interpretation to user)
+      });
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
-    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
-      return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
     case PROGRAM_DATA_ELEMENT_TYPES.TIME:
       return <PlainTimeDisplay time={answer} data-testid="plaintimedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:

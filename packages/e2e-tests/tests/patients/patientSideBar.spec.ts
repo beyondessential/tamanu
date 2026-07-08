@@ -363,12 +363,12 @@ test.describe('Patient Side Bar', () => {
 
     await completedCarePlanModal.addAdditionalCarePlanNote(
       'This is an additional care plan note',
-      'System',
+      'Initial Admin',
     );
 
     await expect(
-      completedCarePlanModal.completedCarePlan.filter({ hasText: 'System' }),
-    ).toContainText('This is an additional care plan note');
+      completedCarePlanModal.additionalNote('This is an additional care plan note'),
+    ).toBeVisible();
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'This is an example of main care plan details',
     );
@@ -409,21 +409,21 @@ test.describe('Patient Side Bar', () => {
 
     await completedCarePlanModal.addAdditionalCarePlanNote(
       'This is the additional care plan note which should be edited',
-      'System',
+      'Initial Admin',
     );
 
-    await completedCarePlanModal.clickAdditionalNoteMenuAction('System', 'Edit');
+    await completedCarePlanModal.clickAdditionalNoteMenuAction(
+      'This is the additional care plan note which should be edited',
+      'Edit',
+    );
 
     await fillMuiDateTimeField(completedCarePlanModal.additionalNoteSavedDate, '2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
     await completedCarePlanModal.getSaveButton().click();
 
-    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
-      'Edited note',
-    );
-    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
-      '26/04/2025',
-    );
+    const editedNote = completedCarePlanModal.additionalNote('Edited note');
+    await expect(editedNote).toBeVisible();
+    await expect(editedNote).toContainText('26/04/2025');
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'This is the main care plan note which should not be edited',
     );
@@ -445,7 +445,7 @@ test.describe('Patient Side Bar', () => {
     const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Tuberculosis');
     await completedCarePlanModal.addAdditionalCarePlanNote(
       'This is a note which will be deleted',
-      'System',
+      'Initial Admin',
     );
 
     await expect(
@@ -454,7 +454,10 @@ test.describe('Patient Side Bar', () => {
       }),
     ).toBeVisible();
 
-    await completedCarePlanModal.clickAdditionalNoteMenuAction('System', 'Delete');
+    await completedCarePlanModal.clickAdditionalNoteMenuAction(
+      'This is a note which will be deleted',
+      'Delete',
+    );
 
     await expect(
       completedCarePlanModal.completedCarePlan.filter({

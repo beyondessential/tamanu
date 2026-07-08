@@ -133,6 +133,7 @@ export const fakeUser = (): IUser => {
     email: `user-email-${uuid}@example.com`,
     displayName: `user-displayName-${uuid}`,
     role: 'practitioner',
+    kind: 'user',
   };
 };
 

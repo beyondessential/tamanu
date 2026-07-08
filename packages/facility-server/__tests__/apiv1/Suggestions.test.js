@@ -583,6 +583,26 @@ describe('Suggestions', () => {
       const idArray = body.map(({ id }) => id);
       expect(idArray).not.toContain(obsoleteSurveyId);
     });
+
+    it('should not suggest device sync users as practitioners', async () => {
+      await models.User.create({
+        email: 'suggestions.clinician@tamanu.io',
+        displayName: 'Suggestions Sync Clinician',
+        role: 'practitioner',
+      });
+      await models.User.create({
+        email: 'sync.0123456789abcdef@sync.tamanu',
+        displayName: 'System: facility-sync-test sync',
+        role: 'admin',
+        kind: 'sync',
+      });
+
+      const result = await userApp.get('/api/suggestions/practitioner').query({ q: 'sync' });
+      expect(result).toHaveSucceeded();
+      const names = result.body.map(({ name }) => name);
+      expect(names).toContain('Suggestions Sync Clinician');
+      expect(names).not.toContain('System: facility-sync-test sync');
+    });
   });
 
   describe('Order of results (via diagnoses)', () => {

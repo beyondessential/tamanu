@@ -1,8 +1,9 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { DEVICE_SCOPES } from '@tamanu/constants';
+import { DEVICE_SCOPES, USER_KINDS } from '@tamanu/constants';
 
-const TEST_EMAIL = 'test@beyondessential.com.au';
+const TEST_EMAIL = 'test@bes.au';
+const TEST_SYNC_EMAIL = 'sync.test@sync.tamanu';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
 const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
@@ -24,6 +25,12 @@ const USERS = [
     password: TEST_PASSWORD,
     displayName: 'Role Test BES',
     role: TEST_ROLE_ID,
+  },
+  {
+    email: TEST_SYNC_EMAIL,
+    password: TEST_PASSWORD,
+    displayName: 'System: sync',
+    kind: USER_KINDS.SYNC,
   },
 ];
 
@@ -89,6 +96,31 @@ describe('Device auth', () => {
     });
 
     expect(response).not.toHaveSucceeded();
+  });
+
+  it('should not apply the device quota to sync (machine) users', async () => {
+    // Arrange the exact conditions that block a human user (quota exhausted),
+    // then prove a sync user registers a new device anyway.
+    const syncUser = await store.models.User.findOne({ where: { email: TEST_SYNC_EMAIL } });
+    await syncUser.update({ deviceRegistrationQuota: 2 });
+    await store.models.Device.create({
+      registeredById: syncUser.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+    await store.models.Device.create({
+      registeredById: syncUser.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    const response = await baseApp.post('/api/login').send({
+      email: TEST_SYNC_EMAIL,
+      password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveProperty('token');
   });
 
   it('should not error if there is not enough quota for a new sync scoped device but we are not scoping', async () => {

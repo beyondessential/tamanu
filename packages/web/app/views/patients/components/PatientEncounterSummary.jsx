@@ -1,61 +1,68 @@
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
-import { useQuery } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, DateDisplay } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { DeathCertificateModal } from '../../../components/PatientPrinting';
-import { useApi } from '../../../api';
-import { getFullLocationName } from '../../../utils/location';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientCurrentEncounterQuery } from '../../../api/queries';
+
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import {
+  Button,
+  ButtonWithPermissionCheck,
+  DateDisplay,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
-} from '../../../components/Translation';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+  useApi,
+} from '@tamanu/ui-components';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { DeathCertificateModal } from '../../../components/PatientPrinting';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
+import { getFullLocationName } from '../../../utils/location';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-inline-start: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
 `;
 
 const Container = styled.div`
   ${Border};
-  background: ${Colors.white};
+  background-color: ${p => p.theme.palette.background.paper};
   transition: color 0.2s ease;
 `;
 
 const NoVisitContainer = styled.div`
   ${Border};
-  display: flex;
   align-items: center;
+  background-color: ${p => p.theme.palette.background.paper};
+  display: flex;
   justify-content: space-between;
-  background: ${Colors.white};
-  padding: 28px 30px;
+  padding-block: 28px;
+  padding-inline: 30px;
 `;
 
 const Header = styled.div`
+  align-items: center;
+  border-block-end: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  padding: 18px 20px 18px 16px;
-  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  padding-block: 18px;
+  padding-inline: 16px 20px;
 `;
 
 const Content = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
   grid-row-gap: 8px;
-  padding: 12px 20px 12px 16px;
+  grid-template-columns: 1fr 1fr;
+  padding-block: 12px;
+  padding-inline: 16px 20px;
 `;
 
 const ContentItem = styled.div`
@@ -67,31 +74,29 @@ const Title = styled(Typography)`
   line-height: 24px;
   font-weight: 400;
   color: ${props => props.theme.palette.text.secondary};
-  text-transform: capitalize;
 `;
 
 const BoldTitle = styled(Title)`
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 500;
   color: ${props => props.theme.palette.text.primary};
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.33333333;
   margin-right: 5px;
 `;
 
 const NoVisitTitle = styled(BoldTitle)`
   font-size: 20px;
-  line-height: 28px;
+  line-height: 1.4;
 `;
 
 const ContentLabel = styled.span`
-  font-weight: 500;
   color: ${Colors.darkContentText};
-  margin-right: 5px;
+  font-weight: 500;
+  margin-inline-end: 5px;
 `;
 
 const ContentText = styled.span`
   color: ${Colors.midContentText};
-  text-transform: capitalize;
 `;
 
 const ButtonRow = styled(Box)`
@@ -109,7 +114,6 @@ const DeathLocationDisplay = ({ deathData }) => {
       <TranslatedText
         stringId="death.outsideHealthFacility.label"
         fallback="Died outside health facility"
-        data-testid="translatedtext-n2t4"
       />
     );
   }
@@ -120,18 +124,11 @@ const DeathLocationDisplay = ({ deathData }) => {
         fallback={deathData.facility.name}
         value={deathData?.facility.id}
         category="facility"
-        data-testid="translatedreferencedata-w40f"
       />
     );
   }
 
-  return (
-    <TranslatedText
-      stringId="general.fallback.unknown"
-      fallback="Unknown"
-      data-testid="translatedtext-p25g"
-    />
-  );
+  return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 };
 
 const DataStatusMessage = ({ message }) => (
@@ -144,10 +141,19 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
-
-  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
-  );
+  const {
+    data: deathData,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ['patientDeathSummary', patient.id],
+    queryFn: async () =>
+      await api.get(
+        `patient/${encodeURIComponent(patient.id)}/death`,
+        {},
+        { showUnknownErrorToast: false },
+      ),
+  });
 
   if (isLoading) {
     return (
@@ -173,11 +179,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           data-testid="box-5a71"
         >
           <BoldTitle variant="h3" data-testid="boldtitle-eb0y">
-            <TranslatedText
-              stringId="death.deceased.label"
-              fallback="Deceased"
-              data-testid="translatedtext-b4u4"
-            />
+            <TranslatedText stringId="death.deceased.label" fallback="Deceased" />
           </BoldTitle>
           <DeathCertificateModal
             patient={patient}
@@ -189,12 +191,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
       <Content data-testid="content-y0fh">
         <ContentItem data-testid="contentitem-xxod">
           <ContentLabel data-testid="contentlabel-nvid">
-            <TranslatedText
-              stringId="death.locationOfDeath.label"
-              fallback="Location of death"
-              data-testid="translatedtext-5x5z"
-            />
-            :
+            <TranslatedText stringId="death.locationOfDeath.label" fallback="Location of death" />:
           </ContentLabel>
           <ContentText data-testid="contenttext-genv">
             <DeathLocationDisplay deathData={deathData} />
@@ -205,7 +202,6 @@ const PatientDeathSummary = React.memo(({ patient }) => {
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-testid="translatedtext-vg4s"
             />
             :
           </ContentLabel>
@@ -218,7 +214,6 @@ const PatientDeathSummary = React.memo(({ patient }) => {
             <TranslatedText
               stringId="death.underlyingConditionCausingDeath.label"
               fallback="Underlying condition causing death"
-              data-testid="translatedtext-z6kv"
             />
             :
           </ContentLabel>
@@ -228,25 +223,15 @@ const PatientDeathSummary = React.memo(({ patient }) => {
                 fallback={deathData?.causes?.primary?.condition.name}
                 value={deathData?.causes?.primary?.condition.id}
                 category={deathData?.causes?.primary?.condition.type}
-                data-testid="translatedreferencedata-a8fx"
               />
             ) : (
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                data-testid="translatedtext-eotw"
-              />
+              <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
             )}
           </ContentText>
         </ContentItem>
         <ContentItem data-testid="contentitem-ld97">
           <ContentLabel data-testid="contentlabel-yujn">
-            <TranslatedText
-              stringId="death.dateOfDeath.label"
-              fallback="Date of death"
-              data-testid="translatedtext-4s11"
-            />
-            :
+            <TranslatedText stringId="death.dateOfDeath.label" fallback="Date of death" />:
           </ContentLabel>
           <ContentText data-testid="contenttext-08c1">
             <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
@@ -286,8 +271,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
         <NoVisitTitle variant="h2" data-testid="novisittitle-4wsg">
           <TranslatedText
             stringId="patient.encounterSummary.noCurrentVisit"
-            fallback="No Current Visit"
-            data-testid="translatedtext-2oej"
+            fallback="No current visit"
           />
         </NoVisitTitle>
         <ButtonRow data-testid="buttonrow-qss7">
@@ -300,8 +284,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
             >
               <TranslatedText
                 stringId="patient.encounterSummary.adminOrCheckIn"
-                fallback="Admit or check-in"
-                data-testid="translatedtext-rs08"
+                fallback="Admit or check in"
               />
             </ButtonWithPermissionCheck>
           </NoteModalActionBlocker>
@@ -328,12 +311,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
     <Container patientStatus={patientStatus} data-testid="container-2i3h">
       <Header patientStatus={patientStatus} data-testid="header-vf6f">
         <BoldTitle variant="h3" data-testid="boldtitle-r1hy">
-          <TranslatedText
-            stringId="general.type.label"
-            fallback="Type"
-            data-testid="translatedtext-xp21"
-          />
-          :
+          <TranslatedText stringId="general.type.label" fallback="Type" />:
         </BoldTitle>
         <Title variant="h3" data-testid="title-il13">
           <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
@@ -344,24 +322,22 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
                 fallback={location?.facility.name}
                 value={location?.facility.id}
                 category="facility"
-                data-testid="translatedreferencedata-dbxs"
               />
             </>
           ) : (
             ''
           )}
         </Title>
-        <div style={{ flexGrow: 1 }} />
         <Button
           onClick={() => viewEncounter(id)}
           size="small"
           data-testid="button-t8zb"
           disabled={!canReadEncounter}
+          style={{ marginInlineStart: 'auto' }}
         >
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
             fallback="View encounter"
-            data-testid="translatedtext-nqf5"
           />
         </Button>
       </Header>
@@ -371,7 +347,6 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
             <TranslatedText
               stringId="patient.encounterSummary.currentAdmission"
               fallback="Current admission"
-              data-testid="translatedtext-6z2p"
             />
             :
           </ContentLabel>
@@ -388,11 +363,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                     casing="lower"
-                    data-testid="translatedtext-4bmp"
                   />
                 ),
               }}
-              data-testid="translatedtext-hnws"
             />
             :
           </ContentLabel>
@@ -400,12 +373,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
         </ContentItem>
         <ContentItem data-testid="contentitem-xmgk">
           <ContentLabel data-testid="contentlabel-zfve">
-            <TranslatedText
-              stringId="general.location.label"
-              fallback="Location"
-              data-testid="translatedtext-sz4d"
-            />
-            :
+            <TranslatedText stringId="general.location.label" fallback="Location" />:
           </ContentLabel>
           <ContentText data-testid="contenttext-yn8i">{getFullLocationName(location)}</ContentText>
         </ContentItem>
@@ -415,7 +383,6 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
               <TranslatedText
                 stringId="general.localisedField.referralSourceId.label"
                 fallback="Referral source"
-                data-testid="translatedtext-xmmo"
               />
               :
             </ContentLabel>
@@ -425,10 +392,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
                   category="referralSource"
                   fallback={referralSource?.name}
                   value={referralSourceId}
-                  data-testid="translatedreferencedata-reyt"
                 />
               ) : (
-                referralSource?.name || '-'
+                referralSource?.name || '—' // em dash
               )}
             </ContentText>
           </ContentItem>
@@ -445,11 +411,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
           <>
             <ContentItem style={{ gridColumn: 2 }} data-testid="contentitem-chiefcomplaint">
               <ContentLabel data-testid="contentlabel-chiefcomplaint">
-                <TranslatedText
-                  stringId="triage.chiefComplaint.label"
-                  fallback="Chief complaint"
-                  data-testid="translatedtext-chiefcomplaint"
-                />
+                <TranslatedText stringId="triage.chiefComplaint.label" fallback="Chief complaint" />
                 :
               </ContentLabel>
               <ContentText data-testid="contenttext-chiefcomplaint">
@@ -466,7 +428,6 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
                 <TranslatedText
                   stringId="triage.secondaryComplaint.label"
                   fallback="Secondary complaint"
-                  data-testid="translatedtext-secondarycomplaint"
                 />
                 :
               </ContentLabel>
@@ -486,11 +447,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
               <TranslatedText
                 stringId="encounter.reasonForEncounter.label"
                 fallback="Reason for encounter"
-                data-testid="translatedtext-5vij"
               />
               :
             </ContentLabel>
-            <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
+            <ContentText data-testid="contenttext-wf93">
+              {reasonForEncounter || '—' /* em dash */}
+            </ContentText>
           </ContentItem>
         )}
       </Content>

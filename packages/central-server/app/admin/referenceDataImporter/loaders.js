@@ -12,12 +12,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
-  GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
-import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -252,20 +250,6 @@ async function validateObjectId(item, models, pushError) {
     return;
   }
 
-  if (noun === 'StaticReport') {
-    const allowedReportIds = [
-      GENERIC_SURVEY_EXPORT_REPORT_ID,
-      ...REPORT_DEFINITIONS.map(({ id }) => id),
-    ];
-    const objectIds = objectId.split('/');
-    for (const objectId of objectIds) {
-      if (!allowedReportIds.includes(objectId)) {
-        pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
-      }
-    }
-    return;
-  }
-
   // Skip strict objectId validation in test environments
   if (process.env.NODE_ENV === 'test') {
     return;
@@ -296,7 +280,12 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
+      const id = models.Permission.generatePermissionId(
+        role,
+        normalizedVerb,
+        normalizedNoun,
+        normalizedObjectId,
+      );
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;

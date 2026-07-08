@@ -9,7 +9,12 @@ import {
 } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
+import {
+  getInvoiceItemPrice,
+  getInvoiceSummary,
+  getInvoicePatientPaymentStatus,
+  isFixedPriceProduct,
+} from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -30,7 +35,7 @@ invoiceRoute.get(
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { InvoicePriceList, InvoicePriceListItem } = req.models;
+    const { InvoicePriceList, InvoicePriceListItem, InvoiceProduct } = req.models;
 
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
 
@@ -44,10 +49,18 @@ invoiceRoute.get(
         invoiceProductId: productId,
         isHidden: false,
       },
-      attributes: ['price'],
     });
 
-    res.json(item);
+    if (!item) {
+      res.json(item);
+      return;
+    }
+
+    // Return the full price-list item plus the product category, so the form can apply fixed
+    // pricing (medications only) before the item is saved.
+    const product = await InvoiceProduct.findByPk(productId, { attributes: ['category'] });
+
+    res.json({ ...item.get({ plain: true }), category: product?.category });
   }),
 );
 
@@ -171,7 +184,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(crypto.randomUUID),
+        id: z.string().uuid().default(() => crypto.randomUUID()),
         percentage: z.coerce
           .number()
           .min(0)
@@ -184,7 +197,7 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(crypto.randomUUID),
+        id: z.string().uuid().default(() => crypto.randomUUID()),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -197,7 +210,7 @@ const updateInvoiceSchema = z
         sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(crypto.randomUUID),
+            id: z.string().uuid().default(() => crypto.randomUUID()),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),
@@ -416,6 +429,7 @@ invoiceRoute.put(
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
 
+          item.isFixedPriceFinal = isFixedPriceProduct(item.product);
           item.priceFinal = getInvoiceItemPrice(item);
 
           // Save insurance plan coverage values

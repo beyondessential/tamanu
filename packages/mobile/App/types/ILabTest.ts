@@ -10,6 +10,7 @@ export interface ILabTest {
   secondaryResult?: string;
   referenceRangeMin?: number;
   referenceRangeMax?: number;
+  referenceRangeText?: string;
 
   labRequest: ILabRequest;
   labRequestId: string;

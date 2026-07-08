@@ -28,7 +28,6 @@ export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb
   // that access can be restricted to specific chart types (identified by objectId).
   Charting: [List, Read, Write, Create, Delete],
   Survey: [Read, Write, Submit],
-  StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
   ProgramRegistry: [Read, Write],
 };
@@ -148,7 +147,6 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   SensitiveMedication: [List, Read, Write, Create],
   Setting: [List, Read, Write],
   Signer: [List, Read],
-  StaticReport: [Run],
   Survey: [List, Read, Write, Create, Submit],
   SurveyResponse: [List, Read, Write, Create, Delete],
   Tasking: [List, Read, Write, Create, Delete],

@@ -150,6 +150,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
       validationSchema={yup.object().shape({
         patientDisplayId: yup
           .string()
+          .required(getTranslation('validation.required.inline', '*Required'))
           .matches(`^${patient.displayId}$`, {
             message: getTranslation(
               'encounter.delete.validation.displayIdMismatch',

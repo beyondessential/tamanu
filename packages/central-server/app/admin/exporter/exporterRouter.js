@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'es-toolkit/compat';
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { IMPORTABLE_PERMISSION_NOUN_OVERRIDES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { exporter } from './exporter';
 import { exportProgram } from '../programExporter/exportProgram';
@@ -23,7 +23,8 @@ exporterRouter.get(
 
       // Otherwise, if it is other types (eg: patient, lab_test_types,... ones that have their own models)
       // check the permission against the models
-      const nonReferenceDataModelName = upperFirst(dataType);
+      const nonReferenceDataModelName =
+        IMPORTABLE_PERMISSION_NOUN_OVERRIDES[dataType] ?? upperFirst(dataType);
       req.checkPermission('list', nonReferenceDataModelName);
     }
 

@@ -2,13 +2,13 @@ import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
 import { initReporting } from '@tamanu/database/services/reporting';
-import { initBugsnag } from '@tamanu/shared/services/logging';
+import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { closeDatabase, initDatabase } from './database';
+import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
@@ -48,7 +48,6 @@ export class ApplicationContext {
       }
     }
 
-    const facilityIds = selectFacilityIds(config);
     const key = dbKey ?? appType ?? 'main';
     this.store = await initDatabase(databaseOverrides ?? {}, key);
     this.sequelize = this.store.sequelize;
@@ -56,6 +55,10 @@ export class ApplicationContext {
       this.onClose(resolve);
     });
     this.models = this.store.models;
+
+    // Resolve the sync target/facilities from local system facts now the DB is up.
+    await initServerConfig({ context: this });
+    const facilityIds = getServerFacilityIds() ?? [];
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
@@ -70,10 +73,23 @@ export class ApplicationContext {
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
     return this;
+  }
+
+  // Call after migrations: reporting reads its per-server secret from local_system_facts.
+  async initReportingStores() {
+    try {
+      this.reportSchemaStores = await initReporting(this.store);
+    } catch (error) {
+      // Reporting requires the app db role to manage the reporting roles (see
+      // ensureReportingRole). On an under-provisioned database that fails; the
+      // rest of the server works without reporting, so degrade instead of
+      // crash-looping the whole deployment.
+      log.error(
+        'initReporting failed; reporting schemas unavailable until the db grants are fixed',
+        { error },
+      );
+    }
   }
 
   onClose(hook) {

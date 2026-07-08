@@ -2,15 +2,14 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
-import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
-import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
+import { FacilitySyncConnection } from '../sync';
+import { getServerFacilityIds } from '../serverConfig';
+import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 import { startFhirWorker } from './startFhirWorker';
@@ -25,20 +24,9 @@ async function startApiSyncAndTasks(context) {
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
-  context.centralServer = new CentralServerConnection(context);
-  context.syncManager = new FacilitySyncManager(context);
+  // eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers
   context.syncConnection = new FacilitySyncConnection();
-  // eslint-disable-next-line require-atomic-updates
-  context.timesync = await initTimesync({
-    models: context.models,
-    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-  });
-
-  await performTimeZoneChecks({
-    remote: context.centralServer,
-    sequelize: context.sequelize,
-    config,
-  });
+  const isConfigured = await setupSyncRuntime(context);
 
   const { server } = await createApiApp(context);
 
@@ -57,14 +45,16 @@ async function startApiSyncAndTasks(context) {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
-  const syncTaskClass = [SyncTask];
   const cancelTasks = startScheduledTasks(context);
-  const cancelSyncTask = startScheduledTasks(context, syncTaskClass);
+  // SyncTask no-ops until the runtime is ready, so schedule it regardless.
+  const cancelSyncTask = startScheduledTasks(context, [SyncTask]);
+  const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     cancelTasks();
     cancelSyncTask();
+    cancelConfigPoll();
     server.close();
     syncServer.close();
     context.close();
@@ -75,7 +65,7 @@ async function startApiSyncAndTasks(context) {
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
-    serverFacilityIds: selectFacilityIds(config),
+    serverFacilityIds: getServerFacilityIds(),
   });
 
   log.info(`Process info`, {
@@ -84,6 +74,7 @@ async function startAll({ skipMigrationCheck }) {
 
   const context = await new ApplicationContext().init({ appType: 'api' });
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
+  await context.initReportingStores();
 
   const fhirWorkers =
     process.env.NODE_ENV !== 'production'
