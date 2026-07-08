@@ -238,15 +238,18 @@ export const EditorView = memo(
       [scopedSchema, effectiveCategory, subCategory],
     );
 
-    // Search spans every category, so filter the raw scoped schema (not
-    // prepareSchema's copy): root-level settings keep their real top-level
+    // Search is scoped to the current selection: within the selected
+    // category/sub-category when one is chosen, across every category
+    // otherwise. The unscoped case filters the raw scoped schema (not
+    // prepareSchema's copy) so root-level settings keep their real top-level
     // paths, and results render from the root so headings and inherited flags
     // (highRisk, requiresRestart) flow through the normal Category recursion.
-    const searchResultSchema = useMemo(
-      () =>
-        isSearchRender ? filterSettingsSchema(getScopedSchema(scope), deferredSearchQuery) : null,
-      [isSearchRender, scope, deferredSearchQuery],
-    );
+    const searchResultSchema = useMemo(() => {
+      if (!isSearchRender) return null;
+      const baseSchema = category ? schemaForCategory : getScopedSchema(scope);
+      if (!baseSchema) return null;
+      return filterSettingsSchema(baseSchema, deferredSearchQuery);
+    }, [isSearchRender, category, schemaForCategory, scope, deferredSearchQuery]);
 
     const handleChangeScope = () => {
       setSubCategory(null);
@@ -263,36 +266,22 @@ export const EditorView = memo(
         if (!dismissChanges) return;
         await resetForm();
       }
-      setSearchQuery('');
       setSubCategory(null);
       setCategory(newCategory);
       setFailedSubmits(0);
     };
 
     const handleChangeSubcategory = e => {
-      setSearchQuery('');
       setSubCategory(e.target.value);
     };
 
-    // Search and category selection are mutually exclusive views: typing a
-    // query clears the selection, picking a category clears the query. Just
-    // clearing the selection here — no warning/reset — since form edits live in
-    // values.settings by full path and survive the view switch.
-    const handleChangeSearch = e => {
-      const query = e.target.value;
-      setSearchQuery(query);
-      if (query.trim()) {
-        setCategory(null);
-        setSubCategory(null);
-      }
-    };
-
-    // Search results render from the schema root, so their paths are already
-    // complete; category view paths need the selected category prefixed. Keyed
-    // to isSearchRender (not isSearching) so path semantics always match the
-    // tree currently on screen, even mid-deferral.
+    // Unscoped search renders from the schema root, so its paths are already
+    // complete; the category view AND category-scoped search render from the
+    // selected category, so paths need the selection prefixed. Keyed to
+    // isSearchRender (not isSearching) so path semantics always match the tree
+    // currently on screen, even mid-deferral.
     const getSettingPath = path =>
-      isSearchRender
+      isSearchRender && !category
         ? path
         : `${effectiveCategory === UNCATEGORISED_KEY ? '' : `${effectiveCategory}.`}${
             subCategory ? `${subCategory}.` : ''
@@ -388,9 +377,13 @@ export const EditorView = memo(
           </Box>
           <SearchAndActions data-testid="searchandactions-s3ar">
             <StyledSearchInput
-              placeholder={getTranslation('admin.settings.search.placeholder', 'Search settings')}
+              placeholder={
+                category
+                  ? getTranslation('admin.settings.search.placeholderScoped', 'Search in category')
+                  : getTranslation('admin.settings.search.placeholder', 'Search settings')
+              }
               value={searchQuery}
-              onChange={handleChangeSearch}
+              onChange={e => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery('')}
               data-testid="styledsearchinput-s3ar"
             />
