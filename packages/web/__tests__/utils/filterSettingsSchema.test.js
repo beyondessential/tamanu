@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  filterSettingsSchema,
-  textMatchesQuery,
-} from '../../app/views/administration/settings/filterSettingsSchema';
+import { filterSettingsSchema } from '../../app/views/administration/settings/filterSettingsSchema';
 
 const schema = {
   properties: {
@@ -46,15 +43,29 @@ describe('filterSettingsSchema', () => {
     expect(byDescription.properties.mail.properties.from).toBeUndefined();
   });
 
-  it('textMatchesQuery reports substring hits for the results view', () => {
-    expect(textMatchesQuery('SMTP relay hostname', 'relay')).toBe(true);
-    expect(textMatchesQuery('SMTP relay hostname', 'zzz')).toBe(false);
-    expect(textMatchesQuery(undefined, 'relay')).toBe(false);
+  it('flags matched descriptions for the results view', () => {
+    const result = filterSettingsSchema(schema, 'smtp relay');
+    expect(result.properties.mail.properties.transport.properties.host.__matchedDescription).toBe(
+      true,
+    );
+  });
+
+  it('flags exact display-name matches and the groups above them', () => {
+    const result = filterSettingsSchema(schema, 'from address');
+    expect(result.properties.mail.properties.from.__exactMatch).toBe(true);
+    expect(result.properties.mail.__hasExactMatch).toBe(true);
+    // word-start-but-not-exact hits carry no exact flag
+    const partial = filterSettingsSchema(schema, 'from');
+    expect(partial.properties.mail.properties.from.__exactMatch).toBeUndefined();
   });
 
   it('keeps the whole subtree when a group itself matches', () => {
     const result = filterSettingsSchema(schema, 'mail');
-    expect(result.properties.mail).toBe(schema.properties.mail);
+    const mail = result.properties.mail;
+    expect(Object.keys(mail.properties)).toEqual(Object.keys(schema.properties.mail.properties));
+    expect(mail.properties.transport.properties.host).toBeTruthy();
+    // "mail" equals the group's display name exactly
+    expect(mail.__exactMatch).toBe(true);
   });
 
   it('matches root-level settings and startCase-derived names', () => {

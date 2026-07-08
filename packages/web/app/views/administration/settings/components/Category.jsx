@@ -15,7 +15,6 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
-import { textMatchesQuery } from '../filterSettingsSchema';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;
@@ -267,6 +266,11 @@ const SettingName = memo(
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
+  // Exact search hits (and groups holding one) first — flags only exist on
+  // search-filtered schema copies, so the category view is unaffected.
+  const aExact = Boolean(a1.__exactMatch || a1.__hasExactMatch);
+  const bExact = Boolean(b1.__exactMatch || b1.__hasExactMatch);
+  if (aExact !== bExact) return aExact ? -1 : 1;
   const aName = a1.name || a0;
   const bName = b1.name || b0;
   const isTopLevelA = isSetting(a1);
@@ -334,8 +338,10 @@ export const Category = ({
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
         // When a search hit is in the description, surface it under the row —
         // the tooltip-only description makes such matches look inexplicable.
+        // The flag is set by filterSettingsSchema, the single source of match
+        // logic; it only exists on search-filtered schema copies.
         const showMatchedDescription =
-          Boolean(searchQuery) && textMatchesQuery(description, searchQuery);
+          Boolean(searchQuery) && Boolean(propertySchema.__matchedDescription);
 
         if (!type) {
           return (
