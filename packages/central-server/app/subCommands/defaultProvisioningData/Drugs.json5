@@ -14,8 +14,8 @@
       "code": "acetazolamide250",
       "name": "Acetazolamide 250mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aciclovir345",
@@ -30,16 +30,16 @@
       "code": "aciclovir400",
       "name": "Aciclovir 400mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aciclovir800",
       "code": "aciclovir800",
       "name": "Aciclovir 800mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-adapalene0130",
@@ -62,7 +62,7 @@
       "code": "adrenaline30003",
       "name": "Adrenaline 300mcg/0.3ml Autoinjector",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Syringe",
       "unitConversion": 0.3
     },
     {
@@ -70,88 +70,88 @@
       "code": "alendronatesodium70",
       "name": "Alendronate sodium 70mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-allopurinol100",
       "code": "allopurinol100",
       "name": "Allopurinol 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-allopurinol300",
       "code": "allopurinol300",
       "name": "Allopurinol 300mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aluminium600",
       "code": "aluminium600",
       "name": "Aluminium 600mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amiodaronehcl100",
       "code": "amiodaronehcl100",
       "name": "Amiodarone HCL 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amiodaronehcl200",
       "code": "amiodaronehcl200",
       "name": "Amiodarone HCL 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amitriptyline10",
       "code": "amitriptyline10",
       "name": "Amitriptyline 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amitriptyline25",
       "code": "amitriptyline25",
       "name": "Amitriptyline 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amlodipine10",
       "code": "amlodipine10",
       "name": "Amlodipine 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amlodipine25",
       "code": "amlodipine25",
       "name": "Amlodipine 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amlodipine5",
       "code": "amlodipine5",
       "name": "Amlodipine 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-amoxicillin1255",
@@ -166,8 +166,8 @@
       "code": "amoxicillin250",
       "name": "Amoxicillin 250mg Capules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-amoxicillin2505",
@@ -182,8 +182,8 @@
       "code": "amoxicillin500",
       "name": "Amoxicillin 500mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-amoxicillinclavulanic2506255",
@@ -198,24 +198,24 @@
       "code": "amoxicillinclavulanic500125",
       "name": "Amoxicillin + clavulanic 500mg+125mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-anastrozole1",
       "code": "anastrozole1",
       "name": "Anastrozole 1mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-apixaban5",
       "code": "apixaban5",
       "name": "Apixaban 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aqueouscream500",
@@ -230,72 +230,72 @@
       "code": "aripiprazole10",
       "name": "Aripiprazole 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aspirin100",
       "code": "aspirin100",
       "name": "Aspirin 100mg EC Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-aspirin300",
       "code": "aspirin300",
       "name": "Aspirin 300mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-atenolol50",
       "code": "atenolol50",
       "name": "Atenolol 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-atorvastatin10",
       "code": "atorvastatin10",
       "name": "Atorvastatin 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-atorvastatin20",
       "code": "atorvastatin20",
       "name": "Atorvastatin 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-atorvastatin40",
       "code": "atorvastatin40",
       "name": "Atorvastatin 40mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-atorvastatin80",
       "code": "atorvastatin80",
       "name": "Atorvastatin 80mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-azathioprine50",
       "code": "azathioprine50",
       "name": "Azathioprine 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-azithromycin200515",
@@ -310,16 +310,16 @@
       "code": "azithromycin250",
       "name": "Azithromycin 250mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-baclofen10",
       "code": "baclofen10",
       "name": "Baclofen 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-beclomethasonediprop100200",
@@ -334,16 +334,16 @@
       "code": "bendrofluazide25",
       "name": "Bendrofluazide 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-betahistinehcl16",
       "code": "betahistinehcl16",
       "name": "Betahistine HCl 16mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-betamethasonevalerate0150",
@@ -374,16 +374,16 @@
       "code": "bezafibrate400",
       "name": "Bezafibrate 400mg LA Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bicalutamide50",
       "code": "bicalutamide50",
       "name": "Bicalutamide 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bimatoprost3003",
@@ -398,32 +398,32 @@
       "code": "bismuthsubcitrate120",
       "name": "Bismuth subcitrate 120mg Tablet",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bisoprolol10",
       "code": "bisoprolol10",
       "name": "Bisoprolol 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bisoprolol25",
       "code": "bisoprolol25",
       "name": "Bisoprolol 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bisoprolol5",
       "code": "bisoprolol5",
       "name": "Bisoprolol 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-budesonideformoterol2006120",
@@ -446,16 +446,16 @@
       "code": "bumetanide1",
       "name": "Bumetanide 1mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-bupropionhcl150",
       "code": "bupropionhcl150",
       "name": "Bupropion HCL 150mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-calcipotriolbetamethasone5050030",
@@ -470,48 +470,48 @@
       "code": "calcitriol025",
       "name": "Calcitriol 0.25mcg Capsule",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-calcitriol05",
       "code": "calcitriol05",
       "name": "Calcitriol 0.5mcg capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-calcium1000",
       "code": "calcium1000",
       "name": "Calcium 1000mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-calcium500",
       "code": "calcium500",
       "name": "Calcium 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-candesartan16",
       "code": "candesartan16",
       "name": "Candesartan 16mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-candesartan8",
       "code": "candesartan8",
       "name": "Candesartan 8mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-capsaicin007545",
@@ -534,40 +534,40 @@
       "code": "carbamazepine200",
       "name": "Carbamazepine 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-carbimazole5",
       "code": "carbimazole5",
       "name": "Carbimazole 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-carvedilol125",
       "code": "carvedilol125",
       "name": "Carvedilol 12.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-carvedilol25",
       "code": "carvedilol25",
       "name": "Carvedilol 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-carvedilol625",
       "code": "carvedilol625",
       "name": "Carvedilol 6.25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cefaclor1255",
@@ -582,8 +582,8 @@
       "code": "cefaclor250",
       "name": "Cefaclor 250mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-cefalexin2505",
@@ -606,24 +606,24 @@
       "code": "celecoxib100",
       "name": "Celecoxib 100mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-celecoxib200",
       "code": "celecoxib200",
       "name": "Celecoxib 200mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cetirizine10",
       "code": "cetirizine10",
       "name": "Cetirizine 10mg Tablet",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cetirizine1",
@@ -686,32 +686,32 @@
       "code": "cilazapril05",
       "name": "Cilazapril 0.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cilazapril25",
       "code": "cilazapril25",
       "name": "Cilazapril 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cilazapril5",
       "code": "cilazapril5",
       "name": "Cilazapril 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cilazaprilhydrochlorothiazide5125",
       "code": "cilazaprilhydrochlorothiazide5125",
       "name": "Cilazapril + hydrochlorothiazide 5/12.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ciprofloxacinhydrocortisone210",
@@ -726,32 +726,32 @@
       "code": "ciprofloxacin500",
       "name": "Ciprofloxacin 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-citalopram20",
       "code": "citalopram20",
       "name": "Citalopram 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-clarithromycin500",
       "code": "clarithromycin500",
       "name": "Clarithromycin 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-clindamycin150",
       "code": "clindamycin150",
       "name": "Clindamycin 150mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-clobetasolpropionate00530",
@@ -782,24 +782,24 @@
       "code": "clomiphenecitrate50",
       "name": "Clomiphene citrate 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-clonazepam05",
       "code": "clonazepam05",
       "name": "Clonazepam 0.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-clopidogrel75",
       "code": "clopidogrel75",
       "name": "Clopidogrel 75mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-clotrimazole1635",
@@ -838,24 +838,24 @@
       "code": "codeinephosphate30",
       "name": "Codeine phosphate 30mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-colchicine05",
       "code": "colchicine05",
       "name": "Colchicine 0.5mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-colecalciferol125",
       "code": "colecalciferol125",
       "name": "Colecalciferol 1.25mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-colecalciferol1045",
@@ -878,40 +878,40 @@
       "code": "cotrimoxazole40080",
       "name": "Cotrimoxazole 400/80mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-cyclizine50",
       "code": "cyclizine50",
       "name": "Cyclizine 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-cyproteroneethinyloestradiol235168",
       "code": "cyproteroneethinyloestradiol235168",
       "name": "Cyproterone + ethinyloestradiol 2mg/35mcg Tablets 168",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 168
     },
     {
       "id": "drug-dabigatran110",
       "code": "dabigatran110",
       "name": "Dabigatran 110mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-dabigatran150",
       "code": "dabigatran150",
       "name": "Dabigatran 150mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-dapagliflozin10",
@@ -926,16 +926,16 @@
       "code": "desmopressin01",
       "name": "Desmopressin 0.1mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-dexamethasone4",
       "code": "dexamethasone4",
       "name": "Dexamethasone 4mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-dexamethasoneframycetingramicidineareyedrops8",
@@ -950,15 +950,15 @@
       "code": "diazepam5",
       "name": "Diazepam 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-diazepam525",
       "code": "diazepam525",
       "name": "Diazepam 5mg/2.5ml Rectal Tubes",
       "dosingUnit": "mL",
-      "dispensingUnit": "mL",
+      "dispensingUnit": "Tube",
       "unitConversion": 1
     },
     {
@@ -966,8 +966,8 @@
       "code": "diclofenacsodium100",
       "name": "Diclofenac sodium 100mg SR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-diclofenacsodium100s",
@@ -982,111 +982,111 @@
       "code": "diclofenacsodium75",
       "name": "Diclofenac sodium 75mg SR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-digoxin250",
       "code": "digoxin250",
       "name": "Digoxin 250mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-digoxin625",
       "code": "digoxin625",
       "name": "Digoxin 62.5mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-diltiazem120",
       "code": "diltiazem120",
       "name": "Diltiazem 120mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-diltiazem180",
       "code": "diltiazem180",
       "name": "Diltiazem 180mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-disulfiram200",
       "code": "disulfiram200",
       "name": "Disulfiram 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-docusate120",
       "code": "docusate120",
       "name": "Docusate 120mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-docusate508",
       "code": "docusate508",
       "name": "Docusate 50mg + sennosides 8mg  Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-domperidone10",
       "code": "domperidone10",
       "name": "Domperidone 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-donepezil5",
       "code": "donepezil5",
       "name": "Donepezil 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-doxazosin2",
       "code": "doxazosin2",
       "name": "Doxazosin 2mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-doxycycline100",
       "code": "doxycycline100",
       "name": "Doxycycline 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-drospirenoneethinyloestradiol33084",
       "code": "drospirenoneethinyloestradiol33084",
       "name": "Drospirenone + ethinyloestradiol 3/30mcg Tablets 84",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 84
     },
     {
       "id": "drug-electrolytesachets20010",
       "code": "electrolytesachets20010",
       "name": "Electrolyte Sachets 200ml x 10",
-      "dosingUnit": "Pouch",
-      "dispensingUnit": "Pouch",
+      "dosingUnit": "Sachet",
+      "dispensingUnit": "Sachet",
       "unitConversion": 1
     },
     {
@@ -1094,24 +1094,24 @@
       "code": "enalapril10",
       "name": "Enalapril 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-enalapril20",
       "code": "enalapril20",
       "name": "Enalapril 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-enalapril5",
       "code": "enalapril5",
       "name": "Enalapril 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-enoxaparinsodium4004",
@@ -1134,8 +1134,8 @@
       "code": "erythromycines400",
       "name": "Erythromycin e.s. 400mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-erythromycines4005",
@@ -1150,32 +1150,32 @@
       "code": "escitalopram10",
       "name": "Escitalopram 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-escitalopram20",
       "code": "escitalopram20",
       "name": "Escitalopram 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-estrogenconjugequine062528",
       "code": "estrogenconjugequine062528",
       "name": "Estrogen conjug equine 0.625mg Tablets 28",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 28
     },
     {
       "id": "drug-ezetimibe10",
       "code": "ezetimibe10",
       "name": "Ezetimibe 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-fattyemulsionowcream500",
@@ -1190,40 +1190,40 @@
       "code": "felodipine10",
       "name": "Felodipine 10mg ER Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-felodipine25",
       "code": "felodipine25",
       "name": "Felodipine 2.5mg ER Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-felodipine5",
       "code": "felodipine5",
       "name": "Felodipine 5mg ER Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ferrousfumarate200",
       "code": "ferrousfumarate200",
       "name": "Ferrous Fumarate 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ferroussulphate325",
       "code": "ferroussulphate325",
       "name": "Ferrous Sulphate 325mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ferroussulphate6",
@@ -1238,24 +1238,24 @@
       "code": "finasteride5",
       "name": "Finasteride 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-flecainideacetate100",
       "code": "flecainideacetate100",
       "name": "Flecainide acetate 100mg CR Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-flucloxacillinsodium250",
       "code": "flucloxacillinsodium250",
       "name": "Flucloxacillin sodium 250mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-flucloxacillinsodium2505",
@@ -1270,32 +1270,32 @@
       "code": "flucloxacillinsodium500",
       "name": "Flucloxacillin sodium 500mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-fluconazole50",
       "code": "fluconazole50",
       "name": "Fluconazole 50mg Capsule",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-fluoxetine20",
       "code": "fluoxetine20",
       "name": "Fluoxetine 20mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-flutamide250",
       "code": "flutamide250",
       "name": "Flutamide 250mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-fluticasonefuroatevilanterol1002530",
@@ -1358,16 +1358,16 @@
       "code": "folicacid08",
       "name": "Folic acid 0.8mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-folicacid5",
       "code": "folicacid5",
       "name": "Folic acid 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-framycetinsulphate0508",
@@ -1382,8 +1382,8 @@
       "code": "furosemide40",
       "name": "Furosemide 40mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-fusidicacid25",
@@ -1398,39 +1398,39 @@
       "code": "gabapentin100",
       "name": "Gabapentin 100mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-gabapentin300",
       "code": "gabapentin300",
       "name": "Gabapentin 300mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-gliclazide80",
       "code": "gliclazide80",
       "name": "Gliclazide 80mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-glipizide5",
       "code": "glipizide5",
       "name": "Glipizide 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-glucagonhcl11",
       "code": "glucagonhcl11",
       "name": "Glucagon HCL 1mg/1ml Hypo Kit",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Kit",
       "unitConversion": 1
     },
     {
@@ -1454,32 +1454,32 @@
       "code": "haloperidol05",
       "name": "Haloperidol 0.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-haloperidol15",
       "code": "haloperidol15",
       "name": "Haloperidol 1.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-haloperidol5",
       "code": "haloperidol5",
       "name": "Haloperidol 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-hydrochlorothiazide25",
       "code": "hydrochlorothiazide25",
       "name": "Hydrochlorothiazide 25mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-hydrocortisonenatamycinneomycincream15",
@@ -1518,16 +1518,16 @@
       "code": "hydroxychloroquinesulphate200",
       "name": "Hydroxychloroquine sulphate 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-hyoscinenbutylbromide10",
       "code": "hyoscinenbutylbromide10",
       "name": "Hyoscine-N-butylbromide 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-hyoscinenbutylbromide20",
@@ -1550,16 +1550,16 @@
       "code": "ibuprofen200",
       "name": "Ibuprofen 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ibuprofen800",
       "code": "ibuprofen800",
       "name": "Ibuprofen 800mg SR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-imiquimod5250",
@@ -1590,7 +1590,7 @@
       "code": "insulinaspartaspartprotamine30701003",
       "name": "Insulin aspart + aspart protamine 30/70 100iu/ml 3ml Flexpen",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1598,7 +1598,7 @@
       "code": "insulinaspart1003",
       "name": "Insulin aspart 100iu/ml 3ml Penfill",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1606,7 +1606,7 @@
       "code": "insulinglargine1003",
       "name": "Insulin glargine 100IU/ml 3ml Penfill",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1614,7 +1614,7 @@
       "code": "insulinglargine1003solostar",
       "name": "Insulin glargine 100IU/ml 3ml SoloStar Pen",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1630,7 +1630,7 @@
       "code": "insulinisophane1003",
       "name": "Insulin isophane 100IU 3ml Penfill",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1646,7 +1646,7 @@
       "code": "insulinisophaneneutral70303",
       "name": "Insulin isophane + neutral 70/30 3ml Penfill",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1654,7 +1654,7 @@
       "code": "insulinlisproneutralprotamine1003",
       "name": "Insulin lispro + neutral protamine 100iu/ml 3ml Penfill",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Pen",
       "unitConversion": 3
     },
     {
@@ -1670,48 +1670,48 @@
       "code": "iodine253",
       "name": "Iodine 253mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-irbesartan150",
       "code": "irbesartan150",
       "name": "Irbesartan 150mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-isosorbidemononitrate60",
       "code": "isosorbidemononitrate60",
       "name": "Isosorbide Mononitrate 60mg CR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-isotretinoin10",
       "code": "isotretinoin10",
       "name": "Isotretinoin 10mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-isotretinoin20",
       "code": "isotretinoin20",
       "name": "Isotretinoin 20mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-itraconazole100",
       "code": "itraconazole100",
       "name": "Itraconazole 100mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ketoconazole2100",
@@ -1734,8 +1734,8 @@
       "code": "lamotrigine100",
       "name": "Lamotrigine 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levetiracetam100",
@@ -1750,48 +1750,48 @@
       "code": "levetiracetam500",
       "name": "Levetiracetam 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levodopacarbidopa10025",
       "code": "levodopacarbidopa10025",
       "name": "Levodopa + Carbidopa 100mg/25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levodopacarbidopa25025",
       "code": "levodopacarbidopa25025",
       "name": "Levodopa + Carbidopa 250mg/25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levonorgestrelethinyloestradiol10020",
       "code": "levonorgestrelethinyloestradiol10020",
       "name": "Levonorgestrel + Ethinyloestradiol 100/20mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levonorgestrelethinyloestradiol15030",
       "code": "levonorgestrelethinyloestradiol15030",
       "name": "Levonorgestrel + Ethinyloestradiol 150/30mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levonorgestrel15",
       "code": "levonorgestrel15",
       "name": "Levonorgestrel 1.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levonorgestrel20",
@@ -1806,24 +1806,24 @@
       "code": "levothyroxine100",
       "name": "Levothyroxine 100mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levothyroxine25",
       "code": "levothyroxine25",
       "name": "Levothyroxine 25mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-levothyroxine50",
       "code": "levothyroxine50",
       "name": "Levothyroxine 50mcg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-lidocaine25",
@@ -1838,56 +1838,56 @@
       "code": "lisinopril10",
       "name": "Lisinopril 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-lisinopril20",
       "code": "lisinopril20",
       "name": "Lisinopril 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-lisinopril5",
       "code": "lisinopril5",
       "name": "Lisinopril 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-lithiumcarbonate250",
       "code": "lithiumcarbonate250",
       "name": "Lithium carbonate 250mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-lithiumcarbonate400",
       "code": "lithiumcarbonate400",
       "name": "Lithium carbonate 400mg LA Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-loperamide2",
       "code": "loperamide2",
       "name": "Loperamide 2mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-loratadine10",
       "code": "loratadine10",
       "name": "Loratadine 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-loratadine1",
@@ -1902,39 +1902,39 @@
       "code": "losartanhydrochlorothiazide50125",
       "name": "Losartan + Hydrochlorothiazide 50mg/12.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-losartanpotassium100",
       "code": "losartanpotassium100",
       "name": "Losartan potassium 100mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-losartanpotassium25",
       "code": "losartanpotassium25",
       "name": "Losartan potassium 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-losartanpotassium50",
       "code": "losartanpotassium50",
       "name": "Losartan potassium 50mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-macrogol3350",
       "code": "macrogol3350",
       "name": "Macrogol 3350  Sachets",
-      "dosingUnit": "Pouch",
-      "dispensingUnit": "Pouch",
+      "dosingUnit": "Sachet",
+      "dispensingUnit": "Sachet",
       "unitConversion": 1
     },
     {
@@ -1942,23 +1942,23 @@
       "code": "mebeverinehcl135",
       "name": "Mebeverine HCL 135mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-medroxyprogesterone10",
       "code": "medroxyprogesterone10",
       "name": "Medroxyprogesterone 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-medroxyprogesterone1501",
       "code": "medroxyprogesterone1501",
       "name": "Medroxyprogesterone 150mg/ml 1ml Pre-f Syringe",
       "dosingUnit": "mL",
-      "dispensingUnit": "Vial",
+      "dispensingUnit": "Syringe",
       "unitConversion": 1
     },
     {
@@ -1966,16 +1966,16 @@
       "code": "medroxyprogesterone5",
       "name": "Medroxyprogesterone 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-melatonin3",
       "code": "melatonin3",
       "name": "Melatonin 3mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-mentholcrystals",
@@ -1990,32 +1990,32 @@
       "code": "metformin500",
       "name": "Metformin 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metformin850",
       "code": "metformin850",
       "name": "Metformin 850mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-methotrexate10",
       "code": "methotrexate10",
       "name": "Methotrexate 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-methotrexate25",
       "code": "methotrexate25",
       "name": "Methotrexate 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-methylcellulosepowder",
@@ -2030,48 +2030,48 @@
       "code": "methylphenidate10",
       "name": "Methylphenidate 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metoclopramidehydrochloride10",
       "code": "metoclopramidehydrochloride10",
       "name": "Metoclopramide Hydrochloride 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metoprololsucc2375",
       "code": "metoprololsucc2375",
       "name": "Metoprolol succ. 23.75mg CR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metoprololsucc475",
       "code": "metoprololsucc475",
       "name": "Metoprolol succ. 47.5mg CR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metoprololsucc95",
       "code": "metoprololsucc95",
       "name": "Metoprolol succ. 95mg CR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metoprololtartrate50",
       "code": "metoprololtartrate50",
       "name": "Metoprolol tartrate 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-metronidazole2005",
@@ -2086,8 +2086,8 @@
       "code": "metronidazole400",
       "name": "Metronidazole 400mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-miconazole2115",
@@ -2118,16 +2118,16 @@
       "code": "midazolam75",
       "name": "Midazolam 7.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-mirtazapine30",
       "code": "mirtazapine30",
       "name": "Mirtazapine 30mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-mometasonefuroate0115",
@@ -2150,16 +2150,16 @@
       "code": "morphinesulphate10",
       "name": "Morphine sulphate 10mg SR Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-morphinesulphate10ta",
       "code": "morphinesulphate10tab",
       "name": "Morphine sulphate 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-morphinesulphate101",
@@ -2182,8 +2182,8 @@
       "code": "multivitamintablets",
       "name": "Multivitamin  Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-mupirocin215",
@@ -2206,16 +2206,16 @@
       "code": "naproxen1000",
       "name": "Naproxen 1000mg SR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-naproxen250",
       "code": "naproxen250",
       "name": "Naproxen 250mg Tab",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-nicotine1424",
@@ -2278,56 +2278,56 @@
       "code": "nifedipine20",
       "name": "Nifedipine 20mg CR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-nitrofurantoin100",
       "code": "nitrofurantoin100",
       "name": "Nitrofurantoin 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-nitrofurantoin50",
       "code": "nitrofurantoin50",
       "name": "Nitrofurantoin 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-norethisterone35084",
       "code": "norethisterone35084",
       "name": "Norethisterone 350mcg Tablets 84",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 84
     },
     {
       "id": "drug-norethisterone5",
       "code": "norethisterone5",
       "name": "Norethisterone 5mg Tab",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-norfloxacin400",
       "code": "norfloxacin400",
       "name": "Norfloxacin 400mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-nortriptyline25",
       "code": "nortriptyline25",
       "name": "Nortriptyline 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-nystatinoraldrops24",
@@ -2350,64 +2350,64 @@
       "code": "olanzapine10",
       "name": "Olanzapine 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-olanzapine25",
       "code": "olanzapine25",
       "name": "Olanzapine 2.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-olanzapine5",
       "code": "olanzapine5",
       "name": "Olanzapine 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-omeprazole20",
       "code": "omeprazole20",
       "name": "Omeprazole 20mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ondansetron4",
       "code": "ondansetron4",
       "name": "Ondansetron 4mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ondansetron8",
       "code": "ondansetron8",
       "name": "Ondansetron 8mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ondansetronodt4",
       "code": "ondansetronodt4",
       "name": "Ondansetron ODT 4mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ondansetronodt8",
       "code": "ondansetronodt8",
       "name": "Ondansetron ODT 8mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-oraplussuspension",
@@ -2430,24 +2430,24 @@
       "code": "oxybutynin5",
       "name": "Oxybutynin 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pantoprazole20",
       "code": "pantoprazole20",
       "name": "Pantoprazole 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-paracetamolcodeine5008",
       "code": "paracetamolcodeine5008",
       "name": "Paracetamol + codeine 500/8mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-paracetamol1205",
@@ -2486,16 +2486,16 @@
       "code": "paracetamol500",
       "name": "Paracetamol 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-paroxetinehcl20",
       "code": "paroxetinehcl20",
       "name": "Paroxetine HCL 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-penicillinv1255",
@@ -2518,32 +2518,32 @@
       "code": "penicillinvk250",
       "name": "Penicillin VK 250mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-penicillinvk500",
       "code": "penicillinvk500",
       "name": "Penicillin VK 500mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-perindopril2",
       "code": "perindopril2",
       "name": "Perindopril 2mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-perindopril4",
       "code": "perindopril4",
       "name": "Perindopril 4mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-permethrin530",
@@ -2558,8 +2558,8 @@
       "code": "phenytoin100",
       "name": "Phenytoin 100mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pholcodine55",
@@ -2582,31 +2582,31 @@
       "code": "pioglitazone15",
       "name": "Pioglitazone 15mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pioglitazone30",
       "code": "pioglitazone30",
       "name": "Pioglitazone 30mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pioglitazone45",
       "code": "pioglitazone45",
       "name": "Pioglitazone 45mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-polyethyleneglycolelectrolytsachets",
       "code": "polyethyleneglycolelectrolytsachets",
       "name": "Polyethylene glycol+electrolyt  Sachets",
-      "dosingUnit": "Pouch",
-      "dispensingUnit": "Pouch",
+      "dosingUnit": "Sachet",
+      "dispensingUnit": "Sachet",
       "unitConversion": 1
     },
     {
@@ -2614,8 +2614,8 @@
       "code": "potassiumchloride600",
       "name": "Potassium chloride 600mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-potassiumpermanganatecrystals",
@@ -2630,24 +2630,24 @@
       "code": "pramipexole025",
       "name": "Pramipexole 0.25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-prazosin1",
       "code": "prazosin1",
       "name": "Prazosin 1mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-prazosin2",
       "code": "prazosin2",
       "name": "Prazosin 2mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-prednisolone5",
@@ -2670,80 +2670,80 @@
       "code": "prednisone20",
       "name": "Prednisone 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-prednisone5",
       "code": "prednisone5",
       "name": "Prednisone 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pregabalin150",
       "code": "pregabalin150",
       "name": "Pregabalin 150mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pregabalin25",
       "code": "pregabalin25",
       "name": "Pregabalin 25mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pregabalin300",
       "code": "pregabalin300",
       "name": "Pregabalin 300mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-pregabalin75",
       "code": "pregabalin75",
       "name": "Pregabalin 75mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-probenecid500",
       "code": "probenecid500",
       "name": "Probenecid 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-prochlorperazine5",
       "code": "prochlorperazine5",
       "name": "Prochlorperazine 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-promethazine10",
       "code": "promethazine10",
       "name": "Promethazine 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-promethazine25",
       "code": "promethazine25",
       "name": "Promethazine 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-promethazinehcl502",
@@ -2758,160 +2758,160 @@
       "code": "pyrantelembonate100",
       "name": "Pyrantel embonate 100mg Choc Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quetiapine100",
       "code": "quetiapine100",
       "name": "Quetiapine 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quetiapine200",
       "code": "quetiapine200",
       "name": "Quetiapine 200mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quetiapine25",
       "code": "quetiapine25",
       "name": "Quetiapine 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quetiapine300",
       "code": "quetiapine300",
       "name": "Quetiapine 300mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quinaprilhct10125",
       "code": "quinaprilhct10125",
       "name": "Quinapril + HCT 10mg/12.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quinaprilhct20125",
       "code": "quinaprilhct20125",
       "name": "Quinapril + HCT 20mg/12.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quinapril10",
       "code": "quinapril10",
       "name": "Quinapril 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quinapril20",
       "code": "quinapril20",
       "name": "Quinapril 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quinapril5",
       "code": "quinapril5",
       "name": "Quinapril 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-quininesulphate300",
       "code": "quininesulphate300",
       "name": "Quinine sulphate 300mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rifampicin300",
       "code": "rifampicin300",
       "name": "Rifampicin 300mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-risperidone05",
       "code": "risperidone05",
       "name": "Risperidone 0.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-risperidone2",
       "code": "risperidone2",
       "name": "Risperidone 2mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rivaroxaban20",
       "code": "rivaroxaban20",
       "name": "Rivaroxaban 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rosuvastatin10",
       "code": "rosuvastatin10",
       "name": "Rosuvastatin 10mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rosuvastatin20",
       "code": "rosuvastatin20",
       "name": "Rosuvastatin 20mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rosuvastatin40",
       "code": "rosuvastatin40",
       "name": "Rosuvastatin 40mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-rosuvastatin5",
       "code": "rosuvastatin5",
       "name": "Rosuvastatin 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-roxithromycin300",
       "code": "roxithromycin300",
       "name": "Roxithromycin 300mg tablet",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-salbutamolipratropium10020200",
@@ -2966,64 +2966,64 @@
       "code": "sertraline100",
       "name": "Sertraline 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sildenafil10012",
       "code": "sildenafil10012",
       "name": "Sildenafil 100mg Tablets 12",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Box",
+      "unitConversion": 12
     },
     {
       "id": "drug-sildenafil1004",
       "code": "sildenafil1004",
       "name": "Sildenafil 100mg Tablets 4",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Box",
+      "unitConversion": 4
     },
     {
       "id": "drug-sildenafil5012",
       "code": "sildenafil5012",
       "name": "Sildenafil 50mg Tablets 12",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Box",
+      "unitConversion": 12
     },
     {
       "id": "drug-sildenafil504",
       "code": "sildenafil504",
       "name": "Sildenafil 50mg Tablets 4",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Box",
+      "unitConversion": 4
     },
     {
       "id": "drug-simvastatin20",
       "code": "simvastatin20",
       "name": "Simvastatin 20mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-simvastatin40",
       "code": "simvastatin40",
       "name": "Simvastatin 40mg tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sodiumbicarbonate840",
       "code": "sodiumbicarbonate840",
       "name": "Sodium Bicarbonate 840mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sodiumcitratesodiumlauryl5",
@@ -3046,16 +3046,16 @@
       "code": "sodiumvalproate100",
       "name": "Sodium valproate 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sodiumvalproate200",
       "code": "sodiumvalproate200",
       "name": "Sodium valproate 200mg EC Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sodiumvalproate2005",
@@ -3070,72 +3070,72 @@
       "code": "sodiumvalproate500",
       "name": "Sodium valproate 500mg EC Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-spironolactone100",
       "code": "spironolactone100",
       "name": "Spironolactone 100mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-spironolactone25",
       "code": "spironolactone25",
       "name": "Spironolactone 25mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sulphasalazine500ec",
       "code": "sulphasalazine500ec",
       "name": "Sulphasalazine 500mg EC Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sulphasalazine500",
       "code": "sulphasalazine500",
       "name": "Sulphasalazine 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-sumatriptan50",
       "code": "sumatriptan50",
       "name": "Sumatriptan 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-tamsulosinhcl04",
       "code": "tamsulosinhcl04",
       "name": "Tamsulosin HCl 0.4mg Caps",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-terazosin2",
       "code": "terazosin2",
       "name": "Terazosin 2mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-terbinafine250",
       "code": "terbinafine250",
       "name": "Terbinafine 250mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-terbutalinesulphate250200",
@@ -3150,24 +3150,24 @@
       "code": "theophylline250",
       "name": "Theophylline 250mg SR Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-thiaminehcl50",
       "code": "thiaminehcl50",
       "name": "Thiamine HCL 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-ticagrelor90",
       "code": "ticagrelor90",
       "name": "Ticagrelor 90mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-tiotropiumolodaterol252560",
@@ -3190,16 +3190,16 @@
       "code": "tramadol50",
       "name": "Tramadol 50mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-tranexamicacid500",
       "code": "tranexamicacid500",
       "name": "Tranexamic acid 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-triamcinolonegramicidinnystatinneomycineardrops75",
@@ -3222,8 +3222,8 @@
       "code": "trimethoprim300",
       "name": "Trimethoprim 300mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Blister Pack",
+      "unitConversion": 10
     },
     {
       "id": "drug-umeclidinium62530",
@@ -3246,32 +3246,32 @@
       "code": "valaciclovir500",
       "name": "Valaciclovir 500mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-venlafaxine150",
       "code": "venlafaxine150",
       "name": "Venlafaxine 150mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-venlafaxine75",
       "code": "venlafaxine75",
       "name": "Venlafaxine 75mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-vildagliptin50",
       "code": "vildagliptin50",
       "name": "Vildagliptin 50mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-vitaminb121",
@@ -3286,16 +3286,16 @@
       "code": "warfarinsod1",
       "name": "Warfarin sod. 1mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-warfarinsod5",
       "code": "warfarinsod5",
       "name": "Warfarin sod. 5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-xylometazolinenasalspray10",
@@ -3310,16 +3310,16 @@
       "code": "zincsulphate50",
       "name": "Zinc sulphate 50mg Capsules",
       "dosingUnit": "Capsule",
-      "dispensingUnit": "Capsule",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-zopiclone75",
       "code": "zopiclone75",
       "name": "Zopiclone 7.5mg Tablets",
       "dosingUnit": "Tablet",
-      "dispensingUnit": "Tablet",
-      "unitConversion": 1
+      "dispensingUnit": "Pack",
+      "unitConversion": 30
     },
     {
       "id": "drug-zuclopenthixol2001",
