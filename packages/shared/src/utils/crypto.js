@@ -279,16 +279,3 @@ export async function configSecretEncryptAction(stdout, stderr) {
   stderr.write('Encrypted value (copy this to your config):\n');
   stdout.write(`${encrypted}\n`);
 }
-
-/**
- * CLI action: generate a fresh settings PSK and print it already encrypted for
- * the `crypto.settingsPsk` config value. Non-interactive so provisioning
- * (ansible, scripts) can capture the output directly; the raw PSK is generated
- * and encrypted in-process and never leaves it, so it can't leak into shell
- * history or logs. Only the encrypted value is written to stdout.
- */
-export async function configSecretGenerateSettingsPskAction(stdout) {
-  const psk = (await generateSecretKey()).toString('hex');
-  const encrypted = await encryptConfigValue(psk);
-  stdout.write(`${encrypted}\n`);
-}

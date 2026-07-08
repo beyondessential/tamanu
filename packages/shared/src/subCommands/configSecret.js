@@ -1,9 +1,5 @@
 import { Command } from 'commander';
-import {
-  configSecretInitAction,
-  configSecretEncryptAction,
-  configSecretGenerateSettingsPskAction,
-} from '../utils/crypto';
+import { configSecretInitAction, configSecretEncryptAction } from '../utils/crypto';
 
 const wrapAction = action => async () => {
   try {
@@ -27,13 +23,8 @@ export function buildConfigSecretCommand() {
     .description('Encrypt a value for use in config files')
     .action(wrapAction(configSecretEncryptAction));
 
-  const generateSettingsPskCommand = new Command('generate-settings-psk')
-    .description('Generate a settings PSK, encrypted for the crypto.settingsPsk config value')
-    .action(wrapAction(configSecretGenerateSettingsPskAction));
-
   return new Command('configSecret')
     .description('Manage encrypted configuration secrets')
     .addCommand(initCommand)
-    .addCommand(encryptCommand)
-    .addCommand(generateSettingsPskCommand);
+    .addCommand(encryptCommand);
 }
