@@ -112,8 +112,8 @@ export const TriageWaitTimeCell = React.memo(
             dataTestId="triagecell-observation"
             encounterTypeLabel={
               <TranslatedText
-                stringId="patientList.triage.table.waitTime.cell.activeEDCare"
-                fallback="Active ED care"
+                stringId="patientList.triage.table.waitTime.cell.activeED"
+                fallback="Active ED"
                 data-testid="translatedtext-active-ed-care"
               />
             }
