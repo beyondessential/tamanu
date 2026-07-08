@@ -12,6 +12,7 @@ import { SettingsConfigReader } from './readers/SettingsConfigReader';
  * config value for any key that has no setting yet, so config moving into settings
  * never changes behaviour. They sit below recorded settings and above schema defaults.
  */
+// spec: SETTINGS#scopes-and-resolution
 function getReaderCascade(models: Models, facilityId?: string) {
   return facilityId
     ? [
