@@ -15,6 +15,7 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
+import { textMatchesQuery } from '../filterSettingsSchema';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;
@@ -122,6 +123,44 @@ const InfoBannerAlert = styled(Alert)`
   margin-inline-end: 1.25rem;
 `;
 
+const Mark = styled.mark`
+  background-color: ${Colors.primary10};
+  border-radius: 2px;
+`;
+
+// Description line shown under a setting's name when a search hit is in the
+// description — otherwise the match reason is invisible (tooltip-only).
+const MatchedDescription = styled(BodyText)`
+  color: ${Colors.midText};
+  font-size: 13px;
+  grid-column: 1 / -1;
+  margin-block: -8px 13px;
+  // The name's text inset is the outer label's per-depth margin PLUS the
+  // nested inner label's base 1.25rem — match both so this aligns with it.
+  margin-inline-start: ${props => 2.5 + (props.$indent ?? 0) * 1.25}rem;
+  max-inline-size: 60ch;
+`;
+
+// Wraps each occurrence of `query` in text with a highlight mark. Substring
+// (not word-start) so it explains rows from either matching tier.
+const highlightMatches = (text, query) => {
+  const needle = query?.trim();
+  if (!needle) return text;
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const matcher = new RegExp(escaped, 'gi');
+  const parts = [];
+  let last = 0;
+  let match;
+  while ((match = matcher.exec(text))) {
+    parts.push(text.slice(last, match.index));
+    parts.push(<Mark key={match.index}>{match[0]}</Mark>);
+    last = match.index + match[0].length;
+  }
+  if (last === 0) return text;
+  parts.push(text.slice(last));
+  return parts;
+};
+
 const CategoryTitle = memo(({ name, path, description, depth }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
@@ -139,7 +178,18 @@ const CategoryTitle = memo(({ name, path, description, depth }) => {
 });
 
 const SettingName = memo(
-  ({ name, path, description, disabled, isSecret, requiresRestart, highRisk, depth, alignTop }) => (
+  ({
+    name,
+    path,
+    description,
+    disabled,
+    isSecret,
+    requiresRestart,
+    highRisk,
+    depth,
+    alignTop,
+    searchQuery,
+  }) => (
   <SettingNameLabel
     $indent={depth}
     $alignTop={alignTop}
@@ -168,7 +218,9 @@ const SettingName = memo(
       data-testid="themedtooltip-2qoa"
     >
       <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-        {formatSettingName(name, path.split('.').pop())}
+        {searchQuery
+          ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
+          : formatSettingName(name, path.split('.').pop())}
         {disabled ? (
           <StyledLockIcon data-testid="styledlockicon-x3w0" />
         ) : (
@@ -228,6 +280,7 @@ export const Category = ({
   resolveSettingsPath,
   handleChangeSetting,
   facilityId,
+  searchQuery,
 }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
@@ -271,6 +324,10 @@ export const Category = ({
         const disabled = !canWriteHighRisk && isHighRisk;
         const isMultiEntry =
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
+        // When a search hit is in the description, surface it under the row —
+        // the tooltip-only description makes such matches look inexplicable.
+        const showMatchedDescription =
+          Boolean(searchQuery) && textMatchesQuery(description, searchQuery);
 
         if (!type) {
           return (
@@ -285,6 +342,7 @@ export const Category = ({
               resolveSettingsPath={resolveSettingsPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
+              searchQuery={searchQuery}
               data-testid={`category-9y74-${testIdSuffix}`}
             />
           );
@@ -302,6 +360,7 @@ export const Category = ({
               isSecret={isSecret}
               highRisk={schema.highRisk || highRisk}
               alignTop={isMultiEntry}
+              searchQuery={searchQuery}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
@@ -334,6 +393,11 @@ export const Category = ({
                   onReset={() => handleChangeSetting(newPath, undefined)}
                 />
               </RowActions>
+            )}
+            {showMatchedDescription && (
+              <MatchedDescription $indent={depth} data-testid={`matcheddesc-${testIdSuffix}`}>
+                {highlightMatches(description, searchQuery)}
+              </MatchedDescription>
             )}
           </SettingLine>
         );

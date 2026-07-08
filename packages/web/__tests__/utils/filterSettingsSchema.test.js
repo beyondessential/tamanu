@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { filterSettingsSchema } from '../../app/views/administration/settings/filterSettingsSchema';
+import {
+  filterSettingsSchema,
+  textMatchesQuery,
+} from '../../app/views/administration/settings/filterSettingsSchema';
 
 const schema = {
   properties: {
@@ -34,12 +37,19 @@ describe('filterSettingsSchema', () => {
     expect(Object.keys(result.properties.mail.properties)).toEqual(['from']);
   });
 
-  it('matches on dotted path but not description', () => {
+  it('matches on dotted path and description', () => {
     const byPath = filterSettingsSchema(schema, 'mail.transport.host');
     expect(byPath.properties.mail.properties.transport.properties.host).toBeTruthy();
 
-    // descriptions are invisible in the results, so matching on them reads as noise
-    expect(filterSettingsSchema(schema, 'smtp relay')).toBeNull();
+    const byDescription = filterSettingsSchema(schema, 'smtp relay');
+    expect(byDescription.properties.mail.properties.transport.properties.host).toBeTruthy();
+    expect(byDescription.properties.mail.properties.from).toBeUndefined();
+  });
+
+  it('textMatchesQuery reports substring hits for the results view', () => {
+    expect(textMatchesQuery('SMTP relay hostname', 'relay')).toBe(true);
+    expect(textMatchesQuery('SMTP relay hostname', 'zzz')).toBe(false);
+    expect(textMatchesQuery(undefined, 'relay')).toBe(false);
   });
 
   it('keeps the whole subtree when a group itself matches', () => {
@@ -86,5 +96,26 @@ describe('filterSettingsSchema', () => {
     const before = JSON.stringify(schema);
     filterSettingsSchema(schema, 'from');
     expect(JSON.stringify(schema)).toBe(before);
+  });
+
+  it('prefers name/path matches over description matches', () => {
+    const tiered = {
+      properties: {
+        relayMode: { type: 'string', name: 'Relay mode' },
+        transportHost: { type: 'string', description: 'SMTP relay hostname' },
+      },
+    };
+    // both mention "relay", but only the name match shows while one exists
+    expect(Object.keys(filterSettingsSchema(tiered, 'relay').properties)).toEqual(['relayMode']);
+    // description tier still reachable when no name/path matches
+    expect(Object.keys(filterSettingsSchema(tiered, 'smtp').properties)).toEqual([
+      'transportHost',
+    ]);
+  });
+
+  it('falls back to substring matching when word-start finds nothing', () => {
+    // no word starts with "nation", but vaccinations contains it
+    const result = filterSettingsSchema(schema, 'nation');
+    expect(Object.keys(result.properties)).toEqual(['vaccinations']);
   });
 });
