@@ -19,7 +19,7 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
   if (
     await isInpatientFeeBundled(
       labRequest.sequelize.models,
-      encounter.id,
+      encounter,
       INPATIENT_BUNDLED_CATEGORIES.LAB,
     )
   ) {

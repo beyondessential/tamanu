@@ -23,7 +23,7 @@ export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRe
   if (
     await isInpatientFeeBundled(
       imagingRequest.sequelize.models,
-      encounter.id,
+      encounter,
       INPATIENT_BUNDLED_CATEGORIES.IMAGING,
     )
   ) {
