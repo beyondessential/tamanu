@@ -232,6 +232,37 @@ describe('Inpatient fee inclusions', () => {
     expect(items).toHaveLength(1);
   });
 
+  it('keeps a pre-admission item when the encounter is admitted in place and the request is edited', async () => {
+    // Requested while the encounter is emergency (not bundled) → invoiced.
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.EMERGENCY);
+    const {
+      body: [labRequest],
+    } = await app.post('/api/labRequest').send({
+      encounterId: encounter.id,
+      panelIds: [labPanel.id],
+      sampleDetails: { [labPanel.id]: { sampleTime: new Date() } },
+      requestedById: user.id,
+      date: new Date(),
+    });
+    await app.put(`/api/labRequest/${labRequest.id}`).send({
+      status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      userId: user.id,
+    });
+    const before = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(before.body.items ?? []).toHaveLength(1);
+
+    // Admit the encounter in place (lab is now a bundled category), then edit the request.
+    await encounter.update({ encounterType: ENCOUNTER_TYPES.ADMISSION });
+    await app.put(`/api/labRequest/${labRequest.id}`).send({
+      status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+      userId: user.id,
+    });
+
+    // Bundling suppresses new auto-adds; it must not retro-remove the pre-admission item.
+    const after = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(after.body.items ?? []).toHaveLength(1);
+  });
+
   it('excludes administered medications but keeps discharge dispensing when medications are bundled', async () => {
     const items = await admissionMedicationItems({ administered: 5, dispensed: 10 });
     expect(items).toHaveLength(1);

@@ -9,6 +9,25 @@ import type { LabRequest } from './LabRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
 import { isInpatientFeeBundled } from '../../utils/isInpatientFeeBundled';
 
+// Whether a lab request is invoiceable on its own status/settings, independent of bundling.
+// Drives removal on update: a request that is no longer invoiceable (e.g. cancelled) is removed.
+const isInvoiceableLabRequest = async (labRequest: LabRequest) => {
+  const invoicePendingLabRequests = await labRequest.sequelize.models.Setting.get(
+    'features.invoicing.invoicePendingLabRequests',
+  );
+
+  if (
+    invoicePendingLabRequests &&
+    [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED, LAB_REQUEST_STATUSES.RECEPTION_PENDING].includes(
+      labRequest.status,
+    )
+  ) {
+    return true; // reception_pending and sample-not-collected are auto invoiced if setting is enabled
+  }
+
+  return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);
+};
+
 export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
   const encounter = await labRequest.sequelize.models.Encounter.findByPk(labRequest.encounterId);
   if (!encounter) {
@@ -26,20 +45,7 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
     return false;
   }
 
-  const invoicePendingLabRequests = await labRequest.sequelize.models.Setting.get(
-    'features.invoicing.invoicePendingLabRequests',
-  );
-
-  if (
-    invoicePendingLabRequests &&
-    [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED, LAB_REQUEST_STATUSES.RECEPTION_PENDING].includes(
-      labRequest.status,
-    )
-  ) {
-    return true; // reception_pending and sample-not-collected are auto invoiced if setting is enabled
-  }
-
-  return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);
+  return isInvoiceableLabRequest(labRequest);
 };
 
 export const pushNotificationAfterUpdateHook = async (
@@ -166,7 +172,10 @@ const removeFromInvoice = async (instance: LabRequest) => {
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: LabRequest) => {
   if (await shouldAddLabRequestToInvoice(instance)) {
     await addToInvoice(instance);
-  } else {
+  } else if (!(await isInvoiceableLabRequest(instance))) {
+    // Only remove when the request itself is no longer invoiceable (e.g. cancelled). Bundling
+    // suppresses auto-adding new items but must not retro-remove one already on the invoice
+    // (e.g. added pre-admission before an admit-in-place), so a bundled item is left in place.
     await removeFromInvoice(instance);
   }
 };
