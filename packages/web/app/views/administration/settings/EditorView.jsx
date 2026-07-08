@@ -40,13 +40,17 @@ const StyledSelectInput = styled(SelectInput)`
 `;
 
 const StyledSearchInput = styled(SearchInput)`
-  width: 18.75rem;
+  // Preferred width matching the selects, but yields (down to a usable floor)
+  // before crowding the sub-category select or wrapping the action buttons.
+  flex: 0 1 18.75rem;
+  min-width: 11rem;
 `;
 
 const SearchAndActions = styled.div`
   align-items: center;
   display: flex;
   gap: 1.5rem;
+  margin-left: auto;
 `;
 
 const NoSearchResults = styled(Box)`
@@ -58,6 +62,11 @@ const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: end;
+  // Breathing room between the selects and the search/actions group; wrap the
+  // right group onto its own line rather than crushing it when both selects
+  // are showing on a narrow window.
+  gap: 1rem;
+  flex-wrap: wrap;
 `;
 
 const CategoriesWrapper = styled.div`
@@ -75,6 +84,10 @@ const CategoriesWrapper = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
+  // Never squash the actions: keep them one line and let the search shrink or
+  // the group wrap instead.
+  flex-shrink: 0;
+  white-space: nowrap;
 `;
 
 const UNCATEGORISED_KEY = 'uncategorised';
@@ -251,13 +264,28 @@ export const EditorView = memo(
         if (!dismissChanges) return;
         await resetForm();
       }
+      setSearchQuery('');
       setSubCategory(null);
       setCategory(newCategory);
       setFailedSubmits(0);
     };
 
     const handleChangeSubcategory = e => {
+      setSearchQuery('');
       setSubCategory(e.target.value);
+    };
+
+    // Search and category selection are mutually exclusive views: typing a
+    // query clears the selection, picking a category clears the query. Just
+    // clearing the selection here — no warning/reset — since form edits live in
+    // values.settings by full path and survive the view switch.
+    const handleChangeSearch = e => {
+      const query = e.target.value;
+      setSearchQuery(query);
+      if (query.trim()) {
+        setCategory(null);
+        setSubCategory(null);
+      }
     };
 
     // Search results render from the schema root, so their paths are already
@@ -338,7 +366,6 @@ export const EditorView = memo(
               value={category}
               onChange={handleChangeCategory}
               options={categoryOptions}
-              disabled={isSearching}
               data-testid="styledselectinput-kvyx"
             />
             {subCategoryOptions && (
@@ -355,7 +382,6 @@ export const EditorView = memo(
                   value={subCategory}
                   onChange={handleChangeSubcategory}
                   options={subCategoryOptions}
-                  disabled={isSearching}
                   data-testid="styleddynamicselectfield-d62r"
                 />
               </Box>
@@ -365,7 +391,7 @@ export const EditorView = memo(
             <StyledSearchInput
               placeholder={getTranslation('admin.settings.search.placeholder', 'Search settings')}
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={handleChangeSearch}
               onClear={() => setSearchQuery('')}
               data-testid="styledsearchinput-s3ar"
             />
