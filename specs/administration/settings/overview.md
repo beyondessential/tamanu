@@ -32,6 +32,4 @@ A setting is sent to the web application or the patient portal only when its sch
 
 ## Configuration sources
 
-Everything an operator can tune is a setting. Everything a server must know before settings are available comes from its environment: the database connection, the server's facility identity, cryptographic key material, and network ports.
-
-The environment also carries deployment controls that are not settings, including the primary timezone (`TZ`), the trusted-proxy list (`PROXY_TRUSTED`, defaulting to loopback), the path checked for free disk space (`DISK_PATH`, defaulting to `/tmp`), console logging (`NO_COLOR`, level, timestamps, and destination), the authentication secrets, the canonical host name, and whether database migrations run at startup.
+An operator tunes runtime behaviour through settings. Everything else is an environment variable, because it is either needed before settings can be read (the database connection, cryptographic key material, console logging, and whether migrations run at startup), a property of the environment the process runs in (the primary timezone `TZ`, the trusted-proxy list `PROXY_TRUSTED` defaulting to loopback, the free-disk-space path `DISK_PATH` defaulting to `/tmp`, network ports, the facility identity, and the canonical host name), or a secret held outside the database (the authentication secrets) — none of which a runtime, database-backed setting can be.
