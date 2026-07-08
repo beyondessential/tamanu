@@ -4,6 +4,7 @@ import {
   createHospitalAdmissionEncounterViaAPI,
   createTriageEncounterViaApi,
 } from '@utils/apiHelpers';
+import { getItemFromLocalStorage } from '@utils/localStorage';
 
 test.setTimeout(60000);
 
@@ -16,10 +17,11 @@ const PRICED_BED_LOCATION_ID = 'location-Ward1Bed1-tamanu';
 test.describe('Invoicing — automatic fee display', () => {
   test('clinic encounter shows an encounter fee line on the invoice', async ({
     api,
+    page,
     newPatient,
     patientDetailsPage,
   }) => {
-    await createClinicEncounterViaApi(api, newPatient.id);
+    await createClinicEncounterViaApi(api, page, newPatient.id);
 
     await patientDetailsPage.goToPatient(newPatient);
     const invoice = await patientDetailsPage.navigateToInvoicingTab();
@@ -46,10 +48,15 @@ test.describe('Invoicing — automatic fee display', () => {
 
   test('admission to a priced bed shows the bed fee line', async ({
     api,
+    page,
     newPatient,
     patientDetailsPage,
   }) => {
+    // The admission helper is shared with non-invoicing specs and doesn't send facilityId itself;
+    // pass it via overrides so the invoice (and its bed fee) is created for this encounter.
+    const facilityId = await getItemFromLocalStorage(page, 'facilityId');
     await createHospitalAdmissionEncounterViaAPI(api, newPatient.id, {
+      facilityId,
       locationId: PRICED_BED_LOCATION_ID,
     });
 
