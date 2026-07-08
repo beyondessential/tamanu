@@ -266,12 +266,18 @@ export const EditorView = memo(
         if (!dismissChanges) return;
         await resetForm();
       }
+      // Picking a category is an explicit "show me this category": drop any
+      // active query rather than silently keeping it as a filter the user has
+      // to notice over in the search box. (Typing a query with a category
+      // selected still scopes to it — that combination is deliberate.)
+      setSearchQuery('');
       setSubCategory(null);
       setCategory(newCategory);
       setFailedSubmits(0);
     };
 
     const handleChangeSubcategory = e => {
+      setSearchQuery('');
       setSubCategory(e.target.value);
     };
 
