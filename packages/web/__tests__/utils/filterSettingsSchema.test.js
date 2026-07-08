@@ -109,6 +109,26 @@ describe('filterSettingsSchema', () => {
     expect(JSON.stringify(schema)).toBe(before);
   });
 
+  it('prefers setting-name matches over category-name matches', () => {
+    const fielded = {
+      properties: {
+        // category display name mentions "previously"; its key/paths don't
+        fields: { name: 'Previously localised fields', properties: {
+          displayId: { type: 'string' },
+        } },
+        reports: { properties: {
+          previouslyUsed: { type: 'boolean', name: 'Previously used' },
+        } },
+      },
+    };
+    // setting-name tier wins: only the setting shows
+    expect(Object.keys(filterSettingsSchema(fielded, 'previously').properties)).toEqual([
+      'reports',
+    ]);
+    // with no setting hit, the category-name tier is reachable
+    expect(Object.keys(filterSettingsSchema(fielded, 'localised').properties)).toEqual(['fields']);
+  });
+
   it('prefers name/path matches over description matches', () => {
     const tiered = {
       properties: {

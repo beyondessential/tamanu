@@ -14,10 +14,11 @@ const NO_MATCH = Infinity;
 
 /**
  * Returns a copy of `schema` containing only the settings matching `query`,
- * case-insensitively. Matches are tiered — name/path word-start, name/path
- * substring, description word-start, description substring — and only the best
- * populated tier is kept, so "age" finds "Age display format" without every
- * "page" mention, while "nation" still falls back to finding Vaccinations.
+ * case-insensitively. Matches are tiered — setting name/path before category
+ * name/path before description, and word-start before substring within each —
+ * and only the best populated tier is kept, so "age" finds "Age display
+ * format" without every "page" mention, while "nation" still falls back to
+ * finding Vaccinations.
  * A group whose own name or path matches keeps its whole subtree. Keeps the
  * group structure above each match so results render with their category
  * headings. Returns null when nothing matches, and the schema unchanged for an
@@ -39,14 +40,18 @@ export const filterSettingsSchema = (schema, query) => {
   const atWordStart = text => typeof text === 'string' && wordStart.test(normalise(text));
   const anywhere = text => typeof text === 'string' && normalise(text).includes(needle);
 
-  // Tiers: names/paths outrank descriptions, word-start matches outrank
-  // substring-anywhere ones. Lower is better.
+  // Tiers, lower is better: setting names outrank category names outrank
+  // descriptions, and within each, word-start matches outrank
+  // substring-anywhere ones. Leaf paths carry their category prefix, so a
+  // category hit usually surfaces its settings at the name tiers anyway; the
+  // category tiers matter when only the category's display name matches.
   const tierOf = (node, key, path) => {
+    const isLeaf = isSetting(node) || !node.properties;
     const name = displayName(node, key);
-    if (atWordStart(name) || atWordStart(path)) return 1;
-    if (anywhere(name) || anywhere(path)) return 2;
-    if (atWordStart(node.description)) return 3;
-    if (anywhere(node.description)) return 4;
+    if (atWordStart(name) || atWordStart(path)) return isLeaf ? 1 : 3;
+    if (anywhere(name) || anywhere(path)) return isLeaf ? 2 : 4;
+    if (atWordStart(node.description)) return 5;
+    if (anywhere(node.description)) return 6;
     return NO_MATCH;
   };
 
@@ -104,6 +109,10 @@ export const filterSettingsSchema = (schema, query) => {
     if (Object.keys(properties).length === 0) return null;
     const out = { ...node, properties };
     if (hasExactMatch) out.__hasExactMatch = true;
+    // A container kept only for its children can still be the exact-named
+    // thing the user typed (its own tier just lost to a better one) — flag it
+    // so it still sorts first.
+    if (isExact(node, key)) out.__exactMatch = true;
     return out;
   };
 
