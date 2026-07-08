@@ -49,6 +49,7 @@ export class ReadSettings<Path = SettingPath> {
   // This is what is called on tamanu-web login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
   // Settings are extracted from the schemas that apply to this reader's context.
+  // spec: SETTINGS#exposure-to-clients
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
     return pick(
