@@ -14,6 +14,14 @@ import { LimitedLinesCell } from './FormattedTableCell';
 
 const ADMITTED_PRIORITY_COLOR = '#888888';
 
+// Give the wait time column more room; with the table's auto layout the other
+// columns shrink to fit rather than the table overflowing horizontally
+const WAIT_TIME_COLUMN_STYLE = `
+  .MuiTableCell-head:first-child {
+    width: 150px;
+  }
+`;
+
 const useColumns = () => {
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
@@ -114,7 +122,14 @@ const useColumns = () => {
           data-testid="translatedtext-clinician-column"
         />
       ),
-      CellComponent: props => <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-clinician" />,
+      CellComponent: props => (
+        <LimitedLinesCell
+          {...props}
+          isOneLine
+          maxWidth="100px"
+          data-testid="limitedlinescell-clinician"
+        />
+      ),
     },
     {
       key: 'locationGroupName',
@@ -162,6 +177,7 @@ export const TriageTable = React.memo(({ searchParameters = {} }) => {
       endpoint="triage"
       fetchOptions={{ facilityId, ...searchParameters }}
       columns={columns}
+      headStyle={WAIT_TIME_COLUMN_STYLE}
       noDataMessage={
         <TranslatedText
           stringId="patientList.table.noData"
