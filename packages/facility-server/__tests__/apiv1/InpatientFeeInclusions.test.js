@@ -5,6 +5,8 @@ import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTi
 import {
   ADMINISTRATION_FREQUENCIES,
   ENCOUNTER_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
@@ -60,6 +62,21 @@ describe('Inpatient fee inclusions', () => {
     await app.put(`/api/labRequest/${labRequest.id}`).send({
       status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
       userId: user.id,
+    });
+    const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(result).toHaveSucceeded();
+    return result.body.items ?? [];
+  };
+
+  // Create an imaging request, move it to an invoiceable status, return the invoice items.
+  const requestImagingAndGetItems = async encounter => {
+    const { body: imagingRequest } = await app.post('/api/imagingRequest').send({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: user.id,
+    });
+    await app.put(`/api/imagingRequest/${imagingRequest.id}`).send({
+      status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
     });
     const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
     expect(result).toHaveSucceeded();
@@ -142,6 +159,22 @@ describe('Inpatient fee inclusions', () => {
       }),
     );
 
+    // Imaging product
+    const [imagingType] = await models.ReferenceData.findOrCreate({
+      where: { type: REFERENCE_TYPES.IMAGING_TYPE, code: IMAGING_TYPES.CT_SCAN },
+      defaults: fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.IMAGING_TYPE,
+        code: IMAGING_TYPES.CT_SCAN,
+      }),
+    });
+    const imagingProduct = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE],
+        sourceRecordId: imagingType.id,
+      }),
+    );
+
     const priceList = await models.InvoicePriceList.create(
       fake(models.InvoicePriceList, {
         name: 'Inclusions facility list',
@@ -149,7 +182,7 @@ describe('Inpatient fee inclusions', () => {
         rules: { facilityId: facility.id },
       }),
     );
-    for (const product of [panelProduct, drugProduct]) {
+    for (const product of [panelProduct, drugProduct, imagingProduct]) {
       await models.InvoicePriceListItem.create(
         fake(models.InvoicePriceListItem, {
           invoiceProductId: product.id,
@@ -161,10 +194,10 @@ describe('Inpatient fee inclusions', () => {
     }
 
     await models.Setting.set('features.invoicing.enabled', true);
-    // This facility bundles lab and medication into the admission fee.
+    // This facility bundles imaging, lab and medication into the admission fee.
     await models.Setting.set(
       'invoicing.inpatientFee.bundledCategories',
-      ['lab', 'medication'],
+      ['imaging', 'lab', 'medication'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,
     );
@@ -184,6 +217,18 @@ describe('Inpatient fee inclusions', () => {
   it('still auto-adds lab items for a non-admission (clinic) encounter', async () => {
     const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.CLINIC);
     const items = await requestLabAndGetItems(encounter);
+    expect(items).toHaveLength(1);
+  });
+
+  it('does not auto-add imaging items for an admission encounter when imaging is bundled', async () => {
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.ADMISSION);
+    const items = await requestImagingAndGetItems(encounter);
+    expect(items).toHaveLength(0);
+  });
+
+  it('still auto-adds imaging items for a non-admission (clinic) encounter', async () => {
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.CLINIC);
+    const items = await requestImagingAndGetItems(encounter);
     expect(items).toHaveLength(1);
   });
 
