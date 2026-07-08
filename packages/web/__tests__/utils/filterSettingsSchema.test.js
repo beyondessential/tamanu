@@ -62,6 +62,26 @@ describe('filterSettingsSchema', () => {
     expect(filterSettingsSchema(schema, 'zzz-no-such-setting')).toBeNull();
   });
 
+  it('matches at word starts only, including camelCase boundaries', () => {
+    const pagey = {
+      properties: {
+        ageDisplayFormat: { type: 'string', name: 'Age display format' },
+        fhir: {
+          properties: {
+            maxPageSize: { type: 'number' },
+            defaultCount: { type: 'number', description: 'Number of results per page' },
+          },
+        },
+      },
+    };
+    // "age" must not surface page/pageSize (substring inside a word)...
+    expect(Object.keys(filterSettingsSchema(pagey, 'age').properties)).toEqual([
+      'ageDisplayFormat',
+    ]);
+    // ...but "page" still matches both the camelCase segment and the prose word
+    expect(filterSettingsSchema(pagey, 'page').properties.fhir).toBeTruthy();
+  });
+
   it('does not mutate the input schema', () => {
     const before = JSON.stringify(schema);
     filterSettingsSchema(schema, 'from');
