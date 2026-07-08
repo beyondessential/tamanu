@@ -5,11 +5,13 @@ import {
   ADMINISTRATION_STATUS,
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
+  INPATIENT_BUNDLED_CATEGORIES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
+import { isInpatientFeeBundled } from '../utils/isInpatientFeeBundled';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Prescription extends Model {
@@ -314,8 +316,18 @@ export class Prescription extends Model {
       marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
     }
 
+    // Medications bundled into the admission fee exclude the administered (MAR) portion;
+    // discharge dispensing is always invoiced. Only relevant when there's a MAR quantity to drop.
+    const isMedicationBundled =
+      marQty > 0 &&
+      (await isInpatientFeeBundled(
+        this.sequelize.models,
+        encounter.id,
+        INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
+      ));
+
     // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
-    const finalQty = marQty + totalSentQty;
+    const finalQty = (isMedicationBundled ? 0 : marQty) + totalSentQty;
 
     if (finalQty > 0) {
       await Invoice.addItemToInvoice(

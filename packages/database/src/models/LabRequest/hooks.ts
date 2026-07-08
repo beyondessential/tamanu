@@ -3,13 +3,26 @@ import {
   LAB_REQUEST_STATUSES,
   NOTIFICATION_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
+  INPATIENT_BUNDLED_CATEGORIES,
 } from '@tamanu/constants';
 import type { LabRequest } from './LabRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
+import { isInpatientFeeBundled } from '../../utils/isInpatientFeeBundled';
 
 export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
   const encounter = await labRequest.sequelize.models.Encounter.findByPk(labRequest.encounterId);
   if (!encounter) {
+    return false;
+  }
+
+  // Skip auto-adding lab items for admission encounters where the facility bundles lab into the admission fee.
+  if (
+    await isInpatientFeeBundled(
+      labRequest.sequelize.models,
+      encounter.id,
+      INPATIENT_BUNDLED_CATEGORIES.LAB,
+    )
+  ) {
     return false;
   }
 
