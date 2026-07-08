@@ -3,14 +3,12 @@ import type { Models } from '../types/model';
 
 // Admission-only: at a facility that bundles this category the item is covered by the admission
 // fee, so it's not auto-added to the invoice (returns true to suppress it). False everywhere else.
+// Callers already have the encounter loaded, so it's passed in rather than re-fetched by id.
 export const isInpatientFeeBundled = async (
   models: Models,
-  encounterId: string,
+  encounter: { encounterType?: string | null; locationId?: string | null } | null | undefined,
   category: InpatientBundledCategory,
 ): Promise<boolean> => {
-  const encounter = await models.Encounter.findByPk(encounterId, {
-    attributes: ['encounterType', 'locationId'],
-  });
   if (!encounter || encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION) {
     return false;
   }

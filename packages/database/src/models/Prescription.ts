@@ -322,7 +322,7 @@ export class Prescription extends Model {
       marQty > 0 &&
       (await isInpatientFeeBundled(
         this.sequelize.models,
-        encounter.id,
+        encounter,
         INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
       ));
 
