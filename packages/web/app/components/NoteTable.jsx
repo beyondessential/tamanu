@@ -35,12 +35,12 @@ const NoteRowContainer = styled.div`
 const NoteContentContainer = styled.div`
   width: 100%;
   position: relative;
-  overflow: hidden;
-  display: -webkit-box;
   white-space: pre-line;
   ${props =>
     !props.$expanded
       ? `
+    overflow: hidden;
+    display: -webkit-box;
     text-overflow: clip;
     -webkit-line-clamp: 20;
             line-clamp: 20;
