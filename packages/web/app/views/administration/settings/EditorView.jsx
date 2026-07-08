@@ -208,7 +208,6 @@ export const EditorView = memo(
     // A single character matches half the schema and means nothing yet — the
     // category view stays put until the query is at least two characters.
     const MIN_SEARCH_LENGTH = 2;
-    const isSearching = searchQuery.trim().length >= MIN_SEARCH_LENGTH;
     // Broad queries can match hundreds of settings; deferring lets typing stay
     // responsive (React keeps showing the previous results and time-slices the
     // re-filter/re-render in the background) instead of freezing per keystroke.
