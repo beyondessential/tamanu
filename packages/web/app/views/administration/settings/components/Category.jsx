@@ -123,9 +123,11 @@ const InfoBannerAlert = styled(Alert)`
   margin-inline-end: 1.25rem;
 `;
 
+// Same colour as the row hover band so highlights read as part of one system.
 const Mark = styled.mark`
   background-color: ${Colors.primary10};
   border-radius: 2px;
+  color: inherit;
 `;
 
 // Description line shown under a setting's name when a search hit is in the
@@ -161,7 +163,7 @@ const highlightMatches = (text, query) => {
   return parts;
 };
 
-const CategoryTitle = memo(({ name, path, description, depth }) => {
+const CategoryTitle = memo(({ name, path, description, depth, searchQuery }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
@@ -171,7 +173,7 @@ const CategoryTitle = memo(({ name, path, description, depth }) => {
       data-testid="themedtooltip-j5ux"
     >
       <StyledHeading $indent={depth} data-testid="styledheading-js44">
-        {categoryTitle}
+        {searchQuery ? highlightMatches(categoryTitle, searchQuery) : categoryTitle}
       </StyledHeading>
     </ThemedTooltip>
   );
@@ -218,9 +220,13 @@ const SettingName = memo(
       data-testid="themedtooltip-2qoa"
     >
       <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-        {searchQuery
-          ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
-          : formatSettingName(name, path.split('.').pop())}
+        {/* single span: the label is inline-flex with a gap, so bare highlight
+            fragments would render as separate flex items with gaps between */}
+        <span>
+          {searchQuery
+            ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
+            : formatSettingName(name, path.split('.').pop())}
+        </span>
         {disabled ? (
           <StyledLockIcon data-testid="styledlockicon-x3w0" />
         ) : (
@@ -294,6 +300,7 @@ export const Category = ({
         path={path}
         depth={depth}
         description={schema.description}
+        searchQuery={searchQuery}
         data-testid="categorytitle-0pic"
       />
       {schema.infoBanner && (

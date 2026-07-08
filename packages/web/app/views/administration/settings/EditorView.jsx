@@ -205,14 +205,17 @@ export const EditorView = memo(
     const [subCategory, setSubCategory] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [failedSubmits, setFailedSubmits] = useState(0);
-    const isSearching = searchQuery.trim().length > 0;
+    // A single character matches half the schema and means nothing yet — the
+    // category view stays put until the query is at least two characters.
+    const MIN_SEARCH_LENGTH = 2;
+    const isSearching = searchQuery.trim().length >= MIN_SEARCH_LENGTH;
     // Broad queries can match hundreds of settings; deferring lets typing stay
     // responsive (React keeps showing the previous results and time-slices the
     // re-filter/re-render in the background) instead of freezing per keystroke.
     const deferredSearchQuery = useDeferredValue(searchQuery);
     // Drives what the body renders (and so path resolution); may lag isSearching
     // by a beat while a deferred render is pending.
-    const isSearchRender = deferredSearchQuery.trim().length > 0;
+    const isSearchRender = deferredSearchQuery.trim().length >= MIN_SEARCH_LENGTH;
 
     // Real changes only: a value returned to its inherited/default (stored as
     // undefined) is not a change, unlike Formik's built-in `dirty`.
@@ -439,6 +442,7 @@ export const EditorView = memo(
               resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
+              searchQuery={isSearchRender ? deferredSearchQuery : undefined}
               data-testid="category-cbjk"
             />
             </SettingsSubmitContext.Provider>
