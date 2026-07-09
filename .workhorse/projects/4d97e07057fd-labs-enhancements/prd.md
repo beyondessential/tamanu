@@ -28,7 +28,7 @@ Priority-ordered. Only cards we've talked through are detailed; the rest will be
 
 **Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Three changes:
 
-1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow. The **superset** request type stays separate for now.
+1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow. 
 2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
 3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
 4. **Prevent duplicates.** An individual test that is already covered by a selected panel cannot also be selected on its own — the workflow stops the double entry rather than just warning about it.
