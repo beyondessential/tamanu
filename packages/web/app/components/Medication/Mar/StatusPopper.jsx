@@ -1,4 +1,4 @@
-import { ClickAwayListener, Divider, Fade, IconButton, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, Fade, IconButton, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
@@ -215,7 +215,7 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
-      <Divider color={Colors.outline} />
+      <hr aria-hidden />
       <NoteModalActionBlocker>
         <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
