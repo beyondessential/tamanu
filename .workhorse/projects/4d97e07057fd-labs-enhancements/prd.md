@@ -6,8 +6,8 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 
 ## Priority summary
 
-| # | Card | Feature | Design work |
-|---|------|---------|-------------|
+| # | Original request | Feature | Design work |
+|---|------------------|---------|-------------|
 | 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | **Yes** — new ordering workflow |
 | 2 | _TBC_ | _Awaiting card_ | _TBC_ |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | **Minimal** — surface an existing field on the tile |
