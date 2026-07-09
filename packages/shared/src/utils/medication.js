@@ -13,13 +13,13 @@ import { camelCase } from 'es-toolkit/compat';
  */
 export const findAdministrationTimeSlotFromIdealTime = idealTime => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {
-    const startDate = getDateFromTimeString(slot.startTime).getTime();
-    const endDate = getDateFromTimeString(slot.endTime).getTime();
-    const idealDate = getDateFromTimeString(idealTime).getTime();
+    const start = getDateFromTimeString(slot.startTime).getTime();
+    const ideal = getDateFromTimeString(idealTime).getTime();
 
-    return (
-      idealDate >= startDate && idealDate < endDate && idealDate - startDate < endDate - startDate
-    );
+    if (ideal < start) return false;
+
+    const end = getDateFromTimeString(slot.endTime).getTime();
+    return ideal < end && ideal - start < end - start;
   });
 
   const timeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS[index];
