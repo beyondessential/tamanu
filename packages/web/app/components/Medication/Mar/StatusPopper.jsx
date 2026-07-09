@@ -317,65 +317,64 @@ const GivenScreen = ({
               handleSubmit(values);
             }}
           />
-          <>
-            <DoseContainer>
-              <DoseButton
-                onClick={() => doseInputRef.current?.stepDown()}
-                disabled={values.doseAmount <= 0.25}
-                style={isVariableDose ? { visibility: 'hidden' } : undefined}
-              >
-                <RemoveCircleOutlineIcon />
-              </DoseButton>
-              <StyledNumberFieldWrapper $units={dosingUnit}>
-                <Field name="doseAmount" component={NumberField} min={0.25} step={0.25} />
-                <InputSuffix>
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
-                  <RequiredOrnament />
-                </InputSuffix>
-              </StyledNumberFieldWrapper>
-              <DoseButton
-                onClick={() => doseInputRef.current?.stepUp()}
-                style={isVariableDose ? { visibility: 'hidden' } : undefined}
-              >
-                <AddCircleOutlineIcon />
-              </DoseButton>
-            </DoseContainer>
 
-            <OuterLabelFieldWrapper
-              label={
-                <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
-              }
-              htmlFor={timeGivenInputId}
-              required
-              size="small"
+          <DoseContainer>
+            <DoseButton
+              onClick={() => doseInputRef.current?.stepDown()}
+              disabled={values.doseAmount <= 0.25}
+              style={isVariableDose ? { visibility: 'hidden' } : undefined}
             >
-              <StyledTimePicker
-                name="timeGiven"
-                onChange={value => void setFieldValue('timeGiven', value)}
-                error={errors.timeGiven}
-                slotProps={{
-                  textField: {
-                    error: errors.timeGiven,
-                    id: timeGivenInputId,
-                  },
-                  digitalClockSectionItem: {
-                    sx: { fontSize: '14px' },
-                  },
-                }}
-              />
-              {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
-            </OuterLabelFieldWrapper>
+              <RemoveCircleOutlineIcon />
+            </DoseButton>
+            <StyledNumberFieldWrapper $units={dosingUnit}>
+              <Field name="doseAmount" component={NumberField} min={0.25} step={0.25} />
+              <InputSuffix>
+                <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                <RequiredOrnament />
+              </InputSuffix>
+            </StyledNumberFieldWrapper>
+            <DoseButton
+              onClick={() => doseInputRef.current?.stepUp()}
+              style={isVariableDose ? { visibility: 'hidden' } : undefined}
+            >
+              <AddCircleOutlineIcon />
+            </DoseButton>
+          </DoseContainer>
 
-            <ConfirmButton
-              onClick={submitForm}
-              variant="outlined"
-              size="small"
-              disabled={!values.doseAmount || isUpdatingMarToGiven}
-              isSubmitting={isUpdatingMarToGiven}
-            >
-              <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-            </ConfirmButton>
-          </>
+          <OuterLabelFieldWrapper
+            label={
+              <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
+            }
+            htmlFor={timeGivenInputId}
+            required
+            size="small"
+          >
+            <StyledTimePicker
+              name="timeGiven"
+              onChange={value => void setFieldValue('timeGiven', value)}
+              error={errors.timeGiven}
+              slotProps={{
+                textField: {
+                  error: errors.timeGiven,
+                  id: timeGivenInputId,
+                },
+                digitalClockSectionItem: {
+                  sx: { fontSize: '14px' },
+                },
+              }}
+            />
+            {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+          </OuterLabelFieldWrapper>
+
+          <ConfirmButton
+            onClick={submitForm}
+            variant="outlined"
+            size="small"
+            disabled={!values.doseAmount || isUpdatingMarToGiven}
+            isSubmitting={isUpdatingMarToGiven}
+          >
+            <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+          </ConfirmButton>
         </>
       )}
       initialValues={{
