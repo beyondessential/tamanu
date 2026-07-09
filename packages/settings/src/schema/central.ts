@@ -36,7 +36,7 @@ export const centralSettings = {
           name: 'Anthropic model',
           description: 'The Anthropic model to use for AI features',
           type: yup.string(),
-          defaultValue: 'claude-sonnet-4-20250514',
+          defaultValue: '',
         },
         anthropicFastModel: {
           name: 'Anthropic fast model',
