@@ -3,6 +3,7 @@ import {
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   ADMINISTRATION_STATUS,
+  ENCOUNTER_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
@@ -13,6 +14,20 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
 import { isInpatientFeeBundled } from '../utils/isInpatientFeeBundled';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+
+// Earliest time the encounter was an admission, from its history: the initial snapshot if it was
+// created as an admission, or the admit-in-place transition otherwise. Null if never an admission.
+const getAdmissionStartDate = async (
+  models: Models,
+  encounterId: string,
+): Promise<string | null> => {
+  const firstAdmission = await models.EncounterHistory.findOne({
+    where: { encounterId, encounterType: ENCOUNTER_TYPES.ADMISSION },
+    order: [['date', 'ASC']],
+    attributes: ['date'],
+  });
+  return firstAdmission?.date ?? null;
+};
 
 export class Prescription extends Model {
   declare id: string;
@@ -265,6 +280,7 @@ export class Prescription extends Model {
     );
 
     let marQty = 0;
+    let doses: any[] = [];
     const givenMars = await MedicationAdministrationRecord.findAll({
       where: {
         prescriptionId: prescription.id,
@@ -300,7 +316,7 @@ export class Prescription extends Model {
     if (givenMars.length > 0) {
       const marIds = givenMars.map((m: any) => m.id);
 
-      const doses = await MedicationAdministrationRecordDose.findAll({
+      doses = await MedicationAdministrationRecordDose.findAll({
         where: {
           marId: { [Op.in]: marIds },
           isRemoved: { [Op.or]: [false, null] },
@@ -310,24 +326,35 @@ export class Prescription extends Model {
               }
             : {}),
         },
-        attributes: ['doseAmount'],
+        attributes: ['doseAmount', 'givenTime'],
       });
 
       marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
     }
 
-    // Medications bundled into the admission fee exclude the administered (MAR) portion;
-    // discharge dispensing is always invoiced. Only relevant when there's a MAR quantity to drop.
-    const isMedicationBundled =
+    // Where the facility bundles medications into the admission fee, doses administered *during the
+    // admission* are covered by it and excluded. Doses administered before an admit-in-place
+    // transition are pre-admission care and stay billed (not retro-bundled), and discharge
+    // dispensing is always invoiced. Only relevant when there's a MAR quantity to consider.
+    let administeredQty = marQty;
+    if (
       marQty > 0 &&
       (await isInpatientFeeBundled(
         this.sequelize.models,
         encounter,
         INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
-      ));
+      ))
+    ) {
+      const admissionStart = await getAdmissionStartDate(this.sequelize.models, encounter.id);
+      administeredQty = admissionStart
+        ? doses
+            .filter((d: any) => d.givenTime && d.givenTime < admissionStart)
+            .reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0)
+        : 0;
+    }
 
-    // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
-    const finalQty = (isMedicationBundled ? 0 : marQty) + totalSentQty;
+    // Consolidate billable administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
+    const finalQty = administeredQty + totalSentQty;
 
     if (finalQty > 0) {
       await Invoice.addItemToInvoice(
