@@ -252,14 +252,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
 
   # Windows-native release VHDXs, packed as OCI artifacts in ghcr.io and folded
-  # into the multi-arch manifest we already generate. Built from source on a
-  # Windows runner (real npm install / native build) in parallel with the linux
-  # images — needs only `config`, so no release tag is required (any PR/branch
-  # builds them via the imagesonly deploy option).
-  #
-  # Servers: reduce to the target package via the same docker-build.sh the linux
-  # image uses, embed the Windows Node runtime, then copy the finished tree into
-  # a fresh NTFS VHDX.
+  # into the multi-arch manifest, built in parallel with the linux images.
   windows-vhdx:
     needs:
       - config
@@ -289,43 +282,28 @@ jobs:
         shell: bash
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
-      # Stage the source tree into the workspace (NOT onto the VHDX): building on
-      # a dynamic VHDX would keep everything the reduction deletes allocated and
-      # unzeroed, inflating the image. Build the final tree here, copy it in last.
+      # Build off the VHDX: a dynamic VHDX keeps blocks the reduction deletes
+      # allocated and unzeroed, which inflates the image.
       - name: Stage source (workspace)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $root = "release-v$env:VERSION"
-          if (Test-Path $root) { Remove-Item -Recurse -Force $root }
-          New-Item -ItemType Directory -Force -Path $root | Out-Null
-          # robocopy is native (handles the repo's symlinks); exclude .git,
-          # node_modules (installed fresh below), and the dest dir itself.
-          robocopy . $root /E /XD .git node_modules "$root" oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if (Test-Path release) { Remove-Item -Recurse -Force release }
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          robocopy . release /E /XD .git node_modules release oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
           if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
           $global:LASTEXITCODE = 0
 
-      # Reduce to the target server via the SAME cross-platform docker-build.sh
-      # the production Docker image uses.
       - name: Build reduced source (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
-          pkg='${{ matrix.package.path }}'   # central-server | facility-server
-          cd "release-v${VERSION}"
-
-          # Point pm2's cwd at the target package (mirrors cd-package-servers),
-          # writing the root pm2.config.cjs before the reduction strips the
-          # per-package *.config.* files.
-          sed -E "s|const cwd =.+|const cwd = 'packages/${pkg}';|" \
-            "packages/${pkg}/pm2.config.cjs" > pm2.config.cjs
-
-          # No DOCKER_BUILD, so the /app cache and self-delete are skipped.
-          bash scripts/docker-build.sh "$pkg"
+          cd release
+          bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
       - name: Embed Windows Node runtime
         shell: bash
-        run: scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
+        run: scripts/embed-node-runtime.sh win-x64 release
 
       - name: Build VHDX (format + copy)
         shell: pwsh
@@ -333,10 +311,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
           "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir "release-v$env:VERSION" `
-            -Output     $vhdx `
-            -Label      "Tamanu-${{ matrix.package.name }}"
+          scripts\build-windows-vhdx.ps1 -ReleaseDir release -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
 
       - name: Pack VHDX artifact
         uses: ./.github/actions/vhdx-pack
@@ -344,14 +319,13 @@ jobs:
           package: ${{ matrix.package.name }}
           package-path: ${{ matrix.package.path }}
           kind: server
-          root-dir: release-v${{ env.VERSION }}
+          root-dir: release
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Frontends (web / patient-portal): static builds, so no reduction — build the
-  # dist via the same docker-build.sh, then pack a self-contained VHDX embedding
-  # the Windows Caddy binary + Caddyfile, mirroring the linux frontend container.
+  # Frontend VHDXs (web / patient-portal): built dist plus the Windows Caddy
+  # binary and Caddyfile, self-contained like the linux frontend container.
   windows-vhdx-frontend:
     needs:
       - config
@@ -381,39 +355,27 @@ jobs:
         shell: bash
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
-      # Build the frontend natively with the same docker-build.sh the linux image
-      # uses (npm build + precompress; precompress-assets.sh uses Node's built-in
-      # zstd/brotli/gzip, so no extra CLI tooling is needed).
       - name: Build frontend (Windows-native)
         shell: bash
         run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
-      # Assemble the self-contained bundle: dist under app/, the Windows Caddy
-      # binary, a bundle-relative Caddyfile, and a launcher.
       - name: Assemble bundle (dist + Windows Caddy)
         shell: bash
         run: |
           set -euxo pipefail
-          stage="tamanu-${{ matrix.package.name }}-static-v${VERSION}"
+          stage='tamanu-${{ matrix.package.name }}'
           mkdir -p "$stage/app"
           cp -r "packages/${{ matrix.package.path }}/dist/." "$stage/app"
 
-          # Embed the Windows Caddy binary (matches the container's embedded caddy).
           caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
           curl -fsSL -o caddy.zip \
             "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
           unzip -o caddy.zip caddy.exe -d "$stage"
           rm caddy.zip
 
-          # Same Caddyfile as the container, but serve from the bundle-relative
-          # ./app rather than the absolute /app.
+          # serve from the bundle-relative ./app rather than the container's /app
           sed -E 's|root \* /app|root * app|' \
             "packages/${{ matrix.package.path }}/Caddyfile.docker" > "$stage/Caddyfile"
-
-          # Launcher so an operator/service can start it from the mounted VHDX.
-          printf '@echo off\r\ncd /d "%%~dp0"\r\ncaddy.exe run --config Caddyfile --adapter caddyfile\r\n' \
-            > "$stage/serve.bat"
-          echo "STAGE=$stage" >> "$GITHUB_ENV"
 
       - name: Build VHDX (format + copy)
         shell: pwsh
@@ -421,10 +383,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
           "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir $env:STAGE `
-            -Output     $vhdx `
-            -Label      "Tamanu-${{ matrix.package.name }}"
+          scripts\build-windows-vhdx.ps1 -ReleaseDir 'tamanu-${{ matrix.package.name }}' -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
 
       - name: Pack VHDX artifact
         uses: ./.github/actions/vhdx-pack
@@ -432,7 +391,7 @@ jobs:
           package: ${{ matrix.package.name }}
           package-path: ${{ matrix.package.path }}
           kind: frontend
-          root-dir: tamanu-${{ matrix.package.name }}-static-v${{ env.VERSION }}
+          root-dir: tamanu-${{ matrix.package.name }}
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -464,7 +423,7 @@ jobs:
       - uses: ./.github/actions/setup-oras
       - name: Combine images
         run: |
-          set -x
+          set -euxo pipefail
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
@@ -479,20 +438,18 @@ jobs:
             vhdx_ref="$image:$sha.windows-vhdx"
           fi
 
-          # 1) Build the normal linux multi-arch index (unchanged behaviour).
+          # Publish the linux multi-arch index. Fails the job if it can't (this is
+          # the essential product); the VHDX append below is best-effort.
           retag() {
             manifest-tool push from-args \
               --platforms linux/amd64,linux/arm64 \
               --template "$image:$1.ARCH" \
-              --target "$image:$1" \
-            || true
+              --target "$image:$1"
           }
 
-          # 2) Append the Windows VHDX as an extra index entry. It carries the
-          #    BES artifactType and an unknown/unknown platform, exactly like
-          #    buildkit's attestation entries — so `docker pull`/containerd never
-          #    select it (not even on a Windows host looking for windows/amd64),
-          #    while a purpose-built BES client can discover it by artifactType.
+          # Append the VHDX as an extra index entry with an unknown/unknown
+          # platform (like buildkit attestations), so container runtimes never
+          # select it while a BES client can discover it by artifactType.
           index_type="application/vnd.oci.image.index.v1+json"
           append_vhdx() {
             target="$1"
@@ -522,8 +479,6 @@ jobs:
               | oras manifest push --media-type "$index_type" "$image:$target" -
           }
 
-          # append is best-effort: the linux index is already pushed by retag,
-          # so a VHDX append failure must never fail this job.
           process() { retag "$1"; append_vhdx "$1" || echo "VHDX append skipped for $1"; }
 
           process "$sha"

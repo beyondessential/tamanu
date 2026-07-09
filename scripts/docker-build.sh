@@ -1,13 +1,7 @@
 #!/bin/bash
 
-### Reduce a Tamanu workspace to a single deployable package (server or frontend).
-###
-### Runs both in the production Docker build (see /Dockerfile) and, unchanged,
-### on the Windows VHDX runner under Git Bash. Docker-only behaviour — the npm
-### cache carried between build stages under /app, and self-deleting the script —
-### is gated behind DOCKER_BUILD=1, which the Dockerfile sets. Helper scripts are
-### invoked via `node`/`bash` rather than by relying on the executable bit +
-### shebang, which is not honoured the same way on Windows.
+### This expects to be run in the production docker build in /Dockerfile, and on
+### the Windows VHDX runner. Docker-only steps are gated behind DOCKER_BUILD.
 
 set -euxo pipefail
 shopt -s extglob
@@ -30,7 +24,7 @@ common() {
 }
 
 remove_irrelevant_packages() {
-  # remove from the npm workspace list every package that isn't the one we're building
+  # remove from npm workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
   node scripts/list-packages.mjs -- --no-shared -- --paths \
     | tee debug.json \
@@ -44,9 +38,7 @@ remove_irrelevant_packages() {
       exit 1
     fi
 
-  # erase from the package.json. --slurpfile wraps the file's array in an extra
-  # array, so subtract [0] to actually trim the workspace entries (otherwise the
-  # removed packages' deps survive a later prune).
+  # erase from the package.json
   jq \
     --slurpfile unwanted /tmp/unwanted.json \
     '.workspaces.packages -= $unwanted[0]' \
@@ -88,7 +80,7 @@ build_server() {
     package.json.working > package.json
   rm package.json.working
 
-  # remove build dependencies, then prune to a production dependency set
+  # remove build dependencies
   npm install --no-interactive --package-lock --script-shell bash
   npm prune --omit=dev
 

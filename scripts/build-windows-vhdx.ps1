@@ -1,28 +1,5 @@
-<#
-.SYNOPSIS
-  Build a dynamically-sized NTFS VHDX disk image containing a Tamanu Windows
-  release bundle, using only native Windows tooling (diskpart + robocopy).
-
-.DESCRIPTION
-  Runs on a Windows runner after the bundle has been prepared (server:
-  node_modules installed natively + Node runtime embedded; frontend: built dist +
-  embedded Caddy). The resulting VHDX holds a runnable Windows bundle and is
-  packed as an OCI artifact (see the windows-vhdx / windows-vhdx-frontend jobs in
-  cd.yml).
-
-  The disk is created as an expandable (dynamic) VHDX, so the on-disk file only
-  grows to the data actually written, not the full virtual size.
-
-.PARAMETER ReleaseDir
-  The bundle root. Its whole tree is copied onto the disk under a top-level
-  directory of the same name, mirroring the release .tar/.zip layout.
-
-.PARAMETER Output
-  Path to write the VHDX image to.
-
-.PARAMETER Label
-  Optional volume label (default: Tamanu). Sanitised to [A-Za-z0-9_-].
-#>
+# Copy $ReleaseDir into a fresh dynamic NTFS VHDX (under a top-level dir of the
+# same name), for the windows-vhdx / windows-vhdx-frontend jobs in cd.yml.
 [CmdletBinding()]
 param(
   [Parameter(Mandatory)][string]$ReleaseDir,

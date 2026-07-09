@@ -1,10 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Precompress static assets so Caddy can serve them with `precompressed zstd br
-# gzip`. Uses Node's built-in zlib (zstd, brotli and gzip are all available in
-# the Tamanu Node version), so no external compression CLIs are required on any
-# platform.
+# Precompress static assets with Node's built-in zlib so Caddy can serve them
+# with `precompressed zstd br gzip`.
 
 node - "${1:-.}" <<'NODE'
 const fs = require('fs');

@@ -6,9 +6,6 @@ COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 COPY patches/ patches/
 
 FROM base AS build-base
-# docker-build.sh keys Docker-only behaviour (the /app npm cache carried between
-# stages, self-deleting the script) off this flag.
-ENV DOCKER_BUILD=1
 RUN apk add --no-cache \
   --virtual .build-deps \
   bash \
@@ -39,9 +36,8 @@ ARG PACKAGE_PATH
 # copy all packages
 COPY packages/ packages/
 
-# do the build, which reduces to just the target package and prunes to a
-# production dependency set (docker-build.sh's build_server runs npm prune)
-RUN scripts/docker-build.sh ${PACKAGE_PATH}
+# do the build, which will also reduce to just the target package
+RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Normal final target for servers
@@ -71,9 +67,8 @@ ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
-# precompress-assets.sh uses Node's built-in zlib, so no zstd/brotli CLIs needed.
 COPY packages/ packages/
-RUN scripts/docker-build.sh ${PACKAGE_PATH}
+RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
 ## Minimal image to serve frontend packages
 FROM alpine AS frontend-base
