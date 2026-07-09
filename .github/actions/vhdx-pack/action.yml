@@ -26,6 +26,15 @@ inputs:
   cd-start:
     required: true
     description: epoch seconds captured at CD start (config job)
+  kind:
+    required: true
+    description: server | frontend (shapes the runtime config blob)
+  package-path:
+    required: true
+    description: workspace path of the package, e.g. central-server | web
+  root-dir:
+    required: true
+    description: top-level directory inside the VHDX (WorkingDir base)
   github-token:
     required: true
     description: token for ghcr.io login
@@ -66,7 +75,11 @@ runs:
         VERSION: ${{ inputs.version }}
         SHA: ${{ inputs.sha }}
         CD_START: ${{ inputs.cd-start }}
+        KIND: ${{ inputs.kind }}
+        PKG_PATH: ${{ inputs.package-path }}
+        ROOT_DIR: ${{ inputs.root-dir }}
         ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
+        CONFIG_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.config.v1+json
       run: |
         set -euxo pipefail
         echo "$GH_TOKEN" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
@@ -74,12 +87,44 @@ runs:
         tag="sha-$SHA.windows-vhdx"
         vhdx="tamanu-$PKG-$VERSION-windows-amd64.vhdx.zst"
 
-        # --artifact-type marks this a BES artifact (empty scratch config, no
-        # os/arch), so it is not a runnable image manifest. It slots into the
-        # multi-arch index with an unknown/unknown platform that container
-        # runtimes deliberately never select.
+        # Runtime config blob, mirroring a Docker image config: how to run what's
+        # inside the VHDX once mounted (WorkingDir relative to the volume root,
+        # Env, Entrypoint/Cmd, ExposedPorts). Paths are Windows-style, relative
+        # to the ROOT_DIR the bundle sits under on the volume.
+        if [ "$KIND" = "frontend" ]; then
+          runcfg="$(jq -n --arg wd "$ROOT_DIR" '{
+            WorkingDir: $wd,
+            Env: ["NODE_ENV=production"],
+            Entrypoint: ["caddy.exe","run","--config","Caddyfile","--adapter","caddyfile"],
+            Cmd: [],
+            ExposedPorts: {"3000/tcp": {}}
+          }')"
+        else
+          runcfg="$(jq -n --arg wd "$ROOT_DIR" --arg pp "$PKG_PATH" '{
+            WorkingDir: $wd,
+            Env: ["NODE_ENV=production", ("NODE_CONFIG_DIR=packages/" + $pp + "/config/"), "PORT=3000"],
+            Entrypoint: ["runtime\\node.exe","--import","tsx", ("packages\\" + $pp + "\\app")],
+            Cmd: ["serve"],
+            ExposedPorts: {"3000/tcp": {}},
+            Pm2Config: "pm2.config.cjs"
+          }')"
+        fi
+        jq -n \
+          --arg os windows --arg arch amd64 \
+          --arg pkg "$PKG" --arg variant "$VARIANT" --arg root "$ROOT_DIR" \
+          --argjson config "$runcfg" \
+          '{schemaVersion:1, os:$os, architecture:$arch, package:$pkg,
+            variant:$variant, vhdx:{rootDir:$root}, config:$config}' \
+          > runconfig.json
+        cat runconfig.json
+
+        # Push with a BES-specific config media type (not an OCI image config),
+        # so container runtimes never treat it as a runnable image, while the
+        # config blob carries the runtime characteristics above. The VHDX layer
+        # keeps its BES media type. In the multi-arch index it also gets an
+        # unknown/unknown platform that runtimes deliberately never select.
         oras push "$image:$tag" \
-          --artifact-type "$ARTIFACT_TYPE" \
+          --config "runconfig.json:$CONFIG_TYPE" \
           --annotation "org.opencontainers.image.title=Tamanu $PKG (Windows VHDX)" \
           --annotation "org.opencontainers.image.version=$VERSION" \
           --annotation "org.opencontainers.image.source=https://github.com/beyondessential/tamanu/" \

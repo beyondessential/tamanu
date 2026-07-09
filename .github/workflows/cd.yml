@@ -454,6 +454,9 @@ jobs:
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           cd-start: ${{ needs.config.outputs.cd-start }}
+          kind: server
+          package-path: ${{ matrix.package.path }}
+          root-dir: release-v${{ env.VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Direct-build variant: build from source straight into a mounted VHDX, in
@@ -618,6 +621,9 @@ jobs:
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           cd-start: ${{ needs.config.outputs.cd-start }}
+          kind: server
+          package-path: ${{ matrix.package.path }}
+          root-dir: release-v${{ env.VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Frontend VHDXs (web / patient-portal), self-contained: the built dist plus
@@ -723,6 +729,9 @@ jobs:
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           cd-start: ${{ needs.config.outputs.cd-start }}
+          kind: frontend
+          package-path: ${{ matrix.package.path }}
+          root-dir: tamanu-${{ matrix.package.name }}-static-v${{ env.VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Collect the per-package metrics and post them as a PR comment, one comment
