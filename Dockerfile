@@ -71,7 +71,7 @@ ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
-RUN apk add zstd brotli
+# precompress-assets.sh uses Node's built-in zlib, so no zstd/brotli CLIs needed.
 COPY packages/ packages/
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
