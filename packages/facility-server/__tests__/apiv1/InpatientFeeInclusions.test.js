@@ -37,6 +37,9 @@ describe('Inpatient fee inclusions', () => {
       patientId: patient.id,
       locationId: location.id,
       encounterType,
+      // Start well in the past so administered doses (and any admit-in-place transition) fall
+      // after the encounter start, matching realistic timing.
+      startDate: toDateTimeString(sub(new Date(), { days: 30 })),
       endDate: null,
     });
     await models.Invoice.create({
@@ -268,5 +271,46 @@ describe('Inpatient fee inclusions', () => {
     expect(items).toHaveLength(1);
     // administered (5) excluded by bundling; discharge dispensing (10) still billed
     expect(items[0].quantity).toBe(10);
+  });
+
+  it('keeps medications administered before an admit-in-place transition, bundling only those after', async () => {
+    // Emergency encounter (started 30 days ago via the helper).
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.EMERGENCY);
+    const { body: prescription } = await app
+      .post(`/api/medication/encounterPrescription/${encounter.id}`)
+      .send({
+        medicationId: drug.id,
+        prescriberId: user.id,
+        doseAmount: 1,
+        units: 'mg',
+        frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+        route: 'dermal',
+        date: '2025-01-01',
+        startDate: getCurrentDateTimeString(),
+      });
+    // Dose administered during the ED phase (before admission) — should stay billed.
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: 3, givenTime: toDateTimeString(sub(new Date(), { days: 20 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 20 })),
+    });
+    // Admit the encounter in place, effective 15 days ago.
+    await encounter.update({
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      submittedTime: toDateTimeString(sub(new Date(), { days: 15 })),
+    });
+    // Dose administered after admission — should be bundled (excluded).
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: 4, givenTime: toDateTimeString(sub(new Date(), { days: 10 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 10 })),
+    });
+
+    const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(result).toHaveSucceeded();
+    const items = result.body.items ?? [];
+    expect(items).toHaveLength(1);
+    // Pre-admission dose (3) billed; post-admission dose (4) bundled into the admission fee.
+    expect(items[0].quantity).toBe(3);
   });
 });
