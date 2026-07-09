@@ -4,19 +4,16 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
   REFERENCE_TYPES,
+  INPATIENT_BUNDLED_CATEGORIES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
 import type { InvoiceProduct } from 'models/Invoice';
+import { isInpatientFeeBundled } from '../../utils/isInpatientFeeBundled';
 
-export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRequest) => {
-  const encounter = await imagingRequest.sequelize.models.Encounter.findByPk(
-    imagingRequest.encounterId,
-  );
-  if (!encounter) {
-    return false;
-  }
-
+// Whether an imaging request is invoiceable on its own status/settings, independent of bundling.
+// Drives removal on update: a request that is no longer invoiceable (e.g. cancelled) is removed.
+const isInvoiceableImagingRequest = async (imagingRequest: ImagingRequest) => {
   const invoicePendingImagingRequests = await imagingRequest.sequelize.models.Setting.get(
     'features.invoicing.invoicePendingImagingRequests',
   );
@@ -29,6 +26,28 @@ export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRe
   }
 
   return INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(imagingRequest.status);
+};
+
+export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRequest) => {
+  const encounter = await imagingRequest.sequelize.models.Encounter.findByPk(
+    imagingRequest.encounterId,
+  );
+  if (!encounter) {
+    return false;
+  }
+
+  // Skip auto-adding imaging items for admission encounters where the facility bundles imaging into the admission fee.
+  if (
+    await isInpatientFeeBundled(
+      imagingRequest.sequelize.models,
+      encounter,
+      INPATIENT_BUNDLED_CATEGORIES.IMAGING,
+    )
+  ) {
+    return false;
+  }
+
+  return isInvoiceableImagingRequest(imagingRequest);
 };
 
 export const pushNotificationAfterUpdateHook = async (
@@ -153,7 +172,10 @@ const removeFromInvoice = async (instance: ImagingRequest) => {
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: ImagingRequest) => {
   if (await shouldAddImagingRequestToInvoice(instance)) {
     await addToInvoice(instance);
-  } else {
+  } else if (!(await isInvoiceableImagingRequest(instance))) {
+    // Only remove when the request itself is no longer invoiceable (e.g. cancelled). Bundling
+    // suppresses auto-adding new items but must not retro-remove one already on the invoice
+    // (e.g. added pre-admission before an admit-in-place), so a bundled item is left in place.
     await removeFromInvoice(instance);
   }
 };
