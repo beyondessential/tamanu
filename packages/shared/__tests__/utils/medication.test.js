@@ -44,6 +44,7 @@ describe('findAdministrationTimeSlotFromIdealTime', () => {
 
       expect(result.index).toBe(4);
       expect(result.timeSlot).toEqual(MEDICATION_ADMINISTRATION_TIME_SLOTS[4]);
+      expect(result.value).toEqual('08:00');
     });
 
     it('assigns the last minute of the day to the night slot', () => {
@@ -51,6 +52,7 @@ describe('findAdministrationTimeSlotFromIdealTime', () => {
 
       expect(result.index).toBe(11);
       expect(result.timeSlot).toEqual(MEDICATION_ADMINISTRATION_TIME_SLOTS[11]);
+      expect(result.value).toEqual('23:59');
     });
   });
 
