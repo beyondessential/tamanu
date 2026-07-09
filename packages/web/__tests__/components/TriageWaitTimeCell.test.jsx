@@ -27,14 +27,14 @@ describe('TriageWaitTimeCell', () => {
     arrivalTime: '2022-01-03 08:00:00',
   };
 
-  it('shows Active ED care for observation encounters', () => {
+  it('shows Active ED for observation encounters', () => {
     render({
       ...seenCellProps,
       encounterType: ENCOUNTER_TYPES.OBSERVATION,
     });
 
     expect(screen.getByTestId('triagecell-observation')).toBeTruthy();
-    expect(screen.getByText('Active ED care')).toBeTruthy();
+    expect(screen.getByText('Active ED')).toBeTruthy();
     expect(screen.queryByText('Emerg. short stay')).toBeNull();
   });
 
@@ -46,6 +46,6 @@ describe('TriageWaitTimeCell', () => {
 
     expect(screen.getByTestId('triagecell-emergency')).toBeTruthy();
     expect(screen.getByText('Emerg. short stay')).toBeTruthy();
-    expect(screen.queryByText('Active ED care')).toBeNull();
+    expect(screen.queryByText('Active ED')).toBeNull();
   });
 });
