@@ -39,7 +39,7 @@ export class Prescription extends Model {
   declare dispensingUnit: string;
   declare unitConversion: number;
   declare frequency: string;
-  declare idealTimes?: string[];
+  declare idealTimes?: `${number}:${number}`[];
   declare route: string;
   declare date: string;
   declare startDate: string;

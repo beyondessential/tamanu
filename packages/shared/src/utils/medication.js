@@ -3,8 +3,8 @@ import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@t
 import { camelCase } from 'es-toolkit/compat';
 
 /**
- * @template {string | Date} T
- * @param {T} idealTime - A time string (HH:mm) or Date whose time falls within a slot.
+ * @template {`${number}:${number}` | Date} T
+ * @param {T} idealTime - A time string (HH:mm) whose time falls within a slot.
  * @returns {{
  *   index: number
  *   timeSlot: (typeof MEDICATION_ADMINISTRATION_TIME_SLOTS)[number] | undefined,
