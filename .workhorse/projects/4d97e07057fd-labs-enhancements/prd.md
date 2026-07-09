@@ -12,15 +12,6 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 | 2 | _TBC_ | _Awaiting card_ | _TBC_ |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | **Minimal** — surface an existing field on the tile |
 
-## Background: how lab requests work today
-
-Useful context that spans several of the requirements below.
-
-- A lab request is created through a multi-step form supporting three request types: **individual test**, **panel** (a named group of test types), and **superset** (a group of panels).
-- Test/panel selection uses a two-pane picker (`TestSelector`): the left pane lists selectable panels or tests with their **category**; the right pane shows the current selection.
-- A request moves through: `Sample not collected` → `Reception pending` → `Results pending` → `Interim results` → `To be verified` → `Verified` → `Published`, with side branches for `Cancelled`, `Rejected`, `Invalidated`, `Entered in error`, `Deleted`.
-- Results are entered per lab test (free text, number, or select), with reference ranges, then verified and published.
-
 ## Requirements
 
 Priority-ordered. Only cards we've talked through are detailed; the rest will be added as we pull them from Linear.
