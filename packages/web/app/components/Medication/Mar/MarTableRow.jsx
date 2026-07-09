@@ -17,7 +17,6 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
-import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
