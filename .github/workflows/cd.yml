@@ -120,6 +120,21 @@ jobs:
             core.setOutput('go-down', !!down.length);
             core.setOutput('go-mobile', !!mobile.length);
             core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
+            core.setOutput('allimages', allDeploys.some(deploy => deploy.options.allimages && !deploy.options.pause));
+
+      # Autodeploys build linux/arm64 only; %allimages (or a release) builds the
+      # full set — linux amd64 + arm64, and the Windows VHDX jobs.
+      - name: Decide build scope
+        id: scope
+        run: |
+          if [[ ( "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ) \
+                || "${{ steps.config.outputs.allimages }}" == "true" ]]; then
+            echo 'all=true' >> "$GITHUB_OUTPUT"
+            echo 'platforms=[{"arch":"amd64","runs-on":"ubuntu-24.04"},{"arch":"arm64","runs-on":"ubuntu-24.04-arm"}]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'all=false' >> "$GITHUB_OUTPUT"
+            echo 'platforms=[{"arch":"arm64","runs-on":"ubuntu-24.04-arm"}]' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check the images exist
         id: check-images-exist
@@ -147,6 +162,11 @@ jobs:
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
       go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
+      # whether to build the full image set (amd64 + Windows VHDX), vs arm64 only
+      all-images: ${{ steps.scope.outputs.all }}
+      # platform matrix for the images job
+      platforms: ${{ steps.scope.outputs.platforms }}
+
       # we need to build images when:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
       # - we want to build images only, AND the images for this commit don't yet exist, or
@@ -159,11 +179,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - arch: amd64
-            runs-on: ubuntu-24.04
-          - arch: arm64
-            runs-on: ubuntu-24.04-arm
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
         package:
           - name: central
             path: central-server
@@ -256,7 +272,7 @@ jobs:
   windows-vhdx:
     needs:
       - config
-    if: needs.config.outputs.build-images == 'true'
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -329,7 +345,7 @@ jobs:
   windows-vhdx-frontend:
     needs:
       - config
-    if: needs.config.outputs.build-images == 'true'
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -442,7 +458,7 @@ jobs:
           # the essential product); the VHDX append below is best-effort.
           retag() {
             manifest-tool push from-args \
-              --platforms linux/amd64,linux/arm64 \
+              --platforms ${{ needs.config.outputs.all-images == 'true' && 'linux/amd64,linux/arm64' || 'linux/arm64' }} \
               --template "$image:$1.ARCH" \
               --target "$image:$1"
           }
