@@ -158,7 +158,7 @@ const getIsCurrent = ({ timeSlot, selectedDate, now }) => {
   return now >= slotStartDate && now < slotEndDate;
 };
 
-const getIsDisabled = ({ hasRecord, timeSlot, selectedDate, now }) => {
+const getIsNotDue = ({ hasRecord, timeSlot, selectedDate, now }) => {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord || !isSameDay(selectedDate, now)) {
     return slotStartDate > now;
@@ -274,7 +274,7 @@ export const MarStatus = ({
 
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate, now: facilityNow });
-  const isDisabled = getIsDisabled({
+  const isNotDue = getIsNotDue({
     hasRecord: !!marInfo,
     timeSlot,
     selectedDate,
@@ -356,7 +356,7 @@ export const MarStatus = ({
       isError);
 
   const onSelected = () => {
-    if (!canView || anchorEl || isDiscontinued || isDisabled || isEnd || !canViewMar) return;
+    if (!canView || anchorEl || isDiscontinued || isNotDue || isEnd || !canViewMar) return;
 
     if (status) {
       handleOpenMarDetailsModal();
@@ -533,7 +533,7 @@ export const MarStatus = ({
           );
         }
         default:
-          if (isDisabled) {
+          if (isNotDue) {
             return (
               <TooltipText>
                 <TranslatedText
@@ -576,14 +576,13 @@ export const MarStatus = ({
         aria-selected={isSelected || undefined}
         ref={containerRef}
         onClick={onSelected}
-        isDisabled={isDisabled}
         isDiscontinued={isDiscontinued}
         isEnd={isEnd}
         isPaused={isPaused}
         canCreateMar={canCreateMar}
         canViewMar={canViewMar}
         status={status}
-        disabled={!canView}
+        disabled={!canView || isNotDue}
       >
         <ConditionalTooltip
           visible={Boolean(content)}
