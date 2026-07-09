@@ -19,6 +19,7 @@ const Table = styled.table`
   border-collapse: collapse;
   font-size: 12px;
   inline-size: 100%;
+  line-height: 1.25;
   position: relative;
 
   & tr {
