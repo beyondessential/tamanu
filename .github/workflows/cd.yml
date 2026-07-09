@@ -528,24 +528,57 @@ jobs:
           $global:LASTEXITCODE = 0
 
       # Build straight onto the mounted VHDX (vhdxmnt/), no copy from a linux
-      # image. node_modules is installed fresh and native below.
+      # image. This replicates docker-build.sh's server reduction so the tree is
+      # slimmed to the target server + shared deps (as the linux image is), not
+      # the whole workspace — the size lever the crude version was missing.
       - name: Build source onto VHDX (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
+          pkg='${{ matrix.package.path }}'   # e.g. central-server
           cd "vhdxmnt/release-v${VERSION}"
+
           # Point pm2's cwd at the target package (mirrors cd-package-servers).
-          sed -E "s|const cwd =.+|const cwd = 'packages/${{ matrix.package.path }}';|" \
-            "packages/${{ matrix.package.path }}/pm2.config.cjs" > pm2.config.cjs
-          # Crude docker-build-alike: the VHDX is a server artifact, so drop the
-          # React Native app (heaviest native install) rather than building it.
-          rm -rf packages/mobile
-          jq '.workspaces.packages -= ["packages/mobile"]' package.json > package.json.new
+          sed -E "s|const cwd =.+|const cwd = 'packages/${pkg}';|" \
+            "packages/${pkg}/pm2.config.cjs" > pm2.config.cjs
+
+          # --- docker-build.sh (server path), minus layering/precompress -------
+          # common(): let build-tooling install in production mode, full install.
+          # bash script shell so the shell-syntax `prepare`/patch-package parse.
+          cp package.json package.json.working
+          jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.working > package.json
+          rm package.json.working
+          npm install --no-interactive --package-lock --script-shell bash
+
+          # drop tests/dev configs not needed for production
+          rm -rf packages/*/__tests__ packages/*/jest.* packages/*/docker packages/*/coverage || true
+          rm -rf packages/*/config/{local,development,test}.* || true
+
+          # the one runtime artefact servers need (scans the whole workspace, so
+          # generate it before pruning packages away)
+          npm run package-default-translations --workspace @tamanu/upgrade
+
+          # remove_irrelevant_packages: keep only the target + shared, drop the rest
+          node scripts/list-packages.mjs -- --no-shared -- --paths \
+            | jq --arg wanted "$pkg" '(. - ["packages/\($wanted)"])' > unwanted.json
+          rm -rf $(jq -r '.[]' unwanted.json)
+          jq --slurpfile unwanted unwanted.json '.workspaces.packages -= $unwanted' package.json > package.json.new
           mv package.json.new package.json
-          # Native install (bash script shell so `prepare`/patch-package parse),
-          # then prune to production.
-          npm install --package-lock --script-shell bash
+          rm -f unwanted.json
+
+          # clear build-tooling and build configs, drop it from package.json
+          rm -rf node_modules/@tamanu/build-tooling packages/build-tooling || true
+          rm -rf packages/*/*.config.* || true
+          cp package.json package.json.working
+          jq '.dependencies |= del(."@tamanu/build-tooling") | .workspaces.packages -= ["packages/build-tooling"]' \
+            package.json.working > package.json
+          rm package.json.working
+
+          # reinstall without build deps, prune to production, clean cache
+          npm install --no-interactive --package-lock --script-shell bash
           npm prune --omit=dev
+          npm cache clean --force || true
+
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
