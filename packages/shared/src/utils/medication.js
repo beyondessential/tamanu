@@ -34,7 +34,7 @@ export const getDateFromTimeString = (time, initialDate = new Date()) => {
   const parsedTime = time.split(':');
   const hour = parseInt(parsedTime[0]);
   const minute = parseInt(parsedTime[1]) || 0;
-  return set(initialDate, { hours: hour, minutes: minute, seconds: 0 });
+  return set(initialDate, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 });
 };
 
 export const areDatesInSameTimeSlot = (date1, date2) => {
