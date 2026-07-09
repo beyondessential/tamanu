@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { generateId, generateIdFromPattern } from '@tamanu/utils';
 import { compose } from 'redux';
 import { Formik } from 'formik';
-import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { Alert, KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
@@ -26,6 +26,7 @@ import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/help
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -95,6 +96,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     selectedPatient?.id,
   );
   const { getSetting } = useSettings();
+  const { getTranslation } = useTranslation();
 
   const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
     const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
@@ -128,26 +130,39 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
-      // submit form to server for new patient
-      const { dateOfBirth, ...otherValues } = values;
-      const pattern = getSetting<string>('patientDisplayIdPattern');  
-      const newPatient = await Patient.createAndSaveOne<Patient>({
-        ...otherValues,
-        dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
-        displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
-      });
+      try {
+        // submit form to server for new patient
+        const { dateOfBirth, ...otherValues } = values;
+        const pattern = getSetting<string>('patientDisplayIdPattern');
+        const newPatient = await Patient.createAndSaveOne<Patient>({
+          ...otherValues,
+          dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
+          displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
+        });
 
-      await createOrUpdateOtherPatientData(values, newPatient.id);
-      await Patient.markForSync(newPatient.id);
+        await createOrUpdateOtherPatientData(values, newPatient.id);
+        await Patient.markForSync(newPatient.id);
 
-      // Reload instance to get the complete village fields
-      // (related fields won't display all info otherwise)
-      const reloadedPatient = await Patient.findOne({ where: { id: newPatient.id } });
-      setSelectedPatient(reloadedPatient);
-      resetForm();
-      navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+        // Reload instance to get the complete village fields
+        // (related fields won't display all info otherwise)
+        const reloadedPatient = await Patient.findOne({ where: { id: newPatient.id } });
+        setSelectedPatient(reloadedPatient);
+        resetForm();
+        navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+      } catch (error) {
+        // Surface the failure instead of leaving the screen looking hung. The
+        // button re-enables so the user can retry deliberately rather than
+        // tapping a seemingly unresponsive button and creating duplicate records.
+        Alert.alert(
+          getTranslation('patient.register.error.createFailedTitle', 'Unable to create patient'),
+          getTranslation(
+            'patient.register.error.createFailedMessage',
+            'Something went wrong while saving the patient. Please try again.',
+          ),
+        );
+      }
     },
-    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, getSetting],
+    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, getSetting, getTranslation],
   );
 
   const onEditPatient = useCallback(
