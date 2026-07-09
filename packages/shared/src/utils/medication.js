@@ -12,20 +12,17 @@ import { camelCase } from 'es-toolkit/compat';
  * }}
  */
 export const findAdministrationTimeSlotFromIdealTime = idealTime => {
+  const ideal = getDateFromTimeString(idealTime).getTime();
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {
     const start = getDateFromTimeString(slot.startTime).getTime();
-    const ideal = getDateFromTimeString(idealTime).getTime();
-
     if (ideal < start) return false;
-
     const end = getDateFromTimeString(slot.endTime).getTime();
     return ideal < end && ideal - start < end - start;
   });
 
-  const timeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS[index];
   return {
     index,
-    timeSlot,
+    timeSlot: MEDICATION_ADMINISTRATION_TIME_SLOTS[index],
     value: idealTime,
   };
 };
