@@ -361,9 +361,11 @@ jobs:
       VHDX_ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
       # --- Experiment knobs (flip per experiment; see PR description) ---------
       # variant is just a label used in the measurement comment.
-      EXPERIMENT_VARIANT: baseline
-      VHDX_FILESYSTEM: NTFS   # NTFS | ReFS
-      VHDX_COMPRESS: 'false'  # 'true' enables transparent FS compression (NTFS)
+      EXPERIMENT_VARIANT: direct-build
+      VHDX_FILESYSTEM: NTFS       # NTFS | ReFS
+      VHDX_COMPRESS: 'false'      # 'true' enables transparent FS compression (NTFS)
+      VHDX_DIRECT_BUILD: 'true'   # 'true' builds in-place on the mounted VHDX
+      VHDX_VIRTUAL_SIZE_MB: '10240'  # virtual size for direct build (expandable)
     steps:
       - name: Mark job start
         shell: bash
@@ -384,10 +386,36 @@ jobs:
         with:
           name: winvhdxjob-${{ matrix.package.name }}-${{ env.VERSION }}
 
+      # Choose where the build lands. Baseline builds in the workspace and copies
+      # the finished tree into a fresh VHDX at the end. The direct-build variant
+      # mounts an empty VHDX now and builds straight into it (no copy step), a
+      # crude docker-build-alike without layering. WORK_ROOT is where the build
+      # tree lives; it stays a workspace-relative path so the bash steps below
+      # are identical for both variants.
+      - name: Prepare build target
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          if ($env:VHDX_DIRECT_BUILD -eq 'true') {
+            $mount = Join-Path $PWD.Path 'vhdxmnt'
+            scripts\open-windows-vhdx.ps1 `
+              -Output     $vhdx `
+              -SizeMB     ([int]$env:VHDX_VIRTUAL_SIZE_MB) `
+              -Mount      $mount `
+              -Filesystem $env:VHDX_FILESYSTEM `
+              -Label      "Tamanu-${{ matrix.package.name }}" `
+              -Compress:($env:VHDX_COMPRESS -eq 'true')
+            "WORK_ROOT=vhdxmnt" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } else {
+            "WORK_ROOT=." | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+
       - name: Unzip bundle
         shell: bash
         run: |
-          unzip -q release-v${VERSION}.zip
+          unzip -q release-v${VERSION}.zip -d "${WORK_ROOT}"
           # phase marker: end of setup+fetch (checkout, node, download, unzip)
           echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
@@ -397,11 +425,12 @@ jobs:
       # root `prepare` script (patch-package) can run, then prune to production.
       # npm runs lifecycle scripts through cmd.exe on Windows by default, which
       # can't parse the shell-syntax `prepare` script, so force bash (present as
-      # Git bash) as the script shell.
+      # Git bash) as the script shell. For direct-build this writes straight onto
+      # the mounted VHDX.
       - name: Reinstall dependencies (Windows-native)
         shell: bash
         run: |
-          cd "release-v${VERSION}"
+          cd "${WORK_ROOT}/release-v${VERSION}"
           npm install --package-lock --script-shell bash
           npm prune --omit=dev
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
@@ -409,21 +438,26 @@ jobs:
       - name: Embed Windows Node runtime
         shell: bash
         run: |
-          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
+          scripts/embed-node-runtime.sh win-x64 "${WORK_ROOT}/release-v${VERSION}"
           echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
 
-      - name: Build VHDX (native diskpart)
+      # Finalise the VHDX. Baseline: format a fresh disk and copy the built tree
+      # in. Direct-build: the tree is already on the mounted disk, so just detach.
+      - name: Finalise VHDX (native diskpart)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          $compress = ($env:VHDX_COMPRESS -eq 'true')
-          scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir  "release-v$env:VERSION" `
-            -Output      $vhdx `
-            -Label       "Tamanu-${{ matrix.package.name }}" `
-            -Filesystem  $env:VHDX_FILESYSTEM `
-            -Compress:$compress
+          $vhdx = $env:VHDX_PATH
+          if ($env:VHDX_DIRECT_BUILD -eq 'true') {
+            scripts\close-windows-vhdx.ps1 -Output $vhdx
+          } else {
+            scripts\build-windows-vhdx.ps1 `
+              -ReleaseDir  "release-v$env:VERSION" `
+              -Output      $vhdx `
+              -Label       "Tamanu-${{ matrix.package.name }}" `
+              -Filesystem  $env:VHDX_FILESYSTEM `
+              -Compress:($env:VHDX_COMPRESS -eq 'true')
+          }
           # Record the raw (on-disk) VHDX size before compression removes it.
           $raw = (Get-Item $vhdx).Length
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
