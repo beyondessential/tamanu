@@ -1,7 +1,13 @@
 <#
 .SYNOPSIS
   Derive the legacy Windows release tar from a finished (detached) VHDX by
-  mounting it read-only and tarring its release tree out — no second npm install.
+  mounting it and tarring its release tree out — no second npm install.
+
+.DESCRIPTION
+  Uses Mount-DiskImage (Storage module, no Hyper-V) rather than diskpart:
+  attaching an *existing* VHDX with diskpart leaves no partition selected, so
+  `assign mount=` fails (E_INVALIDARG). Mount-DiskImage auto-mounts the existing
+  NTFS volume to a drive letter, which we tar from, then dismount.
 
 .PARAMETER Vhdx
   Path to the finished VHDX (raw, not yet compressed).
@@ -21,37 +27,22 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $vhdxFull = (Resolve-Path -LiteralPath $Vhdx).Path
-$tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [System.IO.Path]::GetTempPath() }
 
-$mount = Join-Path $tmp ("legacymnt-" + [guid]::NewGuid().ToString('N'))
-if (Test-Path $mount) { Remove-Item -Recurse -Force $mount }
-New-Item -ItemType Directory -Force -Path $mount | Out-Null
-
-function Invoke-Diskpart([string]$script, [string]$name) {
-  $file = Join-Path $tmp $name
-  $script | Set-Content -Encoding Ascii -Path $file
-  diskpart /s $file | Out-Null
-  if ($LASTEXITCODE -ne 0) { throw "diskpart ($name) failed ($LASTEXITCODE)" }
-}
-
+Mount-DiskImage -ImagePath $vhdxFull -StorageType VHDX | Out-Null
 try {
-  # NB: attach read-write (not readonly) — diskpart refuses `assign mount=` on a
-  # readonly-attached vdisk (E_INVALIDARG). We only read from it, then detach.
-  Invoke-Diskpart @"
-select vdisk file="$vhdxFull"
-attach vdisk
-assign mount="$mount"
-"@ 'legacy-attach.txt'
+  # The existing NTFS volume auto-mounts; wait for its drive letter to appear.
+  $letter = $null
+  for ($i = 0; $i -lt 30 -and -not $letter; $i++) {
+    Start-Sleep -Milliseconds 500
+    $letter = (Get-DiskImage -ImagePath $vhdxFull | Get-Disk | Get-Partition |
+      Get-Volume | Where-Object { $_.DriveLetter }).DriveLetter
+  }
+  if (-not $letter) { throw "mounted VHDX exposed no drive letter" }
 
-  # bsdtar the release tree straight out of the read-only mount.
-  tar -cf $OutTar -C $mount $ReleaseName
+  # bsdtar the release tree straight off the mounted volume.
+  tar -cf $OutTar -C "${letter}:\" $ReleaseName
   if ($LASTEXITCODE -ne 0) { throw "tar failed ($LASTEXITCODE)" }
+  Write-Host "Derived $OutTar from $vhdxFull (drive ${letter}:)"
 } finally {
-  Invoke-Diskpart @"
-select vdisk file="$vhdxFull"
-detach vdisk
-"@ 'legacy-detach.txt'
-  Remove-Item -Recurse -Force $mount -ErrorAction SilentlyContinue
+  Dismount-DiskImage -ImagePath $vhdxFull | Out-Null
 }
-
-Write-Host "Derived $OutTar from $vhdxFull"
