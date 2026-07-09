@@ -14,9 +14,9 @@ import {
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
+  useTranslation,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { useTranslation } from '../../../contexts/Translation';
 import { ChangeLogModal } from './ChangeLogModal';
 
 const Container = styled.div`
@@ -112,17 +112,17 @@ export const MarInfoPane = ({ medication, marInfo }) => {
       <Container>
         <MedicationInfoContainer>
           <Box flex={0.9}>
-            <Box color={Colors.midText} mb={'3px'}>
+            <Box color={Colors.midText} mb="3px">
               <TranslatedText stringId="medication.mar.medication.label" fallback="Medication" />
             </Box>
-            <Box fontWeight={500} mb={'3px'}>
+            <Box fontWeight={500} mb="3px">
               <TranslatedReferenceData
                 fallback={medicationRef.name}
                 value={medicationRef.id}
                 category={medicationRef.type}
               />
             </Box>
-            <Box mb={'3px'}>
+            <Box mb="3px">
               {[
                 getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
                 getTranslatedFrequency(frequency, getTranslation),
@@ -131,7 +131,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
                 .filter(Boolean)
                 .join(', ')}
             </Box>
-            <Box color={Colors.midText} mb={'3px'}>
+            <Box color={Colors.midText} mb="3px">
               <span>{notes}</span>
               {displayPharmacyNotesInMar && pharmacyNotes && (
                 <span>
