@@ -68,3 +68,91 @@ test.describe('Invoicing — automatic fee display', () => {
     await invoice.expectItemVisible(/bed fee/i);
   });
 });
+
+// Guards the time-of-day bucketing end-to-end: the encounter start time must resolve to the correct
+// clinic/ED fee product (standard / after-hours / weekend) and render that exact product on the
+// invoice. Start times are pinned to fixed dates so the bucket is deterministic regardless of when
+// CI runs — the e2e stack's primary timezone is Pacific/Auckland, in which 2026-06-15 is a Monday
+// and 2026-06-13 a Saturday. The clinic route derives the encounter start from startDate; the triage
+// model derives it from triageTime, so each path is driven by the field it actually reads.
+test.describe('Invoicing — encounter fee time-of-day buckets', () => {
+  const WEEKDAY_IN_HOURS = '2026-06-15 10:00:00'; // Monday, within standard hours
+  const WEEKDAY_AFTER_HOURS = '2026-06-15 20:00:00'; // Monday, after standard hours
+  const WEEKEND = '2026-06-13 11:00:00'; // Saturday
+
+  test('clinic in standard hours shows the standard encounter fee', async ({
+    api,
+    page,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await createClinicEncounterViaApi(api, page, newPatient.id, { startDate: WEEKDAY_IN_HOURS });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const invoice = await patientDetailsPage.navigateToInvoicingTab();
+
+    await invoice.expectItemVisible(/standard hours encounter fee/i);
+  });
+
+  test('clinic after hours shows the after-hours encounter fee', async ({
+    api,
+    page,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await createClinicEncounterViaApi(api, page, newPatient.id, { startDate: WEEKDAY_AFTER_HOURS });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const invoice = await patientDetailsPage.navigateToInvoicingTab();
+
+    await invoice.expectItemVisible(/after hours encounter fee/i);
+  });
+
+  test('clinic on the weekend shows the weekend encounter fee', async ({
+    api,
+    page,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await createClinicEncounterViaApi(api, page, newPatient.id, { startDate: WEEKEND });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const invoice = await patientDetailsPage.navigateToInvoicingTab();
+
+    await invoice.expectItemVisible(/weekend encounter fee/i);
+  });
+
+  test('emergency after hours shows the after-hours ED fee', async ({
+    api,
+    page,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await createTriageEncounterViaApi(api, page, newPatient.id, {
+      startDate: WEEKDAY_AFTER_HOURS,
+      triageTime: WEEKDAY_AFTER_HOURS,
+    });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const invoice = await patientDetailsPage.navigateToInvoicingTab();
+
+    await invoice.expectItemVisible(/emergency department fee \(after hours\)/i);
+  });
+
+  test('emergency on the weekend shows the weekend ED fee', async ({
+    api,
+    page,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await createTriageEncounterViaApi(api, page, newPatient.id, {
+      startDate: WEEKEND,
+      triageTime: WEEKEND,
+    });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    const invoice = await patientDetailsPage.navigateToInvoicingTab();
+
+    await invoice.expectItemVisible(/emergency department fee \(weekend\)/i);
+  });
+});
