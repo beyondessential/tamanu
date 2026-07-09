@@ -10,7 +10,7 @@ interface SubmitButtonProps extends Omit<StyledButtonProps, 'onPress'> {
 }
 
 export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactElement => {
-  const { submitForm } = useFormikContext();
+  const { submitForm, isSubmitting } = useFormikContext();
   const [isLoading, setIsLoading] = useState(false);
   const handleOnPress = useCallback(async () => {
     setIsLoading(true);
@@ -27,7 +27,12 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
   return (
     <Button
       onPress={handleOnPress}
-      loadingAction={isLoading}
+      // `isSubmitting` keeps the button disabled for the whole Formik submission
+      // lifecycle. Callers that pass Formik's `handleSubmit` as `onSubmit` get a
+      // fire-and-forget promise that resolves before the real submit finishes, so
+      // `isLoading` alone would re-enable the button mid-submit and allow the user
+      // to submit again (e.g. creating duplicate patient records).
+      loadingAction={isLoading || isSubmitting}
       buttonText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
       backgroundColor={theme.colors.PRIMARY_MAIN}
       {...props}
