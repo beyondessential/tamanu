@@ -130,11 +130,14 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
+      // Declared outside the try so the catch can tell whether the patient record
+      // was already persisted before a later step failed.
+      let newPatient = null;
       try {
         // submit form to server for new patient
         const { dateOfBirth, ...otherValues } = values;
         const pattern = getSetting<string>('patientDisplayIdPattern');
-        const newPatient = await Patient.createAndSaveOne<Patient>({
+        newPatient = await Patient.createAndSaveOne<Patient>({
           ...otherValues,
           dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
           displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
@@ -150,16 +153,27 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         resetForm();
         navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
       } catch (error) {
-        // Surface the failure instead of leaving the screen looking hung. The
-        // button re-enables so the user can retry deliberately rather than
-        // tapping a seemingly unresponsive button and creating duplicate records.
-        Alert.alert(
-          getTranslation('patient.register.error.createFailedTitle', 'Unable to create patient'),
-          getTranslation(
-            'patient.register.error.createFailedMessage',
-            'Something went wrong while saving the patient. Please try again.',
-          ),
-        );
+        if (newPatient) {
+          // The patient record was already created; a later step (additional data
+          // or sync flagging) failed. Do NOT invite a retry — calling
+          // createAndSaveOne again would create a duplicate patient.
+          Alert.alert(
+            getTranslation('patient.register.error.partialSaveTitle', 'Registration incomplete'),
+            getTranslation(
+              'patient.register.error.partialSaveMessage',
+              'The patient record was saved, but registration didn’t fully complete. Open the patient to check their details — do not register them again.',
+            ),
+          );
+        } else {
+          // Nothing was persisted, so a retry is safe.
+          Alert.alert(
+            getTranslation('patient.register.error.createFailedTitle', 'Unable to create patient'),
+            getTranslation(
+              'patient.register.error.createFailedMessage',
+              'Something went wrong while saving the patient. Please try again.',
+            ),
+          );
+        }
       }
     },
     [navigation, setSelectedPatient, createOrUpdateOtherPatientData, getSetting, getTranslation],
