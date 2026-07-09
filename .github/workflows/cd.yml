@@ -392,11 +392,18 @@ jobs:
           echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
       # The whole point: install node_modules natively on Windows.
+      #
+      # Mirror docker-build.sh: do a *full* install (devDeps included) so the
+      # root `prepare` script (patch-package) can run, then prune to production.
+      # npm runs lifecycle scripts through cmd.exe on Windows by default, which
+      # can't parse the shell-syntax `prepare` script, so force bash (present as
+      # Git bash) as the script shell.
       - name: Reinstall dependencies (Windows-native)
         shell: bash
         run: |
-          export NODE_ENV=production
-          ( cd "release-v${VERSION}" && npm install --userconfig .npmrc.timeout --package-lock )
+          cd "release-v${VERSION}"
+          npm install --package-lock --script-shell bash
+          npm prune --omit=dev
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
