@@ -7,7 +7,9 @@ export class ReferenceDrug extends Model {
   declare id: string;
   declare referenceDataId: string;
   declare route?: string;
-  declare units?: string;
+  declare dosingUnit?: string;
+  declare dispensingUnit?: string;
+  declare unitConversion: number;
   declare notes?: string;
   declare isSensitive: boolean;
 
@@ -28,9 +30,18 @@ export class ReferenceDrug extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        units: {
+        dosingUnit: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        dispensingUnit: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        unitConversion: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          defaultValue: 1,
         },
         notes: {
           type: DataTypes.STRING,
