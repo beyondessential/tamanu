@@ -35,9 +35,11 @@ function Invoke-Diskpart([string]$script, [string]$name) {
 }
 
 try {
+  # NB: attach read-write (not readonly) — diskpart refuses `assign mount=` on a
+  # readonly-attached vdisk (E_INVALIDARG). We only read from it, then detach.
   Invoke-Diskpart @"
 select vdisk file="$vhdxFull"
-attach vdisk readonly
+attach vdisk
 assign mount="$mount"
 "@ 'legacy-attach.txt'
 
