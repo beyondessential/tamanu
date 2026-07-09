@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { ReactElement } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
@@ -37,7 +37,15 @@ const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(wi
 const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
-  const [recentlyViewedPatients] = useRecentlyViewedPatients();
+  const [recentlyViewedPatients, , , refetchRecentlyViewedPatients] = useRecentlyViewedPatients();
+
+  // The home screen stays mounted, so refetch on focus to reflect patients
+  // viewed since the last visit (the mount-time fetch would otherwise be stale).
+  useFocusEffect(
+    useCallback(() => {
+      refetchRecentlyViewedPatients();
+    }, [refetchRecentlyViewedPatients]),
+  );
 
   if (!recentlyViewedPatients)
     return <StyledView flex={1} background={theme.colors.BACKGROUND_GREY} />;

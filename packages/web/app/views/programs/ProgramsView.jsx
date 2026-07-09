@@ -198,7 +198,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       onSuccess: async () => {
         dispatch(reloadPatient(patient.id));
         queryClient.invalidateQueries(['surveyResponseAnswer', 'latest-answer', patient.id]);
-        if (params?.encounterId && encounter && !encounter.endDate) {
+        if (params?.encounterId) {
           navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
         } else {
           queryClient.resetQueries(['patientFields', patient.id]);

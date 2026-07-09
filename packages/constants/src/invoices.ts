@@ -64,6 +64,16 @@ export const INPATIENT_BUNDLED_CATEGORY_VALUES = Object.values(INPATIENT_BUNDLED
 export type InpatientBundledCategory =
   (typeof INPATIENT_BUNDLED_CATEGORIES)[keyof typeof INPATIENT_BUNDLED_CATEGORIES];
 
+// Clinical-item categories that a facility can bundle into the inpatient admission fee
+// (so they don't auto-add for admission encounters). Procedures are never bundled.
+export const INPATIENT_BUNDLED_CATEGORIES = {
+  IMAGING: 'imaging',
+  LAB: 'lab',
+  MEDICATION: 'medication',
+} as const;
+export const INPATIENT_BUNDLED_CATEGORY_VALUES = Object.values(INPATIENT_BUNDLED_CATEGORIES);
+export type InpatientBundledCategory =
+  (typeof INPATIENT_BUNDLED_CATEGORIES)[keyof typeof INPATIENT_BUNDLED_CATEGORIES];
 export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
   [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
   [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,

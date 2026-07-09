@@ -30,9 +30,6 @@ sources:
           - name: route
             data_type: character varying(255)
             description: "{{ doc('reference_drugs__route') }}"
-          - name: units
-            data_type: character varying(255)
-            description: "{{ doc('reference_drugs__units') }}"
           - name: notes
             data_type: character varying(255)
             description: "{{ doc('reference_drugs__notes') }}"
@@ -57,5 +54,16 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in reference_drugs."
+            data_tests:
+              - not_null
+          - name: dosing_unit
+            data_type: character varying(255)
+            description: "{{ doc('reference_drugs__dosing_unit') }}"
+          - name: dispensing_unit
+            data_type: character varying(255)
+            description: "{{ doc('reference_drugs__dispensing_unit') }}"
+          - name: unit_conversion
+            data_type: numeric
+            description: "{{ doc('reference_drugs__unit_conversion') }}"
             data_tests:
               - not_null

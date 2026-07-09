@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
   DRUG_STOCK_STATUSES,
+  DRUG_UNITS,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
@@ -516,7 +517,9 @@ export async function drugLoader(item, { models, pushError }) {
   const {
     id: drugId,
     route,
-    units,
+    dosingUnit,
+    dispensingUnit,
+    unitConversion = 1,
     notes,
     isSensitive = false,
     name,
@@ -528,6 +531,16 @@ export async function drugLoader(item, { models, pushError }) {
   } = item;
   /* eslint-enable no-unused-vars */
   const rows = [];
+
+  const validDrugUnits = Object.values(DRUG_UNITS);
+  if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
+  if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
 
   let existingDrug;
   if (drugId) {
@@ -541,7 +554,9 @@ export async function drugLoader(item, { models, pushError }) {
     id: referenceDrugId,
     referenceDataId: drugId,
     route,
-    units,
+    dosingUnit,
+    dispensingUnit,
+    unitConversion,
     notes,
     isSensitive: !!isSensitive,
   };
@@ -609,7 +624,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     medication: drugReferenceDataId,
     prnMedication,
     doseAmount,
-    units,
+    dosingUnit,
     frequency,
     route,
     duration,
@@ -650,7 +665,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     isPrn: prnMedication,
     isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
     doseAmount: parseFloat(doseAmount) || null,
-    units,
+    dosingUnit,
     frequency,
     route,
     durationValue: durationValue || null,

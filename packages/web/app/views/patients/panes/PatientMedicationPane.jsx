@@ -31,7 +31,7 @@ import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/m
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
+import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { useSettings } from '../../../contexts/Settings';
@@ -341,7 +341,11 @@ const DISPENSED_MEDICATION_COLUMNS = (
       />
     ),
     sortable: false,
-    accessor: data => data?.quantity,
+    accessor: data => {
+      const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      if (!dispensingUnit) return data?.quantity;
+      return `${data?.quantity} ${getDrugUnitLabel(dispensingUnit, data?.quantity, getEnumTranslation)}`;
+    },
   },
   {
     key: 'dispensedBy.displayName',
@@ -484,7 +488,7 @@ export const PatientMedicationPane = ({ patient }) => {
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
-          units: prescription?.units,
+          units: prescription?.dispensingUnit,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,

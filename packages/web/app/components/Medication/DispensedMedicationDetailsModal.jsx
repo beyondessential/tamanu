@@ -14,7 +14,7 @@ import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
-import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
+import { buildInstructionText, getDrugUnitLabel, usePresetLabelsQuery } from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -158,7 +158,9 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
           fallback="Qty dispensed"
         />
       ),
-      value: quantity ?? '-',
+      value: prescription?.dispensingUnit
+        ? `${quantity} ${getDrugUnitLabel(prescription.dispensingUnit, quantity, getEnumTranslation)}`
+        : (quantity ?? '-'),
     },
     {
       label: (

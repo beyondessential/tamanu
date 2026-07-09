@@ -19,7 +19,7 @@ import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
-    max-width: 670px; 
+    max-width: 670px;
   }
 `;
 
@@ -80,38 +80,40 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
         />
       }
     >
-      <DarkestText mb={'25px'} pr={2} fontWeight={'400 !important'}>
+      <DarkestText mb="25px" pr={2} fontWeight="400 !important">
         <TranslatedText
           stringId="medication.mar.removeAdditionalDose.description"
           fallback="Are you sure you would like to remove the below additional dose record? This cannot be undone."
         />
       </DarkestText>
-      <DetailsContainer display={'flex'}>
+      <DetailsContainer display="flex">
         <Box flex={1}>
           <MidText>
             <TranslatedText stringId="medication.mar.doseGiven" fallback="Dose given" />
           </MidText>
-          <DarkestText mt={'3px'}>
+          <DarkestText mt="3px">
             {getMarDoseDisplay(
-              { doseAmount: dose.doseAmount, units: medication.units },
+              { doseAmount: dose.doseAmount, dosingUnit: medication.dosingUnit },
               getEnumTranslation,
             )}
           </DarkestText>
-          <MidText mt={'15px'}>
+          <MidText mt="15px">
             <TranslatedText stringId="medication.mar.givenBy" fallback="Given by" />
           </MidText>
-          <DarkestText mt={'3px'}>{dose.givenByUser.displayName}</DarkestText>
+          <DarkestText mt="3px">{dose.givenByUser.displayName}</DarkestText>
         </Box>
         <VerticalSeparator />
         <Box flex={1} mr={2.5}>
           <MidText>
             <TranslatedText stringId="medication.mar.timeGiven" fallback="Time given" />
           </MidText>
-          <DarkestText mt={'3px'}><TimeDisplay date={dose.givenTime} noTooltip /></DarkestText>
-          <MidText mt={'15px'}>
+          <DarkestText mt="3px">
+            <TimeDisplay date={dose.givenTime} noTooltip />
+          </DarkestText>
+          <MidText mt="15px">
             <TranslatedText stringId="medication.mar.recordedBy" fallback="Recorded by" />
           </MidText>
-          <DarkestText mt={'3px'}>{dose.recordedByUser.displayName}</DarkestText>
+          <DarkestText mt="3px">{dose.recordedByUser.displayName}</DarkestText>
         </Box>
       </DetailsContainer>
       <Box height={16} />

@@ -323,7 +323,11 @@ const COLUMNS = {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '12%' },
-      accessor: ({ quantity }) => quantity,
+      accessor: ({ quantity, sourcePrescription }) => {
+        const dispensingUnit = sourcePrescription?.dispensingUnit;
+        if (!dispensingUnit) return quantity != null ? String(quantity) : '';
+        return `${quantity} ${dispensingUnit}`;
+      },
     },
     {
       key: 'approved',

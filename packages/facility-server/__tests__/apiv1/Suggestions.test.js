@@ -1083,7 +1083,7 @@ describe('Suggestions', () => {
         await ReferenceMedicationTemplate.create({
           referenceDataId: templateRef.id,
           medicationId: drug.id,
-          units: 'mg',
+          dosingUnit: 'mg',
           frequency: 'daily',
           route: 'oral',
         });

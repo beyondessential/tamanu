@@ -160,6 +160,14 @@ const trimSlashes = path => path.replace(/^\/|\/$/g, '');
 // eg. /programs/covid-19/patients -> 'programs'
 const getSectionPath = path => trimSlashes(path).split('/')[0];
 
+// Check whether the current route sits under a menu item's path, comparing whole
+// segments so eg. /admin/programs doesn't match /admin/programRegistries.
+const isPathWithinSection = (currentPath, menuItemPath) => {
+  const currentSegments = trimSlashes(currentPath).split('/');
+  const itemSegments = trimSlashes(menuItemPath).split('/');
+  return itemSegments.every((segment, index) => currentSegments[index] === segment);
+};
+
 // currentPath - the current route. eg. /programs/covid-19/patients
 // menuItemPath - the configured routes that are displayed in the sidebar. eg /patients
 const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) => {
@@ -184,9 +192,8 @@ export const Sidebar = React.memo(({ items }) => {
   // Expand the section matching the current route so navigating in from elsewhere
   // (e.g. a link on the dashboard) opens the relevant section rather than leaving it collapsed.
   useEffect(() => {
-    const sectionPath = getSectionPath(currentPath);
     const matchingParent = items.find(
-      item => item.children && getSectionPath(item.path) === sectionPath,
+      item => item.children && isPathWithinSection(currentPath, item.path),
     );
     setSelectedParentItem(matchingParent?.key ?? '');
   }, [currentPath, items]);

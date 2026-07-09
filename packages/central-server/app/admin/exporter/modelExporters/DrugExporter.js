@@ -29,7 +29,9 @@ export class DrugExporter extends ReferenceDataExporter {
       const baseData = {
         ...drug.dataValues,
         route: drug.referenceDrug?.route,
-        units: drug.referenceDrug?.units,
+        dosingUnit: drug.referenceDrug?.dosingUnit,
+        dispensingUnit: drug.referenceDrug?.dispensingUnit,
+        unitConversion: drug.referenceDrug?.unitConversion,
         notes: drug.referenceDrug?.notes,
         isSensitive: drug.referenceDrug?.isSensitive,
       };
