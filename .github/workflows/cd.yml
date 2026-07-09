@@ -688,6 +688,152 @@ jobs:
           cd-start: ${{ needs.config.outputs.cd-start }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+  # Frontend VHDXs (web / patient-portal). Frontends are static assets, so unlike
+  # the servers there is no Windows-native build to validate — the dist comes
+  # straight from the already-built linux image (as cd-package-frontend.yml does),
+  # then we pack a *self-contained* VHDX that embeds the Windows Caddy binary and
+  # a Caddyfile, mirroring the linux frontend container. No Node, no npm.
+  windows-vhdx-frontend-prep:
+    needs:
+      - config
+      - images
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: frontend
+            path: web
+          - name: patient-portal
+            path: patient-portal
+    name: Prep frontend VHDX bundle for ${{ matrix.package.name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Pull image
+        run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
+
+      - name: Extract version from image
+        id: version
+        run: |
+          docker image inspect ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64 \
+            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
+
+      # Assemble a self-contained bundle: dist under app/, the Windows Caddy
+      # binary, a bundle-relative Caddyfile, and a launcher. The linux frontend
+      # image serves dist from /app via Caddy; we reproduce that on Windows.
+      - name: Assemble frontend bundle (dist + Windows Caddy)
+        run: |
+          set -euxo pipefail
+          ver='${{ steps.version.outputs.version }}'
+          stage="tamanu-${{ matrix.package.name }}-static-v${ver}"
+
+          # dist lives at /app in the frontend image (Dockerfile frontend-base).
+          docker create --name working ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
+          mkdir -p "$stage/app"
+          docker cp working:/app/. "$stage/app"
+          docker rm working
+
+          # Embed the Windows Caddy binary (matches the container's embedded caddy).
+          caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          curl -fsSL -o caddy.zip \
+            "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
+          unzip -o caddy.zip caddy.exe -d "$stage"
+          rm caddy.zip
+
+          # Same Caddyfile as the container, but serve from the bundle-relative
+          # ./app rather than the absolute /app.
+          sed -E 's|root \* /app|root * app|' \
+            "packages/${{ matrix.package.path }}/Caddyfile.docker" > "$stage/Caddyfile"
+
+          # Launcher so an operator/service can start it from the mounted VHDX.
+          printf '@echo off\r\ncd /d "%%~dp0"\r\ncaddy.exe run --config Caddyfile --adapter caddyfile\r\n' \
+            > "$stage/serve.bat"
+
+          zip -r -0 "${stage}.zip" "$stage"
+
+      - name: Upload bundle for the Windows job
+        uses: actions/upload-artifact@v4
+        with:
+          name: winvhdxfe-${{ matrix.package.name }}-${{ steps.version.outputs.version }}
+          path: tamanu-${{ matrix.package.name }}-static-v${{ steps.version.outputs.version }}.zip
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+  windows-vhdx-frontend:
+    needs:
+      - config
+      - windows-vhdx-frontend-prep
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: frontend
+            path: web
+          - name: patient-portal
+            path: patient-portal
+    name: Frontend VHDX for ${{ matrix.package.name }}
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.windows-vhdx-frontend-prep.outputs.version }}
+    steps:
+      - name: Mark job start
+        shell: bash
+        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Download prepared bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: winvhdxfe-${{ matrix.package.name }}-${{ env.VERSION }}
+
+      - name: Unzip bundle
+        shell: bash
+        run: |
+          unzip -q "tamanu-${{ matrix.package.name }}-static-v${VERSION}.zip"
+          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
+
+      - name: Build VHDX (format + copy)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = "tamanu-${{ matrix.package.name }}-static-v$env:VERSION"
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          scripts\build-windows-vhdx.ps1 `
+            -ReleaseDir  $stage `
+            -Output      $vhdx `
+            -Label       "Tamanu-${{ matrix.package.name }}" `
+            -Filesystem  NTFS
+          $raw = (Get-Item $vhdx).Length
+          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Pack and report
+        uses: ./.github/actions/vhdx-pack
+        with:
+          package: ${{ matrix.package.name }}
+          filesystem: NTFS
+          compression: 'false'
+          variant: frontend-caddy
+          version: ${{ env.VERSION }}
+          sha: ${{ needs.config.outputs.sha }}
+          cd-start: ${{ needs.config.outputs.cd-start }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   # Collect the per-package metrics and post them as a PR comment, one comment
   # per experiment run, so we build up a record of size + time across variants.
   windows-vhdx-report:
@@ -695,6 +841,7 @@ jobs:
       - config
       - windows-vhdx
       - windows-vhdx-direct
+      - windows-vhdx-frontend
     if: always() && github.event_name == 'pull_request' && needs.config.outputs.build-images == 'true'
     runs-on: ubuntu-latest
     name: Report VHDX experiment metrics
@@ -818,6 +965,7 @@ jobs:
       - images
       - windows-vhdx
       - windows-vhdx-direct
+      - windows-vhdx-frontend
     # always() so a failure/skip of the experimental windows-vhdx jobs never
     # blocks publishing the linux multi-arch manifest; the VHDX entry is added
     # opportunistically below only when its artifact manifest exists.
@@ -846,8 +994,9 @@ jobs:
           sha="sha-${{ needs.config.outputs.sha }}"
           vhdx_type="application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd"
 
-          # The Windows VHDX artifact only exists for the server packages, and
-          # only when windows-vhdx succeeded. Detect it rather than assume it.
+          # The Windows VHDX artifact exists for the servers (windows-vhdx*) and
+          # the frontends (windows-vhdx-frontend), but only when that job
+          # succeeded. Detect it rather than assume it.
           vhdx_ref=""
           if oras manifest fetch --descriptor "$image:$sha.windows-vhdx" >/dev/null 2>&1; then
             vhdx_ref="$image:$sha.windows-vhdx"
