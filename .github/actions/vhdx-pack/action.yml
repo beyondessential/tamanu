@@ -88,15 +88,19 @@ runs:
         vhdx="tamanu-$PKG-$VERSION-windows-amd64.vhdx.zst"
 
         # Runtime config blob, mirroring the linux Docker image config: how to run
-        # what's inside the VHDX once mounted. WorkingDir is relative to the volume
-        # root ($ROOT_DIR maps to the container's /app); paths use forward slashes
-        # like the Docker config. Values match the production images exactly — the
-        # servers via docker-entrypoint.sh's effective `node --import tsx app serve`
-        # (NOT the bare-metal pm2 path), the frontends via caddy.
+        # what's inside the VHDX once mounted. WorkingDir and PATH are relative to
+        # the volume root ($ROOT_DIR maps to the container's /app); paths use
+        # forward slashes like the Docker config. Values match the production
+        # images — the servers via docker-entrypoint.sh's effective
+        # `node --import tsx app serve` (NOT the bare-metal pm2 path), the
+        # frontends via caddy. Unlike a container, a mounted VHDX has no implicit
+        # PATH, so PATH carries the dir holding the runtime we embed (runtime/
+        # node.exe for servers, caddy.exe at the bundle root for frontends) — that
+        # is how the bare Entrypoint binary resolves.
         if [ "$KIND" = "frontend" ]; then
           runcfg="$(jq -n --arg wd "$ROOT_DIR" '{
             WorkingDir: $wd,
-            Env: ["NODE_ENV=production"],
+            Env: ["NODE_ENV=production", ("PATH=" + $wd)],
             Entrypoint: ["caddy"],
             Cmd: ["run","--config","Caddyfile","--adapter","caddyfile"],
             ExposedPorts: {"3000/tcp": {}}
@@ -104,7 +108,7 @@ runs:
         else
           runcfg="$(jq -n --arg wd "$ROOT_DIR" --arg pp "$PKG_PATH" '{
             WorkingDir: ($wd + "/packages/" + $pp),
-            Env: ["NODE_ENV=production", "PORT=3000", "NODE_CONFIG_DIR=config/"],
+            Env: ["NODE_ENV=production", "PORT=3000", "NODE_CONFIG_DIR=config/", ("PATH=" + $wd + "/runtime")],
             Entrypoint: ["node","--import","tsx","app"],
             Cmd: ["serve"],
             ExposedPorts: {"3000/tcp": {}}
