@@ -570,6 +570,32 @@ jobs:
           npm prune --omit=dev
           npm cache clean --force || true
 
+          # --- measure actual tree contents (not the external VHDX size) ------
+          echo "=== release tree contents (pre-strip) ==="
+          du -sm . | awk '{print "total: "$1" MiB"}'
+          du -sm node_modules 2>/dev/null | awk '{print "node_modules: "$1" MiB"}' || true
+          echo "--- 15 largest node_modules entries (MiB) ---"
+          du -sm node_modules/* node_modules/.pnpm 2>/dev/null | sort -rn | head -15 || true
+          echo "--- native-build intermediates present ---"
+          for ext in pdb obj iobj ipdb lib exp; do
+            find . -type f -name "*.${ext}" -printf '%s\n' 2>/dev/null \
+              | awk -v e="$ext" '{s+=$1;n++} END{ if(n) printf "  *.%s: %d files, %.1f MiB\n", e, n, s/1048576 }'
+          done
+          pre=$(du -sm . | cut -f1)
+
+          # --- strip node-gyp build intermediates (never loaded at runtime) ---
+          # keep build/Release/*.node (the actual addon); drop compiler/linker
+          # leftovers, which MSVC makes large (.pdb debug symbols especially).
+          find . -type f \( -name '*.pdb' -o -name '*.obj' -o -name '*.iobj' \
+            -o -name '*.ipdb' -o -name '*.exp' -o -name '*.lib' \) -delete 2>/dev/null || true
+          find . -type d \( -path '*/build/Release/obj' -o -path '*/build/Release/.deps' \
+            -o -path '*/build/Debug' \) -prune -exec rm -rf {} + 2>/dev/null || true
+
+          post=$(du -sm . | cut -f1)
+          echo "=== stripped intermediates: ${pre} MiB -> ${post} MiB ==="
+          echo "CONTENT_PRESTRIP_MB=${pre}" >> "$GITHUB_ENV"
+          echo "CONTENT_POSTSTRIP_MB=${post}" >> "$GITHUB_ENV"
+
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
@@ -715,6 +741,22 @@ jobs:
               echo "| $pkg | $s | $n | $e | $b | $c | $u |"
             done
             echo
+            # Tree-content sizes (actual files, distinct from the VHDX file size).
+            content="$(jq -r 'select((.contentPreStripMiB // 0) > 0) | .package' "${files[@]}" 2>/dev/null || true)"
+            if [ -n "$content" ]; then
+              echo "### Tree contents — actual files (MiB), distinct from the VHDX size"
+              echo
+              echo "| Package | before strip | after strip (node-gyp intermediates removed) |"
+              echo "|:--|--:|--:|"
+              for f in "${files[@]}"; do
+                cp="$(jq -r '.contentPreStripMiB // 0' "$f")"
+                [ "$cp" != "0" ] || continue
+                pkg="$(jq -r '.package' "$f")"
+                cpo="$(jq -r '.contentPostStripMiB // 0' "$f")"
+                echo "| $pkg | $cp | $cpo |"
+              done
+              echo
+            fi
             # Experiment 7: legacy windows tar derived from the finished VHDX.
             legacy="$(jq -r 'select((.legacyTarSeconds // 0) > 0) | "\(.package): \(.legacyTarBytes) bytes in \(.legacyTarSeconds)s"' "${files[@]}" 2>/dev/null || true)"
             if [ -n "$legacy" ]; then

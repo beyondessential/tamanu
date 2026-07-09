@@ -126,12 +126,15 @@ runs:
           --argjson upload "$upload_s" \
           --argjson legacySeconds "${LEGACY_TAR_SECONDS:-0}" \
           --argjson legacyBytes "${LEGACY_TAR_BYTES:-0}" \
+          --argjson contentPre "${CONTENT_PRESTRIP_MB:-0}" \
+          --argjson contentPost "${CONTENT_POSTSTRIP_MB:-0}" \
           --arg tag "$tag" \
           '{package:$package, variant:$variant, filesystem:$filesystem,
             compression:$compression, vhdxRawBytes:$raw,
             vhdxCompressedBytes:$compressed, registryBytes:$registry,
             totalElapsedSeconds:$total, windowsElapsedSeconds:$windows,
             legacyTarSeconds:$legacySeconds, legacyTarBytes:$legacyBytes,
+            contentPreStripMiB:$contentPre, contentPostStripMiB:$contentPost,
             phases:{ setupFetch:$setup, npmInstall:$npm, embedNode:$embed,
                      buildVhdx:$build, compress:$compress, upload:$upload },
             tag:$tag}' \
