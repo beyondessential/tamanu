@@ -4,6 +4,8 @@
 
 A set of enhancements across Tamanu's labs subsystem, compiled from the planned cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by priority.
 
+---
+
 ## Priority summary
 
 | # | Original request | Feature | Design work |
@@ -11,6 +13,8 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 | 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | **Yes** — new ordering workflow |
 | 2 | _TBC_ | _Awaiting card_ | _TBC_ |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | **Minimal** — surface an existing field on the tile |
+
+---
 
 ## Requirements
 
@@ -35,6 +39,8 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 **Open questions (to resolve before design):**
 - **Duplicate scope & direction:** does "already covered by a selected panel" apply only within the request being built, or also against active requests already ordered for the patient? And when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
+
+---
 
 ### 3. Show specimen type next to sample collected date & time
 
