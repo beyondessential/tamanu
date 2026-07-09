@@ -501,42 +501,33 @@ jobs:
           # phase marker: end of setup+fetch (checkout, node, version)
           echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
-      - name: Open VHDX and stage source
+      # Stage the source working tree into the workspace (NOT onto the VHDX).
+      # Building on a dynamic VHDX captures peak allocation — the full install
+      # plus everything the reduction then deletes stays allocated (and unzeroed,
+      # so it can't be compacted), which made in-place reduction *larger*. So we
+      # build the final tree here, then copy it into a fresh VHDX at the end.
+      - name: Stage source (workspace)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          $mount = Join-Path $PWD.Path 'vhdxmnt'
-          scripts\open-windows-vhdx.ps1 `
-            -Output     $vhdx `
-            -SizeMB     ([int]$env:VHDX_VIRTUAL_SIZE_MB) `
-            -Mount      $mount `
-            -Filesystem $env:VHDX_FILESYSTEM `
-            -Label      "Tamanu-${{ matrix.package.name }}" `
-            -Compress:($env:VHDX_COMPRESS -eq 'true')
-
-          # Stage the source working tree straight onto the mounted VHDX (no copy
-          # from a linux image). robocopy is native, so it handles the repo's
-          # symlinks (which bsdtar can't create on NTFS) and excludes the mount
-          # itself, .git, and node_modules (installed fresh & native below).
-          $root = "vhdxmnt\release-v$env:VERSION"
-          robocopy . $root /E /XD .git node_modules vhdxmnt oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
-          # robocopy uses exit codes 0-7 for success (1 = files copied); only >=8
-          # is a real failure. Reset so pwsh doesn't treat 1 as a step failure.
+          $root = "release-v$env:VERSION"
+          if (Test-Path $root) { Remove-Item -Recurse -Force $root }
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+          # robocopy is native (handles the repo's symlinks); exclude .git,
+          # node_modules (installed fresh below), and the dest dir itself.
+          robocopy . $root /E /XD .git node_modules "$root" oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
           if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
           $global:LASTEXITCODE = 0
 
-      # Build straight onto the mounted VHDX (vhdxmnt/), no copy from a linux
-      # image. This replicates docker-build.sh's server reduction so the tree is
-      # slimmed to the target server + shared deps (as the linux image is), not
-      # the whole workspace — the size lever the crude version was missing.
-      - name: Build source onto VHDX (Windows-native)
+      # Build the reduced server tree in the workspace. Replicates
+      # docker-build.sh's server reduction (target + shared deps only), from
+      # source — still independent of the linux images, but off the VHDX.
+      - name: Build reduced source (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
           pkg='${{ matrix.package.path }}'   # e.g. central-server
-          cd "vhdxmnt/release-v${VERSION}"
+          cd "release-v${VERSION}"
 
           # Point pm2's cwd at the target package (mirrors cd-package-servers).
           sed -E "s|const cwd =.+|const cwd = 'packages/${pkg}';|" \
@@ -584,16 +575,24 @@ jobs:
       - name: Embed Windows Node runtime
         shell: bash
         run: |
-          scripts/embed-node-runtime.sh win-x64 "vhdxmnt/release-v${VERSION}"
+          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
           echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
 
-      - name: Finalise VHDX (detach)
+      # Copy the finished, reduced tree into a *fresh* VHDX — the disk only ever
+      # holds final data, so no churn/slack (the in-place approach's problem).
+      - name: Build VHDX from the reduced tree (format + copy)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          scripts\close-windows-vhdx.ps1 -Output $env:VHDX_PATH
-          if ($env:VHDX_OPTIMIZE -eq 'true') { scripts\optimize-windows-vhdx.ps1 -Output $env:VHDX_PATH }
-          $raw = (Get-Item $env:VHDX_PATH).Length
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          scripts\build-windows-vhdx.ps1 `
+            -ReleaseDir  "release-v$env:VERSION" `
+            -Output      $vhdx `
+            -Label       "Tamanu-${{ matrix.package.name }}" `
+            -Filesystem  $env:VHDX_FILESYSTEM `
+            -Compress:($env:VHDX_COMPRESS -eq 'true')
+          $raw = (Get-Item $vhdx).Length
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
