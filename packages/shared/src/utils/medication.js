@@ -28,12 +28,11 @@ export const findAdministrationTimeSlotFromIdealTime = idealTime => {
 };
 
 export const getDateFromTimeString = (time, initialDate = new Date()) => {
-  if (typeof time !== 'string' || !time?.includes?.(':')) {
-    time = format(new Date(time), 'HH:mm');
-  }
-  const parsedTime = time.split(':');
-  const hour = parseInt(parsedTime[0]);
-  const minute = parseInt(parsedTime[1]) || 0;
+  const asString =
+    typeof time !== 'string' || !time?.includes?.(':') ? format(new Date(time), 'HH:mm') : time;
+  const [hh, mm] = asString.split(':');
+  const hour = Number.parseInt(hh);
+  const minute = Number.parseInt(mm) || 0;
   return set(initialDate, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 });
 };
 

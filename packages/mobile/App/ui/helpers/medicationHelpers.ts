@@ -7,9 +7,9 @@ export const getDateFromTimeString = (
 ) => {
   const asString =
     typeof time !== 'string' || !time?.includes?.(':') ? format(new Date(time), 'HH:mm') : time;
-  const parsedTime = asString.split(':');
-  const hour = parseInt(parsedTime[0]);
-  const minute = parseInt(parsedTime[1]) || 0;
+  const [hh, mm] = asString.split(':');
+  const hour = Number.parseInt(hh);
+  const minute = Number.parseInt(mm) || 0;
   return set(initialDate, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 });
 };
 
