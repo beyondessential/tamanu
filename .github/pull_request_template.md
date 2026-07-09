@@ -22,6 +22,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Stay up for 24 hours <!-- #deployopt %ttlhours=24 -->
 - [ ] Stay up (no TTL) <!-- #deployopt %ttlhours=0 -->
 - [ ] Build images only (don't deploy) <!-- #deployopt %imagesonly -->
+- [ ] Build all images (amd64 + Windows VHDX; default is arm64 only) <!-- #deployopt %allimages -->
 - [ ] Pause this deploy <!-- #deployopt %pause -->
 
 </details>
