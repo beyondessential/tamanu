@@ -251,10 +251,126 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
+  # Experimental: build a Windows release as an NTFS VHDX disk image and pack it
+  # as an OCI artifact in ghcr.io, so it can be pulled efficiently and folded
+  # into the multi-arch manifest below as the windows/amd64 platform entry.
+  #
+  # This runs on the same build-images trigger as the linux `images` job (so it
+  # builds for any PR/branch via the imagesonly deploy option, without needing a
+  # release tag). It derives the bundle from the freshly-built amd64 server image
+  # for this commit — the single source of truth for the app — then swaps in the
+  # official Windows Node runtime.
+  #
+  # NOTE (experimental scope): the app's node_modules come from the linux image
+  # and are therefore not natively rebuilt for Windows; this job proves out the
+  # VHDX -> OCI -> multi-arch distribution mechanism. A windows-runner native
+  # `npm install` (as in cd-package-servers.yml) is a follow-up.
+  windows-image:
+    needs:
+      - config
+      - images
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: central-server
+          - name: facility
+            path: facility-server
+
+    name: Windows VHDX for ${{ matrix.package.name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Install disk-image tooling
+        run: |
+          set -eux
+          sudo apt-get update
+          sudo apt-get install -y qemu-utils libguestfs-tools zstd
+          # libguestfs builds its appliance from the host kernel, which is not
+          # world-readable on GitHub runners by default.
+          sudo chmod 0644 /boot/vmlinuz-* || true
+
+      - uses: ./.github/actions/setup-oras
+
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Pull image
+        run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
+
+      - name: Extract version from image
+        id: version
+        run: |
+          docker image inspect ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64 \
+            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
+
+      - name: Extract files from image
+        run: |
+          set -x
+          docker create --name working ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
+          docker cp working:/app release-v${{ steps.version.outputs.version }}
+          docker rm working
+          # docker cp extracts as root; take ownership so later steps can write.
+          sudo chown -R "$(id -u):$(id -g)" release-v${{ steps.version.outputs.version }}
+
+      # Mirror cd-package-servers.yml: point pm2's cwd at the target package.
+      - name: Prepare production configuration
+        run: |
+          set -x
+          sed -E \
+            "s|const cwd =.+|const cwd = 'packages/${{ matrix.package.path }}';|" \
+            packages/${{ matrix.package.path }}/pm2.config.cjs \
+          > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
+
+      - name: Embed Windows Node runtime
+        run: scripts/embed-node-runtime.sh win-x64 "release-v${{ steps.version.outputs.version }}"
+
+      - name: Build NTFS VHDX
+        run: |
+          set -x
+          scripts/build-windows-vhdx.sh \
+            "release-v${{ steps.version.outputs.version }}" \
+            "tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx" \
+            "Tamanu ${{ matrix.package.name }}"
+          # zstd for efficient upload/storage/retrieval from the registry.
+          zstd --rm -T0 -19 "tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx"
+
+      - name: Push VHDX as OCI image
+        run: |
+          set -euxo pipefail
+          image="ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}"
+          tag="sha-${{ needs.config.outputs.sha }}.windows-amd64"
+          vhdx="tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx.zst"
+
+          # A minimal OCI image config declaring the platform, so this is a valid
+          # image manifest that slots into the multi-arch index as windows/amd64.
+          echo '{"architecture":"amd64","os":"windows"}' > oci-config.json
+
+          oras push "$image:$tag" \
+            --config oci-config.json:application/vnd.oci.image.config.v1+json \
+            --annotation "org.opencontainers.image.title=Tamanu ${{ matrix.package.name }} (Windows VHDX)" \
+            --annotation "org.opencontainers.image.version=${{ steps.version.outputs.version }}" \
+            --annotation "org.opencontainers.image.source=https://github.com/beyondessential/tamanu/" \
+            --annotation "org.opencontainers.image.vendor=BES International" \
+            --annotation "org.opencontainers.image.licenses=GPL-3.0-or-later" \
+            "$vhdx:application/vnd.tamanu.windows.disk.vhdx.v1+zstd"
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
   multi-arch:
     needs:
       - config
       - images
+      - windows-image
+    # always() so a failure/skip of the experimental windows-image job never
+    # blocks publishing the linux multi-arch manifest; the windows entry is
+    # added opportunistically below only when its source manifest exists.
+    if: always() && needs.images.result == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -274,16 +390,36 @@ jobs:
           set -x
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
+          sha="sha-${{ needs.config.outputs.sha }}"
 
+          # The Windows VHDX only exists for the server packages, and only when
+          # windows-image succeeded. Detect it rather than assume it.
+          windows_src=""
+          if skopeo inspect "docker://$image:$sha.windows-amd64" >/dev/null 2>&1; then
+            windows_src="$sha.windows-amd64"
+          fi
+
+          # Build the index from an explicit spec (rather than from-args' arch
+          # template) so we can mix in a non-linux, non-amd64-templated entry.
           retag() {
-            manifest-tool push from-args \
-              --platforms linux/amd64,linux/arm64 \
-              --template "$image:$1.ARCH" \
-              --target "$image:$1" \
-            || true
+            target="$1"
+            {
+              echo "image: $image:$target"
+              echo "manifests:"
+              echo "  - image: $image:$sha.amd64"
+              echo "    platform: { architecture: amd64, os: linux }"
+              echo "  - image: $image:$sha.arm64"
+              echo "    platform: { architecture: arm64, os: linux }"
+              if [ -n "$windows_src" ]; then
+                echo "  - image: $image:$windows_src"
+                echo "    platform: { architecture: amd64, os: windows }"
+              fi
+            } > "manifest-spec.yaml"
+            cat "manifest-spec.yaml"
+            manifest-tool push from-spec "manifest-spec.yaml" || true
           }
 
-          retag sha-${{ needs.config.outputs.sha }}
+          retag "$sha"
 
           # quit now if we're not releasing
           # we can't have an empty string in the continue case because that's interpreted as falsy and writes 'exit'
