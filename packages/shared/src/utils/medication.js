@@ -2,6 +2,15 @@ import { addDays, format, isSameDay, set } from 'date-fns';
 import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { camelCase } from 'es-toolkit/compat';
 
+/**
+ * @template {string | Date} T
+ * @param {T} idealTime - A time string (HH:mm) or Date whose time falls within a slot.
+ * @returns {{
+ *   index: number
+ *   timeSlot: (typeof MEDICATION_ADMINISTRATION_TIME_SLOTS)[number] | undefined,
+ *   value: T
+ * }}
+ */
 export const findAdministrationTimeSlotFromIdealTime = idealTime => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {
     const startDate = getDateFromTimeString(slot.startTime).getTime();
