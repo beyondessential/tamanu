@@ -51,6 +51,17 @@ jobs:
         id: cdstart
         run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
+      - name: Read VHDX experiment config
+        id: exp
+        run: |
+          set -a; source .github/vhdx-experiment.env; set +a
+          {
+            echo "variant=${EXPERIMENT_VARIANT}"
+            echo "fs=${VHDX_FILESYSTEM}"
+            echo "compress=${VHDX_COMPRESS}"
+            echo "direct=${VHDX_DIRECT_BUILD}"
+            echo "size=${VHDX_VIRTUAL_SIZE_MB}"
+          } | tee -a "$GITHUB_OUTPUT"
       - name: Figure branch ref and sha
         id: ref
         uses: actions/github-script@v7
@@ -144,6 +155,11 @@ jobs:
       ref: ${{ steps.ref.outputs.result }}
       sha: ${{ steps.sha.outputs.sha }}
       cd-start: ${{ steps.cdstart.outputs.epoch }}
+      exp-variant: ${{ steps.exp.outputs.variant }}
+      exp-fs: ${{ steps.exp.outputs.fs }}
+      exp-compress: ${{ steps.exp.outputs.compress }}
+      exp-direct: ${{ steps.exp.outputs.direct }}
+      exp-size: ${{ steps.exp.outputs.size }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
       mobile: ${{ steps.config.outputs.mobile }}
@@ -270,11 +286,13 @@ jobs:
   # for any PR/branch via the imagesonly deploy option — no release tag needed.
 
   # Linux prep: extract the app tree from the built image and hand it to Windows.
+  # Only used by the copy-based (non-direct) variants, which build from the linux
+  # image output.
   windows-vhdx-prep:
     needs:
       - config
       - images
-    if: needs.config.outputs.build-images == 'true'
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct != 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -338,12 +356,14 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
-  # Windows-native build + VHDX capture + OCI push.
+  # Copy-based variants (baseline / ntfs-compression / refs): build from the
+  # linux image output (via windows-vhdx-prep), then copy the finished tree into
+  # a fresh VHDX.
   windows-vhdx:
     needs:
       - config
       - windows-vhdx-prep
-    if: needs.config.outputs.build-images == 'true'
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct != 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -356,16 +376,8 @@ jobs:
     runs-on: windows-latest
     env:
       VERSION: ${{ needs.windows-vhdx-prep.outputs.version }}
-      # BES-specific artifact type so this is never mistaken for a runnable
-      # container image by a Windows container runtime.
-      VHDX_ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
-      # --- Experiment knobs (flip per experiment; see PR description) ---------
-      # variant is just a label used in the measurement comment.
-      EXPERIMENT_VARIANT: direct-build
-      VHDX_FILESYSTEM: NTFS       # NTFS | ReFS
-      VHDX_COMPRESS: 'false'      # 'true' enables transparent FS compression (NTFS)
-      VHDX_DIRECT_BUILD: 'true'   # 'true' builds in-place on the mounted VHDX
-      VHDX_VIRTUAL_SIZE_MB: '10240'  # virtual size for direct build (expandable)
+      VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
+      VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
     steps:
       - name: Mark job start
         shell: bash
@@ -386,51 +398,22 @@ jobs:
         with:
           name: winvhdxjob-${{ matrix.package.name }}-${{ env.VERSION }}
 
-      # Choose where the build lands. Baseline builds in the workspace and copies
-      # the finished tree into a fresh VHDX at the end. The direct-build variant
-      # mounts an empty VHDX now and builds straight into it (no copy step), a
-      # crude docker-build-alike without layering. WORK_ROOT is where the build
-      # tree lives; it stays a workspace-relative path so the bash steps below
-      # are identical for both variants.
-      - name: Prepare build target
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          if ($env:VHDX_DIRECT_BUILD -eq 'true') {
-            $mount = Join-Path $PWD.Path 'vhdxmnt'
-            scripts\open-windows-vhdx.ps1 `
-              -Output     $vhdx `
-              -SizeMB     ([int]$env:VHDX_VIRTUAL_SIZE_MB) `
-              -Mount      $mount `
-              -Filesystem $env:VHDX_FILESYSTEM `
-              -Label      "Tamanu-${{ matrix.package.name }}" `
-              -Compress:($env:VHDX_COMPRESS -eq 'true')
-            "WORK_ROOT=vhdxmnt" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          } else {
-            "WORK_ROOT=." | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          }
-
       - name: Unzip bundle
         shell: bash
         run: |
-          unzip -q release-v${VERSION}.zip -d "${WORK_ROOT}"
+          unzip -q release-v${VERSION}.zip
           # phase marker: end of setup+fetch (checkout, node, download, unzip)
           echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
-      # The whole point: install node_modules natively on Windows.
-      #
-      # Mirror docker-build.sh: do a *full* install (devDeps included) so the
-      # root `prepare` script (patch-package) can run, then prune to production.
-      # npm runs lifecycle scripts through cmd.exe on Windows by default, which
-      # can't parse the shell-syntax `prepare` script, so force bash (present as
-      # Git bash) as the script shell. For direct-build this writes straight onto
-      # the mounted VHDX.
+      # Install node_modules natively on Windows. Mirror docker-build.sh: a full
+      # install (devDeps included) so the root `prepare` (patch-package) runs,
+      # then prune to production. npm runs lifecycle scripts via cmd.exe on
+      # Windows by default and can't parse the shell-syntax `prepare`, so force
+      # bash (Git bash) as the script shell.
       - name: Reinstall dependencies (Windows-native)
         shell: bash
         run: |
-          cd "${WORK_ROOT}/release-v${VERSION}"
+          cd "release-v${VERSION}"
           npm install --package-lock --script-shell bash
           npm prune --omit=dev
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
@@ -438,135 +421,149 @@ jobs:
       - name: Embed Windows Node runtime
         shell: bash
         run: |
-          scripts/embed-node-runtime.sh win-x64 "${WORK_ROOT}/release-v${VERSION}"
+          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
           echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
 
-      # Finalise the VHDX. Baseline: format a fresh disk and copy the built tree
-      # in. Direct-build: the tree is already on the mounted disk, so just detach.
-      - name: Finalise VHDX (native diskpart)
+      - name: Build VHDX (format + copy)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $vhdx = $env:VHDX_PATH
-          if ($env:VHDX_DIRECT_BUILD -eq 'true') {
-            scripts\close-windows-vhdx.ps1 -Output $vhdx
-          } else {
-            scripts\build-windows-vhdx.ps1 `
-              -ReleaseDir  "release-v$env:VERSION" `
-              -Output      $vhdx `
-              -Label       "Tamanu-${{ matrix.package.name }}" `
-              -Filesystem  $env:VHDX_FILESYSTEM `
-              -Compress:($env:VHDX_COMPRESS -eq 'true')
-          }
-          # Record the raw (on-disk) VHDX size before compression removes it.
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          scripts\build-windows-vhdx.ps1 `
+            -ReleaseDir  "release-v$env:VERSION" `
+            -Output      $vhdx `
+            -Label       "Tamanu-${{ matrix.package.name }}" `
+            -Filesystem  $env:VHDX_FILESYSTEM `
+            -Compress:($env:VHDX_COMPRESS -eq 'true')
           $raw = (Get-Item $vhdx).Length
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Compress VHDX
+      - name: Pack and report
+        uses: ./.github/actions/vhdx-pack
+        with:
+          package: ${{ matrix.package.name }}
+          filesystem: ${{ needs.config.outputs.exp-fs }}
+          compression: ${{ needs.config.outputs.exp-compress }}
+          variant: ${{ needs.config.outputs.exp-variant }}
+          version: ${{ env.VERSION }}
+          sha: ${{ needs.config.outputs.sha }}
+          cd-start: ${{ needs.config.outputs.cd-start }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Direct-build variant: build from source straight into a mounted VHDX, in
+  # parallel with the linux images (needs only `config`, NOT `images`). A crude
+  # approximation of the docker build (no layering, and mobile is dropped since
+  # the VHDX is a server artifact).
+  windows-vhdx-direct:
+    needs:
+      - config
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: central-server
+          - name: facility
+            path: facility-server
+    name: Windows VHDX (direct) for ${{ matrix.package.name }}
+    runs-on: windows-latest
+    env:
+      VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
+      VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
+      VHDX_VIRTUAL_SIZE_MB: ${{ needs.config.outputs.exp-size }}
+    steps:
+      - name: Mark job start
+        shell: bash
+        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Extract version
+        shell: bash
+        run: |
+          echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+          # phase marker: end of setup+fetch (checkout, node, version)
+          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
+
+      - name: Open VHDX
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          choco install zstandard --no-progress -y
-          # refresh PATH so zstd is visible in this session
-          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-          refreshenv
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          zstd --rm -T0 -19 $vhdx
-          $zst = (Get-Item "$vhdx.zst").Length
-          "VHDX_ZST_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "TS_ZSTD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $mount = Join-Path $PWD.Path 'vhdxmnt'
+          scripts\open-windows-vhdx.ps1 `
+            -Output     $vhdx `
+            -SizeMB     ([int]$env:VHDX_VIRTUAL_SIZE_MB) `
+            -Mount      $mount `
+            -Filesystem $env:VHDX_FILESYSTEM `
+            -Label      "Tamanu-${{ matrix.package.name }}" `
+            -Compress:($env:VHDX_COMPRESS -eq 'true')
 
-      - name: Install oras
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $ver = '1.2.0'
-          Invoke-WebRequest -Uri "https://github.com/oras-project/oras/releases/download/v$ver/oras_${ver}_windows_amd64.zip" -OutFile oras.zip
-          Expand-Archive -Path oras.zip -DestinationPath oras-bin -Force
-          "$PWD\oras-bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-          & "$PWD\oras-bin\oras.exe" version
-
-      - name: Push VHDX as a BES OCI artifact
+      # Build straight onto the mounted VHDX (vhdxmnt/), no copy step. git archive
+      # exports the tracked tree from the object store, so there's no recursion
+      # even though the mount lives under the workspace, and node_modules (which
+      # is gitignored) is never staged — we install it fresh & native below.
+      - name: Build source onto VHDX (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
-          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
-          image="ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}"
-          tag="sha-${{ needs.config.outputs.sha }}.windows-vhdx"
-          vhdx="tamanu-${{ matrix.package.name }}-${VERSION}-windows-amd64.vhdx.zst"
+          root="vhdxmnt/release-v${VERSION}"
+          mkdir -p "$root"
+          git archive HEAD | tar -xf - -C "$root"
 
-          # --artifact-type marks this as a BES artifact (empty scratch config,
-          # no os/arch), so it is not a runnable image manifest. It slots into
-          # the index below with an unknown/unknown platform, which container
-          # runtimes deliberately never select.
-          oras push "$image:$tag" \
-            --artifact-type "$VHDX_ARTIFACT_TYPE" \
-            --annotation "org.opencontainers.image.title=Tamanu ${{ matrix.package.name }} (Windows VHDX)" \
-            --annotation "org.opencontainers.image.version=${VERSION}" \
-            --annotation "org.opencontainers.image.source=https://github.com/beyondessential/tamanu/" \
-            --annotation "org.opencontainers.image.vendor=BES International" \
-            --annotation "org.opencontainers.image.licenses=GPL-3.0-or-later" \
-            --annotation "au.bes.tamanu.package=${{ matrix.package.name }}" \
-            --annotation "au.bes.tamanu.os=windows" \
-            --annotation "au.bes.tamanu.arch=amd64" \
-            "$vhdx:$VHDX_ARTIFACT_TYPE"
+          cd "$root"
+          # Point pm2's cwd at the target package (mirrors cd-package-servers).
+          sed -E "s|const cwd =.+|const cwd = 'packages/${{ matrix.package.path }}';|" \
+            "packages/${{ matrix.package.path }}/pm2.config.cjs" > pm2.config.cjs
+          # Crude docker-build-alike: the VHDX is a server artifact, so drop the
+          # React Native app (heaviest native install) rather than building it.
+          rm -rf packages/mobile
+          jq '.workspaces.packages -= ["packages/mobile"]' package.json > package.json.new
+          mv package.json.new package.json
+          # Native install (bash script shell so `prepare`/patch-package parse),
+          # then prune to production.
+          npm install --package-lock --script-shell bash
+          npm prune --omit=dev
+          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
-          # Total pushed size = sum of layer sizes + config + manifest.
-          manifest="$(oras manifest fetch "$image:$tag")"
-          registry_bytes="$(jq '[.layers[].size] + [.config.size] + [(. | tostring | length)] | add' <<<"$manifest")"
+      - name: Embed Windows Node runtime
+        shell: bash
+        run: |
+          scripts/embed-node-runtime.sh win-x64 "vhdxmnt/release-v${VERSION}"
+          echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
 
-          # Timings: whole CD process (config job start -> upload), this job
-          # alone, and each build phase (raw per-step build time).
-          cd_start="${{ needs.config.outputs.cd-start }}"
-          now="$(date +%s)"
-          total_elapsed=$(( now - cd_start ))
-          js="${WINDOWS_JOB_START:-$now}"
-          windows_elapsed=$(( now - js ))
-          # per-phase deltas (guard against missing markers on early failure)
-          setup_s=$(( ${TS_SETUP:-$js} - js ))
-          npm_s=$(( ${TS_NPM:-0} - ${TS_SETUP:-0} ))
-          embed_s=$(( ${TS_EMBED:-0} - ${TS_NPM:-0} ))
-          build_s=$(( ${TS_BUILD:-0} - ${TS_EMBED:-0} ))
-          compress_s=$(( ${TS_ZSTD:-0} - ${TS_BUILD:-0} ))
-          upload_s=$(( now - ${TS_ZSTD:-$now} ))
+      - name: Finalise VHDX (detach)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          scripts\close-windows-vhdx.ps1 -Output $env:VHDX_PATH
+          $raw = (Get-Item $env:VHDX_PATH).Length
+          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-          jq -n \
-            --arg package "${{ matrix.package.name }}" \
-            --arg variant "$EXPERIMENT_VARIANT" \
-            --arg filesystem "$VHDX_FILESYSTEM" \
-            --arg compression "$VHDX_COMPRESS" \
-            --argjson raw "${VHDX_RAW_BYTES:-0}" \
-            --argjson compressed "${VHDX_ZST_BYTES:-0}" \
-            --argjson registry "${registry_bytes:-0}" \
-            --argjson total "$total_elapsed" \
-            --argjson windows "$windows_elapsed" \
-            --argjson setup "$setup_s" \
-            --argjson npm "$npm_s" \
-            --argjson embed "$embed_s" \
-            --argjson build "$build_s" \
-            --argjson compress "$compress_s" \
-            --argjson upload "$upload_s" \
-            --arg tag "$tag" \
-            '{package:$package, variant:$variant, filesystem:$filesystem,
-              compression:$compression, vhdxRawBytes:$raw,
-              vhdxCompressedBytes:$compressed, registryBytes:$registry,
-              totalElapsedSeconds:$total, windowsElapsedSeconds:$windows,
-              phases:{ setupFetch:$setup, npmInstall:$npm, embedNode:$embed,
-                       buildVhdx:$build, compress:$compress, upload:$upload },
-              tag:$tag}' \
-            > "metrics-${{ matrix.package.name }}.json"
-          cat "metrics-${{ matrix.package.name }}.json"
-
-      - name: Upload experiment metrics
-        uses: actions/upload-artifact@v4
+      - name: Pack and report
+        uses: ./.github/actions/vhdx-pack
         with:
-          name: vhdx-metrics-${{ matrix.package.name }}
-          path: metrics-${{ matrix.package.name }}.json
-          retention-days: 15
-          if-no-files-found: error
-    outputs:
-      version: ${{ needs.windows-vhdx-prep.outputs.version }}
+          package: ${{ matrix.package.name }}
+          filesystem: ${{ needs.config.outputs.exp-fs }}
+          compression: ${{ needs.config.outputs.exp-compress }}
+          variant: ${{ needs.config.outputs.exp-variant }}
+          version: ${{ env.VERSION }}
+          sha: ${{ needs.config.outputs.sha }}
+          cd-start: ${{ needs.config.outputs.cd-start }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Collect the per-package metrics and post them as a PR comment, one comment
   # per experiment run, so we build up a record of size + time across variants.
@@ -574,7 +571,8 @@ jobs:
     needs:
       - config
       - windows-vhdx
-    if: always() && github.event_name == 'pull_request' && needs.windows-vhdx.result != 'skipped'
+      - windows-vhdx-direct
+    if: always() && github.event_name == 'pull_request' && needs.config.outputs.build-images == 'true'
     runs-on: ubuntu-latest
     name: Report VHDX experiment metrics
     steps:
@@ -662,7 +660,8 @@ jobs:
       - config
       - images
       - windows-vhdx
-    # always() so a failure/skip of the experimental windows-vhdx job never
+      - windows-vhdx-direct
+    # always() so a failure/skip of the experimental windows-vhdx jobs never
     # blocks publishing the linux multi-arch manifest; the VHDX entry is added
     # opportunistically below only when its artifact manifest exists.
     if: always() && needs.images.result == 'success'

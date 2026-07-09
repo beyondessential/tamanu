@@ -1,0 +1,144 @@
+name: Pack VHDX and report metrics
+description: >
+  Compress a built VHDX, push it to ghcr.io as a BES OCI artifact, and record
+  size + time metrics for the Windows VHDX experiment. Expects the calling job
+  to have set VHDX_PATH and VHDX_RAW_BYTES, plus the WINDOWS_JOB_START / TS_*
+  phase markers, in the environment (via GITHUB_ENV) before this runs.
+inputs:
+  package:
+    required: true
+    description: central | facility
+  filesystem:
+    required: true
+    description: NTFS | ReFS
+  compression:
+    required: true
+    description: 'true | false'
+  variant:
+    required: true
+    description: experiment label (e.g. baseline, direct-build)
+  version:
+    required: true
+    description: app version string
+  sha:
+    required: true
+    description: commit sha driving the image tags
+  cd-start:
+    required: true
+    description: epoch seconds captured at CD start (config job)
+  github-token:
+    required: true
+    description: token for ghcr.io login
+runs:
+  using: composite
+  steps:
+    - name: Compress VHDX
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        choco install zstandard --no-progress -y
+        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+        refreshenv
+        $vhdx = $env:VHDX_PATH
+        zstd --rm -T0 -19 $vhdx
+        $zst = (Get-Item "$vhdx.zst").Length
+        "VHDX_ZST_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        "TS_ZSTD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+    - name: Install oras
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $ver = '1.2.0'
+        Invoke-WebRequest -Uri "https://github.com/oras-project/oras/releases/download/v$ver/oras_${ver}_windows_amd64.zip" -OutFile oras.zip
+        Expand-Archive -Path oras.zip -DestinationPath oras-bin -Force
+        "$PWD\oras-bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+        & "$PWD\oras-bin\oras.exe" version
+
+    - name: Push VHDX and record metrics
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PKG: ${{ inputs.package }}
+        FS: ${{ inputs.filesystem }}
+        COMPRESSION: ${{ inputs.compression }}
+        VARIANT: ${{ inputs.variant }}
+        VERSION: ${{ inputs.version }}
+        SHA: ${{ inputs.sha }}
+        CD_START: ${{ inputs.cd-start }}
+        ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
+      run: |
+        set -euxo pipefail
+        echo "$GH_TOKEN" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
+        image="ghcr.io/beyondessential/tamanu-$PKG"
+        tag="sha-$SHA.windows-vhdx"
+        vhdx="tamanu-$PKG-$VERSION-windows-amd64.vhdx.zst"
+
+        # --artifact-type marks this a BES artifact (empty scratch config, no
+        # os/arch), so it is not a runnable image manifest. It slots into the
+        # multi-arch index with an unknown/unknown platform that container
+        # runtimes deliberately never select.
+        oras push "$image:$tag" \
+          --artifact-type "$ARTIFACT_TYPE" \
+          --annotation "org.opencontainers.image.title=Tamanu $PKG (Windows VHDX)" \
+          --annotation "org.opencontainers.image.version=$VERSION" \
+          --annotation "org.opencontainers.image.source=https://github.com/beyondessential/tamanu/" \
+          --annotation "org.opencontainers.image.vendor=BES International" \
+          --annotation "org.opencontainers.image.licenses=GPL-3.0-or-later" \
+          --annotation "au.bes.tamanu.package=$PKG" \
+          --annotation "au.bes.tamanu.os=windows" \
+          --annotation "au.bes.tamanu.arch=amd64" \
+          --annotation "au.bes.tamanu.variant=$VARIANT" \
+          "$vhdx:$ARTIFACT_TYPE"
+
+        # Total pushed size = sum of layer sizes + config + manifest.
+        manifest="$(oras manifest fetch "$image:$tag")"
+        registry_bytes="$(jq '[.layers[].size] + [.config.size] + [(. | tostring | length)] | add' <<<"$manifest")"
+
+        # Timings: whole CD process (config start -> upload), this job alone, and
+        # each build phase (raw per-step build time).
+        now="$(date +%s)"
+        total_elapsed=$(( now - CD_START ))
+        js="${WINDOWS_JOB_START:-$now}"
+        windows_elapsed=$(( now - js ))
+        setup_s=$(( ${TS_SETUP:-$js} - js ))
+        npm_s=$(( ${TS_NPM:-0} - ${TS_SETUP:-0} ))
+        embed_s=$(( ${TS_EMBED:-0} - ${TS_NPM:-0} ))
+        build_s=$(( ${TS_BUILD:-0} - ${TS_EMBED:-0} ))
+        compress_s=$(( ${TS_ZSTD:-0} - ${TS_BUILD:-0} ))
+        upload_s=$(( now - ${TS_ZSTD:-$now} ))
+
+        jq -n \
+          --arg package "$PKG" \
+          --arg variant "$VARIANT" \
+          --arg filesystem "$FS" \
+          --arg compression "$COMPRESSION" \
+          --argjson raw "${VHDX_RAW_BYTES:-0}" \
+          --argjson compressed "${VHDX_ZST_BYTES:-0}" \
+          --argjson registry "${registry_bytes:-0}" \
+          --argjson total "$total_elapsed" \
+          --argjson windows "$windows_elapsed" \
+          --argjson setup "$setup_s" \
+          --argjson npm "$npm_s" \
+          --argjson embed "$embed_s" \
+          --argjson build "$build_s" \
+          --argjson compress "$compress_s" \
+          --argjson upload "$upload_s" \
+          --arg tag "$tag" \
+          '{package:$package, variant:$variant, filesystem:$filesystem,
+            compression:$compression, vhdxRawBytes:$raw,
+            vhdxCompressedBytes:$compressed, registryBytes:$registry,
+            totalElapsedSeconds:$total, windowsElapsedSeconds:$windows,
+            phases:{ setupFetch:$setup, npmInstall:$npm, embedNode:$embed,
+                     buildVhdx:$build, compress:$compress, upload:$upload },
+            tag:$tag}' \
+          > "metrics-$PKG.json"
+        cat "metrics-$PKG.json"
+
+    - name: Upload experiment metrics
+      uses: actions/upload-artifact@v4
+      with:
+        name: vhdx-metrics-${{ inputs.package }}
+        path: metrics-${{ inputs.package }}.json
+        retention-days: 15
+        if-no-files-found: error
