@@ -30,8 +30,9 @@ Priority-ordered. Only cards we've talked through are detailed; the rest will be
 
 1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow. 
 2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
-3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
-4. **Prevent duplicates.** An individual test that is already covered by a selected panel cannot also be selected on its own — the workflow stops the double entry rather than just warning about it.
+   3. 
+4. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
+5. **Prevent duplicates.** An individual test that is already covered by a selected panel cannot also be selected on its own — the workflow stops the double entry rather than just warning about it.
 
 Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
 
