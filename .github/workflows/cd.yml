@@ -47,6 +47,9 @@ jobs:
     name: Workflow config
     runs-on: ubuntu-latest
     steps:
+      - name: Mark CD start
+        id: cdstart
+        run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
       - name: Figure branch ref and sha
         id: ref
@@ -140,6 +143,7 @@ jobs:
     outputs:
       ref: ${{ steps.ref.outputs.result }}
       sha: ${{ steps.sha.outputs.sha }}
+      cd-start: ${{ steps.cdstart.outputs.epoch }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
       mobile: ${{ steps.config.outputs.mobile }}
@@ -355,7 +359,16 @@ jobs:
       # BES-specific artifact type so this is never mistaken for a runnable
       # container image by a Windows container runtime.
       VHDX_ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
+      # --- Experiment knobs (flip per experiment; see PR description) ---------
+      # variant is just a label used in the measurement comment.
+      EXPERIMENT_VARIANT: baseline
+      VHDX_FILESYSTEM: NTFS   # NTFS | ReFS
+      VHDX_COMPRESS: 'false'  # 'true' enables transparent FS compression (NTFS)
     steps:
+      - name: Mark job start
+        shell: bash
+        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.config.outputs.ref }}
@@ -373,28 +386,41 @@ jobs:
 
       - name: Unzip bundle
         shell: bash
-        run: unzip -q release-v${VERSION}.zip
+        run: |
+          unzip -q release-v${VERSION}.zip
+          # phase marker: end of setup+fetch (checkout, node, download, unzip)
+          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
       # The whole point: install node_modules natively on Windows.
       - name: Reinstall dependencies (Windows-native)
-        working-directory: release-v${{ env.VERSION }}
         shell: bash
         run: |
           export NODE_ENV=production
-          npm install --userconfig .npmrc.timeout --package-lock
+          ( cd "release-v${VERSION}" && npm install --userconfig .npmrc.timeout --package-lock )
+          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
         shell: bash
-        run: scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
+        run: |
+          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
+          echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
 
-      - name: Build NTFS VHDX (native diskpart)
+      - name: Build VHDX (native diskpart)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          $compress = ($env:VHDX_COMPRESS -eq 'true')
           scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir "release-v$env:VERSION" `
-            -Output     "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx" `
-            -Label      "Tamanu-${{ matrix.package.name }}"
+            -ReleaseDir  "release-v$env:VERSION" `
+            -Output      $vhdx `
+            -Label       "Tamanu-${{ matrix.package.name }}" `
+            -Filesystem  $env:VHDX_FILESYSTEM `
+            -Compress:$compress
+          # Record the raw (on-disk) VHDX size before compression removes it.
+          $raw = (Get-Item $vhdx).Length
+          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Compress VHDX
         shell: pwsh
@@ -404,7 +430,11 @@ jobs:
           # refresh PATH so zstd is visible in this session
           Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
           refreshenv
-          zstd --rm -T0 -19 "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          zstd --rm -T0 -19 $vhdx
+          $zst = (Get-Item "$vhdx.zst").Length
+          "VHDX_ZST_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TS_ZSTD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Install oras
         shell: pwsh
@@ -440,8 +470,151 @@ jobs:
             --annotation "au.bes.tamanu.os=windows" \
             --annotation "au.bes.tamanu.arch=amd64" \
             "$vhdx:$VHDX_ARTIFACT_TYPE"
+
+          # Total pushed size = sum of layer sizes + config + manifest.
+          manifest="$(oras manifest fetch "$image:$tag")"
+          registry_bytes="$(jq '[.layers[].size] + [.config.size] + [(. | tostring | length)] | add' <<<"$manifest")"
+
+          # Timings: whole CD process (config job start -> upload), this job
+          # alone, and each build phase (raw per-step build time).
+          cd_start="${{ needs.config.outputs.cd-start }}"
+          now="$(date +%s)"
+          total_elapsed=$(( now - cd_start ))
+          js="${WINDOWS_JOB_START:-$now}"
+          windows_elapsed=$(( now - js ))
+          # per-phase deltas (guard against missing markers on early failure)
+          setup_s=$(( ${TS_SETUP:-$js} - js ))
+          npm_s=$(( ${TS_NPM:-0} - ${TS_SETUP:-0} ))
+          embed_s=$(( ${TS_EMBED:-0} - ${TS_NPM:-0} ))
+          build_s=$(( ${TS_BUILD:-0} - ${TS_EMBED:-0} ))
+          compress_s=$(( ${TS_ZSTD:-0} - ${TS_BUILD:-0} ))
+          upload_s=$(( now - ${TS_ZSTD:-$now} ))
+
+          jq -n \
+            --arg package "${{ matrix.package.name }}" \
+            --arg variant "$EXPERIMENT_VARIANT" \
+            --arg filesystem "$VHDX_FILESYSTEM" \
+            --arg compression "$VHDX_COMPRESS" \
+            --argjson raw "${VHDX_RAW_BYTES:-0}" \
+            --argjson compressed "${VHDX_ZST_BYTES:-0}" \
+            --argjson registry "${registry_bytes:-0}" \
+            --argjson total "$total_elapsed" \
+            --argjson windows "$windows_elapsed" \
+            --argjson setup "$setup_s" \
+            --argjson npm "$npm_s" \
+            --argjson embed "$embed_s" \
+            --argjson build "$build_s" \
+            --argjson compress "$compress_s" \
+            --argjson upload "$upload_s" \
+            --arg tag "$tag" \
+            '{package:$package, variant:$variant, filesystem:$filesystem,
+              compression:$compression, vhdxRawBytes:$raw,
+              vhdxCompressedBytes:$compressed, registryBytes:$registry,
+              totalElapsedSeconds:$total, windowsElapsedSeconds:$windows,
+              phases:{ setupFetch:$setup, npmInstall:$npm, embedNode:$embed,
+                       buildVhdx:$build, compress:$compress, upload:$upload },
+              tag:$tag}' \
+            > "metrics-${{ matrix.package.name }}.json"
+          cat "metrics-${{ matrix.package.name }}.json"
+
+      - name: Upload experiment metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: vhdx-metrics-${{ matrix.package.name }}
+          path: metrics-${{ matrix.package.name }}.json
+          retention-days: 15
+          if-no-files-found: error
     outputs:
       version: ${{ needs.windows-vhdx-prep.outputs.version }}
+
+  # Collect the per-package metrics and post them as a PR comment, one comment
+  # per experiment run, so we build up a record of size + time across variants.
+  windows-vhdx-report:
+    needs:
+      - config
+      - windows-vhdx
+    if: always() && github.event_name == 'pull_request' && needs.windows-vhdx.result != 'skipped'
+    runs-on: ubuntu-latest
+    name: Report VHDX experiment metrics
+    steps:
+      - name: Download metrics
+        uses: actions/download-artifact@v4
+        with:
+          pattern: vhdx-metrics-*
+          merge-multiple: true
+          path: metrics
+
+      - name: Build comment
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(metrics/metrics-*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "no metrics files; windows-vhdx likely failed before upload" >&2
+            echo "SKIP_COMMENT=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          mib() { awk -v b="$1" 'BEGIN{ if(b=="null"||b==""){b=0}; printf "%.1f", b/1048576 }'; }
+          hms() { awk -v s="$1" 'BEGIN{ printf "%d:%02d", int(s/60), s%60 }'; }
+
+          variant="$(jq -r '.variant' "${files[0]}")"
+          filesystem="$(jq -r '.filesystem' "${files[0]}")"
+          compression="$(jq -r '.compression' "${files[0]}")"
+
+          {
+            echo "## Windows VHDX experiment — \`$variant\`"
+            echo
+            echo "- Filesystem: **$filesystem**  |  Compression: **$compression**"
+            echo "- Run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})  |  commit \`${{ needs.config.outputs.sha }}\`"
+            echo
+            echo "### Size &amp; total time"
+            echo
+            echo "| Package | VHDX raw (MiB) | Uploaded zst (MiB) | Registry total (MiB) | CD→upload (mm:ss) | Windows job (mm:ss) |"
+            echo "|:--|--:|--:|--:|--:|--:|"
+            for f in "${files[@]}"; do
+              pkg="$(jq -r '.package' "$f")"
+              raw="$(mib "$(jq -r '.vhdxRawBytes' "$f")")"
+              zst="$(mib "$(jq -r '.vhdxCompressedBytes' "$f")")"
+              reg="$(mib "$(jq -r '.registryBytes' "$f")")"
+              tot="$(hms "$(jq -r '.totalElapsedSeconds' "$f")")"
+              win="$(hms "$(jq -r '.windowsElapsedSeconds' "$f")")"
+              echo "| $pkg | $raw | $zst | $reg | $tot | $win |"
+            done
+            echo
+            echo "### Per-step build time (mm:ss)"
+            echo
+            echo "| Package | setup+fetch | npm install | embed node | build VHDX | compress | upload |"
+            echo "|:--|--:|--:|--:|--:|--:|--:|"
+            for f in "${files[@]}"; do
+              pkg="$(jq -r '.package' "$f")"
+              s="$(hms "$(jq -r '.phases.setupFetch' "$f")")"
+              n="$(hms "$(jq -r '.phases.npmInstall' "$f")")"
+              e="$(hms "$(jq -r '.phases.embedNode' "$f")")"
+              b="$(hms "$(jq -r '.phases.buildVhdx' "$f")")"
+              c="$(hms "$(jq -r '.phases.compress' "$f")")"
+              u="$(hms "$(jq -r '.phases.upload' "$f")")"
+              echo "| $pkg | $s | $n | $e | $b | $c | $u |"
+            done
+            echo
+            echo "_CD→upload is measured from workflow start to the VHDX upload completing, so it includes the linux image build feeding the bundle. setup+fetch is measured from the start of the Windows job (checkout, node setup, artifact download, unzip)._"
+          } > comment.md
+          cat comment.md
+
+      - name: Post comment
+        if: env.SKIP_COMMENT != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('comment.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
 
   multi-arch:
     needs:

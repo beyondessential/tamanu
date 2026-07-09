@@ -1,13 +1,9 @@
 name: Migration determinism
 
+# NOTE: disabled to workflow_dispatch-only on the experimental branch
+# claude/windows-vhdx-oci-artifact-f6qhdy to avoid unneeded GHA churn.
 on:
   workflow_dispatch:
-  merge_group:
-  pull_request:
-  push:
-    branches:
-      - main
-      - release/*
 permissions:
   contents: read
 

@@ -10,10 +10,10 @@ name: DAST
 # Opt-in on PRs via the `#dast` checkbox, and runs automatically in the merge
 # queue.
 
+# NOTE: disabled to workflow_dispatch-only on the experimental branch
+# claude/windows-vhdx-oci-artifact-f6qhdy to avoid unneeded GHA churn.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
-  merge_group:
+  workflow_dispatch:
 
 permissions:
   contents: read
