@@ -526,7 +526,9 @@ jobs:
               | oras manifest push --media-type "$index_type" "$image:$target" -
           }
 
-          process() { retag "$1"; append_vhdx "$1"; }
+          # append is best-effort: the linux index is already pushed by retag,
+          # so a VHDX append failure must never fail this job.
+          process() { retag "$1"; append_vhdx "$1" || echo "VHDX append skipped for $1"; }
 
           process "$sha"
 
