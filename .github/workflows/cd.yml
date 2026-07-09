@@ -597,6 +597,41 @@ jobs:
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
+      # Experiment 7: derive the existing windows tar/zip artifact FROM the
+      # finished VHDX (mount read-only + tar), instead of a second from-scratch
+      # npm install like cd-package-servers.yml does. Runs before Pack (which
+      # zstd --rm's the raw VHDX). Proves one build feeds both artifacts and
+      # measures the derivation cost vs a native npm install.
+      - name: Derive legacy windows tar from the finished VHDX (exp 7)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $t0 = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+          $tar = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows.tar"
+          scripts\legacy-tar-from-vhdx.ps1 `
+            -Vhdx        $env:VHDX_PATH `
+            -ReleaseName "release-v$env:VERSION" `
+            -OutTar      $tar
+
+          # match cd-package-servers naming: <pkg>-<version>-windows.tar.zst
+          choco install zstandard --no-progress -y | Out-Null
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
+          zstd --rm -T0 -19 $tar
+          $t1 = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+          "LEGACY_TAR_SECONDS=$($t1 - $t0)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $zst = (Get-Item "$tar.zst").Length
+          "LEGACY_TAR_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host ("legacy $tar.zst: {0:N1} MiB derived in {1}s" -f ($zst/1MB), ($t1 - $t0))
+
+      - name: Upload legacy windows tar (exp 7)
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-windows-tar-${{ matrix.package.name }}
+          path: tamanu-${{ matrix.package.name }}-${{ env.VERSION }}-windows.tar.zst
+          retention-days: 15
+          if-no-files-found: error
+
       - name: Pack and report
         uses: ./.github/actions/vhdx-pack
         with:
@@ -681,6 +716,24 @@ jobs:
               echo "| $pkg | $s | $n | $e | $b | $c | $u |"
             done
             echo
+            # Experiment 7: legacy windows tar derived from the finished VHDX.
+            legacy="$(jq -r 'select((.legacyTarSeconds // 0) > 0) | "\(.package): \(.legacyTarBytes) bytes in \(.legacyTarSeconds)s"' "${files[@]}" 2>/dev/null || true)"
+            if [ -n "$legacy" ]; then
+              echo "### Legacy windows tar derived from the VHDX (exp 7)"
+              echo
+              echo "| Package | tar.zst (MiB) | derivation (mm:ss) |"
+              echo "|:--|--:|--:|"
+              for f in "${files[@]}"; do
+                ls="$(jq -r '.legacyTarSeconds // 0' "$f")"
+                [ "$ls" != "0" ] || continue
+                pkg="$(jq -r '.package' "$f")"
+                lb="$(mib "$(jq -r '.legacyTarBytes' "$f")")"
+                echo "| $pkg | $lb | $(hms "$ls") |"
+              done
+              echo
+              echo "_Derivation = mount the finished VHDX read-only + tar its release tree + zstd, vs a from-scratch native \`npm install\` in cd-package-servers.yml (~4-8 min)._"
+              echo
+            fi
             echo "_CD→upload is measured from workflow start to the VHDX upload completing, so it includes the linux image build feeding the bundle. setup+fetch is measured from the start of the Windows job (checkout, node setup, artifact download, unzip)._"
           } > comment.md
           cat comment.md
