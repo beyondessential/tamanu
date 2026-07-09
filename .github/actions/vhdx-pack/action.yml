@@ -87,26 +87,27 @@ runs:
         tag="sha-$SHA.windows-vhdx"
         vhdx="tamanu-$PKG-$VERSION-windows-amd64.vhdx.zst"
 
-        # Runtime config blob, mirroring a Docker image config: how to run what's
-        # inside the VHDX once mounted (WorkingDir relative to the volume root,
-        # Env, Entrypoint/Cmd, ExposedPorts). Paths are Windows-style, relative
-        # to the ROOT_DIR the bundle sits under on the volume.
+        # Runtime config blob, mirroring the linux Docker image config: how to run
+        # what's inside the VHDX once mounted. WorkingDir is relative to the volume
+        # root ($ROOT_DIR maps to the container's /app); paths use forward slashes
+        # like the Docker config. Values match the production images exactly — the
+        # servers via docker-entrypoint.sh's effective `node --import tsx app serve`
+        # (NOT the bare-metal pm2 path), the frontends via caddy.
         if [ "$KIND" = "frontend" ]; then
           runcfg="$(jq -n --arg wd "$ROOT_DIR" '{
             WorkingDir: $wd,
             Env: ["NODE_ENV=production"],
-            Entrypoint: ["caddy.exe","run","--config","Caddyfile","--adapter","caddyfile"],
-            Cmd: [],
+            Entrypoint: ["caddy"],
+            Cmd: ["run","--config","Caddyfile","--adapter","caddyfile"],
             ExposedPorts: {"3000/tcp": {}}
           }')"
         else
           runcfg="$(jq -n --arg wd "$ROOT_DIR" --arg pp "$PKG_PATH" '{
-            WorkingDir: $wd,
-            Env: ["NODE_ENV=production", ("NODE_CONFIG_DIR=packages/" + $pp + "/config/"), "PORT=3000"],
-            Entrypoint: ["runtime\\node.exe","--import","tsx", ("packages\\" + $pp + "\\app")],
+            WorkingDir: ($wd + "/packages/" + $pp),
+            Env: ["NODE_ENV=production", "PORT=3000", "NODE_CONFIG_DIR=config/"],
+            Entrypoint: ["node","--import","tsx","app"],
             Cmd: ["serve"],
-            ExposedPorts: {"3000/tcp": {}},
-            Pm2Config: "pm2.config.cjs"
+            ExposedPorts: {"3000/tcp": {}}
           }')"
         fi
         jq -n \
