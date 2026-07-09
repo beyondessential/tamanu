@@ -17,7 +17,7 @@ export const findAdministrationTimeSlotFromIdealTime = idealTime => {
     const start = getDateFromTimeString(slot.startTime).getTime();
     if (ideal < start) return false;
     const end = getDateFromTimeString(slot.endTime).getTime();
-    return ideal < end && ideal - start < end - start;
+    return ideal < end;
   });
 
   return {
