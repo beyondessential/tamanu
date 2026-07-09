@@ -60,6 +60,7 @@ jobs:
             echo "fs=${VHDX_FILESYSTEM}"
             echo "compress=${VHDX_COMPRESS}"
             echo "direct=${VHDX_DIRECT_BUILD}"
+            echo "optimize=${VHDX_OPTIMIZE:-false}"
             echo "size=${VHDX_VIRTUAL_SIZE_MB}"
           } | tee -a "$GITHUB_OUTPUT"
       - name: Figure branch ref and sha
@@ -159,6 +160,7 @@ jobs:
       exp-fs: ${{ steps.exp.outputs.fs }}
       exp-compress: ${{ steps.exp.outputs.compress }}
       exp-direct: ${{ steps.exp.outputs.direct }}
+      exp-optimize: ${{ steps.exp.outputs.optimize }}
       exp-size: ${{ steps.exp.outputs.size }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
@@ -378,6 +380,7 @@ jobs:
       VERSION: ${{ needs.windows-vhdx-prep.outputs.version }}
       VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
       VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
+      VHDX_OPTIMIZE: ${{ needs.config.outputs.exp-optimize }}
     steps:
       - name: Mark job start
         shell: bash
@@ -436,6 +439,7 @@ jobs:
             -Label       "Tamanu-${{ matrix.package.name }}" `
             -Filesystem  $env:VHDX_FILESYSTEM `
             -Compress:($env:VHDX_COMPRESS -eq 'true')
+          if ($env:VHDX_OPTIMIZE -eq 'true') { scripts\optimize-windows-vhdx.ps1 -Output $vhdx }
           $raw = (Get-Item $vhdx).Length
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -474,6 +478,7 @@ jobs:
       VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
       VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
       VHDX_VIRTUAL_SIZE_MB: ${{ needs.config.outputs.exp-size }}
+      VHDX_OPTIMIZE: ${{ needs.config.outputs.exp-optimize }}
     steps:
       - name: Mark job start
         shell: bash
@@ -554,6 +559,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           scripts\close-windows-vhdx.ps1 -Output $env:VHDX_PATH
+          if ($env:VHDX_OPTIMIZE -eq 'true') { scripts\optimize-windows-vhdx.ps1 -Output $env:VHDX_PATH }
           $raw = (Get-Item $env:VHDX_PATH).Length
           "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
