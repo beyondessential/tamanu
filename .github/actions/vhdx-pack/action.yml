@@ -146,10 +146,13 @@ runs:
         total_elapsed=$(( now - CD_START ))
         js="${WINDOWS_JOB_START:-$now}"
         windows_elapsed=$(( now - js ))
+        # Frontends have no embed-node step; default TS_EMBED to TS_NPM so the
+        # embed phase reads 0 and buildVhdx spans npm -> build (not garbage).
+        ts_embed="${TS_EMBED:-${TS_NPM:-0}}"
         setup_s=$(( ${TS_SETUP:-$js} - js ))
         npm_s=$(( ${TS_NPM:-0} - ${TS_SETUP:-0} ))
-        embed_s=$(( ${TS_EMBED:-0} - ${TS_NPM:-0} ))
-        build_s=$(( ${TS_BUILD:-0} - ${TS_EMBED:-0} ))
+        embed_s=$(( ts_embed - ${TS_NPM:-0} ))
+        build_s=$(( ${TS_BUILD:-0} - ts_embed ))
         compress_s=$(( ${TS_ZSTD:-0} - ${TS_BUILD:-0} ))
         upload_s=$(( now - ${TS_ZSTD:-$now} ))
 
