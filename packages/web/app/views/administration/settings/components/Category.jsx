@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
 import KeyIcon from '@mui/icons-material/Key';
 import WarningIcon from '@mui/icons-material/WarningAmber';
+import { escapeRegExp } from 'es-toolkit/compat';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
 import { isSetting } from '@tamanu/settings/schema';
@@ -14,8 +15,7 @@ import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
-import { formatSettingName } from '../EditorView';
-import { escapeRegExp } from '../filterSettingsSchema';
+import { formatSettingName } from '../formatSettingName';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;

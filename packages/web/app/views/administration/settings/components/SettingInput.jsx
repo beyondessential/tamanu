@@ -26,7 +26,7 @@ import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
 import { useParsedCronExpression } from '../../../../utils/useParsedCronExpression';
-import { formatSettingName } from '../EditorView';
+import { formatSettingName } from '../formatSettingName';
 import { SettingsSubmitContext } from './SettingsSubmitContext';
 
 // Shared width for the main setting inputs so they all fill the input column

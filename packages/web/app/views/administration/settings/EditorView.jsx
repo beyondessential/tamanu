@@ -1,6 +1,5 @@
 import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import {
-  capitalize,
   cloneDeep,
   get,
   isEqual,
@@ -8,7 +7,6 @@ import {
   omitBy,
   pickBy,
   set,
-  startCase,
 } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
@@ -23,6 +21,7 @@ import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
 import { SettingsSubmitContext } from './components/SettingsSubmitContext';
 import { filterSettingsSchema } from './filterSettingsSchema';
+import { formatSettingName } from './formatSettingName';
 import { notifyError } from '../../../utils';
 
 const SettingsWrapper = styled.div`
@@ -85,7 +84,8 @@ const ButtonGroup = styled.div`
 
 const UNCATEGORISED_KEY = 'uncategorised';
 
-export const formatSettingName = (name, path) => name || capitalize(startCase(path));
+// a single character matches half the schema
+const MIN_SEARCH_LENGTH = 2;
 
 const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
@@ -199,8 +199,6 @@ export const EditorView = memo(
     const [subCategory, setSubCategory] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [failedSubmits, setFailedSubmits] = useState(0);
-    // a single character matches half the schema
-    const MIN_SEARCH_LENGTH = 2;
     // defer filtering so broad queries don't freeze typing
     const deferredSearchQuery = useDeferredValue(searchQuery);
     // drives the rendered body; lags the input while a deferred render is pending

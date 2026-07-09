@@ -1,14 +1,11 @@
-import { capitalize, startCase } from 'es-toolkit/compat';
+import { escapeRegExp } from 'es-toolkit/compat';
 import { isSetting } from '@tamanu/settings/schema';
 
-// Same display-name derivation as the editor rows (see formatSettingName).
-const displayName = (node, key) => node.name || capitalize(startCase(key));
+import { formatSettingName } from './formatSettingName';
 
 // Split camelCase so key paths expose word boundaries ("maxPageSize" ->
 // "max page size"), then lowercase for case-insensitive comparison.
 const normalise = text => text.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
-
-export const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const NO_MATCH = Infinity;
 
@@ -37,7 +34,7 @@ export const filterSettingsSchema = (schema, query) => {
 
   const tierOf = (node, key, path) => {
     const isLeaf = isSetting(node) || !node.properties;
-    const name = displayName(node, key);
+    const name = formatSettingName(node.name, key);
     if (atWordStart(name) || atWordStart(path)) return isLeaf ? 1 : 3;
     if (anywhere(name) || anywhere(path)) return isLeaf ? 2 : 4;
     // leaf-only: group descriptions are never shown, and a hit there would
@@ -48,7 +45,7 @@ export const filterSettingsSchema = (schema, query) => {
     return NO_MATCH;
   };
 
-  const isExact = (node, key) => normalise(displayName(node, key)) === needle;
+  const isExact = (node, key) => normalise(formatSettingName(node.name, key)) === needle;
 
   const filterNode = (node, key, path) => {
     const own = tierOf(node, key, path);
