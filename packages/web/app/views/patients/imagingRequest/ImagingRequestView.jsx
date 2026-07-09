@@ -1,45 +1,46 @@
-import React, { useCallback } from 'react';
-import * as yup from 'yup';
-import { useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router';
 import { pick } from 'es-toolkit/compat';
+import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import {
+  FORM_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
-  FORM_TYPES,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
-  TextField,
-  TranslatedSelectField,
-  TextInput,
-  Form,
-  ButtonRow,
-  FormGrid,
+  AutocompleteField,
   Button,
+  ButtonRow,
+  DateTimeField,
+  DateTimeInput,
+  Field,
+  Form,
+  FormGrid,
   FormSubmitButton,
+  TextField,
+  TextInput,
+  TranslatedSelectField,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-
-import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
-
-import { useLocalisation } from '../../../contexts/Localisation';
-import { useApi, useSuggester } from '../../../api';
-
+import { SimpleTopBar } from '../../../components';
 import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { AutocompleteField, DateTimeField, DateTimeInput, Field } from '../../../components/Field';
-import { SimpleTopBar } from '../../../components';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
+import { useAuth } from '../../../contexts/Auth';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText } from '../../../components/Translation';
-import { useTranslation } from '../../../contexts/Translation';
-import { useSettings } from '../../../contexts/Settings';
-import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -60,68 +61,44 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
     <FormGrid columns={3} data-testid="formgrid-ayrj">
       <TextInput
         value={imagingRequest.displayId}
-        label={
-          <TranslatedText
-            stringId="general.requestId.label"
-            fallback="Request ID"
-            data-testid="translatedtext-21qt"
-          />
-        }
+        label={<TranslatedText stringId="general.requestId.label" fallback="Request ID" />}
         disabled
         data-testid="textinput-jqfd"
       />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label={
-          <TranslatedText
-            stringId="general.requestType.label"
-            fallback="Request type"
-            data-testid="translatedtext-3a1d"
-          />
-        }
+        label={<TranslatedText stringId="general.requestType.label" fallback="Request type" />}
         disabled
         data-testid="textinput-wgcp"
       />
       <TextInput
         value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
-        label={
-          <TranslatedText
-            stringId="imaging.priority.label"
-            fallback="Priority"
-            data-testid="translatedtext-jr52"
-          />
-        }
+        label={<TranslatedText stringId="imaging.priority.label" fallback="Priority" />}
         disabled
         data-testid="textinput-z6l1"
       />
       <NoteModalActionBlocker>
         <Field
           name="status"
-          label={
-            <TranslatedText
-              stringId="general.status.label"
-              fallback="Status"
-              data-testid="translatedtext-jnts"
-            />
-          }
+          label={<TranslatedText stringId="general.status.label" fallback="Status" />}
           component={TranslatedSelectField}
           enumValues={IMAGING_REQUEST_STATUS_LABELS}
           transformOptions={options => {
             return isCancelled
               ? [
-                {
-                  label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
-                  value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                },
-              ]
+                  {
+                    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
+                    value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                  },
+                ]
               : options.filter(
-                option =>
-                  ![
-                    IMAGING_REQUEST_STATUS_TYPES.DELETED,
-                    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-                    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                  ].includes(option.value),
-              );
+                  option =>
+                    ![
+                      IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                    ].includes(option.value),
+                );
           }}
           disabled={isCancelled}
           isClearable={false}
@@ -132,24 +109,14 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
-          <TranslatedText
-            stringId="general.requestDateTime.label"
-            fallback="Request date & time"
-            data-testid="translatedtext-x375"
-          />
+          <TranslatedText stringId="general.requestDateTime.label" fallback="Request date & time" />
         }
         disabled
         data-testid="datetimeinput-xhue"
       />
       {allowLocationChange && (
         <Field
-          label={
-            <TranslatedText
-              stringId="imaging.facilityArea.label"
-              fallback="Facility area"
-              data-testid="translatedtext-tqtb"
-            />
-          }
+          label={<TranslatedText stringId="imaging.facilityArea.label" fallback="Facility area" />}
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -162,19 +129,13 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
             ? imagingRequest.areas
-              .map(area =>
-                getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
-              )
-              .join(', ')
+                .map(area =>
+                  getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
+                )
+                .join(', ')
             : imagingRequest.areaNote
         }
-        label={
-          <TranslatedText
-            stringId="imaging.areas.label"
-            fallback="Areas to be imaged"
-            data-testid="translatedtext-f41e"
-          />
-        }
+        label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
         data-testid="textinput-qs8j"
@@ -182,16 +143,10 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
-          .map((note) => note.content)
+          ?.filter(note => note.noteTypeId === NOTE_TYPES.OTHER)
+          .map(note => note.content)
           .join('\n')}
-        label={
-          <TranslatedText
-            stringId="general.notes.label"
-            fallback="Notes"
-            data-testid="translatedtext-rx0x"
-          />
-        }
+        label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
         data-testid="textinput-ll77"
@@ -217,13 +172,7 @@ const NewResultSection = ({ disabled = false }) => {
     <FormGrid columns={2} data-testid="formgrid-j2u1">
       <Wrapper>
         <Field
-          label={
-            <TranslatedText
-              stringId="imaging.completedBy.label"
-              fallback="Completed by"
-              data-testid="translatedtext-wjkc"
-            />
-          }
+          label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
           name="newResult.completedById"
           placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
           component={AutocompleteField}
@@ -232,13 +181,7 @@ const NewResultSection = ({ disabled = false }) => {
           data-testid="field-ta7y"
         />
         <Field
-          label={
-            <TranslatedText
-              stringId="imaging.completedDate.label"
-              fallback="Completed"
-              data-testid="translatedtext-iiin"
-            />
-          }
+          label={<TranslatedText stringId="imaging.completedDate.label" fallback="Completed" />}
           name="newResult.completedAt"
           component={DateTimeField}
           disabled={disabled}
@@ -246,11 +189,7 @@ const NewResultSection = ({ disabled = false }) => {
         />
         <Field
           label={
-            <TranslatedText
-              stringId="imaging.description.label"
-              fallback="Result description"
-              data-testid="translatedtext-3ezd"
-            />
+            <TranslatedText stringId="imaging.description.label" fallback="Result description" />
           }
           name="newResult.description"
           placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
@@ -277,25 +216,13 @@ const ImagingResultRow = ({ result }) => {
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2} data-testid="bottomalignformgrid-b6k1">
       <TextInput
-        label={
-          <TranslatedText
-            stringId="imaging.completedBy.label"
-            fallback="Completed by"
-            data-testid="translatedtext-jdmy"
-          />
-        }
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
         disabled
         data-testid="textinput-j2ac"
       />
       <DateTimeInput
-        label={
-          <TranslatedText
-            stringId="imaging.completedAt.label"
-            fallback="Completed"
-            data-testid="translatedtext-lmiu"
-          />
-        }
+        label={<TranslatedText stringId="imaging.completedAt.label" fallback="Completed" />}
         value={completedAt}
         disabled
         data-testid="datetimeinput-qfj9"
@@ -307,11 +234,7 @@ const ImagingResultRow = ({ result }) => {
       )}
       <TextInput
         label={
-          <TranslatedText
-            stringId="imaging.description.label"
-            fallback="Result description"
-            data-testid="translatedtext-xfg3"
-          />
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         value={description ?? ''}
         multiline
@@ -376,13 +299,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
         status: yup
           .string()
           .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="general.status.label"
-              fallback="Status"
-              data-testid="translatedtext-9bdx"
-            />,
-          ),
+          .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}
       render={({ values }) => {
         const canAddResult = getCanAddResult(values);
@@ -402,14 +319,9 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
                 <TranslatedText
                   stringId="imaging.action.addAdditionalResult"
                   fallback="Add additional result"
-                  data-testid="translatedtext-zjrx"
                 />
               ) : (
-                <TranslatedText
-                  stringId="imaging.action.addResult"
-                  fallback="Add result"
-                  data-testid="translatedtext-xf9c"
-                />
+                <TranslatedText stringId="imaging.action.addResult" fallback="Add result" />
               )}
             </h4>
             <NewResultSection disabled={!canAddResult} data-testid="newresultsection-poyy" />
@@ -417,13 +329,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
               {!isCancelled && (
                 <NoteModalActionBlocker>
                   <FormSubmitButton
-                    text={
-                      <TranslatedText
-                        stringId="general.action.save"
-                        fallback="Save"
-                        data-testid="translatedtext-wp3m"
-                      />
-                    }
+                    text={<TranslatedText stringId="general.action.save" fallback="Save" />}
                     data-testid="formsubmitbutton-nisz"
                   />
                 </NoteModalActionBlocker>
@@ -461,13 +367,7 @@ export const ImagingRequestView = () => {
   return (
     <>
       <SimpleTopBar
-        title={
-          <TranslatedText
-            stringId="imaging.topbar.title"
-            fallback="Imaging request"
-            data-testid="translatedtext-c494"
-          />
-        }
+        title={<TranslatedText stringId="imaging.topbar.title" fallback="Imaging request" />}
         data-testid="simpletopbar-gn10"
       >
         {isCancellable && (
