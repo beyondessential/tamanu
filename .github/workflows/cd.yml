@@ -550,16 +550,26 @@ jobs:
           npm run package-default-translations --workspace @tamanu/upgrade
 
           # remove_irrelevant_packages: keep only the target + shared, drop the rest.
-          # NB: docker-build.sh's `-= $unwanted` (slurpfile) is a no-op — it works
-          # there only because NODE_ENV=production never installs dev deps. We do a
-          # full install (so patch-package runs) then prune, so we MUST really trim
-          # workspaces.packages or the removed packages' deps survive the prune.
-          # slurpfile wraps the file's array in an extra array, so subtract [0].
+          # list-packages.mjs emits Windows-style paths here: globSync returns
+          # backslash separators (and a stray CR rides along), which the script's
+          # forward-slash regex cleanup misses. Normalise each entry to posix
+          # `packages/x` or it never matches the forward-slash workspaces.packages
+          # entries (or real dirs under Git Bash) and nothing is removed.
+          # NB: docker-build.sh's `-= $unwanted` (slurpfile) is also a no-op — it
+          # works there only because NODE_ENV=production never installs dev deps.
+          # We do a full install (so patch-package runs) then prune, so we MUST
+          # really trim workspaces.packages or the removed packages' deps survive
+          # the prune. slurpfile wraps the file's array in an extra array -> [0].
           node scripts/list-packages.mjs -- --no-shared -- --paths \
-            | jq --arg wanted "$pkg" '(. - ["packages/\($wanted)"])' > unwanted.json
+            | tr -d '\r' \
+            | jq --arg wanted "$pkg" \
+                '[ .[] | gsub("\\\\"; "/") | gsub("\r"; "") ] - ["packages/\($wanted)"]' \
+            > unwanted.json
+          cat unwanted.json
           rm -rf $(jq -r '.[]' unwanted.json)
           jq --slurpfile unwanted unwanted.json '.workspaces.packages -= $unwanted[0]' package.json > package.json.new
           mv package.json.new package.json
+          echo "workspaces after trim:"; jq -c '.workspaces.packages' package.json
           rm -f unwanted.json
 
           # clear build-tooling and build configs, drop it from package.json
