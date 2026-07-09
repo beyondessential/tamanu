@@ -470,7 +470,7 @@ export const ReferenceMedicationTemplate = yup
         then: schema => schema.required('Dose amount is required when isVariableDose is false.'),
         otherwise: schema => schema.nullable(),
       }),
-    units: yup.string().required().oneOf(Object.values(DRUG_UNITS)),
+    dosingUnit: yup.string().required().oneOf(Object.values(DRUG_UNITS)),
     frequency: yup.string().required().oneOf(Object.values(ADMINISTRATION_FREQUENCIES)),
     route: yup
       .string()

@@ -2,7 +2,7 @@
 // Read-only widths (inline invoice view)
 export const CELL_WIDTHS = {
   DATE: '80px',
-  QUANTITY: '40px',
+  QUANTITY: '90px',
   APPROVED: '70px',
   ORDERED_BY: '110px',
   PRICE: '75px',

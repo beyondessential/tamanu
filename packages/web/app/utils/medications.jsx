@@ -19,6 +19,7 @@ import {
 } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
+  NumberInput,
   TableCellTag,
   TAMANU_COLORS,
   TextInput,
@@ -85,7 +86,7 @@ export const InstructionsInput = memo(({ value, onChange, disabled, testId, ...p
   );
 });
 
-const StyledQuantityTextInput = styled(TextInput)`
+const StyledQuantityTextInput = styled(NumberInput)`
   .MuiInputBase-input {
     font-size: 14px;
     padding-block: 10px;
@@ -99,9 +100,7 @@ export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) 
     setValue(e.target.value);
     onChange(e);
   };
-  return (
-    <StyledQuantityTextInput {...props} type="number" value={value} onChange={handleChange} />
-  );
+  return <StyledQuantityTextInput {...props} value={value} onChange={handleChange} />;
 });
 
 export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
@@ -213,6 +212,15 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   );
 };
 
+// Returns the singular or plural drug unit label for a given quantity.
+// Uses the curated DRUG_UNIT_PLURAL_LABELS (not a generic inflection library) so
+// irregular plurals (e.g. Suppository → Suppositories) are handled correctly.
+// quantity <= 1 or non-numeric → singular.
+export const getDrugUnitLabel = (unitKey, quantity, getEnumTranslation) => {
+  const isPlural = Number.isFinite(Number(quantity)) && Number(quantity) > 1;
+  return getEnumTranslation(isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS, unitKey);
+};
+
 // Builds the default dispensed-medication "Label text". Same sentence structure as
 // buildInstructionText, but with the patient-facing formatting from TAM-6813:
 //  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
@@ -288,7 +296,7 @@ export const getMedicationLabelData = ({ items, patient, facility, currentDateTi
     patientName: patient ? getPatientNameAsString(patient) : '-',
     dispensedAt: item.dispensedAt || currentDateTime,
     quantity: item.quantity,
-    units: item.units || '',
+    units: item.dispensingUnit || '',
     remainingRepeats: item.remainingRepeats,
     prescriberName: item.prescriberName || '-',
     requestNumber: item.requestNumber || '-',
@@ -345,7 +353,7 @@ const StyledTag = styled(TableCellTag)`
 `;
 
 export const createPrescriptionHash = prescription =>
-  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.units}-${prescription.route}-${prescription.frequency}`;
+  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.dosingUnit}-${prescription.route}-${prescription.frequency}`;
 
 export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   const status =

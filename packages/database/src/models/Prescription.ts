@@ -35,7 +35,9 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare units: string;
+  declare dosingUnit: string;
+  declare dispensingUnit: string;
+  declare unitConversion: number;
   declare frequency: string;
   declare idealTimes?: string[];
   declare route: string;
@@ -68,9 +70,18 @@ export class Prescription extends Model {
         isPrn: DataTypes.BOOLEAN,
         isVariableDose: DataTypes.BOOLEAN,
         doseAmount: DataTypes.DECIMAL,
-        units: {
+        dosingUnit: {
           type: DataTypes.STRING,
           allowNull: false,
+        },
+        dispensingUnit: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        unitConversion: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          defaultValue: 1,
         },
         frequency: {
           type: DataTypes.STRING,
@@ -329,7 +340,16 @@ export class Prescription extends Model {
         attributes: ['doseAmount', 'givenTime'],
       });
 
-      marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
+      const totalDosingAmount = doses.reduce(
+        (sum: number, d: any) => sum + Number(d.doseAmount || 0),
+        0,
+      );
+
+      // Convert from dosing units to dispensing units. Sum all doses first, then
+      // ceil once so that edits adding more doses don't compound rounding up.
+      // Use the unitConversion snapshotted on the prescription at creation time.
+      const unitConversion = Number(prescription.unitConversion) || 1;
+      marQty = Math.ceil(totalDosingAmount / unitConversion);
     }
 
     // Where the facility bundles medications into the admission fee, doses administered *during the

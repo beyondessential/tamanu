@@ -11,7 +11,7 @@ import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
-import { getMedicationLabelData, getTranslatedMedicationName } from '../utils/medications';
+import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../utils/medications';
 import { useTranslation } from '../contexts/Translation';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
@@ -65,14 +65,13 @@ const getMedication = ({ pharmacyOrderPrescription }) => (
 const getDateDispensed = ({ dispensedAt }) => (
   <DateDisplay date={dispensedAt} timeOnlyTooltip shortYear data-testid="datedisplay-date-sent" />
 );
-const getQuantity = ({ quantity }) => quantity;
 const getDispensedBy = ({ dispensedBy }) => dispensedBy?.displayName;
 const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription?.displayId;
 
 export const MedicationDispensesTable = () => {
   const api = useApi();
   const { ability, facilityId } = useAuth();
-  const { getReferenceDataTranslation } = useTranslation();
+  const { getReferenceDataTranslation, getEnumTranslation } = useTranslation();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
   const { data: facility } = useFacilityQuery(facilityId);
   const { getCurrentDateTime } = useDateTime();
@@ -106,7 +105,7 @@ export const MedicationDispensesTable = () => {
         medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions,
         quantity,
-        units: prescription?.units,
+        units: prescription?.dispensingUnit,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         prescriberName: prescription?.prescriber?.displayName,
         requestNumber: pharmacyOrderPrescription?.displayId,
@@ -114,7 +113,12 @@ export const MedicationDispensesTable = () => {
       },
     ];
 
-    const labelData = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
+    const labelData = getMedicationLabelData({
+      items: labelItems,
+      patient,
+      facility,
+      currentDateTime: getCurrentDateTime(),
+    });
     setSelectedLabelData(labelData);
     setPrintModalOpen(true);
   };
@@ -209,7 +213,11 @@ export const MedicationDispensesTable = () => {
           fallback="Qty dispensed"
         />
       ),
-      accessor: getQuantity,
+      accessor: ({ quantity, pharmacyOrderPrescription }) => {
+        const dispensingUnit = pharmacyOrderPrescription?.prescription?.dispensingUnit;
+        if (!dispensingUnit) return quantity;
+        return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
+      },
       sortable: false,
     },
     {
@@ -278,10 +286,13 @@ export const MedicationDispensesTable = () => {
       : []),
   ];
 
-  const fetchOptions = useMemo(() => ({
-    ...searchParameters,
-    facilityId,
-  }), [searchParameters, facilityId]);
+  const fetchOptions = useMemo(
+    () => ({
+      ...searchParameters,
+      facilityId,
+    }),
+    [searchParameters, facilityId],
+  );
 
   const handleRowClick = (_, dispenseData) => {
     const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;

@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
-  TextInput,
+  NumberInput,
   DateDisplay,
   TimeDisplay,
   ThemedTooltip,
@@ -19,6 +19,7 @@ import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { singularize } from '../../utils';
+import { getDrugUnitLabel } from '../../utils/medications';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledTable = styled(Table)`
@@ -184,9 +185,9 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ doseAmount, units, isVariableDose }) =>
+      accessor: ({ doseAmount, dosingUnit, isVariableDose }) =>
         getMedicationDoseDisplay(
-          { doseAmount, units, isVariableDose },
+          { doseAmount, dosingUnit, isVariableDose },
           getTranslation,
           getEnumTranslation,
         ),
@@ -325,15 +326,11 @@ const getColumns = (
         />
       ),
       sortable: false,
-      maxWidth: 100,
-      accessor: ({ quantity, onChange, hasError }) => (
-        <TextInput
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 1,
-            },
-          }}
+      maxWidth: 130,
+      accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
+        <NumberInput
+          min={1}
+          unit={dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined}
           value={quantity}
           onChange={onChange}
           required
