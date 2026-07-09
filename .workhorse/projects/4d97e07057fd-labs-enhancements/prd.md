@@ -16,7 +16,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 
 Priority-ordered. Only cards we've talked through are detailed; the rest will be added as we pull them from Linear.
 
-## 1. See the test types within a panel when requesting
+# 1. See the test types within a panel when requesting
 
 **Problem.** Not all clinicians remember by heart which individual test types a panel contains. Because the request form never shows a panel's contents, a clinician can add an individual test that is already included in a panel they've selected — producing a **double entry** (a duplicate request for the same lab result).
 
