@@ -1,4 +1,4 @@
-import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import React, { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   cloneDeep,
   get,
@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
 import { useFormikContext } from 'formik';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getScopedSchema, isSetting } from '@tamanu/settings/schema';
 
 import { DynamicSelectField, SearchInput, TranslatedText } from '../../../components';
@@ -22,6 +23,7 @@ import { Category } from './components/Category';
 import { SettingsSubmitContext } from './components/SettingsSubmitContext';
 import { filterSettingsSchema } from './filterSettingsSchema';
 import { formatSettingName } from './formatSettingName';
+import { readUrlParam, writeUrlParams } from './urlState';
 import { notifyError } from '../../../utils';
 
 const SettingsWrapper = styled.div`
@@ -59,7 +61,6 @@ const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: end;
-  // the search field shrinks before anything wraps or crushes
   gap: 1rem;
 `;
 
@@ -86,6 +87,25 @@ const UNCATEGORISED_KEY = 'uncategorised';
 
 // a single character matches half the schema
 const MIN_SEARCH_LENGTH = 2;
+
+const SCOPE_LABELS = {
+  [SETTINGS_SCOPES.GLOBAL]: 'Global',
+  [SETTINGS_SCOPES.CENTRAL]: 'Central',
+  [SETTINGS_SCOPES.FACILITY]: 'Facility',
+};
+
+const NoResultsHint = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  opacity: 0.7;
+`;
+
+const countSettings = schema =>
+  Object.values(schema.properties ?? {}).reduce(
+    (total, node) => total + (isSetting(node) || !node.properties ? 1 : countSettings(node)),
+    0,
+  );
+
 
 const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
@@ -195,10 +215,25 @@ export const EditorView = memo(
     const { facilityId } = values;
     const { initialValues } = useFormikContext();
     const { getTranslation } = useTranslation();
-    const [category, setCategory] = useState(null);
-    const [subCategory, setSubCategory] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    // Selection, search, and the overrides filter are deep-linkable (see
+    // urlState.js); an invalid category/sub-category param is just dropped.
+    const [category, setCategory] = useState(() => {
+      const fromUrl = readUrlParam('category');
+      return fromUrl && fromUrl in (getScopedSchema(scope)?.properties ?? {}) ? fromUrl : null;
+    });
+    const [subCategory, setSubCategory] = useState(() => {
+      const fromUrl = readUrlParam('subCategory');
+      const parent = readUrlParam('category');
+      return fromUrl && getScopedSchema(scope)?.properties?.[parent]?.properties?.[fromUrl]
+        ? fromUrl
+        : null;
+    });
+    const [searchQuery, setSearchQuery] = useState(() => readUrlParam('q') ?? '');
     const [failedSubmits, setFailedSubmits] = useState(0);
+
+    useEffect(() => {
+      writeUrlParams({ category, subCategory, q: searchQuery });
+    }, [category, subCategory, searchQuery]);
     // defer filtering so broad queries don't freeze typing
     const deferredSearchQuery = useDeferredValue(searchQuery);
     // drives the rendered body; lags the input while a deferred render is pending
@@ -244,13 +279,44 @@ export const EditorView = memo(
       return { ...filtered, schema: rootWithoutName };
     }, [isSearchRender, category, schemaForCategory, scope, deferredSearchQuery]);
 
+    // When nothing matched, say where matches DO exist — the schemas are
+    // disjoint per scope, so "no results" here often just means "wrong scope".
+    const searchHints = useMemo(() => {
+      if (!isSearchRender || searchResult) return null;
+      const hints = [];
+      if (category) {
+        const wholeScope = filterSettingsSchema(getScopedSchema(scope), deferredSearchQuery);
+        if (wholeScope) hints.push(`${countSettings(wholeScope.schema)} elsewhere in this scope`);
+      }
+      for (const other of Object.values(SETTINGS_SCOPES)) {
+        if (other === scope) continue;
+        const otherSchema = getScopedSchema(other);
+        if (!otherSchema) continue;
+        const filtered = filterSettingsSchema(otherSchema, deferredSearchQuery);
+        if (filtered) {
+          hints.push(`${countSettings(filtered.schema)} in the ${SCOPE_LABELS[other]} scope`);
+        }
+      }
+      return hints.length ? hints : null;
+    }, [isSearchRender, searchResult, category, scope, deferredSearchQuery]);
+
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
       setSearchQuery('');
     };
 
-    useEffect(handleChangeScope, [scope]);
+    // Reset the selection when the scope changes — but not on mount, or the
+    // deep-linked state read from the URL would be immediately clobbered.
+    const isFirstRender = useRef(true);
+    useEffect(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
+      handleChangeScope();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scope]);
 
     const handleChangeCategory = async e => {
       const newCategory = e.target.value ?? null; // null when cleared via the x
@@ -414,6 +480,16 @@ export const EditorView = memo(
               fallback="No settings match your search"
               data-testid="translatedtext-s3nr"
             />
+            {searchHints && (
+              <NoResultsHint data-testid="noresultshint-s3ar">
+                <TranslatedText
+                  stringId="admin.settings.search.matchesElsewhere"
+                  fallback="Matches elsewhere:"
+                  data-testid="translatedtext-mel1"
+                />{' '}
+                {searchHints.join(' · ')}
+              </NoResultsHint>
+            )}
           </NoSearchResults>
         )}
         {(isSearchRender ? searchResult?.schema : schemaForCategory) && (

@@ -1,5 +1,5 @@
 import SettingsIcon from '@mui/icons-material/Settings';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 
@@ -20,6 +20,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
+import { readUrlParam, writeUrlParams } from './urlState';
 
 const SETTING_TABS = /** @type {const} */ ({
   EDITOR: 'editor',
@@ -84,8 +85,17 @@ const tabs = [
 
 export const SettingsView = () => {
   const api = useApi();
-  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
-  const [facilityId, setFacilityId] = useState(null);
+  // Scope and facility are deep-linkable (see urlState.js); a bad param just
+  // falls back to the defaults.
+  const [scope, setScope] = useState(() => {
+    const fromUrl = readUrlParam('scope');
+    return Object.values(SETTINGS_SCOPES).includes(fromUrl) ? fromUrl : SETTINGS_SCOPES.GLOBAL;
+  });
+  const [facilityId, setFacilityId] = useState(() => readUrlParam('facilityId'));
+
+  useEffect(() => {
+    writeUrlParams({ scope, facilityId });
+  }, [scope, facilityId]);
 
   // Snapshot holds only this scope's explicit overrides (no schema defaults filled);
   // un-set settings read as undefined so the editor shows the effective value.

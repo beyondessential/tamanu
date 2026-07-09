@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
+import BlockIcon from '@mui/icons-material/Block';
 import KeyIcon from '@mui/icons-material/Key';
 import WarningIcon from '@mui/icons-material/WarningAmber';
 import { escapeRegExp } from 'es-toolkit/compat';
@@ -39,6 +40,12 @@ const StyledHighRiskIcon = styled(WarningIcon)`
   font-size: 1.125rem;
   margin-inline-start: 0.25rem;
   color: ${Colors.orange};
+`;
+
+const StyledDeprecatedIcon = styled(BlockIcon)`
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
+  color: ${Colors.midText};
 `;
 
 const Wrapper = styled.div`
@@ -184,6 +191,7 @@ const SettingName = memo(
     isSecret,
     requiresRestart,
     highRisk,
+    deprecated,
     depth,
     alignTop,
     searchQuery,
@@ -257,6 +265,20 @@ const SettingName = memo(
         <StyledHighRiskIcon data-testid="styledhighriskicon-hr01" />
       </ThemedTooltip>
     )}
+    {deprecated && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="admin.settings.deprecatedTooltip"
+            fallback="Deprecated — will be removed in a future version"
+            data-testid="translatedtext-dp01"
+          />
+        }
+        data-testid="themedtooltip-dp01"
+      >
+        <StyledDeprecatedIcon data-testid="styleddeprecatedicon-dp01" />
+      </ThemedTooltip>
+    )}
   </SettingNameLabel>
 ));
 
@@ -325,6 +347,7 @@ export const Category = ({
           unit,
           highRisk,
           requiresRestart,
+          deprecated,
           suggesterEndpoint,
           secret,
           editor,
@@ -334,6 +357,7 @@ export const Category = ({
         const needsRestart = schema.requiresRestart || requiresRestart;
         const isSecret = Boolean(secret);
         const isHighRisk = schema.highRisk || highRisk || isSecret;
+        const isDeprecated = Boolean(schema.deprecated || deprecated);
         const disabled = !canWriteHighRisk && isHighRisk;
         const isMultiEntry =
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
@@ -347,7 +371,12 @@ export const Category = ({
               path={newPath}
               depth={depth + 1}
               // Pass down inherited properties to the child category
-              schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
+              schema={{
+                ...propertySchema,
+                highRisk: isHighRisk,
+                requiresRestart: needsRestart,
+                deprecated: isDeprecated,
+              }}
               getSettingValue={getSettingValue}
               getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={resolveSettingsPath}
@@ -371,6 +400,7 @@ export const Category = ({
               description={description}
               isSecret={isSecret}
               highRisk={schema.highRisk || highRisk}
+              deprecated={isDeprecated}
               alignTop={isMultiEntry}
               searchQuery={searchQuery}
               data-testid={`settingname-g0r7-${testIdSuffix}`}

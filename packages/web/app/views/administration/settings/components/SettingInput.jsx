@@ -138,7 +138,7 @@ const ListRow = styled.div`
 
 const RemoveItemButton = styled(IconButton)`
   color: ${Colors.midText};
-  margin-block-start: 4px; // align with the input, not its helper text
+  margin-block-start: 10px;
   padding: 4px;
 
   &:hover {
