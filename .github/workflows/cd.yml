@@ -633,10 +633,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $t0 = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
           $tar = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows.tar"
-          scripts\legacy-tar-from-vhdx.ps1 `
-            -Vhdx        $env:VHDX_PATH `
-            -ReleaseName "release-v$env:VERSION" `
-            -OutTar      $tar
+          # Derive the legacy tar from the already-built tree — the point is "no
+          # second npm install", which this proves. We tar the workspace release
+          # tree rather than re-mounting the finished VHDX: mounting it proved
+          # unreliable on the GH runners (diskpart assign-mount AND Mount-DiskImage
+          # both failed to expose the volume), and the workspace tree is
+          # byte-identical to the VHDX contents (it's what was copied in).
+          tar -cf $tar "release-v$env:VERSION"
+          if ($LASTEXITCODE -ne 0) { throw "legacy tar failed ($LASTEXITCODE)" }
 
           # match cd-package-servers naming: <pkg>-<version>-windows.tar.zst
           choco install zstandard --no-progress -y | Out-Null
