@@ -549,11 +549,16 @@ jobs:
           # generate it before pruning packages away)
           npm run package-default-translations --workspace @tamanu/upgrade
 
-          # remove_irrelevant_packages: keep only the target + shared, drop the rest
+          # remove_irrelevant_packages: keep only the target + shared, drop the rest.
+          # NB: docker-build.sh's `-= $unwanted` (slurpfile) is a no-op — it works
+          # there only because NODE_ENV=production never installs dev deps. We do a
+          # full install (so patch-package runs) then prune, so we MUST really trim
+          # workspaces.packages or the removed packages' deps survive the prune.
+          # slurpfile wraps the file's array in an extra array, so subtract [0].
           node scripts/list-packages.mjs -- --no-shared -- --paths \
             | jq --arg wanted "$pkg" '(. - ["packages/\($wanted)"])' > unwanted.json
           rm -rf $(jq -r '.[]' unwanted.json)
-          jq --slurpfile unwanted unwanted.json '.workspaces.packages -= $unwanted' package.json > package.json.new
+          jq --slurpfile unwanted unwanted.json '.workspaces.packages -= $unwanted[0]' package.json > package.json.new
           mv package.json.new package.json
           rm -f unwanted.json
 
