@@ -519,98 +519,30 @@ jobs:
           if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
           $global:LASTEXITCODE = 0
 
-      # Build the reduced server tree in the workspace. Replicates
-      # docker-build.sh's server reduction (target + shared deps only), from
-      # source — still independent of the linux images, but off the VHDX.
-      - name: Build reduced source (Windows-native)
+      # Reduce to the target server via the SAME cross-platform docker-build.sh
+      # the production Docker image uses — no inline duplication. Runs in the
+      # workspace (off the VHDX), independent of the linux images.
+      - name: Build reduced source (Windows-native, shared docker-build.sh)
         shell: bash
         run: |
           set -euxo pipefail
-          pkg='${{ matrix.package.path }}'   # e.g. central-server
+          pkg='${{ matrix.package.path }}'   # central-server | facility-server
           cd "release-v${VERSION}"
 
-          # Point pm2's cwd at the target package (mirrors cd-package-servers).
+          # Point pm2's cwd at the target package (mirrors cd-package-servers),
+          # writing the root pm2.config.cjs before the reduction strips the
+          # per-package *.config.* files.
           sed -E "s|const cwd =.+|const cwd = 'packages/${pkg}';|" \
             "packages/${pkg}/pm2.config.cjs" > pm2.config.cjs
 
-          # --- docker-build.sh (server path), minus layering/precompress -------
-          # common(): let build-tooling install in production mode, full install.
-          # bash script shell so the shell-syntax `prepare`/patch-package parse.
-          cp package.json package.json.working
-          jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.working > package.json
-          rm package.json.working
-          npm install --no-interactive --package-lock --script-shell bash
+          # Same reduction as production (build-tooling install, full install so
+          # patch-package runs, drop irrelevant packages, reinstall + prune). No
+          # DOCKER_BUILD, so the /app cache and self-delete are skipped.
+          bash scripts/docker-build.sh "$pkg"
 
-          # drop tests/dev configs not needed for production
-          rm -rf packages/*/__tests__ packages/*/jest.* packages/*/docker packages/*/coverage || true
-          rm -rf packages/*/config/{local,development,test}.* || true
-
-          # the one runtime artefact servers need (scans the whole workspace, so
-          # generate it before pruning packages away)
-          npm run package-default-translations --workspace @tamanu/upgrade
-
-          # remove_irrelevant_packages: keep only the target + shared, drop the rest.
-          # list-packages.mjs emits Windows-style paths here: globSync returns
-          # backslash separators (and a stray CR rides along), which the script's
-          # forward-slash regex cleanup misses. Normalise each entry to posix
-          # `packages/x` or it never matches the forward-slash workspaces.packages
-          # entries (or real dirs under Git Bash) and nothing is removed.
-          # NB: docker-build.sh's `-= $unwanted` (slurpfile) is also a no-op — it
-          # works there only because NODE_ENV=production never installs dev deps.
-          # We do a full install (so patch-package runs) then prune, so we MUST
-          # really trim workspaces.packages or the removed packages' deps survive
-          # the prune. slurpfile wraps the file's array in an extra array -> [0].
-          node scripts/list-packages.mjs -- --no-shared -- --paths \
-            | tr -d '\r' \
-            | jq --arg wanted "$pkg" \
-                '[ .[] | gsub("\\\\"; "/") | gsub("\r"; "") ] - ["packages/\($wanted)"]' \
-            > unwanted.json
-          cat unwanted.json
-          rm -rf $(jq -r '.[]' unwanted.json)
-          jq --slurpfile unwanted unwanted.json '.workspaces.packages -= $unwanted[0]' package.json > package.json.new
-          mv package.json.new package.json
-          echo "workspaces after trim:"; jq -c '.workspaces.packages' package.json
-          rm -f unwanted.json
-
-          # clear build-tooling and build configs, drop it from package.json
-          rm -rf node_modules/@tamanu/build-tooling packages/build-tooling || true
-          rm -rf packages/*/*.config.* || true
-          cp package.json package.json.working
-          jq '.dependencies |= del(."@tamanu/build-tooling") | .workspaces.packages -= ["packages/build-tooling"]' \
-            package.json.working > package.json
-          rm package.json.working
-
-          # reinstall without build deps, prune to production, clean cache
-          npm install --no-interactive --package-lock --script-shell bash
-          npm prune --omit=dev
-          npm cache clean --force || true
-
-          # --- measure actual tree contents (not the external VHDX size) ------
-          echo "=== release tree contents (pre-strip) ==="
-          du -sm . | awk '{print "total: "$1" MiB"}'
-          du -sm node_modules 2>/dev/null | awk '{print "node_modules: "$1" MiB"}' || true
-          echo "--- 15 largest node_modules entries (MiB) ---"
-          du -sm node_modules/* node_modules/.pnpm 2>/dev/null | sort -rn | head -15 || true
-          echo "--- native-build intermediates present ---"
-          for ext in pdb obj iobj ipdb lib exp; do
-            find . -type f -name "*.${ext}" -printf '%s\n' 2>/dev/null \
-              | awk -v e="$ext" '{s+=$1;n++} END{ if(n) printf "  *.%s: %d files, %.1f MiB\n", e, n, s/1048576 }'
-          done
-          pre=$(du -sm . | cut -f1)
-
-          # --- strip node-gyp build intermediates (never loaded at runtime) ---
-          # keep build/Release/*.node (the actual addon); drop compiler/linker
-          # leftovers, which MSVC makes large (.pdb debug symbols especially).
-          find . -type f \( -name '*.pdb' -o -name '*.obj' -o -name '*.iobj' \
-            -o -name '*.ipdb' -o -name '*.exp' -o -name '*.lib' \) -delete 2>/dev/null || true
-          find . -type d \( -path '*/build/Release/obj' -o -path '*/build/Release/.deps' \
-            -o -path '*/build/Debug' \) -prune -exec rm -rf {} + 2>/dev/null || true
-
-          post=$(du -sm . | cut -f1)
-          echo "=== stripped intermediates: ${pre} MiB -> ${post} MiB ==="
-          echo "CONTENT_PRESTRIP_MB=${pre}" >> "$GITHUB_ENV"
-          echo "CONTENT_POSTSTRIP_MB=${post}" >> "$GITHUB_ENV"
-
+          size=$(du -sm . | cut -f1)
+          echo "CONTENT_PRESTRIP_MB=${size}" >> "$GITHUB_ENV"
+          echo "CONTENT_POSTSTRIP_MB=${size}" >> "$GITHUB_ENV"
           echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
@@ -688,15 +620,14 @@ jobs:
           cd-start: ${{ needs.config.outputs.cd-start }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Frontend VHDXs (web / patient-portal). Frontends are static assets, so unlike
-  # the servers there is no Windows-native build to validate — the dist comes
-  # straight from the already-built linux image (as cd-package-frontend.yml does),
-  # then we pack a *self-contained* VHDX that embeds the Windows Caddy binary and
-  # a Caddyfile, mirroring the linux frontend container. No Node, no npm.
-  windows-vhdx-frontend-prep:
+  # Frontend VHDXs (web / patient-portal), self-contained: the built dist plus
+  # the Windows Caddy binary + Caddyfile, mirroring the linux frontend container
+  # which also embeds caddy. Built Windows-native from source via the same
+  # cross-platform docker-build.sh (needs only config, so it runs in parallel
+  # with the linux images rather than waiting on them).
+  windows-vhdx-frontend:
     needs:
       - config
-      - images
     if: needs.config.outputs.build-images == 'true'
     strategy:
       fail-fast: false
@@ -706,39 +637,49 @@ jobs:
             path: web
           - name: patient-portal
             path: patient-portal
-    name: Prep frontend VHDX bundle for ${{ matrix.package.name }}
-    runs-on: ubuntu-latest
+    name: Frontend VHDX for ${{ matrix.package.name }}
+    runs-on: windows-latest
     steps:
+      - name: Mark job start
+        shell: bash
+        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.config.outputs.ref }}
 
-      - name: Login to ghcr.io
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
 
-      - name: Pull image
-        run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
-
-      - name: Extract version from image
-        id: version
+      - name: Extract version
+        shell: bash
         run: |
-          docker image inspect ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64 \
-            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
+          echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
-      # Assemble a self-contained bundle: dist under app/, the Windows Caddy
-      # binary, a bundle-relative Caddyfile, and a launcher. The linux frontend
-      # image serves dist from /app via Caddy; we reproduce that on Windows.
-      - name: Assemble frontend bundle (dist + Windows Caddy)
+      # Build the frontend natively with the same docker-build.sh the linux image
+      # uses (build_web / build_patient_portal: npm build + precompress assets).
+      # precompress-assets.sh falls back to Node's built-in zstd/brotli/gzip, so
+      # no extra CLI tooling is needed on the runner.
+      - name: Build frontend (Windows-native, shared docker-build.sh)
+        shell: bash
         run: |
           set -euxo pipefail
-          ver='${{ steps.version.outputs.version }}'
-          stage="tamanu-${{ matrix.package.name }}-static-v${ver}"
+          bash scripts/docker-build.sh '${{ matrix.package.path }}'
+          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
-          # dist lives at /app in the frontend image (Dockerfile frontend-base).
-          docker create --name working ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
+      # Assemble the self-contained bundle: dist under app/, the Windows Caddy
+      # binary, a bundle-relative Caddyfile, and a launcher.
+      - name: Assemble bundle (dist + Windows Caddy)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          stage="tamanu-${{ matrix.package.name }}-static-v${VERSION}"
           mkdir -p "$stage/app"
-          docker cp working:/app/. "$stage/app"
-          docker rm working
+          cp -r "packages/${{ matrix.package.path }}/dist/." "$stage/app"
 
           # Embed the Windows Caddy binary (matches the container's embedded caddy).
           caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
@@ -755,66 +696,16 @@ jobs:
           # Launcher so an operator/service can start it from the mounted VHDX.
           printf '@echo off\r\ncd /d "%%~dp0"\r\ncaddy.exe run --config Caddyfile --adapter caddyfile\r\n' \
             > "$stage/serve.bat"
-
-          zip -r -0 "${stage}.zip" "$stage"
-
-      - name: Upload bundle for the Windows job
-        uses: actions/upload-artifact@v4
-        with:
-          name: winvhdxfe-${{ matrix.package.name }}-${{ steps.version.outputs.version }}
-          path: tamanu-${{ matrix.package.name }}-static-v${{ steps.version.outputs.version }}.zip
-          retention-days: 1
-          if-no-files-found: error
-          compression-level: 0
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
-  windows-vhdx-frontend:
-    needs:
-      - config
-      - windows-vhdx-frontend-prep
-    if: needs.config.outputs.build-images == 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - name: frontend
-            path: web
-          - name: patient-portal
-            path: patient-portal
-    name: Frontend VHDX for ${{ matrix.package.name }}
-    runs-on: windows-latest
-    env:
-      VERSION: ${{ needs.windows-vhdx-frontend-prep.outputs.version }}
-    steps:
-      - name: Mark job start
-        shell: bash
-        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
-
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.config.outputs.ref }}
-
-      - name: Download prepared bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: winvhdxfe-${{ matrix.package.name }}-${{ env.VERSION }}
-
-      - name: Unzip bundle
-        shell: bash
-        run: |
-          unzip -q "tamanu-${{ matrix.package.name }}-static-v${VERSION}.zip"
-          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
+          echo "STAGE=$stage" >> "$GITHUB_ENV"
 
       - name: Build VHDX (format + copy)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $stage = "tamanu-${{ matrix.package.name }}-static-v$env:VERSION"
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
           "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir  $stage `
+            -ReleaseDir  $env:STAGE `
             -Output      $vhdx `
             -Label       "Tamanu-${{ matrix.package.name }}" `
             -Filesystem  NTFS
@@ -828,7 +719,7 @@ jobs:
           package: ${{ matrix.package.name }}
           filesystem: NTFS
           compression: 'false'
-          variant: frontend-caddy
+          variant: frontend-native-caddy
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           cd-start: ${{ needs.config.outputs.cd-start }}

@@ -6,6 +6,9 @@ COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 COPY patches/ patches/
 
 FROM base AS build-base
+# docker-build.sh keys Docker-only behaviour (the /app npm cache carried between
+# stages, self-deleting the script) off this flag.
+ENV DOCKER_BUILD=1
 RUN apk add --no-cache \
   --virtual .build-deps \
   bash \
@@ -36,9 +39,9 @@ ARG PACKAGE_PATH
 # copy all packages
 COPY packages/ packages/
 
-# do the build, which will also reduce to just the target package
+# do the build, which reduces to just the target package and prunes to a
+# production dependency set (docker-build.sh's build_server runs npm prune)
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
-RUN npm prune --production
 
 
 ## Normal final target for servers

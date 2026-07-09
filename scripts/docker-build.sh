@@ -1,6 +1,13 @@
 #!/bin/bash
 
-### This expects to be run in the production docker build in /Dockerfile.
+### Reduce a Tamanu workspace to a single deployable package (server or frontend).
+###
+### Runs both in the production Docker build (see /Dockerfile) and, unchanged,
+### on the Windows VHDX runner under Git Bash. Docker-only behaviour — the npm
+### cache carried between build stages under /app, and self-deleting the script —
+### is gated behind DOCKER_BUILD=1, which the Dockerfile sets. Helper scripts are
+### invoked via `node`/`bash` rather than by relying on the executable bit +
+### shebang, which is not honoured the same way on Windows.
 
 set -euxo pipefail
 shopt -s extglob
@@ -11,17 +18,21 @@ common() {
   jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.working > package.json
   rm package.json.working
 
-  # put cache in packages/ so it's carried between stages
-  npm config set cache /app/packages/.npm
+  # in Docker, keep the cache in packages/ so it's carried between stages
+  if [[ "${DOCKER_BUILD:-}" == "1" ]]; then
+    npm config set cache /app/packages/.npm
+  fi
 
-  # install dependencies
-  npm install --no-interactive --package-lock
+  # install dependencies. Force bash as the lifecycle script shell so the
+  # shell-syntax `prepare` hook (patch-package) parses on Windows, where npm
+  # defaults to cmd.exe. bash is present in the Docker build image and Git Bash.
+  npm install --no-interactive --package-lock --script-shell bash
 }
 
 remove_irrelevant_packages() {
-  # remove from npm workspace list all packages that aren't the ones we're building
+  # remove from the npm workspace list every package that isn't the one we're building
   cp package.json{,.working}
-  scripts/list-packages.mjs -- --no-shared -- --paths \
+  node scripts/list-packages.mjs -- --no-shared -- --paths \
     | tee debug.json \
     | jq \
       --arg wanted "$1" \
@@ -33,10 +44,12 @@ remove_irrelevant_packages() {
       exit 1
     fi
 
-  # erase from the package.json
+  # erase from the package.json. --slurpfile wraps the file's array in an extra
+  # array, so subtract [0] to actually trim the workspace entries (otherwise the
+  # removed packages' deps survive a later prune).
   jq \
     --slurpfile unwanted /tmp/unwanted.json \
-    '.workspaces.packages -= $unwanted' \
+    '.workspaces.packages -= $unwanted[0]' \
     package.json.working > package.json.new
   # erase from the filesystem
   rm -rf $(jq -r '.[]' /tmp/unwanted.json)
@@ -75,23 +88,24 @@ build_server() {
     package.json.working > package.json
   rm package.json.working
 
-  # remove build dependencies
-  npm install --no-interactive --package-lock
+  # remove build dependencies, then prune to a production dependency set
+  npm install --no-interactive --package-lock --script-shell bash
+  npm prune --omit=dev
 
   # cleanup
   npm cache clean --force
   rm -rf packages/.npm || true
-  rm $0
+  if [[ "${DOCKER_BUILD:-}" == "1" ]]; then rm "$0"; fi
 }
 
 build_web() {
   npm run build --workspace=@tamanu/web-frontend
-  scripts/precompress-assets.sh packages/web/dist
+  bash scripts/precompress-assets.sh packages/web/dist
 }
 
 build_patient_portal() {
   npm run build --workspace=@tamanu/patient-portal
-  scripts/precompress-assets.sh packages/patient-portal/dist
+  bash scripts/precompress-assets.sh packages/patient-portal/dist
 }
 
 package="${1:?Expected target or package path}"
