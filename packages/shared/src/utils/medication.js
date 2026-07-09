@@ -1,6 +1,6 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
 import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 
 export const findAdministrationTimeSlotFromIdealTime = idealTime => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {
@@ -54,13 +54,13 @@ export const getFirstAdministrationDate = (startDate, idealTimes) => {
 };
 
 export const getMedicationDoseDisplay = (medication, getTranslation, getEnumTranslation) => {
-  let { doseAmount, units, isVariableDose } = medication;
+  let { doseAmount, dosingUnit, isVariableDose } = medication;
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
-  return getMarDoseDisplay({ doseAmount, units }, getEnumTranslation);
+  return getMarDoseDisplay({ doseAmount, dosingUnit }, getEnumTranslation);
 };
 
-export const getMarDoseDisplay = ({ doseAmount, units }, getEnumTranslation) => {
-  return `${doseAmount ?? ''} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units) ?? ''}`.trim();
+export const getMarDoseDisplay = ({ doseAmount, dosingUnit }, getEnumTranslation) => {
+  return `${doseAmount ?? ''} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, dosingUnit) ?? ''}`.trim();
 };
 
 export const getTranslatedFrequency = (frequency, getTranslation) => {

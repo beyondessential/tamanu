@@ -17,8 +17,8 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
-import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
+import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { createMarkedForSyncPatientsTable } from '../../app/sync/createMarkedForSyncPatientsTable';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;

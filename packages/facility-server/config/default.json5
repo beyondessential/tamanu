@@ -18,7 +18,11 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central.main.cd.tamanu.app",
+    // Sync host + credentials are now resolved from local system facts, set via
+    // the SYNC_URL env var or the first-run setup wizard. These config keys are
+    // a deprecated fallback (one backwards-compatible version) — leave empty to
+    // use SYNC_URL / the wizard.
+    "host": "",
     "email": "",
     "password": "",
     "timeout": 10000,
@@ -49,31 +53,16 @@
   "port": 4000,
   "deviceId": null,
   "db": {
+    // Set the DATABASE_URL env var to a connection string to supply
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below.
     "name": "tamanu-facility",
     "username": "",
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        },
-        "reporting": {
-          "pool": {
-            "max": 5
-          },
-          "username": "",
-          "password": ""
-        }
-      }
-    }
   },
   "metaServer": {
     "hosts": [
@@ -87,6 +76,27 @@
     "server": "https://192.168.33.100",
     "username": "admin",
     "password": "admin"
+  },
+  "integrations": {
+    "fhir": {
+      "enabled": false, // the HTTP routes
+      "worker": {
+        "enabled": false, // the materialisation worker
+      },
+    },
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
+      },
+    },
   },
   "auth": {
     "saltRounds": 12,
@@ -112,6 +122,10 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "fhirMissingResources": {
+      "enabled": false,
+      "schedule": "48 1 * * *" // once a day (better in off hours)
+    },
     "sendStatusToMetaServer": {
       "enabled": true,
       // every minute
@@ -134,13 +148,6 @@
       // every hour
       "schedule": "0 * * * *",
     },
-  },
-  "integrations": {
-    "mSupplyMed": {
-      "enabled": false,
-      "username": "",
-      "password": ""
-    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -194,4 +201,12 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "crypto": {
+    // Encryption key for local_system_secrets (encryption is mandatory).
+    // This committed key is for local dev/test ONLY; deploys override it via
+    // the CRYPTO_KEY_FILE env var pointing at a mounted secret.
+    "keyFile": "config/dev-secret.key"
+  },
+  "language": "en",
+  "canonicalHostName": "http://localhost:4000",
 }

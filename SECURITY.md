@@ -14,7 +14,7 @@ Report Tamanu security issues with the [github disclosure page](https://github.c
 
 For all other reports, or if you're not sure, email [security@bes.au](mailto:security@bes.au).
 
-The BES security team will send a response indicating the next steps in handling your report.
+The BES International security team will send a response indicating the next steps in handling your report.
 After the initial reply to your report, the security team will keep you informed of the progress towards a fix, and may ask for additional information or guidance.
 
 ### Scope

@@ -27,6 +27,7 @@ export class LabTest extends Model {
   declare labTestType?: LabTestType;
   declare referenceRangeMin?: number;
   declare referenceRangeMax?: number;
+  declare referenceRangeText?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -55,6 +56,10 @@ export class LabTest extends Model {
         },
         referenceRangeMax: {
           type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+        referenceRangeText: {
+          type: DataTypes.TEXT,
           allowNull: true,
         },
       },

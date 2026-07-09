@@ -6,10 +6,10 @@ import {
   getSettingAtPath,
   SECRET_PLACEHOLDER,
   isSetting,
-} from '../dist/cjs/schema/utils';
-import { centralSettings } from '../dist/cjs/schema/central';
-import { facilitySettings } from '../dist/cjs/schema/facility';
-import { globalSettings } from '../dist/cjs/schema/global';
+} from '../src/schema/utils';
+import { centralSettings } from '../src/schema/central';
+import { facilitySettings } from '../src/schema/facility';
+import { globalSettings } from '../src/schema/global';
 
 describe('Secret utilities', () => {
   describe('extractSecretPaths', () => {

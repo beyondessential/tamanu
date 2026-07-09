@@ -30,13 +30,13 @@ import {
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { exporter } from '../../dist/admin/exporter';
+import { exporter } from '../../app/admin/exporter';
 import { parseDate } from '@tamanu/utils/dateTime';
-import { writeExcelFile } from '../../dist/utils/excelUtils';
+import { writeExcelFile } from '../../app/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
-jest.mock('../../dist/utils/excelUtils', () => {
-  const originalModule = jest.requireActual('../../dist/utils/excelUtils');
+jest.mock('../../app/utils/excelUtils', () => {
+  const originalModule = jest.requireActual('../../app/utils/excelUtils');
 
   return {
     __esModule: true,
@@ -127,6 +127,21 @@ describe('Reference data exporter', () => {
       // when downloading a file, for some reasons,
       // status of supertest is always 404 even tho we are sure that it is successful
       // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
+      expect(Buffer.isBuffer(result.body)).toBeTrue();
+    });
+
+    it('checks the charging tab against the InvoicePriceListItem permission, not a InvoicePriceListCharging noun', async () => {
+      // The charging tab has no model/noun of its own; its permission maps to InvoicePriceListItem.
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'list', noun: 'InvoicePriceListItem' },
+      ]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['invoicePriceListCharging'] }))
+        .responseType('blob');
+
+      // Permission resolved (no "noun not defined" / forbidden error) and the file downloaded.
       expect(Buffer.isBuffer(result.body)).toBeTrue();
     });
   });
@@ -751,6 +766,71 @@ describe('Reference data exporter', () => {
             ['prod-b', 'hidden', '50'],
           ],
           name: 'Invoice Price List Items',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export the charging tab for medications only, as flatFee/perUnit', async () => {
+    // Two medications (Drug) and one non-medication; only the medications should appear.
+    const med1 = await models.InvoiceProduct.create({
+      id: 'prod-med-1',
+      code: 'MED-1',
+      name: 'Medication 1',
+      insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
+    });
+    const med2 = await models.InvoiceProduct.create({
+      id: 'prod-med-2',
+      code: 'MED-2',
+      name: 'Medication 2',
+      insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
+    });
+    const procedure = await models.InvoiceProduct.create({
+      id: 'prod-proc',
+      code: 'PROC',
+      name: 'Procedure',
+      insurable: false,
+      category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+    });
+    const pl = await models.InvoicePriceList.create({ id: 'pl-1', code: 'A', evaluationOrder: 1 });
+
+    await models.InvoicePriceListItem.create({
+      id: 'item-1',
+      invoiceProductId: med1.id,
+      invoicePriceListId: pl.id,
+      price: 2,
+      isFixedPrice: true,
+    });
+    await models.InvoicePriceListItem.create({
+      id: 'item-2',
+      invoiceProductId: med2.id,
+      invoicePriceListId: pl.id,
+      price: 5,
+      isFixedPrice: false,
+    });
+    // A non-medication item — must be excluded from the charging tab.
+    await models.InvoicePriceListItem.create({
+      id: 'item-3',
+      invoiceProductId: procedure.id,
+      invoicePriceListId: pl.id,
+      price: 50,
+      isFixedPrice: false,
+    });
+
+    await exporter(store, { 1: 'invoicePriceListCharging' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['invoiceProductId', 'A'],
+            ['prod-med-1', 'flatFee'],
+            ['prod-med-2', 'perUnit'],
+          ],
+          name: 'Invoice Price List Charging',
         },
       ],
       '',

@@ -20,6 +20,7 @@ export class InvoiceItem extends Model {
   declare productNameFinal?: string;
   declare manualEntryPrice?: number;
   declare priceFinal?: number;
+  declare isFixedPriceFinal: boolean;
   declare productCodeFinal?: string;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
@@ -63,6 +64,11 @@ export class InvoiceItem extends Model {
           type: DataTypes.DECIMAL,
           allowNull: true,
         },
+        isFixedPriceFinal: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         productCodeFinal: {
           type: DataTypes.STRING,
           allowNull: true,
@@ -101,6 +107,12 @@ export class InvoiceItem extends Model {
     this.hasMany(models.InvoiceItemFinalisedInsurance, {
       foreignKey: 'invoiceItemId',
       as: 'finalisedInsurances',
+    });
+
+    this.belongsTo(models.Prescription, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourcePrescription',
+      constraints: false,
     });
   }
 
@@ -183,7 +195,7 @@ export class InvoiceItem extends Model {
         model: models.InvoicePriceListItem,
         where: { invoicePriceListId },
         as: 'invoicePriceListItem',
-        attributes: ['price', 'invoicePriceListId'],
+        attributes: ['price', 'invoicePriceListId', 'isFixedPrice'],
         required: false,
       });
     }
@@ -204,6 +216,12 @@ export class InvoiceItem extends Model {
         as: 'discount',
       },
       { model: models.InvoiceItemFinalisedInsurance, as: 'finalisedInsurances' },
+      {
+        model: models.Prescription,
+        as: 'sourcePrescription',
+        attributes: ['dispensingUnit'],
+        required: false,
+      },
     ];
   }
 }

@@ -23,7 +23,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 ## Contributor License Agreement
 
 All open-source contributors to Tamanu will be required to sign this [Contributor License Agreement]
-(CLA) before BES can accept your contribution into the project code. Instructions on how to sign are
+(CLA) before BES International can accept your contribution into the project code. Instructions on how to sign are
 provided in the CLA document linked above.
 
 ## Our Philosophy

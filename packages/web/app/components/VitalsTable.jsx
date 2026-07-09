@@ -90,6 +90,7 @@ export const VitalsTable = React.memo(() => {
       <StyledDynamicColumnTable
         columns={columns}
         data={translatedData}
+        rowIdKey="dataElementId"
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}

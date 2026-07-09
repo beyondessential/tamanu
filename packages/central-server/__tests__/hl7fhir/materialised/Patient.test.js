@@ -5,10 +5,10 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
+import { getIdentifierNamespace } from '../../../app/hl7fhir/utils';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -17,7 +17,7 @@ describe(`Materialised FHIR - Patient`, () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());
@@ -129,7 +129,7 @@ describe(`Materialised FHIR - Patient`, () => {
       await patient.reload(); // saving PatientAdditionalData updates the patient too
       const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const id = encodeURIComponent(`${getIdentifierNamespace()}|${patient.displayId}`);
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
 
       // act
@@ -421,7 +421,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(3);
 
         // The first order is actually address[].line[] (so streetVillage)
-        expect(response.body.entry.map((x) => x.resource.address[0].city)).toEqual([
+        expect(response.body.entry.map(x => x.resource.address[0].city)).toEqual([
           'El Paso',
           'Amsterdam',
           'Cabo',
@@ -710,7 +710,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(5);
 
         // Numbers don't repeat so everything else should be in place
-        expect(response.body.entry.map((x) => x.resource.telecom[0].value)).toEqual([
+        expect(response.body.entry.map(x => x.resource.telecom[0].value)).toEqual([
           '123456783',
           '123456781',
           '123456782',
@@ -739,7 +739,7 @@ describe(`Materialised FHIR - Patient`, () => {
         [patientOne, patientTwo].map(({ id }) => FhirPatient.materialiseFromUpstream(id)),
       );
 
-      const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
+      const identifier = encodeURIComponent(`${getIdentifierNamespace()}|${patientOne.displayId}`);
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?identifier=${identifier}`;
       const response = await app.get(path);
 
@@ -751,10 +751,13 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (given)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const firstName = 'John';
+      // `given` matches the materialised name.given array, which is [firstName, middleName].
+      // fake() assigns a random middleName, which occasionally starts with "John" and makes
+      // the "Bob" patient match too — pin middleName so only the explicit firstName counts.
       const patients = await Promise.all([
-        Patient.create(fake(Patient, { firstName })),
-        Patient.create(fake(Patient, { firstName })),
-        Patient.create(fake(Patient, { firstName: 'Bob' })),
+        Patient.create(fake(Patient, { firstName, middleName: null })),
+        Patient.create(fake(Patient, { firstName, middleName: null })),
+        Patient.create(fake(Patient, { firstName: 'Bob', middleName: null })),
       ]);
       await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 

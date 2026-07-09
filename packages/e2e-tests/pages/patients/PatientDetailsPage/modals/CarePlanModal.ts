@@ -13,7 +13,6 @@ export class CarePlanModal extends BasePatientModal {
   readonly carePlanHeader: Locator;
   readonly completedMainCarePlan: Locator;
   readonly completedCarePlan: Locator;
-  readonly completedSystemAdditionalCarePlan: Locator;
   readonly additionalNoteClinicianDropdown: Locator;
   readonly completedMainCarePlanKebabMenu: Locator;
   readonly completedCarePlanEditButton: Locator;
@@ -39,9 +38,6 @@ export class CarePlanModal extends BasePatientModal {
     this.carePlanHeader = this.page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.completedCarePlan = this.page.getByTestId('notecontainer-6fi4');
     this.completedMainCarePlan = this.completedCarePlan.filter({ hasText: 'Main care plan' });
-    this.completedSystemAdditionalCarePlan = this.completedCarePlan.filter({
-      hasText: 'On behalf of System',
-    });
     this.additionalNoteClinicianDropdown = this.page.getByTestId('field-hh8q-input');
     this.completedMainCarePlanKebabMenu = this.completedMainCarePlan.getByTestId('openbutton-d1ec');
     this.completedCarePlanEditButton = this.completedCarePlan.getByTestId('item-8ybn-0');
@@ -77,12 +73,16 @@ export class CarePlanModal extends BasePatientModal {
     await this.page.waitForLoadState('networkidle');
   }
 
-  getAdditionalNoteKebabMenu(clinicianName: string) {
-    return this.completedCarePlan.filter({ hasText: clinicianName }).getByTestId('openbutton-d1ec');
+  additionalNote(noteText: string) {
+    return this.completedCarePlan.filter({ hasText: noteText });
   }
 
-  async clickAdditionalNoteMenuAction(clinicianName: string, action: 'Edit' | 'Delete') {
-    await this.getAdditionalNoteKebabMenu(clinicianName).click();
+  getAdditionalNoteKebabMenu(noteText: string) {
+    return this.additionalNote(noteText).getByTestId('openbutton-d1ec');
+  }
+
+  async clickAdditionalNoteMenuAction(noteText: string, action: 'Edit' | 'Delete') {
+    await this.getAdditionalNoteKebabMenu(noteText).click();
     await this.page.getByRole('menuitem', { name: action, exact: true }).click();
   }
 

@@ -1,5 +1,5 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
@@ -7,8 +7,8 @@ import { fake, chance } from '@tamanu/fake-data/fake';
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
-import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
-import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
+import { centralServerLogin, buildToken, comparePassword } from '../../app/middleware/auth';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
 const createUser = overrides => ({
@@ -871,6 +871,24 @@ describe('User', () => {
         ...defaultPreferences,
         outpatientAppointmentFilters: facilityBOutpatientAppointmentFilters,
       });
+    });
+  });
+
+  describe('user list', () => {
+    it('should not include device sync users', async () => {
+      const app = await baseApp.asRole('practitioner');
+      const syncUser = await models.User.create({
+        email: 'sync.fedcba9876543210@sync.tamanu',
+        displayName: 'System: user-list-test sync',
+        role: 'admin',
+        kind: 'sync',
+      });
+
+      const result = await app.get('/api/user');
+      expect(result).toHaveSucceeded();
+      const ids = result.body.data.map(({ id }) => id);
+      expect(ids).not.toContain(syncUser.id);
+      expect(ids).toContain(app.user.id);
     });
   });
 });

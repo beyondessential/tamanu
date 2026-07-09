@@ -1,9 +1,10 @@
-import { pascal } from 'case';
+import __cjs_case from 'case';
+const { pascal } = __cjs_case;
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/errors';
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 import {
   DEFAULT_HIERARCHY_TYPE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -20,6 +21,7 @@ import {
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -853,6 +855,8 @@ createSuggester(
   'User',
   ({ search }) => ({
     displayName: { [Op.iLike]: search },
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    kind: USER_KINDS.USER,
     ...VISIBILITY_CRITERIA,
   }),
   {

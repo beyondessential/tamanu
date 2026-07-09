@@ -1,5 +1,7 @@
-import { Router } from 'express';
+import __cjs_express from 'express';
+const { Router } = __cjs_express;
 import { Problem } from '@tamanu/errors';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
 import {
   diagnosticReportHandler,
@@ -9,7 +11,7 @@ import {
   singleImmunizationHandler,
   singlePatientHandler,
 } from './routeHandlers';
-import { fhirRoutes as matRoutes } from './materialised';
+import { fhirRoutes as matRoutes } from '@tamanu/shared/routes/fhir';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
@@ -21,7 +23,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   }
 
   // temporary: will replace this entire route once done
-  routes.use('/mat', matRoutes(ctx));
+  routes.use('/mat', ensurePermissionCheck, matRoutes(ctx));
 
   routes.get('/Patient', patientHandler());
   routes.get('/DiagnosticReport', diagnosticReportHandler());

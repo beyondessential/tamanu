@@ -2,29 +2,39 @@ import config from 'config';
 
 import { ReadSettings } from '../reader';
 
-export const settingsReaderMiddleware = (req, _res, next) => {
-  const { models } = req;
+const configFacilityIds = () => {
   const { serverFacilityId, serverFacilityIds } = config as any;
-  const isFacility = serverFacilityId || serverFacilityIds;
-  const facilityIds = isFacility && (serverFacilityId ? [serverFacilityId] : serverFacilityIds);
-  try {
-    // n.b. facilityId will not be defined if
-    // - this is a central server; or
-    // - this is a route that is pre-auth
-    // in which case only settings that are not facility specific will be available
-    if (facilityIds) {
-      req.settings = facilityIds.reduce(
-        (acc, facilityId) => ({
-          ...acc,
-          [facilityId]: new ReadSettings(models, facilityId),
-        }),
-        {},
-      );
-    } else {
-      req.settings = new ReadSettings(models);
-    }
-    next();
-  } catch (e) {
-    next(e);
-  }
+  return serverFacilityId ? [serverFacilityId] : serverFacilityIds;
 };
+
+// The facility server resolves its facility ids at boot (env/facts/config), so it
+// passes its own getter; reading it per request also picks up first-run setup
+// completing without a restart. The central server uses the config default.
+export const buildSettingsReaderMiddleware =
+  (getFacilityIds: () => string[] | null | undefined = configFacilityIds) =>
+  (req, _res, next) => {
+    const { models } = req;
+    try {
+      const facilityIds = getFacilityIds();
+      // n.b. facilityIds will not be defined if
+      // - this is a central server; or
+      // - this is a facility server that has not completed first-run setup
+      // in which case only settings that are not facility specific will be available
+      if (facilityIds?.length) {
+        req.settings = facilityIds.reduce(
+          (acc, facilityId) => ({
+            ...acc,
+            [facilityId]: new ReadSettings(models, facilityId),
+          }),
+          {},
+        );
+      } else {
+        req.settings = new ReadSettings(models);
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  };
+
+export const settingsReaderMiddleware = buildSettingsReaderMiddleware();

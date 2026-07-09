@@ -8,11 +8,13 @@ import {
   runInRollbackTransaction,
 } from '@tamanu/database/services/migrations';
 import type { Transaction } from 'sequelize';
+import { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
 import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
 export * from './step.js';
+export { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 
 const EARLIEST_MIGRATION = '1739968205100-addLSFFunction';
 const BASELINE_MIGRATION = '000_baseline';
@@ -66,7 +68,7 @@ async function runUpgrade({
   });
 
   const fromVersion =
-    (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch((err) => {
+    (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch(err => {
       log.error('Failed to get current version, likely because there is not one recorded yet', err);
       return null;
     })) ?? '0.0.0';
@@ -75,10 +77,16 @@ async function runUpgrade({
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  const { migrations: migrationsUmzug, getDurationStats } = createMigrationInterface(log, sequelize, {
-    dryRun,
-    parentTransaction,
-  });
+  // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
+  // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).
+  // Pass parentTransaction so the rewrite rolls back with a dry run rather than committing.
+  await normaliseMigrationStorageExtensions(sequelize, parentTransaction);
+
+  const { migrations: migrationsUmzug, getDurationStats } = await createMigrationInterface(
+    log,
+    sequelize,
+    { dryRun, parentTransaction },
+  );
   const migrations = migrationsUmzug as any;
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();
@@ -170,7 +178,7 @@ async function runUpgrade({
     const beforeMigrations = onlyMigrations(step.before);
     if (
       beforeMigrations.length > 0 &&
-      beforeMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
+      beforeMigrations.every(need => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no before:Migration that has not already run, skipping');
       continue;
@@ -181,7 +189,7 @@ async function runUpgrade({
     const afterMigrations = onlyMigrations(step.after);
     if (
       afterMigrations.length > 0 &&
-      afterMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
+      afterMigrations.every(need => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no after:Migration that had not already run, skipping');
       continue;

@@ -1,10 +1,11 @@
-import { difference } from 'lodash';
+import { difference } from 'es-toolkit/compat';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
   DEVICE_SCOPES,
   DEVICE_SCOPES_SUBJECT_TO_QUOTA,
   SETTING_KEYS,
   SYNC_DIRECTIONS,
+  USER_KINDS,
   type DeviceScope,
 } from '@tamanu/constants';
 import {
@@ -157,7 +158,10 @@ export class Device extends Model {
           SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED as SettingPath,
         );
 
-        if (deviceRegistrationQuotaEnabled && device.requiresQuota()) {
+        // Sync users are machine accounts, one per facility server, provisioned
+        // by an admin — the per-human device quota doesn't apply to them.
+        const isMachineAccount = user.kind === USER_KINDS.SYNC;
+        if (deviceRegistrationQuotaEnabled && device.requiresQuota() && !isMachineAccount) {
           const currentCount = await Device.getQuotaByUserId(user.id);
           if (currentCount + 1 > user.deviceRegistrationQuota) {
             throw new QuotaExceededError();

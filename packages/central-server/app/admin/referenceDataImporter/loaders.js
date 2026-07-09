@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
   DRUG_STOCK_STATUSES,
+  DRUG_UNITS,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
@@ -12,11 +13,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
-  GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
-import { pluralize } from 'inflection';
-import { isEmpty, isNil } from 'lodash';
-import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
+import __cjs_inflection from 'inflection';
+const { pluralize } = __cjs_inflection;
+import { isEmpty, isNil } from 'es-toolkit/compat';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -251,20 +251,6 @@ async function validateObjectId(item, models, pushError) {
     return;
   }
 
-  if (noun === 'StaticReport') {
-    const allowedReportIds = [
-      GENERIC_SURVEY_EXPORT_REPORT_ID,
-      ...REPORT_DEFINITIONS.map(({ id }) => id),
-    ];
-    const objectIds = objectId.split('/');
-    for (const objectId of objectIds) {
-      if (!allowedReportIds.includes(objectId)) {
-        pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
-      }
-    }
-    return;
-  }
-
   // Skip strict objectId validation in test environments
   if (process.env.NODE_ENV === 'test') {
     return;
@@ -295,7 +281,12 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
+      const id = models.Permission.generatePermissionId(
+        role,
+        normalizedVerb,
+        normalizedNoun,
+        normalizedObjectId,
+      );
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -526,7 +517,9 @@ export async function drugLoader(item, { models, pushError }) {
   const {
     id: drugId,
     route,
-    units,
+    dosingUnit,
+    dispensingUnit,
+    unitConversion = 1,
     notes,
     isSensitive = false,
     name,
@@ -538,6 +531,16 @@ export async function drugLoader(item, { models, pushError }) {
   } = item;
   /* eslint-enable no-unused-vars */
   const rows = [];
+
+  const validDrugUnits = Object.values(DRUG_UNITS);
+  if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
+  if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
 
   let existingDrug;
   if (drugId) {
@@ -551,7 +554,9 @@ export async function drugLoader(item, { models, pushError }) {
     id: referenceDrugId,
     referenceDataId: drugId,
     route,
-    units,
+    dosingUnit,
+    dispensingUnit,
+    unitConversion,
     notes,
     isSensitive: !!isSensitive,
   };
@@ -619,7 +624,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     medication: drugReferenceDataId,
     prnMedication,
     doseAmount,
-    units,
+    dosingUnit,
     frequency,
     route,
     duration,
@@ -660,7 +665,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     isPrn: prnMedication,
     isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
     doseAmount: parseFloat(doseAmount) || null,
-    units,
+    dosingUnit,
     frequency,
     route,
     durationValue: durationValue || null,

@@ -8,7 +8,6 @@ on:
       - release/*
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
@@ -33,7 +32,7 @@ jobs:
          ref: ${{ github.head_ref || github.ref }}
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -70,9 +69,6 @@ jobs:
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
           createdb -O tamanu central
-
-      - name: Build central server
-        run: npm run build -- --filter=@tamanu/central-server...
 
       - name: Configure Tamanu
         run: |

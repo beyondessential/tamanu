@@ -1,5 +1,5 @@
 import { DataTypes, Op, type BelongsToGetAssociationMixin } from 'sequelize';
-import { omit } from 'lodash';
+import { omit } from 'es-toolkit/compat';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings';

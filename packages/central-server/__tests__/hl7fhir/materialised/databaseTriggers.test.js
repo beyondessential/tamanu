@@ -6,7 +6,6 @@ a migration that registers a trigger for database tables.
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
-import { setFhirRefreshTriggers } from '../../../dist/database/setFhirRefreshTriggers';
 
 expect.extend({
   async toHaveARegisteredTrigger(tableName, triggerType, triggers) {
@@ -53,8 +52,7 @@ describe('databaseTriggers', () => {
   let materialisableResources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
-    await setFhirRefreshTriggers(ctx.store.sequelize);
+    ctx = await createTestContext({ initFhir: true, initFhirTriggers: true });
     materialisableResources = resourcesThatCanDo(
       ctx.store.models,
       FHIR_INTERACTIONS.INTERNAL.MATERIALISE,

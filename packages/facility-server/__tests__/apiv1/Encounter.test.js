@@ -18,7 +18,7 @@ import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTi
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-import { uploadAttachment } from '../../dist/utils/uploadAttachment';
+import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import { setupSurvey } from '../setupSurvey';
 
@@ -845,7 +845,8 @@ describe('Encounter', () => {
             medicationId: testMedication.id,
             prescriberId: app.user.id,
             doseAmount: 1,
-            units: '%',
+            dosingUnit: '%',
+            dispensingUnit: '%',
             frequency: 'Immediately',
             route: 'dermal',
             date: '2025-01-01',
@@ -869,7 +870,8 @@ describe('Encounter', () => {
               medicationId: secondMedication.id,
               prescriberId: app.user.id,
               doseAmount: 2,
-              units: 'mg',
+              dosingUnit: 'mg',
+              dispensingUnit: 'mg',
               frequency: 'Immediately',
               route: 'oral',
               date: '2025-01-01',
@@ -887,7 +889,8 @@ describe('Encounter', () => {
           medicationId: testMedication.id,
           prescriberId: app.user.id,
           doseAmount: 1,
-          units: '%',
+          dosingUnit: '%',
+          dispensingUnit: '%',
           frequency: 'Immediately',
           route: 'dermal',
           date: '2025-01-01',
@@ -905,7 +908,8 @@ describe('Encounter', () => {
           medicationId: secondMedication.id,
           prescriberId: app.user.id,
           doseAmount: 2,
-          units: 'mg',
+          dosingUnit: 'mg',
+          dispensingUnit: 'mg',
           frequency: 'Immediately',
           route: 'oral',
           date: '2025-01-01',
@@ -972,7 +976,8 @@ describe('Encounter', () => {
             medicationId: testMedication.id,
             prescriberId: app.user.id,
             doseAmount: 1,
-            units: '%',
+            dosingUnit: '%',
+            dispensingUnit: '%',
             frequency: 'Immediately',
             route: 'dermal',
             date: '2025-01-01',
@@ -990,7 +995,8 @@ describe('Encounter', () => {
               medicationId: testMedication.id,
               prescriberId: app.user.id,
               doseAmount: 1,
-              units: '%',
+              dosingUnit: '%',
+              dispensingUnit: '%',
               frequency: 'Immediately',
               route: 'dermal',
               date: '2025-01-01',
@@ -1007,7 +1013,8 @@ describe('Encounter', () => {
           medicationId: testMedication.id,
           prescriberId: app.user.id,
           doseAmount: 1,
-          units: '%',
+          dosingUnit: '%',
+          dispensingUnit: '%',
           frequency: 'Immediately',
           route: 'dermal',
           date: '2025-01-01',

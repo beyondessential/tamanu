@@ -25,9 +25,9 @@ describe('migrate --dry-run', () => {
 
   it('runs the dry-run code path without recording any migrations', async () => {
     // Smoke test of the real `sequelize.migrate('up', { dryRun })` entry point (rollback
-    // wrapping, summary). The rollback guarantee itself is proven by the
+    // wrapping, version check, summary). The rollback guarantee itself is proven by the
     // runInRollbackTransaction suite below; here we only assert SequelizeMeta is untouched.
-    const { migrations } = createMigrationInterface(log, sequelize);
+    const { migrations } = await createMigrationInterface(log, sequelize);
     const executedBefore = (await migrations.executed()).map((migration) => migration.file);
 
     await sequelize.migrate('up', { dryRun: true });
@@ -42,10 +42,10 @@ describe('migrate --dry-run', () => {
     );
   });
 
-  it('refuses a dry run without a parent transaction to nest under', () => {
+  it('refuses a dry run without a parent transaction to nest under', async () => {
     // Guards the footgun where a missing parentTransaction would make each migration's
     // `sequelize.transaction({ transaction: null })` an independent, committing transaction.
-    expect(() => createMigrationInterface(log, sequelize, { dryRun: true })).toThrow(
+    await expect(createMigrationInterface(log, sequelize, { dryRun: true })).rejects.toThrow(
       /requires a parentTransaction/,
     );
   });

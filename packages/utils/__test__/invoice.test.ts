@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import {
   getInvoiceItemPrice,
   getInvoiceItemTotalPrice,
@@ -7,6 +7,9 @@ import {
   getInvoiceItemCoveragePercentage,
   getInsuranceCoverageTotalAmount,
   getInvoiceSummary,
+  getItemTotalInsuranceCoverageAmount,
+  getInvoiceItemNetCost,
+  isFixedPriceItem,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -509,6 +512,143 @@ describe('Invoice Utils', () => {
       expect(summary.insuranceCoverageTotal).toEqual(60);
       expect(summary.patientPaymentRemainingBalance).toEqual(20);
       expect(summary.insurerPaymentRemainingBalance).toEqual(30);
+    });
+  });
+
+  describe('fixed-price medications', () => {
+    const fixedMedication = (overrides = {}) => ({
+      quantity: 30,
+      product: {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        insurable: true,
+        invoicePriceListItem: { price: 2, isFixedPrice: true },
+      },
+      ...overrides,
+    });
+
+    describe('isFixedPriceItem', () => {
+      it('is true for a medication flagged fixed on its price-list item', () => {
+        expect(isFixedPriceItem(fixedMedication())).toBe(true);
+      });
+
+      it('is false for a medication not flagged fixed', () => {
+        const item = fixedMedication();
+        item.product.invoicePriceListItem.isFixedPrice = false;
+        expect(isFixedPriceItem(item)).toBe(false);
+      });
+
+      it('ignores the flag for non-medication products', () => {
+        const item = fixedMedication();
+        item.product.category = INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE;
+        expect(isFixedPriceItem(item)).toBe(false);
+      });
+
+      it('uses the finalised snapshot once priceFinal is set (fixed)', () => {
+        expect(isFixedPriceItem({ priceFinal: 2, isFixedPriceFinal: true, quantity: 30 })).toBe(
+          true,
+        );
+      });
+
+      it('keeps a finalised per-unit line per-unit even if the live price-list flag is now fixed', () => {
+        const item = fixedMedication({
+          priceFinal: 2,
+          isFixedPriceFinal: false,
+        });
+        // live product is flagged fixed, but the finalised snapshot says per-unit
+        expect(isFixedPriceItem(item)).toBe(false);
+      });
+    });
+
+    describe('getInvoiceItemTotalPrice', () => {
+      it('charges the flat fee regardless of quantity', () => {
+        expect(getInvoiceItemTotalPrice(fixedMedication({ quantity: 30 }))).toEqual(2);
+      });
+
+      it('charges the same flat fee at quantity 1', () => {
+        expect(getInvoiceItemTotalPrice(fixedMedication({ quantity: 1 }))).toEqual(2);
+      });
+
+      it('still charges price x quantity when not flagged fixed', () => {
+        const item = fixedMedication();
+        item.product.invoicePriceListItem.isFixedPrice = false;
+        expect(getInvoiceItemTotalPrice(item)).toEqual(60);
+      });
+
+      it('ignores the flag for non-medication products (price x quantity)', () => {
+        const item = fixedMedication();
+        item.product.category = INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE;
+        expect(getInvoiceItemTotalPrice(item)).toEqual(60);
+      });
+
+      it('uses priceFinal x 1 for a finalised fixed line', () => {
+        expect(
+          getInvoiceItemTotalPrice({ priceFinal: 2, isFixedPriceFinal: true, quantity: 30 }),
+        ).toEqual(2);
+      });
+
+      it('charges priceFinal x quantity for a finalised per-unit line despite a live fixed flag', () => {
+        const item = fixedMedication({ priceFinal: 2, isFixedPriceFinal: false });
+        expect(getInvoiceItemTotalPrice(item)).toEqual(60);
+      });
+
+      it('treats a manual price override as the new flat fee (override x 1)', () => {
+        expect(getInvoiceItemTotalPrice(fixedMedication({ manualEntryPrice: 3.5 }))).toEqual(3.5);
+      });
+    });
+
+    describe('discounts and insurance apply to the flat fee', () => {
+      it('applies a percentage discount to the fee', () => {
+        const item = fixedMedication({
+          discount: { type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE, amount: 0.1 },
+        });
+        expect(getInvoiceItemTotalDiscountedPrice(item)).toEqual(1.8);
+      });
+
+      it('applies a flat discount to the fee', () => {
+        const item = fixedMedication({
+          discount: { type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, amount: 0.5 },
+        });
+        expect(getInvoiceItemTotalDiscountedPrice(item)).toEqual(1.5);
+      });
+
+      it('covers a proportion of the fee (80% of $2 = $1.60)', () => {
+        const item = fixedMedication({
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 80 }],
+        });
+        expect(getItemTotalInsuranceCoverageAmount(item)).toEqual(1.6);
+      });
+
+      it('computes coverage off the discounted fee (10% then 80% of $2)', () => {
+        const item = fixedMedication({
+          discount: { type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE, amount: 0.1 },
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 80 }],
+        });
+        // discounted fee 1.8, coverage 1.44
+        expect(getItemTotalInsuranceCoverageAmount(item)).toEqual(1.44);
+        expect(getInvoiceItemNetCost(item)).toEqual(0.36);
+      });
+
+      it('caps coverage at the discounted fee', () => {
+        const item = fixedMedication({
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 150 }],
+        });
+        expect(getItemTotalInsuranceCoverageAmount(item)).toEqual(2);
+      });
+    });
+
+    describe('getInvoiceSummary', () => {
+      it('sums the flat fee into the invoice total without quantity leaking in', () => {
+        const invoice = {
+          items: [
+            fixedMedication({ quantity: 30 }),
+            { manualEntryPrice: 50, quantity: 2, insurancePlanItems: [] },
+          ],
+          payments: [],
+        };
+        const summary = getInvoiceSummary(invoice);
+        // fixed line $2 + per-unit line $100
+        expect(summary.invoiceItemsTotal).toEqual(102);
+      });
     });
   });
 });

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { keyBy, round } from 'lodash';
+import { keyBy, round } from 'es-toolkit/compat';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import {
   INVOICE_ITEMS_DISCOUNT_TYPES,
@@ -9,7 +9,12 @@ import {
 } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
+import {
+  getInvoiceItemPrice,
+  getInvoiceSummary,
+  getInvoicePatientPaymentStatus,
+  isFixedPriceProduct,
+} from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -30,7 +35,7 @@ invoiceRoute.get(
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { InvoicePriceList, InvoicePriceListItem } = req.models;
+    const { InvoicePriceList, InvoicePriceListItem, InvoiceProduct } = req.models;
 
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
 
@@ -44,10 +49,18 @@ invoiceRoute.get(
         invoiceProductId: productId,
         isHidden: false,
       },
-      attributes: ['price'],
     });
 
-    res.json(item);
+    if (!item) {
+      res.json(item);
+      return;
+    }
+
+    // Return the full price-list item plus the product category, so the form can apply fixed
+    // pricing (medications only) before the item is saved.
+    const product = await InvoiceProduct.findByPk(productId, { attributes: ['category'] });
+
+    res.json({ ...item.get({ plain: true }), category: product?.category });
   }),
 );
 
@@ -416,6 +429,7 @@ invoiceRoute.put(
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
 
+          item.isFixedPriceFinal = isFixedPriceProduct(item.product);
           item.priceFinal = getInvoiceItemPrice(item);
 
           // Save insurance plan coverage values

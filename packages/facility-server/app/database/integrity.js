@@ -1,9 +1,8 @@
-import config from 'config';
 import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { CentralServerConnection } from '../sync';
+import { getDeclaredFacilityIds, getDeclaredHost, isServerConfigured } from '../serverConfig';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
@@ -22,12 +21,14 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
-  const centralServer = new CentralServerConnection(context);
-  const configuredHost = centralServer.host;
+  // Drift-check the declared host (env/config) against the fact; a
+  // wizard-configured server has no declaration, so there's nothing to check.
+  const configuredHost = getDeclaredHost();
+  if (!configuredHost) return;
   const lastHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
 
   if (!lastHost) {
-    await LocalSystemFact.set(FACT_CENTRAL_HOST, centralServer.host);
+    await LocalSystemFact.set(FACT_CENTRAL_HOST, configuredHost);
     return;
   }
 
@@ -43,7 +44,9 @@ async function ensureHostMatches(context) {
  */
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
-  const configuredFacilities = selectFacilityIds(config);
+  // Drift-check declared facilities (env/config) against the fact; skip when none.
+  const configuredFacilities = getDeclaredFacilityIds();
+  if (!configuredFacilities?.length) return;
   const lastFacilities = await LocalSystemFact.get(FACT_FACILITY_IDS);
 
   if (lastFacilities) {
@@ -58,6 +61,10 @@ async function ensureFacilityMatches(context) {
       );
     }
   } else {
+    // First registration verifies central is reachable before recording — needs a
+    // host, so skip until the server is configured (CentralServerConnection throws
+    // with no host).
+    if (!isServerConfigured()) return;
     const centralServer = new CentralServerConnection(context);
     log.info(`Verifying central server connection to ${centralServer.host}...`);
     await centralServer.connect();

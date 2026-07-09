@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit/compat';
 
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 
@@ -323,7 +323,11 @@ const COLUMNS = {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '12%' },
-      accessor: ({ quantity }) => quantity,
+      accessor: ({ quantity, sourcePrescription }) => {
+        const dispensingUnit = sourcePrescription?.dispensingUnit;
+        if (!dispensingUnit) return quantity != null ? String(quantity) : '';
+        return `${quantity} ${dispensingUnit}`;
+      },
     },
     {
       key: 'approved',

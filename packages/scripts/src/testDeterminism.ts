@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
-import { join } from 'node:path';
 
 import type { Sequelize } from '@tamanu/database';
 import type { Model } from '@tamanu/database/models/Model';
@@ -10,6 +11,12 @@ import type { Model } from '@tamanu/database/models/Model';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 import { runCommand, spawnCommand } from './runCommand';
+
+// The @tamanu/* packages expose extensionless directory `source` exports that resolve
+// under ESM import() but not require() (tsx's CJS hook doesn't do directory/index
+// resolution for them), so they're loaded with dynamic import below. JSON is unaffected,
+// so the package version is read with a plain require.
+const { version } = createRequire(import.meta.url)('../package.json');
 
 function warn(message: string) {
   if (process.env.CI) {
@@ -127,13 +134,19 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
-  const { initDatabase } = require('@tamanu/database/services/database');
-  const { createMigrationInterface } = require('@tamanu/database/services/migrations');
+  const { initDatabase } = await import('@tamanu/database/services/database');
+  const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
+  const { normaliseMigrationStorageExtensions } = await import('@tamanu/upgrade');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
-  const { migrations: umzug } = createMigrationInterface(console, sequelize);
+  // The baseline DB is built at the pre-migration commit, which may pre-date the build-less
+  // switch and so hold `.js` storage records. upgrade() normalises these before consulting
+  // migrations; do the same here so createMigrationInterface's guard doesn't trip.
+  await normaliseMigrationStorageExtensions(sequelize);
+
+  const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();
 
@@ -141,27 +154,33 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 }
 
 async function migrate(dbConfig: any): Promise<void> {
+  // This script runs against two commits whose modules differ: one exposes real ESM named
+  // exports, the other a CommonJS module whose exports a dynamic import() surfaces under
+  // .default. Fall back to .default so it works in both.
   const script = `
     (async () => {
-      const { version } = require('../package.json');
-      const { initDatabase } = require('@tamanu/database/services/database');
-      const { upgrade } = require('@tamanu/upgrade');
+      const databaseModule = await import('@tamanu/database/services/database');
+      const initDatabase = databaseModule.initDatabase ?? databaseModule.default?.initDatabase;
+      const upgradeModule = await import('@tamanu/upgrade');
+      const upgrade = upgradeModule.upgrade ?? upgradeModule.default?.upgrade;
 
       const { models, sequelize } = await initDatabase(${JSON.stringify(dbConfig)});
-      await upgrade({ models, sequelize, serverType: 'facility', toVersion: version });
+      await upgrade({ models, sequelize, serverType: 'facility', toVersion: ${JSON.stringify(version)} });
       await sequelize.close();
     })().catch(err => {
       console.error(err);
       process.exit(1);
     });
   `;
-  await spawnCommand('node', ['-e', script]);
+  // Run with the tsx loader so the child process can import @tamanu workspace TypeScript
+  // source.
+  await spawnCommand('node', ['--import', 'tsx', '-e', script]);
 }
 
 async function migrateAndHash(dbConfig: any): Promise<DbHashes> {
   await migrate(dbConfig);
 
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
@@ -232,8 +251,41 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  const script = join(__dirname, 'fake.js');
-  return spawnCommand('node', [script, '--database', database, '--rounds', rounds.toString()]);
+  // Run as an inline script (like migrate()) rather than executing fake.ts from disk.
+  // After switching to an older commit, the on-disk fake.ts uses a static require() for
+  // @tamanu/fake-data/populateDb, which tsx's CJS hook can't resolve (directory export).
+  // Dynamic import() handles directory exports correctly.
+  const script = `
+    (async () => {
+      const { default: config } = await import('config');
+      const dbModule = await import('@tamanu/database/services/database');
+      const initDatabase = dbModule.initDatabase ?? dbModule.default?.initDatabase;
+      const fakeModule = await import('@tamanu/fake-data/populateDb');
+      const generateEachDataType = fakeModule.generateEachDataType ?? fakeModule.default?.generateEachDataType;
+
+      const { models, sequelize } = await initDatabase({ ...config.db, testMode: true, name: ${JSON.stringify(database)} });
+      let done = 0;
+      let errs = 0;
+      while (done < ${rounds} && errs < Math.max(10, ${rounds} / 10)) {
+        try {
+          await generateEachDataType(models);
+          done++;
+          process.stdout.write('.');
+        } catch (err) {
+          console.error(err);
+          process.stdout.write('!');
+          errs++;
+        }
+      }
+      console.log();
+      if (done < ${rounds} && errs > 0) throw new Error('encountered too many errors');
+      await sequelize.close();
+    })().catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
+  `;
+  return spawnCommand('node', ['--import', 'tsx', '-e', script]);
 }
 
 (async () => {
@@ -333,7 +385,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   }
 
   const { default: config } = await import('config');
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
 
   const dbConfig = (name: string) => ({
     user: userInfo().username,
@@ -360,12 +412,22 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--discard-changes', '--detach', commitBeforeMigration]);
     await runCommand('npm', ['install']);
+
+    // The old build system (build-all.mjs) doesn't understand --filter= and builds every package,
+    // including web-frontend, then runs scrapeTranslations.ts as part of @tamanu/upgrade's build.
+    // That scraper scanned dist dirs (unlike HEAD which skips them) and flagged bundled strings as
+    // duplicates. --shared-only skips web-frontend / patient-portal (nothing workspace-depends on
+    // them) so the scraper only sees source files, which are consistent.
+    // TODO: Remove this once all builds are on the new system
+    const rootPkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+    const isOldBuildSystem = (rootPkg.scripts?.build ?? '').includes('build-all.mjs');
     await runCommand('npm', [
       'run',
       'build',
       '--',
-      '--filter=@tamanu/database...',
-      '--filter=scripts...',
+      ...(isOldBuildSystem
+        ? ['--shared-only']
+        : ['--filter=@tamanu/database...', '--filter=scripts...']),
     ]);
 
     const initDb = dbConfig('init');
@@ -383,7 +445,13 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...']);
+    await runCommand('npm', [
+      'run',
+      'build',
+      '--',
+      '--filter=@tamanu/database...',
+      '--filter=@tamanu/upgrade...',
+    ]);
 
     console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;

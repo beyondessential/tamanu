@@ -2,18 +2,6 @@ import ReactPDF from '@react-pdf/renderer';
 
 import { makePatientLetter } from '../../app/utils/makePatientLetter';
 
-jest.mock('@react-pdf/renderer', () => {
-  const actual = jest.requireActual('@react-pdf/renderer');
-  const actualDefault = actual.default ?? actual;
-  const render = jest.fn().mockResolvedValue(undefined);
-  return {
-    ...actual,
-    __esModule: true,
-    render,
-    default: { ...actualDefault, render },
-  };
-});
-
 describe('makePatientLetter', () => {
   const makeFakeReq = ({ settings = {} } = {}) => ({
     getLocalisation: async () => ({}),
@@ -28,8 +16,15 @@ describe('makePatientLetter', () => {
     },
   });
 
+  // Spy on the shared ReactPDF instance so we can capture the rendered element without
+  // producing a real PDF. spyOn mutates the imported object at runtime, so it reaches the
+  // module-scoped `ReactPDF.render` call site regardless of mock-hoisting order.
+  let render;
   beforeEach(() => {
-    ReactPDF.render.mockClear();
+    render = jest.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
+  });
+  afterEach(() => {
+    render.mockRestore();
   });
 
   it('passes the request locale through to the letter render', async () => {
@@ -40,8 +35,8 @@ describe('makePatientLetter', () => {
       body: 'Body',
     });
 
-    expect(ReactPDF.render).toHaveBeenCalledTimes(1);
-    const [element] = ReactPDF.render.mock.calls[0];
+    expect(render).toHaveBeenCalledTimes(1);
+    const [element] = render.mock.calls[0];
     expect(element.props.dateTimeLocale).toBe('fr-FR');
   });
 
@@ -53,7 +48,7 @@ describe('makePatientLetter', () => {
       body: 'Body',
     });
 
-    const [element] = ReactPDF.render.mock.calls[0];
+    const [element] = render.mock.calls[0];
     // The setting itself reaches the render via getSetting; the prop carries
     // the browser locale, and withDateTimeContext prefers the setting.
     expect(element.props.getSetting('dateTimeLocale')).toBe('en-GB');

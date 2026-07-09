@@ -1,10 +1,10 @@
 {
   "name": "@tamanu/ui-components",
-  "version": "2.59.1",
+  "version": "2.60.0",
   "description": "Tamanu UI components",
   "private": true,
   "repository": "git@github.com:beyondessential/tamanu.git",
-  "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
+  "author": "BES International Limited <tamanu@bes.au>",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "main": "src/index.js",
@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@tamanu/shared": "*",
-    "@tamanu/utils": "*"
+    "@tamanu/utils": "*",
+    "es-toolkit": "^1.48.1"
   },
   "peerDependencies": {
     "@material-ui/core": "^4.12.4",
@@ -27,7 +28,6 @@
     "@mui/material": "~6.1.1",
     "@mui/x-date-pickers": "~7.22.0",
     "formik": "^2.2.9",
-    "lodash": "^4.17.21",
     "lucide-react": "^1.17.0",
     "react": "^18.2.0",
     "react-autosuggest": "^10.1.0",

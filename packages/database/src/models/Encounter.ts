@@ -1,5 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
-import { capitalize, isEqual } from 'lodash';
+import { capitalize, isEqual } from 'es-toolkit/compat';
 
 import {
   ENCOUNTER_TYPE_VALUES,

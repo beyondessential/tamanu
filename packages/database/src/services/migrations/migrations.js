@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
+import { QueryTypes } from 'sequelize';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
 import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
@@ -98,17 +99,65 @@ function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
 
 // Umzug's down({ to }) INCLUDES the target in the revert. The baseline's down
 // drops all schemas, so we must not include it. Use the first post-baseline
-// migration as the revert boundary instead.
-const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdateSyncTick.js';
+// migration as the revert boundary instead. Stored as a basename (no extension).
+const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdateSyncTick';
+
+// Umzug names migrations by their on-disk filename, so resolve the boundary's actual filename
+// (the source is `.ts`) by matching basenames.
+function resolveLastReversibleMigration() {
+  const migrationsDir = path.join(import.meta.dirname, '../..', 'migrations');
+  const match = readdirSync(migrationsDir).find(
+    file => file.replace(/\.(js|ts)$/, '') === LAST_REVERSIBLE_MIGRATION,
+  );
+  if (!match) {
+    throw new Error(`Could not resolve last reversible migration: ${LAST_REVERSIBLE_MIGRATION}`);
+  }
+  return match;
+}
+
+// Per-process cache of connections whose migration storage we've confirmed is normalised, so
+// the assertion below only touches the DB once per connection (e.g. not on every /health probe).
+const migrationStorageChecked = new WeakSet();
+
+// createMigrationInterface is reached from many paths (server start via assertUpToDate, /health,
+// just-migrate, …). The `.js`->`.ts` rename itself lives in @tamanu/upgrade and runs once, before
+// migration state is read; here we only assert it has been done. A `.js` record only matters if
+// its migration also exists on disk as `.ts` — umzug would then see the `.ts` as unapplied and
+// re-run it. (The baseline seeds historical squashed migrations as `.js`, but those have no file
+// on disk, so they're harmless orphans we ignore.) If such a record is found the database hasn't
+// been upgraded for the build-less switch yet, so fail loudly with guidance. Cached per connection.
+async function assertMigrationStorageNormalised(sequelize, migrationFiles) {
+  if (migrationStorageChecked.has(sequelize)) return;
+  const [table] = await sequelize.query(`SELECT to_regclass('public."SequelizeMeta"') AS name`, {
+    type: QueryTypes.SELECT,
+  });
+  if (table?.name) {
+    const onDiskByBasename = new Set(migrationFiles.map(file => file.replace(/\.(js|ts)$/, '')));
+    const stale = await sequelize.query(
+      `SELECT name FROM public."SequelizeMeta" WHERE name LIKE '%.js'`,
+      { type: QueryTypes.SELECT },
+    );
+    const wouldRerun = stale.find(row => onDiskByBasename.has(row.name.replace(/\.(js|ts)$/, '')));
+    if (wouldRerun) {
+      throw new Error(
+        `Migration storage records "${wouldRerun.name}" with a ".js" extension, but it exists on ` +
+          `disk as ".ts" — this database has not been upgraded for the build-less switch yet, so ` +
+          `umzug would re-run it. Run the upgrade (\`… upgrade\`, aliased as \`migrate\`) first; ` +
+          `it normalises the migration names before migrations are consulted.`,
+      );
+    }
+  }
+  migrationStorageChecked.add(sequelize);
+}
 
 /**
  * `options.dryRun`: when true, each migration runs as a SAVEPOINT under
  * `options.parentTransaction` (the outer dry-run transaction) and deferred audit triggers
  * are flushed at each boundary so a rolled-back dry run behaves like a real run.
  *
- * @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }}
+ * @returns {Promise<{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }>}
  */
-export function createMigrationInterface(log, sequelize, options = {}) {
+export async function createMigrationInterface(log, sequelize, options = {}) {
   const { dryRun = false, parentTransaction = null } = options;
 
   // In a dry run each migration nests as a SAVEPOINT under parentTransaction. Without one,
@@ -117,9 +166,8 @@ export function createMigrationInterface(log, sequelize, options = {}) {
   if (dryRun && !parentTransaction) {
     throw new Error('createMigrationInterface: a dry run requires a parentTransaction.');
   }
-
-  // ie, database/dist/cjs/migrations
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+  // ie, database/src/migrations
+  const migrationsDir = path.join(import.meta.dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)
@@ -130,6 +178,11 @@ export function createMigrationInterface(log, sequelize, options = {}) {
   if (migrationFiles.length === 0) {
     throw new Error('Could not find migrations');
   }
+
+  // The `.js`->`.ts` storage rename happens once in upgrade(); here we only assert it's been done
+  // for migrations that are actually on disk, so already-applied migrations aren't seen as pending
+  // and re-run. Fails clearly if not.
+  await assertMigrationStorageNormalised(sequelize, migrationFiles);
 
   // Duration stats for each migration
   const durationStats = {};
@@ -301,7 +354,7 @@ export async function migrateUpTo({
 
 async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
   const { dryRun = false, parentTransaction = null } = options;
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize, {
+  const { migrations, getDurationStats } = await createMigrationInterface(log, sequelize, {
     dryRun,
     parentTransaction,
   });
@@ -336,7 +389,7 @@ async function syncDatabaseServerVersionForMigrateUp(sequelize, options) {
 
 async function migrateDown(log, sequelize, options = {}) {
   const { dryRun = false, parentTransaction = null, to } = options;
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize, {
+  const { migrations, getDurationStats } = await createMigrationInterface(log, sequelize, {
     dryRun,
     parentTransaction,
   });
@@ -391,7 +444,7 @@ async function migrateDown(log, sequelize, options = {}) {
 export async function assertUpToDate(log, sequelize, options) {
   if (options.skipMigrationCheck) return;
 
-  const { migrations } = createMigrationInterface(log, sequelize);
+  const { migrations } = await createMigrationInterface(log, sequelize);
   const pending = await migrations.pending();
   if (pending.length > 0) {
     throw new Error(
@@ -416,7 +469,7 @@ export async function migrate(log, sequelize, direction, options = {}) {
       return migrateDown(log, sequelize, opts);
     }
     if (direction === 'downToLastReversibleMigration') {
-      return migrateDown(log, sequelize, { ...opts, to: LAST_REVERSIBLE_MIGRATION });
+      return migrateDown(log, sequelize, { ...opts, to: resolveLastReversibleMigration() });
     }
     if (direction === 'redoLatest') {
       await migrateDown(log, sequelize, opts);

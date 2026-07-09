@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.59.1",
+  "version": "2.60.0",
   "private": true,
   "scripts": {
     "test": "playwright test",
@@ -15,6 +15,7 @@
     "@tamanu/database": "*",
     "@types/node": "^20.9.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "tsx": "^4.20.6"
   }
 }

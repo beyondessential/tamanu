@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -12,7 +10,8 @@ import {
   FhirReference,
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
-import { Invalid } from '@tamanu/shared/utils/fhir';
+
+import { Invalid, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
@@ -26,7 +25,7 @@ export class FhirObservation extends FhirResource {
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
-  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number } }>;
+  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number }; text?: string }>;
   declare performer?: Array<{ display?: string | null }>;
 
   static initModel(options: InitOptions, models: Models) {
@@ -82,10 +81,22 @@ export class FhirObservation extends FhirResource {
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
       referenceRange: yup.array().of(
-        yup.object({
-          low: FhirQuantity.asYup(),
-          high: FhirQuantity.asYup(),
-        }),
+        yup
+          .object({
+            low: FhirQuantity.asYup(),
+            high: FhirQuantity.asYup(),
+            text: yup.string(),
+          })
+          .test(
+            'text-or-numeric',
+            'referenceRange must specify either text or numeric bounds (low/high), not both',
+            value => {
+              if (!value) return true;
+              const hasText = Boolean(value.text);
+              const hasNumeric = value.low?.value != null || value.high?.value != null;
+              return !(hasText && hasNumeric);
+            },
+          ),
       ),
       performer: yup.array().of(FhirReference.asYup()),
     });
@@ -149,14 +160,13 @@ export class FhirObservation extends FhirResource {
       });
     }
     const { type, reference } = this.basedOn[0]!;
+    const { resourceType, id: serviceRequestFhirId } = FhirReference.parse(reference);
 
-    const ref = reference.split('/');
-    if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
+    if (type !== 'ServiceRequest' || resourceType !== 'ServiceRequest') {
       throw new Invalid(`Invalid ServiceRequest reference`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const serviceRequestFhirId = ref[1];
 
     const serviceRequest = await FhirServiceRequest.findOne({
       where: { id: serviceRequestFhirId },
@@ -185,6 +195,7 @@ export class FhirObservation extends FhirResource {
       completedDate: getCurrentDateTimeString(),
       referenceRangeMin: firstReferenceRange?.low?.value ?? null,
       referenceRangeMax: firstReferenceRange?.high?.value ?? null,
+      referenceRangeText: firstReferenceRange?.text ?? null,
       labTestMethodId: labTestMethodId ?? null,
       laboratoryOfficer: this.getLaboratoryOfficerFromPerformer(),
     };
@@ -212,21 +223,18 @@ export class FhirObservation extends FhirResource {
       FhirCoding.asYup().validateSync(coding),
     );
 
+    const dd = getFhirDataDictionaries();
     const labTestCode = validatedCodings.find(
-      coding => coding.system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+      coding => coding.system === dd.serviceRequestLabTestCodeSystem,
     )?.code;
 
     const labTestExternalCode = validatedCodings.find(
-      coding =>
-        coding.system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+      coding => coding.system === dd.serviceRequestLabTestExternalCodeSystem,
     )?.code;
 
     if (!labTestCode && !labTestExternalCode) {
       throw new Invalid('Invalid code, must provide a code of one of the configured systems:', {
-        systems: [
-          config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-          config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
-        ],
+        systems: [dd.serviceRequestLabTestCodeSystem, dd.serviceRequestLabTestExternalCodeSystem],
       });
     }
 
@@ -289,16 +297,16 @@ export class FhirObservation extends FhirResource {
       return undefined;
     }
 
+    const dd = getFhirDataDictionaries();
     const validatedMethod = FhirCodeableConcept.SCHEMA().validateSync(this.method);
     const methodCodings =
       validatedMethod.coding?.filter(
         (coding: Record<string, any>) =>
-          coding?.code &&
-          coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+          coding?.code && coding?.system === dd.observationMethodCodeSystem,
       ) ?? [];
     if (methodCodings.length === 0) {
       throw new Invalid(
-        `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
+        `Invalid method, must provide at least one coding with a code and system '${dd.observationMethodCodeSystem}'`,
         {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
         },

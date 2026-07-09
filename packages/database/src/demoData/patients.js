@@ -1,6 +1,5 @@
 import Chance from 'chance';
 import { addHours, subMinutes } from 'date-fns';
-
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { generateId } from '@tamanu/utils/generateId';
 import { randomDate, randomRecordId, TIME_INTERVALS } from './utilities';
@@ -168,7 +167,8 @@ export async function createDummyPrescription(models, overrides = {}) {
     prescriberId: await randomUser(models),
     medicationId: await randomReferenceId(models, 'drug'),
     doseAmount: 1,
-    units: chance.word(),
+    dosingUnit: chance.word(),
+    dispensingUnit: chance.word(),
     frequency: chance.word(),
     ...overrides,
   };

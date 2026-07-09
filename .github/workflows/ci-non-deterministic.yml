@@ -12,7 +12,6 @@ permissions:
   contents: read
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
@@ -63,9 +62,6 @@ jobs:
             --workspace=scripts \
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server
-      - name: Build @tamanu/database
-        run: npm run build -- --filter=@tamanu/database...
-
       - name: Precheck
         id: precheck
         run: |
@@ -86,12 +82,16 @@ jobs:
         if: steps.precheck.outputs.code != '2'
         env:
           NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
+          # Absolute so it resolves from the determinism harness's repo-root CWD, not the relative config/ path.
+          CRYPTO_KEY_FILE: ${{ github.workspace }}/packages/central-server/config/dev-secret.key
         run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }}
 
       - name: Test facility migrations
         if: steps.precheck.outputs.code != '2'
         env:
           NODE_CONFIG_DIR: ${{ github.workspace }}/packages/facility-server/config
+          # Absolute so it resolves from the determinism harness's repo-root CWD, not the relative config/ path.
+          CRYPTO_KEY_FILE: ${{ github.workspace }}/packages/facility-server/config/dev-secret.key
         run: npm run --silent --workspace scripts test-determinism -- --since-ref ${{ steps.base.outputs.realbase }}
 
   # Dummy job to have a stable name for PR requirements

@@ -2,7 +2,7 @@
 
 Thank you for taking the time to consider contributing, and welcome to the Tamanu project!
 
-We require our external contributors to sign a Contributor License Agreement ("CLA") in order to ensure that our projects remain licensed under source-available licenses such as BSL 1.1 and GPL 3.0, while allowing BES to build a cohesive, sustainable, and valuable global good.
+We require our external contributors to sign a Contributor License Agreement ("CLA") in order to ensure that our projects remain licensed under source-available licenses such as BSL 1.1 and GPL 3.0, while allowing BES International to build a cohesive, sustainable, and valuable global good.
 
 BES is committed to open licensing for our non-commercial software. A CLA enables BES to safely share, implement and support our products while keeping source-available licenses with all the rights those licenses grant to users.
 

@@ -2,13 +2,14 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTime';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import * as yup from 'yup';
 import {
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SYSTEM_USER_UUID,
   ADMIN_USER_EMAIL,
+  USER_KINDS,
 } from '@tamanu/constants';
 import {
   DatabaseDuplicateError,
@@ -63,6 +64,10 @@ const createUserFilters = (filterParams, models) => {
     // Exclude admin user
     {
       email: { [Op.ne]: ADMIN_USER_EMAIL },
+    },
+    // Only list human users; machine accounts (sync, system) opt out by kind
+    {
+      kind: USER_KINDS.USER,
     },
   ];
 
@@ -403,6 +408,14 @@ usersRouter.put(
     }
     // only allow updating the user if the user has the write permission for the all users
     req.checkPermission('write', subject('User', { id: String(Date.now()) }));
+
+    // Editing a sync user (especially its password) silently breaks that
+    // device's sync; rotate via the facility setup wizard instead.
+    if (user.kind === USER_KINDS.SYNC) {
+      throw new InvalidOperationError(
+        'Sync users are managed by facility setup and cannot be edited',
+      );
+    }
 
     const role = await Role.findByPk(fields.role);
     if (!role) {

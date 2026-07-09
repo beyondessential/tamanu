@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'es-toolkit/compat';
 import { useIsFocused } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';

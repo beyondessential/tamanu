@@ -1,19 +1,11 @@
 import { Sequelize, Op } from 'sequelize';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
-import { jsonFromBase64, jsonToBase64 } from '@tamanu/utils/encodings';
+import { base64ToJson, jsonToBase64 } from '@tamanu/utils/encodings';
 import { InvalidParameterError } from '@tamanu/errors';
 import { toDateString } from '@tamanu/utils/dateTime';
-import {
-  endOfDay,
-  endOfMonth,
-  endOfYear,
-  parseISO,
-  startOfDay,
-  startOfMonth,
-  startOfYear,
-  isMatch,
-} from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { endOfDay, endOfMonth, endOfYear, parseISO, startOfDay, startOfMonth, startOfYear, isMatch } from 'date-fns';
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { zonedTimeToUtc } = __cjs_date_fns_tz;
 
 export function toSearchId({ after, ...params }) {
   const result = { ...params };
@@ -28,7 +20,7 @@ export function toSearchId({ after, ...params }) {
 
 export function fromSearchId(cursor) {
   // leave it to parseQuery to validate params
-  return jsonFromBase64(cursor);
+  return base64ToJson(cursor);
 }
 
 // HL7 query parameters might have modifiers,
@@ -101,17 +93,4 @@ function getStartEndOfFns(dateString) {
     default:
       throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
   }
-}
-/*
-  References can have three different formats:
-  - id
-  - type/id
-  - Resource URL
-
-  This function extracts and returns the id in each case.
-  Read more: http://hl7.org/fhir/search.html#reference
-*/
-export function parseHL7Reference(reference) {
-  const params = reference.split('/');
-  return params[params.length - 1];
 }

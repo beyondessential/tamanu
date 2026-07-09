@@ -1,11 +1,10 @@
 import express from 'express';
-import config from 'config';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit/compat';
 import {
   REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
@@ -20,12 +19,11 @@ export const reportsRouter = express.Router();
 reportsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    const { store } = req;
+    const { store, isReportingSchemaEnabled } = req;
     req.checkPermission('read', 'ReportDefinition');
     req.checkPermission('read', 'ReportDefinitionVersion');
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
-    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
 
     const result = await store.sequelize.query(
       `SELECT rd.id,
@@ -106,8 +104,7 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinition');
     req.checkPermission('create', 'ReportDefinitionVersion');
 
-    const { store, body, user, reportSchemaStores } = req;
-    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
+    const { store, body, user, reportSchemaStores, isReportingSchemaEnabled } = req;
     const defaultReportingSchema = isReportingSchemaEnabled
       ? REPORT_DB_CONNECTIONS.REPORTING
       : REPORT_DB_CONNECTIONS.RAW;
@@ -197,12 +194,11 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinition');
     req.checkPermission('create', 'ReportDefinitionVersion');
 
-    const { store, user, reportSchemaStores } = req;
+    const { store, user, reportSchemaStores, isReportingSchemaEnabled } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
-    const { reportSchemas } = config.db;
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
@@ -213,7 +209,11 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
+    if (
+      isReportingSchemaEnabled &&
+      !canEditSchema &&
+      versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW
+    ) {
       throw new InvalidOperationError(
         'You do not have permission to import reports using the raw schema',
       );
@@ -242,7 +242,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema: reportSchemas.enabled ? versionData.dbSchema : REPORT_DB_CONNECTIONS.RAW,
+              dbSchema: isReportingSchemaEnabled ? versionData.dbSchema : REPORT_DB_CONNECTIONS.RAW,
             },
             include: [
               {
@@ -325,7 +325,7 @@ reportsRouter.get(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
 
-    if (!config.db.reportSchemas.enabled) return res.send([]);
+    if (!req.isReportingSchemaEnabled) return res.send([]);
     const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_CONNECTIONS).map(value => ({
       label: capitalize(value),
       value,

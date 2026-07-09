@@ -10,7 +10,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { type PureAbility } from '@casl/ability';
-import { union } from 'lodash';
+import { union } from 'es-toolkit/compat';
 import { MODELS_MAP } from './modelsMap';
 @Entity('users')
 export class User extends BaseModel implements IUser {
@@ -36,6 +36,9 @@ export class User extends BaseModel implements IUser {
 
   @Column()
   role: string;
+
+  @Column({ default: 'user' })
+  kind: string;
 
   @OneToMany(() => Referral, referral => referral.practitioner)
   referrals: Referral[];

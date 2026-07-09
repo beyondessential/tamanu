@@ -3,7 +3,7 @@ import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
 import { getAuthTokenFromLocalStorage, getItemFromLocalStorage } from './localStorage';
-import { Patient, User } from '@tamanu/database';
+import type { Patient, User } from '@tamanu/database';
 import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
 
@@ -238,7 +238,6 @@ export const createEncounterPrescriptionViaApi = async (
     medicationId: string;
     route: string;
     doseAmount: number;
-    units: string;
     frequency: string;
   }> = {},
 ) => {
@@ -264,7 +263,6 @@ export const createEncounterPrescriptionViaApi = async (
     startDate: datetimeString,
     route: 'oral',
     doseAmount: 1,
-    units: 'mg',
     frequency: 'Immediately',
     ...overrides,
   };

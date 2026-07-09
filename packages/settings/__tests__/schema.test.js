@@ -7,8 +7,8 @@ import {
   globalSettings,
   facilitySettings,
   centralSettings,
-} from '../dist/mjs';
-import { extractDefaults } from '../dist/cjs/schema/utils';
+} from '../src';
+import { extractDefaults } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
 import { VACCINE_STATUS } from '@tamanu/constants';
@@ -100,6 +100,30 @@ describe('Schemas', () => {
           worker: {
             heartbeat: '1 minute',
             assumeDroppedAfter: '10 minutes',
+            concurrency: 10,
+            resourceMaterialisationEnabled: {
+              Patient: true,
+              Encounter: false,
+              Immunization: false,
+              MediciReport: false,
+              Organization: false,
+              Practitioner: false,
+              ServiceRequest: false,
+              Specimen: false,
+              MedicationRequest: false,
+              DiagnosticReport: false,
+            },
+          },
+          parameters: {
+            _count: {
+              default: 100,
+              max: 1000,
+            },
+          },
+          extensions: {
+            Patient: {
+              newZealandEthnicity: false,
+            },
           },
         },
         integrations: {

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { random, sample } from 'lodash';
+import { random, sample } from 'es-toolkit/compat';
 import { formatISO9075 } from 'date-fns';
 
 import {
@@ -133,6 +133,7 @@ export const fakeUser = (): IUser => {
     email: `user-email-${uuid}@example.com`,
     displayName: `user-displayName-${uuid}`,
     role: 'practitioner',
+    kind: 'user',
   };
 };
 

@@ -1,5 +1,5 @@
 import { SEX_VALUES } from '@tamanu/constants';
-import { isNil } from 'lodash';
+import { isNil } from 'es-toolkit/compat';
 
 // These types are structurally compatible with the Database models but defined here
 // to avoid circular dependencies between utils and database packages.
@@ -15,6 +15,7 @@ export type LabTestTypeLike = {
 export type LabTestReferenceRangeOverride = {
   referenceRangeMin?: number | null;
   referenceRangeMax?: number | null;
+  referenceRangeText?: string | null;
 };
 
 type getTranslation = (
@@ -43,32 +44,32 @@ export const getReferenceRange = ({
 }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
+  const overrideMax = labTest?.referenceRangeMax;
+  const overrideMin = labTest?.referenceRangeMin;
+  const hasNumericOverride = !isNil(overrideMax) || !isNil(overrideMin);
+
+  // Priority 2: per-test text override, only when there are no per-test numeric overrides
+  if (!hasNumericOverride && labTest?.referenceRangeText) return labTest.referenceRangeText;
+
   const { defaultMax, defaultMin } =
     sex === SEX_VALUES.MALE
       ? { defaultMax: labTestType.maleMax, defaultMin: labTestType.maleMin }
       : sex === SEX_VALUES.FEMALE
         ? { defaultMax: labTestType.femaleMax, defaultMin: labTestType.femaleMin }
         : ({} as { defaultMax?: number | null; defaultMin?: number | null });
-  const overrideMax = labTest?.referenceRangeMax;
-  const overrideMin = labTest?.referenceRangeMin;
   const max = isNil(overrideMax) ? defaultMax : overrideMax;
   const min = isNil(overrideMin) ? defaultMin : overrideMin;
   const hasMax = !isNil(max);
   const hasMin = !isNil(min);
 
-  let baseRange: string;
   if (hasMin && hasMax)
-    baseRange = getTranslation('general.fallback.range', ':min–:max', {
-      replacements: { min, max },
-    });
-  else if (hasMin)
-    baseRange = getTranslation('general.fallback.greaterThan', '>:min', { replacements: { min } });
-  else if (hasMax)
-    baseRange = getTranslation('general.fallback.lessThan', '<:max', { replacements: { max } });
-  else if (labTestType.rangeText) baseRange = labTestType.rangeText;
-  else baseRange = getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' });
-
-  return baseRange;
+    return getTranslation('general.fallback.range', ':min–:max', { replacements: { min, max } });
+  if (hasMin)
+    return getTranslation('general.fallback.greaterThan', '>:min', { replacements: { min } });
+  if (hasMax)
+    return getTranslation('general.fallback.lessThan', '<:max', { replacements: { max } });
+  if (labTestType.rangeText) return labTestType.rangeText;
+  return getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' });
 };
 
 export const getReferenceRangeWithUnit = ({

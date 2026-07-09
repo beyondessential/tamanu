@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
 
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -64,7 +64,11 @@ const columns = (getTranslation, getEnumTranslation) => [
   {
     key: 'quantity',
     title: getTranslation('pdf.table.column.quantity', 'Quantity'),
-    accessor: ({ quantity }) => quantity,
+    accessor: ({ quantity, dispensingUnit }) => {
+      if (!quantity) return '';
+      if (!dispensingUnit) return `${quantity}`;
+      return `${quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`;
+    },
   },
   {
     key: 'repeats',

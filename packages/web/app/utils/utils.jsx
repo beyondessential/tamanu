@@ -1,7 +1,7 @@
 import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { each, isArray } from 'lodash';
+import { each, isArray } from 'es-toolkit/compat';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';

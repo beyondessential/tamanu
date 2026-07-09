@@ -1,4 +1,4 @@
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'es-toolkit/compat';
 
 const applyCasing = (text, casing) => {
   if (!casing) return text;

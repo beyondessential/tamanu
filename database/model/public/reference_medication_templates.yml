@@ -44,11 +44,6 @@ sources:
           - name: dose_amount
             data_type: numeric
             description: "{{ doc('reference_medication_templates__dose_amount') }}"
-          - name: units
-            data_type: character varying(255)
-            description: "{{ doc('reference_medication_templates__units') }}"
-            data_tests:
-              - not_null
           - name: frequency
             data_type: character varying(255)
             description: "{{ doc('reference_medication_templates__frequency') }}"
@@ -92,5 +87,10 @@ sources:
           - name: is_ongoing
             data_type: boolean
             description: "{{ doc('reference_medication_templates__is_ongoing') }}"
+            data_tests:
+              - not_null
+          - name: dosing_unit
+            data_type: character varying(255)
+            description: "{{ doc('reference_medication_templates__dosing_unit') }}"
             data_tests:
               - not_null
