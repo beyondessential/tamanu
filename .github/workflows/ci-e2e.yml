@@ -1,9 +1,9 @@
 name: E2E Tests
 
-# NOTE: disabled to workflow_dispatch-only on the experimental branch
-# claude/windows-vhdx-oci-artifact-f6qhdy to avoid unneeded GHA churn.
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  merge_group:
 
 permissions:
   contents: read

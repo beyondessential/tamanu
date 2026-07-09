@@ -1,10 +1,12 @@
 name: CI
 
-# NOTE: disabled to workflow_dispatch-only on the experimental branch
-# claude/windows-vhdx-oci-artifact-f6qhdy to avoid unneeded GHA churn while
-# iterating on the Windows VHDX experiment. Restore this block before merge.
 on:
   workflow_dispatch:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read

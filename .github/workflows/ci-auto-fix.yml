@@ -1,8 +1,7 @@
 name: Review Hero Auto-Fix
-# NOTE: disabled to workflow_dispatch-only on the experimental branch
-# claude/windows-vhdx-oci-artifact-f6qhdy to avoid unneeded GHA churn.
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, edited]
 
 permissions:
   actions: read

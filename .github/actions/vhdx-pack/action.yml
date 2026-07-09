@@ -1,40 +1,28 @@
-name: Pack VHDX and report metrics
+name: Pack VHDX as an OCI artifact
 description: >
-  Compress a built VHDX, push it to ghcr.io as a BES OCI artifact, and record
-  size + time metrics for the Windows VHDX experiment. Expects the calling job
-  to have set VHDX_PATH and VHDX_RAW_BYTES, plus the WINDOWS_JOB_START / TS_*
-  phase markers, in the environment (via GITHUB_ENV) before this runs.
+  Compress a built VHDX with zstd and push it to ghcr.io as a BES OCI artifact,
+  attaching a runtime config blob (mirroring the Docker image config) that
+  describes how to run the bundle once the VHDX is mounted. Expects the calling
+  job to have set VHDX_PATH in the environment (via GITHUB_ENV) beforehand.
 inputs:
   package:
     required: true
-    description: central | facility
-  filesystem:
+    description: central | facility | frontend | patient-portal
+  package-path:
     required: true
-    description: NTFS | ReFS
-  compression:
+    description: workspace path of the package, e.g. central-server | web
+  kind:
     required: true
-    description: 'true | false'
-  variant:
+    description: server | frontend (shapes the runtime config blob)
+  root-dir:
     required: true
-    description: experiment label (e.g. baseline, direct-build)
+    description: top-level directory inside the VHDX (WorkingDir base)
   version:
     required: true
     description: app version string
   sha:
     required: true
     description: commit sha driving the image tags
-  cd-start:
-    required: true
-    description: epoch seconds captured at CD start (config job)
-  kind:
-    required: true
-    description: server | frontend (shapes the runtime config blob)
-  package-path:
-    required: true
-    description: workspace path of the package, e.g. central-server | web
-  root-dir:
-    required: true
-    description: top-level directory inside the VHDX (WorkingDir base)
   github-token:
     required: true
     description: token for ghcr.io login
@@ -48,11 +36,7 @@ runs:
         choco install zstandard --no-progress -y
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
-        $vhdx = $env:VHDX_PATH
-        zstd --rm -T0 -19 $vhdx
-        $zst = (Get-Item "$vhdx.zst").Length
-        "VHDX_ZST_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-        "TS_ZSTD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        zstd --rm -T0 -19 $env:VHDX_PATH
 
     - name: Install oras
       shell: pwsh
@@ -64,17 +48,13 @@ runs:
         "$PWD\oras-bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
         & "$PWD\oras-bin\oras.exe" version
 
-    - name: Push VHDX and record metrics
+    - name: Push VHDX artifact
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PKG: ${{ inputs.package }}
-        FS: ${{ inputs.filesystem }}
-        COMPRESSION: ${{ inputs.compression }}
-        VARIANT: ${{ inputs.variant }}
         VERSION: ${{ inputs.version }}
         SHA: ${{ inputs.sha }}
-        CD_START: ${{ inputs.cd-start }}
         KIND: ${{ inputs.kind }}
         PKG_PATH: ${{ inputs.package-path }}
         ROOT_DIR: ${{ inputs.root-dir }}
@@ -91,12 +71,11 @@ runs:
         # what's inside the VHDX once mounted. WorkingDir and PATH are relative to
         # the volume root ($ROOT_DIR maps to the container's /app); paths use
         # forward slashes like the Docker config. Values match the production
-        # images — the servers via docker-entrypoint.sh's effective
-        # `node --import tsx app serve` (NOT the bare-metal pm2 path), the
-        # frontends via caddy. Unlike a container, a mounted VHDX has no implicit
-        # PATH, so PATH carries the dir holding the runtime we embed (runtime/
-        # node.exe for servers, caddy.exe at the bundle root for frontends) — that
-        # is how the bare Entrypoint binary resolves.
+        # images — servers via docker-entrypoint.sh's effective
+        # `node --import tsx app serve`, frontends via caddy. Unlike a container,
+        # a mounted VHDX has no implicit PATH, so PATH carries the dir holding the
+        # runtime we embed (runtime/node.exe for servers, caddy.exe at the bundle
+        # root for frontends) — that is how the bare Entrypoint binary resolves.
         if [ "$KIND" = "frontend" ]; then
           runcfg="$(jq -n --arg wd "$ROOT_DIR" '{
             WorkingDir: $wd,
@@ -116,18 +95,18 @@ runs:
         fi
         jq -n \
           --arg os windows --arg arch amd64 \
-          --arg pkg "$PKG" --arg variant "$VARIANT" --arg root "$ROOT_DIR" \
+          --arg pkg "$PKG" --arg root "$ROOT_DIR" \
           --argjson config "$runcfg" \
           '{schemaVersion:1, os:$os, architecture:$arch, package:$pkg,
-            variant:$variant, vhdx:{rootDir:$root}, config:$config}' \
+            vhdx:{rootDir:$root}, config:$config}' \
           > runconfig.json
         cat runconfig.json
 
-        # Push with a BES-specific config media type (not an OCI image config),
-        # so container runtimes never treat it as a runnable image, while the
-        # config blob carries the runtime characteristics above. The VHDX layer
-        # keeps its BES media type. In the multi-arch index it also gets an
-        # unknown/unknown platform that runtimes deliberately never select.
+        # Push with a BES-specific config media type (not an OCI image config), so
+        # container runtimes never treat it as a runnable image; the config blob
+        # carries the runtime characteristics above and the VHDX layer keeps its
+        # BES media type. In the multi-arch index it also gets an unknown/unknown
+        # platform that runtimes deliberately never select.
         oras push "$image:$tag" \
           --config "runconfig.json:$CONFIG_TYPE" \
           --annotation "org.opencontainers.image.title=Tamanu $PKG (Windows VHDX)" \
@@ -138,66 +117,4 @@ runs:
           --annotation "au.bes.tamanu.package=$PKG" \
           --annotation "au.bes.tamanu.os=windows" \
           --annotation "au.bes.tamanu.arch=amd64" \
-          --annotation "au.bes.tamanu.variant=$VARIANT" \
           "$vhdx:$ARTIFACT_TYPE"
-
-        # Total pushed size = sum of layer sizes + config + manifest.
-        manifest="$(oras manifest fetch "$image:$tag")"
-        registry_bytes="$(jq '[.layers[].size] + [.config.size] + [(. | tostring | length)] | add' <<<"$manifest")"
-
-        # Timings: whole CD process (config start -> upload), this job alone, and
-        # each build phase (raw per-step build time).
-        now="$(date +%s)"
-        total_elapsed=$(( now - CD_START ))
-        js="${WINDOWS_JOB_START:-$now}"
-        windows_elapsed=$(( now - js ))
-        # Frontends have no embed-node step; default TS_EMBED to TS_NPM so the
-        # embed phase reads 0 and buildVhdx spans npm -> build (not garbage).
-        ts_embed="${TS_EMBED:-${TS_NPM:-0}}"
-        setup_s=$(( ${TS_SETUP:-$js} - js ))
-        npm_s=$(( ${TS_NPM:-0} - ${TS_SETUP:-0} ))
-        embed_s=$(( ts_embed - ${TS_NPM:-0} ))
-        build_s=$(( ${TS_BUILD:-0} - ts_embed ))
-        compress_s=$(( ${TS_ZSTD:-0} - ${TS_BUILD:-0} ))
-        upload_s=$(( now - ${TS_ZSTD:-$now} ))
-
-        jq -n \
-          --arg package "$PKG" \
-          --arg variant "$VARIANT" \
-          --arg filesystem "$FS" \
-          --arg compression "$COMPRESSION" \
-          --argjson raw "${VHDX_RAW_BYTES:-0}" \
-          --argjson compressed "${VHDX_ZST_BYTES:-0}" \
-          --argjson registry "${registry_bytes:-0}" \
-          --argjson total "$total_elapsed" \
-          --argjson windows "$windows_elapsed" \
-          --argjson setup "$setup_s" \
-          --argjson npm "$npm_s" \
-          --argjson embed "$embed_s" \
-          --argjson build "$build_s" \
-          --argjson compress "$compress_s" \
-          --argjson upload "$upload_s" \
-          --argjson legacySeconds "${LEGACY_TAR_SECONDS:-0}" \
-          --argjson legacyBytes "${LEGACY_TAR_BYTES:-0}" \
-          --argjson contentPre "${CONTENT_PRESTRIP_MB:-0}" \
-          --argjson contentPost "${CONTENT_POSTSTRIP_MB:-0}" \
-          --arg tag "$tag" \
-          '{package:$package, variant:$variant, filesystem:$filesystem,
-            compression:$compression, vhdxRawBytes:$raw,
-            vhdxCompressedBytes:$compressed, registryBytes:$registry,
-            totalElapsedSeconds:$total, windowsElapsedSeconds:$windows,
-            legacyTarSeconds:$legacySeconds, legacyTarBytes:$legacyBytes,
-            contentPreStripMiB:$contentPre, contentPostStripMiB:$contentPost,
-            phases:{ setupFetch:$setup, npmInstall:$npm, embedNode:$embed,
-                     buildVhdx:$build, compress:$compress, upload:$upload },
-            tag:$tag}' \
-          > "metrics-$PKG.json"
-        cat "metrics-$PKG.json"
-
-    - name: Upload experiment metrics
-      uses: actions/upload-artifact@v4
-      with:
-        name: vhdx-metrics-${{ inputs.package }}
-        path: metrics-${{ inputs.package }}.json
-        retention-days: 15
-        if-no-files-found: error

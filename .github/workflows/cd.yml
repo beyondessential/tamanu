@@ -47,22 +47,7 @@ jobs:
     name: Workflow config
     runs-on: ubuntu-latest
     steps:
-      - name: Mark CD start
-        id: cdstart
-        run: echo "epoch=$(date +%s)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
-      - name: Read VHDX experiment config
-        id: exp
-        run: |
-          set -a; source .github/vhdx-experiment.env; set +a
-          {
-            echo "variant=${EXPERIMENT_VARIANT}"
-            echo "fs=${VHDX_FILESYSTEM}"
-            echo "compress=${VHDX_COMPRESS}"
-            echo "direct=${VHDX_DIRECT_BUILD}"
-            echo "optimize=${VHDX_OPTIMIZE:-false}"
-            echo "size=${VHDX_VIRTUAL_SIZE_MB}"
-          } | tee -a "$GITHUB_OUTPUT"
       - name: Figure branch ref and sha
         id: ref
         uses: actions/github-script@v7
@@ -155,13 +140,6 @@ jobs:
     outputs:
       ref: ${{ steps.ref.outputs.result }}
       sha: ${{ steps.sha.outputs.sha }}
-      cd-start: ${{ steps.cdstart.outputs.epoch }}
-      exp-variant: ${{ steps.exp.outputs.variant }}
-      exp-fs: ${{ steps.exp.outputs.fs }}
-      exp-compress: ${{ steps.exp.outputs.compress }}
-      exp-direct: ${{ steps.exp.outputs.direct }}
-      exp-optimize: ${{ steps.exp.outputs.optimize }}
-      exp-size: ${{ steps.exp.outputs.size }}
       up: ${{ steps.config.outputs.up }}
       down: ${{ steps.config.outputs.down }}
       mobile: ${{ steps.config.outputs.mobile }}
@@ -273,99 +251,19 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
-  # Experimental: build a *Windows-native* server release (native `npm install`
-  # on a Windows runner), capture it as an NTFS VHDX disk image, and pack the
-  # VHDX as an OCI artifact in ghcr.io so it can be pulled efficiently and folded
-  # into the multi-arch manifest we already generate.
+  # Windows-native release VHDXs, packed as OCI artifacts in ghcr.io and folded
+  # into the multi-arch manifest we already generate. Built from source on a
+  # Windows runner (real npm install / native build) in parallel with the linux
+  # images — needs only `config`, so no release tag is required (any PR/branch
+  # builds them via the imagesonly deploy option).
   #
-  # The goal is to answer "does Tamanu actually run from this VHDX on our target
-  # Windows systems?" — so the bundle must have Windows-native node_modules, not
-  # linux ones. We reuse the same bundle-sourcing as cd-package-servers.yml: the
-  # linux prep job extracts /app from the freshly-built amd64 image and strips
-  # node_modules; the Windows job reinstalls them natively.
-  #
-  # Runs on the same build-images trigger as the linux `images` job, so it builds
-  # for any PR/branch via the imagesonly deploy option — no release tag needed.
-
-  # Linux prep: extract the app tree from the built image and hand it to Windows.
-  # Only used by the copy-based (non-direct) variants, which build from the linux
-  # image output.
-  windows-vhdx-prep:
-    needs:
-      - config
-      - images
-    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct != 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - name: central
-            path: central-server
-          - name: facility
-            path: facility-server
-    name: Prep Windows bundle for ${{ matrix.package.name }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.config.outputs.ref }}
-
-      - name: Login to ghcr.io
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-
-      - name: Pull image
-        run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
-
-      - name: Extract version from image
-        id: version
-        run: |
-          docker image inspect ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64 \
-            | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
-
-      - name: Extract files from image
-        run: |
-          set -x
-          docker create --name working ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
-          docker cp working:/app release-v${{ steps.version.outputs.version }}
-          docker rm working
-
-      # Mirror cd-package-servers.yml: point pm2's cwd at the target package.
-      - name: Prepare production configuration
-        run: |
-          set -x
-          sed -E \
-            "s|const cwd =.+|const cwd = 'packages/${{ matrix.package.path }}';|" \
-            packages/${{ matrix.package.path }}/pm2.config.cjs \
-          > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
-
-      - name: Strip linux node_modules and zip for the Windows job
-        run: |
-          set -x
-          pushd 'release-v${{ steps.version.outputs.version }}'
-          rm -rfv node_modules packages/*/node_modules
-          popd
-          zip -r 'release-v${{ steps.version.outputs.version }}.zip' \
-            'release-v${{ steps.version.outputs.version }}'
-
-      - name: Upload bundle for the Windows job
-        uses: actions/upload-artifact@v4
-        with:
-          name: winvhdxjob-${{ matrix.package.name }}-${{ steps.version.outputs.version }}
-          path: release-v${{ steps.version.outputs.version }}.zip
-          retention-days: 1
-          if-no-files-found: error
-          compression-level: 0
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
-  # Copy-based variants (baseline / ntfs-compression / refs): build from the
-  # linux image output (via windows-vhdx-prep), then copy the finished tree into
-  # a fresh VHDX.
+  # Servers: reduce to the target package via the same docker-build.sh the linux
+  # image uses, embed the Windows Node runtime, then copy the finished tree into
+  # a fresh NTFS VHDX.
   windows-vhdx:
     needs:
       - config
-      - windows-vhdx-prep
-    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct != 'true'
+    if: needs.config.outputs.build-images == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -376,117 +274,7 @@ jobs:
             path: facility-server
     name: Windows VHDX for ${{ matrix.package.name }}
     runs-on: windows-latest
-    env:
-      VERSION: ${{ needs.windows-vhdx-prep.outputs.version }}
-      VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
-      VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
-      VHDX_OPTIMIZE: ${{ needs.config.outputs.exp-optimize }}
     steps:
-      - name: Mark job start
-        shell: bash
-        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
-
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.config.outputs.ref }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
-
-      - name: Download prepared bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: winvhdxjob-${{ matrix.package.name }}-${{ env.VERSION }}
-
-      - name: Unzip bundle
-        shell: bash
-        run: |
-          unzip -q release-v${VERSION}.zip
-          # phase marker: end of setup+fetch (checkout, node, download, unzip)
-          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
-
-      # Install node_modules natively on Windows. Mirror docker-build.sh: a full
-      # install (devDeps included) so the root `prepare` (patch-package) runs,
-      # then prune to production. npm runs lifecycle scripts via cmd.exe on
-      # Windows by default and can't parse the shell-syntax `prepare`, so force
-      # bash (Git bash) as the script shell.
-      - name: Reinstall dependencies (Windows-native)
-        shell: bash
-        run: |
-          cd "release-v${VERSION}"
-          npm install --package-lock --script-shell bash
-          npm prune --omit=dev
-          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
-
-      - name: Embed Windows Node runtime
-        shell: bash
-        run: |
-          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
-          echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
-
-      - name: Build VHDX (format + copy)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir  "release-v$env:VERSION" `
-            -Output      $vhdx `
-            -Label       "Tamanu-${{ matrix.package.name }}" `
-            -Filesystem  $env:VHDX_FILESYSTEM `
-            -Compress:($env:VHDX_COMPRESS -eq 'true')
-          if ($env:VHDX_OPTIMIZE -eq 'true') { scripts\optimize-windows-vhdx.ps1 -Output $vhdx }
-          $raw = (Get-Item $vhdx).Length
-          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Pack and report
-        uses: ./.github/actions/vhdx-pack
-        with:
-          package: ${{ matrix.package.name }}
-          filesystem: ${{ needs.config.outputs.exp-fs }}
-          compression: ${{ needs.config.outputs.exp-compress }}
-          variant: ${{ needs.config.outputs.exp-variant }}
-          version: ${{ env.VERSION }}
-          sha: ${{ needs.config.outputs.sha }}
-          cd-start: ${{ needs.config.outputs.cd-start }}
-          kind: server
-          package-path: ${{ matrix.package.path }}
-          root-dir: release-v${{ env.VERSION }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  # Direct-build variant: build from source straight into a mounted VHDX, in
-  # parallel with the linux images (needs only `config`, NOT `images`). A crude
-  # approximation of the docker build (no layering, and mobile is dropped since
-  # the VHDX is a server artifact).
-  windows-vhdx-direct:
-    needs:
-      - config
-    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.exp-direct == 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - name: central
-            path: central-server
-          - name: facility
-            path: facility-server
-    name: Windows VHDX (direct) for ${{ matrix.package.name }}
-    runs-on: windows-latest
-    env:
-      VHDX_FILESYSTEM: ${{ needs.config.outputs.exp-fs }}
-      VHDX_COMPRESS: ${{ needs.config.outputs.exp-compress }}
-      VHDX_VIRTUAL_SIZE_MB: ${{ needs.config.outputs.exp-size }}
-      VHDX_OPTIMIZE: ${{ needs.config.outputs.exp-optimize }}
-    steps:
-      - name: Mark job start
-        shell: bash
-        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
-
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.config.outputs.ref }}
@@ -499,16 +287,11 @@ jobs:
 
       - name: Extract version
         shell: bash
-        run: |
-          echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
-          # phase marker: end of setup+fetch (checkout, node, version)
-          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
-      # Stage the source working tree into the workspace (NOT onto the VHDX).
-      # Building on a dynamic VHDX captures peak allocation — the full install
-      # plus everything the reduction then deletes stays allocated (and unzeroed,
-      # so it can't be compacted), which made in-place reduction *larger*. So we
-      # build the final tree here, then copy it into a fresh VHDX at the end.
+      # Stage the source tree into the workspace (NOT onto the VHDX): building on
+      # a dynamic VHDX would keep everything the reduction deletes allocated and
+      # unzeroed, inflating the image. Build the final tree here, copy it in last.
       - name: Stage source (workspace)
         shell: pwsh
         run: |
@@ -523,9 +306,8 @@ jobs:
           $global:LASTEXITCODE = 0
 
       # Reduce to the target server via the SAME cross-platform docker-build.sh
-      # the production Docker image uses — no inline duplication. Runs in the
-      # workspace (off the VHDX), independent of the linux images.
-      - name: Build reduced source (Windows-native, shared docker-build.sh)
+      # the production Docker image uses.
+      - name: Build reduced source (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
@@ -538,99 +320,38 @@ jobs:
           sed -E "s|const cwd =.+|const cwd = 'packages/${pkg}';|" \
             "packages/${pkg}/pm2.config.cjs" > pm2.config.cjs
 
-          # Same reduction as production (build-tooling install, full install so
-          # patch-package runs, drop irrelevant packages, reinstall + prune). No
-          # DOCKER_BUILD, so the /app cache and self-delete are skipped.
+          # No DOCKER_BUILD, so the /app cache and self-delete are skipped.
           bash scripts/docker-build.sh "$pkg"
-
-          size=$(du -sm . | cut -f1)
-          echo "CONTENT_PRESTRIP_MB=${size}" >> "$GITHUB_ENV"
-          echo "CONTENT_POSTSTRIP_MB=${size}" >> "$GITHUB_ENV"
-          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Embed Windows Node runtime
         shell: bash
-        run: |
-          scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
-          echo "TS_EMBED=$(date +%s)" >> "$GITHUB_ENV"
+        run: scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
 
-      # Copy the finished, reduced tree into a *fresh* VHDX — the disk only ever
-      # holds final data, so no churn/slack (the in-place approach's problem).
-      - name: Build VHDX from the reduced tree (format + copy)
+      - name: Build VHDX (format + copy)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
           "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir  "release-v$env:VERSION" `
-            -Output      $vhdx `
-            -Label       "Tamanu-${{ matrix.package.name }}" `
-            -Filesystem  $env:VHDX_FILESYSTEM `
-            -Compress:($env:VHDX_COMPRESS -eq 'true')
-          $raw = (Get-Item $vhdx).Length
-          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            -ReleaseDir "release-v$env:VERSION" `
+            -Output     $vhdx `
+            -Label      "Tamanu-${{ matrix.package.name }}"
 
-      # Experiment 7: derive the existing windows tar/zip artifact FROM the
-      # finished VHDX (mount read-only + tar), instead of a second from-scratch
-      # npm install like cd-package-servers.yml does. Runs before Pack (which
-      # zstd --rm's the raw VHDX). Proves one build feeds both artifacts and
-      # measures the derivation cost vs a native npm install.
-      - name: Derive legacy windows tar from the finished VHDX (exp 7)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $t0 = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-          $tar = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows.tar"
-          # Derive the legacy tar from the already-built tree — the point is "no
-          # second npm install", which this proves. We tar the workspace release
-          # tree rather than re-mounting the finished VHDX: mounting it proved
-          # unreliable on the GH runners (diskpart assign-mount AND Mount-DiskImage
-          # both failed to expose the volume), and the workspace tree is
-          # byte-identical to the VHDX contents (it's what was copied in).
-          tar -cf $tar "release-v$env:VERSION"
-          if ($LASTEXITCODE -ne 0) { throw "legacy tar failed ($LASTEXITCODE)" }
-
-          # match cd-package-servers naming: <pkg>-<version>-windows.tar.zst
-          choco install zstandard --no-progress -y | Out-Null
-          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-          refreshenv
-          zstd --rm -T0 -19 $tar
-          $t1 = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-          "LEGACY_TAR_SECONDS=$($t1 - $t0)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          $zst = (Get-Item "$tar.zst").Length
-          "LEGACY_TAR_BYTES=$zst" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          Write-Host ("legacy $tar.zst: {0:N1} MiB derived in {1}s" -f ($zst/1MB), ($t1 - $t0))
-
-      - name: Upload legacy windows tar (exp 7)
-        uses: actions/upload-artifact@v4
-        with:
-          name: legacy-windows-tar-${{ matrix.package.name }}
-          path: tamanu-${{ matrix.package.name }}-${{ env.VERSION }}-windows.tar.zst
-          retention-days: 15
-          if-no-files-found: error
-
-      - name: Pack and report
+      - name: Pack VHDX artifact
         uses: ./.github/actions/vhdx-pack
         with:
           package: ${{ matrix.package.name }}
-          filesystem: ${{ needs.config.outputs.exp-fs }}
-          compression: ${{ needs.config.outputs.exp-compress }}
-          variant: ${{ needs.config.outputs.exp-variant }}
+          package-path: ${{ matrix.package.path }}
+          kind: server
+          root-dir: release-v${{ env.VERSION }}
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
-          cd-start: ${{ needs.config.outputs.cd-start }}
-          kind: server
-          package-path: ${{ matrix.package.path }}
-          root-dir: release-v${{ env.VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Frontend VHDXs (web / patient-portal), self-contained: the built dist plus
-  # the Windows Caddy binary + Caddyfile, mirroring the linux frontend container
-  # which also embeds caddy. Built Windows-native from source via the same
-  # cross-platform docker-build.sh (needs only config, so it runs in parallel
-  # with the linux images rather than waiting on them).
+  # Frontends (web / patient-portal): static builds, so no reduction — build the
+  # dist via the same docker-build.sh, then pack a self-contained VHDX embedding
+  # the Windows Caddy binary + Caddyfile, mirroring the linux frontend container.
   windows-vhdx-frontend:
     needs:
       - config
@@ -646,10 +367,6 @@ jobs:
     name: Frontend VHDX for ${{ matrix.package.name }}
     runs-on: windows-latest
     steps:
-      - name: Mark job start
-        shell: bash
-        run: echo "WINDOWS_JOB_START=$(date +%s)" >> "$GITHUB_ENV"
-
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.config.outputs.ref }}
@@ -662,20 +379,14 @@ jobs:
 
       - name: Extract version
         shell: bash
-        run: |
-          echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
-          echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
       # Build the frontend natively with the same docker-build.sh the linux image
-      # uses (build_web / build_patient_portal: npm build + precompress assets).
-      # precompress-assets.sh falls back to Node's built-in zstd/brotli/gzip, so
-      # no extra CLI tooling is needed on the runner.
-      - name: Build frontend (Windows-native, shared docker-build.sh)
+      # uses (npm build + precompress; precompress-assets.sh uses Node's built-in
+      # zstd/brotli/gzip, so no extra CLI tooling is needed).
+      - name: Build frontend (Windows-native)
         shell: bash
-        run: |
-          set -euxo pipefail
-          bash scripts/docker-build.sh '${{ matrix.package.path }}'
-          echo "TS_NPM=$(date +%s)" >> "$GITHUB_ENV"
+        run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
       # Assemble the self-contained bundle: dist under app/, the Windows Caddy
       # binary, a bundle-relative Caddyfile, and a launcher.
@@ -711,164 +422,30 @@ jobs:
           $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
           "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           scripts\build-windows-vhdx.ps1 `
-            -ReleaseDir  $env:STAGE `
-            -Output      $vhdx `
-            -Label       "Tamanu-${{ matrix.package.name }}" `
-            -Filesystem  NTFS
-          $raw = (Get-Item $vhdx).Length
-          "VHDX_RAW_BYTES=$raw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "TS_BUILD=$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            -ReleaseDir $env:STAGE `
+            -Output     $vhdx `
+            -Label      "Tamanu-${{ matrix.package.name }}"
 
-      - name: Pack and report
+      - name: Pack VHDX artifact
         uses: ./.github/actions/vhdx-pack
         with:
           package: ${{ matrix.package.name }}
-          filesystem: NTFS
-          compression: 'false'
-          variant: frontend-native-caddy
+          package-path: ${{ matrix.package.path }}
+          kind: frontend
+          root-dir: tamanu-${{ matrix.package.name }}-static-v${{ env.VERSION }}
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
-          cd-start: ${{ needs.config.outputs.cd-start }}
-          kind: frontend
-          package-path: ${{ matrix.package.path }}
-          root-dir: tamanu-${{ matrix.package.name }}-static-v${{ env.VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  # Collect the per-package metrics and post them as a PR comment, one comment
-  # per experiment run, so we build up a record of size + time across variants.
-  windows-vhdx-report:
-    needs:
-      - config
-      - windows-vhdx
-      - windows-vhdx-direct
-      - windows-vhdx-frontend
-    if: always() && github.event_name == 'pull_request' && needs.config.outputs.build-images == 'true'
-    runs-on: ubuntu-latest
-    name: Report VHDX experiment metrics
-    steps:
-      - name: Download metrics
-        uses: actions/download-artifact@v4
-        with:
-          pattern: vhdx-metrics-*
-          merge-multiple: true
-          path: metrics
-
-      - name: Build comment
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          files=(metrics/metrics-*.json)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "no metrics files; windows-vhdx likely failed before upload" >&2
-            echo "SKIP_COMMENT=true" >> "$GITHUB_ENV"
-            exit 0
-          fi
-
-          mib() { awk -v b="$1" 'BEGIN{ if(b=="null"||b==""){b=0}; printf "%.1f", b/1048576 }'; }
-          hms() { awk -v s="$1" 'BEGIN{ printf "%d:%02d", int(s/60), s%60 }'; }
-
-          variant="$(jq -r '.variant' "${files[0]}")"
-          filesystem="$(jq -r '.filesystem' "${files[0]}")"
-          compression="$(jq -r '.compression' "${files[0]}")"
-
-          {
-            echo "## Windows VHDX experiment — \`$variant\`"
-            echo
-            echo "- Filesystem: **$filesystem**  |  Compression: **$compression**"
-            echo "- Run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})  |  commit \`${{ needs.config.outputs.sha }}\`"
-            echo
-            echo "### Size &amp; total time"
-            echo
-            echo "| Package | VHDX raw (MiB) | Uploaded zst (MiB) | Registry total (MiB) | CD→upload (mm:ss) | Windows job (mm:ss) |"
-            echo "|:--|--:|--:|--:|--:|--:|"
-            for f in "${files[@]}"; do
-              pkg="$(jq -r '.package' "$f")"
-              raw="$(mib "$(jq -r '.vhdxRawBytes' "$f")")"
-              zst="$(mib "$(jq -r '.vhdxCompressedBytes' "$f")")"
-              reg="$(mib "$(jq -r '.registryBytes' "$f")")"
-              tot="$(hms "$(jq -r '.totalElapsedSeconds' "$f")")"
-              win="$(hms "$(jq -r '.windowsElapsedSeconds' "$f")")"
-              echo "| $pkg | $raw | $zst | $reg | $tot | $win |"
-            done
-            echo
-            echo "### Per-step build time (mm:ss)"
-            echo
-            echo "| Package | setup+fetch | npm install | embed node | build VHDX | compress | upload |"
-            echo "|:--|--:|--:|--:|--:|--:|--:|"
-            for f in "${files[@]}"; do
-              pkg="$(jq -r '.package' "$f")"
-              s="$(hms "$(jq -r '.phases.setupFetch' "$f")")"
-              n="$(hms "$(jq -r '.phases.npmInstall' "$f")")"
-              e="$(hms "$(jq -r '.phases.embedNode' "$f")")"
-              b="$(hms "$(jq -r '.phases.buildVhdx' "$f")")"
-              c="$(hms "$(jq -r '.phases.compress' "$f")")"
-              u="$(hms "$(jq -r '.phases.upload' "$f")")"
-              echo "| $pkg | $s | $n | $e | $b | $c | $u |"
-            done
-            echo
-            # Tree-content sizes (actual files, distinct from the VHDX file size).
-            content="$(jq -r 'select((.contentPreStripMiB // 0) > 0) | .package' "${files[@]}" 2>/dev/null || true)"
-            if [ -n "$content" ]; then
-              echo "### Tree contents — actual files (MiB), distinct from the VHDX size"
-              echo
-              echo "| Package | before strip | after strip (node-gyp intermediates removed) |"
-              echo "|:--|--:|--:|"
-              for f in "${files[@]}"; do
-                cp="$(jq -r '.contentPreStripMiB // 0' "$f")"
-                [ "$cp" != "0" ] || continue
-                pkg="$(jq -r '.package' "$f")"
-                cpo="$(jq -r '.contentPostStripMiB // 0' "$f")"
-                echo "| $pkg | $cp | $cpo |"
-              done
-              echo
-            fi
-            # Experiment 7: legacy windows tar derived from the finished VHDX.
-            legacy="$(jq -r 'select((.legacyTarSeconds // 0) > 0) | "\(.package): \(.legacyTarBytes) bytes in \(.legacyTarSeconds)s"' "${files[@]}" 2>/dev/null || true)"
-            if [ -n "$legacy" ]; then
-              echo "### Legacy windows tar derived from the VHDX (exp 7)"
-              echo
-              echo "| Package | tar.zst (MiB) | derivation (mm:ss) |"
-              echo "|:--|--:|--:|"
-              for f in "${files[@]}"; do
-                ls="$(jq -r '.legacyTarSeconds // 0' "$f")"
-                [ "$ls" != "0" ] || continue
-                pkg="$(jq -r '.package' "$f")"
-                lb="$(mib "$(jq -r '.legacyTarBytes' "$f")")"
-                echo "| $pkg | $lb | $(hms "$ls") |"
-              done
-              echo
-              echo "_Derivation = mount the finished VHDX read-only + tar its release tree + zstd, vs a from-scratch native \`npm install\` in cd-package-servers.yml (~4-8 min)._"
-              echo
-            fi
-            echo "_CD→upload is measured from workflow start to the VHDX upload completing, so it includes the linux image build feeding the bundle. setup+fetch is measured from the start of the Windows job (checkout, node setup, artifact download, unzip)._"
-          } > comment.md
-          cat comment.md
-
-      - name: Post comment
-        if: env.SKIP_COMMENT != 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const body = fs.readFileSync('comment.md', 'utf8');
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body,
-            });
 
   multi-arch:
     needs:
       - config
       - images
       - windows-vhdx
-      - windows-vhdx-direct
       - windows-vhdx-frontend
-    # always() so a failure/skip of the experimental windows-vhdx jobs never
-    # blocks publishing the linux multi-arch manifest; the VHDX entry is added
-    # opportunistically below only when its artifact manifest exists.
+    # always() so a failure/skip of the windows-vhdx jobs never blocks publishing
+    # the linux multi-arch manifest; the VHDX entry is added opportunistically
+    # below only when its artifact manifest exists.
     if: always() && needs.images.result == 'success'
     strategy:
       fail-fast: false
