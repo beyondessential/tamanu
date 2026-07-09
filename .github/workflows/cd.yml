@@ -496,7 +496,7 @@ jobs:
           # phase marker: end of setup+fetch (checkout, node, version)
           echo "TS_SETUP=$(date +%s)" >> "$GITHUB_ENV"
 
-      - name: Open VHDX
+      - name: Open VHDX and stage source
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -511,19 +511,21 @@ jobs:
             -Label      "Tamanu-${{ matrix.package.name }}" `
             -Compress:($env:VHDX_COMPRESS -eq 'true')
 
-      # Build straight onto the mounted VHDX (vhdxmnt/), no copy step. git archive
-      # exports the tracked tree from the object store, so there's no recursion
-      # even though the mount lives under the workspace, and node_modules (which
-      # is gitignored) is never staged — we install it fresh & native below.
+          # Stage the source working tree straight onto the mounted VHDX (no copy
+          # from a linux image). robocopy is native, so it handles the repo's
+          # symlinks (which bsdtar can't create on NTFS) and excludes the mount
+          # itself, .git, and node_modules (installed fresh & native below).
+          $root = "vhdxmnt\release-v$env:VERSION"
+          robocopy . $root /E /XD .git node_modules vhdxmnt oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
+
+      # Build straight onto the mounted VHDX (vhdxmnt/), no copy from a linux
+      # image. node_modules is installed fresh and native below.
       - name: Build source onto VHDX (Windows-native)
         shell: bash
         run: |
           set -euxo pipefail
-          root="vhdxmnt/release-v${VERSION}"
-          mkdir -p "$root"
-          git archive HEAD | tar -xf - -C "$root"
-
-          cd "$root"
+          cd "vhdxmnt/release-v${VERSION}"
           # Point pm2's cwd at the target package (mirrors cd-package-servers).
           sed -E "s|const cwd =.+|const cwd = 'packages/${{ matrix.package.path }}';|" \
             "packages/${{ matrix.package.path }}/pm2.config.cjs" > pm2.config.cjs
