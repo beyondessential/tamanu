@@ -342,6 +342,26 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     throw new Error('--test-rounds must be at least 1');
   }
 
+  // The commit-by-commit walk below overcounts on merge branches (e.g. merging a
+  // release back into main): the range includes release-branch commits whose
+  // migrations already landed on the base branch, and the "commit before
+  // migrations" it picks can be an arbitrary old release commit that can't be
+  // rebuilt against HEAD's artefacts. Compare end states first: if HEAD's
+  // migrations are identical to the base ref's, there is nothing to check.
+  const migrationsDiff = await gitCommand([
+    'diff',
+    '--name-only',
+    opts.sinceRef,
+    'HEAD',
+    '--',
+    ':/packages/database/src/migrations',
+  ]);
+  if (!migrationsDiff) {
+    console.log('Migrations at HEAD are identical to the base ref, so there is nothing to check!');
+    if (opts.checkPrecondition) process.exit(2);
+    return;
+  }
+
   const commits = await listCommitsSince(opts.sinceRef);
   if (commits.length < 2) {
     throw new Error('we need at least two commits to proceed');
