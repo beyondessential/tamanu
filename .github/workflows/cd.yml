@@ -517,7 +517,10 @@ jobs:
           # itself, .git, and node_modules (installed fresh & native below).
           $root = "vhdxmnt\release-v$env:VERSION"
           robocopy . $root /E /XD .git node_modules vhdxmnt oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          # robocopy uses exit codes 0-7 for success (1 = files copied); only >=8
+          # is a real failure. Reset so pwsh doesn't treat 1 as a step failure.
           if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
+          $global:LASTEXITCODE = 0
 
       # Build straight onto the mounted VHDX (vhdxmnt/), no copy from a linux
       # image. node_modules is installed fresh and native below.
