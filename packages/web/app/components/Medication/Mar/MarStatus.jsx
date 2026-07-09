@@ -573,7 +573,7 @@ export const MarStatus = ({
     <>
       <StatusContainer
         aria-current={isCurrentTimeSlot ? 'time' : undefined}
-        aria-selected={isSelected}
+        aria-selected={isSelected || undefined}
         ref={containerRef}
         onClick={onSelected}
         isDisabled={isDisabled}
