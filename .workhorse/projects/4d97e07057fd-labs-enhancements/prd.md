@@ -27,8 +27,6 @@ Priority-ordered. Only cards we've talked through are detailed; the rest will be
 
 ### 1. TAM-2053 — See the test types within a panel when requesting
 
-**Priority:** Highest in the Labs ENH project.
-
 **Requested by:** Palau (originally raised ~2022; re-raised by Bellory, April 2026; Mark Hunt / Lab team, 2024).
 
 **Problem.** Not all clinicians remember by heart which individual test types a panel contains. Because the request form never shows a panel's contents, a clinician can add an individual test that is already included in a panel they've selected — producing a **double entry** (a duplicate request for the same lab result).
@@ -50,8 +48,6 @@ Once selected, panels and individual tests do not need to be visually distinguis
 - **Duplicate scope & direction:** does "already covered by a selected panel" apply only within the request being built, or also against active requests already ordered for the patient? And when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
 
 ### 3. TAM-2045 — Show specimen type next to sample collected date & time
-
-**Priority:** Third highest in the Labs ENH project.
 
 **Applies to:** all deployments with the Tamanu–SENAITE integration.
 
