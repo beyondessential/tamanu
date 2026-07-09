@@ -1,10 +1,10 @@
 # Labs Enhancements
 
-## Overview
+# Overview
 
 A set of enhancements across Tamanu's labs subsystem, compiled from the planned cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by priority.
 
-## Priority summary
+# Priority summary
 
 | # | Original request | Feature | Design work |
 |---|------------------|---------|-------------|
@@ -12,7 +12,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the planned 
 | 2 | _TBC_ | _Awaiting card_ | _TBC_ |
 | 3 | TAM-2045 | Specimen type shown next to sample collected date & time | **Minimal** — surface an existing field on the tile |
 
-## Requirements
+# Requirements
 
 Priority-ordered. Only cards we've talked through are detailed; the rest will be added as we pull them from Linear.
 
