@@ -117,7 +117,12 @@ const DoseButton = styled(IconButton).attrs({ size: 'small' })`
   }
 `;
 
-const ConfirmButton = styled(Button).attrs({ fullWidth: true })`
+const ConfirmButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+  fullWidth: true,
+  size: 'small',
+  variant: 'outlined',
+})`
   block-size: 32px;
   font-size: 12px;
 `;
@@ -368,13 +373,9 @@ const GivenScreen = ({
 
           <ConfirmButton
             onClick={submitForm}
-            variant="outlined"
-            size="small"
             disabled={!values.doseAmount || isUpdatingMarToGiven}
             isSubmitting={isUpdatingMarToGiven}
-          >
-            <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-          </ConfirmButton>
+          />
         </>
       )}
       initialValues={{
