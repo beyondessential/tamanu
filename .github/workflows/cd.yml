@@ -251,21 +251,22 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
-  # Experimental: build a Windows release as an NTFS VHDX disk image and pack it
-  # as an OCI artifact in ghcr.io, so it can be pulled efficiently and folded
-  # into the multi-arch manifest below as the windows/amd64 platform entry.
+  # Experimental: build a *Windows-native* server release (native `npm install`
+  # on a Windows runner), capture it as an NTFS VHDX disk image, and pack the
+  # VHDX as an OCI artifact in ghcr.io so it can be pulled efficiently and folded
+  # into the multi-arch manifest we already generate.
   #
-  # This runs on the same build-images trigger as the linux `images` job (so it
-  # builds for any PR/branch via the imagesonly deploy option, without needing a
-  # release tag). It derives the bundle from the freshly-built amd64 server image
-  # for this commit — the single source of truth for the app — then swaps in the
-  # official Windows Node runtime.
+  # The goal is to answer "does Tamanu actually run from this VHDX on our target
+  # Windows systems?" — so the bundle must have Windows-native node_modules, not
+  # linux ones. We reuse the same bundle-sourcing as cd-package-servers.yml: the
+  # linux prep job extracts /app from the freshly-built amd64 image and strips
+  # node_modules; the Windows job reinstalls them natively.
   #
-  # NOTE (experimental scope): the app's node_modules come from the linux image
-  # and are therefore not natively rebuilt for Windows; this job proves out the
-  # VHDX -> OCI -> multi-arch distribution mechanism. A windows-runner native
-  # `npm install` (as in cd-package-servers.yml) is a follow-up.
-  windows-image:
+  # Runs on the same build-images trigger as the linux `images` job, so it builds
+  # for any PR/branch via the imagesonly deploy option — no release tag needed.
+
+  # Linux prep: extract the app tree from the built image and hand it to Windows.
+  windows-vhdx-prep:
     needs:
       - config
       - images
@@ -278,24 +279,12 @@ jobs:
             path: central-server
           - name: facility
             path: facility-server
-
-    name: Windows VHDX for ${{ matrix.package.name }}
+    name: Prep Windows bundle for ${{ matrix.package.name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.config.outputs.ref }}
-
-      - name: Install disk-image tooling
-        run: |
-          set -eux
-          sudo apt-get update
-          sudo apt-get install -y qemu-utils libguestfs-tools zstd
-          # libguestfs builds its appliance from the host kernel, which is not
-          # world-readable on GitHub runners by default.
-          sudo chmod 0644 /boot/vmlinuz-* || true
-
-      - uses: ./.github/actions/setup-oras
 
       - name: Login to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
@@ -315,8 +304,6 @@ jobs:
           docker create --name working ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}:sha-${{ needs.config.outputs.sha }}.amd64
           docker cp working:/app release-v${{ steps.version.outputs.version }}
           docker rm working
-          # docker cp extracts as root; take ownership so later steps can write.
-          sudo chown -R "$(id -u):$(id -g)" release-v${{ steps.version.outputs.version }}
 
       # Mirror cd-package-servers.yml: point pm2's cwd at the target package.
       - name: Prepare production configuration
@@ -327,49 +314,143 @@ jobs:
             packages/${{ matrix.package.path }}/pm2.config.cjs \
           > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
 
-      - name: Embed Windows Node runtime
-        run: scripts/embed-node-runtime.sh win-x64 "release-v${{ steps.version.outputs.version }}"
-
-      - name: Build NTFS VHDX
+      - name: Strip linux node_modules and zip for the Windows job
         run: |
           set -x
-          scripts/build-windows-vhdx.sh \
-            "release-v${{ steps.version.outputs.version }}" \
-            "tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx" \
-            "Tamanu ${{ matrix.package.name }}"
-          # zstd for efficient upload/storage/retrieval from the registry.
-          zstd --rm -T0 -19 "tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx"
+          pushd 'release-v${{ steps.version.outputs.version }}'
+          rm -rfv node_modules packages/*/node_modules
+          popd
+          zip -r 'release-v${{ steps.version.outputs.version }}.zip' \
+            'release-v${{ steps.version.outputs.version }}'
 
-      - name: Push VHDX as OCI image
+      - name: Upload bundle for the Windows job
+        uses: actions/upload-artifact@v4
+        with:
+          name: winvhdxjob-${{ matrix.package.name }}-${{ steps.version.outputs.version }}
+          path: release-v${{ steps.version.outputs.version }}.zip
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+  # Windows-native build + VHDX capture + OCI push.
+  windows-vhdx:
+    needs:
+      - config
+      - windows-vhdx-prep
+    if: needs.config.outputs.build-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: central-server
+          - name: facility
+            path: facility-server
+    name: Windows VHDX for ${{ matrix.package.name }}
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.windows-vhdx-prep.outputs.version }}
+      # BES-specific artifact type so this is never mistaken for a runnable
+      # container image by a Windows container runtime.
+      VHDX_ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Download prepared bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: winvhdxjob-${{ matrix.package.name }}-${{ env.VERSION }}
+
+      - name: Unzip bundle
+        shell: bash
+        run: unzip -q release-v${VERSION}.zip
+
+      # The whole point: install node_modules natively on Windows.
+      - name: Reinstall dependencies (Windows-native)
+        working-directory: release-v${{ env.VERSION }}
+        shell: bash
+        run: |
+          export NODE_ENV=production
+          npm install --userconfig .npmrc.timeout --package-lock
+
+      - name: Embed Windows Node runtime
+        shell: bash
+        run: scripts/embed-node-runtime.sh win-x64 "release-v${VERSION}"
+
+      - name: Build NTFS VHDX (native diskpart)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          scripts\build-windows-vhdx.ps1 `
+            -ReleaseDir "release-v$env:VERSION" `
+            -Output     "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx" `
+            -Label      "Tamanu-${{ matrix.package.name }}"
+
+      - name: Compress VHDX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          choco install zstandard --no-progress -y
+          # refresh PATH so zstd is visible in this session
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
+          zstd --rm -T0 -19 "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+
+      - name: Install oras
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ver = '1.2.0'
+          Invoke-WebRequest -Uri "https://github.com/oras-project/oras/releases/download/v$ver/oras_${ver}_windows_amd64.zip" -OutFile oras.zip
+          Expand-Archive -Path oras.zip -DestinationPath oras-bin -Force
+          "$PWD\oras-bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          & "$PWD\oras-bin\oras.exe" version
+
+      - name: Push VHDX as a BES OCI artifact
+        shell: bash
         run: |
           set -euxo pipefail
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.package.name }}"
-          tag="sha-${{ needs.config.outputs.sha }}.windows-amd64"
-          vhdx="tamanu-${{ matrix.package.name }}-${{ steps.version.outputs.version }}-windows-amd64.vhdx.zst"
+          tag="sha-${{ needs.config.outputs.sha }}.windows-vhdx"
+          vhdx="tamanu-${{ matrix.package.name }}-${VERSION}-windows-amd64.vhdx.zst"
 
-          # A minimal OCI image config declaring the platform, so this is a valid
-          # image manifest that slots into the multi-arch index as windows/amd64.
-          echo '{"architecture":"amd64","os":"windows"}' > oci-config.json
-
+          # --artifact-type marks this as a BES artifact (empty scratch config,
+          # no os/arch), so it is not a runnable image manifest. It slots into
+          # the index below with an unknown/unknown platform, which container
+          # runtimes deliberately never select.
           oras push "$image:$tag" \
-            --config oci-config.json:application/vnd.oci.image.config.v1+json \
+            --artifact-type "$VHDX_ARTIFACT_TYPE" \
             --annotation "org.opencontainers.image.title=Tamanu ${{ matrix.package.name }} (Windows VHDX)" \
-            --annotation "org.opencontainers.image.version=${{ steps.version.outputs.version }}" \
+            --annotation "org.opencontainers.image.version=${VERSION}" \
             --annotation "org.opencontainers.image.source=https://github.com/beyondessential/tamanu/" \
             --annotation "org.opencontainers.image.vendor=BES International" \
             --annotation "org.opencontainers.image.licenses=GPL-3.0-or-later" \
-            "$vhdx:application/vnd.tamanu.windows.disk.vhdx.v1+zstd"
+            --annotation "au.bes.tamanu.package=${{ matrix.package.name }}" \
+            --annotation "au.bes.tamanu.os=windows" \
+            --annotation "au.bes.tamanu.arch=amd64" \
+            "$vhdx:$VHDX_ARTIFACT_TYPE"
     outputs:
-      version: ${{ steps.version.outputs.version }}
+      version: ${{ needs.windows-vhdx-prep.outputs.version }}
 
   multi-arch:
     needs:
       - config
       - images
-      - windows-image
-    # always() so a failure/skip of the experimental windows-image job never
-    # blocks publishing the linux multi-arch manifest; the windows entry is
-    # added opportunistically below only when its source manifest exists.
+      - windows-vhdx
+    # always() so a failure/skip of the experimental windows-vhdx job never
+    # blocks publishing the linux multi-arch manifest; the VHDX entry is added
+    # opportunistically below only when its artifact manifest exists.
     if: always() && needs.images.result == 'success'
     strategy:
       fail-fast: false
@@ -385,49 +466,77 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-manifest-tool
+      - uses: ./.github/actions/setup-oras
       - name: Combine images
         run: |
           set -x
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
           sha="sha-${{ needs.config.outputs.sha }}"
+          vhdx_type="application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd"
 
-          # The Windows VHDX only exists for the server packages, and only when
-          # windows-image succeeded. Detect it rather than assume it.
-          windows_src=""
-          if skopeo inspect "docker://$image:$sha.windows-amd64" >/dev/null 2>&1; then
-            windows_src="$sha.windows-amd64"
+          # The Windows VHDX artifact only exists for the server packages, and
+          # only when windows-vhdx succeeded. Detect it rather than assume it.
+          vhdx_ref=""
+          if oras manifest fetch --descriptor "$image:$sha.windows-vhdx" >/dev/null 2>&1; then
+            vhdx_ref="$image:$sha.windows-vhdx"
           fi
 
-          # Build the index from an explicit spec (rather than from-args' arch
-          # template) so we can mix in a non-linux, non-amd64-templated entry.
+          # 1) Build the normal linux multi-arch index (unchanged behaviour).
           retag() {
-            target="$1"
-            {
-              echo "image: $image:$target"
-              echo "manifests:"
-              echo "  - image: $image:$sha.amd64"
-              echo "    platform: { architecture: amd64, os: linux }"
-              echo "  - image: $image:$sha.arm64"
-              echo "    platform: { architecture: arm64, os: linux }"
-              if [ -n "$windows_src" ]; then
-                echo "  - image: $image:$windows_src"
-                echo "    platform: { architecture: amd64, os: windows }"
-              fi
-            } > "manifest-spec.yaml"
-            cat "manifest-spec.yaml"
-            manifest-tool push from-spec "manifest-spec.yaml" || true
+            manifest-tool push from-args \
+              --platforms linux/amd64,linux/arm64 \
+              --template "$image:$1.ARCH" \
+              --target "$image:$1" \
+            || true
           }
 
-          retag "$sha"
+          # 2) Append the Windows VHDX as an extra index entry. It carries the
+          #    BES artifactType and an unknown/unknown platform, exactly like
+          #    buildkit's attestation entries — so `docker pull`/containerd never
+          #    select it (not even on a Windows host looking for windows/amd64),
+          #    while a purpose-built BES client can discover it by artifactType.
+          index_type="application/vnd.oci.image.index.v1+json"
+          append_vhdx() {
+            target="$1"
+            [ -n "$vhdx_ref" ] || return 0
+            desc="$(oras manifest fetch --descriptor "$vhdx_ref")"
+            idx="$(oras manifest fetch "$image:$target")"
+            aug="$(jq \
+              --arg at "$vhdx_type" \
+              --arg pkg "${{ matrix.repo }}" \
+              '{
+                 mediaType: .mediaType,
+                 digest: .digest,
+                 size: .size,
+                 artifactType: $at,
+                 platform: { architecture: "unknown", os: "unknown" },
+                 annotations: {
+                   "au.bes.tamanu.artifact": "windows-vhdx",
+                   "au.bes.tamanu.package": $pkg,
+                   "org.opencontainers.image.title": ("Tamanu " + $pkg + " (Windows VHDX)")
+                 }
+               }' <<<"$desc")"
+            # Normalise to an OCI image index so a BES artifact entry (with
+            # artifactType) is schema-valid, then re-push the tag.
+            jq --argjson d "$aug" --arg mt "$index_type" \
+              '.mediaType = $mt
+               | .manifests |= (map(select(.digest != $d.digest)) + [$d])' <<<"$idx" \
+              | oras manifest push --media-type "$index_type" "$image:$target" -
+          }
+
+          process() { retag "$1"; append_vhdx "$1"; }
+
+          process "$sha"
 
           # quit now if we're not releasing
           # we can't have an empty string in the continue case because that's interpreted as falsy and writes 'exit'
           ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '# continue' || 'exit' }}
 
-          retag v$(jq -r '.version' package.json)
-          retag v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
-          retag v$(jq -r '.version | split(".") | .[0]' package.json)
+          process v$(jq -r '.version' package.json)
+          process v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
+          process v$(jq -r '.version | split(".") | .[0]' package.json)
 
   deploy-up:
     needs:
