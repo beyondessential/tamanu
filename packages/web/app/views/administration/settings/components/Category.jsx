@@ -74,7 +74,7 @@ const SettingLine = styled(BodyText)`
   // cleanly. Background only — no padding/margin — to leave subgrid alignment
   // untouched.
   &:nth-of-type(even) {
-    background-color: ${Colors.background};
+    background-color: ${Colors.background}66;
   }
 
   // Highlight on hover, and keep it while a control on the row is focused —
@@ -256,7 +256,7 @@ const SettingName = memo(
         title={
           <TranslatedText
             stringId="admin.settings.highRiskWarningTooltip"
-            fallback="High-risk setting — changes can have significant effects"
+            fallback="High-risk setting, changes can have significant effects"
             data-testid="translatedtext-hr01"
           />
         }

@@ -155,7 +155,10 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   const categorySchema = schema.properties[category];
   if (!categorySchema) return null;
   if (subCategory) {
-    const subCategorySchema = categorySchema.properties[subCategory];
+    // A stale sub-category can outlive a scope/category switch for one render
+    // before the reset effect runs; render nothing rather than crash.
+    const subCategorySchema = categorySchema.properties?.[subCategory];
+    if (!subCategorySchema) return null;
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
     const infoBanner = categorySchema.infoBanner || subCategorySchema.infoBanner;
     const needsRestart = categorySchema.requiresRestart || subCategorySchema.requiresRestart;
