@@ -206,6 +206,10 @@ const ErrorMessage = styled.div`
   margin: 4px 2px 2px;
 `;
 
+const requiredMessage = (
+  <TranslatedText stringId="validation.required.inline" fallback="*Required" />
+);
+
 export const MarDetails = ({
   medication,
   marInfo,
@@ -218,10 +222,9 @@ export const MarDetails = ({
   const { ability, currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getEnumTranslation } = useTranslation();
   const { toStoredDateTime } = useDateTime();
   const practitionerSuggester = useSuggester('practitioner');
-  const requiredMessage = getTranslation('validation.required.inline', '*Required');
 
   const [showWarningModal, setShowWarningModal] = useState('');
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
