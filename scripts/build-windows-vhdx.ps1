@@ -104,11 +104,9 @@ try {
   robocopy $releaseFull $dest /E /COPY:DAT /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
   # robocopy exit codes < 8 are success (files copied, extras, etc.).
   if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
-
-  # Belt-and-braces: compress anything not already compressed via inheritance.
-  if ($Compress) {
-    & compact.exe /C /S:"$mount" /I /Q | Out-Null
-  }
+  # NOTE: no post-copy `compact /C /S` pass — the root's compressed attribute
+  # (set above) makes NTFS compress files on write, so a second full-tree pass
+  # over hundreds of thousands of node_modules files is pure (very slow) waste.
 } finally {
   $detachScript = @"
 select vdisk file="$outFull"
