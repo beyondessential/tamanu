@@ -197,9 +197,10 @@ describe('Inpatient fee inclusions', () => {
     }
 
     await models.Setting.set('features.invoicing.enabled', true);
-    // This facility bundles imaging, lab and medication into the admission fee.
+    // This facility excludes imaging, lab and medication from admission auto-invoicing
+    // (they're covered by the admission fee).
     await models.Setting.set(
-      'invoicing.inpatientFee.bundledCategories',
+      'invoicing.inpatientAutoInvoicingExclusions',
       ['imaging', 'lab', 'medication'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,

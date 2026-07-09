@@ -92,7 +92,7 @@ A patient admitted from ED keeps the ED encounter fee and is also charged the fi
 
 In some states the admission fee already covers medications, imaging and/or lab requests, so those shouldn't also be itemised on an admission invoice. This is controlled per facility:
 
-- `invoicing.inpatientFee.bundledCategories` — a list of the categories bundled into the admission fee. Allowed values: `imaging`, `lab`, `medication`.
+- `invoicing.inpatientAutoInvoicingExclusions` — a list of the categories bundled into the admission fee. Allowed values: `imaging`, `lab`, `medication`.
 
 Behaviour:
 
@@ -111,4 +111,4 @@ Behaviour:
 | Medications | no | yes | no | yes |
 | Procedures | no | no | no | no |
 
-So Kosrae sets `invoicing.inpatientFee.bundledCategories` to `["medication"]`, Yap to `["imaging","lab","medication"]`, and Chuuk/Pohnpei leave it empty.
+So Kosrae sets `invoicing.inpatientAutoInvoicingExclusions` to `["medication"]`, Yap to `["imaging","lab","medication"]`, and Chuuk/Pohnpei leave it empty.

@@ -21,7 +21,7 @@ export const isInpatientFeeBundled = async (
   }
 
   const bundledCategories = await models.Setting.get(
-    'invoicing.inpatientFee.bundledCategories',
+    'invoicing.inpatientAutoInvoicingExclusions',
     location.facilityId,
   );
   return Array.isArray(bundledCategories) && bundledCategories.includes(category);
