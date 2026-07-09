@@ -253,18 +253,12 @@ export const facilitySettings = {
       name: 'Invoicing',
       description: 'Settings for automatically adding fees to invoices',
       properties: {
-        inpatientFee: {
-          name: 'Inpatient fee inclusions',
-          description: 'Item categories bundled into the admission fee',
-          properties: {
-            bundledCategories: {
-              name: 'Bundled categories',
-              description:
-                'Item categories bundled into the inpatient admission fee, so they are not auto-added to an admission invoice (still auto-added for outpatient/ER). Allowed values: imaging, lab, medication.',
-              type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
-              defaultValue: [],
-            },
-          },
+        inpatientAutoInvoicingExclusions: {
+          name: 'Inpatient auto-invoicing exclusions',
+          description:
+            'Item categories excluded from automatic invoicing for admission encounters (covered by the admission fee), so they are not auto-added to an admission invoice. Still auto-added for outpatient/ER; discharge medications are always invoiced. Allowed values: imaging, lab, medication.',
+          type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
+          defaultValue: [],
         },
       },
     },
