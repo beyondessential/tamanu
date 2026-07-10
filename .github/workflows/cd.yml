@@ -120,10 +120,11 @@ jobs:
             core.setOutput('go-down', !!down.length);
             core.setOutput('go-mobile', !!mobile.length);
             core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
-            core.setOutput('allimages', allDeploys.some(deploy => deploy.options.allimages && !deploy.options.pause));
+            // arch=amd64 implies allimages: an amd64 deploy needs amd64 images built.
+            core.setOutput('allimages', allDeploys.some(deploy => !deploy.options.pause && (deploy.options.allimages || deploy.options.arch === 'amd64')));
 
-      # Autodeploys build linux/arm64 only; %allimages (or a release) builds the
-      # full set — linux amd64 + arm64, and the Windows VHDX jobs.
+      # Autodeploys build linux/arm64 only; %allimages, %arch=amd64, or a release
+      # builds the full set — linux amd64 + arm64, and the Windows VHDX jobs.
       - name: Decide build scope
         id: scope
         run: |
