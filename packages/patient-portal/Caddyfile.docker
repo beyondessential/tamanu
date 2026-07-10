@@ -1,4 +1,6 @@
-:3000 {
+# BIND_ADDRESS is a comma-separated list of host:port listeners (IPv4 or
+# bracketed IPv6, e.g. "127.0.0.1:3000,[::1]:3000"); defaults to :3000.
+{$BIND_ADDRESS::3000} {
 	root * /app
 	log {
 		output stderr
