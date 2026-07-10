@@ -33,6 +33,10 @@ runs:
       shell: pwsh
       run: |
         $ErrorActionPreference = 'Stop'
+        # Hash the uncompressed VHDX before zstd --rm deletes it, so the checksum
+        # can be attached to the artifact for post-decompression verification.
+        $hash = (Get-FileHash -Algorithm SHA256 -Path $env:VHDX_PATH).Hash.ToLower()
+        "VHDX_SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         choco install zstandard --no-progress -y
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
@@ -58,6 +62,7 @@ runs:
         KIND: ${{ inputs.kind }}
         PKG_PATH: ${{ inputs.package-path }}
         ROOT_DIR: ${{ inputs.root-dir }}
+        VHDX_SHA256: ${{ env.VHDX_SHA256 }}
         ARTIFACT_TYPE: application/vnd.au.bes.seedling.windows-vhdx.v1+zstd
         CONFIG_TYPE: application/vnd.au.bes.seedling.windows-vhdx.config.v1+json
       run: |
@@ -117,4 +122,5 @@ runs:
           --annotation "au.bes.tamanu.package=$PKG" \
           --annotation "au.bes.tamanu.os=windows" \
           --annotation "au.bes.tamanu.arch=amd64" \
+          --annotation "au.bes.seedling.vhdx.sha256=$VHDX_SHA256" \
           "$vhdx:$ARTIFACT_TYPE"
