@@ -142,14 +142,17 @@ jobs:
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          # Check the arch that distinguishes the current scope: amd64 exists only
+          # if the full set was already built, so widening the scope (%allimages)
+          # after an arm64-only run still rebuilds.
+          arch='${{ steps.scope.outputs.all == 'true' && 'amd64' || 'arm64' }}'
           for repo in central facility frontend patient-portal; do
-            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }} 2>&1 >/dev/null; then
-              jq -c . <<< "$desc" # check that it's valid JSON
-              echo $repo image found, assuming existence
+            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }}.$arch >/dev/null 2>&1; then
+              echo "$repo $arch image found, assuming existence"
               echo exist=yes | tee -a $GITHUB_OUTPUT
               exit
             else
-              echo $repo image not found
+              echo "$repo $arch image not found"
             fi
           done
           echo exist=no | tee -a $GITHUB_OUTPUT
