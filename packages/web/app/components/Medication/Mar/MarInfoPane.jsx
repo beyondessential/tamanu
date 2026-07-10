@@ -18,6 +18,7 @@ import {
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { ChangeLogModal } from './ChangeLogModal';
+import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 
 const Container = styled.div`
   padding: 12px 16px;
@@ -82,6 +83,13 @@ export const MarInfoPane = ({ medication, marInfo }) => {
   const { formatTimeSlot, formatTime, toFacilityDateTime } = useDateTime();
 
   const [showChangeLogModal, setShowChangeLogModal] = useState(false);
+  const [showModifyHistory, setShowModifyHistory] = useState(false);
+
+  // The most recent pharmacy-modified fill for this prescription (null when never modified),
+  // provided by the encounter medications endpoint; its pharmacy note (which already contains any
+  // prescription-level note plus the standard modification note) replaces the prescription's
+  // pharmacy note, with a "View change" link to the change history.
+  const { latestModifiedDispense } = medication;
 
   const facilityDueAt = toFacilityDateTime(dueAt);
   const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
@@ -100,6 +108,13 @@ export const MarInfoPane = ({ medication, marInfo }) => {
     pharmacyNotes,
     displayPharmacyNotesInMar,
   } = medication;
+
+  const modifiedPharmacyNote =
+    latestModifiedDispense?.displayPharmacyNotesInMar && latestModifiedDispense?.pharmacyNotes
+      ? latestModifiedDispense.pharmacyNotes
+      : null;
+  const displayedPharmacyNote =
+    modifiedPharmacyNote ?? (displayPharmacyNotesInMar && pharmacyNotes ? pharmacyNotes : null);
 
   const onChangeLogClick = () => {
     setShowChangeLogModal(true);
@@ -131,14 +146,25 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             </Box>
             <Box color={Colors.midText} mb="3px">
               <span>{notes}</span>
-              {displayPharmacyNotesInMar && pharmacyNotes && (
+              {displayedPharmacyNote && (
                 <span>
                   {notes && ', '}
                   <TranslatedText
                     stringId="medication.mar.pharmacyNotes"
                     fallback="Pharmacy note"
                   />
-                  : {pharmacyNotes}
+                  : {displayedPharmacyNote}
+                  {modifiedPharmacyNote && (
+                    <>
+                      {' '}
+                      <ChangeLogLink as="span" onClick={() => setShowModifyHistory(true)}>
+                        <TranslatedText
+                          stringId="medication.mar.viewChange"
+                          fallback="View change"
+                        />
+                      </ChangeLogLink>
+                    </>
+                  )}
                 </span>
               )}
             </Box>
@@ -201,6 +227,11 @@ export const MarInfoPane = ({ medication, marInfo }) => {
           marId={marInfo.id}
         />
       )}
+      <PrescriptionChangeHistoryModal
+        open={showModifyHistory}
+        dispenseId={latestModifiedDispense?.id}
+        onClose={() => setShowModifyHistory(false)}
+      />
     </>
   );
 };

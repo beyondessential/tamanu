@@ -1,0 +1,36 @@
+{
+  "sheetName": "Medication Dispense Modify Reason",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "medicationdispensemodifyreason-outofstock",
+      "code": "outofstock",
+      "name": "Out of stock"
+    },
+    {
+      "id": "medicationdispensemodifyreason-substitution",
+      "code": "substitution",
+      "name": "Substitution"
+    },
+    {
+      "id": "medicationdispensemodifyreason-doseadjustment",
+      "code": "doseadjustment",
+      "name": "Dose adjustment"
+    },
+    {
+      "id": "medicationdispensemodifyreason-prescribererror",
+      "code": "prescribererror",
+      "name": "Prescriber error"
+    },
+    {
+      "id": "medicationdispensemodifyreason-other",
+      "code": "other",
+      "name": "Other"
+    }
+  ]
+}

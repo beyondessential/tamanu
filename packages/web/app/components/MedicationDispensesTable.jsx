@@ -9,15 +9,24 @@ import { useAuth } from '../contexts/Auth';
 import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
-import { TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
-import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../utils/medications';
+import {
+  DispensedMedicationName,
+  getDispensedMedication,
+  getDrugUnitLabel,
+  getMedicationLabelData,
+  getTranslatedMedicationName,
+  isDispenseModifiedByPharmacy,
+  PharmacyModifiedFootnote,
+} from '../utils/medications';
 import { useTranslation } from '../contexts/Translation';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
 import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from './Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from './Medication/DispensedMedicationDetailsModal';
+import { PrescriptionChangeHistoryModal } from './Medication/PrescriptionChangeHistoryModal';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -55,13 +64,7 @@ const getPatientDisplayId = ({ pharmacyOrderPrescription }) =>
 const getPatientName = ({ pharmacyOrderPrescription }) => (
   <PatientNameDisplay patient={pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient} />
 );
-const getMedication = ({ pharmacyOrderPrescription }) => (
-  <TranslatedReferenceData
-    fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
-    value={pharmacyOrderPrescription?.prescription?.medication?.id}
-    category={pharmacyOrderPrescription?.prescription?.medication?.type}
-  />
-);
+const getMedication = dispense => <DispensedMedicationName dispense={dispense} />;
 const getDateDispensed = ({ dispensedAt }) => (
   <DateDisplay date={dispensedAt} timeOnlyTooltip shortYear data-testid="datedisplay-date-sent" />
 );
@@ -86,6 +89,7 @@ export const MedicationDispensesTable = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+  const [historyDispenseId, setHistoryDispenseId] = useState(null);
 
   const canWriteMedicationDispense = ability.can('write', 'MedicationDispense');
 
@@ -98,7 +102,7 @@ export const MedicationDispensesTable = () => {
     const prescription = pharmacyOrderPrescription?.prescription;
     const patient = pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
 
-    const medication = prescription?.medication;
+    const medication = getDispensedMedication(item);
     const labelItems = [
       {
         id,
@@ -264,7 +268,16 @@ export const MedicationDispensesTable = () => {
                   label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
                   action: () => handleCancelClick(row),
                 },
-              ];
+                isDispenseModifiedByPharmacy(row) && {
+                  label: (
+                    <TranslatedText
+                      stringId="medication.action.viewModifyHistory"
+                      fallback="View modify history"
+                    />
+                  ),
+                  action: () => setHistoryDispenseId(row.id),
+                },
+              ].filter(Boolean);
               return (
                 <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
                   <MenuButton
@@ -357,6 +370,12 @@ export const MedicationDispensesTable = () => {
           order: 'desc',
           orderBy: 'dispensedAt',
         }}
+      />
+      {medicationDispenses.some(isDispenseModifiedByPharmacy) && <PharmacyModifiedFootnote />}
+      <PrescriptionChangeHistoryModal
+        open={Boolean(historyDispenseId)}
+        dispenseId={historyDispenseId}
+        onClose={() => setHistoryDispenseId(null)}
       />
       <MedicationLabelPrintModal
         open={printModalOpen}

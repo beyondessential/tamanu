@@ -1,6 +1,8 @@
 import config from 'config';
 
 import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTES,
   DRUG_STOCK_STATUSES,
   INVOICE_STATUSES,
   REFERENCE_TYPES,
@@ -532,6 +534,202 @@ describe('Medication', () => {
       });
 
       expect(result).toHaveRequestError();
+    });
+
+    it('should snapshot the prescription details onto the dispense', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Take as directed',
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+      const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+      expect(persisted.medicationId).toBe(prescription.medicationId);
+      expect(persisted.dosingUnit).toBe(prescription.dosingUnit);
+      expect(persisted.frequency).toBe(prescription.frequency);
+      expect(persisted.route).toBe(prescription.route);
+      expect(persisted.modifiedAt).toBeNull();
+      expect(persisted.modifiedById).toBeNull();
+    });
+
+    const buildModification = ({ medicationId, modifiedReasonId, modifiedById }) => ({
+      medicationId,
+      isVariableDose: false,
+      doseAmount: 250,
+      frequency: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
+      route: DRUG_ROUTES.oral,
+      pharmacyNotes: 'This prescription has been modified by pharmacy when dispensing.',
+      modifiedReasonId,
+      modifiedById,
+    });
+
+    it('should record a modification on the dispense without altering the original prescription', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const substituteMedication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+      const originalValues = prescription.toJSON();
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 16,
+            instructions: 'Ensure taken with food in morning',
+            modification: buildModification({
+              medicationId: substituteMedication.id,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+      const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+      expect(persisted.medicationId).toBe(substituteMedication.id);
+      expect(Number(persisted.doseAmount)).toBe(250);
+      expect(persisted.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
+      expect(persisted.displayPharmacyNotesInMar).toBe(true);
+      expect(persisted.modifiedAt).toBeTruthy();
+      expect(persisted.modifiedById).toBe(app.user.id);
+      expect(persisted.modifiedReasonId).toBe(modifyReason.id);
+
+      // The original prescription must be untouched
+      const reloaded = await models.Prescription.findByPk(prescription.id);
+      expect(reloaded.medicationId).toBe(originalValues.medicationId);
+      expect(reloaded.doseAmount).toBe(originalValues.doseAmount);
+      expect(reloaded.frequency).toBe(originalValues.frequency);
+      expect(reloaded.route).toBe(originalValues.route);
+      expect(reloaded.pharmacyNotes ?? null).toBe(originalValues.pharmacyNotes ?? null);
+    });
+
+    it('should reject a modification without a dose amount when the dose is not variable', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'whatever',
+            modification: {
+              ...buildModification({
+                medicationId: prescription.medicationId,
+                modifiedReasonId: modifyReason.id,
+                modifiedById: app.user.id,
+              }),
+              doseAmount: null,
+              isVariableDose: false,
+            },
+          },
+        ],
+      });
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('should return original and current details from the modify-history endpoint', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+
+      const dispenseResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 16,
+            instructions: 'Modified label',
+            modification: buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+          },
+        ],
+      });
+      expect(dispenseResult).toHaveSucceeded();
+      const dispenseId = dispenseResult.body[0].id;
+
+      const result = await app.get(
+        `/api/medication/medication-dispenses/${dispenseId}/modify-history`,
+      );
+      expect(result).toHaveSucceeded();
+
+      expect(result.body.original.medication.id).toBe(prescription.medicationId);
+      expect(result.body.original.frequency).toBe(prescription.frequency);
+      // Original dispensing quantity is the requested quantity on the pharmacy order prescription
+      expect(result.body.original.quantity).toBe(10);
+
+      expect(result.body.current.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
+      expect(Number(result.body.current.doseAmount)).toBe(250);
+      expect(result.body.current.quantity).toBe(16);
+      expect(result.body.current.modifiedBy.id).toBe(app.user.id);
+      expect(result.body.current.modifiedReason.id).toBe(modifyReason.id);
+    });
+
+    it('should expose the latest modified fill on the encounter medications list for the MAR', async () => {
+      const { pharmacyOrderPrescription, prescription, encounter } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+
+      const before = await app.get(`/api/encounter/${encounter.id}/medications`);
+      expect(before).toHaveSucceeded();
+      const beforeRow = before.body.data.find(p => p.id === prescription.id);
+      expect(beforeRow.latestModifiedDispense).toBeNull();
+
+      const dispenseResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Modified label',
+            modification: buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+          },
+        ],
+      });
+      expect(dispenseResult).toHaveSucceeded();
+
+      const after = await app.get(`/api/encounter/${encounter.id}/medications`);
+      expect(after).toHaveSucceeded();
+      const afterRow = after.body.data.find(p => p.id === prescription.id);
+      expect(afterRow.latestModifiedDispense.id).toBe(dispenseResult.body[0].id);
+      expect(afterRow.latestModifiedDispense.modifiedAt).toBeTruthy();
+      expect(afterRow.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
     });
   });
 
