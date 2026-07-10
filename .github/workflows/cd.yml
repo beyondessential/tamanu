@@ -120,20 +120,39 @@ jobs:
             core.setOutput('go-down', !!down.length);
             core.setOutput('go-mobile', !!mobile.length);
             core.setOutput('images', !!up.length || allDeploys.some(deploy => deploy.options.imagesonly && !deploy.options.pause));
+            // arch=amd64 implies allimages: an amd64 deploy needs amd64 images built.
+            core.setOutput('allimages', allDeploys.some(deploy => !deploy.options.pause && (deploy.options.allimages || deploy.options.arch === 'amd64')));
+
+      # Autodeploys build linux/arm64 only; %allimages, %arch=amd64, or a release
+      # builds the full set — linux amd64 + arm64, and the Windows VHDX jobs.
+      - name: Decide build scope
+        id: scope
+        run: |
+          if [[ ( "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ) \
+                || "${{ steps.config.outputs.allimages }}" == "true" ]]; then
+            echo 'all=true' >> "$GITHUB_OUTPUT"
+            echo 'platforms=[{"arch":"amd64","runs-on":"ubuntu-24.04"},{"arch":"arm64","runs-on":"ubuntu-24.04-arm"}]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'all=false' >> "$GITHUB_OUTPUT"
+            echo 'platforms=[{"arch":"arm64","runs-on":"ubuntu-24.04-arm"}]' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check the images exist
         id: check-images-exist
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          # Check the arch that distinguishes the current scope: amd64 exists only
+          # if the full set was already built, so widening the scope (%allimages)
+          # after an arm64-only run still rebuilds.
+          arch='${{ steps.scope.outputs.all == 'true' && 'amd64' || 'arm64' }}'
           for repo in central facility frontend patient-portal; do
-            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }} 2>&1 >/dev/null; then
-              jq -c . <<< "$desc" # check that it's valid JSON
-              echo $repo image found, assuming existence
+            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }}.$arch >/dev/null 2>&1; then
+              echo "$repo $arch image found, assuming existence"
               echo exist=yes | tee -a $GITHUB_OUTPUT
               exit
             else
-              echo $repo image not found
+              echo "$repo $arch image not found"
             fi
           done
           echo exist=no | tee -a $GITHUB_OUTPUT
@@ -147,6 +166,11 @@ jobs:
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
       go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
+      # whether to build the full image set (amd64 + Windows VHDX), vs arm64 only
+      all-images: ${{ steps.scope.outputs.all }}
+      # platform matrix for the images job
+      platforms: ${{ steps.scope.outputs.platforms }}
+
       # we need to build images when:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
       # - we want to build images only, AND the images for this commit don't yet exist, or
@@ -159,11 +183,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - arch: amd64
-            runs-on: ubuntu-24.04
-          - arch: arm64
-            runs-on: ubuntu-24.04-arm
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
         package:
           - name: central
             path: central-server
@@ -251,10 +271,161 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
+  # Windows-native release VHDXs, packed as OCI artifacts in ghcr.io and folded
+  # into the multi-arch manifest, built in parallel with the linux images.
+  windows-vhdx:
+    needs:
+      - config
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: central-server
+          - name: facility
+            path: facility-server
+    name: Windows VHDX for ${{ matrix.package.name }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Extract version
+        shell: bash
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+
+      # Build off the VHDX: a dynamic VHDX keeps blocks the reduction deletes
+      # allocated and unzeroed, which inflates the image.
+      - name: Stage source (workspace)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (Test-Path release) { Remove-Item -Recurse -Force release }
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          robocopy . release /E /XD .git node_modules release oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
+          $global:LASTEXITCODE = 0
+
+      - name: Build reduced source (Windows-native)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd release
+          bash scripts/docker-build.sh '${{ matrix.package.path }}'
+
+      - name: Embed Windows Node runtime
+        shell: bash
+        run: scripts/embed-node-runtime.sh win-x64 release
+
+      - name: Build VHDX (format + copy)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          scripts\build-windows-vhdx.ps1 -ReleaseDir release -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
+
+      - name: Pack VHDX artifact
+        uses: ./.github/actions/vhdx-pack
+        with:
+          package: ${{ matrix.package.name }}
+          package-path: ${{ matrix.package.path }}
+          kind: server
+          root-dir: release
+          version: ${{ env.VERSION }}
+          sha: ${{ needs.config.outputs.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Frontend VHDXs (web / patient-portal): built dist plus the Windows Caddy
+  # binary and Caddyfile, self-contained like the linux frontend container.
+  windows-vhdx-frontend:
+    needs:
+      - config
+    if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: frontend
+            path: web
+          - name: patient-portal
+            path: patient-portal
+    name: Frontend VHDX for ${{ matrix.package.name }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.config.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Extract version
+        shell: bash
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+
+      - name: Build frontend (Windows-native)
+        shell: bash
+        run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
+
+      - name: Assemble bundle (dist + Windows Caddy)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          stage='tamanu-${{ matrix.package.name }}'
+          mkdir -p "$stage/app"
+          cp -r "packages/${{ matrix.package.path }}/dist/." "$stage/app"
+
+          caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          curl -fsSL -o caddy.zip \
+            "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
+          unzip -o caddy.zip caddy.exe -d "$stage"
+          rm caddy.zip
+
+          # serve from the bundle-relative ./app rather than the container's /app
+          sed -E 's|root \* /app|root * app|' \
+            "packages/${{ matrix.package.path }}/Caddyfile.docker" > "$stage/Caddyfile"
+
+      - name: Build VHDX (format + copy)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
+          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          scripts\build-windows-vhdx.ps1 -ReleaseDir 'tamanu-${{ matrix.package.name }}' -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
+
+      - name: Pack VHDX artifact
+        uses: ./.github/actions/vhdx-pack
+        with:
+          package: ${{ matrix.package.name }}
+          package-path: ${{ matrix.package.path }}
+          kind: frontend
+          root-dir: tamanu-${{ matrix.package.name }}
+          version: ${{ env.VERSION }}
+          sha: ${{ needs.config.outputs.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   multi-arch:
     needs:
       - config
       - images
+      - windows-vhdx
+      - windows-vhdx-frontend
+    # always() so a failure/skip of the windows-vhdx jobs never blocks publishing
+    # the linux multi-arch manifest; the VHDX entry is added opportunistically
+    # below only when its artifact manifest exists.
+    if: always() && needs.images.result == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -269,29 +440,76 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-manifest-tool
+      - uses: ./.github/actions/setup-oras
       - name: Combine images
         run: |
-          set -x
+          set -euxo pipefail
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
+          sha="sha-${{ needs.config.outputs.sha }}"
+          vhdx_type="application/vnd.au.bes.seedling.windows-vhdx.v1+zstd"
 
+          # The Windows VHDX artifact exists for the servers (windows-vhdx*) and
+          # the frontends (windows-vhdx-frontend), but only when that job
+          # succeeded. Detect it rather than assume it.
+          vhdx_ref=""
+          if oras manifest fetch --descriptor "$image:$sha.windows-vhdx" >/dev/null 2>&1; then
+            vhdx_ref="$image:$sha.windows-vhdx"
+          fi
+
+          # Publish the linux multi-arch index. Fails the job if it can't (this is
+          # the essential product); the VHDX append below is best-effort.
           retag() {
             manifest-tool push from-args \
-              --platforms linux/amd64,linux/arm64 \
+              --platforms ${{ needs.config.outputs.all-images == 'true' && 'linux/amd64,linux/arm64' || 'linux/arm64' }} \
               --template "$image:$1.ARCH" \
-              --target "$image:$1" \
-            || true
+              --target "$image:$1"
           }
 
-          retag sha-${{ needs.config.outputs.sha }}
+          # Append the VHDX as an extra index entry with an unknown/unknown
+          # platform (like buildkit attestations), so container runtimes never
+          # select it while a BES client can discover it by artifactType.
+          index_type="application/vnd.oci.image.index.v1+json"
+          append_vhdx() {
+            target="$1"
+            [ -n "$vhdx_ref" ] || return 0
+            desc="$(oras manifest fetch --descriptor "$vhdx_ref")"
+            idx="$(oras manifest fetch "$image:$target")"
+            aug="$(jq \
+              --arg at "$vhdx_type" \
+              --arg pkg "${{ matrix.repo }}" \
+              '{
+                 mediaType: .mediaType,
+                 digest: .digest,
+                 size: .size,
+                 artifactType: $at,
+                 platform: { architecture: "unknown", os: "unknown" },
+                 annotations: {
+                   "au.bes.tamanu.artifact": "windows-vhdx",
+                   "au.bes.tamanu.package": $pkg,
+                   "org.opencontainers.image.title": ("Tamanu " + $pkg + " (Windows VHDX)")
+                 }
+               }' <<<"$desc")"
+            # Normalise to an OCI image index so a BES artifact entry (with
+            # artifactType) is schema-valid, then re-push the tag.
+            jq --argjson d "$aug" --arg mt "$index_type" \
+              '.mediaType = $mt
+               | .manifests |= (map(select(.digest != $d.digest)) + [$d])' <<<"$idx" \
+              | oras manifest push --media-type "$index_type" "$image:$target" -
+          }
+
+          process() { retag "$1"; append_vhdx "$1" || echo "VHDX append skipped for $1"; }
+
+          process "$sha"
 
           # quit now if we're not releasing
           # we can't have an empty string in the continue case because that's interpreted as falsy and writes 'exit'
           ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && '# continue' || 'exit' }}
 
-          retag v$(jq -r '.version' package.json)
-          retag v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
-          retag v$(jq -r '.version | split(".") | .[0]' package.json)
+          process v$(jq -r '.version' package.json)
+          process v$(jq -r '.version | split(".") | .[0:2] | join(".")' package.json)
+          process v$(jq -r '.version | split(".") | .[0]' package.json)
 
   deploy-up:
     needs:
