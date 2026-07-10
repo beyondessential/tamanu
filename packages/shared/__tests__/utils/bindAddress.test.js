@@ -26,6 +26,13 @@ describe('parseBindAddress', () => {
     expect(() => parseBindAddress('127.0.0.1:abc')).toThrow();
   });
 
+  it('throws on an empty or out-of-range port', () => {
+    expect(() => parseBindAddress('127.0.0.1:')).toThrow(); // Number('') === 0, would bind ephemeral
+    expect(() => parseBindAddress('[::1]:')).toThrow();
+    expect(() => parseBindAddress(':0')).toThrow();
+    expect(() => parseBindAddress(':70000')).toThrow();
+  });
+
   it('throws on a malformed bracketed IPv6 address', () => {
     expect(() => parseBindAddress('[::1:8080')).toThrow(); // missing closing bracket
     expect(() => parseBindAddress('[::1]8080')).toThrow(); // missing colon after bracket
@@ -58,6 +65,12 @@ describe('resolveBindAddresses', () => {
     process.env.BIND_ADDRESS = '127.0.0.1:9000';
     process.env.PORT = '5000';
     expect(resolveBindAddresses(4000)).toEqual([{ host: '127.0.0.1', port: 9000 }]);
+  });
+
+  it('throws when BIND_ADDRESS is set but has no valid segments', () => {
+    process.env.BIND_ADDRESS = ' , ';
+    delete process.env.PORT;
+    expect(() => resolveBindAddresses(4000)).toThrow();
   });
 
   it('parses a comma-separated list of listeners', () => {

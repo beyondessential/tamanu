@@ -20,21 +20,25 @@ export function parseBindAddress(address) {
       throw new Error(`Invalid IPv6 bind address: ${address}`);
     }
     const host = trimmed.slice(1, closingBracket);
-    const port = Number(trimmed.slice(closingBracket + 2));
-    if (!Number.isInteger(port)) {
-      throw new Error(`Invalid port in bind address: ${address}`);
-    }
-    return { host, port };
+    return { host, port: parsePort(trimmed.slice(closingBracket + 2), address) };
   }
 
   // host:port (IPv4 or empty host) — split on the last colon so a bare `:3000` works
   const lastColon = trimmed.lastIndexOf(':');
   const host = lastColon === -1 ? '' : trimmed.slice(0, lastColon);
-  const port = Number(lastColon === -1 ? trimmed : trimmed.slice(lastColon + 1));
-  if (!Number.isInteger(port)) {
+  const port = parsePort(lastColon === -1 ? trimmed : trimmed.slice(lastColon + 1), address);
+  return { host: host || undefined, port };
+}
+
+// Reject anything that isn't a whole port number in 1–65535. In particular
+// `Number('')` is 0, so an empty port (e.g. `127.0.0.1:`) must be caught here
+// rather than silently binding an OS-assigned ephemeral port.
+function parsePort(portString, address) {
+  const port = Number(portString);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error(`Invalid port in bind address: ${address}`);
   }
-  return { host: host || undefined, port };
+  return port;
 }
 
 /**
@@ -47,11 +51,15 @@ export function parseBindAddress(address) {
 export function resolveBindAddresses(fallbackPort) {
   const bindAddress = process.env.BIND_ADDRESS?.trim();
   if (bindAddress) {
-    return bindAddress
+    const addresses = bindAddress
       .split(',')
       .map(entry => entry.trim())
       .filter(Boolean)
       .map(parseBindAddress);
+    if (addresses.length === 0) {
+      throw new Error(`BIND_ADDRESS is set but contains no valid addresses: "${process.env.BIND_ADDRESS}"`);
+    }
+    return addresses;
   }
 
   const port = +process.env.PORT || fallbackPort;
