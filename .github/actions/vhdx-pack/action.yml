@@ -58,8 +58,8 @@ runs:
         KIND: ${{ inputs.kind }}
         PKG_PATH: ${{ inputs.package-path }}
         ROOT_DIR: ${{ inputs.root-dir }}
-        ARTIFACT_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd
-        CONFIG_TYPE: application/vnd.au.bes.tamanu.windows-vhdx.config.v1+json
+        ARTIFACT_TYPE: application/vnd.au.bes.seedling.windows-vhdx.v1+zstd
+        CONFIG_TYPE: application/vnd.au.bes.seedling.windows-vhdx.config.v1+json
       run: |
         set -euxo pipefail
         echo "$GH_TOKEN" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin

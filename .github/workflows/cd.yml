@@ -445,7 +445,7 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
           sha="sha-${{ needs.config.outputs.sha }}"
-          vhdx_type="application/vnd.au.bes.tamanu.windows-vhdx.v1+zstd"
+          vhdx_type="application/vnd.au.bes.seedling.windows-vhdx.v1+zstd"
 
           # The Windows VHDX artifact exists for the servers (windows-vhdx*) and
           # the frontends (windows-vhdx-frontend), but only when that job
