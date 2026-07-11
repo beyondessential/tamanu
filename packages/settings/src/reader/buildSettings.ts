@@ -28,7 +28,12 @@ export async function buildSettings(models: Models, facilityId?: string) {
   for (const reader of readers) {
     const value = await reader.getSettings();
     if (value) {
+      // Merge into a fresh object: mergeWith mutates its first argument, and the
+      // JSON readers return the shared schema-default singletons (facilityDefaults /
+      // globalDefaults). Passing `value` as the destination would pollute those
+      // singletons across requests and facilities.
       settings = mergeWith(
+        {},
         value,
         settings, // Prioritise previous value
         (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
