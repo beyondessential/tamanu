@@ -73,7 +73,7 @@ export class RequestQueue {
           // also has to dequeue the request to stop it being started
           cancel: () => {
             clearTimeout(timeoutHandle);
-            this.queuedRequests = this.queuedRequests.filter(j => j === request);
+            this.queuedRequests = this.queuedRequests.filter(j => j !== request);
             logEvent('rejected (timeout)');
             reject(
               new RateLimitedError(
@@ -94,7 +94,8 @@ export class RequestQueue {
     logEvent('activated');
     return () => {
       this.activeRequestCount -= 1;
-      const request = this.queuedRequests.pop();
+      // serve the oldest queued request first (FIFO) so waiters aren't starved
+      const request = this.queuedRequests.shift();
       // `request` can be null if nothing is queued
       if (request) {
         request.start();

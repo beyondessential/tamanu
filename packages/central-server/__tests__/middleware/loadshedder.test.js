@@ -69,6 +69,32 @@ describe('RequestQueue', () => {
     await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
   });
 
+  it('removes only the timed-out request from the queue, not the others', async () => {
+    const queue = new RequestQueue({
+      maxActiveRequests: 1,
+      maxQueuedRequests: 2,
+      queueTimeout: 100,
+    });
+    const release1 = await queue.acquire();
+
+    // queue two requests; both will time out because the active slot is never released
+    const willTimeout1 = queue.acquire();
+    const willTimeout2 = queue.acquire();
+    expect(queue.queuedRequests.length).toEqual(2);
+
+    await expect(willTimeout1).rejects.toEqual(expect.any(RateLimitedError));
+    await expect(willTimeout2).rejects.toEqual(expect.any(RateLimitedError));
+
+    // a timed-out request must remove itself from the queue (and only itself)
+    expect(queue.queuedRequests.length).toEqual(0);
+
+    // the queue is still usable: releasing the active slot lets a fresh request through
+    release1();
+    const release2 = await queue.acquire();
+    expect(queue.activeRequestCount).toEqual(1);
+    release2();
+  });
+
   it('rejects parallel requests that take too long', async () => {
     const queue = new RequestQueue({
       maxActiveRequests: 1,
