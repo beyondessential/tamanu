@@ -6,7 +6,17 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { format as formatDate, isValid as isValidDate, parse as parseDate } from 'date-fns';
 import { SECRET_PLACEHOLDER } from '@tamanu/settings/schema';
+import {
+  PAD_REFERENCE_DATA_FIELDS,
+  PAD_TEXT_FIELDS,
+  PATIENT_MODEL_SEARCH_FIELDS,
+  VACCINE_STATUS,
+  VACCINE_STATUS_LABELS,
+  isValidAdditionalSearchField,
+} from '@tamanu/constants';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
 import {
@@ -24,9 +34,10 @@ import { JSONEditor } from './JSONEditor';
 import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
+import { SearchMultiSelectInput } from '../../../../components/Field/SearchMultiSelectField';
 import { useSuggester } from '../../../../api';
 import { useParsedCronExpression } from '../../../../utils/useParsedCronExpression';
-import { formatSettingName } from '../EditorView';
+import { formatSettingName } from '../formatSettingName';
 import { SettingsSubmitContext } from './SettingsSubmitContext';
 
 // Shared width for the main setting inputs so they all fill the input column
@@ -138,7 +149,7 @@ const ListRow = styled.div`
 
 const RemoveItemButton = styled(IconButton)`
   color: ${Colors.midText};
-  margin-block-start: 4px; // align with the input, not its helper text
+  margin-block-start: 10px;
   padding: 4px;
 
   &:hover {
@@ -183,6 +194,12 @@ const SETTING_TYPES = {
   OBJECT: 'object',
   ARRAY: 'array',
 };
+
+const AGE_DISPLAY_UNITS = ['days', 'weeks', 'months', 'years'].map(v => ({
+  value: v,
+  label: startCase(v),
+}));
+const DURATION_UNITS = ['years', 'months', 'days'];
 
 const normalize = val => (val === null || val === '' ? '' : val);
 
@@ -345,6 +362,62 @@ const CronSettingInput = ({ value, onChange, error, disabled }) => {
           <CronHelpText data-testid="cron-parsed-preview">{parsed}</CronHelpText>
         )}
       </div>
+    </Flexbox>
+  );
+};
+
+const StyledTimePicker = styled(TimePicker)`
+  .MuiInputBase-root {
+    background: ${Colors.white};
+    border-radius: 4px;
+  }
+
+  .MuiInputBase-input {
+    color: ${Colors.darkestText};
+    font-size: 15px;
+    line-height: 18px;
+    padding-block: 13px;
+    padding-inline: 15px 12px;
+  }
+
+  .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.outline};
+  }
+
+  .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline,
+  .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.primary};
+    border-width: 1px;
+  }
+`;
+
+// 24-hour time-of-day input for settings typed with datelessTimeStringSchema
+// (assignment/booking slot start & end times). The value is stored as a plain
+// "HH:mm" string; the MUI picker works in Dates, so we parse in and format out
+// across that boundary. Emits '' when cleared or while the entry is invalid so
+// the schema falls back to its default rather than persisting a bad value. The
+// AdapterDateFns LocalizationProvider is already applied app-wide in Root.
+const TimeSettingInput = ({ value, onChange, error, disabled }) => {
+  const parsed = value ? parseDate(value, 'HH:mm', new Date()) : null;
+  const dateValue = parsed && isValidDate(parsed) ? parsed : null;
+  return (
+    <Flexbox data-testid="flexbox-time">
+      <StyledTimePicker
+        value={dateValue}
+        onChange={next => onChange(next && isValidDate(next) ? formatDate(next, 'HH:mm') : '')}
+        ampm={false}
+        views={['hours', 'minutes']}
+        format="HH:mm"
+        disabled={disabled}
+        slotProps={{
+          textField: {
+            error: Boolean(error),
+            helperText: error?.message,
+            style: { width: SETTING_INPUT_WIDTH },
+            'data-testid': 'timepicker-setting',
+          },
+        }}
+      />
     </Flexbox>
   );
 };
@@ -1021,6 +1094,361 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
   );
 };
 
+const toNonNegativeInt = raw => {
+  if (raw === '' || raw === null || raw === undefined) return undefined;
+  const n = Math.floor(Number(raw));
+  return Number.isNaN(n) ? undefined : Math.max(0, n);
+};
+
+const DURATION_UNIT_OPTIONS = DURATION_UNITS.map(unit => ({ value: unit, label: unit }));
+
+const durationUnitOf = duration => Object.keys(duration ?? {})[0] ?? 'days';
+const durationAmount = duration => (duration ?? {})[durationUnitOf(duration)];
+
+// The age format as a ladder: display-unit bands with a switch age between
+// each pair. Returns the boundary list ([] for an empty setting), or null when
+// the stored ranges don't form a contiguous single-unit partition from birth
+// (each max matching the next min, last range open) — shapes the sentence
+// editor can't represent, which fall back to the JSON editor.
+const asAgeLadder = rows => {
+  if (!Array.isArray(rows)) return null;
+  const cuts = [];
+  for (let i = 0; i < rows.length; i++) {
+    const range = rows[i]?.range ?? {};
+    if (i === 0 && durationAmount(range.min?.duration)) return null;
+    if (i < rows.length - 1) {
+      const cut = range.max?.duration;
+      if (!cut || Object.keys(cut).length !== 1) return null;
+      if (!isEqual(cut, rows[i + 1]?.range?.min?.duration)) return null;
+      cuts.push(cut);
+    } else if (range.max) {
+      return null;
+    }
+  }
+  return cuts;
+};
+
+// Canonical contiguous form: min inclusive, max exclusive, boundaries shared
+// verbatim between neighbours, last range open.
+const buildAgeRows = (units, cuts) =>
+  units.map((as, i) => ({
+    as,
+    range: {
+      min: i === 0 ? { duration: { days: 0 }, exclusive: false } : { duration: cuts[i - 1] },
+      ...(i < units.length - 1 ? { max: { duration: cuts[i], exclusive: true } } : {}),
+    },
+  }));
+
+const SentenceCard = styled.div`
+  align-items: center;
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  display: grid;
+  gap: 0.6rem 0.5rem;
+  grid-template-columns: max-content 7rem max-content 3.5rem 6.5rem max-content 1.5rem;
+  padding: 0.9rem 1rem;
+`;
+
+const SentenceText = styled.span`
+  color: ${Colors.midText};
+  font-size: 13px;
+`;
+
+const ThresholdInput = styled(NumberInput)`
+  width: 3.5rem;
+
+  && .MuiInputBase-input {
+    font-size: 13px;
+    padding-block: 5px;
+    padding-inline: 4px;
+    text-align: center;
+  }
+`;
+
+const Ladder = styled.div`
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-width: 23rem;
+  padding: 0.75rem 0.9rem;
+`;
+
+const LadderBand = styled.div`
+  align-items: center;
+  background: ${Colors.background};
+  border-radius: 4px;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+`;
+
+const LadderCut = styled.div`
+  align-items: center;
+  color: ${Colors.midText};
+  display: flex;
+  font-size: 12px;
+  gap: 0.4rem;
+  padding-block: 0.15rem;
+  padding-inline-start: 1.75rem;
+  white-space: nowrap;
+`;
+
+const VACCINE_STATUS_OPTIONS = Object.values(VACCINE_STATUS).map(status => ({
+  value: status,
+  label: VACCINE_STATUS_LABELS[status] ?? startCase(status),
+}));
+
+// Editor for `upcomingVaccinations.thresholds`, drawn as the thing it is: a
+// ladder of bands over "days until due", most-future at the top, with each
+// boundary entered exactly once between the bands it separates. The stored
+// rows are (threshold, status) pairs where a status applies above its
+// threshold and the `-Infinity` sentinel is the bottom band; the consumer
+// picks by value, not array order, so the ladder can simply keep rows in
+// display order.
+const VaccinationThresholdsInput = ({ value, onChange, disabled, error }) => {
+  const rows = Array.isArray(value) ? value : [];
+  const update = (index, patch) =>
+    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  const addBand = () => {
+    const lastNumeric = [...rows].reverse().find(row => typeof row.threshold === 'number');
+    const next = {
+      threshold: (lastNumeric?.threshold ?? 35) - 7,
+      status: VACCINE_STATUS.SCHEDULED,
+    };
+    const sentinelLast = rows.length > 0 && rows[rows.length - 1].threshold === '-Infinity';
+    onChange(sentinelLast ? [...rows.slice(0, -1), next, rows[rows.length - 1]] : [...rows, next]);
+  };
+
+  return (
+    <ListInputWrapper
+      style={{ width: 'auto', maxWidth: '460px' }}
+      data-error-anchor={error ? 'true' : undefined}
+      data-testid="vaccinethresholds"
+    >
+      {rows.length > 0 && (
+        <Ladder>
+          {rows.map((row, index) => {
+            const isSentinel = row.threshold === '-Infinity';
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <React.Fragment key={index}>
+                <LadderBand data-testid={`vthreshold-band-${index}`}>
+                  <SelectInput
+                    value={row.status}
+                    options={VACCINE_STATUS_OPTIONS}
+                    onChange={e => update(index, { status: e.target.value })}
+                    disabled={disabled}
+                    style={{ width: '150px' }}
+                    data-testid={`vthreshold-status-${index}`}
+                  />
+                  {isSentinel && (
+                    <EmptyListText data-testid={`vthreshold-sentinel-${index}`}>
+                      everything else
+                    </EmptyListText>
+                  )}
+                  {!disabled && !isSentinel && (
+                    <RemoveItemButton
+                      onClick={() => onChange(rows.filter((_, i) => i !== index))}
+                      size="small"
+                      aria-label="remove band"
+                      style={{ marginBlockStart: 0, marginInlineStart: 'auto' }}
+                      data-testid={`vthreshold-remove-${index}`}
+                    >
+                      <DeleteOutlineIcon style={{ fontSize: 18 }} />
+                    </RemoveItemButton>
+                  )}
+                </LadderBand>
+                {!isSentinel && (
+                  <LadderCut data-testid={`vthreshold-cut-${index}`}>
+                    when more than
+                    <ThresholdInput
+                      value={row.threshold ?? ''}
+                      disabled={disabled}
+                      onChange={e =>
+                        update(index, {
+                          threshold: e.target.value === '' ? 0 : Number(e.target.value),
+                        })
+                      }
+                      data-testid={`vthreshold-value-${index}`}
+                    />
+                    days until due
+                  </LadderCut>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </Ladder>
+      )}
+
+      {rows.length === 0 && (
+        <EmptyListText data-testid="vthreshold-empty">No thresholds</EmptyListText>
+      )}
+
+      {!disabled && (
+        <AddItemButton onClick={addBand} data-testid="vthreshold-add">
+          <AddIcon style={{ fontSize: 16 }} /> Add band
+        </AddItemButton>
+      )}
+
+      {error && <ListError data-testid="vthreshold-error">{error.message}</ListError>}
+    </ListInputWrapper>
+  );
+};
+
+// The valid additional-search fields: every searchable patient / additional-data
+// field name, minus those already searched by default. A fixed set, so it's a
+// multi-select rather than free text (no typos, no invalid entries).
+const SEARCH_FIELD_OPTIONS = Array.from(
+  new Set([...PATIENT_MODEL_SEARCH_FIELDS, ...PAD_TEXT_FIELDS, ...PAD_REFERENCE_DATA_FIELDS]),
+)
+  .filter(isValidAdditionalSearchField)
+  .map(field => ({ value: field, label: startCase(field) }));
+
+const AdditionalSearchFieldsInput = ({ value, onChange, disabled, error }) => (
+  <ListInputWrapper
+    style={{ width: 'auto' }}
+    data-error-anchor={error ? 'true' : undefined}
+    data-testid="additionalsearchfields"
+  >
+    <SearchMultiSelectInput
+      value={Array.isArray(value) ? value : []}
+      options={SEARCH_FIELD_OPTIONS}
+      onChange={e => onChange(e.target.value)}
+      disabled={disabled}
+      label="Search fields"
+      data-testid="additionalsearchfields-select"
+    />
+    {error && <ListError data-testid="additionalsearchfields-error">{error.message}</ListError>}
+  </ListInputWrapper>
+);
+
+// Editor for `ageDisplayFormat`, written the way it reads: N display units
+// with a switch age between each pair ("show in days until 8 days old, then
+// in weeks until 1 month old, ..., then in years onward"). Each boundary is
+// entered exactly once, so the ranges can't gap or overlap, and exclusivity
+// is canonical rather than user-visible.
+const AgeDisplayFormatInput = ({ value, onChange, disabled, error }) => {
+  const rows = Array.isArray(value) ? value : [];
+  const cuts = asAgeLadder(rows) ?? [];
+  const units = rows.map(row => row.as);
+
+  const commit = (nextUnits, nextCuts) => onChange(buildAgeRows(nextUnits, nextCuts));
+  const setUnit = (index, unit) =>
+    commit(units.map((u, i) => (i === index ? unit : u)), cuts);
+  const setCut = (index, cut) => commit(units, cuts.map((c, i) => (i === index ? cut : c)));
+  const addRow = () => {
+    if (units.length === 0) {
+      commit(['years'], []);
+      return;
+    }
+    const lastCut = cuts[cuts.length - 1] ?? { years: 1 };
+    commit([...units.slice(0, -1), 'months', units[units.length - 1]], [...cuts, { ...lastCut }]);
+  };
+  const removeRow = index => {
+    const nextUnits = units.filter((_, i) => i !== index);
+    const nextCuts = cuts.filter((_, i) => i !== Math.min(index, cuts.length - 1));
+    commit(nextUnits, nextCuts);
+  };
+
+  return (
+    <ListInputWrapper
+      style={{ width: 'auto', maxWidth: '520px' }}
+      data-error-anchor={error ? 'true' : undefined}
+      data-testid="agedisplayformat"
+    >
+      {units.length > 0 && (
+        <SentenceCard>
+          {units.map((unit, index) => {
+            const isLast = index === units.length - 1;
+            const cut = cuts[index];
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <React.Fragment key={index}>
+                <SentenceText>{index === 0 ? 'Show age in' : 'then in'}</SentenceText>
+                <SelectInput
+                  value={unit}
+                  options={AGE_DISPLAY_UNITS}
+                  onChange={e => setUnit(index, e.target.value)}
+                  disabled={disabled}
+                  isClearable={false}
+                  data-testid={`agefmt-as-${index}`}
+                />
+                {isLast ? (
+                  <SentenceText style={{ gridColumn: '3 / 7' }} data-testid="agefmt-onward">
+                    onward
+                  </SentenceText>
+                ) : (
+                  <>
+                    <SentenceText>until</SentenceText>
+                    <ThresholdInput
+                      value={durationAmount(cut) ?? ''}
+                      disabled={disabled}
+                      inputProps={{ min: 0, step: 1 }}
+                      onChange={e =>
+                        setCut(index, {
+                          [durationUnitOf(cut)]: toNonNegativeInt(e.target.value) ?? 0,
+                        })
+                      }
+                      data-testid={`agefmt-cut-${index}-amount`}
+                    />
+                    <SelectInput
+                      value={durationUnitOf(cut)}
+                      options={DURATION_UNIT_OPTIONS}
+                      onChange={e => setCut(index, { [e.target.value]: durationAmount(cut) ?? 0 })}
+                      disabled={disabled}
+                      isClearable={false}
+                      data-testid={`agefmt-cut-${index}-unit`}
+                    />
+                    <SentenceText>old</SentenceText>
+                  </>
+                )}
+                {!disabled && units.length > 1 ? (
+                  <RemoveItemButton
+                    onClick={() => removeRow(index)}
+                    size="small"
+                    aria-label="remove range"
+                    style={{ marginBlockStart: 0 }}
+                    data-testid={`agefmt-remove-${index}`}
+                  >
+                    <DeleteOutlineIcon style={{ fontSize: 18 }} />
+                  </RemoveItemButton>
+                ) : (
+                  <span />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </SentenceCard>
+      )}
+
+      {units.length === 0 && <EmptyListText data-testid="agefmt-empty">No ranges</EmptyListText>}
+
+      {!disabled && (
+        <AddItemButton onClick={addRow} data-testid="agefmt-add">
+          <AddIcon style={{ fontSize: 16 }} /> Add range
+        </AddItemButton>
+      )}
+
+      {error && <ListError data-testid="agefmt-error">{error.message}</ListError>}
+    </ListInputWrapper>
+  );
+};
+
+// Only canonical contiguous data can be shown faithfully as sentences;
+// anything else (gaps, overlaps, combined durations, no open range) falls
+// back to the generic JSON editor.
+AgeDisplayFormatInput.accepts = value => asAgeLadder(value) !== null;
+
+const CUSTOM_SETTING_INPUTS = {
+  ageDisplayFormat: AgeDisplayFormatInput,
+  'upcomingVaccinations.thresholds': VaccinationThresholdsInput,
+  'patientSearch.additionalSearchFields': AdditionalSearchFieldsInput,
+};
+
 export const SettingInput = ({
   path,
   settingsPath,
@@ -1041,6 +1469,16 @@ export const SettingInput = ({
   options,
 }) => {
   const { type } = typeSchema;
+
+  // Strings validated by datelessTimeStringSchema get the time picker.
+  const isTimeString = useMemo(() => {
+    if (type !== SETTING_TYPES.STRING) return false;
+    try {
+      return (typeSchema.describe?.().tests ?? []).some(t => t.name === 'datelessTimeString');
+    } catch {
+      return false;
+    }
+  }, [type, typeSchema]);
 
   // A string setting constrained with yup `.oneOf([...])` becomes a dropdown:
   // pull the allowed values straight off the schema so there's no second list
@@ -1293,6 +1731,25 @@ export const SettingInput = ({
     }
   }
 
+  const CustomInput = CUSTOM_SETTING_INPUTS[settingsPath];
+  const customValue = displayValue == null ? defaultValue : displayValue;
+  // an editor may declare what data shapes it can faithfully represent;
+  // anything else falls through to the generic editors (ultimately JSON)
+  const customDeclined =
+    Boolean(CustomInput?.accepts) && !CustomInput.accepts(customValue);
+  if (CustomInput && !customDeclined) {
+    return (
+      <LongTextFlexbox data-testid="flexbox-custom-input">
+        <CustomInput
+          value={customValue}
+          onChange={handleChangeValue}
+          disabled={disabled}
+          error={shownError}
+        />
+      </LongTextFlexbox>
+    );
+  }
+
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
       return (
@@ -1307,6 +1764,16 @@ export const SettingInput = ({
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
+      if (isTimeString) {
+        return (
+          <TimeSettingInput
+            value={displayValue ?? ''}
+            onChange={handleChangeValue}
+            error={shownError}
+            disabled={disabled}
+          />
+        );
+      }
       return (
         <Flexbox data-testid="flexbox-wwbe">
           {hasSelectOptions ? (
@@ -1480,6 +1947,12 @@ export const SettingInput = ({
               error={shownError}
               data-testid="jsoneditor-6t9w"
             />
+            {customDeclined && (
+              <BoundsHintText data-testid="jsoneditor-custom-declined">
+                The stored value doesn&rsquo;t fit the structured editor, so it&rsquo;s
+                shown as JSON. Fix it here or reset to default.
+              </BoundsHintText>
+            )}
             {jsonErrorText && (
               <ListError data-testid="jsoneditor-error-text">{jsonErrorText}</ListError>
             )}

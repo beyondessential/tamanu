@@ -430,8 +430,10 @@ export const globalSettings = {
       exposedToWeb: true,
       properties: {
         assignmentMaxFutureMonths: {
+          name: 'Assignment max future',
           description: 'The maximum number of months allowed when creating location assignments',
           type: yup.number().min(1),
+          unit: 'months',
           defaultValue: 24,
         },
       },
@@ -440,9 +442,11 @@ export const globalSettings = {
       description: 'Reporting database settings',
       properties: {
         secretRotationDays: {
+          name: 'Secret rotation',
           description:
             'Auto-rotate the reporting/raw role secret once it is older than this many days (new passwords take effect as servers restart). 0 disables rotation.',
           type: yup.number().integer().min(0),
+          unit: 'days',
           defaultValue: 90,
         },
       },
@@ -1468,6 +1472,7 @@ export const globalSettings = {
             width: {
               type: yup.number().min(0),
               defaultValue: 50.8,
+              unit: 'mm',
             },
           },
         },
@@ -1700,16 +1705,19 @@ export const globalSettings = {
             lockoutThreshold: {
               description: 'Number of failed attempts before account is locked',
               type: yup.number().positive().integer(),
+              unit: 'attempts',
               defaultValue: 10,
             },
             observationWindow: {
-              description: 'Time interval in minutes that attempts must occur within',
+              description: 'Time interval that attempts must occur within',
               type: yup.number().positive().integer(),
+              unit: 'minutes',
               defaultValue: 10,
             },
             lockoutDuration: {
-              description: 'Duration of lockout in minutes',
+              description: 'Duration of lockout',
               type: yup.number().positive(),
+              unit: 'minutes',
               defaultValue: 10,
             },
           },
@@ -2006,6 +2014,7 @@ export const globalSettings = {
         recentNotificationsTimeFrame: {
           description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
+          unit: 'hours',
           defaultValue: 48,
         },
       },

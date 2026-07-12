@@ -3,8 +3,10 @@ import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
+import BlockIcon from '@mui/icons-material/Block';
 import KeyIcon from '@mui/icons-material/Key';
 import WarningIcon from '@mui/icons-material/WarningAmber';
+import { escapeRegExp } from 'es-toolkit/compat';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
 import { isSetting } from '@tamanu/settings/schema';
@@ -14,7 +16,7 @@ import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
-import { formatSettingName } from '../EditorView';
+import { formatSettingName } from '../formatSettingName';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;
@@ -38,6 +40,12 @@ const StyledHighRiskIcon = styled(WarningIcon)`
   font-size: 1.125rem;
   margin-inline-start: 0.25rem;
   color: ${Colors.orange};
+`;
+
+const StyledDeprecatedIcon = styled(BlockIcon)`
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
+  color: ${Colors.midText};
 `;
 
 const Wrapper = styled.div`
@@ -66,7 +74,7 @@ const SettingLine = styled(BodyText)`
   // cleanly. Background only — no padding/margin — to leave subgrid alignment
   // untouched.
   &:nth-of-type(even) {
-    background-color: ${Colors.background};
+    background-color: ${Colors.background}66;
   }
 
   // Highlight on hover, and keep it while a control on the row is focused —
@@ -122,7 +130,43 @@ const InfoBannerAlert = styled(Alert)`
   margin-inline-end: 1.25rem;
 `;
 
-const CategoryTitle = memo(({ name, path, description, depth }) => {
+// a step above the hover band (primary10) so highlights survive row hover
+const Mark = styled.mark`
+  background-color: ${Colors.primary30};
+  border-radius: 2px;
+  color: inherit;
+`;
+
+// description shown under the row when the search hit is in it
+const MatchedDescription = styled(BodyText)`
+  color: ${Colors.midText};
+  font-size: 13px;
+  grid-column: 1 / -1;
+  margin-block: -8px 13px;
+  // outer label's per-depth margin + inner label's base 1.25rem
+  margin-inline-start: ${props => 2.5 + (props.$indent ?? 0) * 1.25}rem;
+  max-inline-size: 60ch;
+`;
+
+// substring (not word-start) so it explains rows from either matching tier
+const highlightMatches = (text, query) => {
+  const needle = query?.trim();
+  if (!needle) return text;
+  const matcher = new RegExp(escapeRegExp(needle), 'gi');
+  const parts = [];
+  let last = 0;
+  let match;
+  while ((match = matcher.exec(text))) {
+    parts.push(text.slice(last, match.index));
+    parts.push(<Mark key={match.index}>{match[0]}</Mark>);
+    last = match.index + match[0].length;
+  }
+  if (last === 0) return text;
+  parts.push(text.slice(last));
+  return parts;
+};
+
+const CategoryTitle = memo(({ name, path, description, depth, searchQuery }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
@@ -132,14 +176,26 @@ const CategoryTitle = memo(({ name, path, description, depth }) => {
       data-testid="themedtooltip-j5ux"
     >
       <StyledHeading $indent={depth} data-testid="styledheading-js44">
-        {categoryTitle}
+        {searchQuery ? highlightMatches(categoryTitle, searchQuery) : categoryTitle}
       </StyledHeading>
     </ThemedTooltip>
   );
 });
 
 const SettingName = memo(
-  ({ name, path, description, disabled, isSecret, requiresRestart, highRisk, depth, alignTop }) => (
+  ({
+    name,
+    path,
+    description,
+    disabled,
+    isSecret,
+    requiresRestart,
+    highRisk,
+    deprecated,
+    depth,
+    alignTop,
+    searchQuery,
+  }) => (
   <SettingNameLabel
     $indent={depth}
     $alignTop={alignTop}
@@ -168,7 +224,12 @@ const SettingName = memo(
       data-testid="themedtooltip-2qoa"
     >
       <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-        {formatSettingName(name, path.split('.').pop())}
+        {/* one span: the label is inline-flex with a gap, so bare fragments would gap apart */}
+        <span>
+          {searchQuery
+            ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
+            : formatSettingName(name, path.split('.').pop())}
+        </span>
         {disabled ? (
           <StyledLockIcon data-testid="styledlockicon-x3w0" />
         ) : (
@@ -195,7 +256,7 @@ const SettingName = memo(
         title={
           <TranslatedText
             stringId="admin.settings.highRiskWarningTooltip"
-            fallback="High-risk setting — changes can have significant effects"
+            fallback="High-risk setting, changes can have significant effects"
             data-testid="translatedtext-hr01"
           />
         }
@@ -204,10 +265,34 @@ const SettingName = memo(
         <StyledHighRiskIcon data-testid="styledhighriskicon-hr01" />
       </ThemedTooltip>
     )}
+    {deprecated && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="admin.settings.deprecatedTooltip"
+            fallback="Deprecated — will be removed in a future version"
+            data-testid="translatedtext-dp01"
+          />
+        }
+        data-testid="themedtooltip-dp01"
+      >
+        <StyledDeprecatedIcon data-testid="styleddeprecatedicon-dp01" />
+      </ThemedTooltip>
+    )}
   </SettingNameLabel>
 ));
 
-const sortProperties = ([a0, a1], [b0, b1]) => {
+// search ordering from the filter's metadata (absent outside search):
+// exact hits first, then match tier
+const sortProperties = searchMeta => ([a0, a1], [b0, b1]) => {
+  const aMeta = searchMeta?.get(a1);
+  const bMeta = searchMeta?.get(b1);
+  const aExact = Boolean(aMeta?.exact || aMeta?.hasExact);
+  const bExact = Boolean(bMeta?.exact || bMeta?.hasExact);
+  if (aExact !== bExact) return aExact ? -1 : 1;
+  const aTier = aMeta?.tier ?? Infinity;
+  const bTier = bMeta?.tier ?? Infinity;
+  if (aTier !== bTier) return aTier - bTier;
   const aName = a1.name || a0;
   const bName = b1.name || b0;
   const isTopLevelA = isSetting(a1);
@@ -228,11 +313,13 @@ export const Category = ({
   resolveSettingsPath,
   handleChangeSetting,
   facilityId,
+  searchQuery,
+  searchMeta,
 }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
-  const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
+  const sortedProperties = Object.entries(schema.properties).sort(sortProperties(searchMeta));
 
   return (
     <Wrapper data-testid="wrapper-sc1t">
@@ -241,6 +328,7 @@ export const Category = ({
         path={path}
         depth={depth}
         description={schema.description}
+        searchQuery={searchQuery}
         data-testid="categorytitle-0pic"
       />
       {schema.infoBanner && (
@@ -259,6 +347,7 @@ export const Category = ({
           unit,
           highRisk,
           requiresRestart,
+          deprecated,
           suggesterEndpoint,
           secret,
           editor,
@@ -268,9 +357,12 @@ export const Category = ({
         const needsRestart = schema.requiresRestart || requiresRestart;
         const isSecret = Boolean(secret);
         const isHighRisk = schema.highRisk || highRisk || isSecret;
+        const isDeprecated = Boolean(schema.deprecated || deprecated);
         const disabled = !canWriteHighRisk && isHighRisk;
         const isMultiEntry =
           editor === SETTING_EDITORS.MAPPING || editor === SETTING_EDITORS.OBJECT_LIST;
+        const showMatchedDescription =
+          Boolean(searchQuery) && Boolean(searchMeta?.get(propertySchema)?.matchedDescription);
 
         if (!type) {
           return (
@@ -279,12 +371,19 @@ export const Category = ({
               path={newPath}
               depth={depth + 1}
               // Pass down inherited properties to the child category
-              schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
+              schema={{
+                ...propertySchema,
+                highRisk: isHighRisk,
+                requiresRestart: needsRestart,
+                deprecated: isDeprecated,
+              }}
               getSettingValue={getSettingValue}
               getGlobalSettingValue={getGlobalSettingValue}
               resolveSettingsPath={resolveSettingsPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
+              searchQuery={searchQuery}
+              searchMeta={searchMeta}
               data-testid={`category-9y74-${testIdSuffix}`}
             />
           );
@@ -301,7 +400,9 @@ export const Category = ({
               description={description}
               isSecret={isSecret}
               highRisk={schema.highRisk || highRisk}
+              deprecated={isDeprecated}
               alignTop={isMultiEntry}
+              searchQuery={searchQuery}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
@@ -334,6 +435,11 @@ export const Category = ({
                   onReset={() => handleChangeSetting(newPath, undefined)}
                 />
               </RowActions>
+            )}
+            {showMatchedDescription && (
+              <MatchedDescription $indent={depth} data-testid={`matcheddesc-${testIdSuffix}`}>
+                {highlightMatches(description, searchQuery)}
+              </MatchedDescription>
             )}
           </SettingLine>
         );
