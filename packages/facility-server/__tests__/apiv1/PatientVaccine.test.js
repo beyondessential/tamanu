@@ -332,6 +332,23 @@ describe('PatientVaccine', () => {
       expect(vaccine.givenBy).toEqual(country.name);
     });
 
+    it('rejects a non-OTHER vaccine with no scheduledVaccineId and creates no record', async () => {
+      const countBefore = await models.AdministeredVaccine.count();
+      const result = await app.post(`/api/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_RECORDING_TYPES.GIVEN,
+        category: VACCINE_CATEGORIES.ROUTINE,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        facilityId,
+        // scheduledVaccineId deliberately omitted
+      });
+      expect(result).toHaveStatus(400);
+      // The handler must return after the 400 — no AdministeredVaccine should be persisted.
+      const countAfter = await models.AdministeredVaccine.count();
+      expect(countAfter).toEqual(countBefore);
+    });
+
     it('Should record vaccine with correct values when category is Other', async () => {
       const VACCINE_BRAND = 'Test Vaccine Brand';
       const VACCINE_NAME = 'Test Vaccine Name';
