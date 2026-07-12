@@ -94,8 +94,7 @@ export class RequestQueue {
     logEvent('activated');
     return () => {
       this.activeRequestCount -= 1;
-      // serve the oldest queued request first (FIFO) so waiters aren't starved
-      const request = this.queuedRequests.shift();
+      const request = this.queuedRequests.pop();
       // `request` can be null if nothing is queued
       if (request) {
         request.start();
