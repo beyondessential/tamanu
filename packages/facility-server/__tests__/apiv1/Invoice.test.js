@@ -343,4 +343,38 @@ describe('Invoice API', () => {
       expect(finalised.priceFinal).toBe('2');
     });
   });
+
+  describe('PUT /:id (update) transaction handling', () => {
+    it('should roll back item deletions when a later write in the update fails', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType();
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-ROLLBACK-001' });
+      const existingItem = await createInvoiceItem(
+        invoice.id,
+        invoiceProduct.id,
+        procedureType.id,
+      );
+
+      // The replacement item list omits the existing item (so it is destroyed first) and adds an
+      // item whose productId violates the invoice_items -> invoice_products foreign key, forcing
+      // the upsert to fail mid-transaction. The whole update must roll back, leaving the original
+      // item intact rather than permanently deleting it.
+      const result = await app.put(`/api/invoices/${invoice.id}`).send({
+        items: [
+          {
+            orderDate: '2024-01-01',
+            orderedByUserId: user.id,
+            productId: 'nonexistent-invoice-product',
+            quantity: 1,
+          },
+        ],
+      });
+      expect(result).not.toHaveSucceeded();
+
+      const itemsAfter = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+      expect(itemsAfter).toHaveLength(1);
+      expect(itemsAfter[0].id).toBe(existingItem.id);
+    });
+  });
 });
