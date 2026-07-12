@@ -1,23 +1,32 @@
+import Box from '@mui/material/Box';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { Box } from '@material-ui/core';
 import styled from 'styled-components';
+
+import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { TranslatedReferenceData, TranslatedText, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-
-import { useTranslation } from '../../../contexts/Translation';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
-import { useEncounter } from '../../../contexts/Encounter';
-import { MarStatus } from './MarStatus';
-import { MedicationDetails } from '../MedicationDetails';
-import { useQueryClient } from '@tanstack/react-query';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { MedicationDetails } from '../MedicationDetails';
+import { MarStatus } from './MarStatus';
 
+/**
+ * @param {{ dueAt: string, id?: string }[]} [medicationAdministrationRecords]
+ * @param {import('@tamanu/ui-components').DateTimeContextValue['toFacilityDateTime']} toFacilityDateTime
+ * @returns {({ dueAt: string, id?: string } | null)[]}
+ */
 const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
   const result = Array(12).fill(null);
 

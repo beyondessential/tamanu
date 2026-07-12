@@ -12,7 +12,13 @@ export class ReferenceDrug extends BaseModel {
   route: string;
 
   @Column({ type: 'varchar', nullable: true })
-  units: string;
+  dosingUnit: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  dispensingUnit: string;
+
+  @Column({ type: 'decimal', nullable: false, default: 1 })
+  unitConversion: number;
 
   @Column({ type: 'varchar', nullable: true })
   notes: string;

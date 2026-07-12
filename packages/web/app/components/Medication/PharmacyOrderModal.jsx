@@ -322,10 +322,16 @@ export const PharmacyOrderModal = React.memo(
             ? undefined
             : parseInt(rawValue, 10);
 
+        const prescription = newMedicationData[rowIndex];
+        const shouldSelect = value > 0 && !prescription.isSelectionDisabled;
+        const shouldDeselect = !value;
+
         newMedicationData[rowIndex] = {
-          ...newMedicationData[rowIndex],
+          ...prescription,
           quantity: value,
           hasError: !value,
+          ...(shouldSelect && { selected: true }),
+          ...(shouldDeselect && { selected: false }),
         };
 
         setPrescriptions(newMedicationData);

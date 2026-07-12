@@ -8,6 +8,7 @@ import {
   TranslatedEnum,
   DateDisplay,
   TextInput,
+  NumberInput,
   Form,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
@@ -30,7 +31,7 @@ import {
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash } from '../../utils/medications';
+import { createPrescriptionHash, getDrugUnitLabel } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
 import { preventInvalidRepeatsInput } from '../../utils';
 
@@ -248,19 +249,15 @@ const getColumns = (
       const fieldError = errors?.medications?.[data.id]?.quantity;
       const hasError = status?.submitStatus === SUBMIT_ATTEMPTED_STATUS && selected && !!fieldError;
       return (
-        <TextInput
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 0,
-            },
-          }}
+        <NumberInput
+          min={0}
+          unit={data.dispensingUnit ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation) : undefined}
           value={value}
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
           helperText={hasError && fieldError}
-          style={{ maxWidth: '72px' }}
+          style={{ maxWidth: '100px' }}
         />
       );
     },

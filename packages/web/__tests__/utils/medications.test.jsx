@@ -10,6 +10,7 @@ const getEnumTranslation = (enumValues, value) => enumValues?.[value] ?? value;
 
 const basePrescription = {
   units: 'Tablet',
+  dosingUnit: 'Tablet',
   doseAmount: 1,
   frequency: 'Two times daily',
   route: 'oral',

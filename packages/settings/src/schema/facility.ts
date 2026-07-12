@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
+  INPATIENT_BUNDLED_CATEGORY_VALUES,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -300,6 +301,19 @@ export const facilitySettings = {
               suggesterEndpoint: 'department',
             },
           },
+        },
+      },
+    },
+    invoicing: {
+      name: 'Invoicing',
+      description: 'Settings for automatically adding fees to invoices',
+      properties: {
+        inpatientAutoInvoicingExclusions: {
+          name: 'Inpatient auto-invoicing exclusions',
+          description:
+            'Item categories excluded from automatic invoicing for admission encounters (covered by the admission fee), so they are not auto-added to an admission invoice. Still auto-added for outpatient/ER; discharge medications are always invoiced. Allowed values: imaging, lab, medication.',
+          type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
+          defaultValue: [],
         },
       },
     },

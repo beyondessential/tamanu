@@ -3,14 +3,31 @@ import {
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   ADMINISTRATION_STATUS,
+  ENCOUNTER_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
+  INPATIENT_BUNDLED_CATEGORIES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
+import { isInpatientFeeBundled } from '../utils/isInpatientFeeBundled';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+
+// Earliest time the encounter was an admission, from its history: the initial snapshot if it was
+// created as an admission, or the admit-in-place transition otherwise. Null if never an admission.
+const getAdmissionStartDate = async (
+  models: Models,
+  encounterId: string,
+): Promise<string | null> => {
+  const firstAdmission = await models.EncounterHistory.findOne({
+    where: { encounterId, encounterType: ENCOUNTER_TYPES.ADMISSION },
+    order: [['date', 'ASC']],
+    attributes: ['date'],
+  });
+  return firstAdmission?.date ?? null;
+};
 
 export class Prescription extends Model {
   declare id: string;
@@ -18,9 +35,11 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare units: string;
+  declare dosingUnit: string;
+  declare dispensingUnit: string;
+  declare unitConversion: number;
   declare frequency: string;
-  declare idealTimes?: string[];
+  declare idealTimes?: `${number}:${number}`[];
   declare route: string;
   declare date: string;
   declare startDate: string;
@@ -51,9 +70,18 @@ export class Prescription extends Model {
         isPrn: DataTypes.BOOLEAN,
         isVariableDose: DataTypes.BOOLEAN,
         doseAmount: DataTypes.DECIMAL,
-        units: {
+        dosingUnit: {
           type: DataTypes.STRING,
           allowNull: false,
+        },
+        dispensingUnit: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        unitConversion: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          defaultValue: 1,
         },
         frequency: {
           type: DataTypes.STRING,
@@ -263,6 +291,7 @@ export class Prescription extends Model {
     );
 
     let marQty = 0;
+    let doses: any[] = [];
     const givenMars = await MedicationAdministrationRecord.findAll({
       where: {
         prescriptionId: prescription.id,
@@ -298,7 +327,7 @@ export class Prescription extends Model {
     if (givenMars.length > 0) {
       const marIds = givenMars.map((m: any) => m.id);
 
-      const doses = await MedicationAdministrationRecordDose.findAll({
+      doses = await MedicationAdministrationRecordDose.findAll({
         where: {
           marId: { [Op.in]: marIds },
           isRemoved: { [Op.or]: [false, null] },
@@ -308,14 +337,44 @@ export class Prescription extends Model {
               }
             : {}),
         },
-        attributes: ['doseAmount'],
+        attributes: ['doseAmount', 'givenTime'],
       });
 
-      marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
+      const totalDosingAmount = doses.reduce(
+        (sum: number, d: any) => sum + Number(d.doseAmount || 0),
+        0,
+      );
+
+      // Convert from dosing units to dispensing units. Sum all doses first, then
+      // ceil once so that edits adding more doses don't compound rounding up.
+      // Use the unitConversion snapshotted on the prescription at creation time.
+      const unitConversion = Number(prescription.unitConversion) || 1;
+      marQty = Math.ceil(totalDosingAmount / unitConversion);
     }
 
-    // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
-    const finalQty = marQty + totalSentQty;
+    // Where the facility bundles medications into the admission fee, doses administered *during the
+    // admission* are covered by it and excluded. Doses administered before an admit-in-place
+    // transition are pre-admission care and stay billed (not retro-bundled), and discharge
+    // dispensing is always invoiced. Only relevant when there's a MAR quantity to consider.
+    let administeredQty = marQty;
+    if (
+      marQty > 0 &&
+      (await isInpatientFeeBundled(
+        this.sequelize.models,
+        encounter,
+        INPATIENT_BUNDLED_CATEGORIES.MEDICATION,
+      ))
+    ) {
+      const admissionStart = await getAdmissionStartDate(this.sequelize.models, encounter.id);
+      administeredQty = admissionStart
+        ? doses
+            .filter((d: any) => d.givenTime && d.givenTime < admissionStart)
+            .reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0)
+        : 0;
+    }
+
+    // Consolidate billable administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
+    const finalQty = administeredQty + totalSentQty;
 
     if (finalQty > 0) {
       await Invoice.addItemToInvoice(

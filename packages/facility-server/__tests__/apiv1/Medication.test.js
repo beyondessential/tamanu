@@ -680,7 +680,8 @@ describe('Medication', () => {
         referenceDataId: medication.id,
         isSensitive: false,
         route: 'oral',
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
       });
 
       // Create facility stock entry - must be IN_STOCK or AVAILABLE (not UNAVAILABLE)

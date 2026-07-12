@@ -169,7 +169,7 @@ async function dosageInstruction(
         dose: {
           doseQuantity: {
             value: doseAmount,
-            unit: prescription.units,
+            unit: prescription.dosingUnit,
           },
         },
       }),

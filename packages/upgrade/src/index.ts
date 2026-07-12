@@ -1,13 +1,13 @@
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { syncDatabaseServerVersion, type Models, type Sequelize } from '@tamanu/database';
-import type { Transaction } from 'sequelize';
 import {
   createMigrationInterface,
   flushDeferredConstraints,
   migrateUpTo,
   runInRollbackTransaction,
 } from '@tamanu/database/services/migrations';
+import type { Transaction } from 'sequelize';
 import { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';

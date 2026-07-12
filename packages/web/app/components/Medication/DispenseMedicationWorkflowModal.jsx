@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
+
+
 import {
   BaseModal,
   Button,
@@ -31,6 +33,7 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import {
   buildInstructionText,
   buildLabelText,
+  getDrugUnitLabel,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -406,7 +409,7 @@ export const DispenseMedicationWorkflowModal = memo(
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions: item.instructions,
           quantity: item.quantity,
-          units: item.prescription?.units,
+          units: item.prescription?.dispensingUnit,
           remainingRepeats: item.remainingRepeats,
           prescriberName: item.prescription?.prescriber?.displayName,
           requestNumber: item.displayId,
@@ -530,7 +533,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '84px',
+          width: '140px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
@@ -542,6 +545,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
+            const dispensingUnit = item.prescription?.dispensingUnit;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
             return (
               <QuantityInput
@@ -549,7 +553,11 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={e => handleQuantityChange(rowIndex, e)}
                 error={showValidationErrors && hasQuantityError}
                 disabled={!selected}
-                InputProps={{ inputProps: { min: 1 } }}
+                min={1}
+                unit={
+                  dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined
+                }
+                style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
                 required={selected}
                 helperText={
