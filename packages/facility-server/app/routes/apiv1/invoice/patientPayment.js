@@ -151,7 +151,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
         amount: data.amount,
         updatedByUserId: req.user.id ?? null,
       },
-      { where: { id: paymentId }, returning: true },
+      { where: { id: paymentId } },
     );
     await req.models.InvoicePatientPayment.update(
       {
