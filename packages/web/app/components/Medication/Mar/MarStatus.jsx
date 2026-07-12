@@ -31,7 +31,7 @@ import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const StatusContainer = styled(
+const TableDataCell = styled(
   forwardRef(function (
     {
       canCreateMar,
@@ -572,7 +572,7 @@ export const MarStatus = ({
 
   return (
     <>
-      <StatusContainer
+      <TableDataCell
         aria-current={isCurrentTimeSlot ? 'time' : undefined}
         aria-selected={isSelected || undefined}
         ref={containerRef}
@@ -604,7 +604,7 @@ export const MarStatus = ({
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
         </ConditionalTooltip>
-      </StatusContainer>
+      </TableDataCell>
       <StatusPopper
         open={!!anchorEl && !!containerRef.current && anchorEl === containerRef.current}
         anchorEl={anchorEl}
