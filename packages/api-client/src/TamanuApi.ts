@@ -727,9 +727,11 @@ export class TamanuApi {
             break reader;
           }
 
-          if (length === undefined && kind === SYNC_STREAM_MESSAGE_KIND.END) {
-            // if the data is not complete, don't interpret the END message as being truly the end
-            this.logger.warn('END message received but with partial data, will retry');
+          if (length === undefined) {
+            // The message is truncated (connection dropped mid-message, including a partial
+            // END). Don't yield a half-decoded message with an undefined body — retry from
+            // the last cursor instead.
+            this.logger.warn('Stream ended with a partial message, will retry');
             break reader;
           }
 
