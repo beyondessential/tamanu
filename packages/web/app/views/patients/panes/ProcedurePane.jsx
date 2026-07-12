@@ -8,7 +8,7 @@ import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
-export const ProcedurePane = React.memo(({ encounter, readonly }) => {
+export const ProcedurePane = React.memo(({ encounter, disabled }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
@@ -34,7 +34,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={onCreateNewProcedure}
-            disabled={readonly}
+            disabled={disabled}
             verb="create"
             noun="Procedure"
             data-testid="buttonwithpermissioncheck-h58o"

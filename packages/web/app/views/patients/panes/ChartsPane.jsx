@@ -93,7 +93,7 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
-export const ChartsPane = React.memo(({ patient, encounter }) => {
+export const ChartsPane = React.memo(({ patient, encounter, disabled }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
@@ -376,7 +376,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                     setChartSurveyIdToSubmit(selectedChartTypeId);
                     setModalOpen(true);
                   }}
-                  disabled={!recordButtonEnabled}
+                  disabled={!recordButtonEnabled || disabled}
                   verb="create"
                   subject={subject('Charting', { id: selectedChartTypeId })}
                   data-testid="styledbuttonwithpermissioncheck-ruv4"
@@ -422,9 +422,9 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 ChartsPane.propTypes = {
   patient: PropTypes.object.isRequired,
   encounter: PropTypes.string.isRequired,
-  readonly: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 ChartsPane.defaultProps = {
-  readonly: false,
+  disabled: false,
 };
