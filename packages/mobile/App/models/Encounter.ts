@@ -136,12 +136,10 @@ export class Encounter extends BaseModel implements IEncounter {
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
     const now = new Date();
-    let dayStart = addHours(startOfDay(now), TIME_OFFSET);
+    const cutover = addHours(startOfDay(now), TIME_OFFSET);
     // Before the 3am cutover we are still within the previous day's clinical window, so the
     // boundary is yesterday's cutover — otherwise it would sit in the future and match nothing.
-    if (now < dayStart) {
-      dayStart = subDays(dayStart, 1);
-    }
+    const dayStart = now < cutover ? subDays(cutover, 1) : cutover;
 
     return repo
       .createQueryBuilder('encounter')
