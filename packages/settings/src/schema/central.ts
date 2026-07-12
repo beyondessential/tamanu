@@ -141,12 +141,14 @@ export const centralSettings = {
           defaultValue: '24h',
         },
         loginTokenDurationMinutes: {
+          name: 'Login token duration',
           description: 'How long a patient-portal login code is valid',
           type: yup.number().positive().integer(),
           unit: 'minutes',
           defaultValue: 20,
         },
         registerTokenDurationMinutes: {
+          name: 'Register token duration',
           description: 'How long a patient-portal registration link is valid',
           type: yup.number().positive().integer(),
           unit: 'minutes',
