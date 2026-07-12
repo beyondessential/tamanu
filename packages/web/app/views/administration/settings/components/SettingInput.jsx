@@ -1146,7 +1146,7 @@ const SentenceCard = styled.div`
   border-radius: 4px;
   display: grid;
   gap: 0.6rem 0.5rem;
-  grid-template-columns: max-content 7rem max-content 3.5rem 6.5rem max-content 1.5rem;
+  grid-template-columns: max-content 7.5rem max-content 7.5rem 7.5rem max-content 1.5rem;
   padding: 0.9rem 1rem;
 `;
 
@@ -1163,6 +1163,18 @@ const ThresholdInput = styled(NumberInput)`
     padding-block: 5px;
     padding-inline: 4px;
     text-align: center;
+  }
+`;
+
+// Number input for the age sentence editor: fills its grid cell so it lines up
+// with the selects either side of it.
+const SentenceNumberInput = styled(NumberInput)`
+  width: 100%;
+
+  && .MuiInputBase-input {
+    font-size: 13px;
+    padding-block: 5px;
+    padding-inline: 10px;
   }
 `;
 
@@ -1384,7 +1396,7 @@ const AgeDisplayFormatInput = ({ value, onChange, disabled, error }) => {
                 ) : (
                   <>
                     <SentenceText>until</SentenceText>
-                    <ThresholdInput
+                    <SentenceNumberInput
                       value={durationAmount(cut) ?? ''}
                       disabled={disabled}
                       inputProps={{ min: 0, step: 1 }}
