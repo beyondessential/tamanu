@@ -271,13 +271,18 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  // completedAt is pre-filled with the current time, so it can't tell us whether the user actually
+  // entered a result. Only submit newResult when they've filled in a clinician or a description,
+  // otherwise every save of a completed request would append a blank result row.
+  const hasEnteredResult = newResult =>
+    Boolean(newResult?.completedById || newResult?.description);
 
   return (
     <Form
       // Only submit specific fields for update
       onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
-        if (getCanAddResult(values)) {
+        if (getCanAddResult(values) && hasEnteredResult(values.newResult)) {
           updatedValues.newResult = values.newResult;
         }
 
