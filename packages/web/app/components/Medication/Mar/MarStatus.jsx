@@ -1,6 +1,3 @@
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Box from '@mui/material/Box';
 import { addHours, isSameDay } from 'date-fns';
@@ -16,7 +13,6 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   DateDisplay,
   EditedOrnament,
-  TAMANU_COLORS,
   TranslatedEnum,
   TranslatedText,
   useDateTime,
@@ -30,6 +26,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
+import MarStatusIcon from './MarStatusIcon';
 import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
@@ -417,7 +414,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.GIVEN:
         return (
           <IconWrapper>
-            <CheckCircleRoundedIcon style={{ color: TAMANU_COLORS.green }} />
+            <MarStatusIcon variant={ADMINISTRATION_STATUS.GIVEN} />
             {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
@@ -425,7 +422,7 @@ export const MarStatus = ({
       case ADMINISTRATION_STATUS.NOT_GIVEN:
         return (
           <IconWrapper>
-            <CancelRoundedIcon style={{ color: TAMANU_COLORS.alert }} />
+            <MarStatusIcon variant={ADMINISTRATION_STATUS.NOT_GIVEN} />
             {isAlert && <AlertOrnament />}
             {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
@@ -434,7 +431,7 @@ export const MarStatus = ({
         if (isPast) {
           return isPrn ? null : (
             <IconWrapper>
-              <HelpOutlineIcon style={{ color: TAMANU_COLORS.darkOrange }} />
+              <MarStatusIcon variant="missed" />
             </IconWrapper>
           );
         }
