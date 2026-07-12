@@ -475,6 +475,44 @@ describe('PatientVaccine', () => {
       );
     });
 
+    it('Should reject and create no record when scheduledVaccineId is missing for a non-OTHER category', async () => {
+      const freshPatient = await models.Patient.create(await createDummyPatient(models));
+      const countBefore = await models.AdministeredVaccine.count();
+
+      const result = await app.post(`/api/patient/${freshPatient.id}/administeredVaccine`).send({
+        status: VACCINE_STATUS.GIVEN,
+        category: VACCINE_CATEGORIES.ROUTINE,
+        recorderId: clinician.id,
+        date: new Date(),
+        givenBy: 'Clinician',
+        facilityId,
+      });
+
+      expect(result).toHaveStatus(400);
+
+      // The 400 must short-circuit the handler: no AdministeredVaccine (and no encounter) is created
+      const countAfter = await models.AdministeredVaccine.count();
+      expect(countAfter).toEqual(countBefore);
+    });
+
+    it('Should reject and create no record when status is missing', async () => {
+      const freshPatient = await models.Patient.create(await createDummyPatient(models));
+      const countBefore = await models.AdministeredVaccine.count();
+
+      const result = await app.post(`/api/patient/${freshPatient.id}/administeredVaccine`).send({
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        date: new Date(),
+        givenBy: 'Clinician',
+        facilityId,
+      });
+
+      expect(result).toHaveStatus(400);
+
+      const countAfter = await models.AdministeredVaccine.count();
+      expect(countAfter).toEqual(countBefore);
+    });
+
     it('Should update reason for encounter with correct description when vaccine is recorded in error', async () => {
       const result = await app.get(`/api/patient/${patient.id}/administeredVaccines`);
       const vaccineId = result.body.data[0].id;
