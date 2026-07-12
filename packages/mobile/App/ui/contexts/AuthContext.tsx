@@ -192,7 +192,7 @@ const Provider = ({
       if (preventSignOutOnFailure) {
         // reset flag to prevent sign out being
         // skipped on subsequent failed authentications
-        setPreventSignOutOnFailure(true);
+        setPreventSignOutOnFailure(false);
       } else {
         signOut();
       }
