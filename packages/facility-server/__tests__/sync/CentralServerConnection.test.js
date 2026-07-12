@@ -1,5 +1,6 @@
 import {
   SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
   VERSION_COMPATIBILITY_ERRORS,
   VERSION_MAXIMUM_PROBLEM_KEY,
   VERSION_MINIMUM_PROBLEM_KEY,
@@ -238,6 +239,109 @@ describe('CentralServerConnection', () => {
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
+    });
+  });
+
+  describe('stream', () => {
+    let fetch;
+    let centralServer;
+    beforeEach(() => {
+      fetch = jest.spyOn(global, 'fetch');
+      centralServer = new CentralServerConnection({ deviceId: 'test' });
+      centralServer.fetchImplementation = fetch;
+    });
+    afterEach(() => {
+      fetch.mockReset();
+      fetch.mockRestore();
+    });
+
+    // Tamanu Streaming Protocol frame:
+    // | CR+LF (2 bytes) | kind (2 bytes) | length (4 bytes) | data ($length bytes) |
+    const encodeFrame = (kind, payload) => {
+      const data = Buffer.from(JSON.stringify(payload));
+      const frame = Buffer.alloc(8 + data.length);
+      frame.writeUInt16BE(0x0d0a, 0); // CR+LF; decoder skips these bytes
+      frame.writeUInt16BE(kind, 2);
+      frame.writeUInt32BE(data.length, 4);
+      data.copy(frame, 8);
+      return frame;
+    };
+
+    // A frame whose header advertises the full length but whose body is cut
+    // short — i.e. the connection dropped mid-message.
+    const encodeTruncatedFrame = (kind, payload) => {
+      const full = encodeFrame(kind, payload);
+      return full.subarray(0, full.length - 3);
+    };
+
+    // Fake a fetch Response whose body streams the given chunks (Buffers) and
+    // then reports done, mirroring a WHATWG ReadableStream reader.
+    const streamResponseOf = (...chunks) => {
+      let index = 0;
+      return Promise.resolve({
+        status: 200,
+        ok: true,
+        headers: {
+          get: key => ({ 'x-tamanu-server': SERVER_TYPES.CENTRAL }[key.toLowerCase()]),
+          has: () => false,
+        },
+        body: {
+          getReader: () => ({
+            read: () =>
+              Promise.resolve(
+                index < chunks.length
+                  ? { done: false, value: chunks[index++] }
+                  : { done: true, value: undefined },
+              ),
+          }),
+        },
+      });
+    };
+
+    const consume = async generator => {
+      const messages = [];
+      for await (const message of generator) {
+        messages.push(message);
+      }
+      return messages;
+    };
+
+    const endpointFn = () => ({ endpoint: 'sync/1/pull/stream', query: {} });
+
+    it('retries instead of yielding a message with an undefined body when the stream is truncated', async () => {
+      // First attempt: one complete change, then a change whose body is cut off
+      // by a dropped connection, then the reader reports done.
+      const firstAttempt = streamResponseOf(
+        Buffer.concat([
+          encodeFrame(SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE, { id: 'record-1' }),
+          encodeTruncatedFrame(SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE, {
+            id: 'record-2-never-arrives',
+          }),
+        ]),
+      );
+      // Retry: the stream restarts cleanly and terminates with END.
+      const secondAttempt = streamResponseOf(encodeFrame(SYNC_STREAM_MESSAGE_KIND.END, {}));
+
+      fetch.mockReturnValueOnce(firstAttempt).mockReturnValueOnce(secondAttempt);
+
+      const messages = await consume(
+        centralServer.stream(endpointFn, { streamRetryInterval: 1 }),
+      );
+
+      // The stream must have restarted rather than surfacing the partial message.
+      expect(fetch).toHaveBeenCalledTimes(2);
+
+      // The truncated PULL_CHANGE must never be yielded with an undefined body:
+      // the sync consumer does `records.push(message)` then reads `message.id`,
+      // which would throw a TypeError and error the whole session.
+      expect(messages.some(m => m.message === undefined)).toBe(false);
+
+      const changes = messages.filter(m => m.kind === SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE);
+      expect(changes).toHaveLength(1);
+      expect(changes[0].message).toEqual({ id: 'record-1' });
+
+      // And the stream still completes successfully via the retry.
+      expect(messages[messages.length - 1].kind).toBe(SYNC_STREAM_MESSAGE_KIND.END);
     });
   });
 });
