@@ -63,6 +63,7 @@ encounter.post(
     req.checkPermission('create', 'Encounter');
 
     const validatedBody = validate(createEncounterSchema, data);
+    const { referralId, ...encounterData } = validatedBody;
 
     if (!validatedBody.endDate) {
       const existingOpenEncounterCount = await models.Encounter.count({
@@ -80,7 +81,7 @@ encounter.post(
       }
     }
 
-    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
+    const encounterObject = await models.Encounter.create({ ...encounterData, actorId: user.id });
 
     await models.Invoice.automaticallyCreateForEncounter(
       encounterObject.id,
@@ -93,6 +94,15 @@ encounter.post(
       const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
+
+    // Link the originating referral (e.g. admitting a patient from a referral) to this encounter
+    if (referralId) {
+      const referral = await models.Referral.findByPk(referralId);
+      if (referral) {
+        await referral.update({ encounterId: encounterObject.id });
+      }
+    }
+
     res.send(encounterObject);
   }),
 );
@@ -101,7 +111,7 @@ encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const { db, models, user, params } = req;
-    const { referralId, id } = params;
+    const { id } = params;
     req.checkPermission('read', 'Encounter');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
@@ -166,13 +176,6 @@ encounter.put(
             });
           }
         }
-      }
-
-      if (referralId) {
-        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
-        if (referral && referral.deletedAt)
-          throw new InvalidOperationError('Cannot update a deleted referral.');
-        await referral.update({ encounterId: id });
       }
 
       if (req.body.locationId != null) {
