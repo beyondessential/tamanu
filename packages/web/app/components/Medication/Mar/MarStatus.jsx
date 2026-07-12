@@ -1,5 +1,4 @@
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
-import Box from '@mui/material/Box';
 import { addHours, isSameDay } from 'date-fns';
 import React, { forwardRef, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -11,21 +10,19 @@ import {
 } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
-  DateDisplay,
   EditedOrnament,
   TranslatedEnum,
   TranslatedText,
   useDateTime,
   useTranslation,
-  VisuallyHidden,
 } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { useAuth } from '../../../contexts/Auth';
-import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import MarStatusIcon from './MarStatusIcon';
+import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
@@ -136,14 +133,6 @@ const DiscontinuedDivider = styled.div`
   background-color: ${p => p.theme.palette.text.tertiary};
 `;
 
-const TooltipText = styled.div`
-  margin-block: 0;
-  text-wrap: balance;
-  p {
-    margin-block: 0;
-  }
-`;
-
 const getIsPast = ({ timeSlot, selectedDate, now }) => {
   const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return now > slotEndDate;
@@ -250,7 +239,7 @@ export const MarStatus = ({
   onAnchorElChange,
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
-  const { formatTime, getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
+  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
   const facilityNow = getFacilityNowDate();
   const { ability } = useAuth();
@@ -451,121 +440,6 @@ export const MarStatus = ({
     }
   };
 
-  const content = (() => {
-    if (isDiscontinued) {
-      return (
-        <TooltipText>
-          <TranslatedText
-            stringId="medication.mar.medicationDiscontinued.tooltip"
-            fallback="Medication discontinued"
-          />
-        </TooltipText>
-      );
-    }
-    if (isEnd) {
-      return (
-        <TooltipText>
-          <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />{' '}
-          <DateDisplay date={endDate} timeFormat="default" noTooltip />
-        </TooltipText>
-      );
-    }
-    if (isPaused && !status) {
-      return (
-        <TooltipText>
-          <TranslatedText
-            stringId="medication.mar.medicationPaused.tooltip"
-            fallback="Medication paused"
-          />
-        </TooltipText>
-      );
-    }
-    if (marInfo) {
-      switch (status) {
-        case ADMINISTRATION_STATUS.NOT_GIVEN:
-          return (
-            <TooltipText>
-              {isError && (
-                <p>
-                  <TranslatedText stringId="medication.mar.error" fallback="Error." />
-                </p>
-              )}
-              {isAlert && !isError && (
-                <p>
-                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
-                </p>
-              )}
-              <p>
-                <TranslatedText stringId="medication.mar.notGiven" fallback="Not given." />
-              </p>
-              <p>{reasonNotGiven?.name}</p>
-            </TooltipText>
-          );
-        case ADMINISTRATION_STATUS.GIVEN: {
-          return (
-            <TooltipText>
-              <Box>
-                {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
-                {isAlert && !isError && (
-                  <p>
-                    <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
-                  </p>
-                )}
-              </Box>
-              {marDoses?.map(
-                dose =>
-                  !dose.isRemoved && (
-                    <div key={dose?.id}>
-                      {dose?.doseAmount}&nbsp;
-                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
-                      <TranslatedText
-                        stringId="medication.mar.givenAt.tooltip"
-                        fallback="given at :time"
-                        replacements={{ time: formatTime(dose?.givenTime) }}
-                      />
-                    </div>
-                  ),
-              )}
-            </TooltipText>
-          );
-        }
-        default:
-          if (isNotDue) {
-            return (
-              <TooltipText>
-                <TranslatedText
-                  stringId="medication.mar.future.tooltip"
-                  fallback="Cannot record future dose. Due at :dueAt."
-                  replacements={{ dueAt: formatTime(dueAt) }}
-                />
-              </TooltipText>
-            );
-          }
-          if (isPast) {
-            return isPrn ? null : (
-              <TooltipText>
-                <TranslatedText
-                  stringId="medication.mar.missed.tooltip"
-                  fallback="Missed. Due at :dueAt."
-                  replacements={{ dueAt: formatTime(dueAt) }}
-                />
-              </TooltipText>
-            );
-          }
-          return (
-            <TooltipText>
-              <TranslatedText
-                stringId="medication.mar.dueAt.tooltip"
-                fallback="Due at :dueAt."
-                replacements={{ dueAt: formatTime(dueAt) }}
-              />
-            </TooltipText>
-          );
-      }
-    }
-    return null;
-  })();
-
   return (
     <>
       <TableDataCell
@@ -581,25 +455,26 @@ export const MarStatus = ({
         status={status}
         disabled={!canView || isNotDue}
       >
-        <ConditionalTooltip
-          visible={Boolean(content)}
-          title={content}
-          PopperProps={{
-            popperOptions: {
-              positionFixed: true,
-              modifiers: {
-                preventOverflow: {
-                  enabled: true,
-                  boundariesElement: 'window',
-                },
-              },
-            },
-          }}
+        <MarStatusTooltip
+          dosingUnit={dosingUnit}
+          dueAt={dueAt}
+          endDate={endDate}
+          isAlert={isAlert}
+          isDiscontinued={isDiscontinued}
+          isEnd={isEnd}
+          isError={isError}
+          isNotDue={isNotDue}
+          isPast={isPast}
+          isPaused={isPaused}
+          isPrn={isPrn}
+          marDoses={marDoses}
+          marInfo={marInfo}
+          reasonNotGiven={reasonNotGiven}
+          status={status}
         >
-          <VisuallyHidden>{content}</VisuallyHidden>
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
-        </ConditionalTooltip>
+        </MarStatusTooltip>
       </TableDataCell>
       <StatusPopper
         open={!!anchorEl && !!containerRef.current && anchorEl === containerRef.current}
