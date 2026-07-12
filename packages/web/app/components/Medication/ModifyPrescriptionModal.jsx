@@ -2,23 +2,14 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box } from '@material-ui/core';
 
-import {
-  ADMINISTRATION_FREQUENCIES,
-  DRUG_ROUTE_LABELS,
-  DRUG_ROUTE_VALUES,
-  DRUG_UNIT_LABELS,
-  FORM_TYPES,
-  MEDICATION_DURATION_UNITS_LABELS,
-} from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, DRUG_UNIT_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
   Button,
   Form,
   FormGrid,
   OutlinedButton,
   TextField,
-  TranslatedSelectField,
   TranslatedText,
 } from '@tamanu/ui-components';
 
@@ -26,13 +17,22 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
-import { preventInvalidNumber, validateDecimalPlaces } from '../../utils/utils';
+import { preventInvalidNumber } from '../../utils/utils';
 import { AutocompleteField, CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
 import { TranslatedEnum } from '../Translation';
-import { BodyText, SmallBodyText } from '../Typography';
+import { SmallBodyText } from '../Typography';
 import { Colors } from '../../constants';
-import { FrequencySearchField } from './FrequencySearchInput';
+import {
+  DoseAmountField,
+  DurationUnitField,
+  DurationValueField,
+  FrequencyField,
+  MedicationAutocompleteField,
+  RouteField,
+  VariableDoseCheckField,
+} from './PrescriptionFields';
+import { prescriptionClinicalValidation } from './prescriptionValidation';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -56,38 +56,15 @@ const ButtonRow = styled.div`
 `;
 
 const validationSchema = yup.object().shape({
-  medicationId: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
+  // medicationId, doseAmount, frequency, route, durationValue, durationUnit — same clinical
+  // invariants as prescribing (MedicationForm).
+  ...prescriptionClinicalValidation,
+  // The modify form clears numeric fields to null (variable dose clears the dose, 'Immediately'
+  // clears the duration), so the shared rules are loosened to accept null here — `required`
+  // still rejects null when the dose is not variable.
+  doseAmount: prescriptionClinicalValidation.doseAmount.nullable(),
+  durationValue: prescriptionClinicalValidation.durationValue.nullable(),
   isVariableDose: yup.boolean(),
-  doseAmount: yup
-    .number()
-    .positive()
-    .nullable()
-    .when('isVariableDose', {
-      is: true,
-      then: schema => schema.optional(),
-      otherwise: schema =>
-        schema.required(
-          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-        ),
-    }),
-  frequency: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
-  route: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ).oneOf(DRUG_ROUTE_VALUES),
-  durationValue: yup.number().positive().nullable(),
-  durationUnit: yup
-    .string()
-    .when('durationValue', (durationValue, schema) =>
-      durationValue
-        ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
-        : schema.optional(),
-    ),
   quantity: yup.number().integer().positive().nullable(),
   pharmacyNotes: yup.string().nullable(),
   modifiedReasonId: foreignKey(
@@ -204,29 +181,13 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
         render={({ values, setValues, setFieldError }) => (
           <FormGrid>
             <div style={{ gridColumn: '1 / -1' }}>
-              <Field
-                name="medicationId"
-                label={
-                  <TranslatedText stringId="medication.medication.label" fallback="Medication" />
-                }
-                component={AutocompleteField}
+              <MedicationAutocompleteField
                 suggester={drugSuggester}
-                required
                 data-testid="modify-prescription-medication"
               />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <Field
-                name="isVariableDose"
-                label={
-                  <BodyText>
-                    <TranslatedText
-                      stringId="medication.variableDose.label"
-                      fallback="Variable dose"
-                    />
-                  </BodyText>
-                }
-                component={CheckField}
+              <VariableDoseCheckField
                 onChange={(_, value) => {
                   if (value) {
                     retainedDoseAmount.current = values.doseAmount;
@@ -239,21 +200,14 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
                 data-testid="modify-prescription-variable-dose"
               />
             </div>
-            <Field
-              name="doseAmount"
+            <DoseAmountField
               label={<TranslatedText stringId="medication.dose.label" fallback="Dose" />}
-              component={NumberField}
-              min={0}
-              onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
               InputProps={unitAdornment(prescription.dosingUnit)}
               data-testid="modify-prescription-dose"
             />
-            <Field
-              name="frequency"
-              component={FrequencySearchField}
-              required
+            <FrequencyField
               onChange={e => {
                 if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
                   setValues({ ...values, durationValue: '', durationUnit: '' });
@@ -261,34 +215,13 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
               }}
               data-testid="modify-prescription-frequency"
             />
-            <Field
-              name="route"
-              label={
-                <TranslatedText
-                  stringId="medication.routeOfAdministration.label"
-                  fallback="Route of administration"
-                />
-              }
-              component={TranslatedSelectField}
-              enumValues={DRUG_ROUTE_LABELS}
-              required
-              data-testid="modify-prescription-route"
-            />
+            <RouteField data-testid="modify-prescription-route" />
             <FormGrid nested>
-              <Field
-                name="durationValue"
-                label={<TranslatedText stringId="medication.duration.label" fallback="Duration" />}
-                component={NumberField}
-                min={0}
-                onInput={preventInvalidNumber}
+              <DurationValueField
                 disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
                 data-testid="modify-prescription-duration-value"
               />
-              <Field
-                name="durationUnit"
-                label={<Box sx={{ opacity: 0 }}>.</Box>}
-                component={TranslatedSelectField}
-                enumValues={MEDICATION_DURATION_UNITS_LABELS}
+              <DurationUnitField
                 disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
                 data-testid="modify-prescription-duration-unit"
               />
