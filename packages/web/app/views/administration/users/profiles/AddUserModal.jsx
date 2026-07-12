@@ -77,8 +77,8 @@ const CREATE_VALIDATION = yup.object().shape({
 });
 
 export const AddUserModal = ({ open, onClose, handleRefresh }) => {
-  const { mutate: createUser, isPending: isCreateUserPending } = useCreateUserMutation();
-  const { mutateAsync: validateUser, isPending: isValidateUserPending } = useValidateUserMutation();
+  const { mutate: createUser, isLoading: isCreateUserPending } = useCreateUserMutation();
+  const { mutateAsync: validateUser, isLoading: isValidateUserPending } = useValidateUserMutation();
   const { getTranslation } = useTranslation();
 
   const isPending = isCreateUserPending || isValidateUserPending;
