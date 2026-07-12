@@ -34,7 +34,7 @@ import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const StatusContainer = styled(
-  forwardRef(function StatusContainer(
+  forwardRef(function (
     {
       canCreateMar,
       canViewMar,
