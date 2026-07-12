@@ -91,6 +91,11 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
 
     if (formData.conditions) {
       for (const condition of formData.conditions) {
+        // The "Add additional" button inserts a blank placeholder that stays empty if the user
+        // backs out of the condition/category picker. Skip incomplete rows: without this guard the
+        // loop throws on condition.condition.value after the registration has already been saved,
+        // which blocks navigation and, on re-submit, duplicates the conditions saved so far.
+        if (!condition?.condition?.value || !condition?.category?.value) continue;
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
           programRegistryCondition: condition.condition.value,
