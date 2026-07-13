@@ -159,7 +159,11 @@ const dischargingClinicianLabel = (
     fallback="Discharging :clinician"
     replacements={{
       clinician: (
-        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+        <TranslatedText
+          stringId="general.localisedField.clinician.label"
+          fallback="Clinician"
+          casing="lower"
+        />
       ),
     }}
   />
