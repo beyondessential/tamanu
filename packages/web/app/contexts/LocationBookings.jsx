@@ -26,7 +26,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
   const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();
   const [filters, setFilters] = useState({
-    LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
+    ...LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
   });
 
   useEffect(() => {
