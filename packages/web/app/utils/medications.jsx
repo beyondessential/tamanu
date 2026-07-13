@@ -40,12 +40,8 @@ const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
   }
-  .MuiInputBase-multiline {
-    padding-block: 0;
-  }
   .MuiInputBase-input {
     font-size: 14px;
-    padding-block: 10px;
   }
 `;
 
