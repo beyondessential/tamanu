@@ -21,6 +21,7 @@ import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   useDateTime,
+  VisuallyHidden,
 } from '@tamanu/ui-components';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
@@ -401,7 +402,11 @@ const MEDICATION_COLUMNS = (
     ? [
         {
           key: 'Discontinued',
-          title: '',
+          title: (
+            <VisuallyHidden>
+              <TranslatedText stringId="medication.details.discontinue" fallback="Discontinue" />
+            </VisuallyHidden>
+          ),
           accessor: medication =>
             medication?.medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication ? (
               <div />
