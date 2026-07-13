@@ -724,7 +724,7 @@ describe('Invoice Utils', () => {
   });
 
   describe('getInsurerPaymentsWithRemainingBalance', () => {
-    it('nets refunds out of the remaining balance', () => {
+    it('nets refunds out of the remaining balance so it agrees with getInvoiceSummary', () => {
       const invoice = {
         items: [
           {
@@ -756,9 +756,12 @@ describe('Invoice Utils', () => {
           },
         ],
       };
+      const summary = getInvoiceSummary(invoice);
       const paymentsWithRemainingBalance = getInsurerPaymentsWithRemainingBalance(invoice);
       const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
       expect(lastPayment.remainingBalance).toEqual(60);
+      expect(summary.insurerPaymentsTotal).toEqual(40);
+      expect(summary.insurerPaymentRemainingBalance).toEqual(lastPayment.remainingBalance);
     });
 
     it('agrees with getInvoiceSummary when there are no refunds', () => {
