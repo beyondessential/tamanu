@@ -36,6 +36,8 @@ const checkMandatory = (mandatory, values) => {
 
 function getConfigObject(config, componentId) {
   if (!config) return {};
+  // components from getComponentsForSurvey arrive with `options` already parsed
+  if (typeof config === 'object') return config;
   try {
     return JSON.parse(config);
   } catch (e) {
@@ -67,10 +69,15 @@ const getAnswerValue = async ({
 }) => {
   let answer = answerText;
 
+  if (answer == null || answer === '') return answer;
+
   if (screenComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.NUMBER) {
     const validationMin = parseFloat(validationCriteria.min);
     const validationMax = parseFloat(validationCriteria.max);
     answer = parseFloat(answer);
+    if (Number.isNaN(answer)) {
+      throw new Error(`Value "${answerText}" is not a valid number`);
+    }
     if (
       (!isNaN(validationMin) && answer < validationMin) ||
       (!isNaN(validationMax) && answer > validationMax)
@@ -79,8 +86,6 @@ const getAnswerValue = async ({
     }
     return answer;
   }
-
-  if (!answer) return answer;
 
   switch (screenComponent.dataElement.type) {
     case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
@@ -92,15 +97,17 @@ const getAnswerValue = async ({
       )
         throw new Error(`Value must be one of ${Object.keys(options)}`);
       break;
-    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT: {
+      const selectedValues = String(answer).split(',');
       if (
         Object.keys(options).length > 0 &&
-        answer.split(',').filter(a => !Object.keys(options).includes(a.trim())).length > 0
+        selectedValues.filter(a => !Object.keys(options).includes(a.trim())).length > 0
       ) {
         throw new Error(`Values must be one of ${Object.keys(options)}`);
       }
-      answer = JSON.stringify(answer.split(','));
+      answer = JSON.stringify(selectedValues);
       break;
+    }
     case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       answer = toDateTimeString(getJsDateFromExcel(answer)); // this throws an error if invalid
