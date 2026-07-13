@@ -140,7 +140,11 @@ const AddAdditionalDoseButton = styled.a`
   }
 `;
 
-const StyledTimePickerField = styled(Field)`
+const StyledTimePickerField = styled(Field).attrs({
+  component: TimePickerField,
+  format: 'hh:mmaa',
+  timeSteps: { minutes: 1 },
+})`
   width: 100%;
   .MuiInputBase-root {
     background-color: ${p => p.theme.palette.background.paper};
@@ -620,9 +624,6 @@ export const MarDetails = ({
                                 onChange={value => {
                                   setFieldValue(`doses.${index}.givenTime`, value);
                                 }}
-                                component={TimePickerField}
-                                format="hh:mmaa"
-                                timeSteps={{ minutes: 1 }}
                                 error={errors[`doses.${index}.givenTime`]}
                                 slotProps={{
                                   textField: {
