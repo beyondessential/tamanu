@@ -13,21 +13,19 @@ import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 
 const LocationBookingsContext = createContext(null);
 
-export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
+export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = /** @type {const} */ ({
   locationGroupIds: [],
   clinicianId: [],
   bookingTypeId: [],
   patientNameOrId: '',
-};
+});
 
 export const LocationBookingsContextProvider = ({ children }) => {
   const { getCurrentDate } = useDateTime();
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();
-  const [filters, setFilters] = useState({
-    ...LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
-  });
+  const [filters, setFilters] = useState(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
 
   useEffect(() => {
     if (!userPreferences?.locationBookingFilters) return;
