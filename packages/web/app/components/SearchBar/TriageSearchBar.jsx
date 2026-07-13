@@ -54,13 +54,9 @@ export const TriageSearchBarAdvancedFields = () => {
           fallback="Level :level - :label"
           replacements={{
             level: category.level,
-            label: (
-              <TranslatedText
-                stringId={`patientList.triage.category.level${category.level}.label`}
-                fallback={category.label}
-                data-testid={`translatedtext-triage-category-label-${category.level}`}
-              />
-            ),
+            // Labels come from the triageCategories setting, which is the
+            // source of truth for deployment-specific category names
+            label: category.label,
           }}
           data-testid={`translatedtext-triage-category-${category.level}`}
         />
