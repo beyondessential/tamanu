@@ -38,6 +38,7 @@ module.exports = {
     '^/navigation(.*)$': '<rootDir>/App/ui/navigation$1',
     '^/contexts(.*)$': '<rootDir>/App/ui/contexts$1',
     '^/services(.*)$': '<rootDir>/App/ui/services$1',
+    '^/store(.*)$': '<rootDir>/App/ui/store$1',
     '^/domain(.*)$': '<rootDir>/App/domain$1',
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
