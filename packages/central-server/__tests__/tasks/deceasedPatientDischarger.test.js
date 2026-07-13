@@ -68,35 +68,40 @@ describe('Deceased patient discharger', () => {
 
   afterAll(() => ctx.close());
 
-  it('Should discharge patients with death data even when a batch fills with skipped patients', async () => {
-    // two patients whose encounters sort first but have no death data, so they
-    // fill the whole first batch with rows that only ever get skipped
-    const skippedPatientOne = await createDeceasedPatient({ withDeathData: false });
-    const skippedPatientTwo = await createDeceasedPatient({ withDeathData: false });
-    const patientOne = await createDeceasedPatient({ clinicianId: examiner.id });
-    const patientTwo = await createDeceasedPatient({ clinicianId: examiner.id });
-
-    const skippedEncounterOne = await createOpenEncounter(
-      skippedPatientOne,
-      'deceased-discharger-batching-1',
-    );
-    const skippedEncounterTwo = await createOpenEncounter(
-      skippedPatientTwo,
-      'deceased-discharger-batching-2',
-    );
-    const encounterOne = await createOpenEncounter(patientOne, 'deceased-discharger-batching-3');
-    const encounterTwo = await createOpenEncounter(patientTwo, 'deceased-discharger-batching-4');
+  it('Should discharge every dischargeable encounter when skipped and dischargeable rows interleave across batches', async () => {
+    // Alternate skippable (no death data) and dischargeable encounters in id
+    // order, with more rows than the batch size. Discharged rows leave the
+    // "open encounter" filter mid-run, so pagination that advances an offset
+    // over the shrinking result set slides past dischargeable rows; batching
+    // must instead make progress regardless of whether rows are processed or
+    // skipped.
+    const skippedEncounters = [];
+    const dischargeable = [];
+    for (let i = 1; i <= 3; i++) {
+      const skippedPatient = await createDeceasedPatient({ withDeathData: false });
+      skippedEncounters.push(
+        await createOpenEncounter(skippedPatient, `deceased-discharger-interleaved-${i}-skip`),
+      );
+      const patient = await createDeceasedPatient({ clinicianId: examiner.id });
+      dischargeable.push({
+        patient,
+        encounter: await createOpenEncounter(
+          patient,
+          `deceased-discharger-interleaved-${i}-zdischarge`,
+        ),
+      });
+    }
 
     await runDischarger({ batchSize: 2 });
 
-    await skippedEncounterOne.reload();
-    await skippedEncounterTwo.reload();
-    await encounterOne.reload();
-    await encounterTwo.reload();
-    expect(skippedEncounterOne).toHaveProperty('endDate', null);
-    expect(skippedEncounterTwo).toHaveProperty('endDate', null);
-    expect(encounterOne).toHaveProperty('endDate', patientOne.dateOfDeath);
-    expect(encounterTwo).toHaveProperty('endDate', patientTwo.dateOfDeath);
+    for (const skippedEncounter of skippedEncounters) {
+      await skippedEncounter.reload();
+      expect(skippedEncounter).toHaveProperty('endDate', null);
+    }
+    for (const { patient, encounter } of dischargeable) {
+      await encounter.reload();
+      expect(encounter).toHaveProperty('endDate', patient.dateOfDeath);
+    }
   });
 
   it('Should skip encounters whose death data clinician cannot be found', async () => {
