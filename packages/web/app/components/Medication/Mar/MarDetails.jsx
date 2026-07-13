@@ -21,6 +21,7 @@ import {
   FormGrid,
   NumberField,
   OutlinedButton,
+  RequiredOrnament,
   TextField,
   TimeDisplay,
   TranslatedEnum,
@@ -194,9 +195,6 @@ const RemoveDoseText = styled.div`
   }
 `;
 
-const RequiredMark = styled.span`
-  color: ${p => p.theme.palette.error.main};
-`;
 
 const ErrorMessage = styled.div`
   color: ${p => p.theme.palette.error.main};
@@ -609,7 +607,7 @@ export const MarDetails = ({
                                   stringId="medication.mar.givenTime.label"
                                   fallback="Time given"
                                 />
-                                <RequiredMark>*</RequiredMark>
+                                <RequiredOrnament />
                               </DarkText>
                               <StyledTimePickerField
                                 name={`doses.${index}.givenTime`}
