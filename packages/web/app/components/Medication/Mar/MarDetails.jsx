@@ -451,7 +451,7 @@ export const MarDetails = ({
                       </Box>
                       {canEditMar && (
                         <NoteModalActionBlocker>
-                          <EditButton onClick={() => setShowEditDoseModal({})} />
+                          <EditButton onClick={() => void setShowEditDoseModal({})} />
                         </NoteModalActionBlocker>
                       )}
                     </DetailsContainer>
@@ -484,7 +484,7 @@ export const MarDetails = ({
                             )}
                           </DoseIndex>
                           {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-                            <RemoveDoseText onClick={() => setShowRemoveDoseModal(dose)}>
+                            <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
                                 stringId="medication.mar.action.removeAdditionalDose"
@@ -538,9 +538,7 @@ export const MarDetails = ({
                           </Box>
                           {canEditMar && (
                             <NoteModalActionBlocker>
-                              <EditButton disableRipple onClick={() => setShowEditDoseModal(dose)}>
-                                <StyledEditIcon />
-                              </EditButton>
+                              <EditButton onClick={() => void setShowEditDoseModal(dose)} />
                             </NoteModalActionBlocker>
                           )}
                         </DetailsContainer>
@@ -550,7 +548,7 @@ export const MarDetails = ({
                 {showWarningModal && (
                   <WarningModal
                     modal={showWarningModal}
-                    onClose={() => setShowWarningModal('')}
+                    onClose={() => void setShowWarningModal('')}
                     onConfirm={() => {
                       setShowWarningModal('');
                       onSubmit(values, { setFieldValue });
@@ -723,7 +721,7 @@ export const MarDetails = ({
       {!!showRemoveDoseModal && (
         <RemoveAdditionalDoseModal
           open={showRemoveDoseModal}
-          onClose={() => setShowRemoveDoseModal(null)}
+          onClose={() => void setShowRemoveDoseModal(null)}
           medication={medication}
           marInfo={marInfo}
           dose={showRemoveDoseModal}
@@ -732,7 +730,7 @@ export const MarDetails = ({
       {!!showEditDoseModal && (
         <EditAdministrationRecordModal
           open={showEditDoseModal}
-          onClose={() => setShowEditDoseModal(false)}
+          onClose={() => void setShowEditDoseModal(false)}
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
