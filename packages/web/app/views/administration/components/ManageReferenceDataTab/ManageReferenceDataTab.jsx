@@ -1,22 +1,24 @@
-import React, { useCallback, useMemo, useState } from 'react';
-
-import styled from 'styled-components';
 import AddIcon from '@mui/icons-material/Add';
+import React, { useCallback, useMemo, useState } from 'react';
+import styled from 'styled-components';
 
-import { SelectInput, Button, VisuallyHidden } from '@tamanu/ui-components';
 import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
-import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
-import { Colors } from '../../../../constants/styles';
-import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { ThemedTooltip } from '../../../../components/Tooltip';
+import {
+  Button,
+  SelectInput,
+  ThemedTooltip,
+  TranslatedText,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
-import { SearchBar } from './SearchBar';
 import { AddReferenceDataModal } from './AddReferenceDataModal';
+import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 import { EditReferenceDataModal } from './EditReferenceDataModal';
+import { SearchBar } from './SearchBar';
 import { useReferenceDataColumns } from './useReferenceDataColumns';
 import { useReferenceDataDeleteMutation } from './useReferenceDataDeleteMutation';
-import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
   margin: 20px;
@@ -24,9 +26,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: calc(100vh - 200px);
+  min-block-size: calc(100vh - 200px);
   overflow: auto;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${p => p.theme.palette.divider};
 `;
 
 const TopRow = styled.div`
@@ -34,18 +36,18 @@ const TopRow = styled.div`
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid ${Colors.outline};
+  padding-block-end: 16px;
+  border-block-end: 1px solid ${p => p.theme.palette.divider};
 `;
 
 const SelectContainer = styled.div`
   align-items: center;
   gap: 12px;
-  width: 18.75rem;
+  inline-size: 18.75rem;
 `;
 
 const StyledAddButton = styled(Button)`
-  min-height: 44px;
+  min-block-size: 44px;
 `;
 
 const TableWrapper = styled.div`
@@ -55,22 +57,22 @@ const TableWrapper = styled.div`
   .MuiTableBody-root .MuiTableRow-root {
     cursor: pointer;
     &:hover {
-      background-color: ${Colors.veryLightBlue};
+      background-color: ${p => p.theme.palette.action.hover};
     }
   }
 `;
 
 const PlaceholderBox = styled.div`
   flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
+  min-block-size: 0;
+  block-size: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.background};
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px;
-  color: ${Colors.primary};
+  background: ${p => p.theme.palette.background.default};
+  border: 1px solid ${p => p.theme.palette.divider};
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  color: ${p => p.theme.palette.primary.main};
   font-weight: 500;
   font-size: 14px;
   overflow: auto;
@@ -174,8 +176,7 @@ export const ManageReferenceDataTab = () => {
             placeholder={
               <TranslatedText
                 stringId="admin.referenceData.selectTypePlaceholder"
-                fallback="Select reference data..."
-                data-testid="translatedtext-select-refdata-type"
+                fallback="Select reference data…"
               />
             }
             data-testid="selectinput-refdata-type"
@@ -187,7 +188,6 @@ export const ManageReferenceDataTab = () => {
               <TranslatedText
                 stringId="admin.referenceData.selectTypeToAdd"
                 fallback="Select desired reference data to add new"
-                data-testid="translatedtext-tooltip-add-refdata"
               />
             ) : (
               ''
@@ -203,11 +203,7 @@ export const ManageReferenceDataTab = () => {
               data-testid="add-refdata-button"
               startIcon={<AddIcon />}
             >
-              <TranslatedText
-                stringId="admin.referenceData.addNew"
-                fallback="Add reference data"
-                data-testid="translatedtext-add-refdata"
-              />
+              <TranslatedText stringId="admin.referenceData.addNew" fallback="Add reference data" />
             </StyledAddButton>
           </span>
         </ThemedTooltip>
@@ -230,7 +226,6 @@ export const ManageReferenceDataTab = () => {
                 <TranslatedText
                   stringId="admin.referenceData.noData"
                   fallback="No reference data found"
-                  data-testid="translatedtext-nodata-refdata"
                 />
               }
               data-testid="table-refdata-manage"
@@ -243,7 +238,6 @@ export const ManageReferenceDataTab = () => {
           <TranslatedText
             stringId="admin.referenceData.selectTypePrompt"
             fallback="Select the desired reference data from the field above to view."
-            data-testid="translatedtext-prompt-refdata"
           />
         </PlaceholderBox>
       )}
@@ -272,24 +266,18 @@ export const ManageReferenceDataTab = () => {
         <ConfirmModal
           open={Boolean(deletingRecordId)}
           title={
-            <TranslatedText
-              stringId="admin.referenceData.deleteTitle"
-              fallback="Delete item"
-              data-testid="translatedtext-delete-refdata-title"
-            />
+            <TranslatedText stringId="admin.referenceData.deleteTitle" fallback="Delete item" />
           }
           subText={
             <TranslatedText
               stringId="admin.referenceData.deleteConfirmPrefix"
               fallback="Are you sure you would like to delete the selected item?"
-              data-testid="translatedtext-delete-refdata-prefix"
             />
           }
           confirmButtonText={
             <TranslatedText
               stringId="admin.referenceData.deleteConfirmButton"
               fallback="Delete item"
-              data-testid="translatedtext-delete-refdata-button"
             />
           }
           onConfirm={() => deleteRecord(deletingRecordId)}
