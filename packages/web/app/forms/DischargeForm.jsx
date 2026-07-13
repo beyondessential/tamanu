@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
