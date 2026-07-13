@@ -3,24 +3,15 @@ import { addHours, isSameDay } from 'date-fns';
 import React, { forwardRef, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import {
-  ADMINISTRATION_STATUS,
-  DRUG_UNIT_SHORT_LABELS,
-  MEDICATION_ADMINISTRATION_TIME_SLOTS,
-} from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import {
-  EditedOrnament,
-  TranslatedEnum,
-  TranslatedText,
-  useDateTime,
-  useTranslation,
-} from '@tamanu/ui-components';
+import { EditedOrnament, useDateTime, useTranslation } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { useAuth } from '../../../contexts/Auth';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
+import MarDoseInfo from './MarDoseInfo';
 import MarStatusIcon from './MarStatusIcon';
 import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
@@ -118,10 +109,6 @@ const StyledEditedOrnament = styled(EditedOrnament)`
   position: absolute;
   right: 3px;
   top: 2px;
-`;
-
-const DoseInfo = styled.div`
-  text-align: center;
 `;
 
 const DiscontinuedDivider = styled.div`
@@ -420,21 +407,12 @@ export const MarStatus = ({
             </IconWrapper>
           );
         }
-        if (isVariableDose) {
-          return (
-            <DoseInfo>
-              <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
-            </DoseInfo>
-          );
-        }
-        if (!dosingUnit) return null;
         return (
-          <DoseInfo>
-            <div>{doseAmount}</div>
-            <div>
-              <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
-            </div>
-          </DoseInfo>
+          <MarDoseInfo
+            doseAmount={doseAmount}
+            dosingUnit={dosingUnit}
+            isVariableDose={isVariableDose}
+          />
         );
       }
     }
