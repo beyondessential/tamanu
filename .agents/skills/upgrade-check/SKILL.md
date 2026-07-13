@@ -37,15 +37,19 @@ commits before comparing; they never need to be carried forward.
 
 ## Check 1 — Hotfixes Status
 
-Verify all intermediate hotfixes are included in the target version. You must check **every** release
-branch between current and target, not just the two endpoints. Upgrading `v2.31` -> `v2.47` means
-checking `release/2.32`, `2.33`, ... `2.46` for hotfixes that might be missing from the target.
+Verify all hotfixes are included in the target version. You must check **every** release branch from
+the current version's branch up to the target — not just the two endpoints, and **including the
+from-branch itself**. Hotfixes landed on the from-branch *after* the deployed from-version may never
+have been forward-merged to `main`, so they can be silently missing from the target. Upgrading
+`v2.31` -> `v2.47` means checking `release/2.31` (the from-branch), `release/2.32`, `2.33`, ... `2.46`
+for hotfixes that might be missing from the target.
 
-For **each** prior release branch:
+For **each** of these release branches:
 
 1. Find the "last common commit" — typically when that branch was merged to `main` before the target
-   branch was created.
-2. Any commits on the prior branch **after** that last common commit are hotfixes to check.
+   branch was created. For the **from-branch**, use the deployed from-version tag instead (its hotfixes
+   are the commits landed after that patch release).
+2. Any commits on the branch **after** that point are hotfixes to check.
 3. For each hotfix, search the target branch for a commit with the same message subject.
 4. If none is found, flag it as missing.
 
@@ -69,7 +73,7 @@ concise.
 Report data-migration requirements and FHIR rematerialisation impact between the versions.
 
 1. **Data migration subcommands** — list any subcommands that must be run
-   (e.g. `yarn workspace lan-server migrate:subcommand:name`).
+   (e.g. `npm run --workspace @tamanu/central-server start migrateVitals`).
 2. **Long-running migrations** — flag migrations that will be slow because they touch **every** (or
    most) rows in large tables (`encounters`, `notes`, `patients`, `sync_lookup`,
    `sync_session_data`, etc.). Slow patterns:
