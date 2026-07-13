@@ -70,7 +70,10 @@ export const getPatientPaymentsWithRemainingBalance = (
   let { patientTotal } = getInvoiceSummary(invoice);
 
   return patientPayments.map(payment => {
-    patientTotal = new Decimal(patientTotal).minus(payment.amount).toNumber();
+    const isRefundRelated = Boolean(payment?.refundPayment?.id ?? payment?.originalPayment?.id);
+    if (!isRefundRelated) {
+      patientTotal = new Decimal(patientTotal).minus(payment.amount).toNumber();
+    }
     return {
       ...payment,
       remainingBalance: patientTotal,
@@ -92,7 +95,10 @@ export const getInsurerPaymentsWithRemainingBalance = (
   let { insuranceCoverageTotal } = getInvoiceSummary(invoice);
 
   return insurerPayments?.map(payment => {
-    insuranceCoverageTotal = new Decimal(insuranceCoverageTotal).minus(payment.amount).toNumber();
+    const isRefundRelated = Boolean(payment?.refundPayment?.id ?? payment?.originalPayment?.id);
+    if (!isRefundRelated) {
+      insuranceCoverageTotal = new Decimal(insuranceCoverageTotal).minus(payment.amount).toNumber();
+    }
     return {
       ...payment,
       remainingBalance: insuranceCoverageTotal,
