@@ -53,7 +53,6 @@ vi.mock('../../../app/contexts/Settings', async () => {
   };
 });
 
-// eslint-disable-next-line import/first
 import { DataFetchingTable } from '../../../app/components/Table/DataFetchingTable';
 
 const columns = [{ key: 'name', title: 'Name' }];
