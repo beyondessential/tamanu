@@ -51,7 +51,7 @@ export const getNextFrequencyDate = (
   repeatUnit: keyof typeof REPEAT_FREQUENCY,
 ) => {
   const dayOfWeek = format(parseISO(date), 'iiiiii').toUpperCase();
-  const nthWeekday = getWeekdayOrdinalPosition(new Date(date));
+  const nthWeekday = getWeekdayOrdinalPosition(parseISO(date));
 
   const incrementedDate = add(parseISO(date), {
     [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[repeatUnit]]: repeatFrequency,
