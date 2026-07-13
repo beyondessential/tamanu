@@ -37,15 +37,15 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       fromId,
       limit,
     });
-    const { id, sortOrder } = records[records.length - 1];
-    fromId = btoa(JSON.stringify({ sortOrder, id }));
-    totalPulled += records.length;
-    const pullTime = Date.now() - startTime;
-
     if (!records.length) {
       log.debug(`FacilitySyncManager.pull.noMoreChanges`);
       break;
     }
+
+    const { id, sortOrder } = records[records.length - 1];
+    fromId = btoa(JSON.stringify({ sortOrder, id }));
+    totalPulled += records.length;
+    const pullTime = Date.now() - startTime;
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
