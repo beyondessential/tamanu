@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
-import { Box, Divider } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
+
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   TextField,
@@ -12,11 +15,13 @@ import {
   ConfirmCancelRow,
   TranslatedText,
   useDateTime,
+  Field,
+  NumberField,
+  useSuggester,
+  AutocompleteField,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { Field, NumberField, AutocompleteField } from '../../Field';
 import { FormModal } from '../..';
-import { useSuggester } from '../../../api';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useTranslation } from '../../../contexts/Translation';
@@ -28,7 +33,6 @@ import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { toast } from 'react-toastify';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -234,7 +238,9 @@ export const EditAdministrationRecordModal = ({
               }
             : {
                 doseAmount: doseInfo?.doseAmount,
-                givenTime: doseInfo?.givenTime ? new Date(toFacilityDateTime(doseInfo.givenTime)) : null,
+                givenTime: doseInfo?.givenTime
+                  ? new Date(toFacilityDateTime(doseInfo.givenTime))
+                  : null,
                 givenByUserId: doseInfo?.givenByUserId,
                 recordedByUserId: doseInfo?.recordedByUserId,
               }
@@ -294,9 +300,20 @@ export const EditAdministrationRecordModal = ({
                     name="doseAmount"
                     component={NumberField}
                     label={
-                      <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
+                      <TranslatedText
+                        stringId="mar.details.doseGiven.label"
+                        fallback="Dose given"
+                      />
                     }
-                    unit={medication?.dosingUnit ? getDrugUnitLabel(medication.dosingUnit, values.doseAmount, getEnumTranslation) : undefined}
+                    unit={
+                      medication?.dosingUnit
+                        ? getDrugUnitLabel(
+                            medication.dosingUnit,
+                            values.doseAmount,
+                            getEnumTranslation,
+                          )
+                        : undefined
+                    }
                     required
                   />
                   <div>

@@ -56,7 +56,7 @@ jobs:
 
       - name: Find stale deploys and untick PR boxes
         id: config
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const cwd = '${{ github.workspace }}';

@@ -1,0 +1,22 @@
+name: Setup oras
+description: Install the oras CLI (OCI Registry As Storage) for pushing arbitrary artifacts to ghcr.io
+inputs:
+  version:
+    description: oras release version to install
+    required: false
+    default: '1.2.0'
+runs:
+  using: composite
+  steps:
+    - name: Install oras
+      shell: bash
+      run: |
+        set -euo pipefail
+        version='${{ inputs.version }}'
+        curl -sLo oras.tar.gz \
+          "https://github.com/oras-project/oras/releases/download/v${version}/oras_${version}_linux_amd64.tar.gz"
+        mkdir -p oras-install
+        tar -xzf oras.tar.gz -C oras-install oras
+        sudo install -m755 oras-install/oras /usr/local/bin/oras
+        rm -rf oras.tar.gz oras-install
+        oras version

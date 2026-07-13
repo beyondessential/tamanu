@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { syncDatabaseServerVersion } from '@tamanu/database';
 import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
@@ -26,7 +27,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     serverVersion: version,
   });
 
-  const { server } = await createApp(context);
+  const { express, server } = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -48,13 +49,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     );
   }
 
-  let { port } = config;
-  if (+process.env.PORT) {
-    port = +process.env.PORT;
-  }
-  server.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
-  });
+  listenForBindAddresses({ server, app: express, fallbackPort: config.port });
 
   context.onClose(() => server.close());
 

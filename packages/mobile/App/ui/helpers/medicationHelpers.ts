@@ -1,33 +1,32 @@
-import {
-  MEDICATION_ADMINISTRATION_TIME_SLOTS,
-} from '~/constants/medications';
+import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '~/constants/medications';
 import { addDays, format, isSameDay, set } from 'date-fns';
 
-export const getDateFromTimeString = (time: string, initialDate = new Date()) => {
-  if (typeof time !== 'string' || !time?.includes?.(':')) {
-    time = format(new Date(time), 'HH:mm');
-  }
-  const parsedTime = time.split(':');
-  const hour = parseInt(parsedTime[0]);
-  const minute = parseInt(parsedTime[1]) || 0;
-  return set(initialDate, { hours: hour, minutes: minute, seconds: 0 });
+export const getDateFromTimeString = (
+  time: `${number}:${number}` | Date,
+  initialDate = new Date(),
+) => {
+  const asString =
+    typeof time !== 'string' || !time?.includes?.(':') ? format(new Date(time), 'HH:mm') : time;
+  const [hh, mm] = asString.split(':');
+  const hour = Number.parseInt(hh);
+  const minute = Number.parseInt(mm) || 0;
+  return set(initialDate, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 });
 };
 
-export const findAdministrationTimeSlotFromIdealTime = idealTime => {
+export const findAdministrationTimeSlotFromIdealTime = <T extends `${number}:${number}` | Date>(
+  idealTime: T,
+) => {
+  const ideal = getDateFromTimeString(idealTime).getTime();
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {
-    const startDate = getDateFromTimeString(slot.startTime).getTime();
-    const endDate = getDateFromTimeString(slot.endTime).getTime();
-    const idealDate = getDateFromTimeString(idealTime).getTime();
-
-    return (
-      idealDate >= startDate && idealDate < endDate && idealDate - startDate < endDate - startDate
-    );
+    const start = getDateFromTimeString(slot.startTime).getTime();
+    if (ideal < start) return false;
+    const end = getDateFromTimeString(slot.endTime).getTime();
+    return ideal < end;
   });
 
-  const timeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS[index];
   return {
     index,
-    timeSlot,
+    timeSlot: MEDICATION_ADMINISTRATION_TIME_SLOTS[index],
     value: idealTime,
   };
 };
@@ -41,7 +40,10 @@ export const areDatesInSameTimeSlot = (date1: Date, date2: Date) => {
   return slot1.index === slot2.index;
 };
 
-export const getFirstAdministrationDate = (startDate: Date, idealTimes: string[]) => {
+export const getFirstAdministrationDate = (
+  startDate: Date,
+  idealTimes: `${number}:${number}`[],
+) => {
   const firstStartTime = idealTimes
     .map(idealTime => getDateFromTimeString(idealTime, startDate))
     .concat(idealTimes.map(idealTime => getDateFromTimeString(idealTime, addDays(startDate, 1))))

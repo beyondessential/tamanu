@@ -1,6 +1,7 @@
 import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import { Heading4 } from '../../components';
 import { useDateTime } from '@tamanu/ui-components';
@@ -72,6 +73,7 @@ export const SampleDetailsField = ({
 }) => {
   const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
+  const { setFieldValue } = useFormikContext();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
   const HEADERS = [
@@ -195,7 +197,16 @@ export const SampleDetailsField = ({
                 if (value) {
                   setValue(identifier, 'sampleTime', value);
                 } else {
+                  // Clearing the collection time abandons the whole sample. Also reset the sibling
+                  // Formik fields so their stale values aren't validated (e.g. mandatory specimen
+                  // type) or left displayed while the submitted sampleDetails no longer has them.
                   removeSample(identifier);
+                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`, undefined);
+                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`, undefined);
+                  setFieldValue(
+                    `${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`,
+                    undefined,
+                  );
                 }
               }}
               data-testid="styledfield-ratc"
@@ -207,7 +218,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[identifier]?.collectedBy}
+              value={samples[identifier]?.collectedBy ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'collectedById', value);
               }}
@@ -220,7 +231,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
-              value={samples[identifier]?.specimenType}
+              value={samples[identifier]?.specimenType ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'specimenTypeId', value);
               }}
@@ -233,7 +244,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
-              value={samples[identifier]?.labSampleSite}
+              value={samples[identifier]?.labSampleSite ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'labSampleSiteId', value);
               }}
@@ -250,6 +261,7 @@ export const SampleDetailsField = ({
       samples,
       removeSample,
       setValue,
+      setFieldValue,
       hasPanels,
       getCurrentDateTime,
     ],

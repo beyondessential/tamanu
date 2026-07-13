@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
@@ -80,14 +81,14 @@ const startApp =
       await setupSyncRuntime(context);
     }
 
-    let server, port;
+    let server, express, port;
     switch (appType) {
       case APP_TYPES.API:
-        ({ server } = await createApiApp(context));
+        ({ express, server } = await createApiApp(context));
         ({ port } = config);
         break;
       case APP_TYPES.SYNC: {
-        ({ server } = await createSyncApp(context));
+        ({ express, server } = await createSyncApp(context));
         ({ port } = config.sync.syncApiConnection);
 
         // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
@@ -116,12 +117,7 @@ const startApp =
         throw new Error(`Unknown app type: ${appType}`);
     }
 
-    if (+process.env.PORT) {
-      port = +process.env.PORT;
-    }
-    server.listen(port, () => {
-      log.info(`Server is running on port ${port}!`);
-    });
+    listenForBindAddresses({ server, app: express, fallbackPort: port });
     process.once('SIGTERM', () => {
       log.info('Received SIGTERM, closing HTTP server');
       cancelConfigPoll();

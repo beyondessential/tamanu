@@ -718,27 +718,17 @@ export class TamanuApi {
           }
         }
 
-        // when the stream is done we need to keep decoding what's in our buffer
+        // When the stream is done, the decoder loop above has already consumed every
+        // complete frame — so whatever is left in the buffer is an incomplete frame: the
+        // connection dropped mid-message (including a partial END). Never yield a
+        // half-decoded message with an undefined body; retry from the last cursor instead.
         if (done) {
-          const { length, kind, message } = decodeOne(buffer);
-
-          if (!kind) {
-            this.logger.warn('Stream ended with incomplete data, will retry');
-            break reader;
-          }
-
-          if (length === undefined && kind === SYNC_STREAM_MESSAGE_KIND.END) {
-            // if the data is not complete, don't interpret the END message as being truly the end
-            this.logger.warn('END message received but with partial data, will retry');
-            break reader;
-          }
-
-          yield { kind, message };
-
-          if (kind === SYNC_STREAM_MESSAGE_KIND.END) {
-            return; // skip retry logic
-          }
-
+          const { kind } = decodeOne(buffer);
+          this.logger.warn(
+            kind
+              ? 'Stream ended with a partial message, will retry'
+              : 'Stream ended with incomplete data, will retry',
+          );
           break reader;
         }
       }
