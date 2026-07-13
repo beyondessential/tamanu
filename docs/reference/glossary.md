@@ -16,7 +16,7 @@ Terms that come up across the support pack.
   requests created in Tamanu sync to central, are materialised into FHIR, and
   SENAITE periodically polls Tamanu's FHIR API for them, processes the tests, and
   posts results back. Tamanu then updates the lab request status and attaches
-  results. See `runbooks/senaite-integration-delay.md`.
+  results. See `../runbooks/senaite-integration-delay.md`.
 
 ## FHIR
 
