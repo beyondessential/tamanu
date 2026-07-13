@@ -97,10 +97,7 @@ export function useIsPausedThenDiscontinued({
   discontinuedDate,
 }) {
   const { toFacilityDateTime } = useDateTime();
+  if (!isPreviouslyPaused || !isDiscontinued) return false;
   const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return (
-    isPreviouslyPaused &&
-    isDiscontinued &&
-    toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot
-  );
+  return toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot;
 }
