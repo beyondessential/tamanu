@@ -16,7 +16,7 @@ const Text = styled.text`
 
 export const CustomisedXAxisTick = (props) => {
   const { formatShortest, formatTime } = useDateTime();
-  const { x, y, payload } = props;
+  const { x, y, payload, showTime = true } = props;
   const { value } = payload;
   const date = new Date(value);
   if (!isValid(date)) return null;
@@ -27,15 +27,17 @@ export const CustomisedXAxisTick = (props) => {
       <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
         {formatShortest(dateString)}
       </Text>
-      <Text
-        x={0}
-        y={xAxisTickTimeY}
-        textAnchor="middle"
-        fill={Colors.midText}
-        data-testid="text-cydx"
-      >
-        {formatTime(dateString)}
-      </Text>
+      {showTime && (
+        <Text
+          x={0}
+          y={xAxisTickTimeY}
+          textAnchor="middle"
+          fill={Colors.midText}
+          data-testid="text-cydx"
+        >
+          {formatTime(dateString)}
+        </Text>
+      )}
     </g>
   );
 };

@@ -32,7 +32,8 @@ export const LineChart = (props) => {
     secondaryConfig,
   } = props;
 
-  const { margin, tableHeight, height, xAxisTicks, yAxisTicks } = chartProps;
+  const { margin, tableHeight, height, xAxisTicks, xAxisDomain, showTimeOnXAxis, yAxisTicks } =
+    chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const measureData = getMeasureData(
     chartData,
@@ -48,13 +49,18 @@ export const LineChart = (props) => {
         <CartesianGrid strokeDasharray="3 3" data-testid="cartesiangrid-vpn9" />
         <XAxis
           interval={0}
-          tick={<CustomisedXAxisTick data-testid="customisedxaxistick-vyn4" />}
+          tick={
+            <CustomisedXAxisTick
+              showTime={showTimeOnXAxis}
+              data-testid="customisedxaxistick-vyn4"
+            />
+          }
           dataKey="timestamp"
           tickLine={false}
           ticks={xAxisTicks}
           type="number"
           scale="time"
-          domain={[xAxisTicks[0], xAxisTicks[xAxisTicks.length - 1]]}
+          domain={xAxisDomain}
           data-testid="xaxis-srwv"
         />
         <YAxis
