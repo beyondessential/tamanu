@@ -10,9 +10,12 @@
 
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'styled-components';
 
-import { renderElementWithTranslatedText } from '../../helpers';
+import { createQueryClient, createStubTheme, renderElementWithTranslatedText } from '../../helpers';
+import { TranslationProvider } from '../../../app/contexts/Translation';
 
 vi.mock('../../../app/contexts/Auth', () => ({
   useAuth: () => ({
@@ -74,5 +77,55 @@ describe('ReportGeneratorForm load failure message', () => {
 
     expect(alert.textContent).not.toContain('[object Object]');
     expect(alert.textContent).toContain('Network unavailable');
+  });
+
+  it('clears a previous load-failure alert once the reports fetch is re-run and succeeds', async () => {
+    // The reports-fetch effect depends on `getTranslation`, so it re-runs whenever
+    // that reference changes (e.g. once translations finish loading). Simulate
+    // that by swapping the translation context's `getTranslation` identity
+    // between renders, driven by a mutable holder the wrapper re-reads on
+    // every render pass.
+    const makeTranslationContext = () => ({
+      getTranslation: (_stringId, fallback) => fallback,
+      updateStoredLanguage: () => {},
+      storedLanguage: 'aa',
+      translations: {},
+    });
+    const translationContextHolder = { current: makeTranslationContext() };
+
+    const Wrapper = ({ children }) => (
+      <QueryClientProvider client={createQueryClient()}>
+        <ThemeProvider theme={createStubTheme()}>
+          <TranslationProvider value={translationContextHolder.current}>
+            {children}
+          </TranslationProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+
+    let reportsFetchCount = 0;
+    stubApi.get.mockImplementation(async url => {
+      if (url === 'reports') {
+        reportsFetchCount += 1;
+        if (reportsFetchCount === 1) {
+          throw new Error('Network unavailable');
+        }
+        return [{ id: 'report-1', name: 'Test report' }];
+      }
+      return [];
+    });
+
+    const { rerender } = render(<ReportGeneratorForm />, { wrapper: Wrapper });
+
+    const alert = await screen.findByTestId('alert-us27');
+    await waitFor(() => expect(alert.textContent).toContain('Network unavailable'));
+
+    // Simulate translations finishing loading and force a re-render so the
+    // effect picks up the new `getTranslation` reference and re-fetches.
+    translationContextHolder.current = makeTranslationContext();
+    rerender(<ReportGeneratorForm />);
+
+    await waitFor(() => expect(reportsFetchCount).toBe(2));
+    await waitFor(() => expect(screen.queryByTestId('alert-us27')).toBeNull());
   });
 });

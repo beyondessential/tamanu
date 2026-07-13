@@ -218,6 +218,7 @@ export const ReportGeneratorForm = () => {
       try {
         const reports = await api.get('reports');
         setAvailableReports(reports);
+        setRequestError(null);
       } catch (error) {
         setRequestError(
           `${getTranslation(
