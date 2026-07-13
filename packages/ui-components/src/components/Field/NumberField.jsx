@@ -24,15 +24,14 @@ const UnitAdornment = styled(InputAdornment).attrs({ position: 'end' })`
   }
 `;
 
-export const NumberInput = ({
-  min,
-  max,
-  step,
-  unit,
-  inputProps,
-  InputProps,
-  ...props
-}) => {
+/**
+ * Prevents increasing/decreasing the value. It needs to be blurred because it’s not possible to
+ * prevent the event default behavior. This makes the element no longer focused and so the value is
+ * not changed.
+ */
+const onWheel = event => void event.target.blur();
+
+export const NumberInput = ({ inputProps, InputProps, max, min, step, unit, ...props }) => {
   const Component = unit ? TextInputWithUnit : TextInput;
   const endAdornment = unit ? <UnitAdornment>{unit}</UnitAdornment> : null;
 
@@ -50,12 +49,7 @@ export const NumberInput = ({
         endAdornment,
       }}
       type="number"
-      onWheel={event => {
-        // Prevents increasing/decreasing the value. It needs to be blurred because
-        // it's not possible to prevent the event default behavior.
-        // This makes the element no longer focused and so the value is not changed.
-        event.target.blur();
-      }}
+      onWheel={onWheel}
     />
   );
 };
