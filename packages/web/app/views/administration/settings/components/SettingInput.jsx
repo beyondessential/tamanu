@@ -1146,7 +1146,8 @@ const SentenceCard = styled.div`
   border-radius: 4px;
   display: grid;
   gap: 0.6rem 0.5rem;
-  grid-template-columns: max-content 7.5rem max-content 7.5rem 7.5rem max-content 1.5rem;
+  grid-template-columns: max-content 7rem max-content 4.5rem 7rem max-content 1.5rem;
+  max-width: 100%;
   padding: 0.9rem 1rem;
 `;
 
@@ -1166,15 +1167,18 @@ const ThresholdInput = styled(NumberInput)`
   }
 `;
 
-// Number input for the age sentence editor: fills its grid cell so it lines up
-// with the selects either side of it.
 const SentenceNumberInput = styled(NumberInput)`
   width: 100%;
 
+  && .MuiInputBase-root {
+    height: 44px;
+  }
   && .MuiInputBase-input {
-    font-size: 13px;
-    padding-block: 5px;
-    padding-inline: 10px;
+    box-sizing: border-box;
+    font-size: 15px;
+    height: 44px;
+    padding-block: 0;
+    padding-inline: 12px;
   }
 `;
 
