@@ -38,4 +38,37 @@ describe('shouldIncludeCertaintyOption', () => {
       shouldIncludeCertaintyOption({ value: DIAGNOSIS_CERTAINTY.DISPROVEN }, false, true),
     ).toBe(true);
   });
+
+  it('keeps the EMERGENCY option when editing a diagnosis that already has it set, even on a non-triage encounter', () => {
+    expect(
+      shouldIncludeCertaintyOption(
+        { value: DIAGNOSIS_CERTAINTY.EMERGENCY },
+        false,
+        true,
+        DIAGNOSIS_CERTAINTY.EMERGENCY,
+      ),
+    ).toBe(true);
+  });
+
+  it('still excludes EMERGENCY for a new diagnosis on a non-triage encounter, even if a currentCertainty is passed', () => {
+    expect(
+      shouldIncludeCertaintyOption(
+        { value: DIAGNOSIS_CERTAINTY.EMERGENCY },
+        false,
+        false,
+        DIAGNOSIS_CERTAINTY.EMERGENCY,
+      ),
+    ).toBe(false);
+  });
+
+  it('excludes EMERGENCY when editing a diagnosis whose current certainty is not EMERGENCY, on a non-triage encounter', () => {
+    expect(
+      shouldIncludeCertaintyOption(
+        { value: DIAGNOSIS_CERTAINTY.EMERGENCY },
+        false,
+        true,
+        DIAGNOSIS_CERTAINTY.SUSPECTED,
+      ),
+    ).toBe(false);
+  });
 });
