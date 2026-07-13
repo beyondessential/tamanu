@@ -172,7 +172,7 @@ export async function validateResponseAnswer({
   if (
     isComponentVisible &&
     checkMandatory(validationCriteria.mandatory, surveyResponseAnswers) &&
-    !answer &&
+    (answer == null || answer === '') &&
     // Decision to allow blank mandatory if type of question is empty options
     // select / radio / multiselect to avoid blocking imports
     // https://linear.app/bes/issue/SAV-299/build-importer-for-historical-survey-responses#comment-e622a33b
@@ -349,7 +349,8 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
             models,
             facilityId: location.facilityId,
           });
-          if (answer) answers[screenComponent.dataElement.id] = answer;
+          if (answer != null && answer !== '' && !Number.isNaN(answer))
+            answers[screenComponent.dataElement.id] = answer;
         } catch (err) {
           validationErrors.push(
             new ValidationError(
