@@ -37,6 +37,8 @@ export const StyledTextField = styled(MuiTextField).withConfig({
     padding: 0;
     line-height: 18px;
     font-size: inherit;
+    ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
+    ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
 
     &::placeholder {
       color: ${TAMANU_COLORS.softText};
