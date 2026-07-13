@@ -243,16 +243,18 @@ describe('CentralServerConnection', () => {
   });
 
   describe('stream', () => {
-    let fetch;
+    let fetchStream;
     let centralServer;
     beforeEach(() => {
-      fetch = jest.spyOn(global, 'fetch');
       centralServer = new CentralServerConnection({ deviceId: 'test' });
-      centralServer.fetchImplementation = fetch;
+      // stub fetch at the method boundary: stream() only consumes
+      // response.body.getReader(), so this isolates the framing/retry loop
+      // from the auth, backoff, and interceptor machinery around fetch.
+      fetchStream = jest.spyOn(centralServer, 'fetch');
     });
     afterEach(() => {
-      fetch.mockReset();
-      fetch.mockRestore();
+      fetchStream.mockReset();
+      fetchStream.mockRestore();
     });
 
     // Tamanu Streaming Protocol frame:
@@ -278,13 +280,9 @@ describe('CentralServerConnection', () => {
     // then reports done, mirroring a WHATWG ReadableStream reader.
     const streamResponseOf = (...chunks) => {
       let index = 0;
-      return Promise.resolve({
+      return {
         status: 200,
         ok: true,
-        headers: {
-          get: key => ({ 'x-tamanu-server': SERVER_TYPES.CENTRAL }[key.toLowerCase()]),
-          has: () => false,
-        },
         body: {
           getReader: () => ({
             read: () =>
@@ -295,7 +293,7 @@ describe('CentralServerConnection', () => {
               ),
           }),
         },
-      });
+      };
     };
 
     const consume = async generator => {
@@ -322,14 +320,14 @@ describe('CentralServerConnection', () => {
       // Retry: the stream restarts cleanly and terminates with END.
       const secondAttempt = streamResponseOf(encodeFrame(SYNC_STREAM_MESSAGE_KIND.END, {}));
 
-      fetch.mockReturnValueOnce(firstAttempt).mockReturnValueOnce(secondAttempt);
+      fetchStream.mockResolvedValueOnce(firstAttempt).mockResolvedValueOnce(secondAttempt);
 
       const messages = await consume(
         centralServer.stream(endpointFn, { streamRetryInterval: 1 }),
       );
 
       // The stream must have restarted rather than surfacing the partial message.
-      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetchStream).toHaveBeenCalledTimes(2);
 
       // The truncated PULL_CHANGE must never be yielded with an undefined body:
       // the sync consumer does `records.push(message)` then reads `message.id`,
