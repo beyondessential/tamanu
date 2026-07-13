@@ -69,16 +69,16 @@ const StyledPaper = styled(Paper)`
     z-index: 1;
     ${p =>
       p.$placement === 'right'
-        ? `
-      right: 100%;
-      border-right: 9px solid rgba(0, 0, 0, 0.1);
-      margin-right: 1px;
-    `
-        : `
-      left: 100%;
-      border-left: 9px solid rgba(0, 0, 0, 0.1);
-      margin-left: 1px;
-    `}
+        ? css`
+            right: 100%;
+            border-right: 9px solid rgba(0, 0, 0, 0.1);
+            margin-right: 1px;
+          `
+        : css`
+            left: 100%;
+            border-left: 9px solid rgba(0, 0, 0, 0.1);
+            margin-left: 1px;
+          `}
   }
 `;
 
