@@ -114,10 +114,12 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     const { Task } = this.models;
 
     const toProcess = await Task.count({
-      endTime: null,
-      frequencyValue: { [Op.not]: null },
-      frequencyUnit: { [Op.not]: null },
-      parentTaskId: null,
+      where: {
+        endTime: null,
+        frequencyValue: { [Op.not]: null },
+        frequencyUnit: { [Op.not]: null },
+        parentTaskId: null,
+      },
     });
     if (toProcess === 0) return;
 
@@ -146,7 +148,9 @@ export class GenerateRepeatingTasks extends ScheduledTask {
           parentTaskId: null,
         },
         include: ['designations'],
+        offset: i * batchSize,
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
 
       await Task.generateRepeatingTasks(tasks);
