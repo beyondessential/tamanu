@@ -14,7 +14,7 @@ const matchesSearch = (stringId, searchValue) => {
 
 describe('translation search regex escaping', () => {
   it('does not throw when the search value contains an unbalanced "("', () => {
-    // Pre-fix: `new RegExp('(?:^|\\.)report(status')` throws a SyntaxError.
+    // Regression test: `new RegExp('(?:^|\\.)report(status')` would throw a SyntaxError
     expect(() => matchesSearch('report.status', 'report(status')).not.toThrow();
     expect(matchesSearch('report.status', 'report(status')).toBe(false);
   });
