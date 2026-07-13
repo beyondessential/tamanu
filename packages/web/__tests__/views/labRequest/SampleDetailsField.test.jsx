@@ -81,6 +81,7 @@ const renderSampleDetails = () =>
         [SPECIMEN_TYPE_FIELD]: 'specimen-type-1',
         [SITE_FIELD]: 'site-1',
       }}
+      initialStatus={{}}
       onSubmit={() => {}}
     >
       {({ values }) => (
