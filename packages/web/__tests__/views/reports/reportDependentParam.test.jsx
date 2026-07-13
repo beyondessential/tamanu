@@ -40,7 +40,7 @@ import { VaccineField } from '../../../app/views/reports/VaccineField';
 
 const renderInFormik = (element, initialValues) =>
   renderElementWithTranslatedText(
-    <Formik initialValues={initialValues} onSubmit={() => {}}>
+    <Formik initialValues={initialValues} initialStatus={{}} onSubmit={() => {}}>
       {({ values }) => (
         <>
           {element}
@@ -71,7 +71,11 @@ describe('LabTestTypeField dependent parameter clearing', () => {
     expect(readValues().labTestTypeIds).toEqual(['test-a', 'test-b']);
 
     rerender(
-      <Formik initialValues={{ labTestTypeIds: ['test-a', 'test-b'] }} onSubmit={() => {}}>
+      <Formik
+        initialValues={{ labTestTypeIds: ['test-a', 'test-b'] }}
+        initialStatus={{}}
+        onSubmit={() => {}}
+      >
         {({ values }) => (
           <>
             <LabTestTypeField parameterValues={{ labTestCategoryId: 'category-2' }} />
