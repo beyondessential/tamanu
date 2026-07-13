@@ -14,11 +14,9 @@ branch.
   ("run invoice and payment writes inside their transaction") converted the
   payment handlers to managed transactions along with F3. The audit only marks
   F3; F4's marker should be added.
-- **C1 (#10267, loadshedder) and D1 (#10276, invoice unit conversion) have open
-  fix PRs that are not yet merged.** They are actioned, not remaining work, but
-  need review/merge (#10276 is based on `release/2.60`).
 
-Everything else marked ✅ in the audit is merged to `main`.
+All findings marked ✅ in the audit are actioned (merged or queued) and excluded
+from this classification.
 
 ---
 
@@ -114,10 +112,8 @@ work through at the reduced techdebt cadence. 4 tickets (one is a cluster).
 
 ## Suggested next steps
 
-1. Merge the two in-flight fix PRs: #10267 (C1, critical) and #10276 (D1, high —
-   note its base is `release/2.60`).
-2. Mark F4 as fixed in the audit (covered by #10275).
-3. Schedule D4 (sensitive-data sync leak) at the front of the BAU queue.
-4. Batch the section-1 fixes into small per-package PRs (task fixes, facility
+1. Mark F4 as fixed in the audit (covered by #10275).
+2. Schedule D4 (sensitive-data sync leak) at the front of the BAU queue.
+3. Batch the section-1 fixes into small per-package PRs (task fixes, facility
    route fixes, web form fixes, mobile fixes) — each finding above names the
    suite its regression test belongs in.
