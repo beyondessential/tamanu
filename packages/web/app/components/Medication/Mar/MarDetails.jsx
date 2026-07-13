@@ -1,7 +1,6 @@
 import Add from '@mui/icons-material/Add';
 import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
-import Remove from '@mui/icons-material/Remove';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
@@ -22,7 +21,6 @@ import {
   NumberField,
   OutlinedButton,
   RequiredOrnament,
-  TextButton,
   TextField,
   TranslatedEnum,
   TranslatedReferenceData,
@@ -49,7 +47,7 @@ import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import KeyValueDisplay from './KeyValueDisplay';
 import DoseEntry, { DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
-import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
+import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 
 const Container = styled.div`
   display: flex;
@@ -164,22 +162,6 @@ const StyledTimePickerField = styled(Field).attrs({
 const Dose = styled.div`
   padding-block-start: 14px;
   border-block-start: 1px solid ${p => p.theme.palette.divider};
-`;
-
-export const RemoveDoseButton = styled(TextButton).attrs({
-  children: (
-    <TranslatedText
-      stringId="medication.mar.action.removeAdditionalDose"
-      fallback="Remove additional dose"
-    />
-  ),
-  startIcon: <Remove style={{ fontSize: 12 }} />,
-})`
-  color: ${p => p.theme.palette.text.primary};
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.3;
-  text-decoration: underline;
 `;
 
 function PractitionerField(props) {
@@ -486,7 +468,9 @@ export const MarDetails = ({
                                 replacements={{ index: index + marDoses.length + 1 }}
                               />
                             </DoseHeading>
-                            <RemoveDoseButton onClick={() => formArrayMethods.remove(index)} />
+                            <RemoveAdditionalDoseButton
+                              onClick={() => void formArrayMethods.remove(index)}
+                            />
                           </Dose>
                           <FormGrid>
                             <Field
