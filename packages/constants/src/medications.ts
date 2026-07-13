@@ -481,6 +481,9 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ] as const;
 
+export type MedicationAdministrationTimeSlot =
+  (typeof MEDICATION_ADMINISTRATION_TIME_SLOTS)[number];
+
 export const PHARMACY_PRESCRIPTION_TYPES = {
   DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
   INPATIENT: 'INPATIENT',
