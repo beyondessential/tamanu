@@ -156,7 +156,7 @@ describe('Survey responses import', () => {
     expect(await models.SurveyResponseAnswer.count()).toEqual(0);
   });
 
-  it('rejects an unparseable value for a number question', async () => {
+  it('rejects an unparsable value for a number question', async () => {
     const workbook = buildWorkbook([
       ['patientId', 'submittedBy', 'departmentId', 'locationId', 'surveyCode', questionCode],
       [patient.id, user.id, department.id, location.id, surveyCode, 'not-a-number'],
