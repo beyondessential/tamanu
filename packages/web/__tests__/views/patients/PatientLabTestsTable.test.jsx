@@ -37,6 +37,7 @@ vi.mock('../../../app/views/patients/LabTestResultModal', () => ({
 vi.mock('../../../app/components/Table', () => ({
   Table: ({ columns, data }) => {
     const normalRangeColumn = columns.find(column => column.key === 'normalRange');
+    expect(normalRangeColumn).toBeDefined();
     return (
       <div>
         {data.map((row, index) => (
@@ -96,5 +97,23 @@ describe('PatientLabTestsTable normal range column', () => {
     renderTable({ sex: 'male' }, labTests);
 
     expect(screen.getByTestId('normal-range-cell-0').textContent).toBe('0–5');
+  });
+
+  it('renders the no-range fallback when the range has a min but no max', () => {
+    const labTests = [
+      {
+        testType: 'Test C',
+        testTypeId: 'test-type-3',
+        testCategory: 'Category A',
+        unit: 'mg',
+        rangeText: null,
+        normalRanges: { male: { min: 5, max: null } },
+        results: {},
+      },
+    ];
+
+    renderTable({ sex: 'male' }, labTests);
+
+    expect(screen.getByTestId('normal-range-cell-0').textContent).toBe('—');
   });
 });
