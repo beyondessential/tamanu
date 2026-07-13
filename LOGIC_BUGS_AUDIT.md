@@ -8,6 +8,10 @@ re-confirmed against source by hand.
 
 Severity = product impact. Confidence = how certain the defect is.
 
+**Resolution:** findings fixed in the first remediation batch (all criticals and
+highs) are marked ✅ inline with their PR. Remaining (mostly medium) findings are
+not yet actioned.
+
 **Summary of counts**
 
 | Package | Critical | High | Medium |
@@ -27,7 +31,7 @@ Severity = product impact. Confidence = how certain the defect is.
 
 ## Highest-priority (fix first)
 
-These are the ones with the widest blast radius or the clearest clinical/data-integrity impact:
+These are the ones with the widest blast radius or the clearest clinical/data-integrity impact. All seven are now fixed (see the ✅ markers on the individual findings):
 
 1. **settings/buildSettings.ts** — settings cascade mutates the shared schema-default singletons; deleted settings never revert and one facility's overrides leak to another. (critical)
 2. **mobile/SurveyResponse.ts** — survey submit's try/catch is *inside* the DB transaction, so a mid-submit error commits partial clinical data and the UI reports failure → duplicate/partial records. (critical)
@@ -41,7 +45,7 @@ These are the ones with the widest blast radius or the clearest clinical/data-in
 
 ## packages/central-server
 
-### C1 — loadshedder evicts all other queued requests on a single timeout `[critical, HIGH]`
+### C1 — loadshedder evicts all other queued requests on a single timeout `[critical, HIGH]` — ✅ Fixed in #10267
 `app/middleware/loadshedder.js:76` (also `:97`)
 The queue-timeout `cancel` handler filters with `filter(j => j === request)`, which
 **keeps only the timed-out request and discards every other queued request**. Evicted
@@ -116,7 +120,7 @@ reach `batchSize`, every batch returns only them and no one else is auto-dischar
 
 ## packages/facility-server
 
-### F1 — SQL injection via `facilityId` in bed-occupancy queries `[critical, HIGH]`
+### F1 — SQL injection via `facilityId` in bed-occupancy queries `[critical, HIGH]` — ✅ Fixed in #10268
 `app/routes/apiv1/patient/patientLocations.js:20` (used at `:34-45`, `:147-177`)
 `WHERE locations.facility_id = '${facilityId}'` interpolates the request query param
 straight into SQL. Sibling endpoints in the same file use `$facilityId` binds. Any
@@ -129,7 +133,7 @@ The create handler excludes cancelled bookings from the overlap check
 Rescheduling into a slot freed by a cancellation matches the cancelled row and throws
 `EditConflictError`, even though creating a new booking there succeeds.
 
-### F3 — invoice update deletes run outside the transaction `[high, HIGH]`
+### F3 — invoice update deletes run outside the transaction `[high, HIGH]` — ✅ Fixed in #10275
 `app/routes/apiv1/invoice/invoices.js:259-324`
 An **unmanaged** transaction is opened (`req.db.transaction()`, so CLS doesn't bind it),
 then `InvoiceDiscount/InvoiceItem/InvoiceItemDiscount.destroy({ where }, { transaction })`
@@ -144,21 +148,21 @@ arguments, so the transaction is ignored. In the update handler all three writes
 the unmanaged transaction, so the rollback protects nothing → inconsistent payment records
 on partial failure.
 
-### F5 — admitting from a referral never links the referral to the encounter `[high, HIGH]`
+### F5 — admitting from a referral never links the referral to the encounter `[high, HIGH]` — ✅ Fixed in #10274
 `app/routes/apiv1/encounter.js:104,171-176` + `createEncounter.schema.ts`
 The PUT handler destructures `referralId` from `params`, but the route is `/:id` (no such
 param) → the referral-linking block is unreachable. The web client sends `referralId` in
 the POST body, but `createEncounterSchema` strips it and the POST handler has no linking
 logic. Net: the referral is marked COMPLETED but `referrals.encounter_id` is never set.
 
-### F6 — vaccine creation proceeds after a 400 (missing `return`s) `[high, HIGH]`
+### F6 — vaccine creation proceeds after a 400 (missing `return`s) `[high, HIGH]` — ✅ Fixed in #10272
 `app/routes/apiv1/patient/patientVaccine.js:225-231`
 Both validation failures call `res.status(400).send(...)` without `return`. Execution
 continues to create the encounter and `AdministeredVaccine` record, then crashes with
 `ERR_HTTP_HEADERS_SENT` — the client is told the request was rejected while a phantom
 vaccine record (with null `scheduledVaccineId`) is persisted.
 
-### F7 — panel lab requests bypass the sensitive-test permission check `[high, MEDIUM]`
+### F7 — panel lab requests bypass the sensitive-test permission check `[high, MEDIUM]` — ✅ Fixed in #10285
 `app/routes/apiv1/labs.js:102-126,813-866`
 The POST `/` sensitive check queries only the explicitly supplied `labTestTypeIds`
 (default `[]`). Panel test types are resolved server-side from `panel.labTestTypes` and
@@ -198,7 +202,7 @@ throws `TypeError` inside the transaction → 500 and the medication-error flag 
 
 ## packages/database
 
-### D1 — inpatient-bundled invoice quantity skips unit conversion `[high, HIGH]`
+### D1 — inpatient-bundled invoice quantity skips unit conversion `[high, HIGH]` — ✅ Fixed in #10276
 `src/models/Prescription.ts:359-374` (vs `:343-352`)
 `recalculateAndApplyInvoiceQuantity`'s normal path converts dosing→dispensing units
 (`Math.ceil(totalDosingAmount / unitConversion)`), but the inpatient-fee-bundled branch
@@ -236,7 +240,7 @@ pharmacy/dispense data to regular facilities.
 
 ## packages/shared
 
-### S1 — `programRegistry` suggester registered twice with contradictory filters `[high, HIGH]`
+### S1 — `programRegistry` suggester registered twice with contradictory filters `[high, HIGH]` — ✅ Fixed in #10289
 `src/services/suggestions/suggestions.js:1056-1089` vs `:1109-1142`
 Two registrations for the same route; Express serves only the first. The live route
 excludes registries where the patient has any registration `!= recordedInError` (blocks
@@ -271,7 +275,7 @@ display value).
 
 ## packages/settings
 
-### SET1 — settings cascade mutates the shared default singletons `[critical, HIGH]`
+### SET1 — settings cascade mutates the shared default singletons `[critical, HIGH]` — ✅ Fixed in #10269
 `src/reader/buildSettings.ts:25-39` + `src/reader/readers/SettingsJSONReader.ts`
 `settings = mergeWith(value, settings, …)` — es-toolkit/compat `mergeWith` **mutates and
 returns its first argument**. `SettingsJSONReader.getSettings()` returns the module-level
@@ -287,7 +291,7 @@ settings objects all alias the same mutated singleton. Fix: merge into a fresh a
 
 ## packages/api-client
 
-### A1 — `stream()` yields a corrupt message on mid-message disconnect `[high, HIGH]`
+### A1 — `stream()` yields a corrupt message on mid-message disconnect `[high, HIGH]` — ✅ Fixed in #10277
 `src/TamanuApi.ts:722-743` (bad yield at `:736`)
 When the reader reports `done` with a partial **non-END** message buffered (header read,
 payload truncated), the code falls through to `yield { kind, message }` with
@@ -331,7 +335,7 @@ options are defined but never consumed, so web replica counts silently track DB 
 
 ## packages/web
 
-### W1 — discharged/deceased read-only gating is inert `[high, HIGH]`
+### W1 — discharged/deceased read-only gating is inert `[high, HIGH]` — ✅ Fixed in #10273
 `views/patients/EncounterView.jsx:178,297` + `PatientView.jsx:184,243` + all encounter panes
 `EncounterView` computes `disabled = encounter?.endDate || !!patient.dateOfDeath` and passes
 it as `disabled`, but every pane destructures a prop named **`readonly`**
@@ -341,7 +345,7 @@ it as `disabled`, but every pane destructures a prop named **`readonly`**
 patients — exactly what the gating was meant to prevent. `ChartsPane` declares `readonly`
 in propTypes, confirming the intended contract.
 
-### W2 — saving a completed imaging request creates a blank result each time `[high, HIGH]`
+### W2 — saving a completed imaging request creates a blank result each time `[high, HIGH]` — ✅ Fixed in #10282
 `views/patients/imagingRequest/ImagingRequestView.jsx:278-287`
 `initialValues` always sets `newResult: { completedAt: getCurrentDateTime() }`, and
 `onSubmit` attaches `newResult` whenever `status === COMPLETED` regardless of user input.
@@ -357,14 +361,14 @@ an error cell on every row). Also `range.min ? …` is truthiness, so a legitima
 range renders as `—`/free-text even though result cells validate against it. The date-cell
 accessor at `:217` guards correctly with `!= null`.
 
-### W4 — VaccineForm error gate checks the loading flag, not the error `[high, HIGH]`
+### W4 — VaccineForm error gate checks the loading flag, not the error `[high, HIGH]` — ✅ Fixed in #10271
 `forms/VaccineForm.jsx:110`
 The error branch tests `isLoadingPatientData` instead of `patientDataError` (line 106
 already returned a loader when loading). A failed patient-data fetch renders the form with
 `patientData === undefined`, which silently disables the "date cannot be prior to date of
 birth" validation → a vaccination can be recorded dated before the patient's DOB.
 
-### W5 — lab specimen mandatory-validation bypass on time re-entry `[high, HIGH]`
+### W5 — lab specimen mandatory-validation bypass on time re-entry `[high, HIGH]` — ✅ Fixed in #10287
 `views/labRequest/SampleDetailsField.jsx:194-200`
 Clearing "Date & time collected" calls `removeSample(identifier)`, deleting the whole
 sample entry (collector, specimen type, site) from the submitted `sampleDetails`, but the
@@ -373,14 +377,14 @@ validates the stale Formik value (passes) while the payload has no specimen type
 mandatory-specimen setting is silently bypassed and the request is created with no
 specimen/collector/site.
 
-### W6 — report generator submits stale dependent parameters `[high, HIGH]`
+### W6 — report generator submits stale dependent parameters `[high, HIGH]` — ✅ Fixed in #10286
 `views/reports/LabTestTypeField.jsx:21-27` (and `VaccineField.jsx:12-14,54-66` `[medium]`)
 Changing the parent parameter (`labTestCategoryId` / vaccine `category`) refetches options
 but never clears the previously selected dependent value from Formik. The field displays
 empty while the stale JSON is still submitted → a report is generated with contradictory
 category + test-type/vaccine parameters.
 
-### W7 — table pagination is uncontrolled and desyncs after any reset `[high, HIGH]`
+### W7 — table pagination is uncontrolled and desyncs after any reset `[high, HIGH]` — ✅ Fixed in #10288
 `components/Table/Paginator.jsx:170-247`
 The MUI `Pagination` is rendered without a `page` prop → uncontrolled. `DataFetchingTable`
 resets page to 0 on filter/sort/rows-per-page/refresh changes, but those resets never reach
@@ -388,7 +392,7 @@ MUI's internal page state. After a reset, the next/prev chevrons compute from th
 internal page and jump to the wrong (often empty) page; the page-number buttons are also
 computed around the stale page. Fix: pass `page={selectedPageNumber}`.
 
-### W8 — DataFetchingTable has no stale-response guard `[high, MEDIUM]`
+### W8 — DataFetchingTable has no stale-response guard `[high, MEDIUM]` — ✅ Fixed in #10288
 `components/Table/DataFetchingTable.jsx:215-269`
 In-flight fetches are never cancelled and responses are applied unconditionally (no sequence
 counter / AbortController / match check). The last response to resolve wins and stamps its
@@ -493,14 +497,14 @@ wrong program's forms and a survey can be recorded against the wrong program.
 and buttons. ArrowLeft/Right bubbling from those children mutates the selected date and calls
 `previousElementSibling/nextElementSibling.focus()`, which throws when there's no sibling.
 
-### W23 — Translation search builds an unescaped RegExp `[high, HIGH]`
+### W23 — Translation search builds an unescaped RegExp `[high, HIGH]` — ✅ Fixed in #10280
 `views/administration/translation/TranslationForm.jsx:268-271`
 The search box builds `new RegExp(...)` from raw user input (only the first `.` is escaped).
 An unbalanced `(` or `[` throws `SyntaxError` in `useMemo` during render → the app
 ErrorBoundary replaces the whole admin view and unsaved edits are lost; extra dots also act
 as wildcards.
 
-### W24 — Add-user modals use v5 `isPending` on react-query v4 `[medium, HIGH]`
+### W24 — Add-user modals use v5 `isPending` on react-query v4 `[medium, HIGH]` — ✅ Fixed in #10281
 `views/administration/users/profiles/UserProfileModal.jsx:128-133` + `AddUserModal.jsx:80-84`
 `isPending` (react-query v5) is `undefined` on the pinned v4, so the submit-in-flight state
 is never set: Confirm isn't disabled and double-clicking fires two `createUser` POSTs
@@ -522,7 +526,7 @@ is valid JSON (or the literal `null`) into an object.
 
 ## packages/mobile
 
-### M1 — survey submit commits partial data on error `[critical, HIGH]`
+### M1 — survey submit commits partial data on error `[critical, HIGH]` — ✅ Fixed in #10270
 `App/models/SurveyResponse.ts:175-275`
 The `try/catch` is **inside** `getConnection().transaction(async () => { … })`, so any
 mid-submit throw is caught and the callback returns `null` — TypeORM then **commits**
@@ -532,7 +536,7 @@ UI treats the `null` return as failure and the clinician resubmits → duplicate
 survey responses on device and central. `Referral.submit` also dereferences
 `response.encounter` on the `null` return → TypeError.
 
-### M2 — auto-generated MAR `dueAt` stored as UTC ISO-8601 `[high, HIGH]`
+### M2 — auto-generated MAR `dueAt` stored as UTC ISO-8601 `[high, HIGH]` — ✅ Fixed in #10278
 `App/models/MedicationAdministrationRecord.ts:160` (→ `Task.dueTime` at `:214/:228`)
 `dueAt: nextDueDate.toISOString()` stores a UTC `2026-07-10T20:00:00.000Z` string, while
 every other datetime is local ISO 9075 `yyyy-MM-dd HH:mm:ss` (see line 95, and the server
@@ -540,7 +544,7 @@ equivalent). It's both the wrong format and offset-shifted, and it syncs to cent
 `'T' > ' '` lexicographically, it falls outside that day's MAR chart windows. Fix: store a
 local ISO 9075 string like the sibling paths.
 
-### M3 — "current encounter" boundary computed in UTC vs local-time strings `[high, HIGH]`
+### M3 — "current encounter" boundary computed in UTC vs local-time strings `[high, HIGH]` — ✅ Fixed in #10284
 `App/models/Encounter.ts:136-150` (+`:271-292`, `Patient.ts:111/130/158/180/192-200`)
 `getCurrentEncounterForPatient` computes a 3am boundary, converts to epoch, and compares with
 `startDate >= datetime(:date,'unixepoch')` — but SQLite renders `unixepoch` as **UTC** while
@@ -589,14 +593,14 @@ swallowed by the surrounding catch → the cascading child dropdown always shows
 never fires. A caller already inside `waitForCurrentSyncToEnd()` (e.g. `stopSyncService`)
 waits forever. `isQueuing` is also never reset if a later attempt throws.
 
-### M10 — AuthContext permanently suppresses sign-out after one reconnect `[high, HIGH]`
+### M10 — AuthContext permanently suppresses sign-out after one reconnect `[high, HIGH]` — ✅ Fixed in #10279
 `App/ui/contexts/AuthContext.tsx:190-199`
 The `authError` handler is meant to skip sign-out once during a password reconnect, but sets
 `setPreventSignOutOnFailure(true)` again (the comment says "reset flag"); `false` is never
 set anywhere. After the reconnect modal is used once, the flag stays true and **every** future
 auth error is swallowed → the app stays "signed in" with dead auth and silently failing sync.
 
-### M11 — program-registration "Add additional" inserts `undefined` → crash/duplicates `[high, HIGH]`
+### M11 — program-registration "Add additional" inserts `undefined` → crash/duplicates `[high, HIGH]` — ✅ Fixed in #10283
 `App/ui/.../patientProgramRegistration/form/PatientProgramRegistrationConditionsField.tsx:329`
 + `PatientProgramRegistrationDetailsForm.tsx:92-102`
 "+ Add additional" inserts `undefined` and relies on the modals to replace it; backing out of
