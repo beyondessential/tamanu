@@ -80,10 +80,10 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     throw new ForbiddenError('Amount of payment is higher than the owing total');
   }
 
-  const transaction = await req.db.transaction();
-
-  try {
-    const payment = await req.models.InvoicePayment.create(
+  // Managed transaction: CLS binds it to every Sequelize call inside the callback, so all
+  // writes run in the transaction and roll back together on error.
+  const payment = await req.db.transaction(async () => {
+    const createdPayment = await req.models.InvoicePayment.create(
       {
         invoiceId,
         date: data.date,
@@ -91,16 +91,13 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
         amount: data.amount,
         updatedByUserId: req.user.id ?? null,
       },
-      { returning: true, transaction },
+      { returning: true },
     );
-    await req.models.InvoicePatientPayment.create(
-      {
-        invoicePaymentId: payment.id,
-        methodId: data.methodId,
-        chequeNumber: data.chequeNumber,
-      },
-      { transaction },
-    );
+    await req.models.InvoicePatientPayment.create({
+      invoicePaymentId: createdPayment.id,
+      methodId: data.methodId,
+      chequeNumber: data.chequeNumber,
+    });
 
     //Update the overall patient payment status to invoice
     await req.models.Invoice.update(
@@ -114,14 +111,10 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
         ),
       },
       { where: { id: invoiceId } },
-      { transaction },
     );
-    await transaction.commit();
-    res.json(payment);
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+    return createdPayment;
+  });
+  res.json(payment);
 });
 
 const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
@@ -148,9 +141,9 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   )
     throw new ForbiddenError('Amount of payment is higher than the invoice total');
 
-  const transaction = await req.db.transaction();
-
-  try {
+  // Managed transaction: CLS binds it to every Sequelize call inside the callback, so all
+  // writes run in the transaction and roll back together on error.
+  await req.db.transaction(async () => {
     await req.models.InvoicePayment.update(
       {
         date: data.date,
@@ -159,7 +152,6 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
         updatedByUserId: req.user.id ?? null,
       },
       { where: { id: paymentId } },
-      { transaction, returning: true },
     );
     await req.models.InvoicePatientPayment.update(
       {
@@ -167,7 +159,6 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
         chequeNumber: data.chequeNumber,
       },
       { where: { invoicePaymentId: paymentId } },
-      { transaction },
     );
 
     //Update the overall patient payment status to invoice
@@ -183,14 +174,9 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
         ),
       },
       { where: { id: invoiceId } },
-      { transaction },
     );
-    await transaction.commit();
-    res.json(payment);
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+  });
+  res.json(payment);
 });
 
 const handleGetPatientPayments = asyncHandler(async (req, res) => {
