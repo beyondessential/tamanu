@@ -164,12 +164,12 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, toFacil
 
   return pauseRecords.some(pauseRecord => {
     const pauseStartDate = toFacilityDate(pauseRecord.pauseStartDate, toFacilityDateTime);
-    const pauseEndDate = toFacilityDate(pauseRecord.pauseEndDate, toFacilityDateTime);
 
     if (recordedAt && toFacilityDate(recordedAt, toFacilityDateTime) <= pauseStartDate) {
       return false;
     }
 
+    const pauseEndDate = toFacilityDate(pauseRecord.pauseEndDate, toFacilityDateTime);
     return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
   });
 };
