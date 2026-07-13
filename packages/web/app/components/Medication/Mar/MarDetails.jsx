@@ -430,18 +430,16 @@ export const MarDetails = ({
                   marDoses.map(dose => (
                     <Fragment key={dose.id}>
                       {(marDoses.length > 1 || !!values.doses.length) && (
-                        <>
-                          <DoseEntry
-                            dose={dose}
-                            index={dose.doseIndex + 1}
-                            medication={medication}
-                            onRemove={() => void setShowRemoveDoseModal(dose)}
-                          >
-                            {canEditMar && (
-                              <EditButton onClick={() => void setShowEditDoseModal(dose)} />
-                            )}
-                          </DoseEntry>
-                        </>
+                        <DoseEntry
+                          dose={dose}
+                          index={dose.doseIndex + 1}
+                          medication={medication}
+                          onRemove={() => void setShowRemoveDoseModal(dose)}
+                        >
+                          {canEditMar && (
+                            <EditButton onClick={() => void setShowEditDoseModal(dose)} />
+                          )}
+                        </DoseEntry>
                       )}
                     </Fragment>
                   ))}
