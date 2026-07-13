@@ -626,9 +626,7 @@ export const MarDetails = ({
                                 error={errors[`doses.${index}.givenTime`]}
                                 slotProps={{
                                   textField: {
-                                    InputProps: {
-                                      placeholder: '--:-- --',
-                                    },
+                                    InputProps: { placeholder: '‒‒:‒‒ ‒‒' /* figure dashes */ },
                                     error: errors?.doses?.[index]?.givenTime,
                                   },
                                   digitalClockSectionItem: {
