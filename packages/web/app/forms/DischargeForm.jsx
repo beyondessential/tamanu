@@ -341,7 +341,7 @@ const MEDICATION_COLUMNS = (
         getEnumTranslation={getEnumTranslation}
       />
     ),
-    width: '250px',
+    style: { width: '18em' },
   },
   {
     key: 'quantity',
@@ -364,7 +364,6 @@ const MEDICATION_COLUMNS = (
         }
       />
     ),
-    width: '150px',
   },
   {
     key: 'repeats',
@@ -390,13 +389,12 @@ const MEDICATION_COLUMNS = (
         onInput={preventInvalidRepeatsInput}
       />
     ),
-    width: '120px',
   },
   {
     key: 'Ongoing',
     title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
     accessor: OngoingAccessor,
-    width: '60px',
+    style: { minWidth: 0 },
   },
   ...(canUpdateMedication
     ? [
@@ -416,7 +414,7 @@ const MEDICATION_COLUMNS = (
                 handleDiscontinueMedication={handleDiscontinueMedication}
               />
             ),
-          width: '75px',
+          style: { minWidth: 0 },
         },
       ]
     : []),

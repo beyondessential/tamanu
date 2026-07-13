@@ -27,19 +27,16 @@ export const StyledTextField = styled(MuiTextField).withConfig({
 
   .MuiInputBase-root {
     background: ${props => (props.disabled ? 'inherit' : TAMANU_COLORS.white)};
+    font-size: ${props => (props.size === 'small' ? '11px' : '15px')};
+    padding: 12px;
   }
 
   // The actual input field
   .MuiInputBase-input {
-    ${props =>
-      props.style?.color ? `color: ${props.style.color}` : `color: ${TAMANU_COLORS.darkestText}`};
-    padding-block: 13px;
-    padding-inline: 15px 12px;
+    color: ${TAMANU_COLORS.darkestText};
+    padding: 0;
     line-height: 18px;
-    ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
-    ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
-
-    font-size: ${props => (props.size === 'small' ? '11px' : '15px')};
+    font-size: inherit;
 
     &::placeholder {
       color: ${TAMANU_COLORS.softText};
