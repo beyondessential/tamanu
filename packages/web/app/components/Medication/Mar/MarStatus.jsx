@@ -17,6 +17,12 @@ import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
+import {
+  useIsDiscontinued,
+  useIsEnd,
+  useIsPaused,
+  useIsPausedThenDiscontinued,
+} from './useMarStatusFlags';
 
 const TableDataCell = styled(
   forwardRef(function (
@@ -115,81 +121,6 @@ const getIsNotDue = ({ hasRecord, timeSlot, selectedDate, now }) => {
   return slotStartDate > addHours(now, 2);
 };
 
-const toFacilityDate = (dateStr, toFacilityDateTime) => {
-  if (!dateStr) return null;
-  const facilityStr = toFacilityDateTime(dateStr);
-  return facilityStr ? new Date(facilityStr) : new Date(dateStr);
-};
-
-const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate, toFacilityDateTime }) => {
-  if (hasRecord) {
-    return false;
-  }
-  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  const endDateFacility = toFacilityDate(endDate, toFacilityDateTime);
-  if (!endDateFacility) return false;
-  return endDateFacility < endDateOfSlot;
-};
-
-const getIsDiscontinued = ({
-  discontinuedDate,
-  dueAt,
-  isRecordedStatus,
-  timeSlot,
-  selectedDate,
-  nextMarInfo,
-  toFacilityDateTime,
-  storedDateTimeToEpochMilliseconds,
-}) => {
-  if (isRecordedStatus || !discontinuedDate || nextMarInfo?.status) {
-    return false;
-  }
-
-  if (dueAt) {
-    const dueAtMs = storedDateTimeToEpochMilliseconds(dueAt);
-    const discontinuedDateMs = storedDateTimeToEpochMilliseconds(discontinuedDate);
-    // Fail-open: if dates can't be parsed, assume not discontinued to avoid blocking medication administration
-    if (dueAtMs == null || discontinuedDateMs == null) return false;
-    return dueAtMs > discontinuedDateMs;
-  }
-
-  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return toFacilityDate(discontinuedDate, toFacilityDateTime) < endDateOfSlot;
-};
-
-const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, toFacilityDateTime }) => {
-  if (!pauseRecords?.length) return false;
-
-  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
-
-  return pauseRecords.some(pauseRecord => {
-    const pauseStartDate = toFacilityDate(pauseRecord.pauseStartDate, toFacilityDateTime);
-
-    if (recordedAt && toFacilityDate(recordedAt, toFacilityDateTime) <= pauseStartDate) {
-      return false;
-    }
-
-    const pauseEndDate = toFacilityDate(pauseRecord.pauseEndDate, toFacilityDateTime);
-    return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
-  });
-};
-
-const getIsPausedThenDiscontinued = ({
-  isPreviouslyPaused,
-  isDiscontinued,
-  timeSlot,
-  selectedDate,
-  discontinuedDate,
-  toFacilityDateTime,
-}) => {
-  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return (
-    isPreviouslyPaused &&
-    isDiscontinued &&
-    toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot
-  );
-};
-
 export const MarStatus = ({
   selectedDate,
   timeSlot,
@@ -202,8 +133,7 @@ export const MarStatus = ({
   onAnchorElChange,
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
-  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
-    useDateTime();
+  const { getFacilityNowDate, storedDateTimeToEpochMilliseconds } = useDateTime();
   const facilityNow = getFacilityNowDate();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
@@ -236,51 +166,43 @@ export const MarStatus = ({
     endTime: timeSlot.endTime,
     selectedDate,
   });
-  const isDiscontinued = getIsDiscontinued({
+  const isDiscontinued = useIsDiscontinued({
     discontinuedDate,
     dueAt,
     isRecordedStatus: !!recordedAt,
     timeSlot,
     selectedDate,
     nextMarInfo,
-    toFacilityDateTime,
-    storedDateTimeToEpochMilliseconds,
   });
-  const isEnd = getIsEnd({
+  const isEnd = useIsEnd({
     endDate,
     hasRecord: !!marInfo,
     timeSlot,
     selectedDate,
-    toFacilityDateTime,
   });
-  const isPaused = getIsPaused({
+  const isPaused = useIsPaused({
     pauseRecords: pauseRecords?.data,
     timeSlot,
     selectedDate,
     recordedAt,
-    toFacilityDateTime,
   });
 
   const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
     slot => slot.endTime === timeSlot.startTime,
   );
-  const isPreviouslyPaused =
-    previousTimeSlot &&
-    getIsPaused({
-      pauseRecords: pauseRecords?.data,
-      timeSlot: previousTimeSlot,
-      selectedDate,
-      recordedAt: previousMarInfo?.recordedAt,
-      toFacilityDateTime,
-    });
+  const isPreviouslyPaused = useIsPaused({
+    pauseRecords: pauseRecords?.data,
+    timeSlot: previousTimeSlot,
+    selectedDate,
+    recordedAt: previousMarInfo?.recordedAt,
+  });
 
-  const isPausedThenDiscontinued = getIsPausedThenDiscontinued({
+  const isPausedThenDiscontinued = useIsPausedThenDiscontinued({
     isPreviouslyPaused,
     isDiscontinued,
     timeSlot,
     selectedDate,
     discontinuedDate,
-    toFacilityDateTime,
   });
 
   const recordedAtMs = storedDateTimeToEpochMilliseconds(recordedAt);
