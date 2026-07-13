@@ -670,6 +670,7 @@ encounterRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const { count, data } = await runPaginatedQuery(

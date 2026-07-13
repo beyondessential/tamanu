@@ -553,6 +553,24 @@ describe('PatientVaccine', () => {
     });
   });
 
+  describe('Administered vaccine circumstances', () => {
+    it('should return an empty list when the vaccine has no circumstances', async () => {
+      const vaccine = await recordAdministeredVaccine(patient, scheduled1, {
+        circumstanceIds: [],
+      });
+      const findAllSpy = jest.spyOn(models.ReferenceData, 'findAll');
+
+      const result = await app.get(
+        `/api/patient/${patient.id}/administeredVaccine/${vaccine.id}/circumstances`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toEqual({ count: 0, data: [] });
+      expect(findAllSpy).not.toHaveBeenCalled();
+      findAllSpy.mockRestore();
+    });
+  });
+
   describe('Administered vaccines table', () => {
     let readPatient = null;
     let vaccineOld;

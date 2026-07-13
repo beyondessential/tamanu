@@ -1177,6 +1177,23 @@ describe('PatientProgramRegistration', () => {
         expect(latestEntry).toHaveProperty('clinicalStatusId', clinicalStatus2.id);
         expect(latestEntry).toHaveProperty('registrationDate', TEST_DATE_LATE);
       });
+
+      it('should return an empty history when the patient has no registration', async () => {
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+
+        const permissions = [
+          ['read', 'ProgramRegistry', programRegistry.id],
+          ['read', 'Patient'],
+          ['list', 'PatientProgramRegistration'],
+        ];
+        const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
+        const result = await appWithPermissions.get(
+          `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/history`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body).toEqual({ count: 0, data: [] });
+      });
     });
 
     describe('GET /programRegistration/:programRegistrationId/condition', () => {
