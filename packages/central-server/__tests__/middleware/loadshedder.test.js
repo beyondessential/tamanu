@@ -85,7 +85,9 @@ describe('RequestQueue', () => {
     // Queue the first request now (it will time out), and the second one later
     // so its timeout fires well after the first's.
     const willTimeout = queue.acquire();
-    await new Promise(resolve => setTimeout(resolve, queueTimeout / 2));
+    await new Promise(resolve => {
+      setTimeout(resolve, queueTimeout / 2);
+    });
     const stillWaiting = queue.acquire();
     expect(queue.queuedRequests.length).toEqual(2);
 
