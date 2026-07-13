@@ -141,7 +141,7 @@ is called — but `Model.destroy(options)` takes a single argument, so the trans
 ignored and every delete commits immediately in autocommit. On a later failure,
 `transaction.rollback()` restores nothing → invoice items/discounts permanently lost.
 
-### F4 — patient-payment writes escape their transaction `[medium, HIGH]`
+### F4 — patient-payment writes escape their transaction `[medium, HIGH]` — ✅ Fixed in #10275
 `app/routes/apiv1/invoice/patientPayment.js:106-118,154-187`
 Same misuse: `Model.update(values, { where }, { transaction })` — `update` takes two
 arguments, so the transaction is ignored. In the update handler all three writes escape
