@@ -69,28 +69,35 @@ describe('RequestQueue', () => {
     await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
   });
 
-  it('removes only the timed-out request from the queue, not the others', async () => {
+  it('keeps a still-waiting request queued when an earlier one times out', async () => {
+    // Regression guard: a timing-out request must remove ONLY itself. The bug
+    // filtered the queue to keep only the timed-out request, evicting every
+    // other still-waiting request, so `release()` could never hand them the
+    // lock and they hung until their own timeout.
+    const queueTimeout = 200;
     const queue = new RequestQueue({
       maxActiveRequests: 1,
       maxQueuedRequests: 2,
-      queueTimeout: 100,
+      queueTimeout,
     });
     const release1 = await queue.acquire();
 
-    // queue two requests; both will time out because the active slot is never released
-    const willTimeout1 = queue.acquire();
-    const willTimeout2 = queue.acquire();
+    // Queue the first request now (it will time out), and the second one later
+    // so its timeout fires well after the first's.
+    const willTimeout = queue.acquire();
+    await new Promise(resolve => setTimeout(resolve, queueTimeout / 2));
+    const stillWaiting = queue.acquire();
     expect(queue.queuedRequests.length).toEqual(2);
 
-    await expect(willTimeout1).rejects.toEqual(expect.any(RateLimitedError));
-    await expect(willTimeout2).rejects.toEqual(expect.any(RateLimitedError));
+    // The first request times out. Only it should leave the queue.
+    await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
+    expect(queue.queuedRequests.length).toEqual(1);
 
-    // a timed-out request must remove itself from the queue (and only itself)
-    expect(queue.queuedRequests.length).toEqual(0);
-
-    // the queue is still usable: releasing the active slot lets a fresh request through
+    // Releasing the active slot must hand the lock to the request that was still
+    // waiting — which only happens if the timeout didn't evict it. Under the bug
+    // this request was dropped from the queue and this acquire never resolves.
     release1();
-    const release2 = await queue.acquire();
+    const release2 = await stillWaiting;
     expect(queue.activeRequestCount).toEqual(1);
     release2();
   });
