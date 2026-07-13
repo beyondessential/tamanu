@@ -8,6 +8,7 @@ import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTes
 const testConfig = {
   enabled: true,
   schedule: '0 0 0 0 0',
+  limit: 300,
   results: {
     'labTestType-RATPositive': {
       labTestMethodId: 'labTestMethod-RAT',
@@ -167,6 +168,27 @@ describe('Lab test publisher', () => {
       'status',
       LAB_REQUEST_STATUSES.RECEPTION_PENDING,
     );
+  });
+
+  it('Should read the limit from the task config', async () => {
+    expect(publisher).toHaveProperty('limit', testConfig.limit);
+  });
+
+  it('Should only publish up to the configured limit', async () => {
+    const limitedPublisher = new AutomaticLabTestResultPublisher(ctx, { ...testConfig, limit: 1 });
+
+    const { labTest: labTestA } = await makeLabRequest('labTestType-RATPositive');
+    const { labTest: labTestB } = await makeLabRequest('labTestType-RATNegative');
+
+    await limitedPublisher.run();
+    expect(limitedPublisher).toHaveProperty('lastRunCount', 1);
+
+    const updatedLabTestA = await models.LabTest.findByPk(labTestA.id);
+    const updatedLabTestB = await models.LabTest.findByPk(labTestB.id);
+    const publishedCount = [updatedLabTestA, updatedLabTestB].filter(
+      labTest => labTest.result !== '',
+    ).length;
+    expect(publishedCount).toBe(1);
   });
 
   it('Should error with an invalid method', async () => {

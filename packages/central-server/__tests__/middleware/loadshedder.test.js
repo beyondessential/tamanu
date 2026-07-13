@@ -69,6 +69,41 @@ describe('RequestQueue', () => {
     await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
   });
 
+  it('keeps a still-waiting request queued when an earlier one times out', async () => {
+    // Regression guard: a timing-out request must remove ONLY itself. The bug
+    // filtered the queue to keep only the timed-out request, evicting every
+    // other still-waiting request, so `release()` could never hand them the
+    // lock and they hung until their own timeout.
+    const queueTimeout = 200;
+    const queue = new RequestQueue({
+      maxActiveRequests: 1,
+      maxQueuedRequests: 2,
+      queueTimeout,
+    });
+    const release1 = await queue.acquire();
+
+    // Queue the first request now (it will time out), and the second one later
+    // so its timeout fires well after the first's.
+    const willTimeout = queue.acquire();
+    await new Promise(resolve => {
+      setTimeout(resolve, queueTimeout / 2);
+    });
+    const stillWaiting = queue.acquire();
+    expect(queue.queuedRequests.length).toEqual(2);
+
+    // The first request times out. Only it should leave the queue.
+    await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
+    expect(queue.queuedRequests.length).toEqual(1);
+
+    // Releasing the active slot must hand the lock to the request that was still
+    // waiting — which only happens if the timeout didn't evict it. Under the bug
+    // this request was dropped from the queue and this acquire never resolves.
+    release1();
+    const release2 = await stillWaiting;
+    expect(queue.activeRequestCount).toEqual(1);
+    release2();
+  });
+
   it('rejects parallel requests that take too long', async () => {
     const queue = new RequestQueue({
       maxActiveRequests: 1,

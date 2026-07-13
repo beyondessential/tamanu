@@ -1,5 +1,5 @@
 import test from 'tape';
-import { parseDeployConfig, stackName } from '../src/ghaCdHelpers.mjs';
+import { configMap, parseDeployConfig, stackName } from '../src/ghaCdHelpers.mjs';
 
 function withoutOptions({ ...deploy }) {
   delete deploy.options;
@@ -95,5 +95,29 @@ test('normalise a complex branch name', (t) => {
   t.equal(
     stackName('refs/heads/fix/refs/heads/§ING interpretèd 🌌'),
     'fix-refs-heads-ing-interpret-d',
+  );
+});
+
+test('configMap reads web replica counts from web options, not db options', (t) => {
+  t.plan(2);
+
+  const options = {
+    centralwebs: 4,
+    centraldbs: 2,
+    facilitywebs: 5,
+    facilitydbs: 3,
+  };
+
+  const config = configMap('ci-k8s-deploy', 'latest', options);
+
+  t.equal(
+    config['tamanu-on-k8s:centralWebReplicas'].value,
+    options.centralwebs,
+    'centralWebReplicas should come from centralwebs, not centraldbs',
+  );
+  t.equal(
+    config['tamanu-on-k8s:facilityWebReplicas'].value,
+    options.facilitywebs,
+    'facilityWebReplicas should come from facilitywebs, not facilitydbs',
   );
 });
