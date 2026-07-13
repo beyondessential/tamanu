@@ -19,6 +19,8 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
+  // When you “delete” a template via Admin Panel, it actually just sets the `visibility_status` to
+  // ‘historical’. Enforce uniqueness amongst non-“deleted” templates.
   const conflictingRecord = await req.models.Template.findOne({
     where: {
       name,
