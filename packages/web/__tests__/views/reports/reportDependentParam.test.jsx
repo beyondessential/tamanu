@@ -35,9 +35,7 @@ vi.mock('../../../app/api', async () => {
   };
 });
 
-// eslint-disable-next-line import/first
 import { LabTestTypeField } from '../../../app/views/reports/LabTestTypeField';
-// eslint-disable-next-line import/first
 import { VaccineField } from '../../../app/views/reports/VaccineField';
 
 const renderInFormik = (element, initialValues) =>
