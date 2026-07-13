@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@mui/icons-material/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
@@ -77,17 +77,16 @@ const FooterLabel = styled.span`
   color: ${Colors.midText};
 `;
 
-const FooterTime = styled(FooterLabel)`
+const Time = styled.time`
   color: ${Colors.darkestText};
+  font-weight: 500;
 `;
 
 const CardFooter = ({ averageWaitTime, color }) => {
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
-  const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
-  const averageHrs = pluralise(hours, 'hr');
-  const averageMins = pluralise(minutes, 'min');
 
+  const formatter = new Intl.DurationFormat(getCurrentLanguageCode(), { style: 'short' });
   return (
     <>
       <Row data-testid="row-vqca">
@@ -100,9 +99,10 @@ const CardFooter = ({ averageWaitTime, color }) => {
           />
           :{' '}
         </FooterLabel>
-        <FooterTime data-testid="footertime-pe6h">{averageHrs}</FooterTime>
       </Row>
-      <FooterTime data-testid="footertime-wnxx">{averageMins}</FooterTime>
+      <Time dateTime={`${hours}h ${minutes}m`} data-testid="footertime-pe6h">
+        {formatter.format({ hours, minutes }) || '—' /* em dash */}
+      </Time>
     </>
   );
 };
