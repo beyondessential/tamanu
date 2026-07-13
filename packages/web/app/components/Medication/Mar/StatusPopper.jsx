@@ -452,10 +452,6 @@ export const StatusPopper = ({
     });
   const queryClient = useQueryClient();
 
-  const handleNotGivenClick = () => {
-    setShowReasonScreen(true);
-  };
-
   const { encounter } = useEncounter();
 
   const handleClose = () => {
@@ -475,10 +471,6 @@ export const StatusPopper = ({
 
     setShowReasonScreen(false);
     handleClose();
-  };
-
-  const handleGivenClick = () => {
-    setShowGivenScreen(true);
   };
 
   const reasonsNotGiven = useSuggestionsQuery('medicationNotGivenReason');
@@ -509,7 +501,12 @@ export const StatusPopper = ({
         />
       );
     }
-    return <MainScreen onGivenClick={handleGivenClick} onNotGivenClick={handleNotGivenClick} />;
+    return (
+      <MainScreen
+        onGivenClick={() => void setShowGivenScreen(true)}
+        onNotGivenClick={() => void setShowReasonScreen(true)}
+      />
+    );
   };
 
   const placement = useMemo(() => {
