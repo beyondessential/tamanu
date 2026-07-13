@@ -295,7 +295,8 @@ export const ReportGeneratorForm = () => {
   };
 
   const onDownload = async () => {
-    // Clear prior attempt feedback; leave dataReadyForSaving
+    // Clear prior attempt feedback. Keep `dataReadyForSaving`, so if user cancels via
+    // `window.showSaveFilePicker()` dialog they can retry without regenerating the same report.
     setRequestError(null);
     setSuccessMessage(null);
     try {
