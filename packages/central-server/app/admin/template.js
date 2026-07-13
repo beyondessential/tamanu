@@ -18,7 +18,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const conflict = await req.models.Template.findOne({
+  const conflictingRecord = await req.models.Template.findOne({
     where: {
       name,
       id: { [Op.ne]: id ?? null },
@@ -27,7 +27,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     attributes: ['id'], // Arbitrary projection, just checking existence
   });
 
-  if (conflict) {
+  if (conflictingRecord) {
     throw new ValidationError('Template name must be unique');
   }
 
