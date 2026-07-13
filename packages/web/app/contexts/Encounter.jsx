@@ -61,26 +61,29 @@ export const EncounterProvider = ({ children }) => {
       if (shouldUpdateLoading) {
         setIsLoadingEncounter(true);
       }
-      const data = await api.get(`encounter/${encounterId}`);
-      const { data: diagnoses } = await getDataOrDefaultOnError(
-        () => api.get(`encounter/${encounterId}/diagnoses`),
-        { data: [] },
-      );
-      const { data: procedures } = await getDataOrDefaultOnError(
-        () => api.get(`encounter/${encounterId}/procedures`),
-        { data: [] },
-      );
-      const { data: medications } = await getDataOrDefaultOnError(
-        () => api.get(`encounter/${encounterId}/medications`),
-        { data: [] },
-      );
-      const { data: triages } = await getDataOrDefaultOnError(
-        () => api.get(`encounter/${encounterId}/triages`),
-        { data: [] },
-      );
-      setEncounterData({ ...data, diagnoses, procedures, medications, triages });
-      if (shouldUpdateLoading) {
-        setIsLoadingEncounter(false);
+      try {
+        const data = await api.get(`encounter/${encounterId}`);
+        const { data: diagnoses } = await getDataOrDefaultOnError(
+          () => api.get(`encounter/${encounterId}/diagnoses`),
+          { data: [] },
+        );
+        const { data: procedures } = await getDataOrDefaultOnError(
+          () => api.get(`encounter/${encounterId}/procedures`),
+          { data: [] },
+        );
+        const { data: medications } = await getDataOrDefaultOnError(
+          () => api.get(`encounter/${encounterId}/medications`),
+          { data: [] },
+        );
+        const { data: triages } = await getDataOrDefaultOnError(
+          () => api.get(`encounter/${encounterId}/triages`),
+          { data: [] },
+        );
+        setEncounterData({ ...data, diagnoses, procedures, medications, triages });
+      } finally {
+        if (shouldUpdateLoading) {
+          setIsLoadingEncounter(false);
+        }
       }
     },
     [api],
@@ -95,11 +98,14 @@ export const EncounterProvider = ({ children }) => {
   // create, fetch and set encounter then navigate to encounter view.
   const createEncounter = async data => {
     setIsLoadingEncounter(true);
-    const createdEncounter = await api.post('encounter', data);
-    invalidateAiPatientSummary(createdEncounter);
-    await loadEncounter(createdEncounter.id);
-    setIsLoadingEncounter(false);
-    return createdEncounter;
+    try {
+      const createdEncounter = await api.post('encounter', data);
+      invalidateAiPatientSummary(createdEncounter);
+      await loadEncounter(createdEncounter.id);
+      return createdEncounter;
+    } finally {
+      setIsLoadingEncounter(false);
+    }
   };
 
   return (
