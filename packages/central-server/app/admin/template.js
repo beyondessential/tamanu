@@ -1,8 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, ValidationError } from 'sequelize';
+import { Op } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { EditConflictError } from '@tamanu/errors';
 import { simpleGetList, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const templateRoutes = express.Router();
@@ -28,7 +29,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
   });
 
   if (conflictingRecord) {
-    throw new ValidationError('Template name must be unique');
+    throw new EditConflictError('Template name must be unique');
   }
 
   next();
