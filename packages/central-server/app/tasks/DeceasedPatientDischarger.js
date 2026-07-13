@@ -56,7 +56,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
     for (let i = 0; i < batchCount; i++) {
       const encounters = await Encounter.findAll({
         ...query,
+        offset: i * batchSize,
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
 
       for (const encounter of encounters) {
@@ -74,6 +76,12 @@ export class DeceasedPatientDischarger extends ScheduledTask {
         }
 
         const discharger = await patientDeathData.getClinician();
+
+        if (!discharger) {
+          log.warn(`Deceased patient ${patient.id} has no death data clinician! Skipping...`);
+          continue;
+        }
+
         await encounter.update({
           endDate: patient.dateOfDeath,
           systemNote: 'Automatically discharged',
