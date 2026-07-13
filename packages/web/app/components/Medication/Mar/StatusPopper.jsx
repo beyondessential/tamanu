@@ -143,9 +143,6 @@ const StyledNumberFieldWrapper = styled.div`
       -webkit-appearance: none;
       margin: 0px;
     }
-
-    /* For Firefox */
-    -moz-appearance: textfield;
   }
 `;
 
