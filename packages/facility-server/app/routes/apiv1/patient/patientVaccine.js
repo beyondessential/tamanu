@@ -412,8 +412,10 @@ patientVaccineRoutes.get(
     if (
       !Array.isArray(administeredVaccine.circumstanceIds) ||
       administeredVaccine.circumstanceIds.length === 0
-    )
+    ) {
       res.send({ count: 0, data: [] });
+      return;
+    }
     const results = await models.ReferenceData.findAll({
       where: {
         id: administeredVaccine.circumstanceIds,

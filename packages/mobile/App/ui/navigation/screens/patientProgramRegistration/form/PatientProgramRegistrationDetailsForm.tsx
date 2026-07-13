@@ -168,7 +168,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={DateField}
-                    min={new Date()}
                     name="date"
                     required
                   />

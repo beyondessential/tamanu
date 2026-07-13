@@ -333,8 +333,14 @@ describe('Patient relations', () => {
       permissionApp = await baseApp.asNewRole(permissions);
 
       const patient = await models.Patient.create(await createDummyPatient(models));
+      const findAllSpy = jest.spyOn(models.Referral, 'findAll');
+
       const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
+
+      expect(response).toHaveSucceeded();
       expect(response.body).toEqual({ count: 0, data: [] });
+      expect(findAllSpy).not.toHaveBeenCalled();
+      findAllSpy.mockRestore();
     });
 
     it('should return list of referrals', async () => {

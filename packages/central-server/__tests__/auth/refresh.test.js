@@ -204,6 +204,45 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveRequestError();
     });
 
+    describe('with absoluteExpiration enabled', () => {
+      let originalAbsoluteExpiration;
+
+      beforeAll(() => {
+        originalAbsoluteExpiration = config.auth.refreshToken.absoluteExpiration;
+        config.auth.refreshToken.absoluteExpiration = true;
+      });
+
+      afterAll(() => {
+        config.auth.refreshToken.absoluteExpiration = originalAbsoluteExpiration;
+      });
+
+      it('Should succeed and keep the original absolute expiry on the rotated refresh token', async () => {
+        const loginResponse = await baseApp.post('/api/login').send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+          deviceId: TEST_DEVICE_ID,
+        });
+
+        expect(loginResponse).toHaveSucceeded();
+        const { refreshToken } = loginResponse.body;
+        const oldRefreshTokenContents = jose.decodeJwt(refreshToken);
+
+        const refreshResponse = await withDateUnsafelyFaked(new Date(Date.now() + 10000), () =>
+          baseApp.post('/api/refresh').send({
+            refreshToken,
+            deviceId: TEST_DEVICE_ID,
+          }),
+        );
+
+        expect(refreshResponse).toHaveSucceeded();
+        expect(refreshResponse.body).toHaveProperty('refreshToken');
+
+        const newRefreshTokenContents = jose.decodeJwt(refreshResponse.body.refreshToken);
+
+        expect(newRefreshTokenContents.exp).toEqual(oldRefreshTokenContents.exp);
+      });
+    });
+
     it('Should fail if refresh token requested from deactivated user', async () => {
       const freshUser = await store.models.User.create(
         fake(store.models.User, {

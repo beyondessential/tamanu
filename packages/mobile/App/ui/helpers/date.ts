@@ -76,7 +76,7 @@ export function formatPlainTime<T extends `${number}:${number}:${number}`>(
   if (match) {
     const [, HH, mm] = match;
     const hour = Number.parseInt(HH, 10);
-    const hh = (hour % 12).toString().padStart(2, '0');
+    const hh = ((hour % 12) || 12).toString().padStart(2, '0');
     const a = hour < 12 ? 'am' : 'pm';
     return `${hh}:${mm}${a}`;
   }
