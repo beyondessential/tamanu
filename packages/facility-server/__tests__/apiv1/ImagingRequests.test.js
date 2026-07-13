@@ -226,6 +226,25 @@ describe('Imaging requests', () => {
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.areaNote).toEqual('updated-area-note');
     });
+
+    it('should return created areaNote content when updating an imaging request with no existing area note', async () => {
+      const createdImagingRequest = await models.ImagingRequest.create({
+        encounterId: encounter.id,
+        imagingType: IMAGING_TYPES.CT_SCAN,
+        requestedById: app.user.id,
+      });
+
+      const result = await app.put(`/api/imagingRequest/${createdImagingRequest.id}`).send({
+        areaNote: 'new-area-note',
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.areaNote).toEqual('new-area-note');
+
+      const getResult = await app.get(`/api/imagingRequest/${createdImagingRequest.id}`);
+      expect(getResult).toHaveSucceeded();
+      expect(getResult.body.areaNote).toEqual('new-area-note');
+    });
   });
 
   describe('Area listing', () => {
