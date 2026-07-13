@@ -7,11 +7,6 @@ import { describe, expect, it } from 'vitest';
 // the EXACT expression from the fixed source: it escapes every regex
 // metacharacter in the raw search value before building the RegExp, then
 // matches stringIds from the start or after a "." delimiter.
-//
-// Pre-fix the code did `searchValue.replace('.', '\\.')`, which:
-//   - only escaped the first ".", and no other metacharacters, so a stray "("
-//     or "[" threw "Invalid regular expression" during render; and
-//   - left additional dots unescaped, so "." acted as a wildcard.
 const matchesSearch = (stringId, searchValue) => {
   const escapedSearch = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return Boolean(stringId.match(new RegExp(`(?:^|\\.)${escapedSearch}`, 'i')));
