@@ -398,7 +398,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
         };
       });
 
-      await api.post('/medication/import-ongoing', {
+      await api.post('medication/import-ongoing', {
         encounterId: encounter.id,
         medications: medicationsPayload,
         prescriberId: values.prescriberId,
