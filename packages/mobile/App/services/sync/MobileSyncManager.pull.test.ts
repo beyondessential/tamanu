@@ -1,8 +1,8 @@
 import { MobileSyncManager, type MobileSyncSettings } from './MobileSyncManager';
 
 jest.mock('./utils', () => ({
-  getModelsForDirection: jest.fn(() => ({} as any)),
-  getTransactingModelsForDirection: jest.fn(() => ([] as any)),
+  getModelsForDirection: jest.fn(() => ({}) as any),
+  getTransactingModelsForDirection: jest.fn(() => [] as any),
   getSyncTick: jest.fn(),
   setSyncTick: jest.fn(),
   pushOutgoingChanges: jest.fn().mockResolvedValue(undefined),
@@ -26,6 +26,10 @@ jest.mock('./utils/pullRecordsInBatches', () => ({
 
 jest.mock('./utils/sortInDependencyOrder', () => ({
   sortInDependencyOrder: jest.fn(async (models: any) => models),
+}));
+
+jest.mock('./utils/checkForeignKeys', () => ({
+  checkForeignKeys: jest.fn(async () => true),
 }));
 
 jest.mock('../../infra/db', () => ({
@@ -106,7 +110,8 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
 
   it('initial sync saves from memory', async () => {
     // Arrange: pullSince = -1 triggers initial sync
-    (getSyncTick as jest.Mock).mockResolvedValueOnce(-1) // LAST_SUCCESSFUL_PULL
+    (getSyncTick as jest.Mock)
+      .mockResolvedValueOnce(-1) // LAST_SUCCESSFUL_PULL
       .mockResolvedValueOnce(0) // CURRENT_SYNC_TIME
       .mockResolvedValueOnce(0); // LAST_SUCCESSFUL_PUSH
 
@@ -137,7 +142,8 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
 
   it('incremental sync saves from snapshot', async () => {
     // Arrange: pullSince != -1 triggers incremental sync
-    (getSyncTick as jest.Mock).mockResolvedValueOnce(100) // LAST_SUCCESSFUL_PULL
+    (getSyncTick as jest.Mock)
+      .mockResolvedValueOnce(100) // LAST_SUCCESSFUL_PULL
       .mockResolvedValueOnce(0) // CURRENT_SYNC_TIME
       .mockResolvedValueOnce(0); // LAST_SUCCESSFUL_PUSH
 
@@ -163,5 +169,3 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromMemory).not.toHaveBeenCalled();
   });
 });
-
-
