@@ -241,7 +241,11 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          cache-from: type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          # falls back to main's cache so branches without their own warm cache yet (e.g. a
+          # freshly-cut release branch) aren't forced into a cold, full `mode=max` export
+          cache-from: |
+            type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+            type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
