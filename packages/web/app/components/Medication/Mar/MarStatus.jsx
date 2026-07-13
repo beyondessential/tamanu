@@ -1,15 +1,15 @@
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { addHours, isSameDay } from 'date-fns';
 import React, { forwardRef, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { EditedOrnament, useDateTime, useTranslation } from '@tamanu/ui-components';
+import { EditedOrnament, useDateTime } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { useAuth } from '../../../contexts/Auth';
 import { WarningModal } from '../WarningModal';
+import AlertOrnament from './AlertOrnament';
 import { MarDetails } from './MarDetails';
 import MarDoseInfo from './MarDoseInfo';
 import MarStatusIcon from './MarStatusIcon';
@@ -79,31 +79,7 @@ const IconWrapper = styled.div`
   place-items: center;
   inline-size: 100%;
   block-size: 100%;
-  .MuiSvgIcon-root {
-    font-size: 24px;
-  }
 `;
-
-const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  inset-block-end: 3px;
-  inset-inline-end: 0;
-  position: absolute;
-  &.MuiSvgIcon-root {
-    color: ${p => p.theme.palette.error.main};
-    font-size: 18px;
-  }
-`;
-
-function AlertOrnament(props) {
-  const { getTranslation } = useTranslation();
-  return (
-    <StyledPriorityHighIcon
-      aria-hidden={undefined}
-      aria-label={getTranslation('medication.mar.alert', 'Alert.')}
-      {...props}
-    />
-  );
-}
 
 const StyledEditedOrnament = styled(EditedOrnament)`
   position: absolute;
