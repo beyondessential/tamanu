@@ -3,6 +3,7 @@ import { pick } from 'es-toolkit/compat';
 import { DataToPersist, SyncRecord } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 export const buildFromSyncRecord = (
   model: typeof BaseModel,
@@ -12,7 +13,7 @@ export const buildFromSyncRecord = (
   // Skip field mapping for raw insert - keep original field names
   return records.map(record => {
     const data = pick(record.data, includedColumns);
-    data.deletedAt = record.isDeleted ? "datetime('now')" : null;
+    data.deletedAt = record.isDeleted ? getCurrentDateTimeString() : null;
     return data as DataToPersist;
   });
 };
