@@ -1,4 +1,4 @@
-import { test } from '../../fixtures/baseFixture';
+import { expect, test } from '../../fixtures/baseFixture';
 
 test.describe('Emergency patients', () => {
   test.beforeEach(async ({ emergencyPatientsPage }) => {
@@ -26,6 +26,30 @@ test.describe('Emergency patients', () => {
         lastName: newPatientWithTriageAdmission.lastName,
         advancedSearch: false,
       });
+      await emergencyPatientsPage.validateOneSearchResult();
+      await emergencyPatientsPage.validateFirstRowContainsDisplayId(
+        newPatientWithTriageAdmission.displayId,
+      );
+    });
+
+    test('Search state is retained when navigating away and back', async ({
+      newPatientWithTriageAdmission,
+      emergencyPatientsPage,
+      sidebarPage,
+    }) => {
+      await emergencyPatientsPage.searchTable({
+        displayId: newPatientWithTriageAdmission.displayId,
+        advancedSearch: false,
+      });
+      await emergencyPatientsPage.validateOneSearchResult();
+
+      await sidebarPage.clickAllPatients();
+      await sidebarPage.clickEmergencyPatients();
+      await emergencyPatientsPage.waitForPageToLoad();
+
+      await expect(emergencyPatientsPage.displayIdInput).toHaveValue(
+        newPatientWithTriageAdmission.displayId,
+      );
       await emergencyPatientsPage.validateOneSearchResult();
       await emergencyPatientsPage.validateFirstRowContainsDisplayId(
         newPatientWithTriageAdmission.displayId,

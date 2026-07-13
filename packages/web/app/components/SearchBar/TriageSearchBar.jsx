@@ -17,7 +17,7 @@ const StyledAutocompleteField = styled(AutocompleteField)`
   }
 `;
 
-const TriageSearchBarAdvancedFields = () => {
+export const TriageSearchBarAdvancedFields = () => {
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
   const { values, setFieldValue } = useFormikContext();
