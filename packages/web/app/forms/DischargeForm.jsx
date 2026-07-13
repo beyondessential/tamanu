@@ -123,8 +123,11 @@ const TableContainer = styled(Box)`
     border: none;
   }
 
+  .MuiTableHead-root {
+    background-color: transparent;
+  }
+
   .MuiTableCell-root {
-    background-color: ${p => p.theme.palette.background.paper};
     padding-block: 3px;
     padding-inline: 15px;
     &:first-of-type {
