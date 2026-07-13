@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { ADMINISTRATION_FREQUENCIES, DRUG_UNIT_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, FORM_TYPES } from '@tamanu/constants';
 import {
   Button,
   Form,
@@ -20,15 +20,17 @@ import { foreignKey } from '../../utils/validation';
 import { preventInvalidNumber } from '../../utils/utils';
 import { AutocompleteField, CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
-import { TranslatedEnum } from '../Translation';
-import { SmallBodyText } from '../Typography';
+import { FormSeparatorLine } from '../FormSeparatorLine';
+import { BodyText, SmallBodyText } from '../Typography';
 import { Colors } from '../../constants';
+import { getDrugUnitLabel } from '../../utils/medications';
 import {
   DoseAmountField,
   DurationUnitField,
   DurationValueField,
   FrequencyField,
   MedicationAutocompleteField,
+  OutlinedCheckField,
   RouteField,
   VariableDoseCheckField,
 } from './PrescriptionFields';
@@ -40,9 +42,9 @@ const StyledFormModal = styled(FormModal)`
   }
 `;
 
-const UnitAdornment = styled(SmallBodyText)`
-  color: ${Colors.midText};
-  white-space: nowrap;
+const VariableDoseFieldWrapper = styled.div`
+  grid-column: 1 / -1;
+  width: 290px;
 `;
 
 const ButtonRow = styled.div`
@@ -91,7 +93,7 @@ const appendPharmacyNote = (existingNotes, note) => {
  */
 export const ModifyPrescriptionModal = ({ open, prescription, modification, quantity, labelNotes, onClose, onConfirm }) => {
   const { currentUser } = useAuth();
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   // Retains the dose amount when variable dose is toggled on (which clears the field), so
   // unticking it restores the previous value instead of leaving it empty.
   const retainedDoseAmount = useRef(null);
@@ -137,17 +139,6 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
     onClose();
   };
 
-  const unitAdornment = units =>
-    units
-      ? {
-          endAdornment: (
-            <UnitAdornment>
-              <TranslatedEnum value={units} enumValues={DRUG_UNIT_LABELS} />
-            </UnitAdornment>
-          ),
-        }
-      : undefined;
-
   return (
     <StyledFormModal
       open={open}
@@ -186,8 +177,11 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
                 data-testid="modify-prescription-medication"
               />
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
+            <FormSeparatorLine />
+            <VariableDoseFieldWrapper>
               <VariableDoseCheckField
+                component={OutlinedCheckField}
+                $isChecked={values.isVariableDose}
                 onChange={(_, value) => {
                   if (value) {
                     retainedDoseAmount.current = values.doseAmount;
@@ -199,12 +193,16 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
                 }}
                 data-testid="modify-prescription-variable-dose"
               />
-            </div>
+            </VariableDoseFieldWrapper>
             <DoseAmountField
               label={<TranslatedText stringId="medication.dose.label" fallback="Dose" />}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
-              InputProps={unitAdornment(prescription.dosingUnit)}
+              unit={
+                prescription.dosingUnit
+                  ? getDrugUnitLabel(prescription.dosingUnit, values.doseAmount, getEnumTranslation)
+                  : undefined
+              }
               data-testid="modify-prescription-dose"
             />
             <FrequencyField
@@ -235,6 +233,7 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
               style={{ gridColumn: '1 / -1' }}
               data-testid="modify-prescription-label-notes"
             />
+            <FormSeparatorLine />
             <Field
               name="quantity"
               label={
@@ -246,7 +245,11 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
               component={NumberField}
               min={0}
               onInput={preventInvalidNumber}
-              InputProps={unitAdornment(prescription.dispensingUnit)}
+              unit={
+                prescription.dispensingUnit
+                  ? getDrugUnitLabel(prescription.dispensingUnit, values.quantity, getEnumTranslation)
+                  : undefined
+              }
               data-testid="modify-prescription-quantity"
             />
             <div />
@@ -258,7 +261,7 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
                     stringId="medication.details.pharmacyNotes"
                     fallback="Pharmacy notes"
                   />{' '}
-                  <SmallBodyText as="i" color={Colors.midText}>
+                  <SmallBodyText as="i" color={Colors.softText}>
                     <TranslatedText
                       stringId="medication.pharmacyNotes.notificationHint"
                       fallback="This note will be sent to the original prescriber as a notification"
@@ -267,23 +270,28 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
                 </span>
               }
               component={TextField}
+              multiline
+              rows={2}
               style={{ gridColumn: '1 / -1' }}
               data-testid="modify-prescription-pharmacy-notes"
             />
-            <div style={{ gridColumn: '1 / -1', marginTop: '-12px' }}>
+            <div style={{ gridColumn: '1 / -1', marginTop: '5px' }}>
               <Field
                 name="displayPharmacyNotesInMar"
                 label={
-                  <TranslatedText
-                    stringId="medication.details.displayInMarInstructions"
-                    fallback="Display pharmacy notes on MAR"
-                  />
+                  <BodyText>
+                    <TranslatedText
+                      stringId="medication.details.displayInMarInstructions"
+                      fallback="Display pharmacy notes on MAR"
+                    />
+                  </BodyText>
                 }
                 component={CheckField}
                 disabled
                 data-testid="modify-prescription-display-in-mar"
               />
             </div>
+            <FormSeparatorLine />
             <Field
               name="modifiedReasonId"
               label={

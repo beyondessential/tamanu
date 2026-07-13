@@ -1,13 +1,30 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { TranslatedSelectField, TranslatedText } from '@tamanu/ui-components';
 
+import { Colors } from '../../constants';
 import { preventInvalidNumber, validateDecimalPlaces } from '../../utils/utils';
 import { AutocompleteField, CheckField, Field, NumberField } from '../Field';
 import { BodyText } from '../Typography';
 import { FrequencySearchField } from './FrequencySearchInput';
+
+// Checkbox presented as an outlined box that highlights when ticked, as used for the
+// variable dose / ongoing / PRN checkboxes on the prescribing form.
+export const OutlinedCheckField = styled(CheckField)`
+  cursor: pointer;
+  width: 100%;
+  background-color: ${Colors.white};
+  border: 1px solid ${({ $isChecked }) => ($isChecked ? Colors.primary : Colors.outline)};
+  border-radius: 3px;
+  .MuiFormControlLabel-root {
+    padding: 10px 2px;
+    margin: 0;
+    height: 44px;
+  }
+`;
 
 /**
  * Shared field shells for the clinical prescription fields, composed by both prescribing

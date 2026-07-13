@@ -41,10 +41,29 @@ const MedicationLine = styled.div`
 `;
 
 const FieldsGrid = styled.div`
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 24px;
   row-gap: 12px;
+
+  /* Vertical separator between the two columns */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 5px);
+    width: 1px;
+    background: ${Colors.outline};
+  }
+`;
+
+// Sits below the two-column grid (outside the vertical separator), aligned with and
+// constrained to the left column's width.
+const LeftColumnField = styled.div`
+  margin-top: 12px;
+  width: calc(50% - 12px);
 `;
 
 const FieldLabel = styled.div`
@@ -218,19 +237,19 @@ export const PrescriptionChangeHistoryModal = ({ open, dispenseId, onClose }) =>
               >
                 {current?.modifiedBy?.displayName ?? '-'}
               </DetailField>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <DetailField
-                  label={
-                    <TranslatedText
-                      stringId="medication.details.pharmacyNotes"
-                      fallback="Pharmacy notes"
-                    />
-                  }
-                >
-                  {current?.pharmacyNotes || '-'}
-                </DetailField>
-              </div>
             </FieldsGrid>
+            <LeftColumnField>
+              <DetailField
+                label={
+                  <TranslatedText
+                    stringId="medication.details.pharmacyNotes"
+                    fallback="Pharmacy notes"
+                  />
+                }
+              >
+                {current?.pharmacyNotes || '-'}
+              </DetailField>
+            </LeftColumnField>
           </DetailsCard>
 
           <SectionTitle>
@@ -295,11 +314,6 @@ export const PrescriptionChangeHistoryModal = ({ open, dispenseId, onClose }) =>
                 {original?.prescriber?.displayName ?? '-'}
               </DetailField>
               <DetailField
-                label={<TranslatedText stringId="medication.details.notes" fallback="Notes" />}
-              >
-                {original?.notes || '-'}
-              </DetailField>
-              <DetailField
                 label={
                   <TranslatedText
                     stringId="medication.details.pharmacyNotes"
@@ -308,6 +322,11 @@ export const PrescriptionChangeHistoryModal = ({ open, dispenseId, onClose }) =>
                 }
               >
                 {original?.pharmacyNotes || '-'}
+              </DetailField>
+              <DetailField
+                label={<TranslatedText stringId="medication.details.notes" fallback="Notes" />}
+              >
+                {original?.notes || '-'}
               </DetailField>
             </FieldsGrid>
           </DetailsCard>
