@@ -21,6 +21,7 @@ export const createEncounterSchema = z.object({
   plannedLocationId: foreignKey.optional(),
   patientBillingTypeId: foreignKey.optional(),
   referralSourceId: foreignKey.optional(),
+  referralId: foreignKey.optional(),
   dietIds: foreignKey.array().optional(),
 });
 
