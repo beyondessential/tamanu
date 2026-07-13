@@ -702,6 +702,54 @@ describe('Encounter', () => {
       test.todo('should not admit a patient who is dead');
     });
 
+    describe('referral linking', () => {
+      it('should link a referral to the new encounter via completingEncounterId', async () => {
+        const referralPatient = await models.Patient.create(await createDummyPatient(models));
+        const initiatingEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: referralPatient.id,
+        });
+        const referral = await models.Referral.create({
+          initiatingEncounterId: initiatingEncounter.id,
+          status: 'pending',
+        });
+
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: referralPatient.id,
+          referralId: referral.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+
+        await referral.reload();
+        expect(referral.completingEncounterId).toEqual(result.body.id);
+      });
+
+      it('should reject a referral whose patient differs from the new encounter', async () => {
+        const patientA = await models.Patient.create(await createDummyPatient(models));
+        const patientB = await models.Patient.create(await createDummyPatient(models));
+        const otherPatientEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patientB.id,
+        });
+        const referral = await models.Referral.create({
+          initiatingEncounterId: otherPatientEncounter.id,
+          status: 'pending',
+        });
+
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patientA.id,
+          referralId: referral.id,
+        });
+        expect(result).toHaveRequestError();
+
+        await referral.reload();
+        expect(referral.completingEncounterId).toBeNull();
+      });
+    });
+
     describe('automatic invoice creation', () => {
       const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
       const validEncounterTypes = Object.values(ENCOUNTER_TYPES).filter(

@@ -63,6 +63,12 @@ encounter.post(
     req.checkPermission('create', 'Encounter');
 
     const validatedBody = validate(createEncounterSchema, data);
+    const { referralId, ...encounterData } = validatedBody;
+
+    // Linking a referral mutates it, so gate it on the Referral write permission up front.
+    if (referralId) {
+      req.checkPermission('write', 'Referral');
+    }
 
     if (!validatedBody.endDate) {
       const existingOpenEncounterCount = await models.Encounter.count({
@@ -80,19 +86,39 @@ encounter.post(
       }
     }
 
-    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
+    let encounterObject;
+    await req.db.transaction(async () => {
+      encounterObject = await models.Encounter.create({ ...encounterData, actorId: user.id });
 
-    await models.Invoice.automaticallyCreateForEncounter(
-      encounterObject.id,
-      encounterObject.encounterType,
-      encounterObject.startDate,
-      req.settings[facilityId],
-    );
+      await models.Invoice.automaticallyCreateForEncounter(
+        encounterObject.id,
+        encounterObject.encounterType,
+        encounterObject.startDate,
+        req.settings[facilityId],
+      );
 
-    if (data.dietIds) {
-      const dietIds = JSON.parse(data.dietIds);
-      await encounterObject.addDiets(dietIds);
-    }
+      if (data.dietIds) {
+        const dietIds = JSON.parse(data.dietIds);
+        await encounterObject.addDiets(dietIds);
+      }
+
+      // Link the originating referral (e.g. admitting a patient from a referral) to this encounter
+      // via its completing encounter.
+      if (referralId) {
+        const referral = await models.Referral.findByPk(referralId, {
+          include: [{ model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] }],
+        });
+        if (!referral) {
+          throw new NotFoundError(`Referral with id ${referralId} not found`);
+        }
+        // Guard against re-linking a referral belonging to a different patient.
+        if (referral.initiatingEncounter?.patientId !== encounterObject.patientId) {
+          throw new InvalidOperationError('Referral does not belong to this patient');
+        }
+        await referral.update({ completingEncounterId: encounterObject.id });
+      }
+    });
+
     res.send(encounterObject);
   }),
 );
@@ -101,7 +127,7 @@ encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const { db, models, user, params } = req;
-    const { referralId, id } = params;
+    const { id } = params;
     req.checkPermission('read', 'Encounter');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
@@ -166,13 +192,6 @@ encounter.put(
             });
           }
         }
-      }
-
-      if (referralId) {
-        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
-        if (referral && referral.deletedAt)
-          throw new InvalidOperationError('Cannot update a deleted referral.');
-        await referral.update({ encounterId: id });
       }
 
       if (req.body.locationId != null) {
@@ -525,7 +544,7 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
+encounterRelations.get('/:id/referral', simpleGetList('Referral', 'completingEncounterId'));
 encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
   '/:id/documentMetadata',
@@ -675,6 +694,7 @@ encounterRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const { count, data } = await runPaginatedQuery(

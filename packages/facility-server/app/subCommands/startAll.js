@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -28,15 +29,9 @@ async function startApiSyncAndTasks(context) {
   context.syncConnection = new FacilitySyncConnection();
   const isConfigured = await setupSyncRuntime(context);
 
-  const { server } = await createApiApp(context);
+  const { express, server } = await createApiApp(context);
 
-  let { port } = config;
-  if (+process.env.PORT) {
-    port = +process.env.PORT;
-  }
-  server.listen(port, () => {
-    log.info(`API Server is running on port ${port}!`);
-  });
+  listenForBindAddresses({ server, app: express, fallbackPort: config.port, label: 'API Server' });
 
   const { server: syncServer } = await createSyncApp(context);
 

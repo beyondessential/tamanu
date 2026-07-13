@@ -20,6 +20,7 @@ import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
+import { resolveAuthErrorAction } from '~/ui/helpers/auth';
 import { User } from '~/models/User';
 
 type AuthProviderProps = WithAuthStoreProps & {
@@ -189,11 +190,12 @@ const Provider = ({
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const errHandler = (): void => {
-      if (preventSignOutOnFailure) {
-        // reset flag to prevent sign out being
-        // skipped on subsequent failed authentications
-        setPreventSignOutOnFailure(true);
-      } else {
+      const { shouldSignOut, nextPreventSignOutOnFailure } = resolveAuthErrorAction(
+        preventSignOutOnFailure,
+      );
+      // reset the flag so a subsequent auth error is no longer skipped
+      setPreventSignOutOnFailure(nextPreventSignOutOnFailure);
+      if (shouldSignOut) {
         signOut();
       }
     };

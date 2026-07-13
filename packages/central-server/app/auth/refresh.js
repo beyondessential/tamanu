@@ -103,15 +103,14 @@ export const refresh = asyncHandler(async (req, res) => {
     {
       userId: user.id,
       refreshId: newRefreshId,
-      // If absolute expiration pass through the exp from the old token
-      ...(absoluteExpiration && { exp: contents.exp }),
     },
     refreshSecret,
     {
       audience: JWT_TOKEN_TYPES.REFRESH,
       issuer: canonicalHostName,
       jwtid: `${refreshTokenJwtId}`,
-      ...(!absoluteExpiration && { expiresIn: refreshTokenDuration }),
+      // If absolute expiration pass through the exp from the old token, otherwise use the configured duration
+      expiresIn: absoluteExpiration ? contents.payload.exp : refreshTokenDuration,
     },
   );
   // Extract expiry as set by jose.SignJWT

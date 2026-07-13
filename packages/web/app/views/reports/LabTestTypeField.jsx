@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useFormikContext } from 'formik';
 import { useQuery } from '@tanstack/react-query';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
@@ -22,6 +23,18 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
   const { labTestCategoryId: category } = parameterValues;
   const { data } = useLabTestTypes(category);
   const { getTranslation } = useTranslation();
+  const { setFieldValue } = useFormikContext();
+  const previousCategory = useRef(category);
+
+  useEffect(() => {
+    if (previousCategory.current !== category) {
+      previousCategory.current = category;
+      // Clear the previous selection when the category changes: the control only recomputes its
+      // displayed chips, so without this the old category's test-type ids stay in form state and
+      // are submitted with the new category.
+      setFieldValue(name, []);
+    }
+  }, [category, name, setFieldValue]);
 
   if (!category) {
     return null;

@@ -57,6 +57,9 @@ const cssReset = {
     padding: 0,
     textAlign: 'start',
   },
+  '[popover]': {
+    inset: 'auto',
+  },
 };
 
 const themeConfig = {
