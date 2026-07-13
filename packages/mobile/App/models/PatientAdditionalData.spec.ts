@@ -12,11 +12,18 @@ const FACILITY_ID = 'facility-pad-spec';
 beforeAll(async () => {
   mockedReadConfig.mockReturnValue(Promise.resolve(FACILITY_ID));
   await Database.connect();
-  await Database.models.Facility.createAndSaveOne({
-    id: FACILITY_ID,
-    code: FACILITY_ID,
-    name: 'PAD spec facility',
-  });
+  // findOrCreate: the mobile test suite runs against a fresh sqlite file per
+  // run (see TEST_CONNECTION_CONFIG in App/infra/db/index.ts), so this fixed
+  // id never collides in practice, but guard against it anyway as cheap
+  // insurance in case that ever changes.
+  const existingFacility = await Database.models.Facility.findOne({ where: { id: FACILITY_ID } });
+  if (!existingFacility) {
+    await Database.models.Facility.createAndSaveOne({
+      id: FACILITY_ID,
+      code: FACILITY_ID,
+      name: 'PAD spec facility',
+    });
+  }
 });
 
 describe('PatientAdditionalData', () => {
@@ -37,6 +44,9 @@ describe('PatientAdditionalData', () => {
         place_of_birth: expect.any(Number),
         primary_contact_number: expect.any(Number),
       });
+      // fields not provided on insert should not appear in updatedAtByField
+      expect(updatedAtByField).not.toHaveProperty('secondary_contact_number');
+      expect(updatedAtByField).not.toHaveProperty('blood_type');
     });
 
     it('records insert field ticks in the same form as update field ticks', async () => {
