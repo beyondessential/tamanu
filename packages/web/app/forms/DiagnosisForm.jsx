@@ -23,9 +23,10 @@ import { useAuth } from '../contexts/Auth';
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
 
-const shouldIncludeCertaintyOption = (option, isTriage, isEdit) => {
+export const shouldIncludeCertaintyOption = (option, isTriage, isEdit) => {
   if (isTriage && TRIAGE_ONLY.includes(option.value)) return true;
   if (isEdit && EDIT_ONLY.includes(option.value)) return true;
+  if (!isTriage && TRIAGE_ONLY.includes(option.value)) return false;
   return !EDIT_ONLY.includes(option.value);
 };
 
