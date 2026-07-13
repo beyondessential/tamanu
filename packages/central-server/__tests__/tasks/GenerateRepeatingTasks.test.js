@@ -114,6 +114,31 @@ describe('GenerateRepeatingTasks', () => {
       });
     });
 
+    it('should process every parent even when tasks leave the filter mid-run', async () => {
+      // Create 6 repeating parent tasks (batch size is 2, so 3 batches)
+      const parentTasks = [];
+      for (let i = 0; i < 6; i++) {
+        parentTasks.push(await createTask());
+      }
+
+      // Simulate an incoming sync setting endTime on already-processed parents
+      // between pages — with keyset pagination no unprocessed parent is skipped
+      models.Task.generateRepeatingTasks.mockImplementation(async tasks => {
+        await models.Task.update(
+          { endTime: toDateTimeString(new Date()) },
+          { where: { id: tasks.map(({ id }) => id) } },
+        );
+      });
+
+      await task.run();
+
+      const processedTaskIds = getProcessedTaskIds();
+      expect(processedTaskIds).toHaveLength(6);
+      parentTasks.forEach(parentTask => {
+        expect(processedTaskIds).toContain(parentTask.id);
+      });
+    });
+
     it('should only count repeating parent tasks when batching', async () => {
       // 2 repeating parent tasks fit in a single batch of 2
       const repeatingTasks = [await createTask(), await createTask()];
