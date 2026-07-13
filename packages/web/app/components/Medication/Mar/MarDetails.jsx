@@ -393,7 +393,7 @@ export const MarDetails = ({
                   />
                   {canEditMar && <EditButton onClick={() => void setShowChangeStatusModal(true)} />}
                 </Card>
-                {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
+                {marInfo.status === ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <>
                     <HorizontalSeparator />
                     <Card display="flex">
