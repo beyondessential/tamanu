@@ -195,6 +195,12 @@ const RemoveDoseText = styled.div`
   }
 `;
 
+function PractitionerField(props) {
+  const practitionerSuggester = useSuggester('practitioner');
+  return (
+    <Field component={AutocompleteField} suggester={practitionerSuggester} required {...props} />
+  );
+}
 
 const ErrorMessage = styled.div`
   color: ${p => p.theme.palette.error.main};
@@ -634,19 +640,13 @@ export const MarDetails = ({
                                 <ErrorMessage>{errors?.doses?.[index]?.givenTime}</ErrorMessage>
                               )}
                             </div>
-                            <Field
+                            <PractitionerField
                               name={`doses.${index}.givenByUserId`}
-                              component={AutocompleteField}
                               label="Given by"
-                              suggester={practitionerSuggester}
-                              required
                             />
-                            <Field
+                            <PractitionerField
                               name={`doses.${index}.recordedByUserId`}
-                              component={AutocompleteField}
                               label="Recorded by"
-                              suggester={practitionerSuggester}
-                              required
                             />
                           </FormGrid>
                         </div>
