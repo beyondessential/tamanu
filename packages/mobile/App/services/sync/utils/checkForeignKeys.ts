@@ -5,7 +5,6 @@ interface ForeignKeyViolation {
   table: string;
   rowid: number | null;
   parent: string;
-  fkid: number;
 }
 
 /**
