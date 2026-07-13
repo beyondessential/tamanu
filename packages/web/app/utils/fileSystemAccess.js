@@ -31,6 +31,7 @@ const fileTypeFromMimeType = (mimeType) =>
   FILE_TYPES.find((fileType) => Object.keys(fileType.accept).includes(mimeType)) ??
   DEFAULT_FILE_TYPE;
 
+/** @returns {Promise<FileSystemFileHandle> } */
 const createFileSystemHandle = async ({ defaultFileName, filetype }) =>
   await window.showSaveFilePicker({
     suggestedName: sanitizeFileName(`${defaultFileName}`),
@@ -77,7 +78,8 @@ export const saveFile = async ({
       await writable.close();
     } catch (error) {
       try {
-        await (await writablePromise).abort();
+        const writable = await writablePromise;
+        await writable.abort();
       } catch {
         // createWritable may have failed; abort may fail if the stream is already closed
       }
