@@ -1,3 +1,10 @@
+<!-- MOVED: This cheat sheet is being migrated into the structured support pack at
+`docs/` (repo root). Start there: `docs/README.md` is the new navigation entry
+point, with per-situation runbooks under `docs/runbooks/`, cross-cutting SOPs
+under `docs/sops/`, and lookups under `docs/reference/`. Migration is in
+progress, so the full query cookbook still lives here for now — nothing has been
+deleted. -->
+
 # Queries
 
 ## Open PSQL with bestool
