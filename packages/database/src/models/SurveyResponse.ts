@@ -415,7 +415,7 @@ export class SurveyResponse extends Model {
       answers: finalAnswers,
       ...responseData,
     });
-    const { result, resultText } = getResultValue(questions, answers, {
+    const { result, resultText } = getResultValue(questions, finalAnswers, {
       encounterType: encounter.encounterType,
     });
     const record = await SurveyResponse.create({
