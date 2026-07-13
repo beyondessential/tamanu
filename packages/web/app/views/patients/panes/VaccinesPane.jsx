@@ -36,7 +36,7 @@ const TableWrapper = styled.div`
   }
 `;
 
-export const VaccinesPane = React.memo(({ patient, readonly }) => {
+export const VaccinesPane = React.memo(({ patient, disabled }) => {
   const { getSetting } = useSettings();
   const [hideUpcomingVaccines, setHideUpcomingVaccines] = useState(
     getSetting('features.hideUpcomingVaccines'),
@@ -154,7 +154,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               verb="create"
               noun="PatientVaccine"
               onClick={() => setIsAdministerModalOpen(true)}
-              disabled={readonly}
+              disabled={disabled}
               data-testid="buttonwithpermissioncheck-zmgl"
             >
               <TranslatedText

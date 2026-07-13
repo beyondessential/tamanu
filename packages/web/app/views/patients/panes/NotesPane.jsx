@@ -17,7 +17,7 @@ const StyledAutocompleteInput = styled(AutocompleteInput)`
   width: 200px;
 `;
 
-export const NotesPane = React.memo(({ encounter, readonly }) => {
+export const NotesPane = React.memo(({ encounter, disabled }) => {
   const { noteTypeId, setNoteTypeId } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
@@ -54,7 +54,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={handleOpenNewNote}
-            disabled={readonly}
+            disabled={disabled}
             verb="create"
             noun="EncounterNote"
             data-testid="buttonwithpermissioncheck-qbou"
