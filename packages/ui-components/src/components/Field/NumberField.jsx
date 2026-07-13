@@ -28,7 +28,6 @@ const UnitAdornment = styled(InputAdornment).attrs({ position: 'end' })`
  * Prevents increasing/decreasing the value. It needs to be blurred because it’s not possible to
  * prevent the event default behavior. This makes the element no longer focused and so the value is
  * not changed.
- * @param {*} event
  */
 const onWheel = event => void event.target.blur();
 
