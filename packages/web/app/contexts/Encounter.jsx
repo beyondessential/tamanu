@@ -101,7 +101,9 @@ export const EncounterProvider = ({ children }) => {
     try {
       const createdEncounter = await api.post('encounter', data);
       invalidateAiPatientSummary(createdEncounter);
-      await loadEncounter(createdEncounter.id);
+      // createEncounter already owns isLoadingEncounter via its own try/finally,
+      // so tell loadEncounter not to touch it too.
+      await loadEncounter(createdEncounter.id, false);
       return createdEncounter;
     } finally {
       setIsLoadingEncounter(false);

@@ -1,12 +1,4 @@
-/*
- * Regression test for the encounter loading state.
- *
- * loadEncounter and createEncounter set isLoadingEncounter to true before
- * fetching, but only cleared it after a successful fetch. If the primary
- * `encounter/:id` (or `encounter` create) request rejected, the loading flag
- * was left stuck at true and the encounter view never recovered without a
- * full page reload.
- */
+// Regression test for the encounter loading state (W11).
 
 import * as React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -70,6 +62,18 @@ describe('EncounterProvider loading state', () => {
 
   it('clears isLoadingEncounter after a failed createEncounter fetch', async () => {
     mockPost.mockRejectedValueOnce(new Error('network error'));
+    renderWithProvider();
+
+    await userEvent.click(screen.getByText('create'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading-state').textContent).toBe('idle');
+    });
+  });
+
+  it('clears isLoadingEncounter when the post succeeds but the follow-up load fails', async () => {
+    mockPost.mockResolvedValueOnce({ id: 'test-encounter-id' });
+    mockGet.mockRejectedValueOnce(new Error('network error'));
     renderWithProvider();
 
     await userEvent.click(screen.getByText('create'));
