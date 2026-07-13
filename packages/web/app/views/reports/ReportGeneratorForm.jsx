@@ -295,6 +295,9 @@ export const ReportGeneratorForm = () => {
   };
 
   const onDownload = async () => {
+    // Clear prior attempt feedback; leave dataReadyForSaving
+    setRequestError(null);
+    setSuccessMessage(null);
     try {
       const saved = await saveFile(dataReadyForSaving);
       if (saved) {
