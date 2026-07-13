@@ -75,13 +75,13 @@ treated as a hard pre-filter on any suggested action.
 | Runbook | Situation | Status |
 | --- | --- | --- |
 | [senaite-integration-delay](runbooks/senaite-integration-delay.md) | Lab results delayed between Tamanu and SENAITE | Complete |
-| rispacs-imaging-not-received | Imaging request created in Tamanu but not received in RIS/PACS | Planned |
-| sync-facility-stale | A facility has not synced recently (`sync_facility_stale` check) | Planned |
-| sync-restart-loop | A facility's sync keeps restarting (`sync_restart_loop` check) | Planned |
-| sync-pull-page-limit | Sync pull page limit stuck in a degenerate low loop | Planned |
-| facility-restored-from-backup | Facility restored from backup, sync throwing fkey conflicts | Planned |
-| fhir-queue-backlog | FHIR job queue backed up or blocked (`fhir_jobs` check) | Planned |
-| report-and-error-rows | Report / IPS / communication / certificate error-row checks | Planned |
+| [rispacs-imaging-not-received](runbooks/rispacs-imaging-not-received.md) | Imaging request created in Tamanu but not received in RIS/PACS | Complete |
+| [sync-facility-stale](runbooks/sync-facility-stale.md) | A facility has not synced recently (`sync_facility_stale` check) | Complete |
+| [sync-restart-loop](runbooks/sync-restart-loop.md) | A facility's sync keeps restarting (`sync_restart_loop` check) | Complete |
+| [sync-pull-page-limit](runbooks/sync-pull-page-limit.md) | Sync pull page limit stuck in a degenerate low loop | Complete |
+| [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup, sync throwing fkey conflicts | Complete |
+| [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
+| [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
 
 ## SOPs
 
@@ -89,18 +89,25 @@ treated as a hard pre-filter on any suggested action.
 - [read-logs](sops/read-logs.md)
 - [restart-services](sops/restart-services.md)
 - [stop-facility-syncing](sops/stop-facility-syncing.md)
+- [run-db-report](sops/run-db-report.md)
+- [disable-fhir-jobs](sops/disable-fhir-jobs.md) (dev-OTS)
+- [disable-materialised-resources](sops/disable-materialised-resources.md) (dev-OTS)
+- [manage-alerts](sops/manage-alerts.md)
 
 ## Reference
 
 - [bestool-commands](reference/bestool-commands.md)
+- [query-cookbook](reference/query-cookbook.md)
 - [id-vs-display-id](reference/id-vs-display-id.md)
 - [glossary](reference/glossary.md)
 - [maintain-tamanu-on-linux](reference/maintain-tamanu-on-linux.md)
 
 ## Migration status
 
-This pack is v1 and migration from the legacy cheat sheet is in progress. The
-legacy `llm/docs/on-call-cheatsheet.md` still holds the full body of queries and
-is being moved here piece by piece; it has a pointer at its top to this
-directory. Per-healthcheck "what it means and how to solve" content lives in
-Canopy (not here) — see `healthchecks.md`.
+This pack has fully absorbed the legacy on-call cheat sheet, which has been
+removed. Every operational section of the old cheat sheet now lives in a runbook,
+SOP, or the `reference/query-cookbook.md` (the one exception, the mobile low-end
+Android AVD setup, was intentionally left out as dev performance-testing material
+rather than support content — it belongs in developer docs). Per-healthcheck
+"what it means and how to solve" content lives in Canopy (not here) — see
+`healthchecks.md`.

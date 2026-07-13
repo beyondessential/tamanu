@@ -1,0 +1,366 @@
+# Reference: psql query cookbook
+
+The investigation SQL and psql helpers that runbooks reuse. This is lookup
+material, not a procedure — open psql first (`../sops/connect-psql.md`) and pick
+the query you need.
+
+Classification: every query that only reads is **[diagnose]** — run freely.
+Anything mutating carries its class inline; mutations still need read/write mode
+(`bestool tamanu psql -W`) and the OTS the class implies. Identifiers here are
+validated against the dbt source models in `database/model/`; anything not
+confirmed is marked `[unverified]`.
+
+## Output a query to a file
+
+```
+\Copy (QUERY HERE) To 'C:\Tamanu\output.csv' With CSV DELIMITER ',' HEADER;
+```
+
+Writes to the host filesystem. If the output contains patient data, treat it as
+**sensitive-data** (`../ruled-out-actions.md`) — do not copy it off the server.
+
+## Postgres introspection
+
+All **[diagnose]** except killing a connection (below).
+
+Which connections are blocked on which:
+
+```sql
+SELECT pid, usename, pg_blocking_pids(pid) AS blocked_by, query AS blocked_query
+FROM pg_stat_activity
+WHERE cardinality(pg_blocking_pids(pid)) > 0;
+```
+
+Compact view of all connections:
+
+```sql
+SELECT datid, datname, pid, leader_pid, usename, application_name,
+       client_port, wait_event, state, left(query, 40)
+FROM pg_stat_activity;
+```
+
+All active / stuck queries (what Postgres is chewing on):
+
+```sql
+SELECT pid, usename, datname, state,
+       NOW() - query_start  AS duration,
+       NOW() - state_change AS time_in_state,
+       LEFT(query, 100)     AS sql_truncated,
+       wait_event_type, wait_event
+FROM pg_stat_activity
+WHERE state IN ('active', 'idle in transaction')
+ORDER BY query_start DESC;
+```
+
+Locks a given connection (PID) holds, and the relations they refer to:
+
+```sql
+SELECT r.relname, l.*
+FROM pg_locks l
+LEFT JOIN pg_class r ON r.oid = l.relation
+WHERE l.pid = 1234;
+```
+
+Kill a connection by PID — **[dev-OTS]** (terminating a live backend interrupts
+whatever it was running):
+
+```sql
+SELECT pg_cancel_backend(1234), pg_terminate_backend(1234); commit;
+```
+
+The functions apply immediately, but run `commit;` afterwards so subsequent
+`pg_stat_activity` reads refresh.
+
+## Metaprogramming: linked records for a pair of encounters
+
+Generates a second query listing every table that has rows for either encounter.
+**[diagnose]** (it only builds SQL; you run the output yourself):
+
+```sql
+\set e1id ff1ea017-f262-467f-9a1d-ea5707092d42
+\set e2id 873d7f6b-8fbf-404d-90a2-614c9da3a714
+
+SELECT 'select ''' || table_name || ''', encounter_id, count(*) from '
+  || table_name
+  || ' where encounter_id in (:''e1id'', :''e2id'') group by encounter_id;'
+FROM information_schema.columns
+WHERE column_name = 'encounter_id'
+  AND table_schema = 'public'
+  AND table_name != 'sync_lookup'
+  AND table_name NOT LIKE '%archive%';
+```
+
+Copy-paste the output back into psql to run it. Notes are keyed by `record_id`,
+not `encounter_id`, so check them separately.
+
+## Sync health
+
+### Per-device sync summary (parameterised)
+
+One parameterised query replaces the old fixed 2h / 24h / 30d / all-time
+variants — set the window and re-run. Larger windows are slower. **[diagnose]**
+
+```sql
+\set window '1 day'   -- e.g. '2 hours', '1 day', '30 days'
+
+WITH all_devices AS (
+  SELECT DISTINCT device_id FROM sync_device_ticks WHERE device_id IS NOT NULL
+),
+recent_syncs AS (
+  SELECT COALESCE(parameters->>'deviceId', debug_info->>'deviceId') AS device_id,
+         parameters->'facilityIds'->>0 AS facility_id,
+         completed_at,
+         completed_at - start_time     AS duration,
+         errors IS NOT NULL            AS has_error
+  FROM sync_sessions
+  WHERE start_time >= NOW() - :'window'::interval
+    AND completed_at IS NOT NULL
+    AND COALESCE(parameters->>'deviceId', debug_info->>'deviceId') IS NOT NULL
+),
+device_summary AS (
+  SELECT ad.device_id,
+         string_agg(DISTINCT rs.facility_id, ', ' ORDER BY rs.facility_id) AS facility_id,
+         MAX(rs.completed_at) FILTER (WHERE NOT rs.has_error) AS most_recent_success,
+         MAX(rs.completed_at) FILTER (WHERE rs.has_error)     AS most_recent_error,
+         COUNT(*) FILTER (WHERE NOT rs.has_error)             AS successful_count,
+         COUNT(*) FILTER (WHERE rs.has_error)                 AS failed_count,
+         MAX(rs.duration) FILTER (WHERE NOT rs.has_error)     AS longest_duration,
+         MIN(rs.duration) FILTER (WHERE NOT rs.has_error)     AS shortest_duration
+  FROM all_devices ad
+  LEFT JOIN recent_syncs rs ON ad.device_id = rs.device_id
+  GROUP BY ad.device_id
+)
+SELECT device_id,
+       COALESCE(facility_id, 'Not seen in window') AS facility_id,
+       most_recent_success, most_recent_error,
+       successful_count, failed_count,
+       longest_duration, shortest_duration
+FROM device_summary
+ORDER BY COALESCE(most_recent_success, most_recent_error) DESC NULLS LAST, device_id;
+```
+
+The cheat sheet also carried a combined per-facility "health status" variant
+(server syncs only, bucketing each facility as healthy / stale / degraded /
+last_failed / critical). The parameterised query above plus the session queries
+below cover the same ground; reach for a bespoke status query only if you need
+that exact bucketing.
+
+### Current sync tick and queue
+
+```sql
+SELECT value FROM local_system_facts WHERE key = 'currentSyncTick';
+```
+
+```sql
+SELECT * FROM sync_queued_devices ORDER BY updated_at DESC;
+```
+
+(`sync_queued_devices` carries `facility_ids` plural, not `facility_id` —
+confirmed `database/model/public/sync_queued_devices.yml`.)
+
+### Recent sessions
+
+```sql
+SELECT start_time,
+       snapshot_completed_at - start_time AS snapshot_duration,
+       completed_at - start_time          AS full_duration,
+       errors IS NOT NULL                 AS is_error,
+       parameters->'facilityIds'->>0      AS facility_id
+FROM sync_sessions
+ORDER BY updated_at DESC
+LIMIT 10;
+```
+
+> The column is `errors` (plural). Some old snippets wrote `error IS NOT NULL` —
+> that column does not exist on `sync_sessions` (confirmed
+> `database/model/public/sync_sessions.yml`) and will error.
+
+Last 10 errors:
+
+```sql
+SELECT start_time,
+       snapshot_completed_at - start_time AS snapshot_duration,
+       completed_at - start_time          AS full_duration,
+       parameters->'facilityIds'->>0      AS facility_id,
+       errors
+FROM sync_sessions
+WHERE errors IS NOT NULL
+ORDER BY updated_at DESC
+LIMIT 10;
+```
+
+Full expanded view of the latest error (`\gx` for expanded output):
+
+```sql
+SELECT * FROM sync_sessions WHERE errors IS NOT NULL ORDER BY updated_at DESC LIMIT 1 \gx
+```
+
+Recent / last-successful / last-error for one facility (replace `xxx`):
+
+```sql
+SELECT start_time,
+       snapshot_completed_at - start_time AS snapshot_duration,
+       completed_at - start_time          AS full_duration,
+       errors IS NOT NULL                 AS is_error,
+       parameters->'facilityIds'->>0      AS facility_id
+FROM sync_sessions
+WHERE parameters->'facilityIds'->>0 = 'xxx'
+ORDER BY updated_at DESC
+LIMIT 10;
+```
+
+```sql
+SELECT start_time, completed_at - start_time AS full_duration,
+       errors, parameters->'facilityIds'->>0 AS facility_id
+FROM sync_sessions
+WHERE parameters->'facilityIds'->>0 = 'xxx' AND errors IS NOT NULL
+ORDER BY updated_at DESC
+LIMIT 1;
+```
+
+### Session duration histogram (last 3 days)
+
+```sql
+WITH sync_status_aux AS (
+  SELECT completed_at - created_at AS duration,
+         errors IS NOT NULL        AS is_error
+  FROM sync_sessions
+  WHERE created_at > NOW() - INTERVAL '3 days'
+)
+SELECT duration_range, COUNT(*)
+FROM (
+  SELECT CASE
+    WHEN duration >= INTERVAL '3 hours'                                    THEN 'a - 3h+'
+    WHEN duration >= INTERVAL '2 hours'  AND duration < INTERVAL '3 hours' THEN 'b - 2-3h'
+    WHEN duration >= INTERVAL '1 hour'   AND duration < INTERVAL '2 hours' THEN 'c - 1-2h'
+    WHEN duration >= INTERVAL '30 minutes' AND duration < INTERVAL '1 hour' THEN 'd - 30-59m'
+    WHEN duration >= INTERVAL '10 minutes' AND duration < INTERVAL '30 minutes' THEN 'e - 10-30m'
+    WHEN duration >= INTERVAL '5 minutes'  AND duration < INTERVAL '10 minutes' THEN 'f - 5-10m'
+    WHEN duration >= INTERVAL '3 minutes'  AND duration < INTERVAL '5 minutes'  THEN 'g - 3-5m'
+    WHEN duration >= INTERVAL '2 minutes'  AND duration < INTERVAL '3 minutes'  THEN 'h - 2m'
+    WHEN duration >= INTERVAL '1 minute'   AND duration < INTERVAL '2 minutes'  THEN 'i - 1m'
+    ELSE 'j - 1m-'
+  END AS duration_range
+  FROM sync_status_aux
+  WHERE NOT is_error
+) a
+GROUP BY a.duration_range;
+```
+
+> The cheat sheet's first copy of this used `error IS NOT NULL` — corrected to
+> `errors` above. To restrict to sync_lookup sessions, add
+> `AND debug_info->>'useSyncLookup' = 'true'` to the inner `WHERE`.
+
+### sync_lookup refresh timing (from debug logs)
+
+```sql
+SELECT AVG(EXTRACT(EPOCH FROM (info->>'completedAt')::timestamptz - (info->>'startedAt')::timestamptz)) AS avg_s,
+       MIN(EXTRACT(EPOCH FROM (info->>'completedAt')::timestamptz - (info->>'startedAt')::timestamptz)) AS min_s,
+       MAX(EXTRACT(EPOCH FROM (info->>'completedAt')::timestamptz - (info->>'startedAt')::timestamptz)) AS max_s
+FROM logs.debug_logs
+WHERE type = 'syncLookupUpdate'
+  AND info->>'completedAt' IS NOT NULL
+  AND (info->>'startedAt')::timestamptz >= NOW() - INTERVAL '2 hours';
+```
+
+Refreshes longer than a minute over the past day:
+
+```sql
+SELECT id, type, info,
+       (info->>'completedAt')::timestamptz - (info->>'startedAt')::timestamptz AS runtime
+FROM logs.debug_logs
+WHERE type = 'syncLookupUpdate'
+  AND (info->>'startedAt')::timestamptz > NOW() - INTERVAL '1 day'
+  AND (info->>'completedAt')::timestamptz - (info->>'startedAt')::timestamptz > INTERVAL '1 minute'
+ORDER BY id DESC;
+```
+
+### Snapshot progress (what a running sync is doing)
+
+Watch a live snapshot query on `tamanu_sync` — from the start of the query text:
+
+```sql
+SELECT pid, current_timestamp - query_start AS duration, state, datname, substr(query, 0, 500)
+FROM pg_stat_activity
+WHERE query NOT LIKE '%pg_stat_activity%'
+  AND state IS NOT NULL
+  AND datname = 'tamanu_sync'
+  AND query LIKE '%sync_snapshot%';
+```
+
+From the end of the query text (to see which table it is on) use `right(query, 200)`.
+
+## Sync snapshot inspection (facility)
+
+Summary of records in the current sync snapshot:
+
+```sql
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'sync_snapshots' LIMIT 1 \gset
+SELECT count(*), record_type FROM sync_snapshots."${table_name}" GROUP BY record_type;
+```
+
+Records for one type in the current snapshot (`\gx` for expanded output):
+
+```sql
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'sync_snapshots' LIMIT 1 \gset
+SELECT * FROM sync_snapshots."${table_name}" WHERE record_type = 'patients' \gx
+```
+
+## FHIR queue depth
+
+Jobs queued/running (excluding errored):
+
+```sql
+SELECT count(*) FROM fhir.jobs WHERE status != 'Errored';
+```
+
+Queue by topic and status:
+
+```sql
+SELECT topic, status, COUNT(*) FROM fhir.jobs GROUP BY topic, status ORDER BY topic, status;
+```
+
+Re-materialisations in the last 30 minutes, and the per-resource breakdown, are
+in `../runbooks/fhir-queue-backlog.md` (they belong with the interpretation of a
+backlog). For the `logs.fhir_writes` join that shows what an integration received
+for a lab request, see `../runbooks/senaite-integration-delay.md`.
+
+## DHIS2 push log
+
+`logs.dhis2_pushes` has one row per failed or successful push to DHIS2.
+**[diagnose]**
+
+```sql
+SELECT * FROM logs.dhis2_pushes ORDER BY created_at DESC LIMIT 20;
+```
+
+## Import a CSV into a temporary table (data tasks)
+
+Loading a CSV into a **temporary** table is **[any-OTS]** (the temp table is
+session-scoped and dropped on disconnect). Read/write mode is needed.
+
+```sql
+CREATE TEMPORARY TABLE temp_appointments (id text, start_time text, end_time text);
+COPY temp_appointments FROM 'C:\Tamanu\import.csv' (FORMAT csv);
+```
+
+Using the temp table to bulk-`UPDATE` a live clinical table (e.g.
+`UPDATE appointments ... FROM temp_appointments`) is **[ruled-out]** — bulk
+mutation of live clinical data goes through a developer with a reviewed script
+(`../ruled-out-actions.md`). If the CSV or table holds patient data, it is also
+**sensitive-data**.
+
+## Finding a server to connect to
+
+On Linux, search Tailscale and SSH in — see
+`maintain-tamanu-on-linux.md`:
+
+```bash
+tailscale status | grep <name-or-ip>
+ssh ubuntu@<server name or IP>
+```
+
+On Windows Terminal the equivalent search is
+`tailscale status | Select-String -Pattern "<name-or-ip>"`. Which VPN a
+deployment uses (Tailscale or Fortinet) is in its Canopy notes
+(`../deployment-context.md`).

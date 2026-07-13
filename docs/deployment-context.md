@@ -30,19 +30,34 @@ From these, establish:
 - **Tailscale status** — is the server reachable over Tailscale (the usual path
   in)? See VPN access below.
 
-## Deriving local time (there is no timezone field)
+## Working out local time
 
-Canopy does **not** store an explicit timezone or operating-hours field for a
-deployment. To reason about "is it the middle of the night there" or "is this
-inside working hours", derive local time from the **UTC offset**:
+To reason about "is it the middle of the night there" or "is this inside working
+hours", get the deployment's timezone **from Tamanu itself** — it is stored, not
+something to guess.
 
-- Read the `sync_lookup` check's `last_updated` on the server via `get_server`.
-- Compare it against the current UTC time to recover the deployment's local-time
-  UTC offset, and use that offset to convert timestamps.
+- **Server-wide primary timezone** — the config value `primaryTimeZone`, which
+  falls back to the legacy key `countryTimeZone` when unset (`primaryTimeZone`
+  takes precedence). This is the IANA zone (e.g. `Australia/Melbourne`) all
+  datetimes are stored in. Resolved by `getPrimaryTimeZone()` (confirmed
+  `packages/shared/src/utils/timeZoneCheck.js:8`); both keys are declared in the
+  server config (confirmed `packages/central-server/config/default.json5:480-481`,
+  and the equivalent facility config). Read it on the host with
+  `bestool tamanu config -p central-server` and look for `primaryTimeZone` /
+  `countryTimeZone`. **[diagnose]**
+- **Per-facility display timezone** — the setting `facilityTimeZone` (IANA
+  format, nullable; confirmed `packages/settings/src/schema/facility.ts:142`).
+  When set for a facility it shifts the display layer for staff in a different
+  zone; when null the facility uses the primary timezone.
+
+Use the deployment's own timezone (above) as the source of truth. The Canopy
+`sync_lookup` `last_updated` UTC offset is only a **cross-check**: compare it
+against current UTC to sanity-check the configured zone, not to derive local time
+from scratch.
 
 Remember most on-server logs (Caddy in particular) are in **UTC** — convert to
-local time using the derived offset before deciding whether a spike lines up
-with, say, a clinic opening.
+the deployment's local time before deciding whether a spike lines up with, say, a
+clinic opening.
 
 ## Per-deployment "known weird things" (Canopy notes)
 

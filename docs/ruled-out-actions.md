@@ -15,15 +15,18 @@ suggested to a support officer. If a situation seems to call for one, that is
 the signal to **escalate to a developer**, not to run it.
 
 - **`TRUNCATE fhir.jobs`** — drops the entire FHIR job queue. Only ever done
-  with a developer OTS and specific context (see the FHIR-queue runbook when it
-  lands). Not a first-line action.
+  with a developer OTS and specific context (see
+  `runbooks/fhir-queue-backlog.md` and `sops/disable-fhir-jobs.md`). Not a
+  first-line action; drain the queue by restarting the workers instead.
 - **Mass `ALTER TABLE ... DISABLE TRIGGER fhir_refresh`** — disabling the FHIR
   refresh triggers across tables stops materialisation silently and is easy to
-  leave half-done. Developer-only, with the Linear context for why.
+  leave half-done. Developer-only, with the Linear context for why (see
+  `sops/disable-fhir-jobs.md`).
 - **Truncating `sync_lookup`** — forces a full re-sync for every device and can
   cause long outages fleet-wide. There are narrow cases (a facility restored
-  from backup) where a developer may decide to do it; it is never a support
-  first-line action.
+  from backup) where a developer may decide to do it — see
+  `runbooks/facility-restored-from-backup.md`; it is never a support first-line
+  action.
 - **Manual edit of `lab_requests.status` or `imaging_requests.status`** —
   corrupts FHIR materialisation and the audit trail. Fix the upstream workflow
   (reprocess in SENAITE / RIS-PACS) instead.

@@ -48,7 +48,7 @@ See `llm/docs/` for project-specific documentation:
 
 - **Overview**: See @llm/docs/initial-overview.md for codebase architecture
 - **Authentication**: See @llm/docs/authentication.md for auth system details
-- **On-Call**: See @llm/docs/on-call-cheatsheet.md for operations and troubleshooting
+- **On-Call**: See @docs/README.md for the support pack (operations and troubleshooting runbooks, SOPs, and reference)
 
 ## Writing Rules and Prompts
 

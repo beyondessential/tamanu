@@ -71,5 +71,5 @@ bestool caddy upgrade          # upgrade Caddy (Windows; causes brief downtime)
 bestool crypto hash path/to/folder   # checksum a folder (corruption checks)
 ```
 
-For the full historical query cookbook (sync-health SQL, FHIR queue SQL, etc.),
-see the legacy `llm/docs/on-call-cheatsheet.md` while migration is in progress.
+For the full query cookbook (sync-health SQL, Postgres introspection, FHIR queue
+SQL, metaprogramming, etc.), see `query-cookbook.md`.
