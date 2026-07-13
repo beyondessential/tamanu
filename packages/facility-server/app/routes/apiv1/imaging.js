@@ -219,7 +219,7 @@ imagingRequest.put(
     if (areaNote) {
       if (areaNoteObject) {
         await areaNoteObject.update({ content: areaNote });
-        notes.areaNote = areaNote.content || '';
+        notes.areaNote = areaNote;
       } else {
         const noteObject = await imagingRequestObject.createNote({
           noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
