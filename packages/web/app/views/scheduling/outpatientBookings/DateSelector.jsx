@@ -184,18 +184,18 @@ export const DateSelector = ({ value, onChange }) => {
     if (e.key === 'ArrowLeft') {
       if (isSameDay(value, viewedDays[0])) return;
       handleChange(subDays(value, 1));
-      e.target.previousElementSibling.focus();
+      e.target.previousElementSibling?.focus();
     }
 
     if (e.key === 'ArrowRight') {
       if (isSameDay(value, viewedDays.at(-1))) return;
       handleChange(addDays(value, 1));
-      e.target.nextElementSibling.focus();
+      e.target.nextElementSibling?.focus();
     }
   };
 
   return (
-    <Wrapper onKeyDown={handleOnKeyDown} data-testid="wrapper-up3h">
+    <Wrapper data-testid="wrapper-up3h">
       <StyledMonthPicker
         key={value.valueOf()}
         value={viewedDays[0]}
@@ -209,7 +209,7 @@ export const DateSelector = ({ value, onChange }) => {
         <StepperButton onClick={handleDecrement} data-testid="stepperbutton-s2jx">
           <ArrowBackIos data-testid="arrowbackios-jjro" />
         </StepperButton>
-        <DaysWrapper data-testid="dayswrapper-f31b">
+        <DaysWrapper onKeyDown={handleOnKeyDown} data-testid="dayswrapper-f31b">
           {viewedDays.map(date => (
             <DayButton
               aria-pressed={isSameDay(date, value)}
