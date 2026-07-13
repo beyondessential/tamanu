@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
@@ -116,38 +116,36 @@ const MedicationHeader = styled(Box)`
 
 const TableContainer = styled(Box)`
   padding: 20px;
-  padding-bottom: 15px;
+  padding-block-end: 15px;
+  font-size: 14px;
+  line-height: 1.3;
   .MuiTable-root {
     border: none;
   }
-  .MuiTableHead-root {
-    background-color: ${Colors.white};
-    .MuiTableCell-head {
-      padding: 0 30px 5px 0;
-      text-align: left;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 18px;
-      color: ${Colors.darkText};
-      &:nth-child(4) {
-        padding-right: 0;
-      }
+
+  .MuiTableCell-root {
+    background-color: ${p => p.theme.palette.background.paper};
+    padding-block: 3px;
+    padding-inline: 15px;
+    &:first-of-type {
+      padding-inline-start: 0;
+    }
+    &:last-of-type {
+      padding-inline-end: 0;
     }
   }
-  .MuiTableBody-root {
-    .MuiTableCell-body {
-      padding: 5px 30px 0 0;
-      border: none;
-      &:nth-child(4),
-      &:nth-child(5) {
-        padding-right: 0;
-      }
-      ${({ $isEmpty }) =>
-        $isEmpty &&
-        `
-        padding: 0;
-        padding-top: 15px;
-      `}
+
+  .MuiTableCell-head {
+    color: ${p => p.theme.palette.text.secondary};
+    font: inherit;
+    font-weight: 500;
+    text-align: start;
+  }
+
+  .MuiTableBody-root .MuiTableCell-body {
+    border: none;
+    &:not(:has(:nth-child(1))) {
+      padding-block: 15px 0;
     }
   }
 `;
@@ -326,7 +324,7 @@ const MEDICATION_COLUMNS = (
         getEnumTranslation={getEnumTranslation}
       />
     ),
-    style: { width: '18em' },
+    style: { inlineSize: '18em' },
   },
   {
     key: 'quantity',
@@ -348,6 +346,7 @@ const MEDICATION_COLUMNS = (
         }
       />
     ),
+    style: { inlineSize: '10em', minInlineSize: '10em' },
   },
   {
     key: 'repeats',
@@ -367,6 +366,7 @@ const MEDICATION_COLUMNS = (
         onInput={preventInvalidRepeatsInput}
       />
     ),
+    style: { inlineSize: '8em', minInlineSize: '8em' },
   },
   {
     key: 'Ongoing',
@@ -859,7 +859,7 @@ export const DischargeForm = ({
                   fallback="Encounter medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={activeMedications.length === 0}>
+              <TableContainer>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
@@ -881,7 +881,7 @@ export const DischargeForm = ({
                   fallback="Other ongoing medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={ongoingMedications.length === 0}>
+              <TableContainer>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
