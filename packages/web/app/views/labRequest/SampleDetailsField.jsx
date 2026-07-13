@@ -218,7 +218,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[identifier]?.collectedBy}
+              value={samples[identifier]?.collectedBy ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'collectedById', value);
               }}
@@ -231,7 +231,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
-              value={samples[identifier]?.specimenType}
+              value={samples[identifier]?.specimenType ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'specimenTypeId', value);
               }}
@@ -244,7 +244,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
-              value={samples[identifier]?.labSampleSite}
+              value={samples[identifier]?.labSampleSite ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'labSampleSiteId', value);
               }}
