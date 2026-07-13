@@ -80,9 +80,8 @@ export const StyledTextField = styled(MuiTextField).withConfig({
     color: ${props => props.theme.palette.text.primary};
   }
 
-  // text area fields
   .MuiOutlinedInput-multiline {
-    padding: 0 0 5px 0;
+    padding: 12px;
   }
 
   .MuiInputAdornment-positionStart {
