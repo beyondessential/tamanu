@@ -32,7 +32,7 @@ respond @denied 429
 ```
 
 Then reload Caddy (`sudo systemctl reload caddy` on Linux — see
-`sops/restart-services.md`).
+`restart-services.md`).
 
 ## Reverse it
 

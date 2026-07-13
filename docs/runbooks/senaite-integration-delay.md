@@ -24,8 +24,7 @@ Example provenance: this runbook consolidates the on-call cheat sheet's SENAITE
 checklist, the authoritative Tamanu Integration Investigation doc, and the
 standalone "SENAITE integration delays" procedure. The originating incident was
 the "Tamanu-SENAITE integration is having delays this morning" report
-(#tamanu-support, timestamp `p1730585548357829`). Do not fabricate a different
-provenance.
+(#tamanu-support, timestamp `p1730585548357829`).
 
 ## 2. Establish context
 
@@ -202,7 +201,7 @@ fault. **[diagnose]**
 > user_id` (confirmed `database/model/logs/fhir_writes.yml`), and it records
 > non-GET calls only, so SENAITE's GET polls never appear there. Use the **Caddy
 > log** (above) for poll/status evidence. `logs.fhir_writes` is still useful to
-> see result payloads Tamanu received, joined via `body`:
+> see result payloads Tamanu received, joined via `body`. **[diagnose]**
 >
 > ```sql
 > SELECT frl.body
@@ -246,8 +245,8 @@ Classify and act (combining Tamanu-side and SENAITE-side evidence):
 | --- | --- | --- |
 | No central `lab_requests` row | Not synced from facility | Fix sync — see sync runbooks; check facility logs **[diagnose]** then per fix |
 | Row present, deleted/revoked status | Clinically cancelled | None needed **[diagnose]** |
-| No `fhir.service_requests` row + errored `fhir.jobs` | Worker backlog or error | Investigate worker; restart workers (5) |
-| No `fhir.service_requests` row + no `fhir.jobs` + config disabled | Materialisation off | Enable FHIR worker / ServiceRequest materialisation (5) |
+| No `fhir.service_requests` row + errored `fhir.jobs` | Worker backlog or error | Investigate worker; restart workers **[approved-mitigation]** (5) |
+| No `fhir.service_requests` row + no `fhir.jobs` + config disabled | Materialisation off | Enable FHIR worker / ServiceRequest materialisation **[dev-OTS]** (5) |
 | Materialised late, status already past `draft` | SENAITE missed the polling window | Re-order/reprocess in SENAITE **[dev-OTS]** or hand to lab |
 | Same-millisecond status jumps in `lab_request_logs` | User skipped the SENAITE pickup window | Process manually in SENAITE; coach user **[any-OTS]** |
 | Materialised on time; other records reach SENAITE but not this one | SENAITE-side rejection | Check SENAITE `event.log` against test/panel codes **[diagnose]** |

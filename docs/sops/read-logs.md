@@ -2,7 +2,7 @@
 
 Read Tamanu, Caddy and Postgres logs. Reading logs is **[diagnose]**. Copying a
 log containing patient data off the server is **sensitive-data** — prefer
-grep-in-place and redact before sharing (see `ruled-out-actions.md`).
+grep-in-place and redact before sharing (see `../ruled-out-actions.md`).
 
 ## Tamanu application logs
 
@@ -19,7 +19,7 @@ grep-in-place and redact before sharing (see `ruled-out-actions.md`).
 
 Caddy access logs are the record of what integrations and clients actually hit.
 Times are in **UTC** — convert using the deployment's derived offset
-(`deployment-context.md`).
+(`../deployment-context.md`).
 
 - **Windows:** the log file is `C:\caddy\logs\server.log`. Tail it readably in
   PowerShell:

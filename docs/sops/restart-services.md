@@ -61,7 +61,7 @@ This is disruptive; dev-OTS.
   work).
 - **Windows tuning reload:** use `pg_ctl -D data reload` only. **Never**
   `pg_ctl restart`/`start` for a tuning reload — that is ruled out
-  (`ruled-out-actions.md`).
+  (`../ruled-out-actions.md`).
 
 ## Caddy
 

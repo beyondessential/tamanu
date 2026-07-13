@@ -44,7 +44,7 @@ the database via the cluster:
 - `kubectl exec -it <cnpg-primary-pod> -- psql -U postgres <database>`
 
 Identify the primary pod first (do not assume an ordinal). Cluster-mutating
-`kubectl` actions are ruled out — see `ruled-out-actions.md`.
+`kubectl` actions are ruled out — see `../ruled-out-actions.md`.
 
 ## Notes
 

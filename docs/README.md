@@ -25,7 +25,7 @@ The pack is made of four kinds of document:
 - **README** (this file) — the generated index / navigation, replacing the old
   cheat sheet as the entry point.
 
-Two more top-level documents sit alongside the runbooks:
+Three more top-level documents sit alongside the runbooks:
 
 - `deployment-context.md` — how to work out which deployment is affected and
   gather its context (versions, topology, timezone offset, per-deployment

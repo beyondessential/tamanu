@@ -7,7 +7,7 @@ reach every server (longer if a server cannot auto-update).
 
 All commands below are **[diagnose]** unless they clearly mutate (start / stop /
 restart / config change), which take the class of what they do — see
-`README.md` and `sops/restart-services.md`.
+`../README.md` and `../sops/restart-services.md`.
 
 ## Basics
 
@@ -40,7 +40,7 @@ bestool tamanu psql -W         # read/write (mutations take their own class)
 bestool tamanu psql -U postgres
 ```
 
-See `sops/connect-psql.md` for in-session helpers.
+See `../sops/connect-psql.md` for in-session helpers.
 
 ## Config
 
