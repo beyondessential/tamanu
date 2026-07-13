@@ -1,3 +1,5 @@
+/** @typedef {import('@tamanu/constants').MedicationAdministrationTimeSlot} MedicationAdministrationTimeSlot */
+
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { useDateTime } from '@tamanu/ui-components';
 
@@ -11,7 +13,7 @@ const toFacilityDate = (dateStr, toFacilityDateTime) => {
  * @param {Object} props
  * @param {string} [props.endDate]
  * @param {boolean} props.hasRecord
- * @param {{ startTime: string, endTime: string }} props.timeSlot
+ * @param {MedicationAdministrationTimeSlot} props.timeSlot
  * @param {Date} props.selectedDate
  */
 export function useIsEnd({ endDate, hasRecord, timeSlot, selectedDate }) {
@@ -29,7 +31,7 @@ export function useIsEnd({ endDate, hasRecord, timeSlot, selectedDate }) {
  * @param {string} [props.discontinuedDate]
  * @param {string} [props.dueAt]
  * @param {boolean} props.isRecordedStatus
- * @param {{ startTime: string, endTime: string }} props.timeSlot
+ * @param {MedicationAdministrationTimeSlot} props.timeSlot
  * @param {Date} props.selectedDate
  * @param {{ status?: string } | null | undefined} props.nextMarInfo
  */
@@ -59,7 +61,7 @@ export function useIsDiscontinued({
 /**
  * @param {Object} props
  * @param {Array} [props.pauseRecords]
- * @param {{ startTime: string, endTime: string } | null | undefined} props.timeSlot
+ * @param {(typeof MEDICATION_ADMINISTRATION_TIME_SLOTS)[number] | null | undefined} props.timeSlot
  * @param {Date} props.selectedDate
  * @param {string} [props.recordedAt]
  */
@@ -85,7 +87,7 @@ export function useIsPaused({ pauseRecords, timeSlot, selectedDate, recordedAt }
  * @param {Object} props
  * @param {boolean} props.isPreviouslyPaused
  * @param {boolean} props.isDiscontinued
- * @param {{ startTime: string, endTime: string }} props.timeSlot
+ * @param {MedicationAdministrationTimeSlot} props.timeSlot
  * @param {Date} props.selectedDate
  * @param {string} [props.discontinuedDate]
  */
