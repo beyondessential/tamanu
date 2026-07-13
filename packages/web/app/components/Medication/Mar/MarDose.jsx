@@ -1,11 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TimeDisplay, TranslatedText, useAuth, useTranslation } from '@tamanu/ui-components';
-import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
-import KeyValueDisplay from './KeyValueDisplay';
-import { RemoveDoseButton } from './MarDetails';
+import { TranslatedText, useAuth } from '@tamanu/ui-components';
 import DoseSummary from './DoseSummary';
+import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 
 const Root = styled.div`
   border-block-start: 1px solid ${p => p.theme.palette.divider};
@@ -50,7 +48,7 @@ export default function DoseEntry({ children, dose, index, medication, onRemove,
           {dose.isRemoved && <RemovedLabel />}
         </DoseHeading>
         {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-          <RemoveDoseButton onClick={onRemove} style={{ marginInlineStart: 'auto' }} />
+          <RemoveAdditionalDoseButton onClick={onRemove} style={{ marginInlineStart: 'auto' }} />
         )}
       </Header>
       {!dose.isRemoved && (
