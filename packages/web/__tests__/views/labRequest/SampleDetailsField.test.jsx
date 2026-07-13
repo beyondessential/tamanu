@@ -54,7 +54,6 @@ vi.mock('../../../app/contexts/Settings', async () => {
   };
 });
 
-// eslint-disable-next-line import/first
 import {
   SampleDetailsField,
   SAMPLE_DETAILS_FIELD_PREFIX,
