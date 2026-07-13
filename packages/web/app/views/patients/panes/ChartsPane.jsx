@@ -344,6 +344,7 @@ export const ChartsPane = React.memo(({ patient, encounter, disabled }) => {
                       setChartSurveyIdToSubmit(coreComplexChartSurveyId);
                       setModalOpen(true);
                     }}
+                    disabled={disabled}
                   />
                 </NoteModalActionBlocker>
               ) : null}
