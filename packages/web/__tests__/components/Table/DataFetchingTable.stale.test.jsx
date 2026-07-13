@@ -21,7 +21,12 @@ const { fetchResolvers, stableApi } = vi.hoisted(() => {
   const resolvers = [];
   return {
     fetchResolvers: resolvers,
-    stableApi: { get: () => new Promise(resolve => resolvers.push(resolve)) },
+    stableApi: {
+      get: () =>
+        new Promise(resolve => {
+          resolvers.push(resolve);
+        }),
+    },
   };
 });
 vi.mock('../../../app/api', async () => {
