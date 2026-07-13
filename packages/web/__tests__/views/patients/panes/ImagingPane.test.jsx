@@ -42,7 +42,6 @@ vi.mock('../../../../app/components/PatientPrinting', () => ({
   PrintMultipleImagingRequestsSelectionModal: () => null,
 }));
 
-// eslint-disable-next-line import/first
 import { ImagingPane } from '../../../../app/views/patients/panes/ImagingPane';
 
 const PRINT_BUTTON = 'button-21bg';
