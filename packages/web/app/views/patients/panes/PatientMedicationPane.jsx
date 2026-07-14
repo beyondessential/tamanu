@@ -8,7 +8,6 @@ import {
   Button,
   ConditionalTooltip,
   DateDisplay,
-  ThemedTooltip,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
@@ -87,9 +86,6 @@ const TableTitleText = styled(Box)`
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     max-width: 180px;
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 400;
   }
 `;
 
@@ -614,7 +610,8 @@ export const PatientMedicationPane = ({ patient }) => {
             {pharmacyOrderEnabled &&
               canRequestPharmacyOrder &&
               activeOngoingPrescriptions.length > 0 && (
-                <ThemedTooltip
+                <StyledConditionalTooltip
+                  visible
                   PopperProps={{
                     popperOptions: {
                       positionFixed: true,
@@ -643,7 +640,7 @@ export const PatientMedicationPane = ({ patient }) => {
                     disabled={!!currentEncounter}
                     onClick={handleSendToPharmacyClick}
                   />
-                </ThemedTooltip>
+                </StyledConditionalTooltip>
               )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip
