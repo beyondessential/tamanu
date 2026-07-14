@@ -17,7 +17,7 @@ export const DRUG_ROUTES = {
   sublingual: 'sublingual',
   topical: 'topical',
   vaginal: 'vaginal',
-};
+} as const;
 
 export const DRUG_ROUTE_VALUES = Object.values(DRUG_ROUTES);
 
@@ -37,7 +37,7 @@ export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.sublingual]: 'Sublingual',
   [DRUG_ROUTES.topical]: 'Topical',
   [DRUG_ROUTES.vaginal]: 'Vaginal',
-};
+} as const;
 
 export const DRUG_UNITS = {
   percentage: '%',
@@ -96,14 +96,19 @@ export const DRUG_UNITS = {
   u: 'U',
   vial: 'Vial',
   wafer: 'Wafer',
-};
+} as const;
 
 export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
 
-export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce((prev, curr) => {
-  prev[curr] = curr;
-  return prev;
-}, {} as any);
+export type DrugUnit = (typeof DRUG_UNITS)[keyof typeof DRUG_UNITS];
+
+export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce(
+  (acc, curr) => {
+    acc[curr] = curr;
+    return acc;
+  },
+  {} as Record<DrugUnit, DrugUnit>,
+);
 
 export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.percentage]: '%',
@@ -162,7 +167,7 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.u]: 'U',
   [DRUG_UNITS.vial]: 'Vial',
   [DRUG_UNITS.wafer]: 'Wafer',
-};
+} as const;
 
 // Long-form unit labels in plural. Used for dispensed-medication label text when
 // the dose is greater than 1 (e.g. '2 tablets'). Units of measurement (mg, mL, %,
@@ -224,7 +229,7 @@ export const DRUG_UNIT_PLURAL_LABELS = {
   [DRUG_UNITS.u]: 'U',
   [DRUG_UNITS.vial]: 'Vials',
   [DRUG_UNITS.wafer]: 'Wafers',
-};
+} as const;
 
 // Administration verb prefixed to dispensed-medication label text, chosen per
 // dosing unit (e.g. 'Take 1 tablet...', 'Apply 1 patch...').
@@ -285,7 +290,7 @@ export const DRUG_UNIT_VERBS = {
   [DRUG_UNITS.u]: 'Administer',
   [DRUG_UNITS.vial]: 'Give',
   [DRUG_UNITS.wafer]: 'Take',
-};
+} as const;
 
 export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
@@ -472,7 +477,7 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
-];
+] as const;
 
 export const PHARMACY_PRESCRIPTION_TYPES = {
   DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',

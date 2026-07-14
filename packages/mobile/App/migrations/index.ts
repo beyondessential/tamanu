@@ -87,6 +87,7 @@ import { addSurveyFormVisibilityCriteria1773618699809 } from './1773618699809-ad
 import { removePatientTitleColumn1778199200000 } from './1778199200000-removePatientTitleColumn';
 import { addLabTestReferenceRangeColumns1778546880000 } from './1778546880000-addLabTestReferenceRangeColumns';
 import { addSurveyResponseEditMetadata1778560763154 } from './1778560763154-addSurveyResponseEditMetadata';
+import { addLabTestReferenceRangeText1779700000000 } from './1779700000000-addLabTestReferenceRangeText';
 import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
 import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
@@ -180,6 +181,7 @@ export const migrationList = [
   removePatientTitleColumn1778199200000,
   addLabTestReferenceRangeColumns1778546880000,
   addSurveyResponseEditMetadata1778560763154,
+  addLabTestReferenceRangeText1779700000000,
   removeDietIdFromEncounter1781501076000,
   addUserKind1783118255000,
   addDosingAndDispensingUnitColumns1779900000001,

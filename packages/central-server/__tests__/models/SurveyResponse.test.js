@@ -233,6 +233,49 @@ describe('SurveyResponse.createWithAnswers', () => {
     });
   });
 
+  it('computes result from calculated answers when the client does not precompute them', async () => {
+    const survey = await createDummySurvey(models);
+    const numberElement = await models.ProgramDataElement.create({
+      ...fake(models.ProgramDataElement),
+      code: 'testNumber',
+      type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+    });
+    await models.SurveyScreenComponent.create({
+      ...fake(models.SurveyScreenComponent),
+      dataElementId: numberElement.id,
+      surveyId: survey.id,
+    });
+    const resultElement = await models.ProgramDataElement.create({
+      ...fake(models.ProgramDataElement),
+      code: 'testResult',
+      type: PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+    });
+    await models.SurveyScreenComponent.create({
+      ...fake(models.SurveyScreenComponent),
+      dataElementId: resultElement.id,
+      surveyId: survey.id,
+      calculation: 'testNumber * 2',
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [numberElement.id]: 40,
+        },
+      }),
+    );
+
+    expect(await models.SurveyResponse.findOne()).toMatchObject({
+      surveyId: survey.id,
+      encounterId,
+      result: 80,
+      resultText: '80%',
+    });
+  });
+
   it('creates patient data from actions', async () => {
     const survey = await createDummySurvey(models);
     const { dataElement } = await createDummyDataElement(models, survey, {

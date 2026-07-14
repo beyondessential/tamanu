@@ -20,6 +20,13 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  ':where(hr)': {
+    borderBlockEnd: `1px solid ${Colors.outline}`,
+    borderBlockStart: 0,
+    borderInline: 0,
+    inlineSize: '100%',
+    margin: 0,
+  },
   iframe: {
     border: 0,
   },
@@ -49,6 +56,9 @@ const cssReset = {
   th: {
     padding: 0,
     textAlign: 'start',
+  },
+  '[popover]': {
+    inset: 'auto',
   },
 };
 

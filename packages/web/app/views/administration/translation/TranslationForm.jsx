@@ -265,9 +265,12 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
       : data.filter(row => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
 
     if (searchValue) {
+      // Escape every regex metacharacter so the user's raw input can't throw a SyntaxError
+      // (e.g. an unbalanced "(" or "[") or act as a wildcard (e.g. stray ".").
+      const escapedSearch = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return includedTranslations.filter(row =>
         // Search from start of stringId or after a . delimiter
-        row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
+        row.stringId.match(new RegExp(`(?:^|\\.)${escapedSearch}`, 'i')),
       );
     }
     return includedTranslations;

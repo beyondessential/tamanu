@@ -1,46 +1,52 @@
-import React, { Fragment, useState } from 'react';
-
-import styled from 'styled-components';
-import * as yup from 'yup';
-import { FieldArray } from 'formik';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { MarInfoPane } from './MarInfoPane';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { FormModal } from '../../FormModal';
-import {
-  TextField,
-  Form,
-  Button,
-  OutlinedButton,
-  FormGrid,
-  TimeDisplay,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
-import { Box, IconButton } from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
-import { useTranslation } from '../../../contexts/Translation';
-import { ChangeStatusModal } from './ChangeStatusModal';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEncounter } from '../../../contexts/Encounter';
+import { FieldArray } from 'formik';
+import React, { Fragment, useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import {
+  AutocompleteField,
+  Button,
+  Field,
+  Form,
+  FormGrid,
+  NumberField,
+  OutlinedButton,
+  TextField,
+  TimeDisplay,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+  useSuggester,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
-import { useSuggester } from '../../../api';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { useAuth } from '../../../contexts/Auth';
-import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
-import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
-import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { ConditionalTooltip } from '../../Tooltip';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { CheckField } from '../../Field';
+import { TimePickerField } from '../../Field/TimePickerField';
+import { FormModal } from '../../FormModal';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import { ConditionalTooltip } from '../../Tooltip';
+import { WarningModal } from '../WarningModal';
+import { ChangeStatusModal } from './ChangeStatusModal';
+import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
+import { MarInfoPane } from './MarInfoPane';
+import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -97,9 +103,7 @@ const StyledEditIcon = styled(Edit)`
 `;
 
 const HorizontalSeparator = styled.hr`
-  border: none;
-  border-top: 1px solid ${Colors.outline};
-  margin: 14px 0;
+  margin-block: 14px;
 `;
 
 const VerticalSeparator = styled.div`
@@ -228,22 +232,6 @@ export const MarDetails = ({
 
   const canEditMar = ability.can('write', 'MedicationAdministration');
 
-  const handleOpenChangeStatusModal = () => {
-    setShowChangeStatusModal(true);
-  };
-
-  const handleCloseChangeStatusModal = () => {
-    setShowChangeStatusModal(false);
-  };
-
-  const handleRemoveExistingDose = async dose => {
-    setShowRemoveDoseModal(dose);
-  };
-
-  const handleOpenEditDoseModal = dose => {
-    setShowEditDoseModal(dose);
-  };
-
   const onSubmit = async (data, { setFieldValue }) => {
     const isDoseAmountNotMatch =
       !medication.isVariableDose &&
@@ -312,10 +300,10 @@ export const MarDetails = ({
             <>
               <Container>
                 <MarInfoPane medication={medication} marInfo={marInfo} />
-                <DetailsContainer mt={'14px'} display={'flex'} flexDirection={'column'}>
+                <DetailsContainer mt="14px" display="flex" flexDirection="column">
                   {marInfo?.isError ? (
-                    <Box display={'flex'} flexDirection={'column'}>
-                      <Box display={'flex'} alignItems={'center'}>
+                    <Box display="flex" flexDirection="column">
+                      <Box display="flex" alignItems="center">
                         <DarkText fontWeight={500}>
                           <TranslatedText
                             stringId="medication.mar.medicationMarkedAsError"
@@ -324,10 +312,10 @@ export const MarDetails = ({
                         </DarkText>
                         <StyledPriorityHighIcon />
                       </Box>
-                      <MidText mt={'15px'}>
+                      <MidText mt="15px">
                         <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
                       </MidText>
-                      <DarkestText mt={'3px'}>{marInfo.errorNotes || '-'}</DarkestText>
+                      <DarkestText mt="3px">{marInfo.errorNotes || '—' /* em dash */}</DarkestText>
                     </Box>
                   ) : (
                     <FormGrid style={{ width: '100%' }}>
@@ -343,7 +331,7 @@ export const MarDetails = ({
                         >
                           <Field
                             label={
-                              <Box display={'flex'} alignItems={'center'}>
+                              <Box display="flex" alignItems="center">
                                 <DarkText>
                                   <TranslatedText
                                     stringId="medication.mar.markAsMedicationError.label"
@@ -384,7 +372,7 @@ export const MarDetails = ({
                         />
                       </MidText>
                       {isDoseAmountNotMatch && (
-                        <DarkestText mt={'3px'}>
+                        <DarkestText mt="3px">
                           <TranslatedText
                             stringId="medication.mar.doseAmountNotMatch"
                             fallback="Dose amount does not match prescription"
@@ -392,7 +380,7 @@ export const MarDetails = ({
                         </DarkestText>
                       )}
                       {isRecordedOutsideAdministrationSchedule && (
-                        <DarkestText mt={'3px'}>
+                        <DarkestText mt="3px">
                           <TranslatedText
                             stringId="medication.mar.recordedOutsideAdministrationSchedule"
                             fallback="Dose recorded outside of administration schedule"
@@ -400,7 +388,7 @@ export const MarDetails = ({
                         </DarkestText>
                       )}
                       {isRecordedDuringPaused && (
-                        <DarkestText mt={'3px'}>
+                        <DarkestText mt="3px">
                           <TranslatedText
                             stringId="medication.mar.recordedDuringPaused"
                             fallback="Dose recorded while medication was paused"
@@ -410,11 +398,11 @@ export const MarDetails = ({
                     </>
                   )}
                 </DetailsContainer>
-                <DetailsContainer mt={'14px'}>
+                <DetailsContainer mt="14px">
                   <MidText>
                     <TranslatedText stringId="medication.mar.status" fallback="Status" />
                   </MidText>
-                  <DarkestText mt={'3px'}>
+                  <DarkestText mt="3px">
                     <TranslatedEnum
                       value={marInfo.status}
                       enumValues={ADMINISTRATION_STATUS_LABELS}
@@ -422,7 +410,10 @@ export const MarDetails = ({
                   </DarkestText>
                   {canEditMar && (
                     <NoteModalActionBlocker>
-                      <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
+                      <StyledEditButton
+                        disableRipple
+                        onClick={() => void setShowChangeStatusModal(true)}
+                      >
                         <StyledEditIcon />
                       </StyledEditButton>
                     </NoteModalActionBlocker>
@@ -431,12 +422,12 @@ export const MarDetails = ({
                 {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <Fragment>
                     <HorizontalSeparator />
-                    <DetailsContainer display={'flex'}>
+                    <DetailsContainer display="flex">
                       <Box flex={1}>
                         <MidText>
                           <TranslatedText stringId="medication.mar.reason" fallback="Reason" />
                         </MidText>
-                        <DarkestText mt={'3px'}>
+                        <DarkestText mt="3px">
                           <TranslatedReferenceData
                             value={marInfo.reasonNotGiven.id}
                             fallback={marInfo.reasonNotGiven.name}
@@ -452,13 +443,13 @@ export const MarDetails = ({
                             fallback="Recorded by"
                           />
                         </MidText>
-                        <DarkestText mt={'3px'}>{marInfo.recordedByUser.displayName}</DarkestText>
+                        <DarkestText mt="3px">{marInfo.recordedByUser.displayName}</DarkestText>
                       </Box>
                       {canEditMar && (
                         <NoteModalActionBlocker>
                           <StyledEditButton
                             disableRipple
-                            onClick={() => handleOpenEditDoseModal({})}
+                            onClick={() => void setShowEditDoseModal({})}
                           >
                             <StyledEditIcon />
                           </StyledEditButton>
@@ -473,12 +464,12 @@ export const MarDetails = ({
                       <HorizontalSeparator />
                       {(marDoses.length > 1 || !!values.doses.length) && (
                         <Box
-                          mb={'14px'}
-                          display={'flex'}
-                          justifyContent={'space-between'}
-                          alignItems={'center'}
+                          mb="14px"
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
                         >
-                          <DoseIndex display={'flex'} alignItems={'center'} gap={0.5}>
+                          <DoseIndex display="flex" alignItems="center" gap={0.5}>
                             <TranslatedText
                               stringId="medication.mar.dose"
                               fallback="Dose :index"
@@ -494,7 +485,7 @@ export const MarDetails = ({
                             )}
                           </DoseIndex>
                           {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-                            <RemoveDoseText onClick={() => handleRemoveExistingDose(dose)}>
+                            <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
                                 stringId="medication.mar.action.removeAdditionalDose"
@@ -505,7 +496,7 @@ export const MarDetails = ({
                         </Box>
                       )}
                       {!dose.isRemoved && (
-                        <DetailsContainer display={'flex'}>
+                        <DetailsContainer display="flex">
                           <Box flex={1}>
                             <MidText>
                               <TranslatedText
@@ -513,19 +504,19 @@ export const MarDetails = ({
                                 fallback="Dose given"
                               />
                             </MidText>
-                            <DarkestText mt={'3px'}>
+                            <DarkestText mt="3px">
                               {getMarDoseDisplay(
                                 { doseAmount: dose.doseAmount, dosingUnit: medication.dosingUnit },
                                 getEnumTranslation,
                               )}
                             </DarkestText>
-                            <MidText mt={'15px'}>
+                            <MidText mt="15px">
                               <TranslatedText
                                 stringId="medication.mar.givenBy"
                                 fallback="Given by"
                               />
                             </MidText>
-                            <DarkestText mt={'3px'}>{dose.givenByUser.displayName}</DarkestText>
+                            <DarkestText mt="3px">{dose.givenByUser.displayName}</DarkestText>
                           </Box>
                           <VerticalSeparator />
                           <Box flex={1} mr={2.5}>
@@ -535,22 +526,22 @@ export const MarDetails = ({
                                 fallback="Time given"
                               />
                             </MidText>
-                            <DarkestText mt={'3px'}>
+                            <DarkestText mt="3px">
                               <TimeDisplay date={dose.givenTime} noTooltip />
                             </DarkestText>
-                            <MidText mt={'15px'}>
+                            <MidText mt="15px">
                               <TranslatedText
                                 stringId="medication.mar.recordedBy"
                                 fallback="Recorded by"
                               />
                             </MidText>
-                            <DarkestText mt={'3px'}>{dose.recordedByUser.displayName}</DarkestText>
+                            <DarkestText mt="3px">{dose.recordedByUser.displayName}</DarkestText>
                           </Box>
                           {canEditMar && (
                             <NoteModalActionBlocker>
                               <StyledEditButton
                                 disableRipple
-                                onClick={() => handleOpenEditDoseModal(dose)}
+                                onClick={() => setShowEditDoseModal(dose)}
                               >
                                 <StyledEditIcon />
                               </StyledEditButton>
@@ -577,10 +568,10 @@ export const MarDetails = ({
                         <div key={index}>
                           <HorizontalSeparator />
                           <Box
-                            mb={'14px'}
-                            display={'flex'}
-                            justifyContent={'space-between'}
-                            alignItems={'center'}
+                            mb="14px"
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
                           >
                             <DoseIndex>
                               <TranslatedText
@@ -602,13 +593,24 @@ export const MarDetails = ({
                               name={`doses.${index}.doseAmount`}
                               component={NumberField}
                               label={
-                                <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
+                                <TranslatedText
+                                  stringId="mar.details.doseGiven.label"
+                                  fallback="Dose given"
+                                />
                               }
-                              unit={medication?.dosingUnit ? getDrugUnitLabel(medication.dosingUnit, values.doses[index]?.doseAmount, getEnumTranslation) : undefined}
+                              unit={
+                                medication?.dosingUnit
+                                  ? getDrugUnitLabel(
+                                      medication.dosingUnit,
+                                      values.doses[index]?.doseAmount,
+                                      getEnumTranslation,
+                                    )
+                                  : undefined
+                              }
                               required
                             />
                             <div>
-                              <DarkText fontWeight={500} mb={'3px'}>
+                              <DarkText fontWeight={500} mb="3px">
                                 <TranslatedText
                                   stringId="medication.mar.givenTime.label"
                                   fallback="Time given"
@@ -689,11 +691,11 @@ export const MarDetails = ({
                 px={4}
                 pt={2.5}
                 borderTop={`1px solid ${Colors.outline}`}
-                display={'flex'}
-                justifyContent={'flex-end'}
+                display="flex"
+                justifyContent="flex-end"
               >
                 {values.isError || values.doses.length > 0 ? (
-                  <Box display={'flex'} style={{ gap: '10px' }}>
+                  <Box display="flex" style={{ gap: '10px' }}>
                     <OutlinedButton onClick={onClose}>
                       <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                     </OutlinedButton>
@@ -716,7 +718,7 @@ export const MarDetails = ({
       {!!showChangeStatusModal && (
         <ChangeStatusModal
           open={showChangeStatusModal}
-          onClose={handleCloseChangeStatusModal}
+          onClose={() => void setShowChangeStatusModal(false)}
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
