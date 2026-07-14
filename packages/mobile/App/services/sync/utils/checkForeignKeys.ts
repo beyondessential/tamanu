@@ -1,5 +1,5 @@
 import { EntityManager } from 'typeorm';
-import { groupBy } from 'es-toolkit/compat';
+import { groupBy } from 'lodash';
 
 interface ForeignKeyViolation {
   table: string;
