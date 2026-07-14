@@ -9,7 +9,10 @@ export const usePatientAdditionalDataQuery = (patientId, fetchOptions) => {
     ['additionalData', patientId],
     () => api.get(`patient/${encodeURIComponent(patientId)}/additionalData`, { facilityId }),
     {
-      enabled: !!patientId,
+      enabled: Boolean(patientId),
+      // dedupes refetches from components mounting in quick succession during a page
+      // load; invalidatePatientDataQueries invalidates this key so edits still show
+      staleTime: 30_000,
       ...fetchOptions,
     },
   );
