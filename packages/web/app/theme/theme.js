@@ -50,11 +50,13 @@ const cssReset = {
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
-  table: {
+  ':where(table)': {
     borderCollapse: 'collapse',
   },
-  th: {
+  ':where(td, th)': {
     padding: 0,
+  },
+  ':where(th)': {
     textAlign: 'start',
   },
   '[popover]': {
