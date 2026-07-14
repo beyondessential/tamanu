@@ -1,11 +1,11 @@
-import config from 'config';
-
 import {
   SendStatusToMetaServer,
   FhirMissingResources,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { facilityDefaults } from '@tamanu/settings';
+
+import { getServerFacilityIds } from '../serverConfig';
 
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
@@ -25,11 +25,15 @@ const DEFAULT_TASK_CLASSES = [
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.
 // Tasks are server-wide, so on a multi-facility server the first facility's settings
-// apply — same rule the mSupply tasks use.
+// apply — same rule the mSupply tasks use. Uses the resolved facility ids (facts/env/
+// config), which key context.settings; a server booted unconfigured (pre-wizard) has
+// none yet, so it runs on the schema defaults until its post-setup restart.
 export async function resolveSchedules(context) {
-  const [primaryFacilityId] = selectFacilityIds(config);
+  const [primaryFacilityId] = getServerFacilityIds() ?? [];
   // eslint-disable-next-line require-atomic-updates
-  context.schedules ??= await context.settings[primaryFacilityId].get('schedules');
+  context.schedules ??= primaryFacilityId
+    ? await context.settings[primaryFacilityId].get('schedules')
+    : facilityDefaults.schedules;
   return context.schedules;
 }
 

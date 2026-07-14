@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import { SETTING_EDITORS } from '@tamanu/constants';
 
 import type { Setting, SettingsSchema } from '../../types';
+import { msDurationSchema } from './msDuration';
 
 // Field-count and charset check only; full parsing is node-schedule's job at task
 // start, and the admin UI shows a live human-readable preview via cronstrue.
@@ -43,7 +44,7 @@ export const scheduledTaskSchema = (
       name: 'Jitter',
       description:
         'Maximum random delay added to each run, e.g. ‘30s’, so tasks on many servers don’t all fire at once',
-      type: yup.string().nullable(),
+      type: msDurationSchema.nullable(),
       defaultValue: jitterTime,
     },
     ...extraProperties,
