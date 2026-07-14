@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-
-
 import {
   BaseModal,
   Button,
