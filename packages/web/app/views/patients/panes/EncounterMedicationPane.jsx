@@ -1,5 +1,6 @@
 import PrintIcon from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -9,11 +10,10 @@ import {
   Button,
   ButtonWithPermissionCheck,
   ConditionalTooltip,
-  TextButton,
   ThemedTooltip,
   TranslatedText,
   useSettings,
-  useTranslation,
+  VisuallyHidden,
 } from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
@@ -47,17 +47,6 @@ const ButtonGroup = styled(Box)`
   gap: 10px;
 `;
 
-const StyledTextButton = styled(TextButton)`
-  font-size: 12px;
-  font-weight: 500;
-  .MuiSvgIcon-root {
-    margin-right: 4px;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-  }
-`;
-
 const StyledButton = styled(Button)`
   font-size: 12px;
   height: 36px;
@@ -74,11 +63,38 @@ const TableContainer = styled.div`
   border-radius: 3px;
 `;
 
+function AddOngoingMedicationButton(props) {
+  return (
+    <IconButton color="primary" {...props}>
+      <AddMedicationIcon aria-hidden />
+      <VisuallyHidden>
+        <TranslatedText
+          stringId="medication.action.addOngoingMedications"
+          fallback="Add existing ongoing medication to encounter"
+        />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
+
+function PrintPrescriptionButton(props) {
+  return (
+    <IconButton color="primary" {...props}>
+      <PrintIcon />
+      <VisuallyHidden>
+        <TranslatedText
+          stringId="medication.action.printPrescription"
+          fallback="Print prescription"
+        />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
+
 export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
   const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
-  const { getTranslation } = useTranslation();
 
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
   const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
@@ -194,60 +210,41 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
           />
         )}
         <TableButtonRow data-testid="tablebuttonrow-dl51">
-          <ButtonGroup gap={'16px'}>
+          <ButtonGroup gap={0}>
             {!!encounterPrescriptions?.length && (
               <>
                 {canImportOngoingPrescriptions && canCreatePrescription && (
-                  <StyledTextButton
-                    aria-label={getTranslation(
-                      'medication.action.addOngoingMedications',
-                      'Add existing ongoing medication to encounter',
-                    )}
-                    disabled={disabled}
-                    onClick={() => setMedicationImportModalOpen(true)}
+                  <ThemedTooltip
+                    title={
+                      <TranslatedText
+                        stringId="medication.action.addOngoingMedications"
+                        fallback="Add existing ongoing medication to encounter"
+                      />
+                    }
                   >
-                    <ThemedTooltip
-                      title={
-                        <Box width="147px" fontWeight={400}>
-                          <TranslatedText
-                            stringId="medication.action.addOngoingMedications"
-                            fallback="Add existing ongoing medication to encounter"
-                          />
-                        </Box>
-                      }
-                    >
-                      <Box display={'flex'}>
-                        <AddMedicationIcon aria-hidden />
-                      </Box>
-                    </ThemedTooltip>
-                  </StyledTextButton>
+                    <AddOngoingMedicationButton
+                      disabled={disabled}
+                      onClick={() => setMedicationImportModalOpen(true)}
+                    />
+                  </ThemedTooltip>
                 )}
                 {canOrderPrescription && (
                   <>
                     <NoteModalActionBlocker>
-                      <StyledTextButton
-                        aria-label={getTranslation(
-                          'medication.action.printPrescription',
-                          'Print prescription',
-                        )}
-                        onClick={() => setPrintMedicationModalOpen(true)}
-                        disabled={disabled}
-                        color="primary"
-                        data-testid="styledtextbutton-hbja"
+                      <ThemedTooltip
+                        title={
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
+                        }
                       >
-                        <ThemedTooltip
-                          title={
-                            <TranslatedText
-                              stringId="medication.action.printPrescription"
-                              fallback="Print prescription"
-                            />
-                          }
-                        >
-                          <Box display={'flex'}>
-                            <PrintIcon aria-hidden />
-                          </Box>
-                        </ThemedTooltip>
-                      </StyledTextButton>
+                        <PrintPrescriptionButton
+                          data-testid="styledtextbutton-hbja"
+                          disabled={disabled}
+                          onClick={() => setPrintMedicationModalOpen(true)}
+                        />
+                      </ThemedTooltip>
                     </NoteModalActionBlocker>
                     {pharmacyOrderEnabled && canRequestPharmacyOrder && (
                       <NoteModalActionBlocker>
