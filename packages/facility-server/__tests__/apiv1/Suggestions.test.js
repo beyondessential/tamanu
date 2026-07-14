@@ -1180,6 +1180,25 @@ describe('Suggestions', () => {
     expect(body[0]).toHaveProperty('id', invoiceProduct.id);
   });
 
+  it('should also match on record id when searchById is passed', async () => {
+    const product = await models.InvoiceProduct.create({
+      id: 'invoiceProduct-drug-RX00343',
+      name: 'Paracetamol tablet',
+      category: INVOICE_ITEMS_CATEGORIES.OTHER,
+      visibilityStatus: 'current',
+    });
+
+    const withFlag = await userApp.get(
+      '/api/suggestions/invoiceProduct?q=RX00343&searchById=true',
+    );
+    expect(withFlag).toHaveSucceeded();
+    expect(withFlag.body.map(({ id }) => id)).toContain(product.id);
+
+    const withoutFlag = await userApp.get('/api/suggestions/invoiceProduct?q=RX00343');
+    expect(withoutFlag).toHaveSucceeded();
+    expect(withoutFlag.body.map(({ id }) => id)).not.toContain(product.id);
+  });
+
   it('should only return non-hidden invoice products', async () => {
     await models.InvoiceProduct.truncate({ cascade: true });
 

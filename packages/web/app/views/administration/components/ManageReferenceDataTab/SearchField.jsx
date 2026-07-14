@@ -27,7 +27,10 @@ const CentredCheckContainer = styled.div`
 `;
 
 const AvailableFacilitiesSearchField = () => {
-  const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
+  const suggester = useSuggester('facility', {
+    ...SUGGESTER_OPTIONS,
+    baseQueryParameters: { ...SUGGESTER_OPTIONS.baseQueryParameters, noLimit: true },
+  });
   return (
     <Field
       name="availableFacilities"

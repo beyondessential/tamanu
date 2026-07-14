@@ -12,4 +12,7 @@ export const DATA_TYPE_OPTIONS = [...MANAGEABLE_REFERENCE_DATA_TYPES].sort().map
 export const REQUIRED_FIELDS = new Set(['id', 'code', 'name']);
 
 export const SUGGESTER_FORMATTER = ({ name, id }) => ({ label: `${name} (${id})`, value: id });
-export const SUGGESTER_OPTIONS = { formatter: SUGGESTER_FORMATTER };
+export const SUGGESTER_OPTIONS = {
+  formatter: SUGGESTER_FORMATTER,
+  baseQueryParameters: { searchById: true },
+};
