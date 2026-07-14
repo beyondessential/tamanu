@@ -156,13 +156,7 @@ const getColumns = (
 
     {
       key: COLUMN_KEYS.MEDICATION,
-      title: (
-        <TranslatedText
-          stringId="medication.medication.label"
-          fallback="Medication"
-          data-testid="translatedtext-fmmr"
-        />
-      ),
+      title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
       sortable: false,
       maxWidth: 300,
       accessor: ({ medication }) => (
@@ -176,13 +170,7 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.DOSE,
-      title: (
-        <TranslatedText
-          stringId="medication.dose.label"
-          fallback="Dose"
-          data-testid="translatedtext-dose"
-        />
-      ),
+      title: <TranslatedText stringId="medication.dose.label" fallback="Dose" />,
       sortable: false,
       accessor: ({ doseAmount, dosingUnit, isVariableDose }) =>
         getMedicationDoseDisplay(
@@ -193,26 +181,14 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.FREQUENCY,
-      title: (
-        <TranslatedText
-          stringId="medication.frequency.label"
-          fallback="Frequency"
-          data-testid="translatedtext-frequency"
-        />
-      ),
+      title: <TranslatedText stringId="medication.frequency.label" fallback="Frequency" />,
       sortable: false,
       accessor: ({ frequency }) =>
         frequency ? getTranslatedFrequency(frequency, getTranslation) : '',
     },
     {
       key: COLUMN_KEYS.DURATION,
-      title: (
-        <TranslatedText
-          stringId="medication.details.duration"
-          fallback="Duration"
-          data-testid="translatedtext-duration"
-        />
-      ),
+      title: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
       sortable: false,
       accessor: ({ durationValue, durationUnit }) => {
         if (!durationValue || !durationUnit) {
@@ -229,13 +205,7 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.DATE,
-      title: (
-        <TranslatedText
-          stringId="general.date.label"
-          fallback="Date"
-          data-testid="translatedtext-xv2x"
-        />
-      ),
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       sortable: false,
       accessor: ({ date }) => <DateDisplay date={trimToDate(date)} format="shortest" />,
     },
@@ -251,7 +221,6 @@ const getColumns = (
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
                 casing="lower"
-                data-testid="translatedtext-nc3a"
               />
             </NoWrapCell>
           );
@@ -282,11 +251,7 @@ const getColumns = (
           $maxWidth="150px"
         >
           <span>
-            <TranslatedText
-              stringId="pharmacyOrder.table.column.repeats"
-              fallback="Remaining"
-              data-testid="translatedtext-psdf"
-            />
+            <TranslatedText stringId="pharmacyOrder.table.column.repeats" fallback="Remaining" />
           </span>
         </ThemedTooltip>
       ) : (
@@ -294,7 +259,6 @@ const getColumns = (
           <TranslatedText
             stringId="pharmacyOrder.table.column.repeatsOnDischarge"
             fallback="Repeats on discharge"
-            data-testid="translatedtext-psdf"
           />
         </TwoLineHeaderText>
       ),
@@ -315,11 +279,7 @@ const getColumns = (
       title: (
         <OuterLabelFieldWrapper
           label={
-            <TranslatedText
-              stringId="pharmacyOrder.table.column.quantity"
-              fallback="Quantity"
-              data-testid="translatedtext-3j93"
-            />
+            <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
           }
           required
         />
@@ -397,7 +357,6 @@ export const PharmacyOrderMedicationTable = ({
         <TranslatedText
           stringId="pharmacyOrder.table.noData"
           fallback="No medications found for this encounter"
-          data-testid="translatedtext-mj0s"
         />
       }
       allowExport={false}
