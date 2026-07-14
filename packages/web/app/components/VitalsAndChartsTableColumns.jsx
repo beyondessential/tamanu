@@ -15,12 +15,10 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { useChartData } from '../contexts/ChartData';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import {
-  DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
   RangeValidatedCell,
-  TimeBodyCell,
 } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
@@ -175,25 +173,13 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
         ? () => void onCellClick(cells[date])
         : null;
 
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
-      return <DateBodyCell value={value} onClick={onClick} />;
-    }
-
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TEXT) {
-      const trimmed = value?.trim();
-      return <div onClick={onClick}>{trimmed || <>&mdash;</>}</div>;
-    }
-
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TIME && value) {
-      return <TimeBodyCell value={value} onClick={onClick} />;
-    }
-
     const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
     const { config, historyLogs, validationCriteria } = cells[date];
 
     return (
       <RangeValidatedCell
         value={isMultiSelect ? parseMultiselectValue(value) : value}
+        component={component}
         config={config}
         validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
         isEdited={historyLogs.length > 1}
