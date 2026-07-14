@@ -30,17 +30,15 @@ describe('ReportRequestProcessor', () => {
   it('should attempt to exit all child process when parent process exits', async () => {
     const processEvents = {};
     const { ReportRequest } = ctx.store.models;
-    process.on = (signal, cb) => {
-      signal.forEach((s) => {
-        processEvents[s] = cb;
-      });
+    process.on = (event, cb) => {
+      processEvents[event] = cb;
     };
     process.kill = (pid, signal) => {
       processEvents[signal](signal);
     };
     const processor = new ReportRequestProcessor(ctx);
     expect(processEvents).toEqual({
-      uncaughtException: expect.any(Function),
+      uncaughtExceptionMonitor: expect.any(Function),
       SIGINT: expect.any(Function),
       SIGTERM: expect.any(Function),
     });
@@ -64,6 +62,6 @@ describe('ReportRequestProcessor', () => {
     await processor.runReports();
     expect(processor.childProcesses.size).toBe(1);
     process.kill(process.pid, 'SIGINT');
-    expect(mockChildProcess.kill).toBeCalledWith(childProcessId, 'SIGINT');
+    expect(mockChildProcess.kill).toBeCalledWith('SIGINT');
   });
 });

@@ -29,14 +29,19 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   registerExitListeners() {
-    const killChildProcesses = event => {
+    const killChildProcesses = signal => {
       this.childProcesses.forEach(childProcess => {
         if (!childProcess?.kill || childProcess.killed) return;
-        childProcess.kill(childProcess.pid, event);
+        childProcess.kill(signal);
         log.info('Cleaned up child process that was not killed by the parent process');
       });
     };
-    process.on(['uncaughtException', 'SIGINT', 'SIGTERM'], killChildProcesses);
+    for (const signal of ['SIGINT', 'SIGTERM']) {
+      process.on(signal, () => killChildProcesses(signal));
+    }
+    // The monitor variant runs cleanup without suppressing the default
+    // crash-and-exit behaviour on an uncaught exception.
+    process.on('uncaughtExceptionMonitor', () => killChildProcesses('SIGTERM'));
   }
 
   spawnReportProcess = async request => {
