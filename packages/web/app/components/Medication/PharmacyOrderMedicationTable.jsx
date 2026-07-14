@@ -1,6 +1,6 @@
+import Box from '@mui/material/Box';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
