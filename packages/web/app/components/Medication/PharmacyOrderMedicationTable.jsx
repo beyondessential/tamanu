@@ -2,25 +2,26 @@ import Box from '@mui/material/Box';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
-  NumberInput,
-  DateDisplay,
-  TimeDisplay,
-  ThemedTooltip,
   ConditionalTooltip,
+  DateDisplay,
+  NumberInput,
+  OuterLabelFieldWrapper,
   RequiredOrnament,
+  ThemedTooltip,
+  TimeDisplay,
+  TranslatedReferenceData,
+  TranslatedText,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput } from '../Field';
-import { Table } from '../Table';
-import { useTranslation } from '../../contexts/Translation';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { singularize } from '../../utils';
 import { getDrugUnitLabel } from '../../utils/medications';
-import { trimToDate } from '@tamanu/utils/dateTime';
+import { CheckInput } from '../Field';
+import { Table } from '../Table';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
