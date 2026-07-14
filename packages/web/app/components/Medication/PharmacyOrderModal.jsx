@@ -1,34 +1,34 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
+import { FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { Colors, PATIENT_STATUS } from '../../constants';
-import {
-  TextField,
-  ConfirmCancelBackRow,
-  ConfirmCancelRow,
-  BaseModal,
-  TranslatedText,
-  useDateTime,
-} from '@tamanu/ui-components';
+
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-
-import { AutocompleteInput } from '../Field';
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { getPatientStatus } from '../../utils/getPatientStatus';
-
-import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
-
-import { notifyError } from '../../utils';
-import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
-import { useSettings } from '../../contexts/Settings';
+import {
+  AutocompleteInput,
+  BaseModal,
+  ConfirmCancelBackRow,
+  ConfirmCancelRow,
+  TextField,
+  TranslatedText,
+  useApi,
+  useAuth,
+  useDateTime,
+  useSettings,
+  useSuggester,
+} from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
+import { Colors, PATIENT_STATUS } from '../../constants';
+import { notifyError } from '../../utils';
+import { getPatientStatus } from '../../utils/getPatientStatus';
 import { BodyText } from '../Typography';
+import { COLUMN_KEYS, PharmacyOrderMedicationTable } from './PharmacyOrderMedicationTable';
 
 const MODAL_TYPES = {
   REQUEST_CONFIRMATION: 'request_confirmation',
