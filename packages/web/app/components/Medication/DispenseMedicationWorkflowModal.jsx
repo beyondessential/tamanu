@@ -4,12 +4,11 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-
-
 import {
   BaseModal,
   Button,
   OutlinedButton,
+  RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -488,7 +487,7 @@ export const DispenseMedicationWorkflowModal = memo(
       const base = [
         {
           key: 'select',
-          width: '50px',
+          width: 0,
           title: (
             <CheckInput
               value={selectAllChecked}
@@ -510,19 +509,19 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'prescriptionDate',
-          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.prescriptionDate"
               fallback="Prescription date"
             />
           ),
+          style: { minWidth: 0 },
           accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
-          width: '200px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+          style: { minWidth: '16em' },
           accessor: ({ prescription }) => (
             <TranslatedReferenceData
               fallback={prescription?.medication?.name}
@@ -533,14 +532,10 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '140px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
           accessor: (item, rowIndex) => {
@@ -555,9 +550,10 @@ export const DispenseMedicationWorkflowModal = memo(
                 disabled={!selected}
                 min={1}
                 unit={
-                  dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined
+                  dispensingUnit
+                    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                    : undefined
                 }
-                style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
                 required={selected}
                 helperText={
@@ -571,13 +567,13 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'remainingRepeats',
-          width: '80px',
           title: (
             <TranslatedText
               stringId="medication.dispense.remainingRepeats"
               fallback="Remaining repeats"
             />
           ),
+          style: { minWidth: 0 },
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
         {
@@ -585,6 +581,7 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <TranslatedText stringId="medication.dispense.instructions" fallback="Instructions" />
           ),
+          style: { minWidth: '16em' },
           accessor: item => (
             <InstructionsInput
               value={buildInstructionText(item.prescription, getTranslation, getEnumTranslation)}
@@ -597,7 +594,6 @@ export const DispenseMedicationWorkflowModal = memo(
           ? [
               {
                 key: 'presetLabel',
-                width: '150px',
                 title: (
                   <TranslatedText
                     stringId="medication.dispense.presetLabel"
@@ -621,12 +617,10 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <>
               <TranslatedText stringId="medication.dispense.labelText" fallback="Label text" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
+          style: { minWidth: '16em' },
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
@@ -648,13 +642,13 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'lastDispensedAt',
-          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.lastDispensed"
               fallback="Last dispensed"
             />
           ),
+          style: { minWidth: 0 },
           accessor: ({ lastDispensedAt }) =>
             lastDispensedAt ? (
               <DateDisplay date={lastDispensedAt} />
@@ -671,7 +665,6 @@ export const DispenseMedicationWorkflowModal = memo(
       if (stockColumnEnabled) {
         base.push({
           key: 'stock',
-          width: '76px',
           title: (
             <TranslatedText
               stringId="medication-requests.table.column.stockStatus"

@@ -9,7 +9,12 @@ import { TAMANU_COLORS } from '../../constants/colors';
 const TextInputWithUnit = styled(TextInput)`
   .MuiInputBase-root {
     display: grid;
-    grid-template-columns: minmax(4ch, 1fr) auto;
+    grid-template-columns: minmax(4ch, 8ch) auto;
+    padding: 12px;
+  }
+
+  .MuiInputBase-input {
+    padding: 0;
   }
 `;
 
