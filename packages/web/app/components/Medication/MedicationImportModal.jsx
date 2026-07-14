@@ -15,8 +15,10 @@ import {
 } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
+  AutocompleteField,
   ConfirmCancelRow,
   DateDisplay,
+  Field,
   Form,
   Modal,
   NumberInput,
@@ -25,10 +27,10 @@ import {
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
+  useApi,
+  useSuggester,
   useTranslation,
 } from '@tamanu/ui-components';
-import { TableFormFields } from '..';
-import { useApi, useSuggester } from '../../api';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { Colors } from '../../constants';
@@ -36,7 +38,8 @@ import { useAuth } from '../../contexts/Auth';
 import { preventInvalidRepeatsInput } from '../../utils';
 import { createPrescriptionHash, getDrugUnitLabel } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
-import { AutocompleteField, CheckInput, Field } from '../Field';
+import { CheckInput } from '../Field';
+import { TableFormFields } from '../Table';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
