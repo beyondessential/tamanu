@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import config from 'config';
 import type { QueryInterface } from 'sequelize';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const BASELINE_SQL_PATH = path.join(import.meta.dirname, '000_baseline.sql');
 const FROZEN_MIGRATIONS_PATH = path.join(import.meta.dirname, '000_baseline_frozen_migrations.json');
@@ -47,6 +49,15 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // Reset on the Sequelize (CLS-bound) connection too.
   await query.sequelize.query('RESET search_path');
+
+  // The baseline snapshot seeds global settings, but the frozen migrations it
+  // replaces only inserted them on central (guarded by serverFacilityId(s)).
+  // Settings are PULL_FROM_CENTRAL: a facility server must not author its own
+  // rows, or the first sync pull collides with central's copies (different ids,
+  // same key/scope) on settings_alive_key_unique_without_facility_idx.
+  if (selectFacilityIds(config)) {
+    await query.sequelize.query('DELETE FROM settings');
+  }
 
   // Mark frozen migrations as applied so Umzug skips them.
   const frozenMigrations: string[] = JSON.parse(readFileSync(FROZEN_MIGRATIONS_PATH, 'utf-8'));
