@@ -24,7 +24,7 @@ import { SettingsSubmitContext } from './components/SettingsSubmitContext';
 import { filterSettingsSchema } from './filterSettingsSchema';
 import { formatSettingName } from './formatSettingName';
 import { readUrlParam, writeUrlParams } from './urlState';
-import { notifyError } from '../../../utils';
+import { notifyValidationErrors } from './notifyValidationErrors';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
@@ -88,10 +88,10 @@ const UNCATEGORISED_KEY = 'uncategorised';
 // a single character matches half the schema
 const MIN_SEARCH_LENGTH = 2;
 
-const SCOPE_LABELS = {
-  [SETTINGS_SCOPES.GLOBAL]: 'Global',
-  [SETTINGS_SCOPES.CENTRAL]: 'Central',
-  [SETTINGS_SCOPES.FACILITY]: 'Facility',
+const SCOPE_LABEL_STRINGS = {
+  [SETTINGS_SCOPES.GLOBAL]: ['admin.settings.scope.global', 'Global'],
+  [SETTINGS_SCOPES.CENTRAL]: ['admin.settings.scope.central', 'Central'],
+  [SETTINGS_SCOPES.FACILITY]: ['admin.settings.scope.facility', 'Facility'],
 };
 
 const NoResultsHint = styled.div`
@@ -232,7 +232,7 @@ export const EditorView = memo(
         : null;
     });
     const [searchQuery, setSearchQuery] = useState(() => readUrlParam('q') ?? '');
-    const [failedSubmits, setFailedSubmits] = useState(0);
+    const [submitFailed, setSubmitFailed] = useState(false);
 
     useEffect(() => {
       writeUrlParams({ category, subCategory, q: searchQuery });
@@ -289,7 +289,15 @@ export const EditorView = memo(
       const hints = [];
       if (category) {
         const wholeScope = filterSettingsSchema(getScopedSchema(scope), deferredSearchQuery);
-        if (wholeScope) hints.push(`${countSettings(wholeScope.schema)} elsewhere in this scope`);
+        if (wholeScope) {
+          hints.push(
+            getTranslation(
+              'admin.settings.search.hint.elsewhereInScope',
+              ':count elsewhere in this scope',
+              { replacements: { count: countSettings(wholeScope.schema) } },
+            ),
+          );
+        }
       }
       for (const other of Object.values(SETTINGS_SCOPES)) {
         if (other === scope) continue;
@@ -297,11 +305,19 @@ export const EditorView = memo(
         if (!otherSchema) continue;
         const filtered = filterSettingsSchema(otherSchema, deferredSearchQuery);
         if (filtered) {
-          hints.push(`${countSettings(filtered.schema)} in the ${SCOPE_LABELS[other]} scope`);
+          const [scopeStringId, scopeFallback] = SCOPE_LABEL_STRINGS[other];
+          hints.push(
+            getTranslation('admin.settings.search.hint.inOtherScope', ':count in the :scope scope', {
+              replacements: {
+                count: countSettings(filtered.schema),
+                scope: getTranslation(scopeStringId, scopeFallback),
+              },
+            }),
+          );
         }
       }
       return hints.length ? hints : null;
-    }, [isSearchRender, searchResult, category, scope, deferredSearchQuery]);
+    }, [isSearchRender, searchResult, category, scope, deferredSearchQuery, getTranslation]);
 
     const handleChangeScope = () => {
       setSubCategory(null);
@@ -332,7 +348,7 @@ export const EditorView = memo(
       setSearchQuery('');
       setSubCategory(null);
       setCategory(newCategory);
-      setFailedSubmits(0);
+      setSubmitFailed(false);
     };
 
     const handleChangeSubcategory = e => {
@@ -369,7 +385,7 @@ export const EditorView = memo(
       setValues(submittedValues);
       const result = await submitForm(event);
       if (result?.validationError) {
-        setFailedSubmits(count => count + 1);
+        setSubmitFailed(true);
         // errors render inline once submitCount bumps; wait a beat for that
         // render to flush, then bring the first into view
         setTimeout(() => {
@@ -380,17 +396,13 @@ export const EditorView = memo(
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
           } else {
             // the invalid setting is in another category
-            const { validationError } = result;
-            (validationError.inner?.length ? validationError.inner : [validationError]).forEach(
-              e =>
-                notifyError(e.message.length > 160 ? `${e.message.slice(0, 160)}…` : e.message),
-            );
+            notifyValidationErrors(result.validationError);
           }
         }, 100);
         return;
       }
       if (result) {
-        setFailedSubmits(0);
+        setSubmitFailed(false);
         resetForm({
           values: {
             ...submittedValues,
@@ -497,7 +509,7 @@ export const EditorView = memo(
         )}
         {(isSearchRender ? searchResult?.schema : schemaForCategory) && (
           <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
-            <SettingsSubmitContext.Provider value={failedSubmits}>
+            <SettingsSubmitContext.Provider value={submitFailed}>
             <Category
               schema={isSearchRender ? searchResult.schema : schemaForCategory}
               getSettingValue={getSettingValue}

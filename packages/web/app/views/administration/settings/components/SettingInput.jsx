@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { get, isEqual, isString, isUndefined, startCase } from 'es-toolkit/compat';
+import { get, isEqual, isPlainObject, isString, isUndefined, startCase } from 'es-toolkit/compat';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -29,6 +29,7 @@ import {
   TextInput,
   TranslatedText,
 } from '../../../../components';
+import { useTranslation } from '../../../../contexts/Translation';
 import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
 import { MarkdownEditorModal } from './MarkdownEditorModal';
@@ -495,6 +496,37 @@ const BoundsHint = ({ bounds }) => {
 };
 
 /**
+ * Local draft rows shared by the structured editors (list, mapping, object list):
+ * rows live in component state so a half-typed entry doesn't collapse the value
+ * mid-edit. Resyncs only on an external change (e.g. reset to default), never from
+ * our own onChange echo — that would clobber rows while an entry is half-typed.
+ * `emit` converts rows back with every row included, incomplete ones too, so any
+ * edit dirties the form and submit-time validation sees them. Pass `extraDeps` for
+ * inputs the row projection depends on besides the value (e.g. the field list).
+ */
+const useDraftRows = (value, toRows, fromRows, onChange, extraDeps = []) => {
+  const [rows, setRows] = useState(() => toRows(value));
+  const lastEmitted = useRef(value);
+
+  useEffect(() => {
+    if (!isEqual(value, lastEmitted.current)) {
+      setRows(toRows(value));
+      lastEmitted.current = value;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, ...extraDeps]);
+
+  const emit = next => {
+    setRows(next);
+    const emitted = fromRows(next);
+    lastEmitted.current = emitted;
+    onChange(emitted);
+  };
+
+  return [rows, emit];
+};
+
+/**
  * Edits an array of primitives (strings or numbers) as a stack of inputs with a
  * per-row remove and an add button, instead of hand-written JSON. The whole
  * array is kept in setting state; each row validates against the schema's inner
@@ -505,30 +537,16 @@ const BoundsHint = ({ bounds }) => {
  * (min === max) becomes value-only editing.
  */
 const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error, bounds }) => {
-  const [rows, setRows] = useState(() => items.map(item => item ?? ''));
-  const lastEmitted = useRef(items);
+  const [rows, emit] = useDraftRows(
+    items,
+    value => value.map(item => item ?? ''),
+    next => next.map(row => (isNumeric ? coerceNumericInput(row) : row)),
+    onChange,
+  );
 
   // No errors while editing; a failed save attempt reveals them, and a
   // successful save (or category change) cleans the slate.
-  const submitted = useContext(SettingsSubmitContext) > 0;
-
-  // Resync only on an external change (e.g. reset to default), never from our
-  // own onChange echo — that would clobber rows while an item is half-typed.
-  useEffect(() => {
-    if (!isEqual(items, lastEmitted.current)) {
-      setRows(items.map(item => item ?? ''));
-      lastEmitted.current = items;
-    }
-  }, [items]);
-
-  // Every row is in the value, empty ones included, so any edit dirties the
-  // form and submit-time validation sees the incomplete items.
-  const emit = next => {
-    setRows(next);
-    const emitted = next.map(row => (isNumeric ? coerceNumericInput(row) : row));
-    lastEmitted.current = emitted;
-    onChange(emitted);
-  };
+  const submitted = useContext(SettingsSubmitContext);
 
   const itemErrors = useMemo(
     () =>
@@ -615,7 +633,6 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
 // A keyed map for the mapping editor, or null when the value can't be read as
 // a plain object — the caller falls back to the JSON editor.
 const parseMappingValue = value => {
-  const isPlainObject = v => v !== null && typeof v === 'object' && !Array.isArray(v);
   if (isPlainObject(value)) return value;
   if (value == null) return {};
   if (isString(value)) {
@@ -647,28 +664,11 @@ const rowsToMapping = rows =>
  * row wins when keys collide, and colliding rows are flagged in place.
  */
 const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) => {
-  const [rows, setRows] = useState(() => mappingToRows(value));
-  const lastEmitted = useRef(value);
+  const [rows, emit] = useDraftRows(value, mappingToRows, rowsToMapping, onChange);
 
   // No errors while editing; a failed save attempt reveals them, and a
   // successful save (or category change) cleans the slate.
-  const submitted = useContext(SettingsSubmitContext) > 0;
-
-  // Resync only on an external change (e.g. reset to default), never from our
-  // own onChange echo — that would clobber rows while a key is half-typed.
-  useEffect(() => {
-    if (!isEqual(value, lastEmitted.current)) {
-      setRows(mappingToRows(value));
-      lastEmitted.current = value;
-    }
-  }, [value]);
-
-  const emit = next => {
-    setRows(next);
-    const mapping = rowsToMapping(next);
-    lastEmitted.current = mapping;
-    onChange(mapping);
-  };
+  const submitted = useContext(SettingsSubmitContext);
 
   const updateRow = (index, patch) =>
     emit(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
@@ -709,7 +709,11 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
             {keyOptions?.length ? (
               <MappingKeySelectWrapper>
                 <SelectInput
-                  label={index === 0 ? 'Type' : null}
+                  label={
+                    index === 0 ? (
+                      <TranslatedText stringId="admin.settings.mapping.type.label" fallback="Type" />
+                    ) : null
+                  }
                   value={row.key}
                   onChange={e => updateRow(index, { key: e.target.value ?? '' })}
                   options={keyOptions.filter(
@@ -723,7 +727,11 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
               </MappingKeySelectWrapper>
             ) : (
               <StyledTextInput
-                label={index === 0 ? 'Key' : null}
+                label={
+                  index === 0 ? (
+                    <TranslatedText stringId="admin.settings.mapping.key.label" fallback="Key" />
+                  ) : null
+                }
                 value={row.key}
                 onChange={e => updateRow(index, { key: e.target.value })}
                 disabled={disabled}
@@ -735,7 +743,11 @@ const MappingSettingInput = ({ value, onChange, disabled, error, keyOptions }) =
               />
             )}
             <StyledTextInput
-              label={index === 0 ? 'Label' : null}
+              label={
+                index === 0 ? (
+                  <TranslatedText stringId="admin.settings.mapping.entryLabel.label" fallback="Label" />
+                ) : null
+              }
               value={row.entry.label ?? ''}
               onChange={e => updateRow(index, { entry: { ...row.entry, label: e.target.value } })}
               disabled={disabled}
@@ -940,30 +952,18 @@ const ObjectListFieldLabel = styled.label`
  * come from the setting's own shape (default items first, then current items).
  */
 const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, error }) => {
-  const [rows, setRows] = useState(() => objectListToRows(value, fields));
-  const lastEmitted = useRef(value);
+  const { getTranslation } = useTranslation();
+  const [rows, emit] = useDraftRows(
+    value,
+    v => objectListToRows(v, fields),
+    next => rowsToObjectList(next, fields),
+    onChange,
+    [fields],
+  );
 
   // No errors while editing; a failed save attempt reveals them, and a
   // successful save (or category change) cleans the slate.
-  const submitted = useContext(SettingsSubmitContext) > 0;
-
-  // Resync only on an external change (e.g. reset to default), never from our
-  // own onChange echo — that would clobber rows while a list is half-typed.
-  useEffect(() => {
-    if (!isEqual(value, lastEmitted.current)) {
-      setRows(objectListToRows(value, fields));
-      lastEmitted.current = value;
-    }
-  }, [value, fields]);
-
-  // Every row is in the value, incomplete ones included, so any edit dirties
-  // the form and submit-time validation sees the incomplete items.
-  const emit = next => {
-    setRows(next);
-    const items = rowsToObjectList(next, fields);
-    lastEmitted.current = items;
-    onChange(items);
-  };
+  const submitted = useContext(SettingsSubmitContext);
 
   const updateField = (index, key, fieldValue) =>
     emit(rows.map((row, i) => (i === index ? { ...row, [key]: fieldValue } : row)));
@@ -1043,7 +1043,14 @@ const ObjectListSettingInput = ({ value, fields, innerType, onChange, disabled, 
                       error={Boolean(fieldError(row, field))}
                       helperText={fieldError(row, field)}
                       type={/^colou?r$/i.test(key) ? 'color' : undefined}
-                      placeholder={kind === 'list' ? 'comma, separated' : undefined}
+                      placeholder={
+                        kind === 'list'
+                          ? getTranslation(
+                              'admin.settings.objectList.listField.placeholder',
+                              'comma, separated',
+                            )
+                          : undefined
+                      }
                       fullWidth
                       data-testid={`objectlistsettinginput-${index}-${key}`}
                     />
@@ -1301,12 +1308,15 @@ const VaccinationThresholdsInput = ({ value, onChange, disabled, error }) => {
       )}
 
       {rows.length === 0 && (
-        <EmptyListText data-testid="vthreshold-empty">No thresholds</EmptyListText>
+        <EmptyListText data-testid="vthreshold-empty">
+          <TranslatedText stringId="admin.settings.thresholds.empty" fallback="No thresholds" />
+        </EmptyListText>
       )}
 
       {!disabled && (
         <AddItemButton onClick={addBand} data-testid="vthreshold-add">
-          <AddIcon style={{ fontSize: 16 }} /> Add band
+          <AddIcon style={{ fontSize: 16 }} />{' '}
+          <TranslatedText stringId="admin.settings.thresholds.addBand" fallback="Add band" />
         </AddItemButton>
       )}
 
@@ -1335,7 +1345,9 @@ const AdditionalSearchFieldsInput = ({ value, onChange, disabled, error }) => (
       options={SEARCH_FIELD_OPTIONS}
       onChange={e => onChange(e.target.value)}
       disabled={disabled}
-      label="Search fields"
+      label={
+        <TranslatedText stringId="admin.settings.searchFields.label" fallback="Search fields" />
+      }
       data-testid="additionalsearchfields-select"
     />
     {error && <ListError data-testid="additionalsearchfields-error">{error.message}</ListError>}
@@ -1441,11 +1453,16 @@ const AgeDisplayFormatInput = ({ value, onChange, disabled, error }) => {
         </SentenceCard>
       )}
 
-      {units.length === 0 && <EmptyListText data-testid="agefmt-empty">No ranges</EmptyListText>}
+      {units.length === 0 && (
+        <EmptyListText data-testid="agefmt-empty">
+          <TranslatedText stringId="admin.settings.ageFormat.empty" fallback="No ranges" />
+        </EmptyListText>
+      )}
 
       {!disabled && (
         <AddItemButton onClick={addRow} data-testid="agefmt-add">
-          <AddIcon style={{ fontSize: 16 }} /> Add range
+          <AddIcon style={{ fontSize: 16 }} />{' '}
+          <TranslatedText stringId="admin.settings.ageFormat.addRange" fallback="Add range" />
         </AddItemButton>
       )}
 
@@ -1602,7 +1619,7 @@ export const SettingInput = ({
   // past a limit, emptying a required value); untouched fields stay quiet
   // until a save attempt surfaces them.
   const { initialValues } = useFormikContext();
-  const submitted = useContext(SettingsSubmitContext) > 0;
+  const submitted = useContext(SettingsSubmitContext);
   const initialFieldValue = get(initialValues?.settings, settingsPath);
   const initialDisplayValue = isUndefined(initialFieldValue) ? effectiveDefault : initialFieldValue;
   const touchedThisSession = !isEqual(normalize(value ?? initialDisplayValue), normalize(initialDisplayValue));
@@ -1766,6 +1783,44 @@ export const SettingInput = ({
     );
   }
 
+  // Raw JSON editor: the OBJECT case, and the explicit fallback whenever a
+  // structured editor can't claim the stored value (unreadable string, unknown
+  // item shape) — the raw text stays editable either way.
+  const renderJsonEditor = () => {
+    const jsonErrorText =
+      shownError &&
+      (shownError.message.length > 200
+        ? `${shownError.message.slice(0, 200)}…`
+        : shownError.message);
+    return (
+      <JSONEditorFlexbox
+        data-error-anchor={shownError ? 'true' : undefined}
+        data-testid="flexbox-bpq4"
+      >
+        <div>
+          <JSONEditor
+            height="156px"
+            width={SETTING_INPUT_WIDTH}
+            editMode={!disabled}
+            value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
+            onChange={handleChangeJSON}
+            error={shownError}
+            data-testid="jsoneditor-6t9w"
+          />
+          {customDeclined && (
+            <BoundsHintText data-testid="jsoneditor-custom-declined">
+              The stored value doesn&rsquo;t fit the structured editor, so it&rsquo;s
+              shown as JSON. Fix it here or reset to default.
+            </BoundsHintText>
+          )}
+          {jsonErrorText && (
+            <ListError data-testid="jsoneditor-error-text">{jsonErrorText}</ListError>
+          )}
+        </div>
+      </JSONEditorFlexbox>
+    );
+  };
+
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
       return (
@@ -1877,8 +1932,7 @@ export const SettingInput = ({
     }
     case SETTING_TYPES.MAPPING: {
       // keyed maps use the row editor, unless the stored value is a string we
-      // can't read as an object — then fall through to the JSON editor so the
-      // raw text stays editable
+      // can't read as an object — then the JSON editor keeps the raw text editable
       const mappingValue = parseMappingValue(displayValue);
       if (mappingValue !== null) {
         return (
@@ -1893,11 +1947,11 @@ export const SettingInput = ({
           </LongTextFlexbox>
         );
       }
+      return renderJsonEditor();
     }
-    // eslint-disable-next-line no-fallthrough
     case SETTING_TYPES.OBJECT_LIST: {
       // arrays of flat objects use the per-item form editor, unless the stored
-      // value can't be read that way — then fall through to the JSON editor
+      // value can't be read that way — then the JSON editor
       const objectListValue = parseObjectListValue(displayValue);
       const objectListFields =
         objectListValue &&
@@ -1918,12 +1972,12 @@ export const SettingInput = ({
           </LongTextFlexbox>
         );
       }
+      return renderJsonEditor();
     }
-    // eslint-disable-next-line no-fallthrough
     case SETTING_TYPES.ARRAY:
       // primitive arrays use the list editor, unless the stored value is a
-      // string we can't read as an array (arrayItems === null) — then fall
-      // through to the JSON editor so the raw text stays editable
+      // string we can't read as an array (arrayItems === null) — then the
+      // JSON editor keeps the raw text editable
       if (isPrimitiveArray && arrayItems !== null) {
         return (
           <LongTextFlexbox data-testid="flexbox-list">
@@ -1939,43 +1993,11 @@ export const SettingInput = ({
           </LongTextFlexbox>
         );
       }
-    // falls through to the JSON editor for arrays of objects/arrays, and for
-    // primitive arrays whose stored value isn't a readable array
-    // eslint-disable-next-line no-fallthrough
-    case SETTING_TYPES.OBJECT: {
-      const jsonErrorText =
-        shownError &&
-        (shownError.message.length > 200
-          ? `${shownError.message.slice(0, 200)}…`
-          : shownError.message);
-      return (
-        <JSONEditorFlexbox
-          data-error-anchor={shownError ? 'true' : undefined}
-          data-testid="flexbox-bpq4"
-        >
-          <div>
-            <JSONEditor
-              height="156px"
-              width={SETTING_INPUT_WIDTH}
-              editMode={!disabled}
-              value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
-              onChange={handleChangeJSON}
-              error={shownError}
-              data-testid="jsoneditor-6t9w"
-            />
-            {customDeclined && (
-              <BoundsHintText data-testid="jsoneditor-custom-declined">
-                The stored value doesn&rsquo;t fit the structured editor, so it&rsquo;s
-                shown as JSON. Fix it here or reset to default.
-              </BoundsHintText>
-            )}
-            {jsonErrorText && (
-              <ListError data-testid="jsoneditor-error-text">{jsonErrorText}</ListError>
-            )}
-          </div>
-        </JSONEditorFlexbox>
-      );
-    }
+      // arrays of objects/arrays, and primitive arrays whose stored value
+      // isn't a readable array
+      return renderJsonEditor();
+    case SETTING_TYPES.OBJECT:
+      return renderJsonEditor();
     default:
       return (
         <LargeBodyText data-testid="largebodytext-e29s">
