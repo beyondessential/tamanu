@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+
+import { useApi } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../index';
 
 export const useEncounterMedicationQuery = (encounterId, fetchOptions) => {
   const { facilityId } = useAuth();
