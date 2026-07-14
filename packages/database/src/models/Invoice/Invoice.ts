@@ -26,7 +26,11 @@ import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { selectEncounterFeeCode, computeBedFeeChargeInstants } from '@tamanu/utils/invoice';
+import {
+  selectEncounterFeeCode,
+  computeBedFeeChargeInstants,
+  getBedFeeInvoiceItemId,
+} from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 import type { Location } from '../Location';
@@ -487,6 +491,13 @@ export class Invoice extends Model {
    * that time, so the invoice carries one line per location with quantity = nights. A location is
    * charged only if it has a bed-fee product (placeholder wards have none). Recompute SETS the
    * quantity, and a cashier-removed line is not resurrected.
+   *
+   * This runs on both the facility server (encounter routes) and the central server
+   * (BedFeeCharger), so lines are created with a deterministic id — both servers minting "the
+   * same" line converge on one row through sync instead of colliding on the natural-key unique
+   * index. For the same reason a line whose location no longer qualifies is reconciled to
+   * quantity 0 rather than soft-deleted: a facility-side restore never propagates to central,
+   * so soft-delete is reserved for cashier removals (which are honoured and never resurrected).
    */
   static async recalculateBedFee(
     encounter: Encounter,
@@ -539,13 +550,15 @@ export class Invoice extends Model {
       nightsByLocation.set(locationId, (nightsByLocation.get(locationId) ?? 0) + 1);
     }
 
-    // Remove existing bed-fee lines for locations that no longer qualify.
+    // Zero out existing bed-fee lines for locations that no longer qualify (not a soft-delete —
+    // that's reserved for cashier removals, and the line must stay revivable if the patient
+    // returns to the location). Quantity-0 lines are cleaned off the invoice at finalisation.
     const existingItems = await InvoiceItem.findAll({
       where: { invoiceId: invoice.id, sourceRecordType: locationSourceType },
     });
     for (const item of existingItems) {
       if (item.sourceRecordId && !nightsByLocation.has(item.sourceRecordId)) {
-        await item.destroy();
+        await item.update({ quantity: 0 });
       }
     }
 
@@ -572,6 +585,9 @@ export class Invoice extends Model {
         await existing.update({ quantity: nights, productId: product.id });
       } else {
         await InvoiceItem.create({
+          // Deterministic id so the facility server and the central BedFeeCharger creating the
+          // same line converge through sync instead of colliding on the natural-key unique index.
+          id: getBedFeeInvoiceItemId(invoice.id, locationId),
           invoiceId: invoice.id,
           sourceRecordType: locationSourceType,
           sourceRecordId: locationId,

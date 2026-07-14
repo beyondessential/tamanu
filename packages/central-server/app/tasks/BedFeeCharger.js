@@ -29,6 +29,7 @@ export class BedFeeCharger extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.models = context.store.models;
+    this.sequelize = context.store.sequelize;
   }
 
   async run() {
@@ -78,7 +79,18 @@ export class BedFeeCharger extends ScheduledTask {
       for (const encounter of encounters) {
         const facilityId = encounter.location?.facilityId;
         if (!facilityId) continue;
-        await Invoice.recalculateBedFee(encounter, getSettings(facilityId), primaryTimeZone);
+        try {
+          // Managed transaction (CLS) so each encounter's multi-write recompute is atomic, and
+          // a failure on one encounter (e.g. bad invoice data) doesn't starve the rest.
+          await this.sequelize.transaction(() =>
+            Invoice.recalculateBedFee(encounter, getSettings(facilityId), primaryTimeZone),
+          );
+        } catch (error) {
+          log.error('BedFeeCharger: failed to recalculate bed fee', {
+            encounterId: encounter.id,
+            error: error.stack,
+          });
+        }
       }
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
