@@ -128,7 +128,6 @@ const getColumns = (
         />
       ),
       sortable: false,
-      maxWidth: 50,
       accessor: ({ selected, onSelect, id }) => {
         const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
         return (
@@ -159,7 +158,6 @@ const getColumns = (
       key: COLUMN_KEYS.MEDICATION,
       title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
       sortable: false,
-      maxWidth: 300,
       accessor: ({ medication }) => (
         <TranslatedReferenceData
           fallback={medication.name}
@@ -286,7 +284,6 @@ const getColumns = (
         />
       ),
       sortable: false,
-      maxWidth: 130,
       accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
         <NumberInput
           min={1}
