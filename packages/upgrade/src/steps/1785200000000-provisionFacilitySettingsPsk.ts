@@ -35,7 +35,11 @@ export const STEPS: Steps = [
     // the stored sync credentials. Failure-tolerant: gated on the PSK fact, not
     // recorded as done, so it retries on the next upgrade if central is unreachable.
     // Gate on server type + already-configured (the sync email fact lives on the
-    // long-lived local_system_facts table). The PSK-presence check is in run():
+    // long-lived local_system_facts table). Facts only, not the env>fact>config
+    // resolution: env-credential (k8s) servers never store these facts, but they
+    // are provisioned a deployment-wide crypto.settingsPsk out-of-band, which the
+    // key reader's config fallback serves — so they don't need this pull.
+    // The PSK-presence check is in run():
     // local_system_secrets may not exist when check() is evaluated during planning
     // (it's created by a migration in this same upgrade).
     async check({ serverType, models: { LocalSystemFact } }: StepArgs) {

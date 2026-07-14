@@ -165,6 +165,16 @@ export function setSettingsPskSource(source) {
   settingsPskKeyBufferPromise = null;
 }
 
+/**
+ * Drop the cached key buffer so the next read re-resolves the PSK. Needed when
+ * the PSK lands in the local store on a *running* server (the setup wizard):
+ * an earlier read may have cached the legacy per-host config key, which would
+ * otherwise be used until restart.
+ */
+export function clearSettingsPskCache() {
+  settingsPskKeyBufferPromise = null;
+}
+
 // The settings PSK key never changes at runtime so we decrypt it once and
 // reuse the buffer. A failed first read clears the cache so the next call
 // retries instead of permanently breaking secret access.

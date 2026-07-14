@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 import { USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import { ensureSettingsPsk } from '@tamanu/shared/utils/crypto';
 
 const bodySchema = z.object({
@@ -63,6 +64,9 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
 // it doesn't rotate the sync password, so a facility can call it repeatedly.
 export const getSettingsPsk = asyncHandler(async (req, res) => {
   req.checkPermission('manage', 'all');
+
+  // Raw key material leaves the server here — keep a trace of who took it.
+  log.info('Settings PSK read via admin API', { userId: req.user?.id });
 
   const { LocalSystemSecret } = req.store.models;
   const settingsPsk = await LocalSystemSecret.get(FACT_SETTINGS_PSK);
