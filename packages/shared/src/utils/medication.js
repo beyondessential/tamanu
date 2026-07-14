@@ -1,5 +1,10 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
-import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import {
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_PLURAL_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+} from '@tamanu/constants';
 import { camelCase } from 'es-toolkit/compat';
 
 /**
@@ -70,4 +75,13 @@ export const getMarDoseDisplay = ({ doseAmount, dosingUnit }, getEnumTranslation
 
 export const getTranslatedFrequency = (frequency, getTranslation) => {
   return getTranslation(`medication.frequency.${camelCase(frequency)}.label`, frequency);
+};
+
+// Returns the singular or plural drug unit label for a given quantity.
+// Uses the curated DRUG_UNIT_PLURAL_LABELS (not a generic inflection library) so
+// irregular plurals (e.g. Suppository → Suppositories) are handled correctly.
+// quantity <= 1 or non-numeric → singular.
+export const getDrugUnitLabel = (unitKey, quantity, getEnumTranslation) => {
+  const isPlural = Number.isFinite(Number(quantity)) && Number(quantity) > 1;
+  return getEnumTranslation(isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS, unitKey);
 };

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-import { DRUG_ROUTE_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -14,7 +14,7 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { Page } from '../pdf/Page';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
+import { getDrugUnitLabel, getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const columns = (getTranslation, getEnumTranslation) => [
   {
@@ -67,7 +67,7 @@ const columns = (getTranslation, getEnumTranslation) => [
     accessor: ({ quantity, dispensingUnit }) => {
       if (!quantity) return '';
       if (!dispensingUnit) return `${quantity}`;
-      return `${quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`;
+      return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
     },
   },
   {

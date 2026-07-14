@@ -105,7 +105,7 @@ export const MedicationDispensesTable = () => {
         medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions,
         quantity,
-        units: prescription?.dispensingUnit,
+        dispensingUnit: prescription?.dispensingUnit,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         prescriberName: prescription?.prescriber?.displayName,
         requestNumber: pharmacyOrderPrescription?.displayId,
