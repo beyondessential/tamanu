@@ -151,17 +151,8 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 
 const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
   return cells => {
-    const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
-    const isCalculatedQuestion =
-      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const { answerId, value, component } = cells[date];
     const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
-    const handleCellClick = () => {
-      onCellClick(cells[date]);
-    };
-    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-    const isValid = isCurrent ? true : Boolean(value);
-    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid;
 
     if (isPhoto && value) {
       return (
@@ -175,13 +166,30 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       );
     }
 
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const onClick =
+      isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid
+        ? () => void onCellClick(cells[date])
+        : null;
+
     if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
-      return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
+      return <DateBodyCell value={value} onClick={onClick} />;
+    }
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TEXT) {
+      const trimmed = value?.trim();
+      return <div onClick={onClick}>{trimmed || <>&mdash;</>}</div>;
     }
 
     if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TIME && value) {
-      return <TimeBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
+      return <TimeBodyCell value={value} onClick={onClick} />;
     }
+
+    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const { config, historyLogs, validationCriteria } = cells[date];
 
     return (
       <RangeValidatedCell
@@ -189,7 +197,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
         config={config}
         validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
         isEdited={historyLogs.length > 1}
-        onClick={shouldBeClickable ? handleCellClick : null}
+        onClick={onClick}
         ValueWrapper={VitalsLimitedLinesCell}
         data-testid={`rangevalidatedcell-${date}`}
       />
