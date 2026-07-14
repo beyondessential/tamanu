@@ -64,7 +64,7 @@ export class ApplicationContext {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
     }, {});
-    this.settings.global = new ReadSettings(this.models);
+    this.settings.global = ReadSettings.forGlobal(this.models);
 
     const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;

@@ -13,7 +13,16 @@ import { SettingsConfigReader } from './readers/SettingsConfigReader';
  * never changes behaviour. They sit below recorded settings and above schema defaults.
  */
 // spec: SETTINGS#scopes-and-resolution
-function getReaderCascade(models: Models, facilityId?: string) {
+function getReaderCascade(models: Models, facilityId?: string, globalOnly = false) {
+  if (globalOnly) {
+    // A facility server's server-wide reader: global scope only, without the central
+    // layers the no-facility (central) cascade below would wrongly serve there.
+    return [
+      new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
+      new SettingsConfigReader(SETTINGS_SCOPES.GLOBAL),
+      new SettingsJSONReader(globalDefaults),
+    ];
+  }
   return facilityId
     ? [
         new SettingsDBReader(models, SETTINGS_SCOPES.FACILITY, facilityId),
@@ -33,8 +42,12 @@ function getReaderCascade(models: Models, facilityId?: string) {
       ];
 }
 
-export async function buildSettings(models: Models, facilityId?: string) {
-  const readers = getReaderCascade(models, facilityId);
+export async function buildSettings(
+  models: Models,
+  facilityId?: string,
+  { globalOnly = false }: { globalOnly?: boolean } = {},
+) {
+  const readers = getReaderCascade(models, facilityId, globalOnly);
   let settings = {};
   for (const reader of readers) {
     const value = await reader.getSettings();

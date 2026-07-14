@@ -8,7 +8,9 @@ export function patientSummaryHandler() {
     const { id: patientId } = req.params;
     const { models } = req.store;
 
-    const { patient, bundle } = await generateIPSBundle(patientId, req.user, models, req.settings);
+    // On facility servers req.settings is a facilityId-keyed map; use its server-wide reader.
+    const settings = req.settings.global ?? req.settings;
+    const { patient, bundle } = await generateIPSBundle(patientId, req.user, models, settings);
 
     res.header('Last-Modified', formatRFC7231(patient.updatedAt));
     res.send(bundle);

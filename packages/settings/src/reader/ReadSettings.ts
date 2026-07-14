@@ -8,8 +8,10 @@ import { facilitySettings } from '../schema/facility';
 import { centralSettings } from '../schema/central';
 
 const allSchemas = [globalSettings, facilitySettings, centralSettings];
-const getSchemasForSettingsContext = (facilityId?: string): SettingsSchema[] =>
-  facilityId ? [facilitySettings, globalSettings] : [centralSettings, globalSettings];
+const getSchemasForSettingsContext = (facilityId?: string, globalOnly = false): SettingsSchema[] => {
+  if (globalOnly) return [globalSettings];
+  return facilityId ? [facilitySettings, globalSettings] : [centralSettings, globalSettings];
+};
 
 // Recursively walks the schema tree collecting keys that have the given flag set.
 // When a node has the flag, its full dot-notated path is included and children are
@@ -36,9 +38,22 @@ export const getKeysByFlag = (
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
-  constructor(models: Models, facilityId?: string) {
+  globalOnly: boolean;
+  constructor(
+    models: Models,
+    facilityId?: string,
+    { globalOnly = false }: { globalOnly?: boolean } = {},
+  ) {
     this.models = models;
     this.facilityId = facilityId;
+    this.globalOnly = globalOnly;
+  }
+
+  // A facility server's server-wide reader (`settings.global`): global scope only.
+  // A plain no-facility ReadSettings is the CENTRAL cascade and would serve central
+  // defaults and central-mapped config values that don't apply on a facility server.
+  static forGlobal(models: Models) {
+    return new ReadSettings(models, undefined, { globalOnly: true });
   }
 
   async get<T extends string | number | object>(key: Path): Promise<T> {
@@ -54,7 +69,7 @@ export class ReadSettings<Path = SettingPath> {
     const allSettings = await this.getAll();
     return pick(
       allSettings,
-      getKeysByFlag('exposedToWeb', getSchemasForSettingsContext(this.facilityId)),
+      getKeysByFlag('exposedToWeb', getSchemasForSettingsContext(this.facilityId, this.globalOnly)),
     );
   }
 
@@ -62,15 +77,23 @@ export class ReadSettings<Path = SettingPath> {
     const allSettings = await this.getAll();
     return pick(
       allSettings,
-      getKeysByFlag('exposedToPatientPortal', getSchemasForSettingsContext(this.facilityId)),
+      getKeysByFlag('exposedToPatientPortal', getSchemasForSettingsContext(this.facilityId, this.globalOnly)),
     );
   }
 
+  // Cache bucket: per-facility, 'central' (no facility), or 'global' for global-only
+  // readers — which must not share the central bucket.
+  private cacheBucket() {
+    return this.globalOnly ? 'global' : this.facilityId;
+  }
+
   async getAll() {
-    let settings = settingsCache.getAllSettings(this.facilityId);
+    let settings = settingsCache.getAllSettings(this.cacheBucket());
     if (!settings) {
-      settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.setAllSettings(settings, this.facilityId);
+      settings = await buildSettings(this.models, this.facilityId, {
+        globalOnly: this.globalOnly,
+      });
+      settingsCache.setAllSettings(settings, this.cacheBucket());
     }
     return settings;
   }

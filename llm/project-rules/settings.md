@@ -46,7 +46,8 @@ but the shape differs by server:
   ```js
   const value = await req.settings.get('export.maxFileSizeInMB');
   ```
-- **Facility** — `req.settings` is keyed by facility id, **with no `.global`**:
+- **Facility** — `req.settings` is keyed by facility id, plus a `.global` server-wide
+  reader (global scope only):
   ```js
   const { settings } = req;
   const value = await settings[facilityId].get('tasking.upcomingTasksTimeFrame');
@@ -58,12 +59,14 @@ but the shape differs by server:
 
 Outside a request (tasks, sub-commands) the reader lives on the app context:
 `context.settings` (central) or `context.settings[facilityId]` /
-`context.settings.global` (facility — note the context object *does* have
-`.global`, unlike `req.settings`).
+`context.settings.global` (facility) — the same shape as `req.settings`.
 
-Pre-auth/global reads with no facility construct one directly:
-`new ReadSettings(req.models)` — only when no facility id is available (e.g. the
-`browser-support` route). Prefer the request reader otherwise.
+Pre-auth/global reads with no facility construct one directly — only when no
+facility id is available (e.g. the `browser-support` route); prefer the request
+reader otherwise. On a central server use `new ReadSettings(models)` (the central
+cascade); on a facility server use `ReadSettings.forGlobal(models)` — a plain
+no-facility reader is the *central* cascade and would serve central defaults and
+central-mapped config values that don't apply there.
 
 **Prefer threading over constructing.** Pass what's needed down from a caller that
 already has a reader — either the reader itself, or the resolved value (model
