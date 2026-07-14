@@ -1,10 +1,11 @@
 import React from 'react';
-import { Field, NumberField, NoteModalActionBlocker } from '../../../../components';
-import { ViewOnlyCell } from './ViewOnlyCell';
-import { ItemCell } from './ItemCell';
-import { CELL_WIDTHS } from '../../constants';
+
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import { Field, NoteModalActionBlocker, NumberField } from '../../../../components';
 import { useTranslation } from '../../../../contexts/Translation';
-import { getDrugUnitLabel } from '../../../../utils/medications';
+import { CELL_WIDTHS } from '../../constants';
+import { ItemCell } from './ItemCell';
+import { ViewOnlyCell } from './ViewOnlyCell';
 
 export const QuantityCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) => {
   const { getEnumTranslation } = useTranslation();
@@ -30,7 +31,8 @@ export const QuantityCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS 
       ) : (
         <ViewOnlyCell>
           {item?.quantity}
-          {dispensingUnit && ` ${getDrugUnitLabel(dispensingUnit, item?.quantity, getEnumTranslation)}`}
+          {dispensingUnit &&
+            ` ${getDrugUnitLabel(dispensingUnit, item?.quantity, getEnumTranslation)}`}
         </ViewOnlyCell>
       )}
     </ItemCell>

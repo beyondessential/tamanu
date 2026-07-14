@@ -1,6 +1,5 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -14,7 +13,6 @@ import {
 } from '@tamanu/constants';
 import {
   getDateFromTimeString,
-  getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
@@ -205,10 +203,6 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   );
 };
 
-// Re-exported from @tamanu/shared so both the web app and shared PDF printouts
-// use the same pluralisation logic. Kept exported here for existing web imports.
-export { getDrugUnitLabel };
-
 // Builds the default dispensed-medication "Label text". Same sentence structure as
 // buildInstructionText, but with the patient-facing formatting from TAM-6813:
 //  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
@@ -362,13 +356,11 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
     return (
       <ThemedTooltip
         title={
-          <Box maxWidth="75px">
-            <TranslatedText
-              stringId="medication.stockLevel.tooltip"
-              fallback="Stock level: :quantity units"
-              replacements={{ quantity }}
-            />
-          </Box>
+          <TranslatedText
+            stringId="medication.stockLevel.tooltip"
+            fallback="Stock level: :quantity units"
+            replacements={{ quantity }}
+          />
         }
       >
         <span>{content}</span>

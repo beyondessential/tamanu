@@ -24,7 +24,8 @@ import {
   useNotGivenInfoMarMutation,
   useUpdateDoseMutation,
 } from '../../../api/mutations/useMarMutation';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';

@@ -3,7 +3,11 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   ConditionalTooltip,
   DateDisplay,
@@ -19,7 +23,6 @@ import {
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { singularize } from '../../utils';
-import { getDrugUnitLabel } from '../../utils/medications';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
 

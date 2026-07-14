@@ -15,6 +15,7 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
@@ -43,7 +44,6 @@ import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptio
 import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
-import { getDrugUnitLabel } from '../../utils/medications';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
 

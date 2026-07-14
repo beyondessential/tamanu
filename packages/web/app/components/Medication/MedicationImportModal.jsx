@@ -13,7 +13,11 @@ import {
   MAX_REPEATS,
   SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
   ConfirmCancelRow,
@@ -36,7 +40,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatien
 import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
 import { preventInvalidRepeatsInput } from '../../utils';
-import { createPrescriptionHash, getDrugUnitLabel } from '../../utils/medications';
+import { createPrescriptionHash } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
 import { CheckInput } from '../Field';
 import { TableFormFields } from '../Table';

@@ -1,61 +1,67 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
+import CloseIcon from '@mui/icons-material/Close';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
+
 import {
   FORM_TYPES,
-  SUBMIT_ATTEMPTED_STATUS,
+  MAX_REPEATS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   NOTE_TYPES,
-  MAX_REPEATS,
+  SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
-import CloseIcon from '@mui/icons-material/Close';
-import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
-  TextField,
-  TextInput,
-  NumberInput,
-  FormGrid,
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
+import {
+  AutocompleteField,
+  ConditionalTooltip,
+  DateTimeField,
+  DateTimeInput,
+  Field,
   FormConfirmCancelBackRow,
+  FormGrid,
   FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
+  NumberInput,
+  OuterLabelFieldWrapper,
+  TextField,
+  TextInput,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useTranslation,
   VisuallyHidden,
 } from '@tamanu/ui-components';
-import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { useApi } from '../api';
-import { foreignKey } from '../utils/validation';
-import { Colors, PATIENT_STATUS } from '../constants';
+import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
+import { BodyText, SmallBodyText } from '../components';
+import { DiagnosisList } from '../components/DiagnosisList';
+import { EncounterSummaryContent } from '../components/EncounterSummary';
 import {
-  AutocompleteField,
   DefaultFormScreen,
-  Field,
   LocalisedField,
   PaginatedForm,
   useLocalisedSchema,
 } from '../components/Field';
-import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
-import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TableFormFields } from '../components/Table';
-
-import { DiagnosisList } from '../components/DiagnosisList';
-import { useEncounter } from '../contexts/Encounter';
-import { BodyText, SmallBodyText } from '../components';
-import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
-import { useSettings } from '../contexts/Settings';
-import { ConditionalTooltip } from '../components/Tooltip';
-import { useAuth } from '../contexts/Auth';
-import { getPatientStatus } from '../utils/getPatientStatus';
-import { useTranslation } from '../contexts/Translation';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
-import { EncounterSummaryContent } from '../components/EncounterSummary';
-import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash, getDrugUnitLabel } from '../utils/medications';
+import { TableFormFields } from '../components/Table';
+import { Colors, PATIENT_STATUS } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
+import { getPatientStatus } from '../utils/getPatientStatus';
+import { createPrescriptionHash } from '../utils/medications';
+import { foreignKey } from '../utils/validation';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
