@@ -18,6 +18,7 @@ export const ThemedTooltip = styled(props => (
     font-size: 0.6875rem;
     padding: 0.375rem 0.5rem;
     text-align: center;
+    text-wrap: balance;
     ${({ $maxWidth }) =>
       $maxWidth &&
       css`
