@@ -70,11 +70,11 @@ describe('Patient merge', () => {
       type: TEMPLATE_TYPES.PATIENT_LETTER,
     });
 
-    expect(response).toHaveRequestError(422);
+    expect(response).toHaveRequestError(409);
     expect(response.body).toMatchObject({
       error: {
         message: 'Template name must be unique',
-        name: 'DatabaseValidationError',
+        name: 'EditConflictError',
       },
     });
   });
