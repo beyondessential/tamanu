@@ -1,34 +1,34 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
+import { FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { Colors, PATIENT_STATUS } from '../../constants';
-import {
-  TextField,
-  ConfirmCancelBackRow,
-  ConfirmCancelRow,
-  BaseModal,
-  TranslatedText,
-  useDateTime,
-} from '@tamanu/ui-components';
+
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-
-import { AutocompleteInput } from '../Field';
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { getPatientStatus } from '../../utils/getPatientStatus';
-
-import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
-
-import { notifyError } from '../../utils';
-import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
-import { useSettings } from '../../contexts/Settings';
+import {
+  AutocompleteInput,
+  BaseModal,
+  ConfirmCancelBackRow,
+  ConfirmCancelRow,
+  TextField,
+  TranslatedText,
+  useApi,
+  useAuth,
+  useDateTime,
+  useSettings,
+  useSuggester,
+} from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
+import { Colors, PATIENT_STATUS } from '../../constants';
+import { notifyError } from '../../utils';
+import { getPatientStatus } from '../../utils/getPatientStatus';
 import { BodyText } from '../Typography';
+import { COLUMN_KEYS, PharmacyOrderMedicationTable } from './PharmacyOrderMedicationTable';
 
 const MODAL_TYPES = {
   REQUEST_CONFIRMATION: 'request_confirmation',
@@ -578,26 +578,23 @@ export const PharmacyOrderModal = React.memo(
         $modalType={MODAL_TYPES.SEND_TO_PHARMACY}
       >
         <BodyText color={Colors.darkText} fontWeight={500}>
-          <TranslatedText
-            stringId={
-              isOngoingMode
-                ? 'pharmacyOrder.ongoing.description.base'
-                : 'pharmacyOrder.description.base'
-            }
-            fallback={
-              isOngoingMode
-                ? 'Select the ongoing medications you would like to send to the pharmacy'
-                : 'Select the prescriptions you would like to send to the pharmacy'
-            }
-            data-testid="translatedtext-rnjt"
-          />
+          {isOngoingMode ? (
+            <TranslatedText
+              stringId="pharmacyOrder.ongoing.description.base"
+              fallback="Select the ongoing medications you would like to send to the pharmacy"
+            />
+          ) : (
+            <TranslatedText
+              stringId="pharmacyOrder.description.base"
+              fallback="Select the prescriptions you would like to send to the pharmacy"
+            />
+          )}
           {sendViaMSupply && (
             <>
               {' '}
               <TranslatedText
                 stringId="pharmacyOrder.description.viaMSupply"
                 fallback="(via mSupply)"
-                data-testid="translatedtext-qweq"
               />
             </>
           )}
@@ -610,7 +607,6 @@ export const PharmacyOrderModal = React.memo(
                   <TranslatedText
                     stringId="pharmacyOrder.orderingPrescriber.tooltip"
                     fallback="The prescriber who is placing the pharmacy order."
-                    data-testid="translatedtext-s7yn"
                   />
                 </Box>
               }
@@ -619,7 +615,6 @@ export const PharmacyOrderModal = React.memo(
                 <TranslatedText
                   stringId="pharmacyOrder.orderingPrescriber.label"
                   fallback="Ordering prescriber"
-                  data-testid="translatedtext-aemx"
                 />
               }
               suggester={practitionerSuggester}
@@ -697,13 +692,7 @@ export const PharmacyOrderModal = React.memo(
               value: comments,
               onChange: e => setComments(e.target.value),
             }}
-            label={
-              <TranslatedText
-                stringId="pharmacyOrder.comments.label"
-                fallback="Comments"
-                data-testid="translatedtext-comments"
-              />
-            }
+            label={<TranslatedText stringId="pharmacyOrder.comments.label" fallback="Comments" />}
             multiline
             rows={3}
             data-testid="textfield-comments"
@@ -712,13 +701,7 @@ export const PharmacyOrderModal = React.memo(
 
         <SubmitButtonsWrapper>
           <ConfirmCancelRow
-            confirmText={
-              <TranslatedText
-                stringId="pharmacyOrder.action.send"
-                fallback="Send"
-                data-testid="translatedtext-ojsa"
-              />
-            }
+            confirmText={<TranslatedText stringId="pharmacyOrder.action.send" fallback="Send" />}
             confirmDisabled={!prescriptions.some(p => p.selected)}
             onConfirm={handleSendOrder}
             onCancel={handleClose}
