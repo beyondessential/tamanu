@@ -35,7 +35,6 @@ export class Model<
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
   declare static incomingSyncHook?: (changes: SyncSnapshotAttributes[]) => Promise<SyncHookSnapshotChanges | undefined>;
-
   static init(
     modelAttributes: ModelAttributes,
     { syncDirection, timestamps = true, schema, ...options }: Omit<InitOptions, 'primaryKey'>,

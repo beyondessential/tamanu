@@ -51,7 +51,7 @@ export const saveChangesForModel = async (
     const incoming = idToIncomingRecord[existing.id];
     idsForUpdate.add(existing.id);
 
-    // Restores only originate from central server
+    // Restores only originate from the central server
     if (isCentralServer === false && existing.deletedAt && !incoming?.isDeleted) {
       idsForRestore.add(existing.id);
     }
