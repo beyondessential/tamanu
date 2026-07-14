@@ -218,19 +218,17 @@ export const ReportGeneratorForm = () => {
       try {
         const reports = await api.get('reports');
         setAvailableReports(reports);
+        setRequestError(null);
       } catch (error) {
         setRequestError(
-          `${(
-            <TranslatedText
-              stringId="report.generate.requestError.loadFailure"
-              fallback="Unable to load available reports"
-              data-testid="translatedtext-jzpc"
-            />
+          `${getTranslation(
+            'report.generate.requestError.loadFailure',
+            'Unable to load available reports',
           )} - ${error.message}`,
         );
       }
     })();
-  }, [api]);
+  }, [api, getTranslation]);
 
   const submitRequestReport = async formValues => {
     const { reportId, emails, timezone, ...filterValues } = formValues;

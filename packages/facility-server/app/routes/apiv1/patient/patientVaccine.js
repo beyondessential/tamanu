@@ -225,10 +225,12 @@ patientVaccineRoutes.post(
     // Require scheduledVaccineId if vaccine category is not OTHER
     if (req.body.category !== VACCINE_CATEGORIES.OTHER && !req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+      return;
     }
 
     if (!req.body.status) {
       res.status(400).send({ error: { message: 'status is required' } });
+      return;
     }
 
     const { models } = req;
@@ -411,8 +413,10 @@ patientVaccineRoutes.get(
     if (
       !Array.isArray(administeredVaccine.circumstanceIds) ||
       administeredVaccine.circumstanceIds.length === 0
-    )
+    ) {
       res.send({ count: 0, data: [] });
+      return;
+    }
     const results = await models.ReferenceData.findAll({
       where: {
         id: administeredVaccine.circumstanceIds,

@@ -252,7 +252,7 @@ export const centralSettings = {
           description:
             'Use unsafe schema for initial sync which is faster but should be turned off if large initial syncs over 3 million records',
           type: yup.boolean(),
-          defaultValue: true,
+          defaultValue: false,
         },
         maxBatchesToKeepInMemory: {
           description:

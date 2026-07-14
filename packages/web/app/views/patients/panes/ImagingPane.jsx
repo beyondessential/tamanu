@@ -10,7 +10,7 @@ import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-export const ImagingPane = React.memo(({ encounter, readonly }) => {
+export const ImagingPane = React.memo(({ encounter, disabled }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
@@ -33,7 +33,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         <NoteModalActionBlocker>
           <Button
             onClick={() => setPrintRequestsModalOpen(true)}
-            disabled={readonly}
+            disabled={disabled}
             variant="outlined"
             color="primary"
             data-testid="button-21bg"
@@ -48,7 +48,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}
-            disabled={readonly}
+            disabled={disabled}
             verb="create"
             noun="ImagingRequest"
             data-testid="buttonwithpermissioncheck-14hy"

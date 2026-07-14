@@ -186,7 +186,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
       includedColumns.forEach((camelCaseKey) => {
-        if (this[snakeCase(camelCaseKey)] !== undefined) {
+        if (this[camelCaseKey] !== undefined) {
           newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
         }
       });

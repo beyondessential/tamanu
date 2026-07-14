@@ -1,5 +1,5 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { cloneDeep, isArray, mergeWith } from 'es-toolkit/compat';
+import { isArray, mergeWith } from 'es-toolkit/compat';
 
 import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
@@ -52,10 +52,13 @@ export async function buildSettings(
   for (const reader of readers) {
     const value = await reader.getSettings();
     if (value) {
-      // Clone: mergeWith mutates its first arg, and some readers return shared
-      // module-level objects (schema defaults, config) that must not be polluted.
+      // Merge into a fresh object: mergeWith mutates its first argument, and the
+      // JSON readers return the shared schema-default singletons (facilityDefaults /
+      // globalDefaults). Passing `value` as the destination would pollute those
+      // singletons across requests and facilities.
       settings = mergeWith(
-        cloneDeep(value),
+        {},
+        value,
         settings, // Prioritise previous value
         (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
       );

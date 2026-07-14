@@ -6,9 +6,9 @@ import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
-function randomSixDigitCode() {
+export function randomSixDigitCode() {
   // returns a zero-padded 6 digit string using crypto.randomInt for better security
-  return Array.from({ length: 6 }, () => randomInt(0, 9)).join('');
+  return Array.from({ length: 6 }, () => randomInt(0, 10)).join('');
 }
 
 function randomRegisterCode() {

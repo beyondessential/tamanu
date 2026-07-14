@@ -1484,7 +1484,7 @@ medication.put(
         await existingMar.save();
       }
 
-      if (doses.length) {
+      if (doses?.length) {
         for (const dose of doses) {
           const givenByUser = await User.findByPk(dose.givenByUserId);
           if (!givenByUser) {

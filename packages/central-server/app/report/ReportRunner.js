@@ -286,11 +286,11 @@ export class ReportRunner {
     try {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
-      this.emailService.sendEmail({
+      await this.emailService.sendEmail({
         from: await getDefaultFromAddress(this.settings),
         to: user.email,
         subject: 'Failed to generate report',
-        message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
+        text: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
       });
     } catch (e2) {
       this.log.error('Issue sending error to email', {

@@ -1,41 +1,44 @@
+import Box from '@mui/material/Box';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
 
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
   Button,
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
+  ConditionalTooltip,
   DateDisplay,
+  ThemedTooltip,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { DataFetchingTable } from '../../../components/Table';
-
-import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
-
-import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
-import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
-import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
-import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { MenuButton } from '../../../components/MenuButton';
-import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
-import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
-import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
-import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
-import { useApi } from '../../../api';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
-import { useSettings } from '../../../contexts/Settings';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
+import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
+import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
+import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
+import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
+import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
+import { MenuButton } from '../../../components/MenuButton';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
+import { DataFetchingTable } from '../../../components/Table';
+import { PATIENT_STATUS_COLORS } from '../../../constants';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import {
+  getDrugUnitLabel,
+  getMedicationLabelData,
+  getTranslatedMedicationName,
+} from '../../../utils/medications';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -698,7 +701,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          endpoint={`patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
@@ -730,7 +733,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </TableTitle>
           <StyledDataFetchingTable
             $compact
-            endpoint={`/patient/${patient.id}/dispensed-medications`}
+            endpoint={`patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,
               getEnumTranslation,

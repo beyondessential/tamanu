@@ -305,12 +305,12 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
       centralApiReplicas: options.centralapis,
       centralDbReplicas: options.centraldbs,
       centralTasksReplicas: options.centraltasks,
-      centralWebReplicas: options.centraldbs,
+      centralWebReplicas: options.centralwebs,
 
       facilityApiReplicas: options.facilityapis,
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
-      facilityWebReplicas: options.facilitydbs,
+      facilityWebReplicas: options.facilitywebs,
 
       patientPortalReplicas: options.patientportals,
 

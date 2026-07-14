@@ -598,6 +598,9 @@ appointments.put(
                   id: { [Op.ne]: id },
                 },
                 { locationId },
+                {
+                  status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+                },
                 timeQueryWhereClause,
               ],
             },

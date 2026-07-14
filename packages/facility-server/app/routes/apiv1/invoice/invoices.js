@@ -256,72 +256,54 @@ invoiceRoute.put(
     const { data, error } = await updateInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
 
-    const transaction = await req.db.transaction();
-
-    try {
+    // Managed transaction: CLS binds it to every Sequelize call inside the callback, so
+    // the destroy/update calls actually run in the transaction and roll back together on error.
+    await req.db.transaction(async () => {
       if (!data.discount) {
         //remove any existing discount if discount info is not provided
-        await req.models.InvoiceDiscount.destroy({ where: { invoiceId } }, { transaction });
+        await req.models.InvoiceDiscount.destroy({ where: { invoiceId } });
       }
       //if discount info is provided, update or create discount
       else {
         //remove any existing discount if discount id is not matching
-        await req.models.InvoiceDiscount.destroy(
-          { where: { invoiceId, id: { [Op.ne]: data.discount.id } } },
-          { transaction },
-        );
+        await req.models.InvoiceDiscount.destroy({
+          where: { invoiceId, id: { [Op.ne]: data.discount.id } },
+        });
         //update or create discount
-        await req.models.InvoiceDiscount.upsert(
-          {
-            ...data.discount,
-            invoiceId,
-            appliedByUserId: req.user.id,
-            appliedTime: getCurrentPrimaryTimeZoneDateTimeString(),
-          },
-          { transaction },
-        );
+        await req.models.InvoiceDiscount.upsert({
+          ...data.discount,
+          invoiceId,
+          appliedByUserId: req.user.id,
+          appliedTime: getCurrentPrimaryTimeZoneDateTimeString(),
+        });
       }
 
       //remove any existing item if item ids are not matching
-      await req.models.InvoiceItem.destroy(
-        { where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } } },
-        { transaction },
-      );
+      await req.models.InvoiceItem.destroy({
+        where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } },
+      });
 
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
         //update or create item
-        await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
+        await req.models.InvoiceItem.upsert({ ...itemData, invoiceId });
 
         //remove any existing discount if discount info is not provided
         if (!itemDiscount) {
-          await req.models.InvoiceItemDiscount.destroy(
-            { where: { invoiceItemId: item.id } },
-            { transaction },
-          );
+          await req.models.InvoiceItemDiscount.destroy({ where: { invoiceItemId: item.id } });
         } else {
           //remove any existing discount if discount id is not matching
-          await req.models.InvoiceItemDiscount.destroy(
-            {
-              where: {
-                invoiceItemId: item.id,
-                id: { [Op.ne]: itemDiscount.id },
-              },
+          await req.models.InvoiceItemDiscount.destroy({
+            where: {
+              invoiceItemId: item.id,
+              id: { [Op.ne]: itemDiscount.id },
             },
-            { transaction },
-          );
+          });
           //update or create discount
-          await req.models.InvoiceItemDiscount.upsert(
-            { ...itemDiscount, invoiceItemId: item.id },
-            { transaction },
-          );
+          await req.models.InvoiceItemDiscount.upsert({ ...itemDiscount, invoiceItemId: item.id });
         }
       }
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    });
 
     // Recalculate patientPaymentStatus now that items/discount may have changed.
     // Payments can be recorded on in-progress invoices, so the status may be stale

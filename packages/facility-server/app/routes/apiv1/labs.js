@@ -112,7 +112,22 @@ labRequest.post(
     const hasSensitiveTestType = await models.LabTestType.findOne({
       where: { id: labTestTypeIds, isSensitive: true },
     });
-    if (hasSensitiveTestType) {
+
+    // Panel requests resolve their test types server-side (see createPanelLabRequests), so the
+    // supplied labTestTypeIds don't cover them. Check the panels' tests for sensitivity too,
+    // otherwise a panel containing a sensitive test would bypass the SensitiveLabRequest check.
+    let panelHasSensitiveTestType = false;
+    if (panelIds?.length) {
+      const panels = await models.LabTestPanel.findAll({
+        where: { id: panelIds },
+        include: [{ model: models.LabTestType, as: 'labTestTypes', attributes: ['isSensitive'] }],
+      });
+      panelHasSensitiveTestType = panels.some(panel =>
+        panel.labTestTypes?.some(testType => testType.isSensitive),
+      );
+    }
+
+    if (hasSensitiveTestType || panelHasSensitiveTestType) {
       req.checkPermission('create', 'SensitiveLabRequest');
     }
 
