@@ -20,7 +20,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
     // schedules is settings-resolved before task startup on both server types
     const { schedule, jitterTime, enabled } =
-      overrideConfig || context.schedules?.sendStatusToMetaServer || {};
+      overrideConfig ?? context.schedules?.sendStatusToMetaServer ?? {};
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     // Global-scope reader on both servers: facility has the keyed settings object

@@ -171,6 +171,8 @@ export const centralSettings = {
     mail: {
       description: 'Outgoing email settings (the legacy `mailgun` config is still used as a fallback)',
       highRisk: true,
+      // The mail transport is built once at startup (EmailService in ApplicationContext)
+      requiresRestart: true,
       properties: {
         from: {
           description: 'Default sender address for outgoing email',

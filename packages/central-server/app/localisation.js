@@ -4,12 +4,14 @@
  * move out of `config.localisation.data` into un-nested global settings.
  */
 export const getLocalisation = async settings => {
-  const [units, country, imagingTypes, disabledReports, supportDeskUrl] = await Promise.all([
-    settings.get('units'),
-    settings.get('country'),
-    settings.get('imagingTypes'),
-    settings.get('reporting.disabledReports'),
-    settings.get('supportDeskUrl'),
-  ]);
-  return { units, country, imagingTypes, disabledReports, supportDeskUrl };
+  // One resolved read: parallel get()s would each rebuild the whole settings
+  // cascade when the cache is cold (fresh boot, or just invalidated by a save).
+  const all = await settings.getAll();
+  return {
+    units: all.units,
+    country: all.country,
+    imagingTypes: all.imagingTypes,
+    disabledReports: all.reporting?.disabledReports,
+    supportDeskUrl: all.supportDeskUrl,
+  };
 };

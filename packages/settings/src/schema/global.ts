@@ -373,6 +373,8 @@ export const globalSettings = {
       properties: {
         updateUrls: {
           description: 'Where outdated clients are sent to update',
+          // Baked into the version-compatibility middleware at app creation
+          requiresRestart: true,
           properties: {
             mobile: {
               name: 'Mobile update URL',

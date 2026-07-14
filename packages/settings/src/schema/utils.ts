@@ -76,13 +76,15 @@ export const maskSecrets = (
 };
 
 /**
- * Gets the setting definition at a given path, if it exists.
+ * Gets the schema node (setting or subtree) at a given path, if it exists.
  */
-export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting | null => {
-  const parts = path.split('.');
+export const getNodeAtPath = (
+  schema: SettingsSchema,
+  path: string,
+): Setting | SettingsSchema | null => {
   let current: Setting | SettingsSchema = schema;
 
-  for (const part of parts) {
+  for (const part of path.split('.')) {
     if (!isSettingsSchema(current)) {
       return null;
     }
@@ -93,7 +95,15 @@ export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting 
     current = next;
   }
 
-  return isSetting(current) ? current : null;
+  return current;
+};
+
+/**
+ * Gets the setting definition at a given path, if it exists.
+ */
+export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting | null => {
+  const node = getNodeAtPath(schema, path);
+  return node && isSetting(node) ? node : null;
 };
 
 /**

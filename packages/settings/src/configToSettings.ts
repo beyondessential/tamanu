@@ -3,7 +3,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { cloneDeep, get, has, isEqual, set } from 'es-toolkit/compat';
 
 import { getScopedSchema } from './schema';
-import { isSetting } from './schema/utils';
+import { getNodeAtPath, isSetting } from './schema/utils';
 import type { Setting, SettingsSchema } from './types';
 import { ReaderSettingResult } from './reader/readers/Reader';
 
@@ -148,20 +148,6 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];
 
-const schemaNodeAtPath = (
-  schema: SettingsSchema,
-  path: string,
-): Setting | SettingsSchema | null => {
-  let current: Setting | SettingsSchema = schema;
-  for (const part of path.split('.')) {
-    if (isSetting(current)) return null;
-    const next: Setting | SettingsSchema | undefined = current.properties[part];
-    if (!next) return null;
-    current = next;
-  }
-  return current;
-};
-
 // Config paths are handled as segment arrays so a config key containing a dot
 // (e.g. the legacy `socket.io` block) can be addressed as ['socket.io', ...].
 const liftConfigValue = (
@@ -201,7 +187,7 @@ export function configOverridesForScope(scope: string): ReaderSettingResult {
   if (!schema) return result;
   for (const entry of CONFIG_TO_SETTINGS) {
     if (entry.scope !== scope) continue;
-    const node = schemaNodeAtPath(schema, entry.setting);
+    const node = getNodeAtPath(schema, entry.setting);
     if (!node) continue;
     const configPath = Array.isArray(entry.config) ? entry.config : entry.config.split('.');
     liftConfigValue(node, configPath, entry.setting, result);
