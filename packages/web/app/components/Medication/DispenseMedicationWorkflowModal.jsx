@@ -10,6 +10,7 @@ import {
   BaseModal,
   Button,
   OutlinedButton,
+  RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -537,10 +538,7 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
           accessor: (item, rowIndex) => {
@@ -621,10 +619,7 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <>
               <TranslatedText stringId="medication.dispense.labelText" fallback="Label text" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
           accessor: (item, rowIndex) => {
