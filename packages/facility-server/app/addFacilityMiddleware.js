@@ -4,6 +4,7 @@ import config from 'config';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { getTrustedProxy } from '@tamanu/shared/utils';
 
 import { version } from './serverInfo';
 
@@ -20,7 +21,7 @@ export const addFacilityMiddleware = async express => {
 
   // trust the x-forwarded-for header from proxies in the PROXY_TRUSTED env var
   // (comma-separated list; defaults to `loopback` for a local reverse proxy)
-  express.set('trust proxy', process.env.PROXY_TRUSTED ?? 'loopback');
+  express.set('trust proxy', getTrustedProxy());
   express.use(getLoggingMiddleware());
 
   let errorMiddleware = null;

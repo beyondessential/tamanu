@@ -1,14 +1,22 @@
+import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { log } from '../services/logging';
 
 /**
  * The server's primary timezone (IANA) for all stored datetimes, from the standard
- * TZ env var (which deployments already set). Falls back to the system timezone —
- * the same thing Node's Date uses when TZ is unset — so the process clock and the
- * app-level primary timezone always agree.
+ * TZ env var (which deployments already set). The config keys are transitional —
+ * deployments that set primaryTimeZone/countryTimeZone in local config keep their
+ * timezone until TZ is set. Falls back to the system timezone — the same thing
+ * Node's Date uses when TZ is unset — so the process clock and the app-level
+ * primary timezone always agree.
  */
 export function getPrimaryTimeZone() {
-  return process.env.TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return (
+    process.env.TZ ??
+    config.primaryTimeZone ??
+    config.countryTimeZone ??
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 }
 
 function getSystemTimeZone() {

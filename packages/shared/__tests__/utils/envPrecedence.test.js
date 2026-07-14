@@ -1,5 +1,7 @@
 import { getAuthSecret, getRefreshTokenSecret } from '../../src/utils/authSecrets';
 import { getCanonicalHostName } from '../../src/utils/canonicalHostName';
+import { getTrustedProxy } from '../../src/utils/trustedProxy';
+import { getPrimaryTimeZone } from '../../src/utils/timeZoneCheck';
 
 // The config -> env cutover (TAM-6864) keeps the config keys as a transitional
 // fallback: each getter prefers its env var and falls back to the (soon-removed)
@@ -9,11 +11,13 @@ jest.mock('config', () => ({
   default: {
     auth: { secret: 'config-secret', refreshToken: { secret: 'config-refresh' } },
     canonicalHostName: 'https://config-host.example',
+    proxy: { trusted: ['10.0.0.1'] },
+    countryTimeZone: 'Pacific/Fiji',
   },
 }));
 
 describe('env-var precedence over config', () => {
-  const ENV_KEYS = ['AUTH_SECRET', 'AUTH_REFRESH_TOKEN_SECRET', 'CANONICAL_HOST_NAME'];
+  const ENV_KEYS = ['AUTH_SECRET', 'AUTH_REFRESH_TOKEN_SECRET', 'CANONICAL_HOST_NAME', 'PROXY_TRUSTED', 'TZ'];
   const original = {};
 
   beforeEach(() => {
@@ -56,6 +60,26 @@ describe('env-var precedence over config', () => {
     });
     it('falls back to config.canonicalHostName when the env var is unset', () => {
       expect(getCanonicalHostName()).toBe('https://config-host.example');
+    });
+  });
+
+  describe('getTrustedProxy', () => {
+    it('uses PROXY_TRUSTED, overriding config, when set', () => {
+      process.env.PROXY_TRUSTED = 'loopback, 10.1.1.1';
+      expect(getTrustedProxy()).toBe('loopback, 10.1.1.1');
+    });
+    it('falls back to config.proxy.trusted when the env var is unset', () => {
+      expect(getTrustedProxy()).toEqual(['10.0.0.1']);
+    });
+  });
+
+  describe('getPrimaryTimeZone', () => {
+    it('uses TZ, overriding config, when set', () => {
+      process.env.TZ = 'Pacific/Auckland';
+      expect(getPrimaryTimeZone()).toBe('Pacific/Auckland');
+    });
+    it('falls back to config countryTimeZone when TZ is unset', () => {
+      expect(getPrimaryTimeZone()).toBe('Pacific/Fiji');
     });
   });
 });

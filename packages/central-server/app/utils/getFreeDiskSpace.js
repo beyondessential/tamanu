@@ -1,10 +1,17 @@
 import checkDiskSpace from 'check-disk-space';
+import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 
 // Returns the available disk space in bytes for the path in the DISK_PATH env var.
+// The config key is transitional and the platform default matches the old config
+// default, so manually-managed Windows servers keep working without the env var.
 export const getFreeDiskSpace = async () => {
+  const diskPath =
+    process.env.DISK_PATH ??
+    config.disk?.diskPath ??
+    (process.platform === 'win32' ? 'C:/' : '/tmp');
   try {
-    const diskStats = await checkDiskSpace(process.env.DISK_PATH ?? '/tmp');
+    const diskStats = await checkDiskSpace(diskPath);
     return diskStats.free;
   } catch (error) {
     log.error(`Unable to determine free disk space, got error: \n${error.message}`);

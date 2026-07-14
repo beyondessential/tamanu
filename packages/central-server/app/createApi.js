@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
-import { requireHttps } from '@tamanu/shared/utils';
+import { getTrustedProxy, requireHttps } from '@tamanu/shared/utils';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -100,7 +100,7 @@ export async function createApi(ctx) {
 
   // trust the x-forwarded-for header from proxies in the PROXY_TRUSTED env var
   // (comma-separated list; defaults to `loopback` for a local reverse proxy)
-  express.set('trust proxy', process.env.PROXY_TRUSTED ?? 'loopback');
+  express.set('trust proxy', getTrustedProxy());
   express.use(getLoggingMiddleware());
 
   express.use((req, res, next) => {

@@ -3,6 +3,7 @@ export * from './requireHttps';
 export * from './getMetaServerHosts';
 export * from './canonicalHostName';
 export * from './authSecrets';
+export * from './trustedProxy';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
