@@ -252,7 +252,6 @@ const getColumns = (
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
                 casing="lower"
-                data-testid="translatedtext-nc3a"
               />
             </NoWrapCell>
           );
@@ -295,7 +294,6 @@ const getColumns = (
           <TranslatedText
             stringId="pharmacyOrder.table.column.repeatsOnDischarge"
             fallback="Repeats on discharge"
-            data-testid="translatedtext-psdf"
           />
         </TwoLineHeaderText>
       ),
@@ -402,7 +400,6 @@ export const PharmacyOrderMedicationTable = ({
         <TranslatedText
           stringId="pharmacyOrder.table.noData"
           fallback="No medications found for this encounter"
-          data-testid="translatedtext-mj0s"
         />
       }
       allowExport={false}
