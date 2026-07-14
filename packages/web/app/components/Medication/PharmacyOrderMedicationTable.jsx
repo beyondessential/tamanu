@@ -114,6 +114,7 @@ const getColumns = (
   columnsToInclude = Object.values(COLUMN_KEYS),
   { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
 ) => {
+  const includes = new Set(columnsToInclude);
   const allColumns = [
     {
       key: COLUMN_KEYS.SELECT,
@@ -344,7 +345,7 @@ const getColumns = (
     },
   ];
 
-  return allColumns.filter(column => columnsToInclude.includes(column.key));
+  return allColumns.filter(column => includes.has(column.key));
 };
 
 export const PharmacyOrderMedicationTable = ({
