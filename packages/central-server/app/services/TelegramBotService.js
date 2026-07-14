@@ -1,7 +1,6 @@
-import config from 'config';
 import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
+import { getOptionalSettingSecret } from '@tamanu/shared/utils/crypto';
 import TelegramBot from 'node-telegram-bot-api';
 
 /**
@@ -10,14 +9,10 @@ import TelegramBot from 'node-telegram-bot-api';
  */
 export const defineTelegramBotService = async (injector) => {
   const telegramBot = await injector.settings.get('integrations.telegram');
-  let apiToken;
-  try {
-    apiToken = await getSettingSecret(injector.settings, 'integrations.telegram.apiToken');
-  } catch (e) {
-    if (!(e instanceof SecretNotConfiguredError)) throw e;
-    // transitional: legacy config value until the secret is set via the admin UI
-    apiToken = config.telegramBot?.apiToken;
-  }
+  const apiToken = await getOptionalSettingSecret(
+    injector.settings,
+    'integrations.telegram.apiToken',
+  );
   //fallback to polling if webhook url is not set
   const bot = !apiToken
     ? null

@@ -1,5 +1,6 @@
 import config from 'config';
 import { get as lodashGet } from 'es-toolkit/compat';
+import { CONFIG_TO_SECRET_SETTINGS } from '@tamanu/settings';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import readSync from 'read';
@@ -179,6 +180,33 @@ export async function getSettingSecret(settings, name) {
 
   const keyBuffer = await getSettingsPskKeyBuffer();
   return decryptSecret(keyBuffer, encryptedValue);
+}
+
+/**
+ * Read a secret setting, returning undefined when it isn't set anywhere. While a
+ * deployment transitions off config files, an unset setting falls back to its legacy
+ * config source per CONFIG_TO_SECRET_SETTINGS (plaintext or config-encrypted); the
+ * fallback goes away with the config file. Decryption and other unexpected errors
+ * are rethrown, never swallowed into the fallback.
+ */
+export async function getOptionalSettingSecret(settings, name) {
+  try {
+    return await getSettingSecret(settings, name);
+  } catch (error) {
+    if (!(error instanceof SecretNotConfiguredError)) throw error;
+  }
+  const entry = CONFIG_TO_SECRET_SETTINGS.find(secret => secret.setting === name);
+  if (!entry) return undefined;
+  if (entry.encryptedInConfig) {
+    try {
+      return await getConfigSecret(entry.config);
+    } catch (error) {
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+      // absent or plaintext at the config path — fall through to the raw read
+    }
+  }
+  const raw = lodashGet(config, entry.config);
+  return typeof raw === 'string' && raw.trim() ? raw : undefined;
 }
 
 /** Returns true if `value` looks like an encrypted secret produced by encryptSecret. */

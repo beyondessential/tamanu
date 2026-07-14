@@ -4,7 +4,7 @@ import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
+import { getOptionalSettingSecret } from '@tamanu/shared/utils/crypto';
 import { mailgunTransport } from './mailgunTransport.js';
 
 function createTransporter(transport, transportPassword, mailgun) {
@@ -81,18 +81,11 @@ export class EmailService {
   static async fromSettings(settings) {
     const transport = await settings.get('mail.transport');
     const mailgun = { ...(await settings.get('mail.mailgun')) };
-    let transportPassword;
-    try {
-      transportPassword = await getSettingSecret(settings, 'mail.transportPassword');
-    } catch (error) {
-      // Not configured is fine — transport may not need auth, or we fall back to mailgun.
-      if (!(error instanceof SecretNotConfiguredError)) throw error;
-    }
-    try {
-      mailgun.apiKey = await getSettingSecret(settings, 'mail.mailgun.apiKey');
-    } catch (error) {
-      if (!(error instanceof SecretNotConfiguredError)) throw error;
-    }
+    // Unset is fine — transport may not need auth, or we fall back to mailgun.
+    const transportPassword = await getOptionalSettingSecret(settings, 'mail.transportPassword');
+    // apiKey is a secret leaf: decrypted over the raw block value, or the legacy
+    // `mailgun.apiKey` config until the secret is set via the admin UI.
+    mailgun.apiKey = await getOptionalSettingSecret(settings, 'mail.mailgun.apiKey');
     return new EmailService(transport, transportPassword, mailgun);
   }
 
