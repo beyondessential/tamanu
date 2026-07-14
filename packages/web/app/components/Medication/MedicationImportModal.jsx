@@ -10,6 +10,7 @@ import {
   TextInput,
   NumberInput,
   Form,
+  RequiredOrnament,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { Box, CircularProgress } from '@mui/material';
@@ -236,9 +237,7 @@ const getColumns = (
           stringId="medication.dischargeQuantity.label.short"
           fallback="Discharge qty"
         />
-        <Box component="span" color={Colors.alert} ml={0.5}>
-          *
-        </Box>
+        <RequiredOrnament />
       </Box>
     ),
     width: '115px',
@@ -251,13 +250,16 @@ const getColumns = (
       return (
         <NumberInput
           min={0}
-          unit={data.dispensingUnit ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation) : undefined}
+          unit={
+            data.dispensingUnit
+              ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation)
+              : undefined
+          }
           value={value}
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
           helperText={hasError && fieldError}
-          style={{ maxWidth: '100px' }}
         />
       );
     },
