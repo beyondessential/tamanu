@@ -551,7 +551,9 @@ export const DispenseMedicationWorkflowModal = memo(
                 disabled={!selected}
                 min={1}
                 unit={
-                  dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined
+                  dispensingUnit
+                    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                    : undefined
                 }
                 style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
