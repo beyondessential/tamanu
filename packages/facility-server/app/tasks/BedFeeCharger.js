@@ -17,13 +17,6 @@ class InvalidConfigError extends Error {}
 /**
  * Recompute the per-night bed fee for every currently-admitted patient at this server's
  * facilities.
- *
- * Runs on the facility server so the bed-fee invoice item has a single writer (like the encounter
- * fee): scoping to this server's own facility ids means each admission is charged by exactly one
- * server, and the row syncs up to central as an ordinary invoice item with no cross-server
- * collision. The recompute is idempotent (it counts the facility-local overnight checks that have
- * occurred up to now), so running hourly just means a new night lands within an hour of each
- * facility's local overnight-check time.
  */
 export class BedFeeCharger extends ScheduledTask {
   getName() {
@@ -48,8 +41,6 @@ export class BedFeeCharger extends ScheduledTask {
       );
     }
 
-    // Read at run time, not construction — tasks may start before first-run setup has
-    // configured the facility ids.
     const serverFacilityIds = getServerFacilityIds() ?? [];
     if (serverFacilityIds.length === 0) {
       log.warn('BedFeeCharger: no facility configured yet, skipping');

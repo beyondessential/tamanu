@@ -487,10 +487,6 @@ export class Invoice extends Model {
    * that time, so the invoice carries one line per location with quantity = nights. A location is
    * charged only if it has a bed-fee product (placeholder wards have none). Recompute SETS the
    * quantity, and a cashier-removed line is not resurrected.
-   *
-   * A line whose location no longer qualifies is reconciled to quantity 0 rather than
-   * soft-deleted: a soft-delete (restore) doesn't propagate facility→central through sync, so
-   * soft-delete is reserved for cashier removals — which are honoured and never resurrected.
    */
   static async recalculateBedFee(
     encounter: Encounter,
