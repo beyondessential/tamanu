@@ -10,6 +10,11 @@ const TextInputWithUnit = styled(TextInput)`
   .MuiInputBase-root {
     display: grid;
     grid-template-columns: minmax(4ch, 8ch) auto;
+    padding: 12px;
+  }
+
+  .MuiInputBase-input {
+    padding: 0;
   }
 `;
 
