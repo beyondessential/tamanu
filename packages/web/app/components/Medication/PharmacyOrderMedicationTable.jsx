@@ -133,12 +133,10 @@ const getColumns = (
           <ConditionalTooltip
             visible={isDisabled}
             title={
-              <Box width="122px">
-                <TranslatedText
-                  stringId="medication.sendToPharmacy.noRepeatsRemaining"
-                  fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
-                />
-              </Box>
+              <TranslatedText
+                stringId="medication.sendToPharmacy.noRepeatsRemaining"
+                fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
+              />
             }
           >
             <span>
