@@ -215,7 +215,7 @@ export const EditMedicationDispenseModal = memo(
         medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions: item.instructions,
         quantity: item.quantity,
-        units: item.pharmacyOrderPrescription.prescription?.dispensingUnit,
+        dispensingUnit: item.pharmacyOrderPrescription.prescription?.dispensingUnit,
         remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
         prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
