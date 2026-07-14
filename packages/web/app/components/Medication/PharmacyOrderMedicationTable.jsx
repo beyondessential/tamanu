@@ -289,7 +289,11 @@ const getColumns = (
       accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
         <NumberInput
           min={1}
-          unit={dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined}
+          unit={
+            dispensingUnit
+              ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+              : undefined
+          }
           value={quantity}
           onChange={onChange}
           required
