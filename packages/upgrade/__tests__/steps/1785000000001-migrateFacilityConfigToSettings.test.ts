@@ -3,10 +3,11 @@ import { FACT_FACILITY_CONFIG_MIGRATED, FACT_FACILITY_IDS } from '@tamanu/consta
 
 vi.mock('@tamanu/settings', () => ({
   CONFIG_TO_SETTINGS: [
-    { config: 'tasking.window', setting: 'tasking.window', scope: 'facility' },
-    { config: 'language', setting: 'language', scope: 'central' }, // filtered out (not facility)
+    { config: 'tasking.window', scope: 'facility' },
+    { config: 'language', scope: 'central' }, // filtered out (not facility)
   ],
   configOverridesForScope: vi.fn(),
+  settingPathOf: (entry: { config: string; setting?: string }) => entry.setting ?? entry.config,
 }));
 
 import { configOverridesForScope } from '@tamanu/settings';

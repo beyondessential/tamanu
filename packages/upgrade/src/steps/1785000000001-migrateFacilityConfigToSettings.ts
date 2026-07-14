@@ -4,7 +4,7 @@ import {
   FACT_FACILITY_IDS,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
-import { CONFIG_TO_SETTINGS, configOverridesForScope } from '@tamanu/settings';
+import { CONFIG_TO_SETTINGS, configOverridesForScope, settingPathOf } from '@tamanu/settings';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { get as getAtPath } from 'es-toolkit/compat';
 
@@ -22,7 +22,8 @@ export const carrierId = (facilityId: string, key: string) =>
 export const facilityConfigRows = () => {
   const overrides = configOverridesForScope(SETTINGS_SCOPES.FACILITY);
   return CONFIG_TO_SETTINGS.filter(entry => entry.scope === SETTINGS_SCOPES.FACILITY)
-    .map(entry => ({ key: entry.setting, value: getAtPath(overrides, entry.setting) }))
+    .map(entry => settingPathOf(entry))
+    .map(key => ({ key, value: getAtPath(overrides, key) }))
     .filter(row => row.value !== undefined);
 };
 

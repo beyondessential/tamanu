@@ -26,5 +26,6 @@ export {
   CONFIG_TO_SETTINGS,
   CONFIG_TO_SECRET_SETTINGS,
   configOverridesForScope,
+  settingPathOf,
 } from './configToSettings';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

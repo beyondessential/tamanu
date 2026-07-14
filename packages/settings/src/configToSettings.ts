@@ -11,9 +11,15 @@ export interface ConfigToSetting {
   // Legacy node-config path; use the array form when a config key itself
   // contains a dot (e.g. ['socket.io', 'enabled'])
   config: string | string[];
-  setting: string; // settings key path (may differ from config once a key is renamed)
+  // Settings key path — set only when a key was renamed or reshuffled on the way
+  // in; defaults to the config path (see settingPathOf)
+  setting?: string;
   scope: string; // a SETTINGS_SCOPES value
 }
+
+// The settings path a map row targets: its explicit rename, or its config path.
+export const settingPathOf = (entry: ConfigToSetting): string =>
+  entry.setting ?? (Array.isArray(entry.config) ? entry.config.join('.') : entry.config);
 
 // Source of truth for the config -> settings move (TAM-6864): one row per non-secret
 // key that left config. The config and setting paths diverge when a key is renamed or
@@ -25,93 +31,37 @@ export interface ConfigToSetting {
 // getSettingSecret config fallback. When two rows target the same setting, the later
 // row wins where both config values are present, so list the legacy spelling first.
 export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
-  { config: 'language', setting: 'language', scope: SETTINGS_SCOPES.CENTRAL },
-  {
-    config: 'patientCommunication.retryThreshold',
-    setting: 'patientCommunication.retryThreshold',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'patientPortal.tokenDuration',
-    setting: 'patientPortal.tokenDuration',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'patientPortal.loginTokenDurationMinutes',
-    setting: 'patientPortal.loginTokenDurationMinutes',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'patientPortal.registerTokenDurationMinutes',
-    setting: 'patientPortal.registerTokenDurationMinutes',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'export.maxFileSizeInMB',
-    setting: 'export.maxFileSizeInMB',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
+  { config: 'language', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'patientCommunication.retryThreshold', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'patientPortal.tokenDuration', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'patientPortal.loginTokenDurationMinutes', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'patientPortal.registerTokenDurationMinutes', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'export.maxFileSizeInMB', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mailgun.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mailgun.domain', setting: 'mail.mailgun.domain', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'mailgun.url', setting: 'mail.mailgun.url', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'mail.from', setting: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'mail.transport', setting: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
-  {
-    config: 'integrations.ips',
-    setting: 'integrations.ips',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'integrations.dhis2.username',
-    setting: 'integrations.dhis2.username',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
+  { config: 'mail.from', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.ips', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.dhis2.username', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'scheduledReports',
     setting: 'reporting.scheduledReports',
     scope: SETTINGS_SCOPES.CENTRAL,
   },
-  {
-    config: 'validateQuestionConfigs.enabled',
-    setting: 'validateQuestionConfigs.enabled',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'notifications.referralCreated',
-    setting: 'notifications.referralCreated',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
+  { config: 'validateQuestionConfigs.enabled', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'notifications.referralCreated', scope: SETTINGS_SCOPES.CENTRAL },
   // Facility-server schedules; distinct from the central row above because the two
   // servers' schema (and scope) differ while sharing the `schedules` config path.
-  { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.FACILITY },
-  {
-    config: 'notifications.certificates.labTestCategoryIds',
-    setting: 'notifications.certificates.labTestCategoryIds',
-    scope: SETTINGS_SCOPES.CENTRAL,
-  },
-  {
-    config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
-    setting: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
-    scope: SETTINGS_SCOPES.GLOBAL,
-  },
-  {
-    config: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
-    setting: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
-    scope: SETTINGS_SCOPES.GLOBAL,
-  },
-  {
-    config: 'tasking.upcomingTasksTimeFrame',
-    setting: 'tasking.upcomingTasksTimeFrame',
-    scope: SETTINGS_SCOPES.FACILITY,
-  },
-  {
-    config: 'integrations.mSupplyMed',
-    setting: 'integrations.mSupplyMed',
-    scope: SETTINGS_SCOPES.FACILITY,
-  },
+  { config: 'schedules', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'notifications.certificates.labTestCategoryIds', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'tasking.upcomingTasksTimeFrame', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'integrations.mSupplyMed', scope: SETTINGS_SCOPES.FACILITY },
   // Subtree row: lifts every scheduled-task knob under `schedules` in one go.
-  { config: 'schedules', setting: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'schedules', scope: SETTINGS_SCOPES.CENTRAL },
   // Legacy `localisation` un-nested into top-level settings (central config only;
   // facility servers never carried these keys).
   { config: 'localisation.data.units', setting: 'units', scope: SETTINGS_SCOPES.GLOBAL },
@@ -138,14 +88,14 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   },
   { config: 'cors', setting: 'security.cors', scope: SETTINGS_SCOPES.CENTRAL },
   { config: ['socket.io'], setting: 'websocket', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 's3', setting: 's3', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'loadshedder', setting: 'loadshedder', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'rateLimit', setting: 'rateLimit', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 's3', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'loadshedder', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'rateLimit', scope: SETTINGS_SCOPES.GLOBAL },
   // Subtree row: lifts the auth behaviour knobs; the token secrets are absent from
   // the schema (env vars), so the walk never lifts them.
-  { config: 'auth', setting: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
-  { config: 'metaServer', setting: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
 ];
 
 // Config paths are handled as segment arrays so a config key containing a dot
@@ -187,10 +137,11 @@ export function configOverridesForScope(scope: string): ReaderSettingResult {
   if (!schema) return result;
   for (const entry of CONFIG_TO_SETTINGS) {
     if (entry.scope !== scope) continue;
-    const node = getNodeAtPath(schema, entry.setting);
+    const settingPath = settingPathOf(entry);
+    const node = getNodeAtPath(schema, settingPath);
     if (!node) continue;
     const configPath = Array.isArray(entry.config) ? entry.config : entry.config.split('.');
-    liftConfigValue(node, configPath, entry.setting, result);
+    liftConfigValue(node, configPath, settingPath, result);
   }
   return result;
 }
