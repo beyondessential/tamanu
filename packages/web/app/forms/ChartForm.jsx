@@ -88,10 +88,13 @@ export const ChartForm = React.memo(
       editedObject,
       getCurrentDateTime,
     ]);
-    const validationSchema = useMemo(() => getValidationSchema(chartSurveyData, getTranslation), [
-      chartSurveyData,
-      getTranslation,
-    ]);
+    const validationSchema = useMemo(
+      () =>
+        getValidationSchema({ components: visibleComponents }, getTranslation, {
+          encounterType: encounter?.encounterType,
+        }),
+      [visibleComponents, encounter?.encounterType, getTranslation],
+    );
 
     if (isLoading) {
       return <ModalLoader data-testid="modalloader-wncd" />;

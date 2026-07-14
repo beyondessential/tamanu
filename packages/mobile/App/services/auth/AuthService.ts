@@ -84,13 +84,17 @@ export class AuthService {
       },
     });
 
+    if (!user) {
+      throw new AuthenticationError(invalidUserCredentialsMessage);
+    }
+
     if (!user.password) {
       throw new AuthenticationError(
         'You need to first login when connected to internet to use your account offline.',
       );
     }
 
-    if (!user || !(await compare(password, user.password))) {
+    if (!(await compare(password, user.password))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 

@@ -330,14 +330,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
-  const { defaultTimeSlots } = useMedicationIdealTimes({
-    frequency: values.frequency,
-  });
+  const { defaultTimeSlots } = useMedicationIdealTimes({ frequency: values.frequency });
 
   const firstAdministrationTime = useMemo(() => {
-    if (!values.startDate) return '';
-    if (!values.frequency) return '';
-    if (!selectedTimeSlots?.length) return '';
+    if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
 
     const startDate = new Date(values.startDate);
 
@@ -951,7 +947,11 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
-              unit={values.dosingUnit ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation) : undefined}
+              unit={
+                values.dosingUnit
+                  ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
+                  : undefined
+              }
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
@@ -1112,7 +1112,11 @@ export const MedicationForm = ({
               min={0}
               component={NumberField}
               onInput={preventInvalidNumber}
-              unit={values.dispensingUnit ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation) : undefined}
+              unit={
+                values.dispensingUnit
+                  ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation)
+                  : undefined
+              }
               data-testid="medication-field-quantity-6j9m"
             />
             <Field
