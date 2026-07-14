@@ -1,76 +1,72 @@
+import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@material-ui/core';
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { useQueryClient } from '@tanstack/react-query';
+import { format, subSeconds } from 'date-fns';
+import { capitalize } from 'es-toolkit/compat';
+import { useFormikContext } from 'formik';
+import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import PrintIcon from '@mui/icons-material/Print';
+
 import {
+  ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   DRUG_ROUTE_VALUES,
-  MEDICATION_DURATION_UNITS_LABELS,
-  MEDICATION_ADMINISTRATION_TIME_SLOTS,
-  ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
   MAX_REPEATS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+  MEDICATION_DURATION_UNITS_LABELS,
 } from '@tamanu/constants';
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { format, subSeconds } from 'date-fns';
-import { useFormikContext } from 'formik';
-import { toast } from 'react-toastify';
-
-import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
-import { foreignKey } from '../utils/validation';
-import { PrintPrescriptionModal } from '../components/PatientPrinting';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   AutocompleteField,
-  BodyText,
-  CheckField,
-  CheckInput,
+  ConditionalTooltip,
   DateField,
   DateTimeField,
-  Field,
-  NumberField,
-  SmallBodyText,
-} from '../components';
-import {
-  TextField,
-  TranslatedSelectField,
+  Dialog,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  Dialog,
+  NumberField,
+  TextField,
+  TranslatedSelectField,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQueryClient } from '@tanstack/react-query';
-import { useApi, useSuggester } from '../api';
-import { useSelector } from 'react-redux';
-import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
-import { useAuth } from '../contexts/Auth';
-import { useSettings } from '../contexts/Settings';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
+import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
+import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip } from '../components/Tooltip';
-import { capitalize } from 'es-toolkit/compat';
+import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { PrintPrescriptionModal } from '../components/PatientPrinting';
+import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
+import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import {
   preventInvalidNumber,
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
-import { getDrugUnitLabel } from '../utils/medications';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { useEncounter } from '../contexts/Encounter';
-import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
-import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
+import { foreignKey } from '../utils/validation';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -985,7 +981,11 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
-              unit={values.dosingUnit ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation) : undefined}
+              unit={
+                values.dosingUnit
+                  ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
+                  : undefined
+              }
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
@@ -1146,7 +1146,11 @@ export const MedicationForm = ({
               min={0}
               component={NumberField}
               onInput={preventInvalidNumber}
-              unit={values.dispensingUnit ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation) : undefined}
+              unit={
+                values.dispensingUnit
+                  ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation)
+                  : undefined
+              }
               data-testid="medication-field-quantity-6j9m"
             />
             <Field

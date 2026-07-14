@@ -24,7 +24,7 @@ import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,7 +40,7 @@ import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { ConditionalTooltip } from '../../Tooltip';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
