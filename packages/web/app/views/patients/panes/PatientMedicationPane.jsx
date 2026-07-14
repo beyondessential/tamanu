@@ -44,6 +44,7 @@ import {
   isDispenseModifiedByPharmacy,
   PharmacyModifiedFootnote,
 } from '../../../utils/medications';
+import { PrescriptionChangeHistoryModal } from '../../../components/Medication/PrescriptionChangeHistoryModal';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
