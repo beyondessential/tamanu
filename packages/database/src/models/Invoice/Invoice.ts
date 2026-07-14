@@ -26,11 +26,7 @@ import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  selectEncounterFeeCode,
-  computeBedFeeChargeInstants,
-  getBedFeeInvoiceItemId,
-} from '@tamanu/utils/invoice';
+import { selectEncounterFeeCode, computeBedFeeChargeInstants } from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 import type { Location } from '../Location';
@@ -492,12 +488,9 @@ export class Invoice extends Model {
    * charged only if it has a bed-fee product (placeholder wards have none). Recompute SETS the
    * quantity, and a cashier-removed line is not resurrected.
    *
-   * This runs on both the facility server (encounter routes) and the central server
-   * (BedFeeCharger), so lines are created with a deterministic id — both servers minting "the
-   * same" line converge on one row through sync instead of colliding on the natural-key unique
-   * index. For the same reason a line whose location no longer qualifies is reconciled to
-   * quantity 0 rather than soft-deleted: a facility-side restore never propagates to central,
-   * so soft-delete is reserved for cashier removals (which are honoured and never resurrected).
+   * A line whose location no longer qualifies is reconciled to quantity 0 rather than
+   * soft-deleted: a soft-delete (restore) doesn't propagate facility→central through sync, so
+   * soft-delete is reserved for cashier removals — which are honoured and never resurrected.
    */
   static async recalculateBedFee(
     encounter: Encounter,
@@ -585,9 +578,6 @@ export class Invoice extends Model {
         await existing.update({ quantity: nights, productId: product.id });
       } else {
         await InvoiceItem.create({
-          // Deterministic id so the facility server and the central BedFeeCharger creating the
-          // same line converge through sync instead of colliding on the natural-key unique index.
-          id: getBedFeeInvoiceItemId(invoice.id, locationId),
           invoiceId: invoice.id,
           sourceRecordType: locationSourceType,
           sourceRecordId: locationId,

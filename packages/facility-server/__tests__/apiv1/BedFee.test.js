@@ -1,6 +1,5 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import { getBedFeeInvoiceItemId } from '@tamanu/utils/invoice';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { ReadSettings } from '@tamanu/settings';
@@ -248,18 +247,6 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(items[0].quantity).toBe(1);
   });
 
-  it('creates the bed-fee line with a deterministic id', async () => {
-    // Both the facility server and the central BedFeeCharger can mint this line; a shared
-    // deterministic id makes the double-create converge through sync instead of colliding
-    // on the (invoice_id, source_record_type, source_record_id) unique index.
-    const items = await admitAndRecompute({
-      locationId: bedLocation.id,
-      startDate: '2024-06-16 09:00:00',
-      endDate: '2024-06-16 14:00:00',
-    });
-    expect(items[0].id).toBe(getBedFeeInvoiceItemId(items[0].invoiceId, bedLocation.id));
-  });
-
   it('zeroes a departed location instead of deleting, and recharges it when the patient returns', async () => {
     const locationB = await models.Location.create(
       fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-RETURN' }),
@@ -371,31 +358,6 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
       app = await ctx.baseApp.asRole('practitioner');
     });
 
-    it('accepts an invoice save round-tripping the deterministic bed-fee item id', async () => {
-      // The web form round-trips every existing item on save, so the PUT schema must accept
-      // the deterministic bed-fee id or invoices with a bed-fee line become unsaveable.
-      const items = await admitAndRecompute({
-        locationId: bedLocation.id,
-        startDate: '2024-06-16 18:00:00',
-        endDate: '2024-06-19 06:00:00',
-      });
-      const item = items[0];
-      const result = await app.put(`/api/invoices/${item.invoiceId}`).send({
-        items: [
-          {
-            id: item.id,
-            orderDate: '2024-06-16',
-            orderedByUserId: user.id,
-            productId: item.productId,
-            quantity: item.quantity,
-          },
-        ],
-      });
-      expect(result).toHaveSucceeded();
-      const saved = await models.InvoiceItem.findByPk(item.id);
-      expect(saved).toBeTruthy();
-    });
-
     it('removes quantity-0 bed-fee lines at finalisation and keeps charged ones', async () => {
       const zeroedLocation = await models.Location.create(
         fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-ZEROED' }),
@@ -426,7 +388,6 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
       });
       const createBedFeeItem = (locationId, productId, quantity) =>
         models.InvoiceItem.create({
-          id: getBedFeeInvoiceItemId(invoice.id, locationId),
           invoiceId: invoice.id,
           sourceRecordType: 'Location',
           sourceRecordId: locationId,

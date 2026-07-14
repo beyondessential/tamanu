@@ -8,7 +8,6 @@ import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
-import { BedFeeCharger } from './BedFeeCharger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
@@ -42,7 +41,6 @@ export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,
-    BedFeeCharger,
     PatientEmailCommunicationProcessor,
     PortalCommunicationProcessor,
     ReportRequestProcessor,

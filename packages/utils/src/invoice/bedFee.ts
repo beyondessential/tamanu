@@ -1,21 +1,4 @@
 import { Temporal } from 'temporal-polyfill';
-import { v5 as uuidv5 } from 'uuid';
-
-// Fixed namespace for deterministic bed-fee invoice-item ids (uuidv5).
-const BED_FEE_INVOICE_ITEM_NAMESPACE = 'fed27d8d-4a63-4bde-8a51-70f08c7de430';
-
-/**
- * Deterministic id for the auto-created bed-fee invoice item of (invoice, location).
- *
- * The bed-fee line can be minted by both the facility server (encounter routes) and the central
- * server (BedFeeCharger). invoice_items has a unique index on its natural key
- * (invoice_id, source_record_type, source_record_id), and sync classifies incoming rows by id —
- * so two servers creating "the same" line under random ids wedges sync with a permanent unique
- * violation. A shared deterministic id makes the double-create converge into one row instead.
- * uuidv5 keeps it a valid uuid for the uuid-typed id column.
- */
-export const getBedFeeInvoiceItemId = (invoiceId: string, locationId: string): string =>
-  uuidv5(`${invoiceId};${locationId}`, BED_FEE_INVOICE_ITEM_NAMESPACE);
 
 export interface BedFeeChargeInstantsInput {
   /** Admission start, stored ISO 9075 in the primary timezone. */

@@ -9,14 +9,21 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { ReadSettings } from '@tamanu/settings';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { InvalidConfigError } from '.';
+
+import { getServerFacilityIds } from '../serverConfig';
+
+class InvalidConfigError extends Error {}
 
 /**
- * Recompute the per-night bed fee for every currently-admitted patient.
+ * Recompute the per-night bed fee for every currently-admitted patient at this server's
+ * facilities.
  *
- * The recompute is idempotent (it counts the facility-local overnight checks that have occurred
- * up to now), so this can run frequently — running hourly just means a new night lands within an
- * hour of each facility's local overnight-check time. No per-facility scheduling is needed.
+ * Runs on the facility server so the bed-fee invoice item has a single writer (like the encounter
+ * fee): scoping to this server's own facility ids means each admission is charged by exactly one
+ * server, and the row syncs up to central as an ordinary invoice item with no cross-server
+ * collision. The recompute is idempotent (it counts the facility-local overnight checks that have
+ * occurred up to now), so running hourly just means a new night lands within an hour of each
+ * facility's local overnight-check time.
  */
 export class BedFeeCharger extends ScheduledTask {
   getName() {
@@ -28,8 +35,8 @@ export class BedFeeCharger extends ScheduledTask {
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
-    this.models = context.store.models;
-    this.sequelize = context.store.sequelize;
+    this.models = context.models;
+    this.sequelize = context.sequelize;
   }
 
   async run() {
@@ -41,18 +48,36 @@ export class BedFeeCharger extends ScheduledTask {
       );
     }
 
+    // Read at run time, not construction — tasks may start before first-run setup has
+    // configured the facility ids.
+    const serverFacilityIds = getServerFacilityIds() ?? [];
+    if (serverFacilityIds.length === 0) {
+      log.warn('BedFeeCharger: no facility configured yet, skipping');
+      return;
+    }
+
     // Recompute still-admitted patients, plus recently-discharged ones, so the final discharge-day
-    // night is captured even for off-hour check times and death discharges (recompute is idempotent).
+    // night is captured even for off-hour check times and death discharges (recompute is
+    // idempotent). Scope to this server's own facilities so a synced-in encounter belonging to
+    // another facility isn't charged here (that facility's own server owns it).
     const dischargedSince = toDateTimeString(sub(new Date(), { hours: 25 }));
     const query = {
       where: {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
         [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: dischargedSince } }],
       },
-      include: [{ model: Location, as: 'location', attributes: ['facilityId'] }],
+      include: [
+        {
+          model: Location,
+          as: 'location',
+          required: true,
+          where: { facilityId: serverFacilityIds },
+          attributes: ['facilityId'],
+        },
+      ],
     };
 
-    const toProcess = await Encounter.count({ where: query.where });
+    const toProcess = await Encounter.count({ ...query, distinct: true, col: 'id' });
     if (toProcess === 0) return;
 
     const primaryTimeZone = getPrimaryTimeZone(config);
@@ -80,8 +105,6 @@ export class BedFeeCharger extends ScheduledTask {
         const facilityId = encounter.location?.facilityId;
         if (!facilityId) continue;
         try {
-          // Managed transaction (CLS) so each encounter's multi-write recompute is atomic, and
-          // a failure on one encounter (e.g. bad invoice data) doesn't starve the rest.
           await this.sequelize.transaction(() =>
             Invoice.recalculateBedFee(encounter, getSettings(facilityId), primaryTimeZone),
           );
