@@ -130,15 +130,12 @@ const ConfirmButton = styled(Button)`
 const StyledNumberFieldWrapper = styled.div`
   position: relative;
 
-  .MuiInputBase-root {
-    padding: 1px calc(${p => p.$units.length}ch + 5px) 1px 3px;
-  }
-
   .MuiInputBase-input {
+    font-size: 11px;
+    height: 17px;
+    padding: 1px calc(${p => p.$units.length}ch + 5px) 1px 3px;
     text-align: center;
     width: 41px;
-    height: 17px;
-    font-size: 11px;
 
     /* Remove the spinner arrows */
     &::-webkit-outer-spin-button,
