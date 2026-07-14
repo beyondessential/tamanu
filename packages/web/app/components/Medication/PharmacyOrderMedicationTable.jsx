@@ -247,7 +247,7 @@ const getColumns = (
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
           return (
-            <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+            <NoWrapCell color="inherit" fontStyle="normal">
               <TranslatedText
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
@@ -259,7 +259,7 @@ const getColumns = (
         }
 
         return (
-          <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+          <NoWrapCell color="inherit" fontStyle="normal">
             <Box>
               <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
