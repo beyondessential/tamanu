@@ -227,7 +227,8 @@ export async function loginHandler(req, res, next) {
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
     const globalSettings =
-      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
+      settings.global ??
+      (typeof settings.get === 'function' ? settings : ReadSettings.forGlobal(models));
 
     const { central, user, localisation, allowedFacilities, primaryTimeZone } =
       await centralServerLoginWithLocalFallback({
@@ -251,7 +252,7 @@ export async function loginHandler(req, res, next) {
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken({ user, deviceId }),
+      buildToken({ user, deviceId, expiresIn: await globalSettings.get('auth.tokenDuration') }),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -284,7 +285,13 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device.id, facilityId, impersonateRoleId });
+    const token = await buildToken({
+      user,
+      deviceId: device.id,
+      facilityId,
+      impersonateRoleId,
+      expiresIn: await (req.settings.global ?? req.settings).get('auth.tokenDuration'),
+    });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -293,12 +300,18 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user, userDevice, facilityId, impersonateRoleId } = req;
+  const { user, userDevice, facilityId, impersonateRoleId, settings } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId, deviceId: userDevice.id, impersonateRoleId });
+  const token = await buildToken({
+    user,
+    facilityId,
+    deviceId: userDevice.id,
+    impersonateRoleId,
+    expiresIn: await (settings.global ?? settings).get('auth.tokenDuration'),
+  });
   res.send({ token });
 }
 
