@@ -217,7 +217,7 @@ const getColumns = (
       sortable: false,
       accessor: ({ durationValue, durationUnit }) => {
         if (!durationValue || !durationUnit) {
-          return '-';
+          return <>&mdash;</>;
         }
 
         const unitLabel = getEnumTranslation(
