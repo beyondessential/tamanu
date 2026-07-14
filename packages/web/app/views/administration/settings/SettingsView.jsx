@@ -59,7 +59,9 @@ const tabs = [
       return (
         <TabContainer data-testid="tabcontainer-6tbj">
           <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
-          {shouldShowEditor && <EditorView {...props} data-testid="editorview-g9wr" />}
+          {/* keyed: a scope switch remounts the editor, so selection/search state
+              re-derives from the URL against the new scope's schema */}
+          {shouldShowEditor && <EditorView key={scope} {...props} data-testid="editorview-g9wr" />}
         </TabContainer>
       );
     },

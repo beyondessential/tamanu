@@ -1,4 +1,4 @@
-import React, { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import {
   cloneDeep,
   get,
@@ -155,8 +155,8 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   const categorySchema = schema.properties[category];
   if (!categorySchema) return null;
   if (subCategory) {
-    // A stale sub-category can outlive a scope/category switch for one render
-    // before the reset effect runs; render nothing rather than crash.
+    // Defensive: category and sub-category are validated together (URL init,
+    // batched setState), but render nothing rather than crash on a mismatch.
     const subCategorySchema = categorySchema.properties?.[subCategory];
     if (!subCategorySchema) return null;
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
@@ -318,24 +318,6 @@ export const EditorView = memo(
       }
       return hints.length ? hints : null;
     }, [isSearchRender, searchResult, category, scope, deferredSearchQuery, getTranslation]);
-
-    const handleChangeScope = () => {
-      setSubCategory(null);
-      setCategory(null);
-      setSearchQuery('');
-    };
-
-    // Reset the selection when the scope changes — but not on mount, or the
-    // deep-linked state read from the URL would be immediately clobbered.
-    const isFirstRender = useRef(true);
-    useEffect(() => {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
-      }
-      handleChangeScope();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [scope]);
 
     const handleChangeCategory = async e => {
       const newCategory = e.target.value ?? null; // null when cleared via the x

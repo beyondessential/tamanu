@@ -396,8 +396,9 @@ const StyledTimePicker = styled(TimePicker)`
 // (assignment/booking slot start & end times). The value is stored as a plain
 // "HH:mm" string; the MUI picker works in Dates, so we parse in and format out
 // across that boundary. Emits '' when cleared or while the entry is invalid so
-// the schema falls back to its default rather than persisting a bad value. The
-// AdapterDateFns LocalizationProvider is already applied app-wide in Root.
+// the schema falls back to its default rather than persisting a bad value. Not
+// the shared TimeInput: that emits 'HH:mm:ss', and these settings store 'HH:mm'.
+// The AdapterDateFns LocalizationProvider is already applied app-wide in Root.
 const TimeSettingInput = ({ value, onChange, error, disabled }) => {
   const parsed = value ? parseDate(value, 'HH:mm', new Date()) : null;
   const dateValue = parsed && isValidDate(parsed) ? parsed : null;
