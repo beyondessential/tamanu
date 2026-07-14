@@ -554,7 +554,6 @@ export const DispenseMedicationWorkflowModal = memo(
                     ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
                     : undefined
                 }
-                style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
                 required={selected}
                 helperText={
