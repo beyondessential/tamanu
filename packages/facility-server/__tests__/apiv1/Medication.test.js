@@ -6,6 +6,7 @@ import {
   ADMINISTRATION_STATUS,
   DRUG_STOCK_STATUSES,
   INVOICE_STATUSES,
+  NOTIFICATION_TYPES,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SETTINGS_SCOPES,
@@ -50,6 +51,113 @@ describe('Medication', () => {
     );
     return prescription;
   };
+
+  const createDrug = async ({ isSensitive = false, dosingUnit = 'mg', dispensingUnit = 'Tablet' } = {}) => {
+    const medication = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+    );
+    const referenceDrug = await models.ReferenceDrug.create(
+      fake(models.ReferenceDrug, {
+        referenceDataId: medication.id,
+        isSensitive,
+        dosingUnit,
+        dispensingUnit,
+      }),
+    );
+    return { medication, referenceDrug };
+  };
+
+  const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
+    const { medication } = await createDrug();
+    const encounter = await models.Encounter.create(
+      fake(models.Encounter, {
+        patientId,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: app.user.id,
+        endDate: getCurrentDateTimeString(),
+      }),
+    );
+    const prescription = await models.Prescription.create(
+      fake(models.Prescription, {
+        medicationId: medication.id,
+        prescriberId: app.user.id,
+        startDate: getCurrentDateTimeString(),
+      }),
+    );
+    await models.EncounterPrescription.create(
+      fake(models.EncounterPrescription, {
+        encounterId: encounter.id,
+        prescriptionId: prescription.id,
+      }),
+    );
+    const pharmacyOrder = await models.PharmacyOrder.create(
+      fake(models.PharmacyOrder, {
+        orderingClinicianId: app.user.id,
+        encounterId: encounter.id,
+        isDischargePrescription: true,
+        date: getCurrentDateTimeString(),
+        facilityId,
+      }),
+    );
+    const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
+      ...fake(models.PharmacyOrderPrescription, {
+        pharmacyOrderId: pharmacyOrder.id,
+        prescriptionId: prescription.id,
+        quantity: 10,
+        repeats,
+      }),
+      id: crypto.randomUUID(),
+    });
+    return { pharmacyOrderPrescription, encounter, prescription, medication };
+  };
+
+  // A second dispense request for the same prescription, so a prescription can accumulate
+  // multiple fills (the helper above allows only one dispense per request).
+  const createAdditionalPharmacyOrderPrescription = async ({ prescription, encounter }) => {
+    const pharmacyOrder = await models.PharmacyOrder.create(
+      fake(models.PharmacyOrder, {
+        orderingClinicianId: app.user.id,
+        encounterId: encounter.id,
+        isDischargePrescription: true,
+        date: getCurrentDateTimeString(),
+        facilityId,
+      }),
+    );
+    return models.PharmacyOrderPrescription.create({
+      ...fake(models.PharmacyOrderPrescription, {
+        pharmacyOrderId: pharmacyOrder.id,
+        prescriptionId: prescription.id,
+        quantity: 10,
+        repeats: 1,
+      }),
+      id: crypto.randomUUID(),
+    });
+  };
+
+  const buildModification = ({ medicationId, modifiedReasonId, modifiedById }) => ({
+    medicationId,
+    isVariableDose: false,
+    doseAmount: 250,
+    frequency: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
+    route: DRUG_ROUTES.oral,
+    pharmacyNotes: 'This prescription has been modified by pharmacy when dispensing.',
+    modifiedReasonId,
+    modifiedById,
+  });
+
+  const createModifyReason = () =>
+    models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+    );
+
+  const dispenseItems = (items, overrides = {}) =>
+    app.post('/api/medication/dispense').send({
+      dispensedByUserId: app.user.id,
+      facilityId,
+      items,
+      ...overrides,
+    });
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -356,53 +464,6 @@ describe('Medication', () => {
   });
 
   describe('POST /api/medication/dispense', () => {
-    const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
-      const medication = await models.ReferenceData.create(
-        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
-      );
-      const encounter = await models.Encounter.create(
-        fake(models.Encounter, {
-          patientId,
-          locationId: location.id,
-          departmentId: department.id,
-          examinerId: app.user.id,
-          endDate: getCurrentDateTimeString(),
-        }),
-      );
-      const prescription = await models.Prescription.create(
-        fake(models.Prescription, {
-          medicationId: medication.id,
-          prescriberId: app.user.id,
-          startDate: getCurrentDateTimeString(),
-        }),
-      );
-      await models.EncounterPrescription.create(
-        fake(models.EncounterPrescription, {
-          encounterId: encounter.id,
-          prescriptionId: prescription.id,
-        }),
-      );
-      const pharmacyOrder = await models.PharmacyOrder.create(
-        fake(models.PharmacyOrder, {
-          orderingClinicianId: app.user.id,
-          encounterId: encounter.id,
-          isDischargePrescription: true,
-          date: getCurrentDateTimeString(),
-          facilityId,
-        }),
-      );
-      const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
-        ...fake(models.PharmacyOrderPrescription, {
-          pharmacyOrderId: pharmacyOrder.id,
-          prescriptionId: prescription.id,
-          quantity: 10,
-          repeats,
-        }),
-        id: crypto.randomUUID(),
-      });
-      return { pharmacyOrderPrescription, encounter, prescription };
-    };
-
     it('should dispense medication successfully', async () => {
       const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
         patientId: patient.id,
@@ -563,17 +624,6 @@ describe('Medication', () => {
       expect(persisted.modifiedById).toBeNull();
     });
 
-    const buildModification = ({ medicationId, modifiedReasonId, modifiedById }) => ({
-      medicationId,
-      isVariableDose: false,
-      doseAmount: 250,
-      frequency: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
-      route: DRUG_ROUTES.oral,
-      pharmacyNotes: 'This prescription has been modified by pharmacy when dispensing.',
-      modifiedReasonId,
-      modifiedById,
-    });
-
     it('should record a modification on the dispense without altering the original prescription', async () => {
       const { pharmacyOrderPrescription, prescription } =
         await createPharmacyOrderWithPrescription({ patientId: patient.id });
@@ -731,6 +781,422 @@ describe('Medication', () => {
       expect(afterRow.latestModifiedDispense.id).toBe(dispenseResult.body[0].id);
       expect(afterRow.latestModifiedDispense.modifiedAt).toBeTruthy();
       expect(afterRow.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
+    });
+
+    it('should reject a modification with a duration value but no unit', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 10,
+          instructions: 'whatever',
+          modification: {
+            ...buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+            durationValue: 5,
+            durationUnit: null,
+          },
+        },
+      ]);
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('should store a variable dose modification with no dose amount', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 10,
+          instructions: 'whatever',
+          modification: {
+            ...buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+            isVariableDose: true,
+            doseAmount: null,
+          },
+        },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+      expect(persisted.isVariableDose).toBe(true);
+      expect(persisted.doseAmount).toBeNull();
+      expect(persisted.modifiedAt).toBeTruthy();
+    });
+
+    it('should resolve dosing and dispensing units from the substituted drug', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const { medication: substitute } = await createDrug({
+        dosingUnit: 'mL',
+        dispensingUnit: 'Bottle',
+      });
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 1,
+          instructions: 'whatever',
+          modification: buildModification({
+            medicationId: substitute.id,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+      expect(persisted.dosingUnit).toBe('mL');
+      expect(persisted.dispensingUnit).toBe('Bottle');
+      expect(persisted.dosingUnit).not.toBe(prescription.dosingUnit);
+    });
+
+    it('should reject a modification substituting an out-of-stock drug', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const { medication: substitute, referenceDrug } = await createDrug();
+      await models.ReferenceDrugFacility.create(
+        fake(models.ReferenceDrugFacility, {
+          referenceDrugId: referenceDrug.id,
+          facilityId,
+          stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+          // An unavailable drug cannot carry a stock quantity (check_quantity_stock_consistency)
+          quantity: null,
+        }),
+      );
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 1,
+          instructions: 'whatever',
+          modification: buildModification({
+            medicationId: substitute.id,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('should notify the prescriber with a pharmacy note on a modified dispense', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: localPatient.id });
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 10,
+          instructions: 'whatever',
+          modification: buildModification({
+            medicationId: prescription.medicationId,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+      expect(result).toHaveSucceeded();
+
+      const notifications = await models.Notification.findAll({
+        where: { type: NOTIFICATION_TYPES.PHARMACY_NOTE, patientId: localPatient.id },
+      });
+      expect(notifications).toHaveLength(1);
+      // Addressed to the original prescriber
+      expect(notifications[0].userId).toBe(app.user.id);
+    });
+
+    it('should not notify the prescriber when dispensing unmodified', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
+      });
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 10,
+          instructions: 'whatever',
+        },
+      ]);
+      expect(result).toHaveSucceeded();
+
+      const notifications = await models.Notification.findAll({
+        where: { type: NOTIFICATION_TYPES.PHARMACY_NOTE, patientId: localPatient.id },
+      });
+      expect(notifications).toHaveLength(0);
+    });
+
+    it('should surface the most recently dispensed modified fill on the encounter medications list', async () => {
+      const { pharmacyOrderPrescription: firstRequest, prescription, encounter } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await createModifyReason();
+      const modification = popId => [
+        {
+          pharmacyOrderPrescriptionId: popId,
+          quantity: 10,
+          instructions: 'whatever',
+          modification: buildModification({
+            medicationId: prescription.medicationId,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ];
+
+      const firstFill = await dispenseItems(modification(firstRequest.id));
+      expect(firstFill).toHaveSucceeded();
+      // Backdate the first fill so the two fills have distinct dispense times
+      await models.MedicationDispense.update(
+        { dispensedAt: '2020-01-01 00:00:00' },
+        { where: { id: firstFill.body[0].id } },
+      );
+
+      const secondRequest = await createAdditionalPharmacyOrderPrescription({
+        prescription,
+        encounter,
+      });
+      const secondFill = await dispenseItems(modification(secondRequest.id));
+      expect(secondFill).toHaveSucceeded();
+
+      const result = await app.get(`/api/encounter/${encounter.id}/medications`);
+      expect(result).toHaveSucceeded();
+      const row = result.body.data.find(p => p.id === prescription.id);
+      expect(row.latestModifiedDispense.id).toBe(secondFill.body[0].id);
+    });
+
+    it('should keep showing the last modified fill when a later fill is unmodified', async () => {
+      const { pharmacyOrderPrescription: firstRequest, prescription, encounter } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await createModifyReason();
+
+      const firstFill = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: firstRequest.id,
+          quantity: 10,
+          instructions: 'whatever',
+          modification: buildModification({
+            medicationId: prescription.medicationId,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+      expect(firstFill).toHaveSucceeded();
+      await models.MedicationDispense.update(
+        { dispensedAt: '2020-01-01 00:00:00' },
+        { where: { id: firstFill.body[0].id } },
+      );
+
+      const secondRequest = await createAdditionalPharmacyOrderPrescription({
+        prescription,
+        encounter,
+      });
+      const secondFill = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: secondRequest.id,
+          quantity: 10,
+          instructions: 'whatever',
+        },
+      ]);
+      expect(secondFill).toHaveSucceeded();
+
+      const result = await app.get(`/api/encounter/${encounter.id}/medications`);
+      expect(result).toHaveSucceeded();
+      const row = result.body.data.find(p => p.id === prescription.id);
+      expect(row.latestModifiedDispense.id).toBe(firstFill.body[0].id);
+    });
+
+    it('should return a request error for modify-history of an unknown dispense', async () => {
+      const result = await app.get(
+        `/api/medication/medication-dispenses/${crypto.randomUUID()}/modify-history`,
+      );
+      expect(result).toHaveRequestError();
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should reject a modification substituting a sensitive drug without the permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const { medication: sensitiveDrug } = await createDrug({ isSensitive: true });
+        const modifyReason = await createModifyReason();
+
+        const result = await limitedApp.post('/api/medication/dispense').send({
+          dispensedByUserId: limitedApp.user.id,
+          facilityId,
+          items: [
+            {
+              pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+              quantity: 1,
+              instructions: 'whatever',
+              modification: buildModification({
+                medicationId: sensitiveDrug.id,
+                modifiedReasonId: modifyReason.id,
+                modifiedById: limitedApp.user.id,
+              }),
+            },
+          ],
+        });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should reject modify-history without read MedicationDispense permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const result = await noPermsApp.get(
+          `/api/medication/medication-dispenses/${crypto.randomUUID()}/modify-history`,
+        );
+        expect(result).toBeForbidden();
+      });
+    });
+  });
+
+  describe('GET /api/medication/medication-dispenses', () => {
+    const arrangeModifiedDispense = async () => {
+      const { pharmacyOrderPrescription, prescription, medication } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const { medication: substitute } = await createDrug();
+      const modifyReason = await createModifyReason();
+
+      const result = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 16,
+          instructions: 'Modified label',
+          modification: buildModification({
+            medicationId: substitute.id,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+      expect(result).toHaveSucceeded();
+      return { dispenseId: result.body[0].id, prescription, medication, substitute };
+    };
+
+    it('should return dispensed details with isModified and the substituted medication', async () => {
+      const { dispenseId, substitute } = await arrangeModifiedDispense();
+
+      const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(d => d.id === dispenseId);
+      expect(row).toBeDefined();
+      expect(row.isModified).toBe(true);
+      expect(row.medication.id).toBe(substitute.id);
+      expect(Number(row.doseAmount)).toBe(250);
+    });
+
+    it('should filter by the dispensed medication rather than the prescribed one', async () => {
+      const { dispenseId, medication, substitute } = await arrangeModifiedDispense();
+
+      const bySubstitute = await app.get(
+        `/api/medication/medication-dispenses?facilityId=${facilityId}&medicationId=${substitute.id}`,
+      );
+      expect(bySubstitute).toHaveSucceeded();
+      expect(bySubstitute.body.data.find(d => d.id === dispenseId)).toBeDefined();
+
+      const byOriginal = await app.get(
+        `/api/medication/medication-dispenses?facilityId=${facilityId}&medicationId=${medication.id}`,
+      );
+      expect(byOriginal).toHaveSucceeded();
+      expect(byOriginal.body.data.find(d => d.id === dispenseId)).toBeUndefined();
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should hide fills dispensed with a sensitive substitution from users without the permission', async () => {
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const { medication: sensitiveDrug } = await createDrug({ isSensitive: true });
+        const dispense = await models.MedicationDispense.create({
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 5,
+          instructions: 'whatever',
+          dispensedByUserId: app.user.id,
+          dispensedAt: getCurrentDateTimeString(),
+          medicationId: sensitiveDrug.id,
+          modifiedById: app.user.id,
+          modifiedAt: getCurrentDateTimeString(),
+        });
+
+        const limitedApp = await baseApp.asNewRole([['read', 'MedicationDispense']]);
+        const hidden = await limitedApp.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}`,
+        );
+        expect(hidden).toHaveSucceeded();
+        expect(hidden.body.data.find(d => d.id === dispense.id)).toBeUndefined();
+
+        const sensitiveApp = await baseApp.asNewRole([
+          ['read', 'MedicationDispense'],
+          ['read', 'SensitiveMedication'],
+        ]);
+        const visible = await sensitiveApp.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}`,
+        );
+        expect(visible).toHaveSucceeded();
+        expect(visible.body.data.find(d => d.id === dispense.id)).toBeDefined();
+      });
+    });
+  });
+
+  describe('GET /api/patient/:id/dispensed-medications', () => {
+    it('should return dispensed details with isModified for the patient', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
+      });
+      const { medication: substitute } = await createDrug();
+      const modifyReason = await createModifyReason();
+
+      const dispenseResult = await dispenseItems([
+        {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 16,
+          instructions: 'Modified label',
+          modification: buildModification({
+            medicationId: substitute.id,
+            modifiedReasonId: modifyReason.id,
+            modifiedById: app.user.id,
+          }),
+        },
+      ]);
+      expect(dispenseResult).toHaveSucceeded();
+
+      const result = await app.get(`/api/patient/${localPatient.id}/dispensed-medications`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(d => d.id === dispenseResult.body[0].id);
+      expect(row).toBeDefined();
+      expect(row.isModified).toBe(true);
+      expect(row.medicationId).toBe(substitute.id);
+      expect(row.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
     });
   });
 
