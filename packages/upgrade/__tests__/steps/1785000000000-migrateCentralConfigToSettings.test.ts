@@ -140,6 +140,12 @@ describe('mergeConfigUnderExisting', () => {
       x: { a: 1, b: 2 },
     });
   });
+  it('replaces arrays wholesale instead of merging index-wise', () => {
+    expect(mergeConfigUnderExisting({ hosts: ['a'] }, { hosts: ['b', 'c'] })).toEqual({
+      hosts: ['a'],
+    });
+    expect(mergeConfigUnderExisting({}, { hosts: ['b', 'c'] })).toEqual({ hosts: ['b', 'c'] });
+  });
 });
 
 describe('1785000000000-migrateCentralConfigToSettings', () => {

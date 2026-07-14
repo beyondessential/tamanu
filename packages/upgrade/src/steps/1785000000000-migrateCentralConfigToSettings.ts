@@ -7,15 +7,19 @@ import {
   getSettingsPskKeyBuffer,
   SecretNotConfiguredError,
 } from '@tamanu/shared/utils/crypto';
-import { cloneDeep, defaultsDeep, get as getAtPath, isEmpty } from 'es-toolkit/compat';
+import { cloneDeep, get as getAtPath, isArray, isEmpty, mergeWith } from 'es-toolkit/compat';
 
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
 
 // Merge config overrides under the recorded settings so an existing setting always
 // wins — an operator's value is never overwritten, config only fills the gaps.
+// Arrays replace wholesale (the same rule as the settings cascade): an index-wise
+// merge would splice config entries into a recorded array setting.
 export const mergeConfigUnderExisting = (existing: object, overrides: object) =>
-  defaultsDeep(cloneDeep(existing ?? {}), overrides);
+  mergeWith(cloneDeep(overrides), existing ?? {}, (_, existingValue) =>
+    isArray(existingValue) ? existingValue : undefined,
+  );
 
 // A legacy config mail.transport may embed the SMTP password (nodemailer's
 // auth.pass). Settings keep that credential in the mail.transportPassword secret

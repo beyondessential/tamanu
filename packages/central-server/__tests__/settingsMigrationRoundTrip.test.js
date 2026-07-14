@@ -1,4 +1,4 @@
-import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { FACT_FACILITY_IDS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
 import { STEPS as FACILITY_STEPS } from '../../upgrade/src/steps/1785000000001-migrateFacilityConfigToSettings';
@@ -96,6 +96,9 @@ describe('config->settings migration round trip', () => {
   it('facility step + central apply: carrier round trip', async () => {
     const f1 = await models.Facility.create(fake(models.Facility));
     const f2 = await models.Facility.create(fake(models.Facility));
+    // Synced down but served by another server: must get no carrier rows.
+    const elsewhere = await models.Facility.create(fake(models.Facility));
+    await models.LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify([f1.id, f2.id]));
 
     const args = { models, serverType: 'facility', toVersion: '9.9.9', log: logStub };
     expect(await FACILITY_STEPS[0].check(args)).toBe(true);
@@ -103,6 +106,7 @@ describe('config->settings migration round trip', () => {
     expect(await FACILITY_STEPS[0].check(args)).toBe(false); // fact-gated
 
     const rows = await models.FacilitySettingMigration.findAll({});
+    expect(rows.some(r => r.facilityId === elsewhere.id)).toBe(false);
     const taskingRows = rows.filter(r => r.key === 'tasking.upcomingTasksTimeFrame');
     expect(taskingRows.map(r => r.facilityId).sort()).toEqual([f1.id, f2.id].sort());
     expect(taskingRows[0].value).toBe(9);

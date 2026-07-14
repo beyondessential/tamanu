@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FACT_FACILITY_CONFIG_MIGRATED } from '@tamanu/constants';
+import { FACT_FACILITY_CONFIG_MIGRATED, FACT_FACILITY_IDS } from '@tamanu/constants';
 
 vi.mock('@tamanu/settings', () => ({
   CONFIG_TO_SETTINGS: [
@@ -14,6 +14,7 @@ import {
   STEPS,
   carrierId,
   facilityConfigRows,
+  servedFacilityIds,
 } from '../../src/steps/1785000000001-migrateFacilityConfigToSettings.js';
 
 const step = STEPS[0];
@@ -21,8 +22,13 @@ const step = STEPS[0];
 const makeArgs = () => ({
   models: {
     FacilitySettingMigration: { upsert: vi.fn() },
-    Facility: { findAll: vi.fn().mockResolvedValue([{ id: 'f1' }, { id: 'f2' }]) },
-    LocalSystemFact: { get: vi.fn().mockResolvedValue(undefined), set: vi.fn() },
+    LocalSystemFact: {
+      // served facilities come from the facility-ids fact; the migrated fact is unset
+      get: vi.fn(async key =>
+        key === FACT_FACILITY_IDS ? JSON.stringify(['f1', 'f2']) : undefined,
+      ),
+      set: vi.fn(),
+    },
   },
   serverType: 'facility',
   toVersion: '2.99.0',
@@ -53,6 +59,15 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
       const args = makeArgs();
       args.models.LocalSystemFact.get.mockResolvedValue('2.50.0');
       expect(await step.check(args)).toBe(false);
+    });
+    it('resolves served facilities env > fact', async () => {
+      process.env.SYNC_FACILITY_IDS = ' f9 , f8 ,f9 ';
+      try {
+        expect(await servedFacilityIds(makeArgs().models.LocalSystemFact)).toEqual(['f9', 'f8']);
+      } finally {
+        delete process.env.SYNC_FACILITY_IDS;
+      }
+      expect(await servedFacilityIds(makeArgs().models.LocalSystemFact)).toEqual(['f1', 'f2']);
     });
     it('skips on a central server', async () => {
       expect(await step.check({ ...makeArgs(), serverType: 'central' })).toBe(false);
@@ -91,7 +106,7 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
 
       await step.run(args);
 
-      expect(args.models.Facility.findAll).not.toHaveBeenCalled();
+      expect(args.models.LocalSystemFact.get).not.toHaveBeenCalledWith(FACT_FACILITY_IDS);
       expect(args.models.FacilitySettingMigration.upsert).not.toHaveBeenCalled();
       expect(args.models.LocalSystemFact.set).toHaveBeenCalledWith(
         FACT_FACILITY_CONFIG_MIGRATED,

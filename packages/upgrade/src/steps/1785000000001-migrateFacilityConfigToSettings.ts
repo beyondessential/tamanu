@@ -1,5 +1,11 @@
-import { FACT_FACILITY_CONFIG_MIGRATED, SETTINGS_SCOPES } from '@tamanu/constants';
+import config from 'config';
+import {
+  FACT_FACILITY_CONFIG_MIGRATED,
+  FACT_FACILITY_IDS,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { CONFIG_TO_SETTINGS, configOverridesForScope } from '@tamanu/settings';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { get as getAtPath } from 'es-toolkit/compat';
 
 import type { Steps, StepArgs } from '../step.ts';
@@ -20,6 +26,27 @@ export const facilityConfigRows = () => {
     .filter(row => row.value !== undefined);
 };
 
+// The facilities this server serves (env > fact > config, mirroring serverConfig's
+// resolution) — NOT Facility.findAll(): every facility in the deployment syncs down
+// as reference data, and snapshotting config for facilities served by *other*
+// servers would let whichever server syncs first stamp its values onto them.
+export const servedFacilityIds = async (
+  LocalSystemFact: StepArgs['models']['LocalSystemFact'],
+): Promise<string[]> => {
+  if (process.env.SYNC_FACILITY_IDS) {
+    return [
+      ...new Set(
+        process.env.SYNC_FACILITY_IDS.split(',')
+          .map(id => id.trim())
+          .filter(Boolean),
+      ),
+    ];
+  }
+  const fact = await LocalSystemFact.get(FACT_FACILITY_IDS);
+  if (fact) return JSON.parse(fact);
+  return selectFacilityIds(config) ?? [];
+};
+
 // On the first facility upgrade, snapshot each facility-scoped config value into the
 // FacilitySettingMigration carrier (one row per served facility) so it pushes up and
 // central turns it into a facility Setting. Fact-gated to run once. The config fallback
@@ -34,12 +61,12 @@ export const STEPS: Steps = [
     },
     async run({
       toVersion,
-      models: { FacilitySettingMigration, Facility, LocalSystemFact },
+      models: { FacilitySettingMigration, LocalSystemFact },
     }: StepArgs) {
       const rows = facilityConfigRows();
       if (rows.length) {
-        const facilities = await Facility.findAll({ attributes: ['id'] });
-        for (const { id: facilityId } of facilities) {
+        const facilityIds = await servedFacilityIds(LocalSystemFact);
+        for (const facilityId of facilityIds) {
           for (const { key, value } of rows) {
             await FacilitySettingMigration.upsert({
               id: carrierId(facilityId, key),
