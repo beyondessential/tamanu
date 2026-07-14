@@ -6,8 +6,10 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
+const xAxisTickDateY = 9;
 const xAxisTickTimeY = 23;
 export const customisedXAxisLabelHeight = xAxisTickTimeY + TextFontSize - 0.5;
+export const customisedXAxisDateOnlyLabelHeight = xAxisTickDateY + TextFontSize - 0.5;
 
 const Text = styled.text`
   font-size: ${TextFontSize}px;
@@ -24,7 +26,13 @@ export const CustomisedXAxisTick = (props) => {
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
+      <Text
+        x={0}
+        y={xAxisTickDateY}
+        textAnchor="middle"
+        fill={Colors.darkText}
+        data-testid="text-ch4x"
+      >
         {formatShortest(dateString)}
       </Text>
       {showTime && (

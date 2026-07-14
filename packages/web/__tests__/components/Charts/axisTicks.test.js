@@ -9,7 +9,7 @@ import {
 const timestampOf = dateString => getTime(new Date(dateString));
 
 describe('getXAxisTicks', () => {
-  it('generates a tick every 4 hours for a 24-hour range', () => {
+  it('generates a tick every 4 hours from the range start for a 24-hour range', () => {
     const ticks = getXAxisTicks(['2026-07-12 10:30:00', '2026-07-13 10:30:00']);
 
     expect(ticks).toEqual(
@@ -25,7 +25,7 @@ describe('getXAxisTicks', () => {
     );
   });
 
-  it('generates a tick every 4 hours for a 48-hour range', () => {
+  it('generates a tick every 4 hours from the range start for a 48-hour range', () => {
     const ticks = getXAxisTicks(['2026-07-11 10:30:00', '2026-07-13 10:30:00']);
 
     expect(ticks).toHaveLength(13);
@@ -33,79 +33,92 @@ describe('getXAxisTicks', () => {
     expect(ticks[12]).toBe(timestampOf('2026-07-13 10:30:00'));
   });
 
-  it('generates a tick every day for a 7-day range', () => {
+  it('generates a tick at the start of each day for a 7-day range', () => {
     const ticks = getXAxisTicks(['2026-07-06 10:30:00', '2026-07-13 10:30:00']);
 
     expect(ticks).toEqual(
       [
-        '2026-07-06 10:30:00',
-        '2026-07-07 10:30:00',
-        '2026-07-08 10:30:00',
-        '2026-07-09 10:30:00',
-        '2026-07-10 10:30:00',
-        '2026-07-11 10:30:00',
-        '2026-07-12 10:30:00',
-        '2026-07-13 10:30:00',
+        '2026-07-07 00:00:00',
+        '2026-07-08 00:00:00',
+        '2026-07-09 00:00:00',
+        '2026-07-10 00:00:00',
+        '2026-07-11 00:00:00',
+        '2026-07-12 00:00:00',
+        '2026-07-13 00:00:00',
       ].map(timestampOf),
     );
   });
 
-  it('generates a tick every 5 days for a 30-day range', () => {
+  it('keeps a tick on the range start when it is already a day boundary', () => {
+    const ticks = getXAxisTicks(['2026-07-06 00:00:00', '2026-07-13 00:00:00']);
+
+    expect(ticks).toEqual(
+      [
+        '2026-07-06 00:00:00',
+        '2026-07-07 00:00:00',
+        '2026-07-08 00:00:00',
+        '2026-07-09 00:00:00',
+        '2026-07-10 00:00:00',
+        '2026-07-11 00:00:00',
+        '2026-07-12 00:00:00',
+        '2026-07-13 00:00:00',
+      ].map(timestampOf),
+    );
+  });
+
+  it('generates a day-boundary tick every 5 days for a 30-day range', () => {
     const ticks = getXAxisTicks(['2026-06-13 10:30:00', '2026-07-13 10:30:00']);
 
     expect(ticks).toEqual(
       [
-        '2026-06-13 10:30:00',
-        '2026-06-18 10:30:00',
-        '2026-06-23 10:30:00',
-        '2026-06-28 10:30:00',
-        '2026-07-03 10:30:00',
-        '2026-07-08 10:30:00',
-        '2026-07-13 10:30:00',
+        '2026-06-14 00:00:00',
+        '2026-06-19 00:00:00',
+        '2026-06-24 00:00:00',
+        '2026-06-29 00:00:00',
+        '2026-07-04 00:00:00',
+        '2026-07-09 00:00:00',
       ].map(timestampOf),
     );
   });
 
-  it('generates a tick every month for a 1-year range', () => {
+  it('generates a tick at the start of each month for a 1-year range', () => {
     const ticks = getXAxisTicks(['2025-07-13 10:30:00', '2026-07-13 10:30:00']);
 
     expect(ticks).toEqual(
       [
-        '2025-07-13 10:30:00',
-        '2025-08-13 10:30:00',
-        '2025-09-13 10:30:00',
-        '2025-10-13 10:30:00',
-        '2025-11-13 10:30:00',
-        '2025-12-13 10:30:00',
-        '2026-01-13 10:30:00',
-        '2026-02-13 10:30:00',
-        '2026-03-13 10:30:00',
-        '2026-04-13 10:30:00',
-        '2026-05-13 10:30:00',
-        '2026-06-13 10:30:00',
-        '2026-07-13 10:30:00',
+        '2025-08-01 00:00:00',
+        '2025-09-01 00:00:00',
+        '2025-10-01 00:00:00',
+        '2025-11-01 00:00:00',
+        '2025-12-01 00:00:00',
+        '2026-01-01 00:00:00',
+        '2026-02-01 00:00:00',
+        '2026-03-01 00:00:00',
+        '2026-04-01 00:00:00',
+        '2026-05-01 00:00:00',
+        '2026-06-01 00:00:00',
+        '2026-07-01 00:00:00',
       ].map(timestampOf),
     );
   });
 
-  it('keeps monthly ticks anchored to the start date through shorter months', () => {
+  it('keeps monthly ticks on month boundaries through shorter months', () => {
     const ticks = getXAxisTicks(['2025-01-31 10:30:00', '2026-01-31 10:30:00']);
 
     expect(ticks).toEqual(
       [
-        '2025-01-31 10:30:00',
-        '2025-02-28 10:30:00',
-        '2025-03-31 10:30:00',
-        '2025-04-30 10:30:00',
-        '2025-05-31 10:30:00',
-        '2025-06-30 10:30:00',
-        '2025-07-31 10:30:00',
-        '2025-08-31 10:30:00',
-        '2025-09-30 10:30:00',
-        '2025-10-31 10:30:00',
-        '2025-11-30 10:30:00',
-        '2025-12-31 10:30:00',
-        '2026-01-31 10:30:00',
+        '2025-02-01 00:00:00',
+        '2025-03-01 00:00:00',
+        '2025-04-01 00:00:00',
+        '2025-05-01 00:00:00',
+        '2025-06-01 00:00:00',
+        '2025-07-01 00:00:00',
+        '2025-08-01 00:00:00',
+        '2025-09-01 00:00:00',
+        '2025-10-01 00:00:00',
+        '2025-11-01 00:00:00',
+        '2025-12-01 00:00:00',
+        '2026-01-01 00:00:00',
       ].map(timestampOf),
     );
   });

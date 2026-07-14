@@ -1,6 +1,9 @@
 import { getTime } from 'date-fns';
 
-import { customisedXAxisLabelHeight } from '../components/CustomisedTick';
+import {
+  customisedXAxisDateOnlyLabelHeight,
+  customisedXAxisLabelHeight,
+} from '../components/CustomisedTick';
 import { CHART_MARGIN, MULTI_CHARTS_VIEW_INTERVAL_HEIGHT } from '../constants';
 import { getXAxisTicks, getYAxisTicks, isTimeShownOnXAxis } from './axisTicks';
 
@@ -19,7 +22,10 @@ export const getVitalChartProps = ({ visualisationConfig, dateRange, isInMultiCh
   const tableHeight = isInMultiChartsView
     ? (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT
     : defaultTableHeight;
-  const height = tableHeight + customisedXAxisLabelHeight + margin.top + margin.bottom;
+  const xAxisLabelHeight = showTimeOnXAxis
+    ? customisedXAxisLabelHeight
+    : customisedXAxisDateOnlyLabelHeight;
+  const height = tableHeight + xAxisLabelHeight + margin.top + margin.bottom;
 
   return { xAxisTicks, xAxisDomain, showTimeOnXAxis, yAxisTicks, tableHeight, height, margin };
 };

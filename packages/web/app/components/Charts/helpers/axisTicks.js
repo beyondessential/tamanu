@@ -1,10 +1,41 @@
-import { addDays, addHours, addMonths, differenceInDays, getTime } from 'date-fns';
+import {
+  addDays,
+  addHours,
+  addMonths,
+  differenceInDays,
+  getTime,
+  startOfDay,
+  startOfMonth,
+} from 'date-fns';
+
+// Ticks with day-or-longer spacing are labelled with a date only, so they are
+// snapped forward to day/month boundaries to keep those labels accurate;
+// 4-hourly ticks show the time and can sit on the range start as-is.
+const ceilToStartOfDay = date => {
+  const dayStart = startOfDay(date);
+  return dayStart < date ? addDays(dayStart, 1) : dayStart;
+};
+
+const ceilToStartOfMonth = date => {
+  const monthStart = startOfMonth(date);
+  return monthStart < date ? addMonths(monthStart, 1) : monthStart;
+};
 
 const X_AXIS_INTERVALS = {
-  fourHourly: { addIntervals: addHours, amount: 4, showTime: true },
-  daily: { addIntervals: addDays, amount: 1, showTime: false },
-  fiveDaily: { addIntervals: addDays, amount: 5, showTime: false },
-  monthly: { addIntervals: addMonths, amount: 1, showTime: false },
+  fourHourly: { addIntervals: addHours, amount: 4, getFirstTickDate: date => date, showTime: true },
+  daily: { addIntervals: addDays, amount: 1, getFirstTickDate: ceilToStartOfDay, showTime: false },
+  fiveDaily: {
+    addIntervals: addDays,
+    amount: 5,
+    getFirstTickDate: ceilToStartOfDay,
+    showTime: false,
+  },
+  monthly: {
+    addIntervals: addMonths,
+    amount: 1,
+    getFirstTickDate: ceilToStartOfMonth,
+    showTime: false,
+  },
 };
 
 const getXAxisInterval = dateRange => {
@@ -18,14 +49,14 @@ const getXAxisInterval = dateRange => {
 
 export const getXAxisTicks = dateRange => {
   const [startDate, endDate] = dateRange;
-  const { addIntervals, amount } = getXAxisInterval(dateRange);
+  const { addIntervals, amount, getFirstTickDate } = getXAxisInterval(dateRange);
+
+  const firstTickDate = getFirstTickDate(new Date(startDate));
+  const lastTickDate = new Date(endDate);
 
   const ticks = [];
-  const firstTickDate = new Date(startDate);
-  const lastTickDate = new Date(endDate);
   // Intervals are always added onto the first tick (rather than the previous
-  // tick) so that monthly steps track the start date's day of the month
-  // instead of drifting when clamped by a shorter month.
+  // tick) so that repeated additions cannot drift or accumulate DST shifts.
   for (
     let intervalCount = 0, tickDate = firstTickDate;
     tickDate <= lastTickDate;
