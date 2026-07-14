@@ -23,6 +23,8 @@ const step = STEPS[0];
 const makeArgs = () => ({
   models: {
     FacilitySettingMigration: { upsert: vi.fn() },
+    // both served facilities exist locally unless a test says otherwise
+    Facility: { findAll: vi.fn(async () => [{ id: 'f1' }, { id: 'f2' }]) },
     LocalSystemFact: {
       // served facilities come from the facility-ids fact; the migrated fact is unset
       get: vi.fn(async key =>
@@ -31,6 +33,7 @@ const makeArgs = () => ({
       set: vi.fn(),
     },
   },
+  log: { info: vi.fn(), warn: vi.fn() },
   serverType: 'facility',
   toVersion: '2.99.0',
 });
@@ -99,6 +102,21 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
         FACT_FACILITY_CONFIG_MIGRATED,
         '2.99.0',
       );
+    });
+
+    it('skips a facility that has not synced yet and leaves the fact unset to retry', async () => {
+      configOverridesForScope.mockReturnValue({ tasking: { window: 12 } });
+      const args = makeArgs();
+      args.models.Facility.findAll.mockResolvedValue([{ id: 'f1' }]); // f2 not synced yet
+
+      await step.run(args);
+
+      expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledTimes(1);
+      expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({ facilityId: 'f1' }),
+      );
+      expect(args.models.LocalSystemFact.set).not.toHaveBeenCalled();
+      expect(args.log.warn).toHaveBeenCalled();
     });
 
     it('marks done without touching facilities when there is nothing to migrate', async () => {

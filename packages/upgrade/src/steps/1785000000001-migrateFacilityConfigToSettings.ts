@@ -62,12 +62,31 @@ export const STEPS: Steps = [
     },
     async run({
       toVersion,
-      models: { FacilitySettingMigration, LocalSystemFact },
+      log,
+      models: { Facility, FacilitySettingMigration, LocalSystemFact },
     }: StepArgs) {
       const rows = facilityConfigRows();
+      let complete = true;
       if (rows.length) {
         const facilityIds = await servedFacilityIds(LocalSystemFact);
+        // Only facilities that exist locally: on a fresh server the configured
+        // facility may not have synced down yet, and the carrier has a foreign key
+        // to it. Skip and retry on the next upgrade (the config fallback keeps
+        // serving the values meanwhile) rather than failing the upgrade.
+        const existing = new Set(
+          (await Facility.findAll({ attributes: ['id'], where: { id: facilityIds } })).map(
+            (facility: { id: string }) => facility.id,
+          ),
+        );
         for (const facilityId of facilityIds) {
+          if (!existing.has(facilityId)) {
+            complete = false;
+            log?.warn(
+              'migrateFacilityConfigToSettings: facility not synced yet; retrying next upgrade',
+              { facilityId },
+            );
+            continue;
+          }
           for (const { key, value } of rows) {
             await FacilitySettingMigration.upsert({
               id: carrierId(facilityId, key),
@@ -78,7 +97,9 @@ export const STEPS: Steps = [
           }
         }
       }
-      await LocalSystemFact.set(FACT_FACILITY_CONFIG_MIGRATED, toVersion);
+      if (complete) {
+        await LocalSystemFact.set(FACT_FACILITY_CONFIG_MIGRATED, toVersion);
+      }
     },
   },
 ];
