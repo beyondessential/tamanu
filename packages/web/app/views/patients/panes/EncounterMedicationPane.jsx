@@ -1,39 +1,40 @@
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import PrintIcon from '@mui/icons-material/Print';
-import { Box } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+
+import { DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import {
-  ButtonWithPermissionCheck,
   Button,
+  ButtonWithPermissionCheck,
+  ConditionalTooltip,
   TextButton,
+  ThemedTooltip,
+  TranslatedText,
+  useSettings,
   useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
-import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
-import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
-import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
-import { NoteModalActionBlocker } from '../../../components';
-import { TabPane } from '../components';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { PRESCRIPTION_TYPES } from '../../../constants';
-import { DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
-import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
-import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
-import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
-import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
-import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { useAuth } from '../../../contexts/Auth';
+import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
+import { NoteModalActionBlocker } from '../../../components';
+import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
+import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
+import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
+import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
+import { PRESCRIPTION_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
-import { useSettings } from '../../../contexts/Settings';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
 import { createPrescriptionHash } from '../../../utils/medications';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { TabPane } from '../components';
+import SendToPharmacyButton from './SendToPharmacyButton';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -250,31 +251,19 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                     </NoteModalActionBlocker>
                     {pharmacyOrderEnabled && canRequestPharmacyOrder && (
                       <NoteModalActionBlocker>
-                        <StyledTextButton
-                          aria-label={getTranslation(
-                            'medication.action.pharmacyOrder',
-                            'Send to pharmacy',
-                          )}
-                          onClick={() => setPharmacyOrderModalOpen(true)}
-                          disabled={disabled}
-                          color="primary"
-                          data-testid="styledtextbutton-uhgj"
+                        <ThemedTooltip
+                          title={
+                            <TranslatedText
+                              stringId="medication.action.pharmacyOrder"
+                              fallback="Send to pharmacy"
+                            />
+                          }
                         >
-                          <ThemedTooltip
-                            title={
-                              <Box width="120px" fontWeight={400}>
-                                <TranslatedText
-                                  stringId="medication.action.pharmacyOrder"
-                                  fallback="Send to pharmacy"
-                                />
-                              </Box>
-                            }
-                          >
-                            <Box display={'flex'}>
-                              <SendToPharmacyIcon aria-hidden />
-                            </Box>
-                          </ThemedTooltip>
-                        </StyledTextButton>
+                          <SendToPharmacyButton
+                            data-testid="styledtextbutton-uhgj"
+                            onClick={() => setPharmacyOrderModalOpen(true)}
+                          />
+                        </ThemedTooltip>
                       </NoteModalActionBlocker>
                     )}
                   </>
