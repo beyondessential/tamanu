@@ -206,7 +206,10 @@ export const DispenseMedicationWorkflowModal = memo(
   ({ open, onClose, patient, onDispenseSuccess }) => {
     const api = useApi();
     const queryClient = useQueryClient();
-    const { facilityId, currentUser } = useAuth();
+    const { ability, facilityId, currentUser } = useAuth();
+    // Modifying prescription details for a fill is a write on the dispense record, over and
+    // above the create permission needed to dispense as prescribed.
+    const canModifyPrescription = ability.can('write', 'MedicationDispense');
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
     const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
@@ -749,33 +752,35 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       }
 
-      base.push({
-        key: 'actions',
-        width: '48px',
-        title: '',
-        accessor: (item, rowIndex) => (
-          <MenuButton
-            a11yLabel={
-              <TranslatedText
-                stringId="medication.dispense.rowActions"
-                fallback="Dispense row actions"
-              />
-            }
-            actions={[
-              {
-                label: (
-                  <TranslatedText
-                    stringId="medication.modify.action"
-                    fallback="Modify prescription"
-                  />
-                ),
-                action: () => setModifyRowIndex(rowIndex),
-              },
-            ]}
-            data-testid={`dispense-row-actions-${rowIndex}`}
-          />
-        ),
-      });
+      if (canModifyPrescription) {
+        base.push({
+          key: 'actions',
+          width: '48px',
+          title: '',
+          accessor: (item, rowIndex) => (
+            <MenuButton
+              a11yLabel={
+                <TranslatedText
+                  stringId="medication.dispense.rowActions"
+                  fallback="Dispense row actions"
+                />
+              }
+              actions={[
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="medication.modify.action"
+                      fallback="Modify prescription"
+                    />
+                  ),
+                  action: () => setModifyRowIndex(rowIndex),
+                },
+              ]}
+              data-testid={`dispense-row-actions-${rowIndex}`}
+            />
+          ),
+        });
+      }
 
       return base;
     })();

@@ -721,7 +721,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          endpoint={`patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
@@ -753,7 +753,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </TableTitle>
           <StyledDataFetchingTable
             $compact
-            endpoint={`/patient/${patient.id}/dispensed-medications`}
+            endpoint={`patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,
               getEnumTranslation,
@@ -783,9 +783,9 @@ export const PatientMedicationPane = ({ patient }) => {
             onClickRow={handleDispensedMedicationClick}
             $maxHeight={'320px'}
           />
-          {dispensedMedications.some(isDispenseModifiedByPharmacy) && <PharmacyModifiedFootnote />}
         </TableContainer>
       )}
+      {dispensedMedications.some(isDispenseModifiedByPharmacy) && <PharmacyModifiedFootnote />}
       <MedicationModal
         open={createMedicationModalOpen}
         onClose={() => setCreateMedicationModalOpen(false)}

@@ -1037,8 +1037,58 @@ describe('Medication', () => {
     describe('permissions', () => {
       disableHardcodedPermissionsForSuite();
 
+      it('should reject a modification without write MedicationDispense permission', async () => {
+        const createOnlyApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+        const { pharmacyOrderPrescription, prescription } =
+          await createPharmacyOrderWithPrescription({ patientId: patient.id });
+        const modifyReason = await createModifyReason();
+
+        const result = await createOnlyApp.post('/api/medication/dispense').send({
+          dispensedByUserId: createOnlyApp.user.id,
+          facilityId,
+          items: [
+            {
+              pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+              quantity: 1,
+              instructions: 'whatever',
+              modification: buildModification({
+                medicationId: prescription.medicationId,
+                modifiedReasonId: modifyReason.id,
+                modifiedById: createOnlyApp.user.id,
+              }),
+            },
+          ],
+        });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should allow dispensing as prescribed with only create MedicationDispense permission', async () => {
+        const createOnlyApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+
+        const result = await createOnlyApp.post('/api/medication/dispense').send({
+          dispensedByUserId: createOnlyApp.user.id,
+          facilityId,
+          items: [
+            {
+              pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+              quantity: 1,
+              instructions: 'whatever',
+            },
+          ],
+        });
+
+        expect(result).toHaveSucceeded();
+      });
+
       it('should reject a modification substituting a sensitive drug without the permission', async () => {
-        const limitedApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+        const limitedApp = await baseApp.asNewRole([
+          ['create', 'MedicationDispense'],
+          ['write', 'MedicationDispense'],
+        ]);
         const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
           patientId: patient.id,
         });

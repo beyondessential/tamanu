@@ -122,8 +122,11 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
             .then(option => ({ id: values.medicationId, name: option?.label ?? '' }));
     onConfirm({
       medicationId: values.medicationId,
-      // Kept for display in the dispense workflow (table row, printed label)
+      // Kept for display in the dispense workflow (table row, printed label) and for
+      // re-populating the form on re-open — the server resolves units itself on dispense.
       medication,
+      dosingUnit: values.dosingUnit,
+      dispensingUnit: values.dispensingUnit,
       isVariableDose: values.isVariableDose ?? false,
       doseAmount: values.isVariableDose ? null : values.doseAmount || null,
       frequency: values.frequency,
@@ -152,6 +155,11 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
         validationSchema={validationSchema}
         initialValues={{
           medicationId: source.medicationId ?? prescription.medicationId,
+          // Units follow the selected drug (see the medication field's onChange); they are
+          // display-only here — the server re-resolves them from the dispensed drug's
+          // reference data when the fill is created.
+          dosingUnit: source.dosingUnit ?? prescription.dosingUnit ?? '',
+          dispensingUnit: source.dispensingUnit ?? prescription.dispensingUnit ?? '',
           isVariableDose: source.isVariableDose ?? false,
           doseAmount: source.doseAmount ?? '',
           frequency: source.frequency ?? '',
@@ -174,6 +182,15 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
             <div style={{ gridColumn: '1 / -1' }}>
               <MedicationAutocompleteField
                 suggester={drugSuggester}
+                onChange={e => {
+                  const referenceDrug = e.target.referenceDrug;
+                  setValues({
+                    ...values,
+                    medicationId: e.target.value,
+                    dosingUnit: referenceDrug?.dosingUnit ?? '',
+                    dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+                  });
+                }}
                 data-testid="modify-prescription-medication"
               />
             </div>
@@ -199,8 +216,8 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
               unit={
-                prescription.dosingUnit
-                  ? getDrugUnitLabel(prescription.dosingUnit, values.doseAmount, getEnumTranslation)
+                values.dosingUnit
+                  ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation)
                   : undefined
               }
               data-testid="modify-prescription-dose"
@@ -246,8 +263,8 @@ export const ModifyPrescriptionModal = ({ open, prescription, modification, quan
               min={0}
               onInput={preventInvalidNumber}
               unit={
-                prescription.dispensingUnit
-                  ? getDrugUnitLabel(prescription.dispensingUnit, values.quantity, getEnumTranslation)
+                values.dispensingUnit
+                  ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation)
                   : undefined
               }
               data-testid="modify-prescription-quantity"

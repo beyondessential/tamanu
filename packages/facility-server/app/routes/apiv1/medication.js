@@ -2506,6 +2506,7 @@ medication.get(
           association: 'prescription',
           attributes: [
             'id',
+            'medicationId',
             'doseAmount',
             'dosingUnit',
             'dispensingUnit',
@@ -2515,6 +2516,7 @@ medication.get(
             'durationUnit',
             'indication',
             'notes',
+            'pharmacyNotes',
             'isVariableDose',
             'date',
           ],
@@ -2670,6 +2672,12 @@ medication.post(
     req.checkPermission('create', 'MedicationDispense');
 
     const { dispensedByUserId, facilityId, items } = await dispenseInputSchema.parseAsync(req.body);
+
+    // Modifying the prescription details for a fill is a write on the dispense record,
+    // over and above the permission to dispense as prescribed.
+    if (items.some(item => item.modification)) {
+      req.checkPermission('write', 'MedicationDispense');
+    }
 
     const { User, MedicationDispense, PharmacyOrderPrescription } = models;
 
