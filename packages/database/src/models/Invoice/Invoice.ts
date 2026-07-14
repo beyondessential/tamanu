@@ -539,13 +539,15 @@ export class Invoice extends Model {
       nightsByLocation.set(locationId, (nightsByLocation.get(locationId) ?? 0) + 1);
     }
 
-    // Remove existing bed-fee lines for locations that no longer qualify.
+    // Zero out existing bed-fee lines for locations that no longer qualify (not a soft-delete —
+    // that's reserved for cashier removals, and the line must stay revivable if the patient
+    // returns to the location). Quantity-0 lines are cleaned off the invoice at finalisation.
     const existingItems = await InvoiceItem.findAll({
       where: { invoiceId: invoice.id, sourceRecordType: locationSourceType },
     });
     for (const item of existingItems) {
       if (item.sourceRecordId && !nightsByLocation.has(item.sourceRecordId)) {
-        await item.destroy();
+        await item.update({ quantity: 0 });
       }
     }
 

@@ -9,14 +9,14 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { ReadSettings } from '@tamanu/settings';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { InvalidConfigError } from '.';
+
+import { getServerFacilityIds } from '../serverConfig';
+
+class InvalidConfigError extends Error {}
 
 /**
- * Recompute the per-night bed fee for every currently-admitted patient.
- *
- * The recompute is idempotent (it counts the facility-local overnight checks that have occurred
- * up to now), so this can run frequently — running hourly just means a new night lands within an
- * hour of each facility's local overnight-check time. No per-facility scheduling is needed.
+ * Recompute the per-night bed fee for every currently-admitted patient at this server's
+ * facilities.
  */
 export class BedFeeCharger extends ScheduledTask {
   getName() {
@@ -28,7 +28,8 @@ export class BedFeeCharger extends ScheduledTask {
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
-    this.models = context.store.models;
+    this.models = context.models;
+    this.sequelize = context.sequelize;
   }
 
   async run() {
@@ -40,18 +41,34 @@ export class BedFeeCharger extends ScheduledTask {
       );
     }
 
+    const serverFacilityIds = getServerFacilityIds() ?? [];
+    if (serverFacilityIds.length === 0) {
+      log.warn('BedFeeCharger: no facility configured yet, skipping');
+      return;
+    }
+
     // Recompute still-admitted patients, plus recently-discharged ones, so the final discharge-day
-    // night is captured even for off-hour check times and death discharges (recompute is idempotent).
+    // night is captured even for off-hour check times and death discharges (recompute is
+    // idempotent). Scope to this server's own facilities so a synced-in encounter belonging to
+    // another facility isn't charged here (that facility's own server owns it).
     const dischargedSince = toDateTimeString(sub(new Date(), { hours: 25 }));
     const query = {
       where: {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
         [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: dischargedSince } }],
       },
-      include: [{ model: Location, as: 'location', attributes: ['facilityId'] }],
+      include: [
+        {
+          model: Location,
+          as: 'location',
+          required: true,
+          where: { facilityId: serverFacilityIds },
+          attributes: ['facilityId'],
+        },
+      ],
     };
 
-    const toProcess = await Encounter.count({ where: query.where });
+    const toProcess = await Encounter.count({ ...query, distinct: true, col: 'id' });
     if (toProcess === 0) return;
 
     const primaryTimeZone = getPrimaryTimeZone(config);
@@ -78,7 +95,16 @@ export class BedFeeCharger extends ScheduledTask {
       for (const encounter of encounters) {
         const facilityId = encounter.location?.facilityId;
         if (!facilityId) continue;
-        await Invoice.recalculateBedFee(encounter, getSettings(facilityId), primaryTimeZone);
+        try {
+          await this.sequelize.transaction(() =>
+            Invoice.recalculateBedFee(encounter, getSettings(facilityId), primaryTimeZone),
+          );
+        } catch (error) {
+          log.error('BedFeeCharger: failed to recalculate bed fee', {
+            encounterId: encounter.id,
+            error: error.stack,
+          });
+        }
       }
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
