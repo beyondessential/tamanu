@@ -25,6 +25,7 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import {
   buildInstructionText,
   buildLabelText,
+  getDrugUnitLabel,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -296,6 +297,7 @@ export const EditMedicationDispenseModal = memo(
           ),
           accessor: item => {
             const { quantity } = item;
+            const dispensingUnit = item.pharmacyOrderPrescription?.prescription?.dispensingUnit;
             const hasQuantityError = errors.hasQuantityError || false;
             return (
               <QuantityInput
@@ -303,6 +305,11 @@ export const EditMedicationDispenseModal = memo(
                 onChange={e => handleQuantityChange(e)}
                 error={showValidationErrors && hasQuantityError}
                 InputProps={{ inputProps: { min: 1 } }}
+                unit={
+                  dispensingUnit
+                    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                    : undefined
+                }
                 data-testid="dispense-quantity"
                 required
                 helperText={
