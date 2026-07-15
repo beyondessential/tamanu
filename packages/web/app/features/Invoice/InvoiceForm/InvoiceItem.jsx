@@ -193,6 +193,7 @@ export const InvoiceItemRow = ({
       )}
       <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
       <DetailsCell
+        cellWidths={cellWidths}
         index={index}
         item={item}
         handleChangeProduct={handleChangeProduct}

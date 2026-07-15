@@ -10,12 +10,6 @@ import {
   ThemedTooltip,
 } from '../../../../components';
 import { Colors } from '../../../../constants';
-import { ItemCell } from './ItemCell';
-
-const Container = styled(ItemCell)`
-  flex: 1;
-  min-width: 0;
-`;
 
 const StyledField = styled(Field)`
   max-width: 500px;
@@ -37,6 +31,7 @@ const CellText = styled.span`
 `;
 
 export const DetailsCell = ({
+  cellWidths,
   index,
   item,
   handleChangeProduct,
@@ -54,7 +49,7 @@ export const DetailsCell = ({
   });
   const detailsText = item.productNameFinal || item.product?.name;
   return (
-    <Container>
+    <td style={{ minInlineSize: cellWidths.DETAILS }}>
       {isEditing ? (
         <NoteModalActionBlocker>
           <StyledField
@@ -83,6 +78,6 @@ export const DetailsCell = ({
           {`: ${item.note}`}
         </Box>
       )}
-    </Container>
+    </td>
   );
 };
