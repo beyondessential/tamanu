@@ -176,24 +176,22 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                       isEditing={isAddForm || isEditForm}
                     />
                     <tbody>
-                      {values.invoiceItems?.map((item, index) => {
-                        return (
-                          <InvoiceItemRow
-                            key={item.id}
-                            index={index}
-                            item={item}
-                            encounterId={invoice.encounterId}
-                            priceListId={invoice.priceList?.id}
-                            formArrayMethods={formArrayMethods}
-                            onUpdateInvoice={handleUpdateItem}
-                            onUpdateApproval={updateItemApproval}
-                            isFinalised={isFinalised}
-                            isCancelled={isCancelled}
-                            cellWidths={cellWidths}
-                            isEditing={isAddForm || isEditForm}
-                          />
-                        );
-                      })}
+                      {values.invoiceItems?.map((item, index) => (
+                        <InvoiceItemRow
+                          key={item.id}
+                          index={index}
+                          item={item}
+                          encounterId={invoice.encounterId}
+                          priceListId={invoice.priceList?.id}
+                          formArrayMethods={formArrayMethods}
+                          onUpdateInvoice={handleUpdateItem}
+                          onUpdateApproval={updateItemApproval}
+                          isFinalised={isFinalised}
+                          isCancelled={isCancelled}
+                          cellWidths={cellWidths}
+                          isEditing={isAddForm || isEditForm}
+                        />
+                      ))}
                     </tbody>
                     {editable && (isReadOnlyForm || isAddForm) && (
                       <FormFooter>
