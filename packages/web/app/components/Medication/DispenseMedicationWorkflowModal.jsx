@@ -515,13 +515,13 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          style: { minWidth: 0 },
+          style: { minInlineSize: 0 },
           accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-          style: { minWidth: '16em' },
+          style: { minInlineSize: '16em' },
           accessor: ({ prescription }) => (
             <TranslatedReferenceData
               fallback={prescription?.medication?.name}
@@ -573,7 +573,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Remaining repeats"
             />
           ),
-          style: { minWidth: 0 },
+          style: { minInlineSize: 0 },
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
         {
@@ -581,7 +581,7 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <TranslatedText stringId="medication.dispense.instructions" fallback="Instructions" />
           ),
-          style: { minWidth: '16em' },
+          style: { minInlineSize: '16em' },
           accessor: item => (
             <InstructionsInput
               value={buildInstructionText(item.prescription, getTranslation, getEnumTranslation)}
@@ -600,6 +600,7 @@ export const DispenseMedicationWorkflowModal = memo(
                     fallback="Preset labels"
                   />
                 ),
+                style: { minInlineSize: '12em' },
                 accessor: (item, rowIndex) => (
                   <StyledPresetLabelAutocomplete
                     name={`presetLabel-${item.id}`}
@@ -620,7 +621,7 @@ export const DispenseMedicationWorkflowModal = memo(
               <RequiredOrnament />
             </>
           ),
-          style: { minWidth: '16em' },
+          style: { minInlineSize: '16em' },
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
@@ -648,7 +649,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Last dispensed"
             />
           ),
-          style: { minWidth: 0 },
+          style: { minInlineSize: 0 },
           accessor: ({ lastDispensedAt }) =>
             lastDispensedAt ? (
               <DateDisplay date={lastDispensedAt} />
