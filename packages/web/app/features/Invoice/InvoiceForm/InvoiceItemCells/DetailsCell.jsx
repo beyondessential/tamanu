@@ -45,7 +45,8 @@ export const DetailsCell = ({
   priceListId,
 }) => {
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
-    formatter: ({ name, id }) => ({
+    formatter: ({ name, id, ...rest }) => ({
+      ...rest,
       label: name,
       value: id,
     }),

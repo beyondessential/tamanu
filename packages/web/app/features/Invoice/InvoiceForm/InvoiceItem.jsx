@@ -16,22 +16,19 @@ import {
   NetCostCell,
 } from './InvoiceItemCells';
 import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
+import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 
-const StyledItemRow = styled.div`
+const StyledItemRow = styled.tr`
   position: relative;
-  display: flex;
-  gap: 10px;
-  font-size: 14px;
-  padding: 12px 50px 12px 30px;
-  background: ${Colors.white};
-  border-bottom: 1px solid ${Colors.outline};
+  border-block-end: 1px solid ${Colors.outline};
 
   .MuiInputBase-input {
     font-size: 14px;
   }
 
   .MuiFormControl-root {
-    margin: -8px 0 -8px -6px;
+    margin-block: -6px;
+    margin-inline: -3px;
   }
 `;
 
@@ -141,6 +138,7 @@ export const InvoiceItemRow = ({
       ...item,
       productId: value.value,
       product: null,
+      dispensingUnit: value.dispensingUnit,
     });
   };
 
@@ -175,11 +173,19 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      {!isEditing && item.insurancePlanItems?.length > 0 && (
-        <Button onClick={onClick} $isExpanded={isExpanded}>
-          <ArrowRight htmlColor={Colors.softText} />
-        </Button>
-      )}
+      <td>
+        {!isEditing && item.insurancePlanItems?.length > 0 && (
+          <Button onClick={onClick} $isExpanded={isExpanded}>
+            <ArrowRight htmlColor={Colors.softText} />
+            <VisuallyHidden>
+              <TranslatedText
+                stringId="invoice.action.toggleInsurancePlanAdjustments"
+                fallback="Toggle insurance plan adjustments"
+              />
+            </VisuallyHidden>
+          </Button>
+        )}
+      </td>
       <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
       <DetailsCell
         index={index}
@@ -209,18 +215,20 @@ export const InvoiceItemRow = ({
         cellWidths={cellWidths}
       />
       <NetCostCell item={item} cellWidths={cellWidths} />
-      {!isCancelled && !isEditing && (
-        <InvoiceItemActionsMenu
-          index={index}
-          item={item}
-          showActionMenu
-          hidePriceInput={hidePriceInput}
-          onUpdateInvoice={onUpdateInvoice}
-          onUpdateApproval={onUpdateApproval}
-          isFinalised={isFinalised}
-          isSaved={isSaved}
-        />
-      )}
+      <td>
+        {!isCancelled && !isEditing && (
+          <InvoiceItemActionsMenu
+            index={index}
+            item={item}
+            showActionMenu
+            hidePriceInput={hidePriceInput}
+            onUpdateInvoice={onUpdateInvoice}
+            onUpdateApproval={onUpdateApproval}
+            isFinalised={isFinalised}
+            isSaved={isSaved}
+          />
+        )}
+      </td>
     </StyledItemRow>
   );
 };

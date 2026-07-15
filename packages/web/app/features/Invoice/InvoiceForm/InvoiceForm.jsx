@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
-import { Box, Button as MuiButton } from '@material-ui/core';
+import { Button as MuiButton } from '@material-ui/core';
 
 import {
   Form,
@@ -24,6 +24,24 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
+
+const Table = styled.table`
+  background-color: ${p => p.theme.palette.background.paper};
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  inline-size: 100%;
+  font-size: 14px;
+  th,
+  td {
+    padding-block: 12px;
+    padding-inline: 10px;
+  }
+  th {
+    vertical-align: bottom;
+  }
+  td {
+    vertical-align: top;
+  }
+`;
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -55,10 +73,10 @@ const EditModalFooter = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const FormFooter = styled.div`
-  background: white;
+const FormFooter = styled.tfoot`
+  border-end-end-radius: inherit;
+  border-end-start-radius: inherit;
   padding: 8px 4px 2px;
-  border-radius: 3px;
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
@@ -106,9 +124,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       {
         onSuccess: () => {
           setInProgressItems([]);
-          if (onClose) {
-            onClose();
-          }
+          onClose?.();
         },
       },
     );
@@ -128,9 +144,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       },
       {
         onSuccess: () => {
-          if (onClose) {
-            onClose();
-          }
+          onClose?.();
         },
       },
     );
@@ -156,81 +170,88 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       }}
       validationSchema={invoiceFormSchema}
       render={({ submitForm, values }) => (
-        <FieldArray name="invoiceItems">
-          {formArrayMethods => {
-            return (
-              <>
-                <InvoiceItemHeader cellWidths={cellWidths} />
-                <Box>
-                  {values.invoiceItems?.map((item, index) => {
-                    return (
-                      <InvoiceItemRow
-                        key={item.id}
-                        index={index}
-                        item={item}
-                        encounterId={invoice.encounterId}
-                        priceListId={invoice.priceList?.id}
-                        formArrayMethods={formArrayMethods}
-                        onUpdateInvoice={handleUpdateItem}
-                        onUpdateApproval={updateItemApproval}
-                        isFinalised={isFinalised}
-                        isCancelled={isCancelled}
-                        cellWidths={cellWidths}
-                        isEditing={isAddForm || isEditForm}
-                      />
-                    );
-                  })}
-                </Box>
-                {editable && (isReadOnlyForm || isAddForm) && (
-                  <FormFooter>
-                    <AddButton
-                      variant="text"
-                      onClick={() => {
-                        if (isReadOnlyForm) {
-                          setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                        } else {
-                          formArrayMethods.push(
-                            getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                          );
-                        }
-                      }}
-                      startIcon={<Plus />}
-                    >
-                      <TranslatedText
-                        stringId="invoice.form.action.addItem"
-                        fallback="Add item"
-                        data-testid="translatedtext-9vs0"
-                      />
-                    </AddButton>
-                  </FormFooter>
+        <>
+          <Table>
+            <FieldArray name="invoiceItems">
+              {formArrayMethods => {
+                return (
+                  <>
+                    <InvoiceItemHeader cellWidths={cellWidths} />
+                    <tbody>
+                      {values.invoiceItems?.map((item, index) => {
+                        return (
+                          <InvoiceItemRow
+                            key={item.id}
+                            index={index}
+                            item={item}
+                            encounterId={invoice.encounterId}
+                            priceListId={invoice.priceList?.id}
+                            formArrayMethods={formArrayMethods}
+                            onUpdateInvoice={handleUpdateItem}
+                            onUpdateApproval={updateItemApproval}
+                            isFinalised={isFinalised}
+                            isCancelled={isCancelled}
+                            cellWidths={cellWidths}
+                            isEditing={isAddForm || isEditForm}
+                          />
+                        );
+                      })}
+                    </tbody>
+                    {editable && (isReadOnlyForm || isAddForm) && (
+                      <FormFooter>
+                        <tr>
+                          <td colSpan={9}>
+                            <AddButton
+                              variant="text"
+                              onClick={() => {
+                                if (isReadOnlyForm) {
+                                  setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                                } else {
+                                  formArrayMethods.push(
+                                    getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                                  );
+                                }
+                              }}
+                              startIcon={<Plus />}
+                            >
+                              <TranslatedText
+                                stringId="invoice.form.action.addItem"
+                                fallback="Add item"
+                              />
+                            </AddButton>
+                          </td>
+                        </tr>
+                      </FormFooter>
+                    )}
+                  </>
+                );
+              }}
+            </FieldArray>
+          </Table>
+          {editable && (isEditForm || isAddForm) && (
+            <EditModalFooter>
+              <FormCancelButton
+                style={{ marginRight: 8 }}
+                onClick={() => {
+                  setInProgressItems([]);
+                  onClose?.();
+                }}
+              >
+                Cancel
+              </FormCancelButton>
+              <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                {isAddForm ? (
+                  <TranslatedText stringId="invoice.form.action.save" fallback="Save" />
+                ) : (
+                  <TranslatedText
+                    stringId="invoice.form.action.saveChanges"
+                    fallback="Save changes"
+                  />
                 )}
-                {editable && (isEditForm || isAddForm) && (
-                  <EditModalFooter>
-                    <FormCancelButton
-                      style={{ marginRight: 8 }}
-                      onClick={() => {
-                        setInProgressItems([]);
-                        if (onClose) onClose();
-                      }}
-                    >
-                      Cancel
-                    </FormCancelButton>
-                    <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
-                      {isAddForm ? (
-                        <TranslatedText stringId="invoice.form.action.save" fallback="Save" />
-                      ) : (
-                        <TranslatedText
-                          stringId="invoice.form.action.saveChanges"
-                          fallback="Save changes"
-                        />
-                      )}
-                    </SubmitButton>
-                  </EditModalFooter>
-                )}
-              </>
-            );
-          }}
-        </FieldArray>
+              </SubmitButton>
+            </EditModalFooter>
+          )}
+        </>
       )}
     />
   );
