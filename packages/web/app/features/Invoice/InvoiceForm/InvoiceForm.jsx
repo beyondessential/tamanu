@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
-import { Button as MuiButton } from '@material-ui/core';
 
 import {
   Form,
@@ -10,6 +9,7 @@ import {
   FormSubmitButton,
   FormCancelButton,
   useDateTime,
+  TextButton,
 } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
@@ -43,17 +43,12 @@ const Table = styled.table`
   }
 `;
 
-const AddButton = styled(MuiButton)`
-  font-size: 14px;
-  text-transform: none;
-  color: ${Colors.primary};
-  position: relative;
-  top: -2px;
-
+const AddButton = styled(TextButton)`
+  font-size: inherit;
   .MuiButton-startIcon {
+    font-size: inherit;
+    margin-inline-end: 4px;
     width: 18px;
-    position: relative;
-    margin-right: 1px;
   }
 `;
 
@@ -176,7 +171,10 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
               {formArrayMethods => {
                 return (
                   <>
-                    <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
+                    <InvoiceItemHeader
+                      cellWidths={cellWidths}
+                      isEditing={isAddForm || isEditForm}
+                    />
                     <tbody>
                       {values.invoiceItems?.map((item, index) => {
                         return (
