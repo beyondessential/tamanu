@@ -600,7 +600,7 @@ export const DispenseMedicationWorkflowModal = memo(
                     fallback="Preset labels"
                   />
                 ),
-                style: { minInlineSize: '12em' },
+                style: { minInlineSize: '10em' },
                 accessor: (item, rowIndex) => (
                   <StyledPresetLabelAutocomplete
                     name={`presetLabel-${item.id}`}
@@ -803,7 +803,7 @@ export const DispenseMedicationWorkflowModal = memo(
               <BodyText>
                 <TranslatedText
                   stringId="modal.medication.dispense.description"
-                  fallback="Select the medications you'd like to dispense below."
+                  fallback="Select the medications you’d like to dispense below"
                 />
               </BodyText>
               <DispenseHeaderToolbarRow>
