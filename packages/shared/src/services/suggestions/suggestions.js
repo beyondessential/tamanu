@@ -785,9 +785,11 @@ createSuggester(
     includeBuilder: req => {
       const { priceListId } = req.query;
 
-      // Include the drug's dispensing unit (populated for drug-category products only) so the
-      // client can display it alongside the quantity when adding invoice items
       const includes = [
+        /**
+         * Include dispensing unit (populated for drug-category products only) so front-end can
+         * display it alongside the quantity when adding invoice items.
+         */
         {
           model: req.models.ReferenceData,
           as: 'sourceRefDataRecord',
@@ -809,9 +811,7 @@ createSuggester(
           model: req.models.InvoicePriceListItem,
           as: 'invoicePriceListItems',
           required: false,
-          where: {
-            invoicePriceListId: priceListId,
-          },
+          where: { invoicePriceListId: priceListId },
         });
       }
 
