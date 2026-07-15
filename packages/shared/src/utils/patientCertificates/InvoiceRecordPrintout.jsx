@@ -25,6 +25,7 @@ import {
   getInvoiceSummary,
 } from '@tamanu/utils/invoice';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { getDrugUnitLabel } from '../medication';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
@@ -323,10 +324,10 @@ const COLUMNS = {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '12%' },
-      accessor: ({ quantity, sourcePrescription }) => {
+      accessor: ({ quantity, sourcePrescription }, { getEnumTranslation }) => {
         const dispensingUnit = sourcePrescription?.dispensingUnit;
         if (!dispensingUnit) return quantity != null ? String(quantity) : '';
-        return `${quantity} ${dispensingUnit}`;
+        return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
       },
     },
     {
@@ -669,7 +670,8 @@ const InvoiceRecordPrintoutComponent = ({
   enablePatientInsurer,
 }) => {
   const { formatShort } = useDateTime();
-  const formatters = { formatShort };
+  const { getEnumTranslation } = useLanguageContext();
+  const formatters = { formatShort, getEnumTranslation };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
