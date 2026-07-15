@@ -43,7 +43,7 @@ const Table = styled.table`
   }
 `;
 
-const AddButton = styled(TextButton)`
+const AddButton = styled(TextButton).attrs({ startIcon: <Plus /> })`
   font-size: inherit;
   .MuiButton-startIcon {
     font-size: inherit;
@@ -68,10 +68,15 @@ const EditModalFooter = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const FormFooter = styled.tfoot`
+const FormFooter = styled(({ children, ...props }) => (
+  <tfoot {...props}>
+    <tr>
+      <td colSpan={9}>{children}</td>
+    </tr>
+  </tfoot>
+))`
   border-end-end-radius: inherit;
   border-end-start-radius: inherit;
-  padding: 8px 4px 2px;
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
@@ -195,27 +200,22 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                     </tbody>
                     {editable && (isReadOnlyForm || isAddForm) && (
                       <FormFooter>
-                        <tr>
-                          <td colSpan={9}>
-                            <AddButton
-                              onClick={() => {
-                                if (isReadOnlyForm) {
-                                  setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                                } else {
-                                  formArrayMethods.push(
-                                    getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                                  );
-                                }
-                              }}
-                              startIcon={<Plus />}
-                            >
-                              <TranslatedText
-                                stringId="invoice.form.action.addItem"
-                                fallback="Add item"
-                              />
-                            </AddButton>
-                          </td>
-                        </tr>
+                        <AddButton
+                          onClick={() => {
+                            if (isReadOnlyForm) {
+                              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                            } else {
+                              formArrayMethods.push(
+                                getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                              );
+                            }
+                          }}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                          />
+                        </AddButton>
                       </FormFooter>
                     )}
                   </>
