@@ -176,7 +176,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
               {formArrayMethods => {
                 return (
                   <>
-                    <InvoiceItemHeader cellWidths={cellWidths} />
+                    <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
                     <tbody>
                       {values.invoiceItems?.map((item, index) => {
                         return (

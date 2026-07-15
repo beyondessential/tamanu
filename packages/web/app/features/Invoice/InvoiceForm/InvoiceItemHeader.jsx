@@ -16,17 +16,19 @@ const ItemHeadCell = styled.th.attrs({ scope: 'col' })`
   font-weight: 400;
 `;
 
-export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS }) => {
+export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS, isEditing }) => {
   return (
     <StyledItemHeader data-testid="styleditemheader-8x5j">
-      <ItemHeadCell>
-        <VisuallyHidden>
-          <TranslatedText
-            stringId="invoice.toggleInsurancePlanAdjustments"
-            fallback="Toggle insurance plan adjustments"
-          />
-        </VisuallyHidden>
-      </ItemHeadCell>
+      {!isEditing && (
+        <ItemHeadCell>
+          <VisuallyHidden>
+            <TranslatedText
+              stringId="invoice.toggleInsurancePlanAdjustments"
+              fallback="Toggle insurance plan adjustments"
+            />
+          </VisuallyHidden>
+        </ItemHeadCell>
+      )}
       <ItemHeadCell style={{ minInlineSize: cellWidths.DATE }}>
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </ItemHeadCell>
@@ -59,11 +61,13 @@ export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS }) => {
       <ItemHeadCell style={{ minInlineSize: cellWidths.NET_COST, textAlign: 'end' }}>
         <TranslatedText stringId="invoice.modal.editInvoice.netCost.label" fallback="Net cost" />
       </ItemHeadCell>
-      <ItemHeadCell style={{ minInlineSize: cellWidths.ACTIONS, textAlign: 'end' }}>
-        <VisuallyHidden>
-          <TranslatedText stringId="general.actions.label" fallback="Actions" />
-        </VisuallyHidden>
-      </ItemHeadCell>
+      {!isEditing && (
+        <ItemHeadCell style={{ minInlineSize: cellWidths.ACTIONS, textAlign: 'end' }}>
+          <VisuallyHidden>
+            <TranslatedText stringId="general.actions.label" fallback="Actions" />
+          </VisuallyHidden>
+        </ItemHeadCell>
+      )}
     </StyledItemHeader>
   );
 };

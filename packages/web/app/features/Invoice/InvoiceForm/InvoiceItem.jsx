@@ -173,19 +173,21 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      <td>
-        {!isEditing && item.insurancePlanItems?.length > 0 && (
-          <Button onClick={onClick} $isExpanded={isExpanded}>
-            <ArrowRight htmlColor={Colors.softText} />
-            <VisuallyHidden>
-              <TranslatedText
-                stringId="invoice.action.toggleInsurancePlanAdjustments"
-                fallback="Toggle insurance plan adjustments"
-              />
-            </VisuallyHidden>
-          </Button>
-        )}
-      </td>
+      {!isEditing && (
+        <td>
+          {item.insurancePlanItems?.length > 0 && (
+            <Button onClick={onClick} $isExpanded={isExpanded}>
+              <ArrowRight htmlColor={Colors.softText} />
+              <VisuallyHidden>
+                <TranslatedText
+                  stringId="invoice.action.toggleInsurancePlanAdjustments"
+                  fallback="Toggle insurance plan adjustments"
+                />
+              </VisuallyHidden>
+            </Button>
+          )}
+        </td>
+      )}
       <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
       <DetailsCell
         index={index}
@@ -215,20 +217,22 @@ export const InvoiceItemRow = ({
         cellWidths={cellWidths}
       />
       <NetCostCell item={item} cellWidths={cellWidths} />
-      <td>
-        {!isCancelled && !isEditing && (
-          <InvoiceItemActionsMenu
-            index={index}
-            item={item}
-            showActionMenu
-            hidePriceInput={hidePriceInput}
-            onUpdateInvoice={onUpdateInvoice}
-            onUpdateApproval={onUpdateApproval}
-            isFinalised={isFinalised}
-            isSaved={isSaved}
-          />
-        )}
-      </td>
+      {!isEditing && (
+        <td>
+          {!isCancelled && (
+            <InvoiceItemActionsMenu
+              index={index}
+              item={item}
+              showActionMenu
+              hidePriceInput={hidePriceInput}
+              onUpdateInvoice={onUpdateInvoice}
+              onUpdateApproval={onUpdateApproval}
+              isFinalised={isFinalised}
+              isSaved={isSaved}
+            />
+          )}
+        </td>
+      )}
     </StyledItemRow>
   );
 };
