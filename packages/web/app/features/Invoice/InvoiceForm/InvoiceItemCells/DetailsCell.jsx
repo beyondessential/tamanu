@@ -30,6 +30,12 @@ const CellText = styled.span`
   min-width: 0;
 `;
 
+const invoiceProductSuggesterFormatter = ({ dispensingUnit, id, name }) => ({
+  dispensingUnit,
+  label: name,
+  value: id,
+});
+
 export const DetailsCell = ({
   cellWidths,
   index,
@@ -40,11 +46,7 @@ export const DetailsCell = ({
   priceListId,
 }) => {
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
-    formatter: ({ name, id, ...rest }) => ({
-      ...rest,
-      label: name,
-      value: id,
-    }),
+    formatter: invoiceProductSuggesterFormatter,
     baseQueryParameters: { priceListId },
   });
   const detailsText = item.productNameFinal || item.product?.name;
