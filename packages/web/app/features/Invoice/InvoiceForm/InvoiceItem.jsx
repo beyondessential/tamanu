@@ -180,7 +180,7 @@ export const InvoiceItemRow = ({
         <td>
           {item.insurancePlanItems?.length > 0 && (
             <Button aria-expanded={isExpanded} onClick={onClick}>
-              <ArrowRight />
+              <ArrowRight aria-hidden />
               <VisuallyHidden>
                 <TranslatedText
                   stringId="invoice.action.toggleInsurancePlanAdjustments"
