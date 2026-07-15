@@ -689,7 +689,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          endpoint={`patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
@@ -721,7 +721,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </TableTitle>
           <StyledDataFetchingTable
             $compact
-            endpoint={`/patient/${patient.id}/dispensed-medications`}
+            endpoint={`patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,
               getEnumTranslation,
