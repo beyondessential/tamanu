@@ -173,54 +173,49 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
         <>
           <Table>
             <FieldArray name="invoiceItems">
-              {formArrayMethods => {
-                return (
-                  <>
-                    <InvoiceItemHeader
-                      cellWidths={cellWidths}
-                      isEditing={isAddForm || isEditForm}
-                    />
-                    <tbody>
-                      {values.invoiceItems?.map((item, index) => (
-                        <InvoiceItemRow
-                          cellWidths={cellWidths}
-                          encounterId={invoice.encounterId}
-                          formArrayMethods={formArrayMethods}
-                          index={index}
-                          isCancelled={isCancelled}
-                          isEditing={isAddForm || isEditForm}
-                          isFinalised={isFinalised}
-                          item={item}
-                          key={item.id}
-                          onUpdateApproval={updateItemApproval}
-                          onUpdateInvoice={handleUpdateItem}
-                          priceListId={invoice.priceList?.id}
+              {formArrayMethods => (
+                <>
+                  <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
+                  <tbody>
+                    {values.invoiceItems?.map((item, index) => (
+                      <InvoiceItemRow
+                        cellWidths={cellWidths}
+                        encounterId={invoice.encounterId}
+                        formArrayMethods={formArrayMethods}
+                        index={index}
+                        isCancelled={isCancelled}
+                        isEditing={isAddForm || isEditForm}
+                        isFinalised={isFinalised}
+                        item={item}
+                        key={item.id}
+                        onUpdateApproval={updateItemApproval}
+                        onUpdateInvoice={handleUpdateItem}
+                        priceListId={invoice.priceList?.id}
+                      />
+                    ))}
+                  </tbody>
+                  {editable && (isReadOnlyForm || isAddForm) && (
+                    <FormFooter>
+                      <AddButton
+                        onClick={() => {
+                          if (isReadOnlyForm) {
+                            setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                          } else {
+                            formArrayMethods.push(
+                              getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                            );
+                          }
+                        }}
+                      >
+                        <TranslatedText
+                          stringId="invoice.form.action.addItem"
+                          fallback="Add item"
                         />
-                      ))}
-                    </tbody>
-                    {editable && (isReadOnlyForm || isAddForm) && (
-                      <FormFooter>
-                        <AddButton
-                          onClick={() => {
-                            if (isReadOnlyForm) {
-                              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                            } else {
-                              formArrayMethods.push(
-                                getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                              );
-                            }
-                          }}
-                        >
-                          <TranslatedText
-                            stringId="invoice.form.action.addItem"
-                            fallback="Add item"
-                          />
-                        </AddButton>
-                      </FormFooter>
-                    )}
-                  </>
-                );
-              }}
+                      </AddButton>
+                    </FormFooter>
+                  )}
+                </>
+              )}
             </FieldArray>
           </Table>
           {editable && (isEditForm || isAddForm) && (
