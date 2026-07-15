@@ -227,7 +227,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                   onClose?.();
                 }}
               >
-                Cancel
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
                 {isAddForm ? (
