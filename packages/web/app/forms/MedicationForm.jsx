@@ -41,6 +41,7 @@ import {
   FormSubmitButton,
   NumberField,
   TextField,
+  ThemedTooltip,
   TranslatedSelectField,
   TranslatedText,
   useApi,
@@ -1101,7 +1102,20 @@ export const MedicationForm = ({
             </div>
             <Field
               name="notes"
-              label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+              label={
+                <ThemedTooltip
+                  title={
+                    <TranslatedText
+                      stringId="medication.notes.tooltip"
+                      fallback="This text will appear on the prescription label"
+                    />
+                  }
+                >
+                  <span>
+                    <TranslatedText stringId="general.notes.label" fallback="Notes" />
+                  </span>
+                </ThemedTooltip>
+              }
               component={TextField}
               style={{ gridColumn: '1/-1' }}
               data-testid="medication-field-notes-5b3t"
