@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Key = styled.h4`
+const Heading = styled.h4`
   color: ${p => p.theme.palette.text.tertiary};
   font: inherit;
   margin-block: 0;
@@ -10,16 +10,22 @@ const Key = styled.h4`
   }
 `;
 
-const Value = styled.p`
+const Paragraph = styled.p`
   color: ${p => p.theme.palette.text.primary};
   font-weight: 500;
   margin-block: 0.25em 0;
 `;
 
+/**
+ * @param {React.ComponentPropsWithRef<'div'> & {
+ *   label: React.ReactNode,
+ *   value: React.ReactNode,
+ * }} props
+ */
 const KeyValueDisplay = styled(({ label, value, ...props }) => (
   <div {...props}>
-    <Key>{label}</Key>
-    <Value>{value}</Value>
+    <Heading>{label}</Heading>
+    <Paragraph>{value}</Paragraph>
   </div>
 ))`
   &:not(:first-child) {
