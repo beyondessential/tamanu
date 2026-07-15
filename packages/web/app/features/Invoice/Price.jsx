@@ -8,9 +8,5 @@ export const Price = ({ price, $isCrossedOut, displayAsNegative = false, ...prop
 
   const displayPrice = displayAsNegative && price !== 0 ? -price : price;
   const Component = $isCrossedOut ? 's' : 'span';
-  return (
-    <Component $isCrossedOut={$isCrossedOut} {...props}>
-      {formatDisplayPrice(displayPrice)}
-    </Component>
-  );
+  return <Component {...props}>{formatDisplayPrice(displayPrice)}</Component>;
 };
