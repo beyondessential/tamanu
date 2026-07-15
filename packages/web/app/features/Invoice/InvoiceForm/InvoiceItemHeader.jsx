@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { CELL_WIDTHS } from '../constants';
 
-const StyledItemHeader = styled.thead`
+const StyledItemHeader = styled(({ children, ...props }) => (
+  <thead {...props}>
+    <tr>{children}</tr>
+  </thead>
+))`
   border-block-end: 1px solid ${p => p.theme.palette.divider};
   border-start-end-radius: inherit;
   border-start-start-radius: inherit;
