@@ -379,7 +379,6 @@ export const MarStatus = ({
             </IconWrapper>
           );
         }
-        if (!dosingUnit) return null;
         if (isVariableDose) {
           return (
             <DoseInfo>
@@ -387,6 +386,7 @@ export const MarStatus = ({
             </DoseInfo>
           );
         }
+        if (!dosingUnit) return null;
         return (
           <DoseInfo>
             <div>
