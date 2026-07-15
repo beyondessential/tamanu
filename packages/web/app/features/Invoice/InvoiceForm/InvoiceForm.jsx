@@ -198,7 +198,6 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         <tr>
                           <td colSpan={9}>
                             <AddButton
-                              variant="text"
                               onClick={() => {
                                 if (isReadOnlyForm) {
                                   setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
