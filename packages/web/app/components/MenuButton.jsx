@@ -27,6 +27,7 @@ export const MenuButton = React.memo(
     iconColor,
     disabled = false,
     placement = 'bottom-end',
+    'data-testid': dataTestId,
   }) => {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
@@ -55,7 +56,7 @@ export const MenuButton = React.memo(
           disabled={disabled}
           onClick={handleToggle}
           ref={anchorRef}
-          data-testid="openbutton-d1ec"
+          data-testid={dataTestId ?? 'openbutton-d1ec'}
         >
           <Icon style={{ color: iconColor }} data-testid="icon-p0po" />
           {a11yLabel && <VisuallyHidden>{a11yLabel}</VisuallyHidden>}
@@ -104,6 +105,7 @@ MenuButton.propTypes = {
   ).isRequired,
   iconDirection: PropTypes.string,
   iconColor: PropTypes.string,
+  'data-testid': PropTypes.string,
 };
 
 MenuButton.defaultProps = {

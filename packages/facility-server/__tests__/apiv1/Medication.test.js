@@ -1115,12 +1115,102 @@ describe('Medication', () => {
         expect(result).toBeForbidden();
       });
 
-      it('should reject modify-history without read MedicationDispense permission', async () => {
+      it('should allow a modification substituting a sensitive drug with the permission', async () => {
+        const sensitiveApp = await baseApp.asNewRole([
+          ['create', 'MedicationDispense'],
+          ['write', 'MedicationDispense'],
+          ['read', 'SensitiveMedication'],
+        ]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const { medication: sensitiveDrug } = await createDrug({ isSensitive: true });
+        const modifyReason = await createModifyReason();
+
+        const result = await sensitiveApp.post('/api/medication/dispense').send({
+          dispensedByUserId: sensitiveApp.user.id,
+          facilityId,
+          items: [
+            {
+              pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+              quantity: 1,
+              instructions: 'whatever',
+              modification: buildModification({
+                medicationId: sensitiveDrug.id,
+                modifiedReasonId: modifyReason.id,
+                modifiedById: sensitiveApp.user.id,
+              }),
+            },
+          ],
+        });
+
+        expect(result).toHaveSucceeded();
+        const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+        expect(persisted.medicationId).toBe(sensitiveDrug.id);
+      });
+    });
+  });
+
+  describe('GET /api/medication/medication-dispenses/:id/modify-history', () => {
+    // Creates a fill whose dispensed (substituted) medication is sensitive, while the original
+    // prescription's drug is not — so the sensitive-drug gate on the endpoint depends solely on
+    // the substitution. The dispense row is created directly (not via the endpoint) so it can be
+    // arranged without granting the write/sensitive permissions under test.
+    const arrangeSensitiveModifiedDispense = async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const { medication: sensitiveDrug } = await createDrug({ isSensitive: true });
+      const modifyReason = await createModifyReason();
+      const dispense = await models.MedicationDispense.create({
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        quantity: 5,
+        instructions: 'whatever',
+        dispensedByUserId: app.user.id,
+        dispensedAt: getCurrentDateTimeString(),
+        medicationId: sensitiveDrug.id,
+        modifiedById: app.user.id,
+        modifiedReasonId: modifyReason.id,
+        modifiedAt: getCurrentDateTimeString(),
+      });
+      return { dispenseId: dispense.id, sensitiveDrugId: sensitiveDrug.id };
+    };
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should reject a role with no permissions', async () => {
         const noPermsApp = await baseApp.asNewRole([]);
         const result = await noPermsApp.get(
           `/api/medication/medication-dispenses/${crypto.randomUUID()}/modify-history`,
         );
         expect(result).toBeForbidden();
+      });
+
+      it('should reject read MedicationDispense without read SensitiveMedication for a sensitive dispense', async () => {
+        const { dispenseId } = await arrangeSensitiveModifiedDispense();
+        const limitedApp = await baseApp.asNewRole([['read', 'MedicationDispense']]);
+
+        const result = await limitedApp.get(
+          `/api/medication/medication-dispenses/${dispenseId}/modify-history`,
+        );
+
+        expect(result).toBeForbidden();
+      });
+
+      it('should allow read MedicationDispense with read SensitiveMedication for a sensitive dispense', async () => {
+        const { dispenseId, sensitiveDrugId } = await arrangeSensitiveModifiedDispense();
+        const sensitiveApp = await baseApp.asNewRole([
+          ['read', 'MedicationDispense'],
+          ['read', 'SensitiveMedication'],
+        ]);
+
+        const result = await sensitiveApp.get(
+          `/api/medication/medication-dispenses/${dispenseId}/modify-history`,
+        );
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.current.medication.id).toBe(sensitiveDrugId);
       });
     });
   });
@@ -1247,6 +1337,68 @@ describe('Medication', () => {
       expect(row.isModified).toBe(true);
       expect(row.medicationId).toBe(substitute.id);
       expect(row.frequency).toBe(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      // A fill whose original prescription drug is not sensitive but whose dispensed (substituted)
+      // medication is — so only the substitution filter can hide the row. Created directly so the
+      // arrange needs no write/sensitive permissions. The listing gates sensitive visibility on
+      // `list SensitiveMedication` (not `read`).
+      const arrangeSensitiveSubstitutedDispense = async patientId => {
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId,
+        });
+        const { medication: sensitiveDrug } = await createDrug({ isSensitive: true });
+        const modifyReason = await createModifyReason();
+        const dispense = await models.MedicationDispense.create({
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 5,
+          instructions: 'whatever',
+          dispensedByUserId: app.user.id,
+          dispensedAt: getCurrentDateTimeString(),
+          medicationId: sensitiveDrug.id,
+          modifiedById: app.user.id,
+          modifiedReasonId: modifyReason.id,
+          modifiedAt: getCurrentDateTimeString(),
+        });
+        return { dispenseId: dispense.id, sensitiveDrugId: sensitiveDrug.id };
+      };
+
+      it('should hide a sensitive substitution from a user without list SensitiveMedication', async () => {
+        const localPatient = await models.Patient.create(fake(models.Patient));
+        const { dispenseId } = await arrangeSensitiveSubstitutedDispense(localPatient.id);
+        const limitedApp = await baseApp.asNewRole([['read', 'MedicationDispense']]);
+
+        const result = await limitedApp.get(
+          `/api/patient/${localPatient.id}/dispensed-medications`,
+        );
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.find(d => d.id === dispenseId)).toBeUndefined();
+      });
+
+      it('should show a sensitive substitution to a user with list SensitiveMedication', async () => {
+        const localPatient = await models.Patient.create(fake(models.Patient));
+        const { dispenseId, sensitiveDrugId } = await arrangeSensitiveSubstitutedDispense(
+          localPatient.id,
+        );
+        const sensitiveApp = await baseApp.asNewRole([
+          ['read', 'MedicationDispense'],
+          ['list', 'SensitiveMedication'],
+        ]);
+
+        const result = await sensitiveApp.get(
+          `/api/patient/${localPatient.id}/dispensed-medications`,
+        );
+
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(d => d.id === dispenseId);
+        expect(row).toBeDefined();
+        expect(row.isModified).toBe(true);
+        expect(row.medicationId).toBe(sensitiveDrugId);
+      });
     });
   });
 

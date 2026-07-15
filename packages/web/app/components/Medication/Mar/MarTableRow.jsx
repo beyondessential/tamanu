@@ -19,6 +19,7 @@ import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescr
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
+import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarStatus } from './MarStatus';
@@ -75,8 +76,6 @@ export const MarTableRow = ({
     notes,
     discontinued,
     medicationAdministrationRecords,
-    pharmacyNotes,
-    displayPharmacyNotesInMar,
     encounterPrescription,
     latestModifiedDispense,
   } = medication;
@@ -94,15 +93,7 @@ export const MarTableRow = ({
   const [openMedicationDetails, setOpenMedicationDetails] = useState(false);
   const [openModifyHistory, setOpenModifyHistory] = useState(false);
 
-  // When pharmacy modified a fill of this prescription, its pharmacy note (which already contains
-  // any prescription-level note plus the standard modification note) replaces the prescription's
-  // pharmacy note on the MAR, with a "View change" link to the change history.
-  const modifiedPharmacyNote =
-    latestModifiedDispense?.displayPharmacyNotesInMar && latestModifiedDispense?.pharmacyNotes
-      ? latestModifiedDispense.pharmacyNotes
-      : null;
-  const displayedPharmacyNote =
-    modifiedPharmacyNote ?? (displayPharmacyNotesInMar && pharmacyNotes ? pharmacyNotes : null);
+  const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
 
   const handleViewChangeClick = event => {
     event.stopPropagation();

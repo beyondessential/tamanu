@@ -404,6 +404,23 @@ export const isDispenseModifiedByPharmacy = dispense => Boolean(dispense?.modifi
 export const getDispensedMedication = dispense =>
   dispense?.medication ?? dispense?.pharmacyOrderPrescription?.prescription?.medication;
 
+// A fill modified by pharmacy replaces the prescription's pharmacy note on the MAR with the
+// dispense's own note (which already folds in any prescription-level note plus the standard
+// modification note), with a "View change" link to the change history. Returns both values the
+// MAR views need: `modifiedPharmacyNote` (present only when a modified fill supplies the note —
+// gates the link) and `displayedPharmacyNote` (the note text to show, from the modification or,
+// failing that, the prescription).
+export const getDisplayedPharmacyNote = medication => {
+  const { latestModifiedDispense, displayPharmacyNotesInMar, pharmacyNotes } = medication;
+  const modifiedPharmacyNote =
+    latestModifiedDispense?.displayPharmacyNotesInMar && latestModifiedDispense?.pharmacyNotes
+      ? latestModifiedDispense.pharmacyNotes
+      : null;
+  const displayedPharmacyNote =
+    modifiedPharmacyNote ?? (displayPharmacyNotesInMar && pharmacyNotes ? pharmacyNotes : null);
+  return { modifiedPharmacyNote, displayedPharmacyNote };
+};
+
 export const DispensedMedicationName = ({ dispense }) => {
   const medication = getDispensedMedication(dispense);
   return (

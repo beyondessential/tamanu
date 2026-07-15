@@ -17,6 +17,7 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
+import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { ChangeLogModal } from './ChangeLogModal';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 
@@ -86,9 +87,8 @@ export const MarInfoPane = ({ medication, marInfo }) => {
   const [showModifyHistory, setShowModifyHistory] = useState(false);
 
   // The most recent pharmacy-modified fill for this prescription (null when never modified),
-  // provided by the encounter medications endpoint; its pharmacy note (which already contains any
-  // prescription-level note plus the standard modification note) replaces the prescription's
-  // pharmacy note, with a "View change" link to the change history.
+  // provided by the encounter medications endpoint. Its pharmacy note drives the MAR note display
+  // via getDisplayedPharmacyNote; kept here for the "View change" link's change-history modal.
   const { latestModifiedDispense } = medication;
 
   const facilityDueAt = toFacilityDateTime(dueAt);
@@ -105,16 +105,9 @@ export const MarInfoPane = ({ medication, marInfo }) => {
     frequency,
     route,
     notes,
-    pharmacyNotes,
-    displayPharmacyNotesInMar,
   } = medication;
 
-  const modifiedPharmacyNote =
-    latestModifiedDispense?.displayPharmacyNotesInMar && latestModifiedDispense?.pharmacyNotes
-      ? latestModifiedDispense.pharmacyNotes
-      : null;
-  const displayedPharmacyNote =
-    modifiedPharmacyNote ?? (displayPharmacyNotesInMar && pharmacyNotes ? pharmacyNotes : null);
+  const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
 
   const onChangeLogClick = () => {
     setShowChangeLogModal(true);
