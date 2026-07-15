@@ -7,7 +7,6 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   EditedEntryLegend,
   EditedOrnament,
-  EditedOrnamentRoot,
   SurveyResultBadge,
   TranslatedText,
   VisuallyHidden,
@@ -60,7 +59,7 @@ const ProgramResponsesDataFetchingTable = styled(DataFetchingTable)``;
 
 /** Render ‘*Edited entry’ only if current page of table contains an edited response */
 const ConditionalEditedEntryLegend = styled(EditedEntryLegend)`
-  ${ProgramResponsesDataFetchingTable}:not(:has(${EditedOrnamentRoot})) + & {
+  ${ProgramResponsesDataFetchingTable}:not(:has(${EditedOrnament})) + & {
     display: none;
   }
 `;
