@@ -190,6 +190,23 @@ const FieldLabel = styled(Box)`
   font-size: 14px;
 `;
 
+const TooltipTextField = ({ tooltip, label, id, ...props }) => (
+  <FullWidthFieldWrapper>
+    <FieldLabel
+      component="label"
+      htmlFor={id}
+      style={{ display: 'inline-block', marginBottom: 4 }}
+    >
+      {label}
+    </FieldLabel>
+    <ThemedTooltip disableFocusListener title={tooltip}>
+      <div>
+        <TextField id={id} {...props} />
+      </div>
+    </ThemedTooltip>
+  </FullWidthFieldWrapper>
+);
+
 const FieldContent = styled(Box)`
   color: ${Colors.darkText};
   font-weight: 400;
@@ -1102,22 +1119,15 @@ export const MedicationForm = ({
             </div>
             <Field
               name="notes"
-              label={
-                <ThemedTooltip
-                  title={
-                    <TranslatedText
-                      stringId="medication.notes.tooltip"
-                      fallback="This text will appear on the prescription label"
-                    />
-                  }
-                >
-                  <span>
-                    <TranslatedText stringId="general.notes.label" fallback="Notes" />
-                  </span>
-                </ThemedTooltip>
+              id="medication-notes"
+              label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+              tooltip={
+                <TranslatedText
+                  stringId="medication.notes.tooltip"
+                  fallback="This text will appear on the prescription label"
+                />
               }
-              component={TextField}
-              style={{ gridColumn: '1/-1' }}
+              component={TooltipTextField}
               data-testid="medication-field-notes-5b3t"
             />
             <div style={{ gridColumn: '1 / -1' }}>
