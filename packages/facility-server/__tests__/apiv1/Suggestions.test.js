@@ -1179,6 +1179,38 @@ describe('Suggestions', () => {
     expect(body[0]).toHaveProperty('id', invoiceProduct.id);
   });
 
+  it('should return the dispensing unit for a drug invoice product', async () => {
+    const drugRefData = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      type: REFERENCE_TYPES.DRUG,
+      name: 'Dispensing Unit Test Drug',
+      code: 'DISPENSING_UNIT_TEST_DRUG',
+    });
+    await models.ReferenceDrug.create({
+      ...fake(models.ReferenceDrug),
+      referenceDataId: drugRefData.id,
+      dispensingUnit: 'Tablet',
+    });
+
+    const drugProduct = await models.InvoiceProduct.create({
+      name: 'Dispensing Unit Test Drug Product',
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
+      sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+      sourceRecordId: drugRefData.id,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    });
+
+    const result = await userApp.get(
+      '/api/suggestions/invoiceProduct?q=Dispensing Unit Test Drug&language=en',
+    );
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    const suggestion = body.find(({ id }) => id === drugProduct.id);
+    expect(suggestion).toBeDefined();
+    expect(suggestion).toHaveProperty('dispensingUnit', 'Tablet');
+  });
+
   it('should only return non-hidden invoice products', async () => {
     await models.InvoiceProduct.truncate({ cascade: true });
 
