@@ -11,7 +11,6 @@ const StyledItemHeader = styled(({ children, ...props }) => (
   border-block-end: 1px solid ${p => p.theme.palette.divider};
   border-start-end-radius: inherit;
   border-start-start-radius: inherit;
-  padding: 12px 50px 12px 30px;
 `;
 
 const ItemHeadCell = styled.th.attrs({ scope: 'col' })`
