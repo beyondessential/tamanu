@@ -304,8 +304,11 @@ labRequest.get(
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
+    // MATERIALIZED is load-bearing: without it Postgres inlines this single-reference CTE and
+    // re-evaluates the whole-table sensitive-lab scan once per matched row (measured ~2.5s / 11
+    // rows on a prod worklist). Forcing a single computation keeps it to one scan.
     const queryCte = `
-      WITH sensitive_labs AS (
+      WITH sensitive_labs AS MATERIALIZED (
         SELECT lab_requests.id as id, TRUE as is_sensitive
         FROM lab_requests
         INNER JOIN lab_tests
