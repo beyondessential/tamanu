@@ -170,7 +170,7 @@ export const MedicationDetails = ({
         ) : (
           <TranslatedText
             stringId="medication.details.dischargeQuantity"
-            fallback="Discharge quantity"
+            fallback="Dispensing quantity"
           />
         )
       ),

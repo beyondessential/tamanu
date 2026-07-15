@@ -1137,7 +1137,7 @@ export const MedicationForm = ({
                 encounterId ? (
                   <TranslatedText
                     stringId="medication.details.dischargeQuantity"
-                    fallback="Discharge quantity"
+                    fallback="Dispensing quantity"
                   />
                 ) : (
                   <TranslatedText stringId="medication.quantity.label" fallback="Quantity" />
