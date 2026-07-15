@@ -14,6 +14,8 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
@@ -29,7 +31,6 @@ import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   buildInstructionText,
   buildLabelText,
