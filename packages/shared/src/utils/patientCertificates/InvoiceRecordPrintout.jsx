@@ -176,6 +176,14 @@ const CustomCellComponent = ({ children, style = {} }) => (
   <View style={[baseTableStyles.baseCell, style]}>{children}</View>
 );
 
+// Reads the language context itself so the dispensing unit can be pluralised
+// without threading getEnumTranslation through the shared formatters object.
+const QuantityCell = ({ quantity, dispensingUnit }) => {
+  const { getEnumTranslation } = useLanguageContext();
+  if (!dispensingUnit) return quantity != null ? String(quantity) : '';
+  return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
+};
+
 const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
   return <P>{price}</P>;
@@ -324,11 +332,9 @@ const COLUMNS = {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '12%' },
-      accessor: ({ quantity, sourcePrescription }, { getEnumTranslation }) => {
-        const dispensingUnit = sourcePrescription?.dispensingUnit;
-        if (!dispensingUnit) return quantity != null ? String(quantity) : '';
-        return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
-      },
+      accessor: ({ quantity, sourcePrescription }) => (
+        <QuantityCell quantity={quantity} dispensingUnit={sourcePrescription?.dispensingUnit} />
+      ),
     },
     {
       key: 'approved',
@@ -670,8 +676,7 @@ const InvoiceRecordPrintoutComponent = ({
   enablePatientInsurer,
 }) => {
   const { formatShort } = useDateTime();
-  const { getEnumTranslation } = useLanguageContext();
-  const formatters = { formatShort, getEnumTranslation };
+  const formatters = { formatShort };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);

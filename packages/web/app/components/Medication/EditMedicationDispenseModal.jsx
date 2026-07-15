@@ -10,6 +10,7 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -25,7 +26,6 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import {
   buildInstructionText,
   buildLabelText,
-  getDrugUnitLabel,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
