@@ -5,6 +5,8 @@ import { DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 
 const Root = styled.div`
+  display: grid;
+  place-items: center;
   text-align: center;
   text-wrap: balance;
 `;
@@ -22,10 +24,9 @@ export default function MarDoseInfo({ doseAmount, dosingUnit, isVariableDose, ..
     <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
   ) : dosingUnit ? (
     <>
-      <div>{doseAmount}</div>
-      <div>
-        <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
-      </div>
+      {doseAmount}
+      <br />
+      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
     </>
   ) : null;
 
