@@ -258,6 +258,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                         >
                           <SendToPharmacyButton
                             data-testid="styledtextbutton-uhgj"
+                            disabled={disabled}
                             onClick={() => setPharmacyOrderModalOpen(true)}
                           />
                         </ThemedTooltip>
