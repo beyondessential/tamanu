@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/errors",
-  "version": "2.54.21",
+  "version": "2.54.22",
   "private": true,
   "description": "API errors",
   "main": "dist/cjs/index.js",

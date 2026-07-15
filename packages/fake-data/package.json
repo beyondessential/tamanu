@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/fake-data",
-  "version": "2.54.21",
+  "version": "2.54.22",
   "private": true,
   "description": "TODO",
   "main": "dist/cjs/index.js",

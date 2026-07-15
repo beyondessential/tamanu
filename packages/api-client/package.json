@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/api-client",
-  "version": "2.54.21",
+  "version": "2.54.22",
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "main": "dist/cjs/index.js",
