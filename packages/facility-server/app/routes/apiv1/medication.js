@@ -2664,6 +2664,66 @@ const dispenseInputSchema = z
   })
   .strip();
 
+// Builds the details a single fill is dispensed with: the prescription's values by default, or
+// pharmacy's modification when one was made. The original prescription is never altered. When a
+// modification substitutes the drug, its dosing/dispensing units come from the substituted drug's
+// reference data (via unitsByMedicationId), not from the client — same as prescription creation.
+const buildDispensedDetails = (item, prescription, unitsByMedicationId, dispensedAt) => {
+  const { modification } = item;
+  if (!modification) {
+    return {
+      medicationId: prescription.medicationId,
+      isVariableDose: prescription.isVariableDose ?? false,
+      doseAmount: prescription.doseAmount,
+      dosingUnit: prescription.dosingUnit,
+      dispensingUnit: prescription.dispensingUnit,
+      frequency: prescription.frequency,
+      route: prescription.route,
+      durationValue: prescription.durationValue,
+      durationUnit: prescription.durationUnit,
+      pharmacyNotes: prescription.pharmacyNotes ?? null,
+      displayPharmacyNotesInMar: prescription.displayPharmacyNotesInMar ?? false,
+    };
+  }
+
+  const substitutedUnits =
+    modification.medicationId !== prescription.medicationId
+      ? unitsByMedicationId.get(modification.medicationId)
+      : null;
+  return {
+    medicationId: modification.medicationId,
+    isVariableDose: modification.isVariableDose ?? false,
+    doseAmount: modification.isVariableDose ? null : modification.doseAmount,
+    dosingUnit: substitutedUnits?.dosingUnit ?? prescription.dosingUnit,
+    dispensingUnit: substitutedUnits?.dispensingUnit ?? prescription.dispensingUnit,
+    frequency: modification.frequency,
+    route: modification.route,
+    durationValue: modification.durationValue ?? null,
+    durationUnit: modification.durationUnit ?? null,
+    pharmacyNotes: modification.pharmacyNotes ?? null,
+    // Pharmacy notes for a modified fill always display on the MAR
+    displayPharmacyNotesInMar: true,
+    modifiedById: modification.modifiedById,
+    modifiedReasonId: modification.modifiedReasonId,
+    modifiedAt: dispensedAt,
+  };
+};
+
+// Notifies the original prescriber about modified fills (the pharmacy note hint in the modal
+// promises this). With the prescription untouched, the Prescription.afterUpdate pharmacy-note hook
+// never fires, so push the notification explicitly.
+const notifyPrescriberOfModifications = async (items, prescriptionsByPopId, models, transaction) => {
+  for (const item of items) {
+    if (!item.modification) continue;
+    const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
+    await models.Notification.pushNotification(
+      NOTIFICATION_TYPES.PHARMACY_NOTE,
+      { ...prescription.dataValues, pharmacyNotes: item.modification.pharmacyNotes },
+      { transaction },
+    );
+  }
+};
+
 medication.post(
   '/dispense',
   asyncHandler(async (req, res) => {
@@ -2852,42 +2912,6 @@ medication.post(
       const dispenseRecords = await MedicationDispense.bulkCreate(
         items.map(item => {
           const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
-          const { modification } = item;
-          const substitutedUnits =
-            modification && modification.medicationId !== prescription.medicationId
-              ? unitsByMedicationId.get(modification.medicationId)
-              : null;
-          const dispensedDetails = modification
-            ? {
-                medicationId: modification.medicationId,
-                isVariableDose: modification.isVariableDose ?? false,
-                doseAmount: modification.isVariableDose ? null : modification.doseAmount,
-                dosingUnit: substitutedUnits?.dosingUnit ?? prescription.dosingUnit,
-                dispensingUnit: substitutedUnits?.dispensingUnit ?? prescription.dispensingUnit,
-                frequency: modification.frequency,
-                route: modification.route,
-                durationValue: modification.durationValue ?? null,
-                durationUnit: modification.durationUnit ?? null,
-                pharmacyNotes: modification.pharmacyNotes ?? null,
-                // Pharmacy notes for a modified fill always display on the MAR
-                displayPharmacyNotesInMar: true,
-                modifiedById: modification.modifiedById,
-                modifiedReasonId: modification.modifiedReasonId,
-                modifiedAt: dispensedAt,
-              }
-            : {
-                medicationId: prescription.medicationId,
-                isVariableDose: prescription.isVariableDose ?? false,
-                doseAmount: prescription.doseAmount,
-                dosingUnit: prescription.dosingUnit,
-                dispensingUnit: prescription.dispensingUnit,
-                frequency: prescription.frequency,
-                route: prescription.route,
-                durationValue: prescription.durationValue,
-                durationUnit: prescription.durationUnit,
-                pharmacyNotes: prescription.pharmacyNotes ?? null,
-                displayPharmacyNotesInMar: prescription.displayPharmacyNotesInMar ?? false,
-              };
           return {
             pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
             quantity: item.quantity,
@@ -2895,24 +2919,13 @@ medication.post(
             medicationPresetLabelId: item.medicationPresetLabelId ?? null,
             dispensedByUserId,
             dispensedAt,
-            ...dispensedDetails,
+            ...buildDispensedDetails(item, prescription, unitsByMedicationId, dispensedAt),
           };
         }),
         { transaction },
       );
 
-      // Notify the original prescriber about modified fills (the pharmacy note hint in the modal
-      // promises this). With the prescription untouched, the Prescription.afterUpdate pharmacy-note
-      // hook never fires, so push the notification explicitly.
-      for (const item of items) {
-        if (!item.modification) continue;
-        const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
-        await models.Notification.pushNotification(
-          NOTIFICATION_TYPES.PHARMACY_NOTE,
-          { ...prescription.dataValues, pharmacyNotes: item.modification.pharmacyNotes },
-          { transaction },
-        );
-      }
+      await notifyPrescriberOfModifications(items, prescriptionsByPopId, models, transaction);
 
       // After dispensing, mark all dispensed prescriptions as completed so they disappear from the medication requests list.
       if (prescriptionRecords.length > 0) {

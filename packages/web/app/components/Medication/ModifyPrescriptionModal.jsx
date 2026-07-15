@@ -91,7 +91,15 @@ const appendPharmacyNote = (existingNotes, note) => {
  * prescription is never altered. Pre-fills from any modification already made in this workflow,
  * otherwise from the prescription.
  */
-export const ModifyPrescriptionModal = ({ open, prescription, modification, quantity, labelNotes, onClose, onConfirm }) => {
+export const ModifyPrescriptionModal = ({
+  open,
+  prescription = null,
+  modification = null,
+  quantity = '',
+  labelNotes = '',
+  onClose,
+  onConfirm,
+}) => {
   const { currentUser } = useAuth();
   const { getTranslation, getEnumTranslation } = useTranslation();
   // Retains the dose amount when variable dose is toggled on (which clears the field), so
@@ -358,11 +366,4 @@ ModifyPrescriptionModal.propTypes = {
   labelNotes: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
-};
-
-ModifyPrescriptionModal.defaultProps = {
-  prescription: null,
-  modification: null,
-  quantity: '',
-  labelNotes: '',
 };

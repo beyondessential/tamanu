@@ -103,7 +103,7 @@ const MedicationName = ({ medication }) =>
  * original prescription, which is never altered by dispensing modifications. Only the original
  * and the dispensed details are shown — intermediate edits are intentionally not displayed.
  */
-export const PrescriptionChangeHistoryModal = ({ open, dispenseId, onClose }) => {
+export const PrescriptionChangeHistoryModal = ({ open, dispenseId = null, onClose }) => {
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -341,8 +341,4 @@ PrescriptionChangeHistoryModal.propTypes = {
   // The medication dispense (fill) whose modification is shown against the original prescription.
   dispenseId: PropTypes.string,
   onClose: PropTypes.func.isRequired,
-};
-
-PrescriptionChangeHistoryModal.defaultProps = {
-  dispenseId: null,
 };
