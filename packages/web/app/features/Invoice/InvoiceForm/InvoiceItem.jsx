@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
-import { ArrowRight } from '../../../components/Icons';
+import { ChevronRight } from 'lucide-react';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
@@ -16,32 +16,32 @@ import {
   NetCostCell,
 } from './InvoiceItemCells';
 import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
+import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 
-const StyledItemRow = styled.div`
+const StyledItemRow = styled.tr`
   position: relative;
-  display: flex;
-  gap: 10px;
-  font-size: 14px;
-  padding: 12px 50px 12px 30px;
-  background: ${Colors.white};
-  border-bottom: 1px solid ${Colors.outline};
+  border-block-end: 1px solid ${Colors.outline};
 
   .MuiInputBase-input {
     font-size: 14px;
   }
 
   .MuiFormControl-root {
-    margin: -8px 0 -8px -6px;
+    margin-block: -6px;
+    margin-inline: -3px;
   }
 `;
 
-const Button = styled(IconButton)`
-  position: absolute;
-  padding: 6px;
-  top: 4px;
-  left: -4px;
-  transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
-  transition: transform 0.2s ease-in-out;
+const Button = styled(IconButton).attrs({ size: 'small' })`
+  color: ${Colors.softText};
+  margin-block: -12px;
+  margin-inline: -10px;
+  svg {
+    transition: ${p => p.theme.transitions.create(['transform'])};
+  }
+  &[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+  }
 `;
 
 const useInvoiceItemPrice = ({
@@ -141,6 +141,7 @@ export const InvoiceItemRow = ({
       ...item,
       productId: value.value,
       product: null,
+      dispensingUnit: value.dispensingUnit,
     });
   };
 
@@ -175,13 +176,24 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      {!isEditing && item.insurancePlanItems?.length > 0 && (
-        <Button onClick={onClick} $isExpanded={isExpanded}>
-          <ArrowRight htmlColor={Colors.softText} />
-        </Button>
+      {!isEditing && (
+        <td>
+          {item.insurancePlanItems?.length > 0 && (
+            <Button aria-expanded={isExpanded} onClick={onClick}>
+              <ChevronRight aria-hidden />
+              <VisuallyHidden>
+                <TranslatedText
+                  stringId="invoice.action.toggleInsurancePlanAdjustments"
+                  fallback="Toggle insurance plan adjustments"
+                />
+              </VisuallyHidden>
+            </Button>
+          )}
+        </td>
       )}
       <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
       <DetailsCell
+        cellWidths={cellWidths}
         index={index}
         item={item}
         handleChangeProduct={handleChangeProduct}
@@ -209,17 +221,21 @@ export const InvoiceItemRow = ({
         cellWidths={cellWidths}
       />
       <NetCostCell item={item} cellWidths={cellWidths} />
-      {!isCancelled && !isEditing && (
-        <InvoiceItemActionsMenu
-          index={index}
-          item={item}
-          showActionMenu
-          hidePriceInput={hidePriceInput}
-          onUpdateInvoice={onUpdateInvoice}
-          onUpdateApproval={onUpdateApproval}
-          isFinalised={isFinalised}
-          isSaved={isSaved}
-        />
+      {!isEditing && (
+        <td>
+          {!isCancelled && (
+            <InvoiceItemActionsMenu
+              index={index}
+              item={item}
+              showActionMenu
+              hidePriceInput={hidePriceInput}
+              onUpdateInvoice={onUpdateInvoice}
+              onUpdateApproval={onUpdateApproval}
+              isFinalised={isFinalised}
+              isSaved={isSaved}
+            />
+          )}
+        </td>
       )}
     </StyledItemRow>
   );

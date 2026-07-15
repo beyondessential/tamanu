@@ -1,36 +1,32 @@
-import React, { useEffect, useMemo, useState, memo } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
+  AutocompleteInput,
   BaseModal,
   Button,
+  DateDisplay,
+  notifyError,
+  notifySuccess,
   OutlinedButton,
   RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
+  useApi,
   useDateTime,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
-
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { useTranslation } from '../../contexts/Translation';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { PATIENT_TABS } from '../../constants/patientPaths';
-import { notifyError, notifySuccess } from '../../utils';
-import { AutocompleteInput, CheckInput } from '../Field';
-import { TableFormFields } from '../Table/TableFormFields';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
-import { BodyText } from '../Typography';
-import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { useAuth } from '../../contexts/Auth';
 import {
   buildInstructionText,
   buildLabelText,
@@ -43,6 +39,11 @@ import {
   StyledPresetLabelAutocomplete,
   usePresetLabelsQuery,
 } from '../../utils/medications';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { CheckInput } from '../Field';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
+import { TableFormFields } from '../Table/TableFormFields';
+import { BodyText } from '../Typography';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
