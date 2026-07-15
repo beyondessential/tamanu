@@ -32,13 +32,16 @@ const StyledItemRow = styled.tr`
   }
 `;
 
-const Button = styled(IconButton)`
-  position: absolute;
-  padding: 6px;
-  top: 4px;
-  left: -4px;
-  transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
-  transition: transform 0.2s ease-in-out;
+const Button = styled(IconButton).attrs({ size: 'small' })`
+  color: ${Colors.softText};
+  margin-block: -12px;
+  margin-inline: -10px;
+  svg {
+    transition: ${p => p.theme.transitions.create(['transform'])};
+  }
+  &[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+  }
 `;
 
 const useInvoiceItemPrice = ({
@@ -176,8 +179,8 @@ export const InvoiceItemRow = ({
       {!isEditing && (
         <td>
           {item.insurancePlanItems?.length > 0 && (
-            <Button onClick={onClick} $isExpanded={isExpanded}>
-              <ArrowRight htmlColor={Colors.softText} />
+            <Button aria-expanded={isExpanded} onClick={onClick}>
+              <ArrowRight />
               <VisuallyHidden>
                 <TranslatedText
                   stringId="invoice.action.toggleInsurancePlanAdjustments"
