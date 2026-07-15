@@ -362,7 +362,7 @@ export const ContactDetails = ({
       )}
       <StyledContactListTable
         columns={columns}
-        endpoint={`/patient/${patient.id}/reminderContacts`}
+        endpoint={`patient/${patient.id}/reminderContacts`}
         disablePagination
         initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}
