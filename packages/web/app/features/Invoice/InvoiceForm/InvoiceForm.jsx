@@ -178,18 +178,18 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                     <tbody>
                       {values.invoiceItems?.map((item, index) => (
                         <InvoiceItemRow
-                          key={item.id}
-                          index={index}
-                          item={item}
-                          encounterId={invoice.encounterId}
-                          priceListId={invoice.priceList?.id}
-                          formArrayMethods={formArrayMethods}
-                          onUpdateInvoice={handleUpdateItem}
-                          onUpdateApproval={updateItemApproval}
-                          isFinalised={isFinalised}
-                          isCancelled={isCancelled}
                           cellWidths={cellWidths}
+                          encounterId={invoice.encounterId}
+                          formArrayMethods={formArrayMethods}
+                          index={index}
+                          isCancelled={isCancelled}
                           isEditing={isAddForm || isEditForm}
+                          isFinalised={isFinalised}
+                          item={item}
+                          key={item.id}
+                          onUpdateApproval={updateItemApproval}
+                          onUpdateInvoice={handleUpdateItem}
+                          priceListId={invoice.priceList?.id}
                         />
                       ))}
                     </tbody>
