@@ -1,4 +1,4 @@
-import { ClickAwayListener, Divider, Fade, IconButton, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, Fade, IconButton, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useQueryClient } from '@tanstack/react-query';
@@ -69,16 +69,16 @@ const StyledPaper = styled(Paper)`
     z-index: 1;
     ${p =>
       p.$placement === 'right'
-        ? `
-      right: 100%;
-      border-right: 9px solid rgba(0, 0, 0, 0.1);
-      margin-right: 1px;
-    `
-        : `
-      left: 100%;
-      border-left: 9px solid rgba(0, 0, 0, 0.1);
-      margin-left: 1px;
-    `}
+        ? css`
+            right: 100%;
+            border-right: 9px solid rgba(0, 0, 0, 0.1);
+            margin-right: 1px;
+          `
+        : css`
+            left: 100%;
+            border-left: 9px solid rgba(0, 0, 0, 0.1);
+            margin-left: 1px;
+          `}
   }
 `;
 
@@ -143,9 +143,6 @@ const StyledNumberFieldWrapper = styled.div`
       -webkit-appearance: none;
       margin: 0px;
     }
-
-    /* For Firefox */
-    -moz-appearance: textfield;
   }
 `;
 
@@ -215,7 +212,7 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
-      <Divider color={Colors.outline} />
+      <hr aria-hidden />
       <NoteModalActionBlocker>
         <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
@@ -452,10 +449,6 @@ export const StatusPopper = ({
     });
   const queryClient = useQueryClient();
 
-  const handleNotGivenClick = () => {
-    setShowReasonScreen(true);
-  };
-
   const { encounter } = useEncounter();
 
   const handleClose = () => {
@@ -475,10 +468,6 @@ export const StatusPopper = ({
 
     setShowReasonScreen(false);
     handleClose();
-  };
-
-  const handleGivenClick = () => {
-    setShowGivenScreen(true);
   };
 
   const reasonsNotGiven = useSuggestionsQuery('medicationNotGivenReason');
@@ -509,7 +498,12 @@ export const StatusPopper = ({
         />
       );
     }
-    return <MainScreen onGivenClick={handleGivenClick} onNotGivenClick={handleNotGivenClick} />;
+    return (
+      <MainScreen
+        onGivenClick={() => void setShowGivenScreen(true)}
+        onNotGivenClick={() => void setShowReasonScreen(true)}
+      />
+    );
   };
 
   const placement = useMemo(() => {

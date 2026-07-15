@@ -378,14 +378,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
-  const { defaultTimeSlots } = useMedicationIdealTimes({
-    frequency: values.frequency,
-  });
+  const { defaultTimeSlots } = useMedicationIdealTimes({ frequency: values.frequency });
 
   const firstAdministrationTime = useMemo(() => {
-    if (!values.startDate) return '';
-    if (!values.frequency) return '';
-    if (!selectedTimeSlots?.length) return '';
+    if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
 
     const startDate = new Date(values.startDate);
 

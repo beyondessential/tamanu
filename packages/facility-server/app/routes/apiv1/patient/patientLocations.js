@@ -4,7 +4,7 @@ import { QueryTypes } from 'sequelize';
 import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
-const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) => `
+const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
   	locations.id,
   	COUNT(open_encounters)
@@ -17,7 +17,7 @@ const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) 
     ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
-  WHERE locations.facility_id = '${facilityId}'
+  WHERE locations.facility_id = $facilityId
   AND locations.max_occupancy = 1
   AND locations.deleted_at IS NULL
   GROUP BY locations.id
@@ -36,11 +36,14 @@ patientLocations.get(
         SELECT
           (SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100)::float AS occupancy
         FROM (
-          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`, facilityId)}
+          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`)}
         ) max_1_occupancy_locations
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId,
+        },
       },
     );
 
@@ -155,11 +158,14 @@ patientLocations.get(
           SUM(sign(max_1_occupancy_locations.count)) AS occupied_location_count,
           COUNT(max_1_occupancy_locations) - SUM(sign(max_1_occupancy_locations.count)) AS available_location_count
         FROM (
-          ${patientsLocationSelect(undefined, undefined, facilityId)}
+          ${patientsLocationSelect(undefined, undefined)}
         ) max_1_occupancy_locations
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId,
+        },
       },
     );
 
@@ -168,11 +174,14 @@ patientLocations.get(
         SELECT
           SUM(sign(max_1_occupancy_locations.count)) AS reserved_location_count
         FROM (
-          ${patientsLocationSelect(true, undefined, facilityId)}
+          ${patientsLocationSelect(true, undefined)}
         ) max_1_occupancy_locations
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId,
+        },
       },
     );
 

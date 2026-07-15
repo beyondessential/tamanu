@@ -73,7 +73,7 @@ const TableContainer = styled.div`
   border-radius: 3px;
 `;
 
-export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
+export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
   const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
@@ -202,7 +202,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                       'medication.action.addOngoingMedications',
                       'Add existing ongoing medication to encounter',
                     )}
-                    disabled={readonly}
+                    disabled={disabled}
                     onClick={() => setMedicationImportModalOpen(true)}
                   >
                     <ThemedTooltip
@@ -230,7 +230,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                           'Print prescription',
                         )}
                         onClick={() => setPrintMedicationModalOpen(true)}
-                        disabled={readonly}
+                        disabled={disabled}
                         color="primary"
                         data-testid="styledtextbutton-hbja"
                       >
@@ -256,7 +256,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                             'Send to pharmacy',
                           )}
                           onClick={() => setPharmacyOrderModalOpen(true)}
-                          disabled={readonly}
+                          disabled={disabled}
                           color="primary"
                           data-testid="styledtextbutton-uhgj"
                         >
@@ -285,7 +285,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           <ButtonGroup>
             {canAccessMar && (
               <StyledButton
-                disabled={readonly}
+                disabled={disabled}
                 variant="outlined"
                 color="primary"
                 onClick={handleNavigateToMar}
@@ -309,7 +309,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                 >
                   <StyledButtonWithPermissionCheck
                     onClick={handleNewPrescription}
-                    disabled={readonly || medicationSetsLoading || isEncounterDischarged}
+                    disabled={disabled || medicationSetsLoading || isEncounterDischarged}
                     verb="create"
                     noun="Medication"
                     data-testid="styledbuttonwithpermissioncheck-cagj"

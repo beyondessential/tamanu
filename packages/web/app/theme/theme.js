@@ -20,6 +20,13 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  ':where(hr)': {
+    borderBlockEnd: `1px solid ${Colors.outline}`,
+    borderBlockStart: 0,
+    borderInline: 0,
+    inlineSize: '100%',
+    margin: 0,
+  },
   iframe: {
     border: 0,
   },
@@ -43,12 +50,17 @@ const cssReset = {
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
-  table: {
+  ':where(table)': {
     borderCollapse: 'collapse',
   },
-  th: {
+  ':where(td, th)': {
     padding: 0,
+  },
+  ':where(th)': {
     textAlign: 'start',
+  },
+  '[popover]': {
+    inset: 'auto',
   },
 };
 

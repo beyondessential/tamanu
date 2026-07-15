@@ -1,45 +1,44 @@
+import Box from '@mui/material/Box';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
 
-import {
-  Button,
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
-  DateDisplay,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { DataFetchingTable } from '../../../components/Table';
-
-import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
-
-import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import {
   getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
-import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
-import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
-import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { MenuButton } from '../../../components/MenuButton';
-import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
-import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
-import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
-import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
-import { useApi } from '../../../api';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
-import { useSettings } from '../../../contexts/Settings';
+import {
+  Button,
+  ConditionalTooltip,
+  DateDisplay,
+  ThemedTooltip,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
+  useDateTime,
+  useSettings,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
+import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
+import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
+import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
+import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
+import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
+import { MenuButton } from '../../../components/MenuButton';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
+import { DataFetchingTable } from '../../../components/Table';
+import { PATIENT_STATUS_COLORS } from '../../../constants';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;

@@ -68,9 +68,9 @@ export const getPatientDetailsValidation = (getSetting: <T>(key: string) => T) =
       .translatedLabel(
         <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
       ),
-    village: requiredWhenConfiguredMandatory(
+    villageId: requiredWhenConfiguredMandatory(
       getSetting,
-      'village',
+      'villageId',
       Yup.string().translatedLabel(
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
       ),

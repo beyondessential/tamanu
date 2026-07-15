@@ -1,6 +1,8 @@
 import { CentralServerConnection } from '../sync';
 import { AuthService } from './AuthService';
 import { MODELS_MAP } from '~/models/modelsMap';
+import { readConfig } from '~/services/config';
+import { AuthenticationError, invalidUserCredentialsMessage } from '../error';
 
 jest.mock('../sync/CentralServerConnection', () => ({
   CentralServerConnection: jest.fn().mockImplementation(() => ({
@@ -12,6 +14,11 @@ jest.mock('../sync/CentralServerConnection', () => ({
     clearToken: jest.fn(),
     clearRefreshToken: jest.fn(),
   })),
+}));
+
+jest.mock('~/services/config', () => ({
+  readConfig: jest.fn(),
+  writeConfig: jest.fn(),
 }));
 
 describe('AuthService', () => {
@@ -39,6 +46,21 @@ describe('AuthService', () => {
       authService.endSession();
       expect(centralServerConnection.clearToken).toHaveBeenCalled();
       expect(centralServerConnection.clearRefreshToken).toHaveBeenCalled();
+    });
+  });
+
+  describe('localSignIn', () => {
+    it('should raise an authentication error when no user matches the given email', async () => {
+      (readConfig as jest.Mock).mockResolvedValue('test-facility-id');
+      const models = { ...MODELS_MAP, User: { findOne: jest.fn().mockResolvedValue(null) } };
+      authService = new AuthService(models, centralServerConnection);
+
+      await expect(
+        authService.localSignIn(
+          { email: 'unknown@example.com', password: 'password' },
+          jest.fn(),
+        ),
+      ).rejects.toThrow(new AuthenticationError(invalidUserCredentialsMessage));
     });
   });
 });

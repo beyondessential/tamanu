@@ -113,26 +113,19 @@ export const COLUMN_KEYS = {
 const getColumns = (
   getTranslation,
   getEnumTranslation,
-  onSelectAll,
-  selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false } = {},
 ) => {
   const includes = new Set(columnsToInclude);
   const allColumns = [
     {
       key: COLUMN_KEYS.SELECT,
-      title: (
-        <CheckInput
-          value={selectAllChecked}
-          onChange={onSelectAll}
-          style={{ margin: 'auto' }}
-          data-testid="select-all-checkbox"
-        />
-      ),
+      // Title is injected by PharmacyOrderMedicationTable so select-all state
+      // updates do not recreate column accessors (which remount inputs).
+      title: null,
       sortable: false,
-      accessor: ({ selected, onSelect, id }) => {
-        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
+      accessor: ({ selected, onSelect, isSelectionDisabled }) => {
+        const isDisabled = Boolean(isSelectionDisabled);
         return (
           <ConditionalTooltip
             visible={isDisabled}
@@ -194,7 +187,7 @@ const getColumns = (
       sortable: false,
       accessor: ({ durationValue, durationUnit }) => {
         if (!durationValue || !durationUnit) {
-          return '-';
+          return <>&mdash;</>;
         }
 
         const unitLabel = getEnumTranslation(
@@ -218,7 +211,7 @@ const getColumns = (
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
           return (
-            <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+            <NoWrapCell color="inherit" fontStyle="normal">
               <TranslatedText
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
@@ -229,7 +222,7 @@ const getColumns = (
         }
 
         return (
-          <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+          <NoWrapCell color="inherit" fontStyle="normal">
             <Box>
               <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
@@ -322,32 +315,40 @@ export const PharmacyOrderMedicationTable = ({
   selectAllChecked,
   columnsToInclude,
   isOngoingMode = false,
-  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
 
-  const disabledIdsKey = disabledPrescriptionIds.join(',');
-
+  /**
+   * Memoised separately from `columns` below to avoid reinstantiating column accessors as much as
+   * possible. This keeps references to <NumberInput>s in `columns` more stable, so we don’t get
+   * this horrible UX: type into empty ‘Quantity’ field → row is auto-selected → field remounts →
+   * focus lost.
+   */
+  const baseColumns = useMemo(
+    () =>
+      getColumns(getTranslation, getEnumTranslation, columnsToInclude, {
+        isOngoingMode,
+      }),
+    [columnsToInclude, getEnumTranslation, getTranslation, isOngoingMode],
+  );
   const columns = useMemo(
     () =>
-      getColumns(
-        getTranslation,
-        getEnumTranslation,
-        handleSelectAll,
-        selectAllChecked,
-        columnsToInclude,
-        { isOngoingMode, disabledPrescriptionIds },
+      baseColumns.map(column =>
+        column.key === COLUMN_KEYS.SELECT
+          ? {
+              ...column,
+              title: (
+                <CheckInput
+                  data-testid="select-all-checkbox"
+                  onChange={handleSelectAll}
+                  style={{ margin: 'auto' }}
+                  value={selectAllChecked}
+                />
+              ),
+            }
+          : column,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      getTranslation,
-      getEnumTranslation,
-      handleSelectAll,
-      selectAllChecked,
-      columnsToInclude,
-      isOngoingMode,
-      disabledIdsKey,
-    ],
+    [baseColumns, selectAllChecked, handleSelectAll],
   );
 
   return (
