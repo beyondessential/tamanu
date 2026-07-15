@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
-import { ArrowRight } from '../../../components/Icons';
+import { ChevronRight } from 'lucide-react';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
@@ -180,7 +180,7 @@ export const InvoiceItemRow = ({
         <td>
           {item.insurancePlanItems?.length > 0 && (
             <Button aria-expanded={isExpanded} onClick={onClick}>
-              <ArrowRight aria-hidden />
+              <ChevronRight aria-hidden />
               <VisuallyHidden>
                 <TranslatedText
                   stringId="invoice.action.toggleInsurancePlanAdjustments"
