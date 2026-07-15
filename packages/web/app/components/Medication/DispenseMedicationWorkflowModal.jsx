@@ -30,7 +30,6 @@ import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
-import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   buildInstructionText,
   buildLabelText,
