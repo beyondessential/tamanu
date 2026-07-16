@@ -10,9 +10,10 @@ export const usePatientAdditionalDataQuery = (patientId, fetchOptions) => {
     () => api.get(`patient/${encodeURIComponent(patientId)}/additionalData`, { facilityId }),
     {
       enabled: Boolean(patientId),
-      // dedupes refetches from components mounting in quick succession during a page
-      // load; invalidatePatientDataQueries invalidates this key so edits still show
-      staleTime: 30_000,
+      // Short window to dedupe the burst of fetches when a patient opens. Kept short so a
+      // PAD edit from another client shows within a few seconds; local edits invalidate
+      // this key immediately via invalidatePatientDataQueries.
+      staleTime: 5_000,
       ...fetchOptions,
     },
   );
