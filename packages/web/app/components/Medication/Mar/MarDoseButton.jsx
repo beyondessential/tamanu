@@ -38,9 +38,11 @@ const DiscontinuedDivider = styled.div`
 export function MarDoseButton({
   selectedDate,
   timeSlot,
+  parentTimeSlot,
   marInfo,
   previousMarInfo,
   nextMarInfo,
+  previousSubSlot,
   medication,
   pauseRecords,
   anchorEl,
@@ -77,6 +79,7 @@ export function MarDoseButton({
     marInfo,
     previousMarInfo,
     nextMarInfo,
+    previousSubSlot,
     medication,
     pauseRecords,
   });
@@ -211,6 +214,7 @@ export function MarDoseButton({
         anchorEl={anchorEl}
         onClose={handleClose}
         timeSlot={timeSlot}
+        parentTimeSlot={parentTimeSlot}
         selectedDate={selectedDate}
         marInfo={marInfo}
         medication={medication}
