@@ -515,7 +515,7 @@ encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
     const { models, params, query, settings } = req;
-    const { ImagingRequest, Encounter } = models;
+    const { ImagingRequest } = models;
     const { id: encounterId } = params;
     const {
       order = 'ASC',
@@ -529,11 +529,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'ImagingRequest');
 
-    const encounter = await Encounter.findByPk(encounterId, {
-      include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
-    });
-    const facilityId = encounter?.location?.facilityId;
-    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
+    const isInvoicingEnabled = await settings[req.facilityId]?.get('features.invoicing.enabled');
 
     // Only apply approved sort when the computed attribute is available
     const effectiveOrderBy = orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
