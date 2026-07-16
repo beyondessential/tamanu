@@ -25,13 +25,7 @@ const StatusDisplay = React.memo(({ status }) => {
   const {
     background = '#EDEDED',
     color = '#444444;',
-    label = (
-      <TranslatedText
-        stringId="general.fallback.unknown"
-        fallback="Unknown"
-        data-testid="translatedtext-zecb"
-      />
-    ),
+    label = <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />,
   } = IMAGING_REQUEST_STATUS_CONFIG[status];
 
   return (
@@ -74,75 +68,41 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const encounterColumns = [
     {
       key: 'displayId',
-      title: (
-        <TranslatedText
-          stringId="general.requestId.label"
-          fallback="Request ID"
-          data-testid="translatedtext-req-id"
-        />
-      ),
+      title: <TranslatedText stringId="general.requestId.label" fallback="Request ID" />,
       sortable: false,
     },
     {
       key: 'imagingType',
-      title: (
-        <TranslatedText
-          stringId="general.type.label"
-          fallback="Type"
-          data-testid="translatedtext-type"
-        />
-      ),
+      title: <TranslatedText stringId="general.type.label" fallback="Type" />,
       accessor: getImagingRequestType(imagingTypes),
     },
     {
       key: 'requestedDate',
       title: (
-        <TranslatedText
-          stringId="general.requestedAtTime.label"
-          fallback="Requested at time"
-          data-testid="translatedtext-req-time"
-        />
+        <TranslatedText stringId="general.requestedAtTime.label" fallback="Requested at time" />
       ),
       accessor: getDate,
     },
     {
       key: 'requestedBy.displayName',
-      title: (
-        <TranslatedText
-          stringId="general.requestedBy.label"
-          fallback="Requested by"
-          data-testid="translatedtext-req-by"
-        />
-      ),
+      title: <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />,
       accessor: getDisplayName,
     },
     ...(isCompletedTable
       ? [
-        {
-          key: 'completedAt',
-          title: (
-            <TranslatedText
-              stringId="general.completed.label"
-              fallback="Completed"
-              data-testid="translatedtext-completed"
-            />
-          ),
-          accessor: getCompletedDate,
-        },
-      ]
+          {
+            key: 'completedAt',
+            title: <TranslatedText stringId="general.completed.label" fallback="Completed" />,
+            accessor: getCompletedDate,
+          },
+        ]
       : [
-        {
-          key: 'priority',
-          title: (
-            <TranslatedText
-              stringId="imaging.priority.label"
-              fallback="Priority"
-              data-testid="translatedtext-priority"
-            />
-          ),
-          accessor: getPriority,
-        },
-      ]),
+          {
+            key: 'priority',
+            title: <TranslatedText stringId="imaging.priority.label" fallback="Priority" />,
+            accessor: getPriority,
+          },
+        ]),
     ...(isInvoicingEnabled
       ? [
         {
@@ -155,13 +115,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       : []),
     {
       key: 'status',
-      title: (
-        <TranslatedText
-          stringId="general.status.label"
-          fallback="Status"
-          data-testid="translatedtext-status"
-        />
-      ),
+      title: <TranslatedText stringId="general.status.label" fallback="Status" />,
       accessor: getStatus,
     },
   ];
@@ -170,24 +124,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     {
       key: 'encounter.patient.displayId',
       title: (
-        <TranslatedText
-          stringId="general.localisedField.displayId.label.short"
-          fallback="NHN"
-          data-testid="translatedtext-iwfv"
-        />
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
       ),
       accessor: getPatientDisplayId,
       sortable: false,
     },
     {
       key: 'patient',
-      title: (
-        <TranslatedText
-          stringId="general.patient.label"
-          fallback="Patient"
-          data-testid="translatedtext-patient"
-        />
-      ),
+      title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
       accessor: getPatientName,
       sortable: false,
     },
@@ -240,11 +184,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage={
-        <TranslatedText
-          stringId="imaging.list.noData"
-          fallback="No imaging requests found"
-          data-testid="translatedtext-imaging.list-noData"
-        />
+        <TranslatedText stringId="imaging.list.noData" fallback="No imaging requests found" />
       }
       onRowClick={selectImagingRequest}
       fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
