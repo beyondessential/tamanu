@@ -1,23 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useTranslation } from '../contexts';
+import { VisuallyHidden } from './VisuallyHidden';
+import { TranslatedText } from './Translation';
 
-export const EditedOrnamentRoot = styled.span`
-  &::after {
-    content: '*' / '${p => p.$alt}';
+export const EditedOrnament = styled.span.attrs({
+  children: (
+    <VisuallyHidden>
+      <TranslatedText stringId="general.label.edited" fallback="Edited" />
+    </VisuallyHidden>
+  ),
+})`
+  &::before {
+    content: '*';
   }
 `;
-
-/**
- * Renders as *, but with accessible label for screen readers
- * @param {React.ComponentPropsWithRef<typeof EditedOrnamentRoot> & { altText?: string }} props
- */
-export function EditedOrnament({ altText, ...props }) {
-  const { getTranslation } = useTranslation();
-  return (
-    <EditedOrnamentRoot
-      $alt={altText ?? getTranslation('general.label.edited', 'Edited')}
-      {...props}
-    />
-  );
-}
