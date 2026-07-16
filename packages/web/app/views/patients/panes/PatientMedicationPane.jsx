@@ -12,7 +12,6 @@ import {
   Button,
   ConditionalTooltip,
   DateDisplay,
-  ThemedTooltip,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
@@ -23,7 +22,6 @@ import {
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
@@ -39,6 +37,7 @@ import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
+import SendToPharmacyButton from './SendToPharmacyButton';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -87,9 +86,6 @@ const TableTitleText = styled(Box)`
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     max-width: 180px;
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 400;
   }
 `;
 
@@ -99,10 +95,6 @@ const ButtonGroup = styled(Box)`
   align-items: center;
 `;
 
-const SendToPharmacyButton = styled.div`
-  cursor: pointer;
-  ${props => props.disabled && 'opacity: 0.3; cursor: default;'}
-`;
 const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
   .MuiTooltip-tooltip {
@@ -618,7 +610,8 @@ export const PatientMedicationPane = ({ patient }) => {
             {pharmacyOrderEnabled &&
               canRequestPharmacyOrder &&
               activeOngoingPrescriptions.length > 0 && (
-                <ThemedTooltip
+                <StyledConditionalTooltip
+                  visible
                   PopperProps={{
                     popperOptions: {
                       positionFixed: true,
@@ -633,34 +626,21 @@ export const PatientMedicationPane = ({ patient }) => {
                     },
                   }}
                   title={
-                    !currentEncounter ? (
-                      <Box width="120px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy"
-                          fallback="Send to pharmacy"
-                        />
-                      </Box>
+                    currentEncounter ? (
+                      <TranslatedText
+                        stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                        fallback="Please send to pharmacy via the patient active encounter"
+                      />
                     ) : (
-                      <Box width="150px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
-                          fallback="Please send to pharmacy via the patient active encounter"
-                        />
-                      </Box>
+                      <TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />
                     )
                   }
                 >
                   <SendToPharmacyButton
-                    aria-label={getTranslation(
-                      'patient.medication.ongoing.sendToPharmacy',
-                      'Send to pharmacy',
-                    )}
                     disabled={!!currentEncounter}
                     onClick={handleSendToPharmacyClick}
-                  >
-                    <SendToPharmacyIcon aria-hidden />
-                  </SendToPharmacyButton>
-                </ThemedTooltip>
+                  />
+                </StyledConditionalTooltip>
               )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip
