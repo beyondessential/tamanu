@@ -64,13 +64,16 @@ test.describe('Basic tests', () => {
     const patientNameValue = await emergencyPatientsPage.getTableItemValue(0, 'patientName');
     const dateOfBirthValue = await emergencyPatientsPage.getTableItemValue(0, 'dateOfBirth');
     const sexValue = await emergencyPatientsPage.getTableItemValue(0, 'sex');
+    const clinicianValue = await emergencyPatientsPage.getTableItemValue(0, 'clinician');
     const areaValue = await emergencyPatientsPage.getTableItemValue(0, 'locationGroupName');
     const locationValue = await emergencyPatientsPage.getTableItemValue(0, 'locationName');
     expect(chiefComplaintValue).toBe(triageFormValues.chiefComplaint);
     expect(displayIdValue).toBe(newPatient.displayId);
     expect(patientNameValue).toBe(`${newPatient.firstName} ${newPatient.lastName}`);
     expect(dateOfBirthValue).toBe(convertDateFormat(newPatient.dateOfBirth));
-    expect(sexValue.toLowerCase()).toBe(newPatient.sex.toLowerCase());
+    // The emergency patients board shows the short sex label (e.g. "M" for male)
+    expect(sexValue).toBe(newPatient.sex.charAt(0).toUpperCase());
+    expect(clinicianValue).toBe(triageFormValues.triageClinician);
     expect(areaValue).toBe(triageFormValues.area);
     expect(locationValue).toBe(triageFormValues.location?.split('\n')[0] || '');
     const level1Value = await emergencyPatientsPage.getLevelCardValue(1);

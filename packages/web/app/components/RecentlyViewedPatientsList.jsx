@@ -207,7 +207,7 @@ const Card = ({ patient, handleClick, isDashboard, index }) => {
         </ThemedTooltip>
         <CardText data-testid={`cardtext-iro1-${index}`}>{patient.displayId}</CardText>
         <CardText data-testid={`capitalizedcardtext-zu58-${index}`}>
-          <TranslatedSex sex={patient.sex} casing="capitalize" />
+          <TranslatedSex sex={patient.sex} casing="sentence" />
         </CardText>
         <CardText data-testid={`cardtext-i2bu-${index}`}>
           <TranslatedText stringId="general.dateOfBirth.label.short" fallback="DOB" />:{' '}
