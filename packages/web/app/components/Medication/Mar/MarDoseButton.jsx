@@ -14,6 +14,7 @@ import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
+import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 
@@ -52,7 +53,8 @@ export function MarDoseButton({
   anchorEl,
   onAnchorElChange,
 }) {
-  const { canCreateMar, canView, canViewMar } = useMarPermissions(medication);
+  const canViewMedication = useCanViewMedication(medication?.medication);
+  const { canCreateMar, canViewMar } = useMarPermissions();
   const { isPast, isCurrent, isFuture, isNotDue } = useMarDoseTiming({
     timeSlot,
     selectedDate,
@@ -119,7 +121,8 @@ export function MarDoseButton({
   };
 
   const onSelected = () => {
-    if (!canView || anchorEl || isDiscontinued || isNotDue || isEnd || !canViewMar) return;
+    if (!canViewMedication || anchorEl || isDiscontinued || isNotDue || isEnd || !canViewMar)
+      return;
 
     if (status) {
       handleOpenMarDetailsModal();
@@ -187,7 +190,12 @@ export function MarDoseButton({
         data-ended={isEnd || undefined}
         data-inactive={isInactive || undefined}
         data-paused={isPaused || undefined}
-        disabled={!canView || isNotDue || isInactive || !(canCreateMar || (status && canViewMar))}
+        disabled={
+          !canViewMedication ||
+          isNotDue ||
+          isInactive ||
+          !(canCreateMar || (status && canViewMar))
+        }
         onClick={onSelected}
       >
         <MarStatusTooltip

@@ -13,7 +13,6 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
-import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
@@ -21,6 +20,7 @@ import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModa
 import { MarStatus } from './MarStatus';
 import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import TableCellButton from './TableCellButton';
+import useCanViewMedication from './useCanViewMedication';
 
 const TableRow = styled.tr(
   props => css`
@@ -74,9 +74,7 @@ export const MarTableRow = ({
     latestModifiedDispense,
   } = medication;
   const { toFacilityDateTime } = useDateTime();
-  const { ability } = useAuth();
-  const canView =
-    !medicationRef.referenceDrug?.isSensitive || ability.can('read', 'SensitiveMedication');
+  const canViewMedication = useCanViewMedication(medicationRef);
 
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -95,7 +93,7 @@ export const MarTableRow = ({
   };
 
   const openMedicationDetails = () => {
-    if (!canView) return;
+    if (!canViewMedication) return;
     setMedicationDetailsOpen(true);
   };
 
@@ -113,7 +111,7 @@ export const MarTableRow = ({
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
-        <TableRowHeader disabled={!canView} onClick={openMedicationDetails}>
+        <TableRowHeader disabled={!canViewMedication} onClick={openMedicationDetails}>
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
