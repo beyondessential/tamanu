@@ -678,28 +678,30 @@ describe('Imaging requests', () => {
 
     it('should not include approved when invoicing is disabled', async () => {
       await models.Setting.set('features.invoicing.enabled', false);
-      await models.ImagingRequest.truncate({ cascade: true });
+      try {
+        await models.ImagingRequest.truncate({ cascade: true });
 
-      const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
+        const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
 
-      await models.InvoiceItem.create({
-        invoiceId: testInvoice.id,
-        sourceRecordId: areas[0].id,
-        sourceRecordType: 'ImagingRequestArea',
-        approved: true,
-        orderDate: getCurrentDateTimeString(),
-        quantity: 1,
-        orderedByUserId: user.id,
-      });
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areas[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: true,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
 
-      const result = await app.get(`/api/imagingRequest?facilityId=${facilityId}`);
-      expect(result).toHaveSucceeded();
+        const result = await app.get(`/api/imagingRequest?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
 
-      const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
-      expect(found).toBeDefined();
-      expect(found.approved).not.toBeDefined();
-
-      await models.Setting.set('features.invoicing.enabled', true);
+        const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).not.toBeDefined();
+      } finally {
+        await models.Setting.set('features.invoicing.enabled', true);
+      }
     });
 
     it('should return null for approved when no invoice items exist', async () => {
@@ -870,28 +872,30 @@ describe('Imaging requests', () => {
 
     it('should not include approved on encounter imagingRequests when invoicing is disabled', async () => {
       await models.Setting.set('features.invoicing.enabled', false);
-      await models.ImagingRequest.truncate({ cascade: true });
+      try {
+        await models.ImagingRequest.truncate({ cascade: true });
 
-      const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
+        const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
 
-      await models.InvoiceItem.create({
-        invoiceId: testInvoice.id,
-        sourceRecordId: areas[0].id,
-        sourceRecordType: 'ImagingRequestArea',
-        approved: true,
-        orderDate: getCurrentDateTimeString(),
-        quantity: 1,
-        orderedByUserId: user.id,
-      });
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areas[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: true,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
 
-      const result = await app.get(`/api/encounter/${testEncounter.id}/imagingRequests`);
-      expect(result).toHaveSucceeded();
+        const result = await app.get(`/api/encounter/${testEncounter.id}/imagingRequests`);
+        expect(result).toHaveSucceeded();
 
-      const found = result.body.data.find(ir => ir.id === imagingRequest.id);
-      expect(found).toBeDefined();
-      expect(found.approved).not.toBeDefined();
-
-      await models.Setting.set('features.invoicing.enabled', true);
+        const found = result.body.data.find(ir => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).not.toBeDefined();
+      } finally {
+        await models.Setting.set('features.invoicing.enabled', true);
+      }
     });
 
     it('should sort encounter imagingRequests by approved column', async () => {

@@ -553,18 +553,13 @@ encounterRelations.get(
       distinct: true,
     });
 
-    // Load has-many associations separately so limit/offset stay on ImagingRequest rows when
-    // subQuery is false (needed to ORDER BY the computed `approved` attribute).
-    const associations = [
-      'requestedBy',
-      { association: 'areas', separate: true },
-      { association: 'results', separate: true },
-    ];
-
+    // subQuery:false is required so ORDER BY the computed `approved` attribute works with
+    // limit. Do not join BelongsToMany `areas` here (separate is HasMany-only; a join would
+    // make limit count area rows). Load areas in a follow-up query instead.
     const objects = await ImagingRequest.findAll({
       where,
       order: getImagingRequestOrder(effectiveOrderBy, order),
-      include: associations,
+      include: ['requestedBy', { association: 'results', separate: true }],
       attributes: {
         include: [...(isInvoicingEnabled ? [getImagingRequestApprovedAttribute()] : [])],
       },
@@ -573,6 +568,17 @@ encounterRelations.get(
       subQuery: false,
     });
 
+    if (objects.length > 0) {
+      const withAreas = await ImagingRequest.findAll({
+        where: { id: objects.map(ir => ir.id) },
+        include: ['areas'],
+      });
+      const areasById = new Map(withAreas.map(ir => [ir.id, ir.areas ?? []]));
+      for (const ir of objects) {
+        ir.setDataValue('areas', areasById.get(ir.id) ?? []);
+      }
+    }
+
     const data = await Promise.all(
       objects.map(async ir => {
         return {
@@ -580,8 +586,8 @@ encounterRelations.get(
           // forResponse omits nulls; preserve approved (including null) when invoicing is on
           ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map(a => a.forResponse()),
-          results: ir.results.map(result => result.forResponse()),
+          areas: ir.areas?.map(area => area.forResponse()) ?? [],
+          results: ir.results?.map(result => result.forResponse()) ?? [],
         };
       }),
     );
