@@ -950,5 +950,159 @@ describe('Imaging requests', () => {
       // Should be false because not all items are approved
       expect(found.approved).toBe(false);
     });
+
+    describe('Encounter imaging requests', () => {
+      it('should not include approved when invoicing is disabled', async () => {
+        await models.Setting.set('features.invoicing.enabled', false);
+        await models.ImagingRequest.truncate({ cascade: true });
+
+        const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
+
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areas[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: true,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
+
+        const result = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+
+        const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).not.toBeDefined();
+
+        await models.Setting.set('features.invoicing.enabled', true);
+      });
+
+      it('should return null for approved when no invoice items exist', async () => {
+        await models.ImagingRequest.truncate({ cascade: true });
+        const { imagingRequest } = await createImagingRequestWithAreas(1);
+
+        const result = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+
+        const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).toBeNull();
+      });
+
+      it('should return true for approved when all invoice items are approved', async () => {
+        await models.ImagingRequest.truncate({ cascade: true });
+        const { imagingRequest, areas } = await createImagingRequestWithAreas(2);
+
+        for (const area of areas) {
+          await models.InvoiceItem.create({
+            invoiceId: testInvoice.id,
+            sourceRecordId: area.id,
+            sourceRecordType: 'ImagingRequestArea',
+            approved: true,
+            orderDate: getCurrentDateTimeString(),
+            quantity: 1,
+            orderedByUserId: user.id,
+          });
+        }
+
+        const result = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+
+        const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).toBe(true);
+      });
+
+      it('should return false for approved when any invoice item is not approved', async () => {
+        await models.ImagingRequest.truncate({ cascade: true });
+        const { imagingRequest, areas } = await createImagingRequestWithAreas(2);
+
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areas[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: true,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areas[1].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: false,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
+
+        const result = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+
+        const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+        expect(found).toBeDefined();
+        expect(found.approved).toBe(false);
+      });
+
+      it('should sort by approved column', async () => {
+        await models.ImagingRequest.truncate({ cascade: true });
+
+        const { imagingRequest: irApproved, areas: areasApproved } =
+          await createImagingRequestWithAreas(1);
+        const { imagingRequest: irUnapproved, areas: areasUnapproved } =
+          await createImagingRequestWithAreas(1);
+        const { imagingRequest: irNoItems } = await createImagingRequestWithAreas(1);
+
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areasApproved[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: true,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: areasUnapproved[0].id,
+          sourceRecordType: 'ImagingRequestArea',
+          approved: false,
+          orderDate: getCurrentDateTimeString(),
+          quantity: 1,
+          orderedByUserId: user.id,
+        });
+
+        const resultAsc = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}&orderBy=approved&order=ASC`,
+        );
+        expect(resultAsc).toHaveSucceeded();
+        expect(resultAsc.body.data[0].id).toBe(irUnapproved.id);
+        expect(resultAsc.body.data[0].approved).toBe(false);
+        expect(resultAsc.body.data[1].id).toBe(irApproved.id);
+        expect(resultAsc.body.data[1].approved).toBe(true);
+        expect(resultAsc.body.data[2].id).toBe(irNoItems.id);
+        expect(resultAsc.body.data[2].approved).toBeNull();
+
+        const resultDesc = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}&orderBy=approved&order=DESC`,
+        );
+        expect(resultDesc).toHaveSucceeded();
+        expect(resultDesc.body.data[0].id).toBe(irApproved.id);
+        expect(resultDesc.body.data[0].approved).toBe(true);
+        expect(resultDesc.body.data[1].id).toBe(irUnapproved.id);
+        expect(resultDesc.body.data[1].approved).toBe(false);
+        expect(resultDesc.body.data[2].id).toBe(irNoItems.id);
+        expect(resultDesc.body.data[2].approved).toBeNull();
+      });
+    });
   });
 });

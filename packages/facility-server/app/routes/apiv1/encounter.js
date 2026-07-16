@@ -510,7 +510,7 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, query, settings } = req;
     const { ImagingRequest } = models;
     const { id: encounterId } = params;
     const {
@@ -520,12 +520,16 @@ encounterRelations.get(
       page,
       includeNotes: includeNotesStr = 'true',
       status,
+      facilityId,
     } = query;
     const includeNote = includeNotesStr === 'true';
 
     req.checkPermission('list', 'ImagingRequest');
 
     const associations = ImagingRequest.getListReferenceAssociations() || [];
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition = orderBy === 'approved' ? 'NULLS LAST' : undefined;
 
     const baseQueryOptions = {
       where: {
@@ -537,7 +541,6 @@ encounterRelations.get(
           ],
         },
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
       include: associations,
     };
 
@@ -547,6 +550,47 @@ encounterRelations.get(
 
     const objects = await ImagingRequest.findAll({
       ...baseQueryOptions,
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
+      attributes: {
+        include: [
+          ...(isInvoicingEnabled
+            ? [
+                [
+                  // Check approval status: ImagingRequestArea items take precedence, then ImagingRequest items
+                  literal(`(
+                    SELECT COALESCE(
+                      -- ImagingRequestArea invoice items take precedence (NULL if none exist)
+                      (
+                        SELECT BOOL_AND(ii.approved)
+                        FROM imaging_request_areas ira
+                        INNER JOIN invoice_items ii ON ii.source_record_id = ira.id::text
+                          AND ii.source_record_type = 'ImagingRequestArea'
+                          AND ii.deleted_at IS NULL
+                        WHERE ira.imaging_request_id = "ImagingRequest".id
+                          AND ira.deleted_at IS NULL
+                        HAVING COUNT(*) > 0
+                      ),
+                      -- ImagingRequest invoice items (used if area items returned NULL)
+                      (
+                        SELECT BOOL_AND(ii.approved)
+                        FROM invoice_items ii
+                        WHERE ii.source_record_id = "ImagingRequest".id::text
+                          AND ii.source_record_type = 'ImagingRequest'
+                          AND ii.deleted_at IS NULL
+                        HAVING COUNT(*) > 0
+                      )
+                    )
+                  )`),
+                  'approved',
+                ],
+              ]
+            : []),
+        ],
+      },
+      // Needed so ORDER BY on the computed approved attribute is not lost in a Sequelize subquery
+      ...(orderBy === 'approved' ? { subQuery: false } : {}),
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
@@ -555,6 +599,8 @@ encounterRelations.get(
       objects.map(async ir => {
         return {
           ...ir.forResponse(),
+          // forResponse strips nulls; keep approved so the UI can show n/a vs yes/no
+          ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
           results: ir.results.map(result => result.forResponse()),
