@@ -1,4 +1,4 @@
-const sanitizeFileName = (fileName) => {
+const sanitizeFileName = fileName => {
   return fileName
     .trim() // prevent leading or trailing whitespace
     .replace(/CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9]/g, 'download') // replace windows reserved filenames
@@ -22,14 +22,13 @@ const FILE_TYPES = /** @type {const} */ ([
 
 const DEFAULT_FILE_TYPE = FILE_TYPES[0];
 
-const fileTypeFromExtension = (extension) =>
-  FILE_TYPES.find((fileType) =>
+const fileTypeFromExtension = extension =>
+  FILE_TYPES.find(fileType =>
     Object.entries(fileType.accept).some(([, exts]) => exts.includes(extension)),
   ) ?? DEFAULT_FILE_TYPE;
 
-const fileTypeFromMimeType = (mimeType) =>
-  FILE_TYPES.find((fileType) => Object.keys(fileType.accept).includes(mimeType)) ??
-  DEFAULT_FILE_TYPE;
+const fileTypeFromMimeType = mimeType =>
+  FILE_TYPES.find(fileType => Object.keys(fileType.accept).includes(mimeType)) ?? DEFAULT_FILE_TYPE;
 
 /** @returns {Promise<FileSystemFileHandle> } */
 const createFileSystemHandle = async ({ defaultFileName, filetype }) =>
@@ -71,17 +70,17 @@ export const saveFile = async ({
       throw error;
     }
 
-    const writablePromise = fileHandle.createWritable();
+    /** @type {FileSystemWritableFileStream} */
+    let writable;
     try {
-      const [writable, data] = await Promise.all([writablePromise, getData()]);
+      const [writable, data] = await Promise.all([fileHandle.createWritable(), getData()]);
       await writable.write(data);
       await writable.close();
     } catch (error) {
       try {
-        const writable = await writablePromise;
-        await writable.abort();
+        await writable?.abort();
       } catch {
-        // createWritable may have failed; abort may fail if the stream is already closed
+        // abort may fail if the stream is already closed
       }
       throw error;
     }
