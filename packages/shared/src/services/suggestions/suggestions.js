@@ -272,8 +272,20 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
-  [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
+// searchById=true matches the search term against the record id instead of the name — used by
+// the admin panel reference data manage screen, where the columns display and filter on raw ids.
+const DEFAULT_WHERE_BUILDER = ({
+  endpoint,
+  modelName,
+  searchColumn = 'name',
+  skipVisibilityFilter = false,
+  search,
+  query,
+}) => ({
+  [Op.or]:
+    query?.searchById === 'true' && search
+      ? [{ id: { [Op.iLike]: search } }]
+      : [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
 
@@ -462,11 +474,11 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName, req, search }) => {
+    ({ endpoint, modelName, req, search, query }) => {
       const { parentId } = req.query;
 
       const baseWhere = {
-        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName, search, query }),
         type: typeName,
       };
 
@@ -767,9 +779,9 @@ createSuggester(
 createSuggester(
   'invoiceProduct',
   'InvoiceProduct',
-  ({ endpoint, modelName, query }) => {
+  ({ endpoint, modelName, query, search }) => {
     if (!query.priceListId) {
-      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName, search, query });
     }
 
     return {

@@ -13,7 +13,7 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../../api/suggesters';
-import { SUGGESTER_OPTIONS } from './constants';
+import { ID_SEARCH_SUGGESTER_OPTIONS, SUGGESTER_OPTIONS } from './constants';
 
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
 const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
@@ -40,7 +40,7 @@ const AvailableFacilitiesSearchField = () => {
 };
 
 const SuggesterSearchField = ({ col }) => {
-  const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
+  const suggester = useSuggester(col.suggesterEndpoint, ID_SEARCH_SUGGESTER_OPTIONS);
   return (
     <Field
       name={col.key}
