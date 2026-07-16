@@ -1,11 +1,14 @@
 import { addHours, isSameDay } from 'date-fns';
 
-import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { useDateTime } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { useAuth } from '../../../contexts/Auth';
 import {
+  getIsDiscontinued,
+  getIsEnd,
+  getIsPaused,
   useIsDiscontinued,
   useIsEnd,
   useIsPaused,
@@ -32,7 +35,62 @@ const getIsNotDue = ({ hasRecord, timeSlot, selectedDate, now }) => {
 };
 
 /**
- * Derived per-dose MAR state shared by MarDoseButton and the MarStatus DoseInfo overlay.
+ * Whether a dose should show "dose due" (MarDoseInfo). Pure — used by the cell overlay.
+ */
+export function getShowDoseInfo({
+  marInfo,
+  medication,
+  timeSlot,
+  selectedDate,
+  nextMarInfo,
+  pauseRecords,
+  now,
+  toFacilityDateTime,
+  storedDateTimeToEpochMilliseconds,
+}) {
+  const { recordedAt, status } = marInfo || {};
+  const { dosingUnit, discontinuedDate, endDate } = medication || {};
+
+  if (!marInfo || status || !dosingUnit) return false;
+
+  const isPast = getIsPast({ timeSlot, selectedDate, now });
+  if (isPast) return false;
+
+  const isDiscontinued = getIsDiscontinued({
+    discontinuedDate,
+    dueAt: marInfo.dueAt,
+    isRecordedStatus: Boolean(recordedAt),
+    timeSlot,
+    selectedDate,
+    nextMarInfo,
+    toFacilityDateTime,
+    storedDateTimeToEpochMilliseconds,
+  });
+  if (isDiscontinued) return false;
+
+  const isEnd = getIsEnd({
+    endDate,
+    hasRecord: Boolean(marInfo),
+    timeSlot,
+    selectedDate,
+    toFacilityDateTime,
+  });
+  if (isEnd) return false;
+
+  const isPaused = getIsPaused({
+    pauseRecords: pauseRecords?.data,
+    timeSlot,
+    selectedDate,
+    recordedAt,
+    toFacilityDateTime,
+  });
+  if (isPaused) return false;
+
+  return true;
+}
+
+/**
+ * Derived per-dose MAR state. `timeSlot` should be the dose sub-slot.
  */
 export function useMarDoseState({
   selectedDate,
@@ -40,6 +98,7 @@ export function useMarDoseState({
   marInfo,
   previousMarInfo,
   nextMarInfo,
+  previousSubSlot,
   medication,
   pauseRecords,
 }) {
@@ -87,12 +146,9 @@ export function useMarDoseState({
     recordedAt,
   });
 
-  const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
-    slot => slot.endTime === timeSlot.startTime,
-  );
   const isPreviouslyPaused = useIsPaused({
     pauseRecords: pauseRecords?.data,
-    timeSlot: previousTimeSlot,
+    timeSlot: previousSubSlot,
     selectedDate,
     recordedAt: previousMarInfo?.recordedAt,
   });
