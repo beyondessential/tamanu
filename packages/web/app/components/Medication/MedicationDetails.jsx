@@ -148,46 +148,51 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-        {
-          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-          value: medication.durationValue
-            ? `${medication.durationValue} ${singularize(
-              getEnumTranslation(
-                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                medication.durationUnit,
-              ),
-              medication.durationValue,
-            ).toLowerCase()}`
-            : '-',
-        },
-      ]),
+          {
+            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+            value: medication.durationValue ? (
+              `${medication.durationValue} ${singularize(
+                getEnumTranslation(
+                  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                  medication.durationUnit,
+                ),
+                medication.durationValue,
+              ).toLowerCase()}`
+            ) : (
+              <>&mdash;</>
+            ),
+          },
+        ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
-      value: medication.indication || '-',
+      value: medication.indication || <>&mdash;</>,
     },
     {
-      label: (
-        isOngoingPrescription ? (
-          <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
-        ) : (
-          <TranslatedText
-            stringId="medication.details.dischargeQuantity"
-            fallback="Dispensing quantity"
-          />
-        )
+      label: isOngoingPrescription ? (
+        <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
+      ) : (
+        <TranslatedText
+          stringId="medication.details.dischargeQuantity"
+          fallback="Discharge quantity"
+        />
       ),
-      value: medication.quantity != null
-        ? `${medication.quantity}${medication.dispensingUnit ? ` ${getDrugUnitLabel(medication.dispensingUnit, medication.quantity, getEnumTranslation)}` : ''}`
-        : '-',
-    }
+      value:
+        medication.quantity != null ? (
+          `${medication.quantity}${medication.dispensingUnit ? ` ${getDrugUnitLabel(medication.dispensingUnit, medication.quantity, getEnumTranslation)}` : ''}`
+        ) : (
+          <>&mdash;</>
+        ),
+    },
   ];
 
   const rightDetails = [
     {
       label: <TranslatedText stringId="medication.details.frequency" fallback="Frequency" />,
-      value: medication.frequency
-        ? getTranslatedFrequency(medication.frequency, getTranslation)
-        : '-',
+      value: medication.frequency ? (
+        getTranslatedFrequency(medication.frequency, getTranslation)
+      ) : (
+        <>&mdash;</>
+      ),
     },
     {
       label: (
@@ -201,13 +206,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-        {
-          label: (
-            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-          ),
-          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />,
-        },
-      ]),
+          {
+            label: (
+              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+            ),
+            value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />,
+          },
+        ]),
     {
       label: (
         <TranslatedText
@@ -215,13 +220,13 @@ export const MedicationDetails = ({
           fallback="Original prescriber"
         />
       ),
-      value: medication.prescriber?.displayName || '-',
+      value: medication.prescriber?.displayName || <>&mdash;</>,
     },
     {
       label: <TranslatedText stringId="medication.details.phoneOrder" fallback="Phone order" />,
       value:
-        medication.isPhoneOrder == undefined ? (
-          '-'
+        medication.isPhoneOrder == null ? (
+          <>&mdash;</>
         ) : medication.isPhoneOrder ? (
           <TranslatedText stringId="general.yes" fallback="Yes" />
         ) : (
@@ -230,7 +235,7 @@ export const MedicationDetails = ({
     },
     {
       label: <TranslatedText stringId="medication.details.notes" fallback="Notes" />,
-      value: medication.notes || '-',
+      value: medication.notes || <>&mdash;</>,
     },
   ];
 
@@ -304,7 +309,9 @@ export const MedicationDetails = ({
                           fallback="Discontinue reason"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{medication.discontinuingReason || '-'}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        {medication.discontinuingReason || <>&mdash;</>}
+                      </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
                       <MidText>
@@ -363,7 +370,7 @@ export const MedicationDetails = ({
                       <MidText>
                         <TranslatedText stringId="medication.details.notes" fallback="Notes" />
                       </MidText>
-                      <DarkestText mt={0.5}>{pauseData.notes || '-'}</DarkestText>
+                      <DarkestText mt={0.5}>{pauseData.notes || <>&mdash;</>}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -533,7 +540,10 @@ export const MedicationDetails = ({
                 <Box flex={1}>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
                     {encounter && !isOngoingPrescription ? (
-                      <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+                      <TranslatedText
+                        stringId="medication.details.repeatsOnDischarge"
+                        fallback="Repeats on discharge"
+                      />
                     ) : (
                       <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
                     )}
