@@ -11,7 +11,7 @@ export const RequiredOrnament = styled.span.attrs({
   ),
 })`
   color: ${p => p.theme.palette.error.main};
-  margin-inline-start: 3px;
+  margin-inline-start: 0.2em;
   &::before {
     content: '*';
   }
