@@ -11,7 +11,6 @@ import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
 import { PatientMedicationPane } from '../MedicationsPage/panes/PatientMedicationPane';
-import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
