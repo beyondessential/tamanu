@@ -59,7 +59,7 @@ const getPriority = ({ priority }) =>
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 
-export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
+export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ...props }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
@@ -207,6 +207,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }}
       isRowsDisabled={isRowsDisabled}
       data-testid="searchtablewithpermissioncheck-jjp4"
+      {...props}
     />
   );
-});
+};
