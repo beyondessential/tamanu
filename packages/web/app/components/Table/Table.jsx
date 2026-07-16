@@ -362,9 +362,9 @@ class TableComponent extends React.Component {
     return null;
   }
 
-  handleChangePage = (event, newPage) => {
+  handleChangePage = (_event, newPage) => {
     const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(newPage - 1);
+    onChangePage?.(newPage - 1);
   };
 
   handleScroll = event => {
