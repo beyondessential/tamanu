@@ -210,9 +210,9 @@ export class ImagingRequest extends Model {
     return [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]];
   }
 
+  /** @privateRemarks  Base forResponse omits nulls; keep approved (including null) when it was selected */
   forResponse() {
     const values = super.forResponse();
-    // Base forResponse omits nulls; keep approved (including null) when it was selected
     if ('approved' in this.dataValues) {
       values.approved = this.get('approved') ?? null;
     }
