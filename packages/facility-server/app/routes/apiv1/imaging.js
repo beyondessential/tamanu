@@ -330,21 +330,6 @@ globalImagingRequests.get(
       ...filterParams
     } = query;
 
-    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const LITERAL_SORT_KEYS = ['completedAt'];
-
-    const getNullPosition = orderBy => {
-      if (orderBy === 'approved') {
-        return 'NULLS LAST';
-      }
-      return (
-        LITERAL_SORT_KEYS.includes(orderBy) &&
-        (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST')
-      );
-    };
-
-    const nullPosition = getNullPosition(orderBy);
-
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
@@ -464,9 +449,7 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy
-        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
-        : undefined,
+      order: models.ImagingRequest.getOrder(orderBy, order, { literalSortKeys: ['completedAt'] }),
       include: [requestedBy, encounter],
       attributes: {
         include: [
@@ -480,38 +463,7 @@ globalImagingRequests.get(
           )`),
             'completedAt',
           ],
-          ...(isInvoicingEnabled
-            ? [
-                [
-                  // Check approval status: ImagingRequestArea items take precedence, then ImagingRequest items
-                  literal(`(
-                    SELECT COALESCE(
-                      -- ImagingRequestArea invoice items take precedence (NULL if none exist)
-                      (
-                        SELECT BOOL_AND(ii.approved)
-                        FROM imaging_request_areas ira
-                        INNER JOIN invoice_items ii ON ii.source_record_id = ira.id::text
-                          AND ii.source_record_type = 'ImagingRequestArea'
-                          AND ii.deleted_at IS NULL
-                        WHERE ira.imaging_request_id = "ImagingRequest".id
-                          AND ira.deleted_at IS NULL
-                        HAVING COUNT(*) > 0
-                      ),
-                      -- ImagingRequest invoice items (used if area items returned NULL)
-                      (
-                        SELECT BOOL_AND(ii.approved)
-                        FROM invoice_items ii
-                        WHERE ii.source_record_id = "ImagingRequest".id::text
-                          AND ii.source_record_type = 'ImagingRequest'
-                          AND ii.deleted_at IS NULL
-                        HAVING COUNT(*) > 0
-                      )
-                    )
-                  )`),
-                  'approved',
-                ],
-              ]
-            : []),
+          ...(isInvoicingEnabled ? [models.ImagingRequest.getApprovedAttribute()] : []),
         ],
       },
       limit: rowsPerPage,
