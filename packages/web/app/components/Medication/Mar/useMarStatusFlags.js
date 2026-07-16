@@ -187,3 +187,65 @@ export function useIsPausedThenDiscontinued({
     toFacilityDateTime,
   });
 }
+
+/**
+ * Composed schedule-lifecycle flags for a MAR dose cell (end / discontinued / paused).
+ * @param {Object} props
+ * @param {Object} [props.medication]
+ * @param {Object} [props.marInfo]
+ * @param {Object} [props.nextMarInfo]
+ * @param {Object} [props.previousMarInfo]
+ * @param {{ startTime: string, endTime: string } | null | undefined} props.previousSubSlot
+ * @param {{ startTime: string, endTime: string }} props.timeSlot
+ * @param {Date} props.selectedDate
+ * @param {{ data?: Array }} [props.pauseRecords]
+ */
+export function useMarDoseScheduleStatus({
+  medication,
+  marInfo,
+  nextMarInfo,
+  previousMarInfo,
+  previousSubSlot,
+  timeSlot,
+  selectedDate,
+  pauseRecords,
+}) {
+  const { discontinuedDate, endDate } = medication || {};
+  const { dueAt, recordedAt } = marInfo || {};
+
+  const isDiscontinued = useIsDiscontinued({
+    discontinuedDate,
+    dueAt,
+    isRecordedStatus: Boolean(recordedAt),
+    timeSlot,
+    selectedDate,
+    nextMarInfo,
+  });
+  const isEnd = useIsEnd({
+    endDate,
+    hasRecord: Boolean(marInfo),
+    timeSlot,
+    selectedDate,
+  });
+  const isPaused = useIsPaused({
+    pauseRecords: pauseRecords?.data,
+    timeSlot,
+    selectedDate,
+    recordedAt,
+  });
+  const isPreviouslyPaused = useIsPaused({
+    pauseRecords: pauseRecords?.data,
+    timeSlot: previousSubSlot,
+    selectedDate,
+    recordedAt: previousMarInfo?.recordedAt,
+  });
+  const isPausedThenDiscontinued = useIsPausedThenDiscontinued({
+    isPreviouslyPaused,
+    isDiscontinued,
+    timeSlot,
+    selectedDate,
+    discontinuedDate,
+  });
+
+  return { isDiscontinued, isEnd, isPaused, isPausedThenDiscontinued };
+}

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { EditedOrnament } from '@tamanu/ui-components';
+import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
 import AlertOrnament from './AlertOrnament';
@@ -11,7 +12,10 @@ import MarStatusIcon from './MarStatusIcon';
 import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import TableCellButton from './TableCellButton';
-import { useMarDoseState } from './useMarDoseState';
+import useMarDoseAlerts from './useMarDoseAlerts';
+import { useMarDoseTiming } from './useMarDoseTiming';
+import useMarPermissions from './useMarPermissions';
+import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 
 const IconWrapper = styled.div`
   display: grid;
@@ -48,41 +52,39 @@ export function MarDoseButton({
   anchorEl,
   onAnchorElChange,
 }) {
-  const {
-    canCreateMar,
-    canView,
-    canViewMar,
-    dosingUnit,
-    dueAt,
-    endDate,
-    isAlert,
-    isCurrent,
-    isDiscontinued,
-    isDoseAmountNotMatch,
-    isEdited,
-    isEnd,
-    isError,
-    isFuture,
-    isNotDue,
-    isPaused,
-    isPausedThenDiscontinued,
-    isPast,
-    isPrn,
-    isRecordedDuringPaused,
-    isRecordedOutsideAdministrationSchedule,
-    marDoses,
-    reasonNotGiven,
-    status,
-  } = useMarDoseState({
-    selectedDate,
+  const { canCreateMar, canView, canViewMar } = useMarPermissions(medication);
+  const { isPast, isCurrent, isFuture, isNotDue } = useMarDoseTiming({
     timeSlot,
-    marInfo,
-    previousMarInfo,
-    nextMarInfo,
-    previousSubSlot,
+    selectedDate,
+    hasRecord: Boolean(marInfo),
+  });
+  const { isDiscontinued, isEnd, isPaused, isPausedThenDiscontinued } = useMarDoseScheduleStatus({
     medication,
+    marInfo,
+    nextMarInfo,
+    previousMarInfo,
+    previousSubSlot,
+    timeSlot,
+    selectedDate,
     pauseRecords,
   });
+  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
+  const {
+    isAlert,
+    isDoseAmountNotMatch,
+    isError,
+    isRecordedDuringPaused,
+    isRecordedOutsideAdministrationSchedule,
+  } = useMarDoseAlerts({
+    marInfo,
+    medication,
+    marDoses,
+    isPaused,
+    isPast,
+  });
+
+  const { dueAt, status, reasonNotGiven, isEdited } = marInfo || {};
+  const { dosingUnit, endDate, isPrn } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState('');
