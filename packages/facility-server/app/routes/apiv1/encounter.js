@@ -537,6 +537,7 @@ encounterRelations.get(
 
     // Only apply approved sort when the computed attribute is available
     const effectiveOrderBy = orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
+    const sortingByApproved = effectiveOrderBy === 'approved';
 
     const where = {
       encounterId,
@@ -548,41 +549,44 @@ encounterRelations.get(
       },
     };
 
-    // subQuery:false is required so ORDER BY the computed `approved` attribute works with
-    // limit. Do not join BelongsToMany `areas` here (separate is HasMany-only; a join would
-    // make limit count area rows). Load areas in a follow-up query instead.
+    // When sorting by the computed `approved` attribute, subQuery must be false so ORDER BY
+    // works with limit. Omit BelongsToMany `areas` from that query (separate is HasMany-only;
+    // a join would make limit count area rows) and load areas in a follow-up instead.
+    // Otherwise keep the normal list associations in a single query.
     const { count, rows } = await ImagingRequest.findAndCountAll({
       where,
       order: getImagingRequestOrder(effectiveOrderBy, order),
-      include: ['requestedBy', { association: 'results', separate: true }],
+      include: sortingByApproved
+        ? ['requestedBy', { association: 'results', separate: true }]
+        : ImagingRequest.getListReferenceAssociations(),
       attributes: {
         include: [...(isInvoicingEnabled ? [getImagingRequestApprovedAttribute()] : [])],
       },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
       distinct: true,
-      subQuery: false,
+      ...(sortingByApproved ? { subQuery: false } : {}),
     });
 
-    if (rows.length > 0) {
+    // BelongsToMany getters ignore setDataValue; keep areas from this query for the response
+    const areasById = new Map();
+    if (sortingByApproved && rows.length > 0) {
       const withAreas = await ImagingRequest.findAll({
-        where: { id: rows.map(ir => ir.id) },
+        where: { id: { [Op.in]: rows.map(ir => ir.id) } },
         include: ['areas'],
       });
-      const areasById = new Map(withAreas.map(ir => [ir.id, ir.areas ?? []]));
-      for (const ir of rows) {
-        ir.setDataValue('areas', areasById.get(ir.id) ?? []);
-      }
+      for (const ir of withAreas) areasById.set(ir.id, ir.areas ?? []);
     }
 
     const data = await Promise.all(
       rows.map(async ir => {
+        const areas = (sortingByApproved ? areasById.get(ir.id) : ir.areas) ?? [];
         return {
           ...ir.forResponse(),
           // forResponse omits nulls; preserve approved (including null) when invoicing is on
           ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas?.map(area => area.forResponse()) ?? [],
+          areas: areas?.map(area => area.forResponse()),
           results: ir.results?.map(result => result.forResponse()) ?? [],
         };
       }),
