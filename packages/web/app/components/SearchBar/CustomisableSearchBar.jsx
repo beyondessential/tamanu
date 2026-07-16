@@ -89,8 +89,6 @@ export const CustomisableSearchBar = ({
   hiddenFields,
   hasPermission = true,
   className,
-  hideSearchButton = false,
-  extraActions,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => !previous);
@@ -130,19 +128,17 @@ export const CustomisableSearchBar = ({
                   </IconButton>
                 </ThemedTooltip>
               )}
-              {!hideSearchButton && (
-                <SearchButton
-                  type="submit"
-                  hasPermission={hasPermission}
-                  data-testid="searchbutton-nt24"
-                >
-                  <TranslatedText
-                    stringId="general.action.search"
-                    fallback="Search"
-                    data-testid="translatedtext-am6o"
-                  />
-                </SearchButton>
-              )}
+              <SearchButton
+                type="submit"
+                hasPermission={hasPermission}
+                data-testid="searchbutton-nt24"
+              >
+                <TranslatedText
+                  stringId="general.action.search"
+                  fallback="Search"
+                  data-testid="translatedtext-am6o"
+                />
+              </SearchButton>
               <ClearButton
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
@@ -160,7 +156,6 @@ export const CustomisableSearchBar = ({
                   data-testid="translatedtext-vpib"
                 />
               </ClearButton>
-              {extraActions}
             </ActionsContainer>
           </CustomisableSearchBarGrid>
           {isExpanded && (

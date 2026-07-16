@@ -283,6 +283,7 @@ const NoteTable = ({
   hasPermission: hasEncounterNoteWritePermission,
   noteModalOnSaved,
   searchParameters = {},
+  refreshCount,
 }) => {
   const { currentUser, facilityId } = useAuth();
   const { noteTypeId } = searchParameters;
@@ -364,7 +365,11 @@ const NoteTable = ({
         columns={COLUMNS}
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ ...searchParameters, facilityId }}
+        // Remount to fully reload (rather than lazy-append) when a note is saved.
+        // Filter state lives in the parent, so remounting here preserves the filters.
+        key={refreshCount}
         elevated={false}
+        containerStyle="border: none; border-radius: 0;"
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage data-testid="nodatamessage-78ud">
