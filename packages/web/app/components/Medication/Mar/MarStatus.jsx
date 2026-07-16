@@ -8,7 +8,7 @@ import MarDoseInfo from './MarDoseInfo';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
 import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
-import { getShowDoseInfo } from './useMarDoseState';
+import getShowDoseInfo from './getShowDoseInfo';
 
 const TableDataCell = styled.td`
   position: relative;
