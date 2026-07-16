@@ -526,30 +526,33 @@ encounterRelations.get(
 
     req.checkPermission('list', 'ImagingRequest');
 
-    const associations = ImagingRequest.getListReferenceAssociations() || [];
     const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const nullPosition = orderBy === 'approved' ? 'NULLS LAST' : undefined;
+    const sortingByApproved = orderBy === 'approved';
+    const nullPosition = sortingByApproved ? 'NULLS LAST' : undefined;
 
-    const baseQueryOptions = {
-      where: {
-        encounterId,
-        status: status || {
-          [Op.notIn]: [
-            IMAGING_REQUEST_STATUS_TYPES.DELETED,
-            IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-          ],
-        },
+    const where = {
+      encounterId,
+      status: status || {
+        [Op.notIn]: [
+          IMAGING_REQUEST_STATUS_TYPES.DELETED,
+          IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        ],
       },
-      include: associations,
     };
 
-    const count = await ImagingRequest.count({
-      ...baseQueryOptions,
-    });
+    // When ordering by the computed `approved` attribute, subQuery must be false so ORDER BY
+    // is not lost. Omit multi-row associations from that query so limit/offset stay on
+    // ImagingRequest rows (`areas` is BelongsToMany and cannot use include.separate).
+    const associations = sortingByApproved
+      ? ['requestedBy']
+      : ImagingRequest.getListReferenceAssociations();
+
+    const count = await ImagingRequest.count({ where });
 
     const objects = await ImagingRequest.findAll({
-      ...baseQueryOptions,
+      where,
+      include: associations,
       order: orderBy
         ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
         : undefined,
@@ -589,21 +592,33 @@ encounterRelations.get(
             : []),
         ],
       },
-      // Needed so ORDER BY on the computed approved attribute is not lost in a Sequelize subquery
-      ...(orderBy === 'approved' ? { subQuery: false } : {}),
+      ...(sortingByApproved ? { subQuery: false } : {}),
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
+    let areasAndResultsById = {};
+    if (sortingByApproved && objects.length > 0) {
+      const withAreasAndResults = await ImagingRequest.findAll({
+        where: { id: { [Op.in]: objects.map(ir => ir.id) } },
+        include: ['areas', 'results'],
+      });
+      areasAndResultsById = keyBy(withAreasAndResults, 'id');
+    }
+
     const data = await Promise.all(
       objects.map(async ir => {
+        const areas = sortingByApproved ? (areasAndResultsById[ir.id]?.areas ?? []) : ir.areas;
+        const results = sortingByApproved
+          ? (areasAndResultsById[ir.id]?.results ?? [])
+          : ir.results;
         return {
           ...ir.forResponse(),
           // forResponse strips nulls; keep approved so the UI can show n/a vs yes/no
           ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map(a => a.forResponse()),
-          results: ir.results.map(result => result.forResponse()),
+          areas: areas.map(area => area.forResponse()),
+          results: results.map(result => result.forResponse()),
         };
       }),
     );

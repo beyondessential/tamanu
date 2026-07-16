@@ -1056,30 +1056,35 @@ describe('Imaging requests', () => {
       it('should sort by approved column', async () => {
         await models.ImagingRequest.truncate({ cascade: true });
 
+        // Multiple areas per request so has-many joins would break limit/offset without separate: true
         const { imagingRequest: irApproved, areas: areasApproved } =
-          await createImagingRequestWithAreas(1);
+          await createImagingRequestWithAreas(3);
         const { imagingRequest: irUnapproved, areas: areasUnapproved } =
-          await createImagingRequestWithAreas(1);
-        const { imagingRequest: irNoItems } = await createImagingRequestWithAreas(1);
+          await createImagingRequestWithAreas(3);
+        const { imagingRequest: irNoItems } = await createImagingRequestWithAreas(3);
 
-        await models.InvoiceItem.create({
-          invoiceId: testInvoice.id,
-          sourceRecordId: areasApproved[0].id,
-          sourceRecordType: 'ImagingRequestArea',
-          approved: true,
-          orderDate: getCurrentDateTimeString(),
-          quantity: 1,
-          orderedByUserId: user.id,
-        });
-        await models.InvoiceItem.create({
-          invoiceId: testInvoice.id,
-          sourceRecordId: areasUnapproved[0].id,
-          sourceRecordType: 'ImagingRequestArea',
-          approved: false,
-          orderDate: getCurrentDateTimeString(),
-          quantity: 1,
-          orderedByUserId: user.id,
-        });
+        for (const area of areasApproved) {
+          await models.InvoiceItem.create({
+            invoiceId: testInvoice.id,
+            sourceRecordId: area.id,
+            sourceRecordType: 'ImagingRequestArea',
+            approved: true,
+            orderDate: getCurrentDateTimeString(),
+            quantity: 1,
+            orderedByUserId: user.id,
+          });
+        }
+        for (const area of areasUnapproved) {
+          await models.InvoiceItem.create({
+            invoiceId: testInvoice.id,
+            sourceRecordId: area.id,
+            sourceRecordType: 'ImagingRequestArea',
+            approved: false,
+            orderDate: getCurrentDateTimeString(),
+            quantity: 1,
+            orderedByUserId: user.id,
+          });
+        }
 
         const resultAsc = await app.get(
           `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}&orderBy=approved&order=ASC`,
@@ -1102,6 +1107,24 @@ describe('Imaging requests', () => {
         expect(resultDesc.body.data[1].approved).toBe(false);
         expect(resultDesc.body.data[2].id).toBe(irNoItems.id);
         expect(resultDesc.body.data[2].approved).toBeNull();
+
+        // Pagination must still return distinct ImagingRequest rows when sorting by approved
+        const resultPage = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}&orderBy=approved&order=ASC&rowsPerPage=1&page=0`,
+        );
+        expect(resultPage).toHaveSucceeded();
+        expect(resultPage.body.count).toBe(3);
+        expect(resultPage.body.data).toHaveLength(1);
+        expect(resultPage.body.data[0].id).toBe(irUnapproved.id);
+        expect(resultPage.body.data[0].areas).toHaveLength(3);
+
+        const resultPage2 = await app.get(
+          `/api/encounter/${testEncounter.id}/imagingRequests?facilityId=${facilityId}&orderBy=approved&order=ASC&rowsPerPage=1&page=1`,
+        );
+        expect(resultPage2).toHaveSucceeded();
+        expect(resultPage2.body.data).toHaveLength(1);
+        expect(resultPage2.body.data[0].id).toBe(irApproved.id);
+        expect(resultPage2.body.data[0].areas).toHaveLength(3);
       });
     });
   });
