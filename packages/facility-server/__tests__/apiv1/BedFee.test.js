@@ -48,6 +48,29 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     return models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
   };
 
+  // recalculateBedFee reconstructs location history from the audit changelog (logs.changes).
+  // These helpers stand in for the encounter writes that would populate it: clear the rows the
+  // always-on trigger wrote when the encounter was created, then record a location as of a given
+  // (write-)time, so a test controls the timeline the same way it used to with EncounterHistory.
+  const clearEncounterChangelog = encounterId =>
+    ctx.sequelize.query('DELETE FROM logs.changes WHERE record_id = :id', {
+      replacements: { id: encounterId },
+    });
+  const recordLocationAt = (encounterId, locationId, at) =>
+    models.ChangeLog.create({
+      tableOid: 0,
+      tableSchema: 'public',
+      tableName: 'encounters',
+      loggedAt: at,
+      updatedByUserId: user.id,
+      recordId: encounterId,
+      recordCreatedAt: at,
+      recordUpdatedAt: at,
+      recordData: { location_id: locationId },
+      deviceId: 'test',
+      version: 'test',
+    });
+
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
@@ -157,26 +180,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     });
 
     // Location history: bed A from admission, moved to bed B mid-day on the 17th.
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: bedLocation.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 18:00:00',
-      }),
-    );
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: locationB.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-17 12:00:00',
-      }),
-    );
+    await clearEncounterChangelog(encounter.id);
+    await recordLocationAt(encounter.id, bedLocation.id, '2024-06-16 18:00:00');
+    await recordLocationAt(encounter.id, locationB.id, '2024-06-17 12:00:00');
 
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
     const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
@@ -219,26 +225,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     });
 
     // Bed A from admission, moved to bed B at 11:00 — both before the next 02:00 check.
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: bedLocation.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 09:00:00',
-      }),
-    );
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: locationB.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 11:00:00',
-      }),
-    );
+    await clearEncounterChangelog(encounter.id);
+    await recordLocationAt(encounter.id, bedLocation.id, '2024-06-16 09:00:00');
+    await recordLocationAt(encounter.id, locationB.id, '2024-06-16 11:00:00');
 
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
     const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
@@ -275,18 +264,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
       date: '2024-06-16 09:00:00',
       status: INVOICE_STATUSES.IN_PROGRESS,
     });
-    const addHistory = (locationId, date) =>
-      models.EncounterHistory.create(
-        fake(models.EncounterHistory, {
-          encounterId: encounter.id,
-          locationId,
-          departmentId: department.id,
-          examinerId: user.id,
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          date,
-        }),
-      );
+    const addHistory = (locationId, date) => recordLocationAt(encounter.id, locationId, date);
 
+    await clearEncounterChangelog(encounter.id);
     // Admitted to bed A; same-day stay → minimum-one-night charged to A.
     await addHistory(bedLocation.id, '2024-06-16 09:00:00');
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
