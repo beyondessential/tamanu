@@ -548,15 +548,10 @@ encounterRelations.get(
       },
     };
 
-    const count = await ImagingRequest.count({
-      where,
-      distinct: true,
-    });
-
     // subQuery:false is required so ORDER BY the computed `approved` attribute works with
     // limit. Do not join BelongsToMany `areas` here (separate is HasMany-only; a join would
     // make limit count area rows). Load areas in a follow-up query instead.
-    const objects = await ImagingRequest.findAll({
+    const { count, rows } = await ImagingRequest.findAndCountAll({
       where,
       order: getImagingRequestOrder(effectiveOrderBy, order),
       include: ['requestedBy', { association: 'results', separate: true }],
@@ -565,22 +560,23 @@ encounterRelations.get(
       },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      distinct: true,
       subQuery: false,
     });
 
-    if (objects.length > 0) {
+    if (rows.length > 0) {
       const withAreas = await ImagingRequest.findAll({
-        where: { id: objects.map(ir => ir.id) },
+        where: { id: rows.map(ir => ir.id) },
         include: ['areas'],
       });
       const areasById = new Map(withAreas.map(ir => [ir.id, ir.areas ?? []]));
-      for (const ir of objects) {
+      for (const ir of rows) {
         ir.setDataValue('areas', areasById.get(ir.id) ?? []);
       }
     }
 
     const data = await Promise.all(
-      objects.map(async ir => {
+      rows.map(async ir => {
         return {
           ...ir.forResponse(),
           // forResponse omits nulls; preserve approved (including null) when invoicing is on
