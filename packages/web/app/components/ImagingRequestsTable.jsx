@@ -105,13 +105,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         ]),
     ...(isInvoicingEnabled
       ? [
-        {
-          key: 'approved',
-          title: <ApprovedColumnTitle />,
-          accessor: ({ approved }) => getApprovalStatus(approved),
-          sortable: true,
-        },
-      ]
+          {
+            key: 'approved',
+            title: <ApprovedColumnTitle />,
+            accessor: ({ approved }) => getApprovalStatus(approved),
+            sortable: true,
+          },
+        ]
       : []),
     {
       key: 'status',
@@ -152,8 +152,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
-      const path = `/patients/${category}/${patientId}/encounter/${encounterId || encounter.id
-        }/imaging-request/${imagingRequest.id}`;
+      const path = `/patients/${category}/${patientId}/encounter/${
+        encounterId || encounter.id
+      }/imaging-request/${imagingRequest.id}`;
       const suffix = encounterId && location.search ? location.search : '';
       navigate(`${path}${suffix}`);
       setIsRowsDisabled(false);
@@ -170,11 +171,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     ],
   );
 
-  const globalImagingRequestsFetchOptions = useMemo(() => ({
-    ...(statuses.length > 0 ? { status: statuses } : {}),
-    ...searchParameters,
-    facilityId,
-  }), [searchParameters, statuses, facilityId]);
+  const globalImagingRequestsFetchOptions = useMemo(
+    () => ({
+      ...(statuses.length > 0 ? { status: statuses } : {}),
+      ...searchParameters,
+      facilityId,
+    }),
+    [searchParameters, statuses, facilityId],
+  );
 
   return (
     <SearchTableWithPermissionCheck
