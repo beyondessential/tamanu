@@ -21,6 +21,7 @@ import {
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
@@ -854,6 +855,8 @@ createSuggester(
   'User',
   ({ search }) => ({
     displayName: { [Op.iLike]: search },
+    // Only human users are clinicians; machine accounts (sync, system) opt out by kind
+    kind: USER_KINDS.USER,
     ...VISIBILITY_CRITERIA,
   }),
   {
@@ -1061,60 +1064,8 @@ createSuggester(
 
     return {
       ...baseWhere,
-      // Only suggest program registries this patient isn't already part of
-      id: {
-        [Op.notIn]: Sequelize.literal(
-          `(
-          SELECT DISTINCT(pr.id)
-          FROM program_registries pr
-          INNER JOIN patient_program_registrations ppr
-          ON ppr.program_registry_id = pr.id
-          WHERE
-            ppr.patient_id = $patient_id
-          AND
-            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
-        )`,
-        ),
-      },
-    };
-  },
-  {
-    extraReplacementsBuilder: query => ({
-      patient_id: query.patientId,
-    }),
-  },
-);
-
-createNameSuggester(
-  'programRegistryClinicalStatus',
-  'ProgramRegistryClinicalStatus',
-  ({ endpoint, modelName, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    ...(programRegistryId ? { programRegistryId } : {}),
-  }),
-);
-
-createNameSuggester(
-  'programRegistryCondition',
-  'ProgramRegistryCondition',
-  ({ endpoint, modelName, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    ...(programRegistryId ? { programRegistryId } : {}),
-  }),
-);
-
-createNameSuggester(
-  'programRegistry',
-  'ProgramRegistry',
-  ({ endpoint, modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-    if (!query.patientId) {
-      return baseWhere;
-    }
-
-    return {
-      ...baseWhere,
-      // Only suggest program registries this patient isn't already part of
+      // Only exclude registries the patient is currently actively registered in. A patient who
+      // was removed (inactive) or recorded-in-error can be suggested again for re-registration.
       id: {
         [Op.notIn]: Sequelize.literal(
           `(
@@ -1136,6 +1087,15 @@ createNameSuggester(
       patient_id: query.patientId,
     }),
   },
+);
+
+createNameSuggester(
+  'programRegistryCondition',
+  'ProgramRegistryCondition',
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
 );
 
 createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {

@@ -1,6 +1,5 @@
-import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from './serverConfig';
 
 export async function checkConfig({ settings, models }) {
   const ensureExists = async (modelName, code, facilityId) => {
@@ -12,7 +11,7 @@ export async function checkConfig({ settings, models }) {
     }
   };
 
-  const facilityIds = selectFacilityIds(config);
+  const facilityIds = getServerFacilityIds() ?? [];
   for (const facilityId of facilityIds) {
     const { department, location } = await settings[facilityId].get('survey.defaultCodes');
     await Promise.all([

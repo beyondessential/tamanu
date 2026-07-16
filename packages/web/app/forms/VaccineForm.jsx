@@ -107,7 +107,7 @@ export const VaccineForm = ({
     return <LoadingIndicator data-testid="loadingindicator-dpow" />;
   }
 
-  if (currentEncounterError || isLoadingPatientData) {
+  if (currentEncounterError || patientDataError) {
     return (
       <ErrorMessage
         title={

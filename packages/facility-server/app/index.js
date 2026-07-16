@@ -16,11 +16,15 @@ import {
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
+  resetSyncConfigCommand,
+  setupSyncCommand,
   shellCommand,
   startAllCommand,
   startApiCommand,
   startSyncCommand,
   startTasksCommand,
+  startFhirWorkerCommand,
+  fhirCommand,
   syncCommand,
   upgradeCommand,
 } from './subCommands';
@@ -32,11 +36,15 @@ async function run() {
   program.addCommand(startApiCommand);
   program.addCommand(startSyncCommand);
   program.addCommand(startTasksCommand);
+  program.addCommand(startFhirWorkerCommand);
+  program.addCommand(fhirCommand);
   program.addCommand(reportCommand);
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
   program.addCommand(shellCommand);
+  program.addCommand(resetSyncConfigCommand);
+  program.addCommand(setupSyncCommand);
   program.addCommand(upgradeCommand);
   program.addCommand(configSecretCommand);
 

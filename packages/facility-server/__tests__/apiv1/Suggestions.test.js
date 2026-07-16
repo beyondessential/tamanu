@@ -7,6 +7,7 @@ import {
   REFERENCE_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -583,6 +584,26 @@ describe('Suggestions', () => {
       const idArray = body.map(({ id }) => id);
       expect(idArray).not.toContain(obsoleteSurveyId);
     });
+
+    it('should not suggest device sync users as practitioners', async () => {
+      await models.User.create({
+        email: 'suggestions.clinician@tamanu.io',
+        displayName: 'Suggestions Sync Clinician',
+        role: 'practitioner',
+      });
+      await models.User.create({
+        email: 'sync.0123456789abcdef@sync.tamanu',
+        displayName: 'System: facility-sync-test sync',
+        role: 'admin',
+        kind: 'sync',
+      });
+
+      const result = await userApp.get('/api/suggestions/practitioner').query({ q: 'sync' });
+      expect(result).toHaveSucceeded();
+      const names = result.body.map(({ name }) => name);
+      expect(names).toContain('Suggestions Sync Clinician');
+      expect(names).not.toContain('System: facility-sync-test sync');
+    });
   });
 
   describe('Order of results (via diagnoses)', () => {
@@ -1063,7 +1084,7 @@ describe('Suggestions', () => {
         await ReferenceMedicationTemplate.create({
           referenceDataId: templateRef.id,
           medicationId: drug.id,
-          units: 'mg',
+          dosingUnit: 'mg',
           frequency: 'daily',
           route: 'oral',
         });
@@ -1280,5 +1301,58 @@ describe('Suggestions', () => {
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0]).toHaveProperty('id', childSubdivision.id);
+  });
+
+  describe('Program registry suggester', () => {
+    // Unique prefix so the `q` filter only matches the registries seeded here, keeping the
+    // result set deterministic regardless of other registries in the shared test database.
+    const namePrefix = 'ZZSuggesterDedupe';
+
+    const createProgramRegistry = async name => {
+      const program = await models.Program.create(fake(models.Program));
+      return models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program.id, name }),
+      );
+    };
+
+    it('should only exclude registries the patient is actively registered in', async () => {
+      // Regression: a patient removed from a registry (inactive) or recorded-in-error should be
+      // suggested again for re-registration. Only currently active registrations are excluded.
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      const activeRegistry = await createProgramRegistry(`${namePrefix} Active`);
+      const inactiveRegistry = await createProgramRegistry(`${namePrefix} Inactive`);
+      const unregisteredRegistry = await createProgramRegistry(`${namePrefix} None`);
+
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          patientId: patient.id,
+          programRegistryId: activeRegistry.id,
+          clinicianId: userApp.user.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          patientId: patient.id,
+          programRegistryId: inactiveRegistry.id,
+          clinicianId: userApp.user.id,
+          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+        }),
+      );
+
+      const result = await userApp
+        .get('/api/suggestions/programRegistry')
+        .query({ patientId: patient.id, q: namePrefix });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toBeInstanceOf(Array);
+      const suggestedIds = body.map(({ id }) => id);
+      expect(suggestedIds).not.toContain(activeRegistry.id);
+      expect(suggestedIds).toEqual(
+        expect.arrayContaining([inactiveRegistry.id, unregisteredRegistry.id]),
+      );
+    });
   });
 });

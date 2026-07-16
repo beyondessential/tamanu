@@ -17,9 +17,9 @@ import { Link } from 'react-router';
 import styled from 'styled-components';
 
 import { TAMANU_COLORS } from '../../constants';
-import { useTranslation } from '../../contexts';
 import { TranslatedText } from '../Translation';
 import { useFormButtonSubmitting } from '../useFormButtonSubmitting';
+import { VisuallyHidden } from '../VisuallyHidden';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
@@ -138,16 +138,15 @@ export const Button = ({ isSubmitting = false, ...props }) => (
   />
 );
 
-const StyledOutlinedButton = styled(StyledButton)`
+export const OutlinedButton = styled(StyledButton).attrs({
+  color: 'primary',
+  variant: 'outlined',
+})`
   border-color: ${props => props.theme.palette.primary.main};
   :disabled {
     border-color: ${TAMANU_COLORS.softText};
   }
 `;
-
-export const OutlinedButton = props => (
-  <StyledOutlinedButton variant="outlined" color="primary" {...props} />
-);
 
 export const GreyOutlinedButton = styled(StyledButton)`
   border: 1px solid #dedede;
@@ -185,7 +184,10 @@ export const DeleteButton = styled(Button).attrs({
   }
 `;
 
-const StyledTextButton = styled(Button)`
+export const TextButton = styled(Button).attrs({
+  color: 'primary',
+  variant: 'text',
+})`
   color: #5b84ad;
   font-size: 1rem;
   min-block-size: auto;
@@ -202,13 +204,9 @@ const StyledTextButton = styled(Button)`
   }
 `;
 
-export const TextButton = ({ children, ...props }) => (
-  <StyledTextButton variant="text" color="primary" {...props}>
-    {children}
-  </StyledTextButton>
-);
-
-const StyledNavButton = styled(TextButton)`
+const LabelledBackButton = styled(TextButton).attrs({
+  startIcon: <ChevronLeft />,
+})`
   color: ${TAMANU_COLORS.primary};
   padding-right: 8px;
   font-size: 12px;
@@ -217,17 +215,17 @@ const StyledNavButton = styled(TextButton)`
   }
 `;
 
-export const BackButton = ({ ['aria-label']: ariaLabel, text = true, ...props }) => {
-  const { getTranslation } = useTranslation();
-  const label = ariaLabel ?? (text ? undefined : getTranslation('general.action.back', 'Back'));
-
+export const BackButton = ({
+  children = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  text = true,
+  ...props
+}) => {
   return text ? (
-    <StyledNavButton aria-label={label} startIcon={<ChevronLeft />} {...props}>
-      <TranslatedText stringId="general.action.back" fallback="Back" />
-    </StyledNavButton>
+    <LabelledBackButton {...props}>{children}</LabelledBackButton>
   ) : (
-    <IconButton aria-label={label} size="small" {...props}>
+    <IconButton size="small" {...props}>
       <ChevronLeft />
+      <VisuallyHidden>{children}</VisuallyHidden>
     </IconButton>
   );
 };

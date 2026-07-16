@@ -6,7 +6,7 @@
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
-  "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
+  "author": "BES International Limited <tamanu@bes.au>",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
@@ -54,7 +54,6 @@
     "@tamanu/ui-components": "*",
     "@tamanu/utils": "*",
     "@tanstack/react-query": "^4.0.10",
-    "@tanstack/react-query-devtools": "^4.0.10",
     "@vitejs/plugin-react-swc": "^4.3.1",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",

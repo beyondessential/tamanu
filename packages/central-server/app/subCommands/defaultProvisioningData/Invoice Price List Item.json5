@@ -74,11 +74,11 @@
       "invoicePriceList-1": 319
     },
     {
-      "invoiceProductId": "invoiceProduct-imagingType-MRI",
+      "invoiceProductId": "invoiceProduct-imagingType-mri",
       "invoicePriceList-1": 368
     },
     {
-      "invoiceProductId": "invoiceProduct-imagingType-XRay",
+      "invoiceProductId": "invoiceProduct-imagingType-xRay",
       "invoicePriceList-1": 139
     },
     {

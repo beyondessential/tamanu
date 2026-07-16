@@ -31,7 +31,7 @@ const FormModalComponent = memo(({ children, ...props }) => {
   );
 });
 
-export const FormModal = memo(({ ...props }) => {
+export const FormModal = memo(props => {
   return (
     <FormSubmissionProvider data-testid="formsubmissionprovider-2ow3">
       <FormModalComponent {...props} data-testid="formmodalcomponent-m2oc" />

@@ -64,15 +64,15 @@ export class ReportRunner {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const { disabledReports } = localisation;
-    if (disabledReports.includes(this.reportId)) {
-      throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
-    }
-
     if (!reportModule || !reportDataGenerator) {
       throw new Error(
         `ReportRunner - Unable to find report generator for report "${this.reportId}"`,
       );
+    }
+
+    const { disabledReports } = localisation;
+    if (disabledReports.includes(reportModule.reportDefinitionId)) {
+      throw new Error(`ReportRunner - Report "${reportModule.reportDefinitionId}" is disabled`);
     }
   }
 
@@ -285,11 +285,11 @@ export class ReportRunner {
     try {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
-      this.emailService.sendEmail({
+      await this.emailService.sendEmail({
         from: getDefaultFromAddress(),
         to: user.email,
         subject: 'Failed to generate report',
-        message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
+        text: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
       });
     } catch (e2) {
       this.log.error('Issue sending error to email', {

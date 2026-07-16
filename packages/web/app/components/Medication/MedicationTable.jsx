@@ -340,7 +340,11 @@ export const EncounterMedicationTable = ({
     const openMedicationId = searchParams.get('openMedicationId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
-      navigate(location.pathname, { replace: true });
+      searchParams.delete('openMedicationId');
+      navigate(
+        { pathname: location.pathname, search: searchParams.toString() },
+        { replace: true },
+      );
     }
   }, []);
 
@@ -418,10 +422,8 @@ export const EncounterMedicationTable = ({
                   variant="outlined"
                   color="primary"
                   onClick={onImportOngoingPrescriptions}
+                  startIcon={<AddMedicationIcon />}
                 >
-                  <Box mr={1} display="flex">
-                    <AddMedicationIcon />
-                  </Box>
                   <TranslatedText
                     stringId="action.importMedications"
                     fallback="Import existing medications"

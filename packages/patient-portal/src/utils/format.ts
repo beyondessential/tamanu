@@ -46,7 +46,7 @@ export const formatVillage = (village: Patient['village'] | null | undefined) =>
 // Medication-specific formatting functions
 export const formatDose = (
   doseAmount: OngoingPrescription['doseAmount'],
-  units: OngoingPrescription['units'],
+  units: OngoingPrescription['dosingUnit'],
 ) => {
   if (doseAmount === null || doseAmount === undefined || !units) return '--';
   return `${doseAmount} ${units}`;

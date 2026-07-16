@@ -1,31 +1,36 @@
-import React, { useState } from 'react';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
-import * as yup from 'yup';
-import { Box, Divider } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Field, NumberField, AutocompleteField } from '../../Field';
+import * as yup from 'yup';
+
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import {
-  TextField,
-  TranslatedSelectField,
+  AutocompleteField,
+  ConfirmCancelRow,
+  Field,
   Form,
   FormGrid,
-  ConfirmCancelRow,
+  NumberField,
+  TextField,
+  TranslatedSelectField,
   TranslatedText,
   useDateTime,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { FormModal } from '../../FormModal';
-import { useAuth } from '../../../contexts/Auth';
-import { useSuggester } from '../../../api';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { useEncounter } from '../../../contexts/Encounter';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { MarInfoPane } from './MarInfoPane';
-import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { TimePickerField } from '../../Field/TimePickerField';
+import { FormModal } from '../../FormModal';
+import { WarningModal } from '../WarningModal';
+import { MarInfoPane } from './MarInfoPane';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -96,6 +101,7 @@ const StyledDivider = styled(Divider)`
 
 export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
   const { currentUser } = useAuth();
+  const { getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
@@ -130,13 +136,8 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
         changingStatusReason,
       });
     } else {
-      const {
-        doseAmount,
-        givenTime,
-        givenByUserId,
-        recordedByUserId,
-        changingStatusReason,
-      } = values;
+      const { doseAmount, givenTime, givenByUserId, recordedByUserId, changingStatusReason } =
+        values;
       if (
         !showWarningModal &&
         Number(medication.doseAmount) !== Number(doseAmount) &&
@@ -301,9 +302,17 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     label={
                       <TranslatedText
                         stringId="mar.details.doseGiven.label"
-                        values={{ units: medication?.units }}
-                        fallback={`Dose given (${medication?.units})`}
+                        fallback="Dose given"
                       />
+                    }
+                    unit={
+                      medication?.dosingUnit
+                        ? getDrugUnitLabel(
+                            medication.dosingUnit,
+                            values.doseAmount,
+                            getEnumTranslation,
+                          )
+                        : undefined
                     }
                   />
                   <div>

@@ -2,12 +2,13 @@ import config from 'config';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
+import { seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { initReporting } from '@tamanu/database/services/reporting';
+import { setFhirRefreshTriggers } from '@tamanu/database';
+import { initFhirSettingsFromDb, resetFhirSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { buildToken } from '../app/auth/utils';
 import { createApp } from '../app/createApp';
@@ -17,15 +18,18 @@ import { initIntegrations } from '../app/integrations';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init() {
+  async init({ initFhir = false, initFhirTriggers = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
-
-    if (config.db.reportSchemas?.enabled) {
-      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
-      this.reportSchemaStores = await initReporting(this.store);
+    if (initFhir) {
+      resetFhirSettings();
+      await initFhirSettingsFromDb(this.settings);
     }
+    if (initFhirTriggers) {
+      await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled: true });
+    }
+
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -50,14 +54,18 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext({ aiService } = {}) {
+export async function createTestContext({
+  initFhir = false,
+  initFhirTriggers = false,
+  aiService,
+} = {}) {
   // Matches packages/facility-server/__tests__/utilities.js
   // do NOT time out during create context
   // TODO: remove once the slow test setup (db recreate + full migration run)
   // is addressed at the source.
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  const ctx = await new MockApplicationContext().init();
+  const ctx = await new MockApplicationContext().init({ initFhir, initFhirTriggers });
   if (aiService) ctx.aiService = aiService;
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);

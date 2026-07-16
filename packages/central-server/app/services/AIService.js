@@ -99,6 +99,11 @@ export class AIService {
       return null;
     }
 
+    if (!anthropicModel?.trim()) {
+      log.warn('AIService: no Anthropic model configured, skipping initialisation');
+      return null;
+    }
+
     const service = new AIService();
     service.models = models;
     service.chatModel = new ChatAnthropic({

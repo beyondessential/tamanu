@@ -1,26 +1,34 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
-import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@material-ui/core';
+import { ClickAwayListener, Fade, IconButton, Paper, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { useQueryClient } from '@tanstack/react-query';
 import { addHours, set } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, Button, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import styled, { css } from 'styled-components';
 import * as yup from 'yup';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
+
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
+import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import {
+  Button,
+  Field,
+  Form,
+  NumberField,
+  RequiredOrnament,
+  TranslatedEnum,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { useEncounter } from '../../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { Field, NumberField } from '../../Field';
-import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { WarningModal } from '../WarningModal';
+import { Colors } from '../../../constants/styles';
+import { useEncounter } from '../../../contexts/Encounter';
 import { isWithinTimeSlot } from '../../../utils/medications';
+import { TimePickerField } from '../../Field/TimePickerField';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { WarningModal } from '../WarningModal';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -39,14 +47,14 @@ const StyledPaper = styled(Paper)`
     z-index: 2;
     ${p =>
       p.$placement === 'right'
-        ? `
-      right: 100%;
-      border-right: 8px solid white;
-    `
-        : `
-      left: 100%;
-      border-left: 8px solid white;
-    `}
+        ? css`
+            right: 100%;
+            border-right: 8px solid white;
+          `
+        : css`
+            left: 100%;
+            border-left: 8px solid white;
+          `}
   }
 
   &::after {
@@ -61,16 +69,16 @@ const StyledPaper = styled(Paper)`
     z-index: 1;
     ${p =>
       p.$placement === 'right'
-        ? `
-      right: 100%;
-      border-right: 9px solid rgba(0, 0, 0, 0.1);
-      margin-right: 1px;
-    `
-        : `
-      left: 100%;
-      border-left: 9px solid rgba(0, 0, 0, 0.1);
-      margin-left: 1px;
-    `}
+        ? css`
+            right: 100%;
+            border-right: 9px solid rgba(0, 0, 0, 0.1);
+            margin-right: 1px;
+          `
+        : css`
+            left: 100%;
+            border-left: 9px solid rgba(0, 0, 0, 0.1);
+            margin-left: 1px;
+          `}
   }
 `;
 
@@ -111,10 +119,6 @@ const TimeGivenTitle = styled.div`
   margin-bottom: 3px;
 `;
 
-const RequiredMark = styled.span`
-  color: ${Colors.alert};
-`;
-
 const ConfirmButton = styled(Button)`
   min-width: 95px;
   width: 100%;
@@ -139,9 +143,6 @@ const StyledNumberFieldWrapper = styled.div`
       -webkit-appearance: none;
       margin: 0px;
     }
-
-    /* For Firefox */
-    -moz-appearance: textfield;
   }
 `;
 
@@ -211,7 +212,7 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
-      <Divider color={Colors.outline} />
+      <hr aria-hidden />
       <NoteModalActionBlocker>
         <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
@@ -243,7 +244,7 @@ const GivenScreen = ({
   timeSlot,
   selectedDate,
   marId,
-  units,
+  dosingUnit,
   onClose,
   prescriptionId,
   isFuture,
@@ -337,11 +338,11 @@ const GivenScreen = ({
               >
                 <RemoveCircleOutlineIcon />
               </DoseButton>
-              <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
+              <StyledNumberFieldWrapper $units={dosingUnit} ref={doseInputRef}>
                 <Field name="doseAmount" component={NumberField} min={0.25} />
                 <InputSuffix>
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={units} />
-                  <RequiredMark>*</RequiredMark>
+                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                  <RequiredOrnament />
                 </InputSuffix>
               </StyledNumberFieldWrapper>
               <DoseButton
@@ -354,7 +355,7 @@ const GivenScreen = ({
 
             <TimeGivenTitle>
               <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
-              <RequiredMark>*</RequiredMark>
+              <RequiredOrnament />
             </TimeGivenTitle>
             <StyledTimePicker
               name="timeGiven"
@@ -434,25 +435,19 @@ export const StatusPopper = ({
   isPast,
 }) => {
   const { id: marId } = marInfo || {};
-  const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
+  const { doseAmount, dosingUnit, id: prescriptionId, isVariableDose } = medication || {};
   const { toStoredDateTime } = useDateTime();
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const {
-    mutateAsync: updateMarToNotGiven,
-    isLoading: isUpdatingMarToNotGiven,
-  } = useNotGivenMarMutation(marId, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-    },
-  });
+  const { mutateAsync: updateMarToNotGiven, isLoading: isUpdatingMarToNotGiven } =
+    useNotGivenMarMutation(marId, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      },
+    });
   const queryClient = useQueryClient();
-
-  const handleNotGivenClick = () => {
-    setShowReasonScreen(true);
-  };
 
   const { encounter } = useEncounter();
 
@@ -475,10 +470,6 @@ export const StatusPopper = ({
     handleClose();
   };
 
-  const handleGivenClick = () => {
-    setShowGivenScreen(true);
-  };
-
   const reasonsNotGiven = useSuggestionsQuery('medicationNotGivenReason');
 
   const getContent = () => {
@@ -497,7 +488,7 @@ export const StatusPopper = ({
           doseAmount={doseAmount}
           timeSlot={timeSlot}
           selectedDate={selectedDate}
-          units={units}
+          dosingUnit={dosingUnit}
           marId={marId}
           onClose={onClose}
           prescriptionId={prescriptionId}
@@ -507,7 +498,12 @@ export const StatusPopper = ({
         />
       );
     }
-    return <MainScreen onGivenClick={handleGivenClick} onNotGivenClick={handleNotGivenClick} />;
+    return (
+      <MainScreen
+        onGivenClick={() => void setShowGivenScreen(true)}
+        onNotGivenClick={() => void setShowReasonScreen(true)}
+      />
+    );
   };
 
   const placement = useMemo(() => {

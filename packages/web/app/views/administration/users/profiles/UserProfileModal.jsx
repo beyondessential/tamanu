@@ -125,8 +125,8 @@ const validationSchema = yup.object().shape({
 });
 
 export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
-  const { mutate: updateUser, isPending: isUpdateUserPending } = useUpdateUserMutation(user.id);
-  const { mutateAsync: validateUser, isPending: isValidateUserPending } = useValidateUserMutation();
+  const { mutate: updateUser, isLoading: isUpdateUserPending } = useUpdateUserMutation(user.id);
+  const { mutateAsync: validateUser, isLoading: isValidateUserPending } = useValidateUserMutation();
   const { getTranslation } = useTranslation();
   const { ability, currentUser } = useAuth();
 

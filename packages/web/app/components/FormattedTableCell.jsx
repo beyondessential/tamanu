@@ -3,9 +3,9 @@ import { isNumber } from 'es-toolkit/compat';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
-import { EditedOrnament, PlainTimeDisplay } from '@tamanu/ui-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { DateDisplay, EditedOrnament, PlainTimeDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../constants';
-import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -52,31 +52,37 @@ function round(float, { rounding } = {}) {
   return floatNumber.toFixed(rounding);
 }
 
-function getValidationState(float, config = {}, visibilityCriteria = {}) {
+function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
-  const { normalRange } = visibilityCriteria;
+  const { normalRange, rangeText } = visibilityCriteria;
 
-  if (!float && float !== 0) {
+  if (!normalizedValue && normalizedValue !== 0) {
     return {
       severity: INFO,
     };
   }
 
-  if (normalRange && float < normalRange.min) {
+  if (normalRange && normalizedValue < normalRange.min) {
     return {
       tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
       severity: ALERT,
     };
   }
-  if (normalRange && float > normalRange.max) {
+  if (normalRange && normalizedValue > normalRange.max) {
     return {
       tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
       severity: ALERT,
     };
   }
-  if (unit?.length > 2 && !isNaN(float)) {
+  if (rangeText && normalizedValue !== rangeText) {
     return {
-      tooltip: `${round(float, config)}${unit}`,
+      tooltip: `Outside normal range\n ${rangeText}`,
+      severity: ALERT,
+    };
+  }
+  if (unit?.length > 2 && !isNaN(normalizedValue)) {
+    return {
+      tooltip: `${round(normalizedValue, config)}${unit}`,
       severity: INFO,
     };
   }
@@ -124,7 +130,7 @@ export const DateHeadCell = ({ value }) => {
   );
 };
 
-export const DateBodyCell = ({ value, onClick }) => {
+export const DateBodyCell = ({ value, onClick, isEdited }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
@@ -134,32 +140,40 @@ export const DateBodyCell = ({ value, onClick }) => {
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
         <DateDisplay date={value} format="shortest" noTooltip style={{ display: 'block' }} />
         <TimeDisplay date={value} noTooltip style={{ display: 'block' }} />
+        {isEdited && <EditedOrnament />}
       </CellContainer>
     </TableTooltip>
   );
 };
 
-export function TimeBodyCell({ value, onClick }) {
+export function TimeBodyCell({ value, onClick, isEdited }) {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <CellContainer onClick={onClick} data-testid="cellcontainer-time">
       <PlainTimeDisplay time={value} />
+      {isEdited && <EditedOrnament />}
     </CellContainer>
   );
 }
 
-const LimitedLinesCellWrapper = styled.div`
+const LimitedLinesCellWrapper = styled.div.withConfig({
+  shouldForwardProp: prop => !['maxLines', 'isOneLine', 'maxWidth'].includes(prop),
+})`
   overflow: hidden;
   text-overflow: ellipsis;
   ${({ maxLines, isOneLine }) =>
     maxLines <= 1 && !isOneLine
       ? ''
-      : `
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: ${isOneLine ? 1 : maxLines};
-  `}
-  ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
+      : css`
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: ${isOneLine ? 1 : maxLines};
+        `}
+  ${({ maxWidth }) =>
+    maxWidth &&
+    css`
+      max-width: ${maxWidth};
+    `};
 `;
 
 const LimitedLinesCellContainer = styled.div`
@@ -251,15 +265,33 @@ export const RangeValidatedCell = React.memo(
     validationCriteria,
     onClick,
     isEdited,
+    component,
     ValueWrapper = DefaultWrapper,
     ...props
   }) => {
+    const type = component?.dataElement?.type;
+    const isFreeText = type === PROGRAM_DATA_ELEMENT_TYPES.TEXT;
+    const isDateTime = type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME;
+    const isTime = type === PROGRAM_DATA_ELEMENT_TYPES.TIME;
+
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-    const float = round(value, config);
-    const { tooltip, severity } = useMemo(
-      () => getValidationState(float, config, validationCriteria),
-      [float, config, validationCriteria],
-    );
+    const normalizedValue = isFreeText ? value : round(value, config);
+    const { tooltip, severity } = useMemo(() => {
+      if (isFreeText || isDateTime || isTime) return { severity: INFO };
+      return getValidationState(normalizedValue, config, validationCriteria);
+    }, [config, isDateTime, isFreeText, isTime, normalizedValue, validationCriteria]);
+
+    if (isDateTime && value) {
+      return <DateBodyCell value={value} onClick={onClick} isEdited={isEdited} />;
+    }
+
+    if (isTime && value) {
+      return <TimeBodyCell value={value} onClick={onClick} isEdited={isEdited} />;
+    }
+
+    const displayValue = isFreeText
+      ? value?.trim() || <>&mdash;</>
+      : formatValue(normalizedValue, config);
 
     const cell = (
       <CellContainer
@@ -271,7 +303,7 @@ export const RangeValidatedCell = React.memo(
         <ValueWrapper
           value={
             <>
-              {formatValue(value, config)}
+              {displayValue}
               {isEdited && <EditedOrnament />}
             </>
           }

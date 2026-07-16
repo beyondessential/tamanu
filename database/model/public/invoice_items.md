@@ -50,6 +50,10 @@ The final product code used on the invoice. Saved from the product code field wh
 The final price per unit for this item on the invoice. This is determined by the manual_entry_price if provided, otherwise from the product's price when the invoice is finalised.
 {% enddocs %}
 
+{% docs invoice_items__is_fixed_price_final %}
+Snapshotted at finalisation: when true, this line is charged as a flat fee (price_final x 1) regardless of quantity. Preserves fixed-price behaviour independent of later price-list changes.
+{% enddocs %}
+
 {% docs invoice_items__approved %}
 A boolean field that enables clinicians to track the approval status of individual invoice line items
 {% enddocs %}

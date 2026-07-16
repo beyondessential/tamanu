@@ -11,9 +11,10 @@ import {
   PERMISSION_IMPORTABLE_DATA_TYPES,
   SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
+  USER_KINDS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { extractSecretPaths, getScopedSchema } from '@tamanu/settings';
+import { extractSecretPaths, getScopedSchema, ReadSettings } from '@tamanu/settings';
 import {
   encryptSecret,
   getSettingsPskKeyBuffer,
@@ -97,8 +98,10 @@ const initialiseDatabaseWithRetry = async () => {
  * @param {string} file - File path
  */
 function validateFullReferenceDataImport(workbook) {
-  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+  // 'user' has special logic and 'administeredVaccine' is a special case used for existing
+  // deployments. 'invoicePriceListCharging' is an optional overlay on price-list items (absent =
+  // per-unit, the default), so a complete seed doesn't require charging data.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine', 'invoicePriceListCharging'];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
@@ -146,7 +149,7 @@ async function encryptSecretSettings(settings, scope) {
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initialiseDatabaseWithRetry();
 
-  checkIntegrationsConfig();
+  await checkIntegrationsConfig(new ReadSettings(store.models));
 
   const {
     users = {},
@@ -312,7 +315,11 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...Object.entries(facilities)
       .map(
         ([id, { user, password }]) =>
-          user && password && [user, { displayName: `System: ${id} sync`, password }],
+          user &&
+          password && [
+            user,
+            { displayName: `System: ${id} sync`, kind: USER_KINDS.SYNC, password },
+          ],
       )
       .filter(Boolean),
   ];

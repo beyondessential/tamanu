@@ -12,7 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../serverConfig';
 import { ReadSettings } from '@tamanu/settings';
 import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
@@ -35,7 +35,8 @@ const CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES = new Set([
 
 function shouldThrowCentralLoginError(error) {
   return (
-    error.type?.startsWith(ERROR_TYPE.AUTH) || CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES.has(error.type)
+    error.type?.startsWith(ERROR_TYPE.AUTH) ||
+    CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES.has(error.type)
   );
 }
 
@@ -116,7 +117,7 @@ export async function centralServerLogin({
   const response = await centralServer.login(email, password, {
     scopes: [],
     body: {
-      facilityIds: selectFacilityIds(config),
+      facilityIds: getServerFacilityIds(),
       facilityDeviceId,
     },
     backoff: {
@@ -214,18 +215,19 @@ async function centralServerLoginWithLocalFallback({
 
 export async function loginHandler(req, res, next) {
   const { body, deviceId: facilityDeviceId, models, settings } = req;
-  const { deviceId, email, password } = await z
-    .object({
-      deviceId: z.string().min(1),
-      email: z.email(),
-      password: z.string().min(1),
-    })
-    .parseAsync(body);
-
-  // no permission needed for login
-  req.flagPermissionChecked();
 
   try {
+    const { deviceId, email, password } = await z
+      .object({
+        deviceId: z.string().min(1),
+        email: z.email(),
+        password: z.string().min(1),
+      })
+      .parseAsync(body);
+
+    // no permission needed for login
+    req.flagPermissionChecked();
+
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
     const globalSettings =
@@ -242,7 +244,7 @@ export async function loginHandler(req, res, next) {
       });
 
     // check if user has access to any facilities on this server
-    const serverFacilities = selectFacilityIds(config);
+    const serverFacilities = getServerFacilityIds();
     const availableFacilities = await models.User.filterAllowedFacilities(
       allowedFacilities,
       serverFacilities,
@@ -304,69 +306,71 @@ export async function refreshHandler(req, res) {
   res.send({ token });
 }
 
-export const authMiddleware = async (req, res, next) => {
-  const { canonicalHostName = 'localhost' } = config;
-  const { models, settings } = req;
-  try {
-    const { token, user, facility, device, impersonateRoleId } = await models.User.loginFromAuthorizationHeader(
-      req.get('authorization'),
-      {
-        log,
-        settings: settings.global ?? settings,
-        tokenDuration,
-        tokenIssuer: canonicalHostName,
-        tokenSecret: jwtSecretKey,
-      },
-    );
+function createAuthMiddleware({ requireDeviceId }) {
+  return async (req, res, next) => {
+    const { canonicalHostName = 'localhost' } = config;
+    const { models, settings } = req;
+    try {
+      const { token, user, facility, device, impersonateRoleId } =
+        await models.User.loginFromAuthorizationHeader(req.get('authorization'), {
+          log,
+          settings: settings.global ?? settings,
+          tokenDuration,
+          tokenIssuer: canonicalHostName,
+          tokenSecret: jwtSecretKey,
+        });
 
-    if (!device) {
-      throw new MissingCredentialError('Missing deviceId');
-    }
+      if (requireDeviceId && !device) {
+        throw new MissingCredentialError('Missing deviceId');
+      }
 
-    // when we login to a multi-facility server, we don't initially have a facilityId
-    if (facility) {
-      req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
-    }
+      // when we login to a multi-facility server, we don't initially have a facilityId
+      if (facility) {
+        req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
+      }
 
-    const sessionId = createSessionIdentifier(token);
-    req.user = user; // eslint-disable-line require-atomic-updates
-    req.userDevice = device; // eslint-disable-line require-atomic-updates
-    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
-    req.impersonateRoleId = impersonateRoleId; // eslint-disable-line require-atomic-updates
-    req.getLocalisation = async () =>
-      req.models.UserLocalisationCache.getLocalisation({
-        where: { userId: req.user.id },
-        order: [['createdAt', 'DESC']],
+      const sessionId = createSessionIdentifier(token);
+      req.user = user; // eslint-disable-line require-atomic-updates
+      req.userDevice = device; // eslint-disable-line require-atomic-updates
+      req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
+      req.impersonateRoleId = impersonateRoleId; // eslint-disable-line require-atomic-updates
+      req.getLocalisation = async () =>
+        req.models.UserLocalisationCache.getLocalisation({
+          where: { userId: req.user.id },
+          order: [['createdAt', 'DESC']],
+        });
+
+      const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
+      // Auditing middleware
+      // eslint-disable-next-line require-atomic-updates
+      req.audit = initAuditActions(req, {
+        enabled: auditSettings?.accesses.enabled,
+        userId: user.id,
+        version,
+        backEndContext: { serverType: SERVER_TYPES.FACILITY },
       });
 
-    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+      const spanAttributes = {
+        'enduser.id': user.id,
+        'enduser.role': user.role,
+        ...(device?.id ? { 'session.deviceId': device.id } : {}),
+      };
 
-    // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = initAuditActions(req, {
-      enabled: auditSettings?.accesses.enabled,
-      userId: user.id,
-      version,
-      backEndContext: { serverType: SERVER_TYPES.FACILITY },
-    });
+      if (facility) {
+        spanAttributes['session.facilityId'] = facility.id;
+      }
 
-    const spanAttributes = {
-      'enduser.id': user.id,
-      'enduser.role': user.role,
-      'session.deviceId': device.id,
-    };
-
-    if (facility) {
-      spanAttributes['session.facilityId'] = facility.id;
+      // eslint-disable-next-line no-unused-expressions
+      trace.getActiveSpan()?.setAttributes(spanAttributes);
+      context.with(
+        propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+        () => next(),
+      );
+    } catch (e) {
+      next(e);
     }
+  };
+}
 
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes(spanAttributes);
-    context.with(
-      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
-      () => next(),
-    );
-  } catch (e) {
-    next(e);
-  }
-};
+export const authMiddleware = createAuthMiddleware({ requireDeviceId: true });

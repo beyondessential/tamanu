@@ -1,30 +1,32 @@
-import { Locator, Page, expect } from '@playwright/test';
-import type { Patient } from '@tamanu/database';
-import { constructFacilityUrl } from '@utils/navigation';
 import { routes } from '@config/routes';
-import { BasePatientPage } from '../BasePatientPage';
-import { PatientVaccinePane } from './panes/PatientVaccinePane';
-import { CarePlanModal } from './modals/CarePlanModal';
-import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
-import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
-import { format } from 'date-fns';
+import { Locator, Page, expect } from '@playwright/test';
+import { constructFacilityUrl } from '@utils/navigation';
 import { fillMuiDateField } from '@utils/testHelper';
-import { NotesPane } from '../NotesPage/panes/notesPane';
-import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
-import { CreateEncounterModal } from './modals/CreateEncounterModal';
-import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
-import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
+import { format } from 'date-fns';
+
+import type { Patient } from '@tamanu/database';
 import { AllPatientsPage } from '../AllPatientsPage';
+import { BasePatientPage } from '../BasePatientPage';
+import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
+import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
 import { PatientMedicationPane } from '../MedicationsPage/panes/PatientMedicationPane';
 import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { NotesPane } from '../NotesPage/panes/notesPane';
+import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
+import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
-import { DocumentsPane } from './panes/DocumentsPane';
-import { TasksPane } from '../TaskPage/panes/TasksPane';
-import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
-import { ReferralPane } from './panes/ReferralPane';
+import { CarePlanModal } from './modals/CarePlanModal';
+import { CreateEncounterModal } from './modals/CreateEncounterModal';
 import { EditEncounterModal } from './modals/EditEncounterModal';
+import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
+import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
+import { DocumentsPane } from './panes/DocumentsPane';
+import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
+import { PatientVaccinePane } from './panes/PatientVaccinePane';
+import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -126,7 +128,10 @@ export class PatientDetailsPage extends BasePatientPage {
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton = this.page.getByRole('button', { name: 'Prepare discharge', exact: true });
+    this.prepareDischargeButton = this.page.getByRole('button', {
+      name: 'Prepare discharge',
+      exact: true,
+    });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.patientMedicationTab = this.page.getByTestId('tab-medication');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
@@ -213,9 +218,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .filter({ hasText: 'Other patient issuesAdd' })
       .getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
-    this.savedIssueType = this.page
-      .getByTestId('collapse-0a33')
-      .getByTestId('field-lwpd-select');
+    this.savedIssueType = this.page.getByTestId('collapse-0a33').getByTestId('field-lwpd-select');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
@@ -266,24 +269,57 @@ export class PatientDetailsPage extends BasePatientPage {
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
-    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
-    this.patientDetailsTab=this.page.getByTestId('tab-details');
-    this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
-    this.threeDotMenuButton=this.page.getByTestId('stylediconbutton-szh8');
-    this.editEncounterMenuItem=this.page.getByTestId('menuitem-0');
-    this.movePatientButton=this.page.getByRole('button', { name: 'Move patient' });
-    this.addDiagnosisButton=this.page.getByTestId('adddiagnosisbutton-2ij9');
-    this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
-    this.diagnosisCategory=this.page.getByTestId('category-vwwx');
-    this.diagnosisName=this.page.getByTestId('diagnosisname-vvn4');
+    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Department' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.dietLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Diet' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.locationLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Location' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
+    this.admitOrCheckinButton = this.page
+      .getByTestId('component-enxe')
+      .filter({ hasText: 'Admit or check in' });
+    this.patientDetailsTab = this.page.getByTestId('tab-details');
+    this.arrowDownIconMenuButton = this.page.getByTestId('menubutton-dc8o');
+    this.threeDotMenuButton = this.page.getByTestId('stylediconbutton-szh8');
+    this.editEncounterMenuItem = this.page.getByTestId('menuitem-0');
+    this.movePatientButton = this.page.getByRole('button', { name: 'Move patient' });
+    this.addDiagnosisButton = this.page.getByTestId('adddiagnosisbutton-2ij9');
+    this.diagnosisContainer = this.page.getByTestId('diagnosislistcontainer-dqkk');
+    this.diagnosisCategory = this.page.getByTestId('category-vwwx');
+    this.diagnosisName = this.page.getByTestId('diagnosisname-vvn4');
+  }
+
+  /**
+   * Select a patient/encounter tab reliably and wait for it to become active before
+   * returning. The encounter tabs are react-beautiful-dnd drag handles whose activation
+   * is a plain `onClick`; rbd's pointer sensor intermittently swallows a normal
+   * `.click()` as a drag-start, so the tab never switches and the pane's controls never
+   * appear — the long-standing source of flakiness in the encounter-tab specs (lab
+   * requests, notes, procedures, …). Dispatching the click event directly fires the
+   * `onClick` without the mousedown/up sequence rbd intercepts; retry until the tab
+   * reports `aria-selected="true"` to also cover the brief post-navigation window before
+   * the handler is wired up. Both tab implementations set `aria-selected` on the testid
+   * element, so this is uniform.
+   */
+  private async selectTab(tab: Locator): Promise<void> {
+    await expect(async () => {
+      await tab.dispatchEvent('click');
+      expect(await tab.getAttribute('aria-selected')).toBe('true');
+    }).toPass({ timeout: 15000, intervals: [100, 250, 500, 1000] });
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
-    await this.vaccineTab.click();
+    await this.selectTab(this.vaccineTab);
     if (!this.patientVaccinePane) {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
@@ -293,7 +329,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async navigateToProcedureTab(): Promise<ProcedurePane> {
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
-    await this.procedureTab.click();
+    await this.selectTab(this.procedureTab);
     if (!this.patientProcedurePane) {
       this.patientProcedurePane = new ProcedurePane(this.page);
     }
@@ -304,7 +340,7 @@ export class PatientDetailsPage extends BasePatientPage {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
-    await this.labsTab.click();
+    await this.selectTab(this.labsTab);
     if (!this.labRequestPane) {
       this.labRequestPane = new LabRequestPane(this.page);
     }
@@ -314,7 +350,7 @@ export class PatientDetailsPage extends BasePatientPage {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
-    await this.notesTab.click();
+    await this.selectTab(this.notesTab);
     if (!this.notesPane) {
       this.notesPane = new NotesPane(this.page);
     }
@@ -322,11 +358,11 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async navigateToVitalsTab(): Promise<void> {
-    await this.vitalsTab.click();
+    await this.selectTab(this.vitalsTab);
   }
 
   async navigateToDocumentsTab(): Promise<DocumentsPane> {
-    await this.documentsTab.click();
+    await this.selectTab(this.documentsTab);
     if (!this.documentsPane) {
       this.documentsPane = new DocumentsPane(this.page);
     }
@@ -340,7 +376,7 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async navigateToTasksTab(): Promise<TasksPane> {
-    await this.tasksTab.click();
+    await this.selectTab(this.tasksTab);
     if (!this.tasksPane) {
       this.tasksPane = new TasksPane(this.page);
     }
@@ -348,7 +384,7 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async navigateToChartsTab(): Promise<ChartsPane> {
-    await this.chartsTab.click();
+    await this.selectTab(this.chartsTab);
     if (!this.chartsPane) {
       this.chartsPane = new ChartsPane(this.page);
     }
@@ -356,22 +392,21 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async navigateToReferralsTab(): Promise<ReferralPane> {
-    await this.referralsTab.click();
+    await this.selectTab(this.referralsTab);
     if (!this.referralPane) {
       this.referralPane = new ReferralPane(this.page);
     }
     return this.referralPane;
   }
 
-
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().click();
-    await this.imagingTab.click();
+    await this.selectTab(this.imagingTab);
   }
 
   async navigateToPatientDetailsTab(): Promise<PatientDetailsTabPage> {
-    await this.patientDetailsTab.click();
+    await this.selectTab(this.patientDetailsTab);
     if (!this.patientDetailsTabPage) {
       this.patientDetailsTabPage = new PatientDetailsTabPage(this.page);
     }
@@ -386,7 +421,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async navigateToMedicationTab(): Promise<EncounterMedicationPane> {
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().click();
-    await this.encounterMedicationTab.click();
+    await this.selectTab(this.encounterMedicationTab);
     if (!this.encounterMedicationPane) {
       this.encounterMedicationPane = new EncounterMedicationPane(this.page);
     }

@@ -1,39 +1,40 @@
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import PrintIcon from '@mui/icons-material/Print';
-import { Box } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  ButtonWithPermissionCheck,
-  Button,
-  TextButton,
-  useTranslation,
-} from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
 
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
-import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
-import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
-import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
-import { NoteModalActionBlocker } from '../../../components';
-import { TabPane } from '../components';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { PRESCRIPTION_TYPES } from '../../../constants';
 import { DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
-import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
-import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
-import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
-import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
-import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
+import {
+  Button,
+  ButtonWithPermissionCheck,
+  ConditionalTooltip,
+  ThemedTooltip,
+  TranslatedText,
+  useSettings,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { useAuth } from '../../../contexts/Auth';
+import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
+import { NoteModalActionBlocker } from '../../../components';
+import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
+import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
+import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
+import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
+import { PRESCRIPTION_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
-import { useSettings } from '../../../contexts/Settings';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
 import { createPrescriptionHash } from '../../../utils/medications';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { TabPane } from '../components';
+import SendToPharmacyButton from './SendToPharmacyButton';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -44,17 +45,6 @@ const TableButtonRow = styled.div`
 const ButtonGroup = styled(Box)`
   display: flex;
   gap: 10px;
-`;
-
-const StyledTextButton = styled(TextButton)`
-  font-size: 12px;
-  font-weight: 500;
-  .MuiSvgIcon-root {
-    margin-right: 4px;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-  }
 `;
 
 const StyledButton = styled(Button)`
@@ -73,11 +63,38 @@ const TableContainer = styled.div`
   border-radius: 3px;
 `;
 
-export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
+function AddOngoingMedicationButton(props) {
+  return (
+    <IconButton color="primary" {...props}>
+      <AddMedicationIcon aria-hidden />
+      <VisuallyHidden>
+        <TranslatedText
+          stringId="medication.action.addOngoingMedications"
+          fallback="Add existing ongoing medication to encounter"
+        />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
+
+function PrintPrescriptionButton(props) {
+  return (
+    <IconButton color="primary" {...props}>
+      <PrintIcon />
+      <VisuallyHidden>
+        <TranslatedText
+          stringId="medication.action.printPrescription"
+          fallback="Print prescription"
+        />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
+
+export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
   const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
-  const { getTranslation } = useTranslation();
 
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
   const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
@@ -193,88 +210,58 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           />
         )}
         <TableButtonRow data-testid="tablebuttonrow-dl51">
-          <ButtonGroup gap={'16px'}>
+          <ButtonGroup gap={0}>
             {!!encounterPrescriptions?.length && (
               <>
                 {canImportOngoingPrescriptions && canCreatePrescription && (
-                  <StyledTextButton
-                    aria-label={getTranslation(
-                      'medication.action.addOngoingMedications',
-                      'Add existing ongoing medication to encounter',
-                    )}
-                    disabled={readonly}
-                    onClick={() => setMedicationImportModalOpen(true)}
+                  <ThemedTooltip
+                    title={
+                      <TranslatedText
+                        stringId="medication.action.addOngoingMedications"
+                        fallback="Add existing ongoing medication to encounter"
+                      />
+                    }
                   >
-                    <ThemedTooltip
-                      title={
-                        <Box width="147px" fontWeight={400}>
-                          <TranslatedText
-                            stringId="medication.action.addOngoingMedications"
-                            fallback="Add existing ongoing medication to encounter"
-                          />
-                        </Box>
-                      }
-                    >
-                      <Box display={'flex'}>
-                        <AddMedicationIcon aria-hidden />
-                      </Box>
-                    </ThemedTooltip>
-                  </StyledTextButton>
+                    <AddOngoingMedicationButton
+                      disabled={disabled}
+                      onClick={() => setMedicationImportModalOpen(true)}
+                    />
+                  </ThemedTooltip>
                 )}
                 {canOrderPrescription && (
                   <>
                     <NoteModalActionBlocker>
-                      <StyledTextButton
-                        aria-label={getTranslation(
-                          'medication.action.printPrescription',
-                          'Print prescription',
-                        )}
-                        onClick={() => setPrintMedicationModalOpen(true)}
-                        disabled={readonly}
-                        color="primary"
-                        data-testid="styledtextbutton-hbja"
+                      <ThemedTooltip
+                        title={
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
+                        }
                       >
-                        <ThemedTooltip
-                          title={
-                            <TranslatedText
-                              stringId="medication.action.printPrescription"
-                              fallback="Print prescription"
-                            />
-                          }
-                        >
-                          <Box display={'flex'}>
-                            <PrintIcon aria-hidden />
-                          </Box>
-                        </ThemedTooltip>
-                      </StyledTextButton>
+                        <PrintPrescriptionButton
+                          data-testid="styledtextbutton-hbja"
+                          disabled={disabled}
+                          onClick={() => setPrintMedicationModalOpen(true)}
+                        />
+                      </ThemedTooltip>
                     </NoteModalActionBlocker>
                     {pharmacyOrderEnabled && canRequestPharmacyOrder && (
                       <NoteModalActionBlocker>
-                        <StyledTextButton
-                          aria-label={getTranslation(
-                            'medication.action.pharmacyOrder',
-                            'Send to pharmacy',
-                          )}
-                          onClick={() => setPharmacyOrderModalOpen(true)}
-                          disabled={readonly}
-                          color="primary"
-                          data-testid="styledtextbutton-uhgj"
+                        <ThemedTooltip
+                          title={
+                            <TranslatedText
+                              stringId="medication.action.pharmacyOrder"
+                              fallback="Send to pharmacy"
+                            />
+                          }
                         >
-                          <ThemedTooltip
-                            title={
-                              <Box width="120px" fontWeight={400}>
-                                <TranslatedText
-                                  stringId="medication.action.pharmacyOrder"
-                                  fallback="Send to pharmacy"
-                                />
-                              </Box>
-                            }
-                          >
-                            <Box display={'flex'}>
-                              <SendToPharmacyIcon aria-hidden />
-                            </Box>
-                          </ThemedTooltip>
-                        </StyledTextButton>
+                          <SendToPharmacyButton
+                            data-testid="styledtextbutton-uhgj"
+                            disabled={disabled}
+                            onClick={() => setPharmacyOrderModalOpen(true)}
+                          />
+                        </ThemedTooltip>
                       </NoteModalActionBlocker>
                     )}
                   </>
@@ -285,7 +272,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           <ButtonGroup>
             {canAccessMar && (
               <StyledButton
-                disabled={readonly}
+                disabled={disabled}
                 variant="outlined"
                 color="primary"
                 onClick={handleNavigateToMar}
@@ -303,13 +290,13 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   title={
                     <TranslatedText
                       stringId="medication.action.newPrescription.tooltip"
-                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
+                      fallback="A new prescription can’t be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
                     />
                   }
                 >
                   <StyledButtonWithPermissionCheck
                     onClick={handleNewPrescription}
-                    disabled={readonly || medicationSetsLoading || isEncounterDischarged}
+                    disabled={disabled || medicationSetsLoading || isEncounterDischarged}
                     verb="create"
                     noun="Medication"
                     data-testid="styledbuttonwithpermissioncheck-cagj"
@@ -318,7 +305,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                     <TranslatedText
                       stringId="medication.action.newPrescription"
                       fallback="New prescription"
-                      data-testid="translatedtext-pikt"
                     />
                   </StyledButtonWithPermissionCheck>
                 </ConditionalTooltip>

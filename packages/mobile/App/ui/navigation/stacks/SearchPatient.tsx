@@ -24,12 +24,11 @@ const DEFAULT_FILTERS = {
   onlyShowText: false,
 };
 
-export const SearchPatientStack = ({ navigation, route }): ReactElement => {
+export const SearchPatientStack = ({ route }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const routingFrom = route?.params?.params?.from;
 
   const submitPatientFilters = (values): void => {
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
     setFilters(values);
   };
 

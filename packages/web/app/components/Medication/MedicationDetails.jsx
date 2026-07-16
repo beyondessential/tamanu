@@ -43,6 +43,7 @@ import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptio
 import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
+import { getDrugUnitLabel } from '../../utils/medications';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
 
@@ -173,7 +174,9 @@ export const MedicationDetails = ({
           />
         )
       ),
-      value: medication.quantity ?? '-',
+      value: medication.quantity != null
+        ? `${medication.quantity}${medication.dispensingUnit ? ` ${getDrugUnitLabel(medication.dispensingUnit, medication.quantity, getEnumTranslation)}` : ''}`
+        : '-',
     }
   ];
 

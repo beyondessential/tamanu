@@ -239,7 +239,6 @@ export const createEncounterPrescriptionViaApi = async (
     medicationId: string;
     route: string;
     doseAmount: number;
-    units: string;
     frequency: string;
   }> = {},
 ) => {
@@ -269,7 +268,6 @@ export const createEncounterPrescriptionViaApi = async (
     startDate: datetimeString,
     route: 'oral',
     doseAmount: 1,
-    units: 'mg',
     frequency: 'Immediately',
     ...overrides,
   };

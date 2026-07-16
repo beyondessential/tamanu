@@ -713,6 +713,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabTest: () => ({
     referenceRangeMin: null,
     referenceRangeMax: null,
+    referenceRangeText: null,
   }),
   Patient: () => {
     const sex = chance.pickone(Object.values(SEX_VALUES));
@@ -787,12 +788,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
     discontinued: false,
     endDate: null,
     idealTimes: null,
+    pharmacyNotes: null,
   }),
   User: () => ({
     email: chance.email({ length: 20 }),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
+    kind: 'user',
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),

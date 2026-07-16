@@ -113,12 +113,14 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   async generateChildTasks() {
     const { Task } = this.models;
 
-    const toProcess = await Task.count({
+    const repeatingParentTaskWhere = {
       endTime: null,
       frequencyValue: { [Op.not]: null },
       frequencyUnit: { [Op.not]: null },
       parentTaskId: null,
-    });
+    };
+
+    const toProcess = await Task.count({ where: repeatingParentTaskWhere });
     if (toProcess === 0) return;
 
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
@@ -129,29 +131,37 @@ export class GenerateRepeatingTasks extends ScheduledTask {
       );
     }
 
-    const batchCount = Math.ceil(toProcess / batchSize);
-
+    // recordCount is informational only — the loop below runs until it gets a
+    // short page, so tasks changed mid-run can't cause rows to be skipped
     log.info('Running batched generating repeating tasks', {
       recordCount: toProcess,
-      batchCount,
       batchSize,
     });
 
-    for (let i = 0; i < batchCount; i++) {
+    // Keyset pagination: paging by last seen id rather than offset so that
+    // rows leaving the filter between pages can't shift later pages
+    let lastSeenId = null;
+    let isLastPage = false;
+    while (!isLastPage) {
       const tasks = await Task.findAll({
         where: {
-          endTime: null,
-          frequencyValue: { [Op.not]: null },
-          frequencyUnit: { [Op.not]: null },
-          parentTaskId: null,
+          ...repeatingParentTaskWhere,
+          ...(lastSeenId !== null && { id: { [Op.gt]: lastSeenId } }),
         },
         include: ['designations'],
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
+      if (tasks.length === 0) return;
+
+      lastSeenId = tasks[tasks.length - 1].id;
+      isLastPage = tasks.length < batchSize;
 
       await Task.generateRepeatingTasks(tasks);
 
-      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      if (!isLastPage) {
+        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      }
     }
   }
 }

@@ -184,9 +184,10 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => {
           const range = row.normalRanges[patient?.sex];
-          const value = !range.min
-            ? '—' // em dash
-            : `${range.min}–${range.max}`; // en dash
+          const value =
+            range?.min != null && range?.max != null
+              ? `${range.min}–${range.max}`
+              : (row.rangeText ?? '—');
           return <CategoryCell data-testid="categorycell-1fi2">{value}</CategoryCell>;
         },
         sortable: false,
@@ -203,13 +204,26 @@ export const PatientLabTestsTable = React.memo(
           key: date,
           accessor: row => {
             const cellData = row.results[date];
-            const normalRange =
-              cellData?.referenceRangeMin != null || cellData?.referenceRangeMax != null
-                ? {
-                    min: cellData.referenceRangeMin,
-                    max: cellData.referenceRangeMax,
-                  }
-                : row.normalRanges[patient?.sex];
+            const hasNumericPerTestOverride =
+              cellData?.referenceRangeMin != null || cellData?.referenceRangeMax != null;
+            let effectiveNormalRange = null;
+            let effectiveRangeText = null;
+            if (hasNumericPerTestOverride) {
+              const numericRange = {
+                min: cellData.referenceRangeMin,
+                max: cellData.referenceRangeMax,
+              };
+              effectiveNormalRange = numericRange.min != null ? numericRange : null;
+            } else if (cellData?.referenceRangeText) {
+              effectiveRangeText = cellData.referenceRangeText;
+            } else {
+              const typeRange = row.normalRanges[patient?.sex];
+              if (typeRange?.min != null) {
+                effectiveNormalRange = typeRange;
+              } else {
+                effectiveRangeText = row.rangeText ?? null;
+              }
+            }
             if (cellData) {
               const isEdited = cellData.isEdited === true;
               return (
@@ -231,7 +245,8 @@ export const PatientLabTestsTable = React.memo(
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
                       validationCriteria={{
-                        normalRange: normalRange?.min != null ? normalRange : null,
+                        normalRange: effectiveNormalRange,
+                        rangeText: effectiveRangeText,
                       }}
                       isEdited={isEdited}
                       data-testid={`rangevalidatedcell-ebuf-${index}`}

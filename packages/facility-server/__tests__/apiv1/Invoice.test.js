@@ -272,4 +272,109 @@ describe('Invoice API', () => {
       expect(result.body.error.message).toContain('Only in progress invoices can be finalised');
     });
   });
+
+  describe('fixed-price charging', () => {
+    const createDrugProduct = async (overrides = {}) => {
+      const ref = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, code: `DRUG-${Date.now()}` }),
+      );
+      return models.InvoiceProduct.create(
+        fake(models.InvoiceProduct, {
+          category: INVOICE_ITEMS_CATEGORIES.DRUG,
+          sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+          sourceRecordId: ref.id,
+          ...overrides,
+        }),
+      );
+    };
+
+    it('GET /price-list-item returns the item with its charging type and product category', async () => {
+      const encounter = await createEncounter();
+      const product = await createDrugProduct();
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: product.id,
+        price: 2,
+        isFixedPrice: true,
+      });
+
+      const result = await app.get(
+        `/api/invoices/price-list-item?encounterId=${encounter.id}&productId=${product.id}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        price: '2',
+        isFixedPrice: true,
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        invoicePriceListId: priceList.id,
+      });
+    });
+
+    it('GET /price-list-item returns null when the product has no price-list item', async () => {
+      const encounter = await createEncounter();
+      const product = await createDrugProduct();
+
+      const result = await app.get(
+        `/api/invoices/price-list-item?encounterId=${encounter.id}&productId=${product.id}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toBeNull();
+    });
+
+    it('finalise snapshots isFixedPriceFinal for a fixed-price medication line', async () => {
+      const encounter = await createEncounter();
+      const product = await createDrugProduct();
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: product.id,
+        price: 2,
+        isFixedPrice: true,
+      });
+      const invoice = await createInvoice(encounter.id);
+      const invoiceItem = await createInvoiceItem(invoice.id, product.id, null, { quantity: 30 });
+
+      const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
+      expect(result).toHaveSucceeded();
+
+      const finalised = await models.InvoiceItem.findByPk(invoiceItem.id);
+      expect(finalised.isFixedPriceFinal).toBe(true);
+      expect(finalised.priceFinal).toBe('2');
+    });
+  });
+
+  describe('PUT /:id (update) transaction handling', () => {
+    it('should roll back item deletions when a later write in the update fails', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType();
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-ROLLBACK-001' });
+      const existingItem = await createInvoiceItem(
+        invoice.id,
+        invoiceProduct.id,
+        procedureType.id,
+      );
+
+      // The replacement item list omits the existing item (so it is destroyed first) and adds an
+      // item whose productId violates the invoice_items -> invoice_products foreign key, forcing
+      // the upsert to fail mid-transaction. The whole update must roll back, leaving the original
+      // item intact rather than permanently deleting it.
+      const result = await app.put(`/api/invoices/${invoice.id}`).send({
+        items: [
+          {
+            orderDate: '2024-01-01',
+            orderedByUserId: user.id,
+            productId: 'nonexistent-invoice-product',
+            quantity: 1,
+          },
+        ],
+      });
+      expect(result).not.toHaveSucceeded();
+
+      const itemsAfter = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+      expect(itemsAfter).toHaveLength(1);
+      expect(itemsAfter[0].id).toBe(existingItem.id);
+    });
+  });
 });

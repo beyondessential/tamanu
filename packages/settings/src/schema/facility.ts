@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import {
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
+  INPATIENT_BUNDLED_CATEGORY_VALUES,
 } from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
@@ -14,6 +15,7 @@ import {
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
+  fhirResourceMaterialisationSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -247,6 +249,19 @@ export const facilitySettings = {
         },
       },
     },
+    invoicing: {
+      name: 'Invoicing',
+      description: 'Settings for automatically adding fees to invoices',
+      properties: {
+        inpatientAutoInvoicingExclusions: {
+          name: 'Inpatient auto-invoicing exclusions',
+          description:
+            'Item categories excluded from automatic invoicing for admission encounters (covered by the admission fee), so they are not auto-added to an admission invoice. Still auto-added for outpatient/ER; discharge medications are always invoiced. Allowed values: imaging, lab, medication.',
+          type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
+          defaultValue: [],
+        },
+      },
+    },
     survey: {
       name: 'Survey settings',
       description: '_',
@@ -275,6 +290,37 @@ export const facilitySettings = {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
+        },
+      },
+    },
+    security: {
+      name: 'Security',
+      highRisk: true,
+      description: 'Security settings',
+      properties: {
+        requireHttps: {
+          name: 'Require HTTPS',
+          description:
+            'Reject client requests to this facility server that do not arrive over HTTPS. Overrides the global `security.requireHttps` default for this facility; leave unset to follow the global setting. Requires a TLS-terminating proxy that is listed in `proxy.trusted` and forwards the `X-Forwarded-Proto` header, otherwise all requests will be rejected. Can only be enabled from an HTTPS connection.',
+          type: yup.boolean().nullable(),
+        },
+      },
+    },
+    fhir: {
+      name: 'FHIR',
+      description: 'FHIR integration settings (facility-level overrides)',
+      highRisk: true,
+      properties: {
+        worker: {
+          name: 'FHIR worker',
+          description: 'FHIR worker settings',
+          properties: {
+            resourceMaterialisationEnabled: {
+              ...fhirResourceMaterialisationSchema,
+              infoBanner:
+                'Resource materialisation settings are merged across all facilities on this server. Enabling a resource type here will enable it server-wide, even if other facilities have it disabled.',
+            },
+          },
         },
       },
     },

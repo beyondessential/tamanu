@@ -136,6 +136,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
           data-testid="translatedtext-505w"
         />
       }
+      width={false}
       open={open}
       onClose={onClose}
       data-testid="modal-8456"

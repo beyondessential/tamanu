@@ -10,11 +10,11 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    const { schedule, results, jitterTime, enabled } =
+    const { schedule, results, jitterTime, enabled, limit } =
       overrideConfig || config.schedules.automaticLabTestResultPublisher;
     super(schedule, log, jitterTime, enabled);
     this.results = results;
-    this.limit = config.limit;
+    this.limit = limit;
     this.models = context.store.models;
     this.lastRunCount = 0;
   }

@@ -33,6 +33,7 @@ export function mockDummyUser(overrides = {}): IUser {
     email: 'user@example.com',
     displayName: 'displayName',
     role: 'practitioner',
+    kind: 'user',
     ...overrides,
   };
 }

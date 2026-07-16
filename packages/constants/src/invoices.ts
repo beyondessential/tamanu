@@ -30,6 +30,16 @@ export const INVOICE_ITEMS_CATEGORIES = {
   LAB_TEST_PANEL: 'LabTestPanel',
 };
 
+// Clinical-item categories that a facility can bundle into the inpatient admission fee
+// (so they don't auto-add for admission encounters). Procedures are never bundled.
+export const INPATIENT_BUNDLED_CATEGORIES = {
+  IMAGING: 'imaging',
+  LAB: 'lab',
+  MEDICATION: 'medication',
+} as const;
+export const INPATIENT_BUNDLED_CATEGORY_VALUES = Object.values(INPATIENT_BUNDLED_CATEGORIES);
+export type InpatientBundledCategory =
+  (typeof INPATIENT_BUNDLED_CATEGORIES)[keyof typeof INPATIENT_BUNDLED_CATEGORIES];
 export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
   [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
   [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
@@ -93,6 +103,13 @@ export const INVOICE_INSURER_PAYMENT_STATUS_LABELS = {
 
 export const INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES = {
   HIDDEN: 'hidden',
+};
+
+// Charging type per (product × price list), imported via the dedicated
+// "Invoice Price List Charging" sheet. flatFee → isFixedPrice true; perUnit → false.
+export const INVOICE_PRICE_LIST_CHARGING_VALUES = {
+  FLAT_FEE: 'flatFee',
+  PER_UNIT: 'perUnit',
 };
 
 export const AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES: string[] = [

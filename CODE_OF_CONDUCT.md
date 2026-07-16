@@ -1,4 +1,4 @@
-# BES Open Source Code of Conduct
+# BES International Open Source Code of Conduct
 
 This Code of Conduct outlines our expectations for participants within BES-managed communities, as 
 well as steps to reporting unacceptable behaviour. Our goal is to make explicit what we 

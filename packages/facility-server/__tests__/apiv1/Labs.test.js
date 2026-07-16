@@ -220,6 +220,54 @@ describe('Labs', () => {
     expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
   });
 
+  describe('sensitive test type via panel', () => {
+    // `app` uses the practitioner role, which does NOT hold `create SensitiveLabRequest`.
+    const createPanelWithTestType = async ({ isSensitive }) => {
+      const { id: labTestCategoryId } = await models.ReferenceData.create({
+        type: 'labTestCategory',
+        name: `Category ${chance.guid()}`,
+        code: chance.guid(),
+      });
+      const labTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId,
+        isSensitive,
+        availableFacilities: null,
+      });
+      const panel = await models.LabTestPanel.create({
+        name: `Panel ${chance.guid()}`,
+        code: chance.guid(),
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panel.id,
+        labTestTypeId: labTestType.id,
+      });
+      return panel;
+    };
+
+    const postPanelLabRequest = async panel => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId,
+      });
+      return app
+        .post('/api/labRequest')
+        .send({ panelIds: [panel.id], encounterId: encounter.id });
+    };
+
+    it('forbids a panel containing a sensitive test type without SensitiveLabRequest permission', async () => {
+      const panel = await createPanelWithTestType({ isSensitive: true });
+      const response = await postPanelLabRequest(panel);
+      expect(response).toBeForbidden();
+    });
+
+    it('allows a panel with only non-sensitive test types', async () => {
+      const panel = await createPanelWithTestType({ isSensitive: false });
+      const response = await postPanelLabRequest(panel);
+      expect(response).toHaveSucceeded();
+    });
+  });
+
   it('should record samples for panels', async () => {
     const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',

@@ -229,6 +229,7 @@ patientRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const patientReferrals = await models.Referral.findAll({
@@ -322,6 +323,7 @@ patientRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const { count, data } = await runPaginatedQuery(
@@ -425,6 +427,7 @@ patientRelations.get(
     lab_test_types.options AS test_options,
     lab_test_types.id AS test_type_id,
     FIRST(lab_test_types.unit) AS unit,
+    FIRST(lab_test_types.range_text) AS range_text,
     JSONB_BUILD_OBJECT(
       'male', JSONB_BUILD_OBJECT(
         'min', MIN(lab_test_types.male_min),
@@ -441,7 +444,8 @@ patientRelations.get(
         'id', lab_tests.id,
         'isEdited', COALESCE(edited_tests.is_edited, FALSE),
         'referenceRangeMin', lab_tests.reference_range_min,
-        'referenceRangeMax', lab_tests.reference_range_max
+        'referenceRangeMax', lab_tests.reference_range_max,
+        'referenceRangeText', lab_tests.reference_range_text
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}

@@ -2,8 +2,10 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { syncDatabaseServerVersion } from '@tamanu/database';
+import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
@@ -25,7 +27,7 @@ export const startApi = async ({ skipMigrationCheck }) => {
     serverVersion: version,
   });
 
-  const { server } = await createApp(context);
+  const { express, server } = await createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -33,26 +35,21 @@ export const startApi = async ({ skipMigrationCheck }) => {
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;
-  const connectionPoolSnapshotHeadroom =
-    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  // Resolve so a pool size supplied via the connection-string query is seen here too.
+  const poolMax = resolveDbConfig(config.db)?.pool?.max;
+  const connectionPoolSnapshotHeadroom = poolMax - config?.sync?.numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
       `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
-        'config.db.pool.max': config.db?.pool?.max,
+        'config.db.pool.max': poolMax,
         'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },
     );
   }
 
-  let { port } = config;
-  if (+process.env.PORT) {
-    port = +process.env.PORT;
-  }
-  server.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
-  });
+  listenForBindAddresses({ server, app: express, fallbackPort: config.port });
 
   context.onClose(() => server.close());
 

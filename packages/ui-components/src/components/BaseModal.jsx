@@ -19,14 +19,29 @@ export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
 export const MODAL_TRANSITION_DURATION = 300;
 
-/*  To keep consistent use of styled-components,
-    re-define dialog paper classes here instead of
-    through withStyles(). The global classes for each rule
-    can be found in the docs: https://material-ui.com/api/dialog/#css
-*/
+/** Pixel max-widths for each `width` prop value. `md` is intentionally below MUI's default. */
+export const MODAL_MAX_WIDTHS = {
+  xs: 444,
+  sm: 600,
+  md: 830,
+  lg: 1200,
+  xl: 1536,
+};
+
+const dialogPaperWidthStyles = Object.entries(MODAL_MAX_WIDTHS)
+  .map(
+    ([size, px]) =>
+      `.MuiDialog-paperWidth${size.charAt(0).toUpperCase()}${size.slice(1)} { max-width: ${px}px; }`,
+  )
+  .join('\n');
+
 const Dialog = styled(MuiDialog)`
-  .MuiDialog-paperWidthMd {
-    max-width: 830px;
+  ${dialogPaperWidthStyles}
+
+  // The MUI v6 dialog paper is itself a scroll container (overflow-y: auto). Let the inner
+  // ModalContainer own scrolling instead, so tall content doesn't produce a second scrollbar.
+  .MuiDialog-paper {
+    overflow: hidden;
   }
 
   @media print {
@@ -51,6 +66,9 @@ const ModalContainer = styled.div`
   background-color: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
+  // min-height: 0 lets this shrink within the flex-column paper so it (not the paper)
+  // scrolls when content is taller than the modal.
+  min-height: 0;
 
   @media print {
     background: none;
@@ -118,12 +136,15 @@ export const BaseModal = memo(
    * @param {import('@material-ui/core/Dialog').DialogProps & {
    *   actions?: React.ReactNode;
    *   printable?: boolean;
+   *   width?: keyof typeof MODAL_MAX_WIDTHS | false;
    * }} props
    */
   ({
     title,
     children,
     actions,
+    // Preset sizes use MODAL_MAX_WIDTHS. Pass `false` when a styled Modal/FormModal
+    // wrapper sets `.MuiPaper-root { max-width: … }` instead.
     width = 'sm',
     classes,
     open = false,
@@ -163,10 +184,12 @@ export const BaseModal = memo(
       }
     };
 
+    const muiMaxWidth = width in MODAL_MAX_WIDTHS ? width : false;
+
     return (
       <Dialog
         fullWidth
-        maxWidth={width}
+        maxWidth={muiMaxWidth}
         classes={classes}
         open={open}
         onClose={onDialogClose}

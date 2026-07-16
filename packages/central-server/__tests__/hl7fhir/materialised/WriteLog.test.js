@@ -16,6 +16,7 @@ jest.mock('@tamanu/constants', () => {
     ...constants,
     HTTP_BODY_DATA_PATHS: {
       DATA_LOCATION: '$.presentedForm[*].data',
+      BUNDLE_DATA_LOCATION: '$.entry[*].resource.presentedForm[*].data',
       STATUS: '$.staples',
       CODE_DISPLAY: '$.code.coding[*].display',
     },
@@ -39,7 +40,7 @@ describe(`Materialised FHIR - WriteLog`, () => {
   let FhirWriteLog;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());
@@ -257,5 +258,41 @@ describe(`Materialised FHIR - WriteLog`, () => {
           },
         ],
       });
+    }));
+
+  it('scrubs raw data in bundle entry resources', () =>
+    showError(async () => {
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'DiagnosticReport',
+              presentedForm: [
+                {
+                  language: 'en',
+                  data: 'replace this',
+                },
+              ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              value: 'keep this',
+            },
+          },
+        ],
+      };
+      const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/Bundle`).send(body);
+
+      expect(response.status).not.toBe(201);
+      const flog = await attemptFlogRetrieval(FhirWriteLog, {
+        where: { url: { [Op.like]: '%Bundle%' } },
+      });
+      expect(flog).toBeTruthy();
+      expect(flog.body.entry[0].resource.presentedForm[0].data).toEqual(SCRUBBED_DATA_MESSAGE);
+      expect(flog.body.entry[1].resource.value).toEqual('keep this');
     }));
 });

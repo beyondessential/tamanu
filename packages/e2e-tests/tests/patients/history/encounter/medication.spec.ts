@@ -38,13 +38,8 @@ test.describe('Medication - Encounter', () => {
     await firstMedSuggestion.waitFor({ state: 'visible' });
     await firstMedSuggestion.click();
 
-    // Fill dose amount
+    // Fill dose amount (dosing unit is auto-populated from the selected medication)
     await page.getByTestId('medication-field-doseAmount-3t6w').locator('input').fill('1');
-
-    // Fill units via SelectField (uses react-select; -select suffix is the clickable element)
-    await selectFieldOption(page, page.getByTestId('medication-field-units-2r9v-select'), {
-      selectFirst: true,
-    });
 
     // Fill frequency via autocomplete
     const freqInput = page.getByTestId('medication-field-frequency-4c7z-input').locator('input');

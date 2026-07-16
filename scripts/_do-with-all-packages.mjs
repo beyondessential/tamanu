@@ -22,7 +22,11 @@ function locateWorkspaces() {
   const byName = new Map();
   for (const pattern of patterns) {
     for (const dir of globSync(pattern)) {
-      const pkgPath = `./${dir}/package.json`;
+      // globSync yields OS-separator paths (backslashes on Windows); workspace
+      // paths are always posix, so normalise or downstream consumers (and Git
+      // Bash tooling that diffs against package.json's forward-slash entries)
+      // won't match.
+      const pkgPath = `./${dir.replaceAll('\\', '/')}/package.json`;
       let pkg;
       try {
         pkg = readJson(pkgPath);

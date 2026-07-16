@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useFormikContext } from 'formik';
 import { uniqBy } from 'es-toolkit/compat';
 import {
   SelectField,
@@ -12,9 +13,21 @@ import { Field } from '../../components';
 export const VaccineField = ({ name = 'vaccine', required, label, parameterValues }) => {
   const api = useApi();
   const { category } = parameterValues;
+  const { setFieldValue } = useFormikContext();
+  const previousCategory = useRef(category);
   const [vaccines, setVaccines] = useState([]);
   const [error, setError] = useState(null);
   const [isErrorDialogVisible, setIsErrorDialogVisible] = useState(false);
+
+  useEffect(() => {
+    if (previousCategory.current !== category) {
+      previousCategory.current = category;
+      // Clear the previous selection when the category changes: the select only blanks its
+      // displayed label, so without this the old category's vaccine stays in form state and is
+      // submitted with the new category.
+      setFieldValue(name, undefined);
+    }
+  }, [category, name, setFieldValue]);
 
   useEffect(() => {
     if (!category) {

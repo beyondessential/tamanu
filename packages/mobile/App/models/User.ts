@@ -37,6 +37,9 @@ export class User extends BaseModel implements IUser {
   @Column()
   role: string;
 
+  @Column({ default: 'user' })
+  kind: string;
+
   @OneToMany(() => Referral, referral => referral.practitioner)
   referrals: Referral[];
 
