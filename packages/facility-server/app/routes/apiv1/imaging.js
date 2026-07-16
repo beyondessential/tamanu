@@ -17,10 +17,6 @@ import { toDateString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
-import {
-  getImagingRequestApprovedAttribute,
-  getImagingRequestOrder,
-} from '../../utils/imagingRequestApproval';
 
 async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
@@ -453,7 +449,7 @@ globalImagingRequests.get(
           },
         },
       },
-      order: getImagingRequestOrder(orderBy, order, { literalSortKeys: ['completedAt'] }),
+      order: models.ImagingRequest.getOrder(orderBy, order, { literalSortKeys: ['completedAt'] }),
       include: [requestedBy, encounter],
       attributes: {
         include: [
@@ -467,7 +463,7 @@ globalImagingRequests.get(
           )`),
             'completedAt',
           ],
-          ...(isInvoicingEnabled ? [getImagingRequestApprovedAttribute()] : []),
+          ...(isInvoicingEnabled ? [models.ImagingRequest.getApprovedAttribute()] : []),
         ],
       },
       limit: rowsPerPage,

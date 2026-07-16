@@ -47,10 +47,6 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
-import {
-  getImagingRequestApprovedAttribute,
-  getImagingRequestOrder,
-} from '../../utils/imagingRequestApproval';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
@@ -551,12 +547,12 @@ encounterRelations.get(
     // Otherwise keep the normal list associations in a single query.
     const { count, rows } = await ImagingRequest.findAndCountAll({
       where,
-      order: getImagingRequestOrder(effectiveOrderBy, order),
+      order: ImagingRequest.getOrder(effectiveOrderBy, order),
       include: sortingByApproved
         ? ['requestedBy', { association: 'results', separate: true }]
         : ImagingRequest.getListReferenceAssociations(),
       attributes: {
-        include: [...(isInvoicingEnabled ? [getImagingRequestApprovedAttribute()] : [])],
+        include: [...(isInvoicingEnabled ? [ImagingRequest.getApprovedAttribute()] : [])],
       },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
@@ -579,8 +575,6 @@ encounterRelations.get(
         const areas = (sortingByApproved ? areasById.get(ir.id) : ir.areas) ?? [];
         return {
           ...ir.forResponse(),
-          // forResponse omits nulls; preserve approved (including null) when invoicing is on
-          ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
           areas: areas?.map(area => area.forResponse()),
           results: ir.results?.map(result => result.forResponse()) ?? [],
