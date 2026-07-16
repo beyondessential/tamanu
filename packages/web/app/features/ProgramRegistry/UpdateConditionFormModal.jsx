@@ -1,30 +1,34 @@
+import Divider from '@material-ui/core/Divider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { FORM_TYPES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import {
-  Field,
   DateDisplay,
-  ModalFormActionRow,
+  Field,
+  Form,
+  Modal,
+  RequiredOrnament,
+  TextField,
   TranslatedReferenceData,
-} from '../../components';
-import { TextField, Form, Modal, TranslatedText } from '@tamanu/ui-components';
+  TranslatedText,
+  useApi,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { ModalFormActionRow } from '../../components';
 import { Colors } from '../../constants/styles';
-import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { ConditionHistoryTable } from './ConditionHistoryTable';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
-import { useTranslation } from '../../contexts/Translation';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
-import { ConditionHistoryTable } from './ConditionHistoryTable';
-import Divider from '@material-ui/core/Divider';
-import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
-import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledFormTable = styled(FormTable)`
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-block: 1rem;
 `;
 
 const StyledTextField = styled(TextField)`
@@ -67,9 +71,8 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
     patientProgramRegistrationId,
     conditionId,
   );
-  const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
-    programRegistryId,
-  );
+  const { data: conditionCategories } =
+    useProgramRegistryConditionCategoriesQuery(programRegistryId);
 
   const handleConfirmedSubmit = async values => {
     await submit(values);
@@ -143,7 +146,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                     stringId="programRegistry.updateConditionModal.category"
                     fallback="Category"
                   />
-                  <span style={{ color: Colors.alert }}> *</span>
+                  <RequiredOrnament />
                 </span>
               ),
               width: 180,

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import { Heading4 } from '../../components';
-import { useDateTime } from '@tamanu/ui-components';
+import { RequiredOrnament, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -76,58 +76,50 @@ export const SampleDetailsField = ({
   const { setFieldValue } = useFormikContext();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
-  const HEADERS = [
-    <TranslatedText
-      key="category"
-      stringId="lab.sampleDetail.table.column.category"
-      fallback="Category"
-      data-testid="translatedtext-r56z"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectionDateTime"
-      fallback="Date & time collected"
-      data-testid="translatedtext-2dwc"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectedBy"
-      fallback="Collected by"
-      data-testid="translatedtext-xd1n"
-    />,
-    <>
-      <TranslatedText
-        key="specimentType"
-        stringId="lab.sampleDetail.table.column.specimenType"
-        fallback="Specimen type"
-        data-testid="translatedtext-tznt"
-      />
-      {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
-    </>,
-    <TranslatedText
-      key="site"
-      stringId="lab.site.label"
-      fallback="Site"
-      data-testid="translatedtext-umcq"
-    />,
-  ];
-  const WITH_PANELS_HEADERS = [
-    <TranslatedText
-      key="panel"
-      stringId="lab.sampleDetail.table.column.panel"
-      fallback="Panel"
-      data-testid="translatedtext-8f07"
-    />,
-    ...HEADERS,
-  ];
-
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {
     return initialSamples.some(sample => sample.panelId);
   }, [initialSamples]);
 
-  const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
+  const headers = useMemo(() => {
+    const columns = hasPanels
+      ? [
+          <TranslatedText
+            key="panel"
+            stringId="lab.sampleDetail.table.column.panel"
+            fallback="Panel"
+          />,
+        ]
+      : [];
+    columns.push(
+      <TranslatedText
+        key="category"
+        stringId="lab.sampleDetail.table.column.category"
+        fallback="Category"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectionDateTime"
+        fallback="Date & time collected"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectedBy"
+        fallback="Collected by"
+      />,
+      <>
+        <TranslatedText
+          key="specimentType"
+          stringId="lab.sampleDetail.table.column.specimenType"
+          fallback="Specimen type"
+        />
+        {mandateSpecimenType && <RequiredOrnament />}
+      </>,
+      <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
+    );
+    return columns;
+  }, [hasPanels, mandateSpecimenType]);
 
   useEffect(() => {
     if (samples && onSampleChange) {
