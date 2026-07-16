@@ -35,7 +35,10 @@ const StatusDisplay = React.memo(({ status }) => {
   );
 });
 
-const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
+const getDisplayName = ({ requestedBy }) =>
+  requestedBy?.displayName ?? (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
 const getPatientName = ({ encounter }) => (
   <PatientNameDisplay patient={encounter.patient} data-testid="patientnamedisplay-rwx6" />
 );
@@ -49,7 +52,12 @@ const getDate = ({ requestedDate }) => (
 const getCompletedDate = ({ completedAt }) => (
   <DateDisplay date={completedAt} timeOnlyTooltip data-testid="datedisplay-xh2e" />
 );
-const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown');
+const getPriority = ({ priority }) =>
+  priority ? (
+    capitaliseFirstLetter(priority)
+  ) : (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
