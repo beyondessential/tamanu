@@ -179,16 +179,17 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     ],
   );
 
-  const globalImagingRequestsFetchOptions = useMemo(
-    () => ({
-      ...(statuses.length > 0 ? { status: statuses } : {}),
-      ...searchParameters,
-      facilityId,
-    }),
-    [searchParameters, statuses, facilityId],
+  const fetchOptions = useMemo(
+    () =>
+      encounterId
+        ? { facilityId }
+        : {
+            ...(statuses.length > 0 ? { status: statuses } : {}),
+            ...searchParameters,
+            facilityId,
+          },
+    [encounterId, facilityId, searchParameters, statuses],
   );
-
-  const encounterImagingRequestsFetchOptions = useMemo(() => ({ facilityId }), [facilityId]);
 
   return (
     <SearchTableWithPermissionCheck
@@ -201,9 +202,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         <TranslatedText stringId="imaging.list.noData" fallback="No imaging requests found" />
       }
       onRowClick={selectImagingRequest}
-      fetchOptions={
-        encounterId ? encounterImagingRequestsFetchOptions : globalImagingRequestsFetchOptions
-      }
+      fetchOptions={fetchOptions}
       elevated={false}
       initialSort={{
         order: 'desc',
