@@ -510,6 +510,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'ImagingRequest');
+
     const {
       models: { ImagingRequest },
       params: { id: encounterId },
@@ -524,8 +526,6 @@ encounterRelations.get(
       settings,
     } = req;
     const includeNote = includeNotesStr === 'true';
-
-    req.checkPermission('list', 'ImagingRequest');
 
     const isInvoicingEnabled = await settings[req.facilityId]?.get('features.invoicing.enabled');
 
