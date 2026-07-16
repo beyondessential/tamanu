@@ -14,14 +14,25 @@ Connect over the deployment's VPN (Tailscale or Fortinet — check Canopy notes,
 see `../deployment-context.md`), then SSH:
 
 ```bash
-ssh ubuntu@<server name or IP>
+ssh ubuntu@<server name>
 ```
 
-To find a server by name/IP from Tailscale:
+### Finding the server name
 
-```bash
-tailscale status | grep <name-or-ip>
-```
+Identify the host by name, never by IP — it is too easy to end up in the wrong
+SSH session against the wrong machine.
+
+- **Primary — Bitwarden.** Deployments > _<country>_ > Prod (or Clone / Demo) >
+  Remote. That entry holds the SSH instructions for a Linux host, or the Remote
+  Desktop credentials for a Windows host. Read the name from there; document the
+  path to the credential, never the credential itself.
+- **Fallback — Tailscale (on Mac).** Tailscale menu in the top toolbar > Network
+  Devices > Tagged Devices, then find the machine in the list. You can't
+  copy-paste the name from that menu — read it and type it.
+- **If an agent with Canopy MCP access is running this:** the device name is
+  already in Canopy (`get_server` / `get_group`), so don't make the human hunt
+  for it — return the fully-filled `ssh` command. See `../deployment-context.md`
+  for the Canopy bootstrap.
 
 ## Run the doctor
 
