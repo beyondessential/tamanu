@@ -47,6 +47,10 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import {
+  getImagingRequestApprovedAttribute,
+  getImagingRequestOrder,
+} from '../../utils/imagingRequestApproval';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
@@ -510,8 +514,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { ImagingRequest } = models;
+    const { models, params, query, settings } = req;
+    const { ImagingRequest, Encounter } = models;
     const { id: encounterId } = params;
     const {
       order = 'ASC',
@@ -525,28 +529,40 @@ encounterRelations.get(
 
     req.checkPermission('list', 'ImagingRequest');
 
+    const encounter = await Encounter.findByPk(encounterId, {
+      include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
+    });
+    const facilityId = encounter?.location?.facilityId;
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
+
     const associations = ImagingRequest.getListReferenceAssociations() || [];
 
-    const baseQueryOptions = {
-      where: {
-        encounterId,
-        status: status || {
-          [Op.notIn]: [
-            IMAGING_REQUEST_STATUS_TYPES.DELETED,
-            IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-          ],
-        },
+    // Only apply approved sort when the computed attribute is available
+    const effectiveOrderBy =
+      orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
+
+    const where = {
+      encounterId,
+      status: status || {
+        [Op.notIn]: [
+          IMAGING_REQUEST_STATUS_TYPES.DELETED,
+          IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        ],
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: associations,
     };
 
     const count = await ImagingRequest.count({
-      ...baseQueryOptions,
+      where,
+      include: associations,
     });
 
     const objects = await ImagingRequest.findAll({
-      ...baseQueryOptions,
+      where,
+      order: getImagingRequestOrder(effectiveOrderBy, order),
+      include: associations,
+      attributes: {
+        include: [...(isInvoicingEnabled ? [getImagingRequestApprovedAttribute()] : [])],
+      },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
@@ -555,6 +571,8 @@ encounterRelations.get(
       objects.map(async ir => {
         return {
           ...ir.forResponse(),
+          // forResponse omits nulls; preserve approved (including null) when invoicing is on
+          ...(isInvoicingEnabled ? { approved: ir.get('approved') ?? null } : {}),
           ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
           results: ir.results.map(result => result.forResponse()),
