@@ -510,17 +510,19 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
-    const { models, params, query, settings } = req;
-    const { ImagingRequest } = models;
-    const { id: encounterId } = params;
     const {
-      order = 'ASC',
-      orderBy = 'createdAt',
-      rowsPerPage,
-      page,
-      includeNotes: includeNotesStr = 'true',
-      status,
-    } = query;
+      models: { ImagingRequest },
+      params: { id: encounterId },
+      query: {
+        includeNotes: includeNotesStr = 'true',
+        order = 'ASC',
+        orderBy = 'createdAt',
+        page,
+        rowsPerPage,
+        status,
+      },
+      settings,
+    } = req;
     const includeNote = includeNotesStr === 'true';
 
     req.checkPermission('list', 'ImagingRequest');
