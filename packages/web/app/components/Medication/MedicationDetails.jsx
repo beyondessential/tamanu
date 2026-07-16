@@ -524,16 +524,11 @@ export const MedicationDetails = ({
                           const timeB = getDateFromTimeString(b);
                           return timeA - timeB;
                         })
-                        .map(time => {
-                          return (
-                            <MidText key={time}>
-                              <TimeDisplay
-                                date={getDateFromTimeString(time)}
-                                noTooltip
-                              />
-                            </MidText>
-                          );
-                        })}
+                        .map(time => (
+                          <MidText key={time}>
+                            <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
+                          </MidText>
+                        ))}
                     </Box>
                   </DetailsContainer>
                 </Box>
