@@ -535,11 +535,8 @@ encounterRelations.get(
     const facilityId = encounter?.location?.facilityId;
     const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
-    const associations = ImagingRequest.getListReferenceAssociations() || [];
-
     // Only apply approved sort when the computed attribute is available
-    const effectiveOrderBy =
-      orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
+    const effectiveOrderBy = orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
 
     const where = {
       encounterId,
@@ -553,8 +550,16 @@ encounterRelations.get(
 
     const count = await ImagingRequest.count({
       where,
-      include: associations,
+      distinct: true,
     });
+
+    // Load has-many associations separately so limit/offset stay on ImagingRequest rows when
+    // subQuery is false (needed to ORDER BY the computed `approved` attribute).
+    const associations = [
+      'requestedBy',
+      { association: 'areas', separate: true },
+      { association: 'results', separate: true },
+    ];
 
     const objects = await ImagingRequest.findAll({
       where,
@@ -565,6 +570,7 @@ encounterRelations.get(
       },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      subQuery: false,
     });
 
     const data = await Promise.all(

@@ -943,6 +943,23 @@ describe('Imaging requests', () => {
       expect(resultDesc.body.data[1].approved).toBe(false);
       expect(resultDesc.body.data[2].id).toBe(irNoItems.id);
       expect(resultDesc.body.data[2].approved).toBeNull();
+
+      // Pagination must still work when sorting by the computed approved attribute
+      // (Sequelize subquery + limit otherwise errors or returns wrong pages)
+      const resultPage = await app.get(
+        `/api/encounter/${testEncounter.id}/imagingRequests?orderBy=approved&order=ASC&rowsPerPage=1&page=0`,
+      );
+      expect(resultPage).toHaveSucceeded();
+      expect(resultPage.body.count).toBe(3);
+      expect(resultPage.body.data).toHaveLength(1);
+      expect(resultPage.body.data[0].id).toBe(irUnapproved.id);
+
+      const resultPage2 = await app.get(
+        `/api/encounter/${testEncounter.id}/imagingRequests?orderBy=approved&order=ASC&rowsPerPage=1&page=1`,
+      );
+      expect(resultPage2).toHaveSucceeded();
+      expect(resultPage2.body.data).toHaveLength(1);
+      expect(resultPage2.body.data[0].id).toBe(irApproved.id);
     });
 
     it('should use ImagingRequest invoice item when no area invoice items exist', async () => {
