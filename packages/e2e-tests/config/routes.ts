@@ -3,6 +3,7 @@ export const routes = {
   dashboard: '/dashboard',
   patients: {
     all: '/patients/all',
+    emergency: '/patients/emergency',
     inpatients: '/patients/inpatient',
     patientDetails: '/patients/all/*',
     outpatients: '/patients/outpatient',
