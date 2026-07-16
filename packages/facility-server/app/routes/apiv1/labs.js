@@ -234,7 +234,18 @@ labRequest.get(
         },
       ),
       makeDeletedAtIsNullFilter('encounter'),
-      makeFilter(!canListSensitive, 'sensitive_labs.is_sensitive IS NULL', () => {}),
+      makeFilter(
+        !canListSensitive,
+        `NOT EXISTS (
+          SELECT 1
+          FROM lab_tests
+          INNER JOIN lab_test_types
+            ON (lab_test_types.id = lab_tests.lab_test_type_id)
+          WHERE lab_tests.lab_request_id = lab_requests.id
+            AND lab_test_types.is_sensitive IS TRUE
+        )`,
+        () => {},
+      ),
     ].filter(f => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
@@ -270,8 +281,6 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-        LEFT JOIN sensitive_labs
-          ON (sensitive_labs.id = lab_requests.id)
         ${
           isInvoicingEnabled
             ? `
@@ -304,22 +313,8 @@ labRequest.get(
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    const queryCte = `
-      WITH sensitive_labs AS MATERIALIZED (
-        SELECT lab_requests.id as id, TRUE as is_sensitive
-        FROM lab_requests
-        INNER JOIN lab_tests
-          ON (lab_requests.id = lab_tests.lab_request_id)
-        INNER JOIN lab_test_types
-          ON (lab_test_types.id = lab_tests.lab_test_type_id)
-        WHERE lab_test_types.is_sensitive IS TRUE
-        GROUP BY lab_requests.id
-      )
-    `;
-
     const countResult = await req.db.query(
       `
-      ${queryCte}
       SELECT COUNT(1) AS count ${from}
       `,
       { replacements: filterReplacements, type: QueryTypes.SELECT },
@@ -360,7 +355,6 @@ labRequest.get(
 
     const result = await req.db.query(
       `
-        ${queryCte}
         SELECT
           lab_requests.*,
           ${isInvoicingEnabled ? `lab_approval.approved AS approved,` : ''}
