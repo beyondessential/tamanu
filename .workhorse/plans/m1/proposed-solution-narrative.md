@@ -1,4 +1,4 @@
-# 2.2 Proposed solution — Overview
+# 2.2 Proposed solution: Overview
 
 _Drop-in replacement for the `>>> This part here Edwin <<<` placeholder on page 6. Sits above the existing "Features" bullets. Written in the bid's voice._
 
