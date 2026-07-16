@@ -3,13 +3,12 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
-import { addHours, set } from 'date-fns';
+import { set } from 'date-fns';
 import React, { useId, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import * as yup from 'yup';
 
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   Button,
   Field,
@@ -31,6 +30,7 @@ import { isWithinTimeSlot } from '../../../utils/medications';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { WarningModal } from '../WarningModal';
+import { getSubSlotDueAt } from './marTimeSlots';
 
 const StyledPaper = styled.div`
   background-color: ${p => p.theme.palette.background.paper};
@@ -258,6 +258,7 @@ export const GivenScreen = ({
   timeSlot,
   selectedDate,
   marId,
+  marDueAt,
   dosingUnit,
   onClose,
   prescriptionId,
@@ -297,9 +298,9 @@ export const GivenScreen = ({
       minutes: timeGiven.getMinutes(),
       seconds: timeGiven.getSeconds(),
     });
-    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToGiven({
-      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
+      dueAt:
+        marDueAt ?? toStoredDateTime(toDateTimeString(getSubSlotDueAt(timeSlot, selectedDate))),
       prescriptionId,
       dose: {
         doseAmount,
@@ -381,9 +382,7 @@ export const GivenScreen = ({
       )}
       initialValues={{
         doseAmount: Number(prescriptionDoseAmount) || '',
-        timeGiven: isPast
-          ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-          : getFacilityNowDate(),
+        timeGiven: isPast ? getSubSlotDueAt(timeSlot, selectedDate) : getFacilityNowDate(),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup
@@ -413,13 +412,14 @@ export const StatusPopper = ({
   anchorEl,
   onClose,
   timeSlot,
+  parentTimeSlot,
   selectedDate,
   marInfo,
   medication,
   isFuture,
   isPast,
 }) => {
-  const { id: marId } = marInfo || {};
+  const { id: marId, dueAt: marDueAt } = marInfo || {};
   const { doseAmount, dosingUnit, id: prescriptionId, isVariableDose } = medication || {};
   const { toStoredDateTime } = useDateTime();
 
@@ -443,11 +443,11 @@ export const StatusPopper = ({
   };
 
   const handleReasonSelect = async reasonNotGivenId => {
-    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
+      dueAt:
+        marDueAt ?? toStoredDateTime(toDateTimeString(getSubSlotDueAt(timeSlot, selectedDate))),
       prescriptionId,
     });
 
@@ -475,6 +475,7 @@ export const StatusPopper = ({
           selectedDate={selectedDate}
           dosingUnit={dosingUnit}
           marId={marId}
+          marDueAt={marDueAt}
           onClose={onClose}
           prescriptionId={prescriptionId}
           isFuture={isFuture}
@@ -492,8 +493,9 @@ export const StatusPopper = ({
   };
 
   const placement = useMemo(() => {
-    return ['00:00', '02:00', '04:00'].includes(timeSlot.startTime) ? 'right' : 'left';
-  }, [timeSlot]);
+    const windowStart = parentTimeSlot?.startTime ?? timeSlot.startTime;
+    return ['00:00', '02:00', '04:00'].includes(windowStart) ? 'right' : 'left';
+  }, [parentTimeSlot, timeSlot]);
 
   return (
     <Popper
