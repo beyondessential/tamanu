@@ -91,7 +91,7 @@ export const test = base.extend<BaseFixtures>({
     use: (arg: Awaited<ReturnType<typeof createPatient>>) => Promise<void>,
   ) => {
     const patient = await createPatient(api, page);
-    await createClinicEncounterViaApi(api, patient.id);
+    await createClinicEncounterViaApi(api, page, patient.id);
     await use(patient);
   },
 
