@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
-import MarDoseInfo from './MarDoseInfo';
+import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { useDateTime } from '@tamanu/ui-components';
 import { MarDoseButton } from './MarDoseButton';
-import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
-import { useMarDoseState } from './useMarDoseState';
+import MarDoseInfo from './MarDoseInfo';
+import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
 import TableCellButton from './TableCellButton';
+import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
+import { getShowDoseInfo } from './useMarDoseState';
 
 const TableDataCell = styled.td`
   position: relative;
@@ -32,57 +34,85 @@ const DoseInfoOverlay = styled(MarDoseInfo)`
   position: absolute;
 `;
 
-const getDosesPerSlot = frequency => {
-  const dosesPerDay = ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.dosesPerDay ?? 1;
-  return Math.max(1, Math.round(dosesPerDay / 12));
-};
-
 export const MarStatus = ({
   selectedDate,
   timeSlot,
-  marInfo,
-  previousMarInfo,
-  nextMarInfo,
+  marInfos,
+  previousWindowMarInfos,
+  nextWindowMarInfos,
   medication,
   pauseRecords,
   anchorEl,
   onAnchorElChange,
 }) => {
+  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
+    useDateTime();
+  const facilityNow = getFacilityNowDate();
+
   const isCurrentTimeSlot = useIsCurrentTimeSlot({
     startTime: timeSlot.startTime,
     endTime: timeSlot.endTime,
     selectedDate,
   });
 
-  const { doseAmount, dosingUnit, isVariableDose, showDoseInfo } = useMarDoseState({
-    selectedDate,
-    timeSlot,
-    marInfo,
-    previousMarInfo,
-    nextMarInfo,
-    medication,
-    pauseRecords,
+  const dosesPerSlot = getDosesPerSlot(medication?.frequency);
+  const subSlots = getSubSlots(timeSlot, dosesPerSlot);
+  const previousParentSlot = getParentTimeSlotForWindow(timeSlot, -1);
+  const previousWindowSubSlots =
+    previousWindowMarInfos && previousParentSlot
+      ? getSubSlots(previousParentSlot, dosesPerSlot)
+      : null;
+
+  const showDoseInfo = marInfos.some((marInfo, index) => {
+    const nextMarInfo =
+      index < marInfos.length - 1 ? marInfos[index + 1] : (nextWindowMarInfos?.[0] ?? null);
+    return getShowDoseInfo({
+      marInfo,
+      medication,
+      timeSlot: subSlots[index],
+      selectedDate,
+      nextMarInfo,
+      pauseRecords,
+      now: facilityNow,
+      toFacilityDateTime,
+      storedDateTimeToEpochMilliseconds,
+    });
   });
 
-  const dosesPerSlot = getDosesPerSlot(medication?.frequency);
+  const { doseAmount, dosingUnit, isVariableDose } = medication || {};
 
   return (
     <TableDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
       <DoseGrid>
-        {Array.from({ length: dosesPerSlot }, (_, index) => (
-          <MarDoseButton
-            key={index}
-            selectedDate={selectedDate}
-            timeSlot={timeSlot}
-            marInfo={index === 0 ? marInfo : null}
-            previousMarInfo={previousMarInfo}
-            nextMarInfo={nextMarInfo}
-            medication={medication}
-            pauseRecords={pauseRecords}
-            anchorEl={anchorEl}
-            onAnchorElChange={onAnchorElChange}
-          />
-        ))}
+        {subSlots.map((subSlot, index) => {
+          const previousMarInfo =
+            index > 0
+              ? marInfos[index - 1]
+              : (previousWindowMarInfos?.[previousWindowMarInfos.length - 1] ?? null);
+          const nextMarInfo =
+            index < marInfos.length - 1 ? marInfos[index + 1] : (nextWindowMarInfos?.[0] ?? null);
+          const previousSubSlot =
+            index > 0
+              ? subSlots[index - 1]
+              : (previousWindowSubSlots?.[previousWindowSubSlots.length - 1] ?? null);
+
+          return (
+            <MarDoseButton
+              key={subSlot.startTime}
+              selectedDate={selectedDate}
+              timeSlot={subSlot}
+              parentTimeSlot={timeSlot}
+              marInfo={marInfos[index] ?? null}
+              previousMarInfo={previousMarInfo}
+              nextMarInfo={nextMarInfo}
+              previousSubSlot={previousSubSlot}
+              medication={medication}
+              pauseRecords={pauseRecords}
+              anchorEl={anchorEl}
+              onAnchorElChange={onAnchorElChange}
+            />
+          );
+        })}
       </DoseGrid>
       {showDoseInfo && (
         <DoseInfoOverlay
@@ -94,3 +124,15 @@ export const MarStatus = ({
     </TableDataCell>
   );
 };
+
+/**
+ * Resolve an adjacent 2-hour window from the current one.
+ * @param {{ startTime: string, endTime: string }} timeSlot
+ * @param {-1 | 1} offset
+ */
+function getParentTimeSlotForWindow(timeSlot, offset) {
+  const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(
+    slot => slot.startTime === timeSlot.startTime,
+  );
+  return MEDICATION_ADMINISTRATION_TIME_SLOTS[index + offset] ?? null;
+}

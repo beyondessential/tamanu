@@ -4,11 +4,7 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import {
-  findAdministrationTimeSlotFromIdealTime,
-  getMedicationDoseDisplay,
-  getTranslatedFrequency,
-} from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
   TAMANU_COLORS,
   TranslatedReferenceData,
@@ -23,24 +19,8 @@ import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarStatus } from './MarStatus';
+import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import TableCellButton from './TableCellButton';
-
-/**
- * @param {{ dueAt: string, id?: string }[]} [medicationAdministrationRecords]
- * @param {import('@tamanu/ui-components').DateTimeContextValue['toFacilityDateTime']} toFacilityDateTime
- * @returns {({ dueAt: string, id?: string } | null)[]}
- */
-const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
-  const result = Array(MEDICATION_ADMINISTRATION_TIME_SLOTS.length).fill(null);
-  for (const record of medicationAdministrationRecords) {
-    const facilityDueAt = toFacilityDateTime(record.dueAt);
-    const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
-    if (!facilityTime) continue;
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(facilityTime).index;
-    result[windowIndex] = record;
-  }
-  return result;
-};
 
 const TableRow = styled.tr(
   props => css`
@@ -123,6 +103,13 @@ export const MarTableRow = ({
     marDate: selectedDate,
   });
 
+  const dosesPerSlot = getDosesPerSlot(frequency);
+  const recordsByWindow = mapRecordsToWindows(
+    medicationAdministrationRecords,
+    toFacilityDateTime,
+    dosesPerSlot,
+  );
+
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
@@ -170,22 +157,20 @@ export const MarTableRow = ({
             )}
           </Box>
         </TableRowHeader>
-        {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
-          (record, index, array) => (
-            <MarStatus
-              key={record?.id || index}
-              selectedDate={selectedDate}
-              timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
-              medication={medication}
-              marInfo={record}
-              previousMarInfo={array[index - 1]}
-              nextMarInfo={array[index + 1]}
-              pauseRecords={pauseRecords}
-              anchorEl={popperAnchorEl}
-              onAnchorElChange={onPopperAnchorElChange}
-            />
-          ),
-        )}
+        {recordsByWindow.map((marInfos, index) => (
+          <MarStatus
+            key={marInfos.find(r => r?.id)?.id || index}
+            selectedDate={selectedDate}
+            timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
+            medication={medication}
+            marInfos={marInfos}
+            previousWindowMarInfos={recordsByWindow[index - 1]}
+            nextWindowMarInfos={recordsByWindow[index + 1]}
+            pauseRecords={pauseRecords}
+            anchorEl={popperAnchorEl}
+            onAnchorElChange={onPopperAnchorElChange}
+          />
+        ))}
       </TableRow>
       {medicationDetailsOpen && (
         <MedicationDetails
