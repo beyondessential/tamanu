@@ -24,6 +24,19 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+// Returns every practitioner the "Discontinued by" / clinician suggesters offer. Maps to
+// { id, name } where name is the user's display name.
+export const getPractitioners = async (
+  api: APIRequestContext,
+): Promise<Array<{ id: string; name: string }>> => {
+  const url = constructFacilityUrl('/api/suggestions/practitioner/all');
+  const response = await api.get(url);
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch practitioners: ${response.status()}`);
+  }
+  return response.json();
+};
+
 // Stable reference-data id for the "Other" note type (seeded by migration on every server).
 const ENCOUNTER_NOTE_TYPE_ID = 'notetype-other';
 

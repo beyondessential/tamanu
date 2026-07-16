@@ -2,6 +2,7 @@ import { test, expect } from '../../fixtures/baseFixture';
 import {
   createPatientOngoingPrescriptionViaApi,
   getUser,
+  getPractitioners,
 } from '@utils/apiHelpers';
 import { MedicationDetailsModal } from '@pages/patients/MedicationsPage/modals/MedicationDetailsModal';
 
@@ -40,6 +41,17 @@ test.describe('Medication - Patient', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
+
+    // Changing the discontinued-by user requires another practitioner to switch to. Some
+    // environments are seeded with a single user, so skip rather than fail when there's no
+    // one else to select.
+    const practitioners = await getPractitioners(api);
+    const otherPractitioners = practitioners.filter(({ name }) => name !== currentUser.displayName);
+    test.skip(
+      otherPractitioners.length === 0,
+      'Requires a second practitioner to switch the discontinued-by user to',
+    );
+
     await createPatientOngoingPrescriptionViaApi(api, page, newPatient.id);
 
     await patientDetailsPage.goToPatient(newPatient);

@@ -3,6 +3,7 @@ import {
   createHospitalAdmissionEncounterViaAPI,
   createEncounterPrescriptionViaApi,
   getUser,
+  getPractitioners,
 } from '@utils/apiHelpers';
 import { selectFieldOption } from '@utils/fieldHelpers';
 import { MedicationDetailsModal } from '@pages/patients/MedicationsPage/modals/MedicationDetailsModal';
@@ -96,6 +97,17 @@ test.describe('Medication - Encounter', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
+
+    // Changing the discontinued-by user requires another practitioner to switch to. Some
+    // environments are seeded with a single user, so skip rather than fail when there's no
+    // one else to select.
+    const practitioners = await getPractitioners(api);
+    const otherPractitioners = practitioners.filter(({ name }) => name !== currentUser.displayName);
+    test.skip(
+      otherPractitioners.length === 0,
+      'Requires a second practitioner to switch the discontinued-by user to',
+    );
+
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
     await createEncounterPrescriptionViaApi(api, page, encounter.id);
 
