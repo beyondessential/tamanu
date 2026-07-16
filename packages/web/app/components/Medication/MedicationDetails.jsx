@@ -1,16 +1,15 @@
+import CheckSharp from '@mui/icons-material/CheckSharp';
+import Box from '@mui/material/Box';
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
 
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import CheckSharp from '@mui/icons-material/CheckSharp';
-import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
   MAX_REPEATS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -19,33 +18,36 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-
-import { TranslatedText } from '../Translation/TranslatedText';
 import {
-  TextField,
-  Form,
   Button,
-  OutlinedButton,
-  FormGrid,
   DateDisplay,
+  Field,
+  Form,
+  FormGrid,
+  NumberField,
+  OutlinedButton,
+  TextField,
   TimeDisplay,
   TimeRangeDisplay,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { CheckField, Field, NumberField } from '../Field';
-import { FormModal } from '../FormModal';
-import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api';
-import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
-import { useTranslation } from '../../contexts/Translation';
-import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { MedicationPauseModal } from './MedicationPauseModal';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
+import { Colors } from '../../constants/styles';
+import { useAuth } from '../../contexts/Auth';
 import { useEncounter } from '../../contexts/Encounter';
-import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
-import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
+import { CheckField } from '../Field';
+import { FormModal } from '../FormModal';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
+import { MedicationPauseModal } from './MedicationPauseModal';
+import { MedicationResumeModal } from './MedicationResumeModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
