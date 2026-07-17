@@ -25,7 +25,10 @@ import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  getCurrentDateTimeString,
+  instantToDateTimeStringInTimezone,
+} from '@tamanu/utils/dateTime';
 import { selectEncounterFeeCode, computeBedFeeChargeInstants } from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
@@ -501,7 +504,7 @@ export class Invoice extends Model {
       return;
     }
 
-    const { InvoiceItem, InvoiceProduct, EncounterHistory } = this.sequelize.models;
+    const { InvoiceItem, InvoiceProduct, ChangeLog } = this.sequelize.models;
     const locationSourceType = this.sequelize.models.Location.name;
 
     const chargeInstants = computeBedFeeChargeInstants({
@@ -512,18 +515,38 @@ export class Invoice extends Model {
       facilityTimeZone: (await settings.get('facilityTimeZone')) as string | null,
     });
 
-    // Load the encounter's location history once and resolve each instant in memory — the history
-    // is small (one row per ward move), so this avoids a query per night. Dates are ISO 9075
-    // strings, so string ordering is chronological.
-    const locationHistory = await EncounterHistory.findAll({
-      where: { encounterId: encounter.id },
-      order: [['date', 'ASC']],
-      attributes: ['date', 'locationId'],
+    // Reconstruct the location at each instant from the audit changelog (logs.changes) — the
+    // source of truth for encounter history. Each row is a full encounter snapshot, so its
+    // location_id is the location as of that write. `record_updated_at` (a timestamptz) is the
+    // write clock; rendered in the primary timezone it dates each ward move to when it happened,
+    // since moves are recorded as they occur. The exception is the admission itself: encounters
+    // are often recorded after the patient arrived, so the earliest row takes effect from
+    // encounter.startDate (the same anchor as the charge instants) rather than its data-entry
+    // time — otherwise backdated admission nights would fall back to the current location and be
+    // billed to a ward the patient later moved to. migrationContext is excluded so rows backfilled
+    // by data migrations (which may lack location_id) don't shadow real writes.
+    const changelogRows = await ChangeLog.findAll({
+      where: {
+        tableSchema: 'public',
+        tableName: 'encounters',
+        recordId: encounter.id,
+        migrationContext: null,
+      },
+      order: [['recordUpdatedAt', 'ASC']],
+      attributes: ['recordUpdatedAt', 'recordData'],
     });
+    const locationHistory = changelogRows.map((row, index) => ({
+      date:
+        index === 0
+          ? encounter.startDate
+          : instantToDateTimeStringInTimezone(row.recordUpdatedAt, primaryTimeZone),
+      // recordData is a JSONB encounter snapshot (typed as string on the model, object at runtime).
+      locationId: (row.recordData as unknown as Record<string, any>)?.location_id ?? null,
+    }));
     const locationIdAtInstant = (instant: string): string | null => {
       let locationId: string | null | undefined;
       for (const change of locationHistory) {
-        if (change.date > instant) break; // ascending history — no later row can precede this instant
+        if (change.date! > instant) break; // ascending history — no later row can precede this instant
         locationId = change.locationId;
       }
       return locationId ?? encounter.locationId ?? null;
