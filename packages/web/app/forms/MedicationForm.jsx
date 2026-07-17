@@ -1310,7 +1310,7 @@ export const MedicationForm = ({
               <FieldContent pt={3} pb={4}>
                 <TranslatedText
                   stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
-                  fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+                  fallback="There are fewer administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
                 />
               </FieldContent>
               <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />
