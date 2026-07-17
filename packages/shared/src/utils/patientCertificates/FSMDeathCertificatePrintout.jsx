@@ -142,7 +142,7 @@ const formatTimeAfterOnset = (totalMinutes) => {
   const minutes = Number(totalMinutes);
   if (Number.isNaN(minutes)) return '';
   // Use largest unit that divides evenly (same logic as TimeWithUnitField display)
-  const sortedByLargest = [...TIME_UNIT_OPTIONS].sort((a, b) => b.minutes - a.minutes);
+  const sortedByLargest = TIME_UNIT_OPTIONS.toSorted((a, b) => b.minutes - a.minutes);
   const option = sortedByLargest.find(o => minutes % o.minutes === 0) || TIME_UNIT_OPTIONS[0];
   const value = Math.round(minutes / option.minutes);
   const unit = option.unit;
