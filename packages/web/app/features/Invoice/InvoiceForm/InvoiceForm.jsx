@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
-import { Box, Button as MuiButton } from '@material-ui/core';
 
 import {
   Form,
@@ -10,6 +9,7 @@ import {
   FormSubmitButton,
   FormCancelButton,
   useDateTime,
+  TextButton,
 } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
@@ -26,17 +26,30 @@ import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
-const AddButton = styled(MuiButton)`
+const Table = styled.table`
+  background-color: ${p => p.theme.palette.background.paper};
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  inline-size: 100%;
   font-size: 14px;
-  text-transform: none;
-  color: ${Colors.primary};
-  position: relative;
-  top: -2px;
+  th,
+  td {
+    padding-block: 12px;
+    padding-inline: 10px;
+  }
+  th {
+    vertical-align: bottom;
+  }
+  td {
+    vertical-align: top;
+  }
+`;
 
+const AddButton = styled(TextButton).attrs({ startIcon: <Plus /> })`
+  font-size: inherit;
   .MuiButton-startIcon {
+    font-size: inherit;
+    margin-inline-end: 4px;
     width: 18px;
-    position: relative;
-    margin-right: 1px;
   }
 `;
 
@@ -56,10 +69,15 @@ const EditModalFooter = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const FormFooter = styled.div`
-  background: white;
-  padding: 8px 4px 2px;
-  border-radius: 3px;
+const FormFooter = styled(({ children, ...props }) => (
+  <tfoot {...props}>
+    <tr>
+      <td colSpan={9}>{children}</td>
+    </tr>
+  </tfoot>
+))`
+  border-end-end-radius: inherit;
+  border-end-start-radius: inherit;
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
@@ -107,9 +125,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       {
         onSuccess: () => {
           setInProgressItems([]);
-          if (onClose) {
-            onClose();
-          }
+          onClose?.();
         },
       },
     );
@@ -129,9 +145,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       },
       {
         onSuccess: () => {
-          if (onClose) {
-            onClose();
-          }
+          onClose?.();
         },
       },
     );
@@ -157,84 +171,83 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       }}
       validationSchema={invoiceFormSchema}
       render={({ submitForm, values }) => (
-        <FieldArray name="invoiceItems">
-          {formArrayMethods => {
-            return (
-              <>
-                <InvoiceItemHeader cellWidths={cellWidths} />
-                <Box>
-                  {values.invoiceItems?.map((item, index) => {
-                    // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
-                    // and the save payload are unchanged.
-                    if (isZeroedBedFeeItem(item)) return null;
-                    return (
-                      <InvoiceItemRow
-                        key={item.id}
-                        index={index}
-                        item={item}
-                        encounterId={invoice.encounterId}
-                        priceListId={invoice.priceList?.id}
-                        formArrayMethods={formArrayMethods}
-                        onUpdateInvoice={handleUpdateItem}
-                        onUpdateApproval={updateItemApproval}
-                        isFinalised={isFinalised}
-                        isCancelled={isCancelled}
-                        cellWidths={cellWidths}
-                        isEditing={isAddForm || isEditForm}
-                      />
-                    );
-                  })}
-                </Box>
-                {editable && (isReadOnlyForm || isAddForm) && (
-                  <FormFooter>
-                    <AddButton
-                      variant="text"
-                      onClick={() => {
-                        if (isReadOnlyForm) {
-                          setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                        } else {
-                          formArrayMethods.push(
-                            getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                          );
-                        }
-                      }}
-                      startIcon={<Plus />}
-                    >
-                      <TranslatedText
-                        stringId="invoice.form.action.addItem"
-                        fallback="Add item"
-                        data-testid="translatedtext-9vs0"
-                      />
-                    </AddButton>
-                  </FormFooter>
-                )}
-                {editable && (isEditForm || isAddForm) && (
-                  <EditModalFooter>
-                    <FormCancelButton
-                      style={{ marginRight: 8 }}
-                      onClick={() => {
-                        setInProgressItems([]);
-                        if (onClose) onClose();
-                      }}
-                    >
-                      Cancel
-                    </FormCancelButton>
-                    <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
-                      {isAddForm ? (
-                        <TranslatedText stringId="invoice.form.action.save" fallback="Save" />
-                      ) : (
-                        <TranslatedText
-                          stringId="invoice.form.action.saveChanges"
-                          fallback="Save changes"
+        <>
+          <Table>
+            <FieldArray name="invoiceItems">
+              {formArrayMethods => (
+                <>
+                  <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
+                  <tbody>
+                    {values.invoiceItems?.map((item, index) => {
+                      // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                      // and the save payload are unchanged.
+                      if (isZeroedBedFeeItem(item)) return null;
+                      return (
+                        <InvoiceItemRow
+                          cellWidths={cellWidths}
+                          encounterId={invoice.encounterId}
+                          formArrayMethods={formArrayMethods}
+                          index={index}
+                          isCancelled={isCancelled}
+                          isEditing={isAddForm || isEditForm}
+                          isFinalised={isFinalised}
+                          item={item}
+                          key={item.id}
+                          onUpdateApproval={updateItemApproval}
+                          onUpdateInvoice={handleUpdateItem}
+                          priceListId={invoice.priceList?.id}
                         />
-                      )}
-                    </SubmitButton>
-                  </EditModalFooter>
+                      );
+                    })}
+                  </tbody>
+                  {editable && (isReadOnlyForm || isAddForm) && (
+                    <FormFooter>
+                      <AddButton
+                        onClick={() => {
+                          if (isReadOnlyForm) {
+                            setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                          } else {
+                            formArrayMethods.push(
+                              getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                            );
+                          }
+                        }}
+                      >
+                        <TranslatedText
+                          stringId="invoice.form.action.addItem"
+                          fallback="Add item"
+                        />
+                      </AddButton>
+                    </FormFooter>
+                  )}
+                </>
+              )}
+            </FieldArray>
+          </Table>
+          {editable && (isEditForm || isAddForm) && (
+            <EditModalFooter>
+              <FormCancelButton
+                style={{ marginRight: 8 }}
+                onClick={() => {
+                  setInProgressItems([]);
+                  onClose?.();
+                }}
+              >
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              </FormCancelButton>
+              <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                {isAddForm ? (
+                  <TranslatedText stringId="invoice.form.action.save" fallback="Save" />
+                ) : (
+                  <TranslatedText
+                    stringId="invoice.form.action.saveChanges"
+                    fallback="Save changes"
+                  />
                 )}
-              </>
-            );
-          }}
-        </FieldArray>
+              </SubmitButton>
+            </EditModalFooter>
+          )}
+        </>
       )}
     />
   );

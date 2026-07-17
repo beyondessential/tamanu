@@ -557,7 +557,7 @@ export class PatientVaccinePane extends BasePatientPane {
       const filteredVaccineNames = vaccines
         .map(vaccine => vaccine.vaccineName)
         .filter((name): name is string => name !== undefined);
-      sortedVaccineNames = [...filteredVaccineNames].sort(compareAlphabetically(order));
+      sortedVaccineNames = filteredVaccineNames.toSorted(compareAlphabetically(order));
     } else if (sortBy === 'date') {
       sortedVaccineNames = vaccines
         .filter(

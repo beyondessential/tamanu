@@ -565,54 +565,76 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { ImagingRequest } = models;
-    const { id: encounterId } = params;
-    const {
-      order = 'ASC',
-      orderBy = 'createdAt',
-      rowsPerPage,
-      page,
-      includeNotes: includeNotesStr = 'true',
-      status,
-    } = query;
-    const includeNote = includeNotesStr === 'true';
-
     req.checkPermission('list', 'ImagingRequest');
 
-    const associations = ImagingRequest.getListReferenceAssociations() || [];
-
-    const baseQueryOptions = {
-      where: {
-        encounterId,
-        status: status || {
-          [Op.notIn]: [
-            IMAGING_REQUEST_STATUS_TYPES.DELETED,
-            IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-          ],
-        },
+    const {
+      models: { ImagingRequest },
+      params: { id: encounterId },
+      query: {
+        includeNotes: includeNotesStr = 'true',
+        order = 'ASC',
+        orderBy = 'createdAt',
+        page,
+        rowsPerPage,
+        status,
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: associations,
+      settings,
+    } = req;
+    const includeNote = includeNotesStr === 'true';
+
+    const isInvoicingEnabled = await settings[req.facilityId]?.get('features.invoicing.enabled');
+
+    // Only apply approved sort when the computed attribute is available
+    const effectiveOrderBy = orderBy === 'approved' && !isInvoicingEnabled ? 'createdAt' : orderBy;
+    const sortingByApproved = effectiveOrderBy === 'approved';
+
+    const where = {
+      encounterId,
+      status: status || {
+        [Op.notIn]: [
+          IMAGING_REQUEST_STATUS_TYPES.DELETED,
+          IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        ],
+      },
     };
 
-    const count = await ImagingRequest.count({
-      ...baseQueryOptions,
-    });
-
-    const objects = await ImagingRequest.findAll({
-      ...baseQueryOptions,
+    // When sorting by the computed `approved` attribute, subQuery must be false so ORDER BY
+    // works with limit. Omit BelongsToMany `areas` from that query (separate is HasMany-only;
+    // a join would make limit count area rows) and load areas in a follow-up instead.
+    // Otherwise keep the normal list associations in a single query.
+    const { count, rows } = await ImagingRequest.findAndCountAll({
+      where,
+      order: ImagingRequest.getOrder(effectiveOrderBy, order),
+      include: sortingByApproved
+        ? ['requestedBy', { association: 'results', separate: true }]
+        : ImagingRequest.getListReferenceAssociations(),
+      attributes: {
+        include: [...(isInvoicingEnabled ? [ImagingRequest.getApprovedAttribute()] : [])],
+      },
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      distinct: true,
+      ...(sortingByApproved ? { subQuery: false } : {}),
     });
 
+    // BelongsToMany getters ignore setDataValue; keep areas from this query for the response
+    const areasById = new Map();
+    if (sortingByApproved && rows.length > 0) {
+      const withAreas = await ImagingRequest.findAll({
+        where: { id: { [Op.in]: rows.map(ir => ir.id) } },
+        include: ['areas'],
+      });
+      for (const ir of withAreas) areasById.set(ir.id, ir.areas ?? []);
+    }
+
     const data = await Promise.all(
-      objects.map(async ir => {
+      rows.map(async ir => {
+        const areas = (sortingByApproved ? areasById.get(ir.id) : ir.areas) ?? [];
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map(a => a.forResponse()),
-          results: ir.results.map(result => result.forResponse()),
+          areas: areas?.map(area => area.forResponse()),
+          results: ir.results?.map(result => result.forResponse()) ?? [],
         };
       }),
     );

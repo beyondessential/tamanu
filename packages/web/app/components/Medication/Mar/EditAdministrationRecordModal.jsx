@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
   ConfirmCancelRow,
@@ -21,7 +22,6 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { FormModal } from '../../FormModal';
 import {
   useNotGivenInfoMarMutation,
   useUpdateDoseMutation,
@@ -29,8 +29,9 @@ import {
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
 import { useEncounter } from '../../../contexts/Encounter';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { isWithinTimeSlot } from '../../../utils/medications';
 import { TimePickerField } from '../../Field/TimePickerField';
+import { FormModal } from '../../FormModal';
 import { WarningModal } from '../WarningModal';
 import { MarInfoPane } from './MarInfoPane';
 

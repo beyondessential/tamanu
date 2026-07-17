@@ -9,3 +9,4 @@ export * from './PatientSearchBar';
 export * from './BedManagementSearchBar';
 export * from './UserSearchBar';
 export * from './MedicationDispensesSearchBar';
+export * from './TriageSearchBar';

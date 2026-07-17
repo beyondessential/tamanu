@@ -379,7 +379,6 @@ export const MarStatus = ({
             </IconWrapper>
           );
         }
-        if (!dosingUnit) return null;
         if (isVariableDose) {
           return (
             <DoseInfo>
@@ -387,15 +386,10 @@ export const MarStatus = ({
             </DoseInfo>
           );
         }
+        if (!dosingUnit) return null;
         return (
           <DoseInfo>
-            <div>
-              {isVariableDose ? (
-                <TranslatedText stringId="medication.table.variable" fallback="Variable" />
-              ) : (
-                doseAmount
-              )}
-            </div>
+            <div>{doseAmount}</div>
             <div>{dosingUnit ? getEnumTranslation(DRUG_UNIT_SHORT_LABELS, dosingUnit) : ''}</div>
           </DoseInfo>
         );

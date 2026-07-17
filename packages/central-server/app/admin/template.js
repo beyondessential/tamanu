@@ -1,8 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, ValidationError } from 'sequelize';
+import { Op } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { EditConflictError } from '@tamanu/errors';
 import { simpleGetList, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const templateRoutes = express.Router();
@@ -18,12 +19,19 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const conflictingRecords = await req.models.Template.count({
-    where: { name, id: { [Op.ne]: id ?? null } },
+  // When you “delete” a template via Admin Panel, it actually just sets the `visibility_status` to
+  // ‘historical’. Enforce uniqueness amongst non-“deleted” templates.
+  const conflictingRecord = await req.models.Template.findOne({
+    where: {
+      name,
+      id: { [Op.ne]: id ?? null },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+    attributes: ['id'], // Arbitrary projection, just checking existence
   });
 
-  if (conflictingRecords) {
-    throw new ValidationError('Template name must be unique');
+  if (conflictingRecord) {
+    throw new EditConflictError('Template name must be unique');
   }
 
   next();

@@ -358,8 +358,8 @@ describe('Note', () => {
       const otherNotes = returnedRecords.slice(firstNonTreatment);
       const otherDates = otherNotes.map((x) => x.revisedBy?.date || x.date);
 
-      expect(treatmentDates).toEqual([...treatmentDates].sort().reverse());
-      expect(otherDates).toEqual([...otherDates].sort().reverse());
+      expect(treatmentDates).toEqual(treatmentDates.toSorted().reverse());
+      expect(otherDates).toEqual(otherDates.toSorted().reverse());
     });
 
     it('should filter notes correctly when they have revisions', async () => {
