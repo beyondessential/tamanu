@@ -144,12 +144,21 @@ labRequest.get(
   '/',
   asyncHandler(async (req, res) => {
     const {
-      models: { LabRequest },
+      models: { LabRequest, LabTestType },
       query,
       settings,
     } = req;
     req.checkPermission('list', 'LabRequest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    // With no sensitive test types (most deployments) the anti-join below is vacuous, so skip
+    // it. paranoid: false mirrors the raw filter, which doesn't exclude soft-deleted types.
+    const mustExcludeSensitive =
+      !canListSensitive &&
+      (await LabTestType.findOne({
+        where: { isSensitive: true },
+        attributes: ['id'],
+        paranoid: false,
+      })) !== null;
 
     const {
       order = 'ASC',
@@ -235,7 +244,7 @@ labRequest.get(
       ),
       makeDeletedAtIsNullFilter('encounter'),
       makeFilter(
-        !canListSensitive,
+        mustExcludeSensitive,
         `NOT EXISTS (
           SELECT 1
           FROM lab_tests
