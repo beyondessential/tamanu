@@ -1,28 +1,33 @@
+import MuiDivider from '@material-ui/core/Divider';
+import Add from '@mui/icons-material/Add';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import MuiDivider from '@material-ui/core/Divider';
-import Add from '@mui/icons-material/Add';
+
+import { FORM_TYPES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import {
+  Button,
   DateDisplay,
   DateField,
   Field,
-  Heading5,
-  TranslatedText,
+  Form,
+  RequiredOrnament,
+  TextButton,
+  TextField,
   TranslatedReferenceData,
-} from '../../components';
-import { TextField, Form, Button, TextButton } from '@tamanu/ui-components';
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { Colors } from '../../constants/styles';
-import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
-import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
-import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
-import { FormTable } from './FormTable';
-import { useTranslation } from '../../contexts/Translation';
-import { optionalForeignKey } from '../../utils/validation';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
+import { Heading5 } from '../../components';
+import { Colors } from '../../constants/styles';
+import { optionalForeignKey } from '../../utils/validation';
 import { ConditionHistoryModal } from './ConditionHistoryModal';
+import { FormTable } from './FormTable';
+import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
+import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
+import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -99,23 +104,26 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
-    const group = Object.entries(groupMapping).find(([, conditions]) =>
-      conditions.includes(programRegistryConditionCategory.code),
-    )?.[0] || 'confirmedSection';
-    if (group) {
-      groupedData[group].push({
-        id,
-        conditionId: programRegistryCondition.id,
-        name: programRegistryCondition.name,
-        date,
-        conditionCategoryId: programRegistryConditionCategory.id,
-        conditionCategoryName: programRegistryConditionCategory.name,
-        programRegistryId: programRegistryConditionCategory.programRegistryId,
-        history,
-      });
-    }
-  });
+  rows.forEach(
+    ({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
+      const group =
+        Object.entries(groupMapping).find(([, conditions]) =>
+          conditions.includes(programRegistryConditionCategory.code),
+        )?.[0] || 'confirmedSection';
+      if (group) {
+        groupedData[group].push({
+          id,
+          conditionId: programRegistryCondition.id,
+          name: programRegistryCondition.name,
+          date,
+          conditionCategoryId: programRegistryConditionCategory.id,
+          conditionCategoryName: programRegistryConditionCategory.name,
+          programRegistryId: programRegistryConditionCategory.programRegistryId,
+          history,
+        });
+      }
+    },
+  );
   Object.keys(groupedData).forEach(group => {
     groupedData[group].sort((a, b) => a.name?.localeCompare(b?.name));
   });
@@ -170,9 +178,7 @@ export const RelatedConditionsForm = ({
         // 2. The category has changed
         const initialCategory = initialCondition?.conditionCategoryId;
         const newCategory = condition.conditionCategoryId;
-        return (
-          !initialCondition || initialCategory !== newCategory
-        );
+        return !initialCondition || initialCategory !== newCategory;
       });
 
     await onSubmit({ ...data, conditions: updatedConditions });
@@ -233,8 +239,9 @@ export const RelatedConditionsForm = ({
                 return (
                   <span
                     style={{
-                      textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                      textDecoration: isRecordedInError(conditionCategoryId)
+                        ? 'line-through'
+                        : 'none',
                     }}
                   >
                     <TranslatedReferenceData
@@ -303,7 +310,7 @@ export const RelatedConditionsForm = ({
                   stringId="programRegistry.updateConditionModal.dateAdded"
                   fallback="Date added"
                 />
-                <span style={{ color: Colors.alert }}> *</span>
+                <RequiredOrnament />
               </span>
             ),
             accessor: ({ date, conditionCategoryId }, groupName, index) => {
@@ -313,8 +320,9 @@ export const RelatedConditionsForm = ({
                   <DateDisplay
                     date={trimToDate(date)}
                     style={{
-                      textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                      textDecoration: isRecordedInError(conditionCategoryId)
+                        ? 'line-through'
+                        : 'none',
                     }}
                   />
                 );
@@ -337,7 +345,7 @@ export const RelatedConditionsForm = ({
                   stringId="programRegistry.updateConditionModal.category"
                   fallback="Category"
                 />
-                <span style={{ color: Colors.alert }}> *</span>
+                <RequiredOrnament />
               </span>
             ),
             width: 180,

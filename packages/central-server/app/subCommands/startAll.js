@@ -12,6 +12,13 @@ import { startTasks } from './startTasks';
 export const serveAll = async ({ skipMigrationCheck }) => {
   log.info(`Starting Tamanu Central version ${pkg.version}`);
 
+  // Running the api, two fhir workers and the tasks runner in one process means
+  // each of them, plus each database connection (one per app type and two
+  // reporting stores), registers its own SIGINT/SIGTERM shutdown handler —
+  // legitimately exceeding the default limit of 10. In production these run as
+  // separate processes, so this only applies here.
+  process.setMaxListeners(20);
+
   if (process.env.MIGRATE_ON_STARTUP === 'true') {
     const { store } = await new ApplicationContext().init({
       appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,

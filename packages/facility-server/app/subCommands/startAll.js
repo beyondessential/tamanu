@@ -67,6 +67,13 @@ async function startAll({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
+  // Running the api/sync/tasks context and two fhir workers in one process
+  // means each registers its own SIGINT/SIGTERM shutdown handler, as does each
+  // database connection (one per context and two reporting stores) — close
+  // enough to the default limit of 10 to risk spurious warnings. In production
+  // the fhir workers run as separate processes, so this only applies here.
+  process.setMaxListeners(20);
+
   const context = await new ApplicationContext().init({ appType: 'api' });
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
   await context.initReportingStores();

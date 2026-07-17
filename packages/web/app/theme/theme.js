@@ -103,7 +103,6 @@ const themeConfig = {
   },
   typography: {
     useNextVariants: true,
-    fontSize: 15,
     fontFamily: 'Roboto',
   },
   shape: { borderRadius: 3 },
