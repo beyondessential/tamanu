@@ -43,26 +43,34 @@ Work central-side. Open psql on central read-only (`../sops/connect-psql.md`).
 Replace the placeholder display IDs with the real imaging request / patient NHN
 the facility gave you (see `../reference/id-vs-display-id.md`).
 
-### 3.1 Sync health (facility to central)
-
-An imaging request must sync to central before it can be materialised.
-**[diagnose]**
+**If you were not given a specific example request**, don't stall. Diagnose the
+**general** faults first (sync health, the FHIR queue, a starving `MediciReport`
+job — below); many issues surface without a named request. If nothing general
+turns up, **ask the reporter for a recent example** to trace. Failing that, pick
+your own example: query `imaging_requests` for the most recent request and
+investigate using it. If it could be a sync issue, run that query on the
+**facility server** too (the request may exist facility-side but not yet
+centrally). **[diagnose]**
 
 ```sql
-SELECT start_time,
-       snapshot_completed_at - start_time AS snapshot_duration,
-       completed_at - start_time          AS full_duration,
-       errors IS NOT NULL                 AS is_error,
-       parameters->'facilityIds'->>0      AS facility_id
-FROM sync_sessions
-ORDER BY updated_at DESC
-LIMIT 10;
+-- most recent imaging request to use as an example
+SELECT id, display_id, status, imaging_type, requested_date, encounter_id,
+       created_at, updated_at
+FROM imaging_requests
+ORDER BY created_at DESC
+LIMIT 5;
 ```
+
+### 3.1 Sync health (facility to central)
+
+An imaging request must sync to central before it can be materialised. Run the
+**Sync health** queries in `../reference/query-cookbook.md` (recent sessions /
+last errors) — the single source of truth; don't inline a copy here.
+**[diagnose]**
 
 Healthy = recent sessions have `completed_at` populated and `errors IS NULL`. If
 sync is failing, go to the sync runbooks (`sync-facility-stale.md`,
-`sync-restart-loop.md`) first. See the full sync-health cookbook in
-`../reference/query-cookbook.md`.
+`sync-restart-loop.md`) first.
 
 ### 3.2 Current state of the imaging request
 
@@ -116,6 +124,12 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 No row = it never materialised (go to 3.4). Row with `resolved = false` =
 unresolved references (patient/encounter not materialised yet).
 
+The shared checks — whether the materialisation worker is on, and how to tell
+imaging (RIS/PACS) traffic from lab (SENAITE) traffic given **both** use FHIR
+`ServiceRequest` (by user-agent, or the presence of `Specimen`-endpoint requests;
+note the `mSupply` user-agent caveat) — are in `../reference/query-cookbook.md` →
+**FHIR ServiceRequest materialisation investigation**. Not duplicated here.
+
 ### 3.4 FHIR job queue — for this request and overall
 
 Jobs for this request. **[diagnose]** Note the join casts the JSON text to uuid
@@ -133,14 +147,9 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID'
 ORDER BY j.created_at DESC;
 ```
 
-Whether the worker is stuck in general: **[diagnose]**
-
-```sql
-SELECT topic, status, COUNT(*)
-FROM fhir.jobs
-GROUP BY topic, status
-ORDER BY topic, status;
-```
+Whether the worker is stuck in general (queue depth / by-topic-and-status shape):
+use the **FHIR queue depth** queries in `../reference/query-cookbook.md` — the
+single source of truth, not inlined here. **[diagnose]**
 
 Is a long-running `MediciReport` job occupying the queue (the classic Aspen
 cause)? Look for `Started` jobs and how long they have been running:
@@ -230,19 +239,28 @@ processed the request yet, or it is not reading the `ServiceRequest`.
 
 ## 5. Resolve
 
-The source docs describe how to **detect** a starved queue but never state the
-unblock/resolve inline. The steps below are written here and marked
-**`[inferred — dev to confirm]`** where the source does not state them.
+Steps marked **`[inferred — dev to confirm]`** are written here where the source
+does not state them; the bump-priority mitigation below is confirmed working in
+practice.
 
-- **Queue starved by a long-running `MediciReport` job.** The imaging jobs are
-  waiting behind it. `[inferred — dev to confirm]`: prefer to let the Medici job
-  finish if it is genuinely progressing; if it is wedged, restart the FHIR
-  workers so the queue is re-driven — `bestool restart fhir` (or on Linux
+- **Queue starved by a long-running `MediciReport` job (the classic case).** The
+  `MediciReport` materialisation jobs cause major delays to the other record types
+  queued behind them — imaging/lab `ServiceRequest` jobs can sit 30–60 minutes.
+  This is often left to self-resolve (and usually surfaces via alerts rather than
+  a direct complaint), but the working mitigation is to **bump the priority of the
+  stuck jobs** so they jump ahead of the Medici work. It is a low-risk,
+  single-column mutation — **[approved-mitigation]** (pre-signed here). The
+  bump-priority query and its decision rule live in `fhir-queue-backlog.md` §5
+  (the shared FHIR-queue resolution); confirm the value against
+  `packages/constants/src/jobs.ts` (`JOB_PRIORITIES`) before running.
+- **Queue wedged rather than merely slow.** Prefer to let a genuinely-progressing
+  Medici job finish; if it is wedged, restart the FHIR workers so the queue is
+  re-driven — `bestool tamanu restart fhir` (or on Linux
   `sudo systemctl restart tamanu-central-fhir-{refresh,resolve}`).
-  **[approved-mitigation]** (restarting FHIR workers is pre-signed here, as in the
-  SENAITE runbook). See `../sops/restart-services.md`. Do **not**
-  `TRUNCATE fhir.jobs` to force it — that is **[ruled-out]**
-  (`../ruled-out-actions.md`); only a developer decides that with context.
+  **[approved-mitigation]** (pre-signed, as in the SENAITE runbook). See
+  `../sops/restart-services.md`. Do **not** `TRUNCATE fhir.jobs` to force it — that
+  is escalate-only **[dev-OTS]**, a developer call with context
+  (`../ruled-out-actions.md`, `../sops/disable-fhir-jobs.md`).
 
 - **Materialisation disabled.** Turn on `integrations.fhir.enabled`,
   `integrations.fhir.worker.enabled`, and

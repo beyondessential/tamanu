@@ -6,6 +6,13 @@ Workhorse support skill reads this file to learn how to do it for Tamanu.
 
 All steps here are **[diagnose]** (read-only) unless noted.
 
+> Config is moving. Where these docs name a `config` key (e.g. `primaryTimeZone`,
+> `integrations.fhir.*`), be aware configuration is migrating to DB-backed
+> **settings** — and in some cases **environment variables** — via an in-flight
+> change (Daniel's PR, `[inferred]` reference). Verify a key's **current** home
+> (settings admin panel / ENV / config file) before assuming it lives in
+> `config`; the config path may be stale on newer versions.
+
 ## Identify the deployment and read its state via Canopy
 
 Use the Canopy MCP. It is read-only; nothing here mutates anything.
@@ -74,18 +81,22 @@ investigation; **never attempt to write or update them through the MCP.**
 
 Examples of what lives in notes:
 
-- **SENAITE user override** — at some sites the SENAITE integration user is
-  deliberately configured differently. At Palau, the SENAITE integration user is
-  set to `mSupply`. A generic "check the integration user is SENAITE" step would
-  wrongly flag Palau as broken. Always check the deployment's notes before
-  treating an unexpected integration user as a fault.
+- **Integration user-agent override** — in older deployments all integrations
+  were configured with the **same** user-agent, confusingly `mSupply` (the LMIS
+  Tamanu integrates with, not the lab/imaging system). So the SENAITE (or
+  RIS/PACS) caller can appear as `mSupply`. This is known at more than one site,
+  not just Palau. A generic "check the integration user is SENAITE" step would
+  wrongly flag those deployments as broken. Always check the deployment's notes
+  before treating an unexpected integration user-agent as a fault.
 - **VPN access method** — see below.
 
 ## VPN access
 
-Access to a deployment's servers is over a VPN, which is either **Tailscale** or
-**Fortinet** depending on the deployment. This is recorded per-deployment in
-Canopy notes. Check the notes to know which one to use before trying to connect.
+Access to a deployment's servers is over a VPN. Assume **Tailscale** — it is the
+access path for essentially every deployment. The one exception is **MSF**, which
+uses a different VPN. `[pending — Félix to confirm]` the exact MSF mechanism
+(believed to be Fortinet). If a deployment's Canopy notes record a different
+method, follow the notes; otherwise assume Tailscale.
 
 Once on the VPN, on Linux hosts you typically `ssh ubuntu@<server>`; see
 `reference/maintain-tamanu-on-linux.md` for the frontline host workflow.

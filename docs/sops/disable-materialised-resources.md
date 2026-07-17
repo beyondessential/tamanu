@@ -8,6 +8,11 @@ changes integration behaviour, so it is **[dev-OTS]**.
 Read `../ruled-out-actions.md` first. Turning materialisation off for a resource
 an integration *does* rely on will silently break that integration.
 
+> Config is moving to settings/ENV (an in-flight change — Daniel's PR,
+> `[inferred]` reference). The `config` keys named below may now live in DB-backed
+> settings or environment variables on newer versions — verify a key's current
+> location before assuming it is in `config`.
+
 ## What controls materialisation
 
 Three layers, all on central:

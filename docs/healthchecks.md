@@ -16,14 +16,6 @@ For how checks translate into issues, incidents and Slack posts (severity
 ceilings, silencing, snoozing, the `PASS`/`FAIL`/`WARN`/`SKIP`/`BRKN` states),
 see Canopy's own healthcheck settings and documentation.
 
-## Legacy doc migration
-
-The legacy "Doctor Healthchecks and Solves" Slab doc should be **migrated into
-Canopy's per-check documentation** (authored in the Canopy web UI), not copied
-into this repository. Until that migration is complete the Slab doc remains the
-fallback, but new and corrected solve text belongs in Canopy so
-`get_check_documentation` stays the single source of truth.
-
 ## Check-to-runbook map
 
 When a check fails, first read its Canopy documentation for the solve. If the

@@ -8,6 +8,12 @@ navigable set of documents.
 This README is the generated navigation for the pack. It is not itself a
 procedure; it points at the procedures.
 
+**Read the source when you need to.** These docs are a starting point, not the
+whole truth. This is the Tamanu monorepo — you are welcome (encouraged) to read
+the actual source code for more detail, to confirm a query or config key against
+what the code really does, and to ground any non-standard investigation step
+before suggesting it. Prefer a fact checked against the code over an assumption.
+
 ## Structure
 
 The pack is made of four kinds of document:

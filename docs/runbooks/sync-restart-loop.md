@@ -52,8 +52,11 @@ Central-side, read-only psql (`../sops/connect-psql.md`). **[diagnose]**
   diagnostic steps ("consult sync_sessions errors / the facility sync log"); the
   remediation depends entirely on the specific error, so there is no single signed
   resolve step.
-- **fkey conflicts in the error** point at a restore skew — go to
-  `facility-restored-from-backup.md`.
+- **fkey conflicts in the error** show up from time to time, but are **almost
+  never** due to restore skew — restores are rare. Only chase
+  `facility-restored-from-backup.md` if a restore is actually confirmed (Canopy
+  notes / the deployment's change record). Otherwise treat the fkey conflict as
+  its own error and diagnose it from the session error, not as a restore.
 
 ## 6. Escalate
 

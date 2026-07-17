@@ -28,17 +28,9 @@ Which deployment (central), version, local time, Canopy notes —
 
 Central-side, read-only psql (`../sops/connect-psql.md`). **[diagnose]**
 
-Queue depth (queued/running, excluding errored):
-
-```sql
-SELECT count(*) FROM fhir.jobs WHERE status != 'Errored';
-```
-
-Queue by topic and status (shape of the backlog):
-
-```sql
-SELECT topic, status, COUNT(*) FROM fhir.jobs GROUP BY topic, status ORDER BY topic, status;
-```
+Queue depth and the by-topic/status shape of the backlog: use the **FHIR queue
+depth** queries in `../reference/query-cookbook.md` (the single source of truth —
+don't inline a second copy here).
 
 Is one long-running job starving the rest (e.g. a `MediciReport` refresh)? See
 the `Started`-jobs query in `rispacs-imaging-not-received.md` §3.4 — this is the
@@ -92,26 +84,48 @@ lets jobs pile up (`packages/central-server/config/default.json5`).
 
 ## 5. Resolve
 
-- **Drain the queue — restart the FHIR workers.** `bestool restart fhir` (or on
-  Linux `sudo systemctl restart tamanu-central-fhir-{refresh,resolve}`).
-  **[approved-mitigation]** (pre-signed, as in the SENAITE runbook). See
-  `../sops/restart-services.md`.
-- **Worker off while FHIR is on (`fhir_config`).** Bring the worker up and
-  reconcile the process set with `bestool tamanu start`. **[dev-OTS]** (config +
-  process change; `../sops/restart-services.md`).
-- **FHIR not in use on this deployment and the queue is junk.** Emptying
-  `fhir.jobs`, or disabling the refresh triggers, is **not** a first-line action:
-  `TRUNCATE fhir.jobs` and mass `DISABLE TRIGGER fhir_refresh` are **[ruled-out]**
-  for support and done only by a developer with context — see
-  `../sops/disable-fhir-jobs.md` and `../ruled-out-actions.md`.
-- **Stop specific resources materialising** (e.g. to shed load from a resource an
-  integration does not need): `../sops/disable-materialised-resources.md`
-  **[dev-OTS]**.
+**Decision rule (when the queue backs up).** Work top to bottom; stop at the
+first that applies. The theme: keep the queue draining, never empty it self-serve.
 
-`[inferred — dev to confirm]`: the cheat sheet and healthcheck solve give the
-diagnostic queries and the restart, but do not state a decision rule for *when*
-emptying vs restarting is appropriate — treat emptying/disabling as a developer
-call and prefer the worker restart.
+1. **Bump the priority of the stuck jobs.** If specific jobs are stuck behind a
+   long-running or bulk job (the classic case: a `MediciReport` refresh starving
+   imaging/lab `ServiceRequest` jobs — see
+   `rispacs-imaging-not-received.md`), raise their priority so they jump the
+   queue. This is the known-working mitigation and is a low-risk, single-column
+   mutation. **[approved-mitigation]** (pre-signed here):
+
+   ```sql
+   -- read/write mode: bestool tamanu psql -W
+   UPDATE fhir.jobs
+   SET priority = <higher-number>
+   WHERE id IN (<stuck-job-ids>);
+   commit;
+   ```
+
+   Confirm the priority column and value range against
+   `packages/constants/src/jobs.ts` (`JOB_PRIORITIES`) before running; missing
+   resource jobs are deliberately enqueued `LOW`, so a bump moves them ahead.
+
+2. **Let it drain.** If the queue is deep but jobs are progressing and not
+   erroring, it is a transient backlog — leave it to drain (optionally speed it up
+   with a worker restart). **[diagnose]** / **[approved-mitigation]**.
+
+3. **Restart the FHIR workers.** `bestool tamanu restart fhir` (or on Linux
+   `sudo systemctl restart tamanu-central-fhir-{refresh,resolve}`) to re-drive a
+   wedged queue. **[approved-mitigation]** (pre-signed). See
+   `../sops/restart-services.md`.
+
+4. **Worker off while FHIR is on (`fhir_config`).** Bring the worker up and
+   reconcile the process set with `bestool tamanu start`. **[dev-OTS]** (config +
+   process change; `../sops/restart-services.md`).
+
+**Escalate-only — never self-serve.** Disabling or emptying materialisation is
+**not** a support action, even under time pressure. `TRUNCATE fhir.jobs`, mass
+`DISABLE TRIGGER fhir_refresh`, and disabling per-resource materialisation are
+**[dev-OTS]** and done only by a developer with the context for why (they are
+recoverable but consequential — see `../ruled-out-actions.md`,
+`../sops/disable-fhir-jobs.md` and `../sops/disable-materialised-resources.md`).
+If the situation seems to call for one, escalate rather than run it.
 
 ## 6. Escalate
 

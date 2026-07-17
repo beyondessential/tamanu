@@ -202,21 +202,28 @@ SELECT start_time,
        snapshot_completed_at - start_time AS snapshot_duration,
        completed_at - start_time          AS full_duration,
        errors IS NOT NULL                 AS is_error,
-       parameters->'facilityIds'->>0      AS facility_id
+       parameters->'facilityIds'          AS facility_ids
 FROM sync_sessions
-WHERE parameters->'facilityIds'->>0 = 'xxx'
+WHERE parameters->'facilityIds' ? 'xxx'
 ORDER BY updated_at DESC
 LIMIT 10;
 ```
 
 ```sql
 SELECT start_time, completed_at - start_time AS full_duration,
-       errors, parameters->'facilityIds'->>0 AS facility_id
+       errors, parameters->'facilityIds' AS facility_ids
 FROM sync_sessions
-WHERE parameters->'facilityIds'->>0 = 'xxx' AND errors IS NOT NULL
+WHERE parameters->'facilityIds' ? 'xxx' AND errors IS NOT NULL
 ORDER BY updated_at DESC
 LIMIT 1;
 ```
+
+> Filter by facility with the JSONB array-contains operator
+> `parameters->'facilityIds' ? 'xxx'` (equivalently `@> '"xxx"'`), **not**
+> `parameters->'facilityIds'->>0 = 'xxx'`. `facilityIds` is an array and can hold
+> more than one facility; the `->>0` form only matches when the facility is the
+> **first** element and silently misses sessions where it appears elsewhere. Use
+> `? 'xxx'` wherever you filter `sync_sessions` by facility.
 
 ### Session duration histogram (last 3 days)
 
@@ -322,8 +329,107 @@ SELECT topic, status, COUNT(*) FROM fhir.jobs GROUP BY topic, status ORDER BY to
 
 Re-materialisations in the last 30 minutes, and the per-resource breakdown, are
 in `../runbooks/fhir-queue-backlog.md` (they belong with the interpretation of a
-backlog). For the `logs.fhir_writes` join that shows what an integration received
-for a lab request, see `../runbooks/senaite-integration-delay.md`.
+backlog).
+
+## FHIR ServiceRequest materialisation investigation
+
+Shared investigation for the integrations that read FHIR `ServiceRequest`: the
+SENAITE lab path (`../runbooks/senaite-integration-delay.md`) and the RIS/PACS
+imaging path (`../runbooks/rispacs-imaging-not-received.md`). **Both** labs and
+imaging materialise into `fhir.service_requests`, so these checks apply to both;
+see the imaging-vs-labs differentiation below to tell them apart. The runbooks
+carry only the per-integration specifics; the common queries live here.
+
+> Config keys are moving. Several toggles below are read from `config`
+> (`packages/*/config/default.json5`) today, but configuration is migrating to
+> DB-backed **settings** (and in some cases **environment variables**) — an
+> in-flight change (Daniel's PR, `[inferred]` reference). Verify a key's
+> **current** location (settings admin panel / ENV / config) before assuming it
+> lives in `config`; don't treat the config path as authoritative.
+
+### Did an upstream record materialise?
+
+Given an upstream row id (a `lab_requests.id` or `imaging_requests.id`), check it
+reached `fhir.service_requests` by `upstream_id`. **[diagnose]** Columns confirmed
+in `database/model/fhir/service_requests.yml` (`upstream_id`, `resolved`,
+`is_live`, `status`, `intent`, `last_updated`, `version_id`).
+
+```sql
+SELECT id, version_id, upstream_id, status, intent, resolved, is_live, last_updated
+FROM fhir.service_requests
+WHERE upstream_id = '<lab_request_id or imaging_request_id>';
+```
+
+No row = it never materialised (check the queue and worker below). `resolved =
+false` = unresolved references (the patient/encounter it points at is not
+materialised yet).
+
+### Is the materialisation worker on?
+
+Confirm on central (see the config-migration note above before trusting the path):
+
+- `integrations.fhir.enabled` is `true`
+  (`packages/central-server/config/default.json5`)
+- `integrations.fhir.worker.enabled` is `true` (same file)
+- setting `fhir.worker.resourceMaterialisationEnabled.ServiceRequest` is `true`
+  (`packages/settings/src/schema/definitions/fhir.ts`)
+
+Then read the queue with the **FHIR queue depth** queries above, and the errored
+jobs. **[diagnose]**
+
+### Imaging vs labs: which integration is this ServiceRequest for?
+
+Because both imaging (RIS/PACS) and labs (SENAITE) use FHIR `ServiceRequest`, a
+ServiceRequest/`fhir_writes` check catches **both**. Differentiate by:
+
+- **User-agent** of the caller (in the Caddy log, below), or
+- **The presence of `Specimen`-endpoint requests** — labs (SENAITE) also pull
+  `Specimen`; imaging does not. Match the **IP** of those `Specimen` calls back
+  to the caller hitting the root `ServiceRequest` endpoint to attribute the
+  traffic.
+
+Caveat: in **older deployments all integrations were configured with the same
+user-agent**, confusingly **`mSupply`** (the LMIS Tamanu integrates with — not
+the lab or imaging system). So a `mSupply` user-agent does **not** by itself mean
+the caller is mSupply; it may be SENAITE or RIS/PACS. This is not limited to one
+site — always read the deployment's Canopy notes (`../deployment-context.md`)
+before treating an unexpected integration user-agent as a fault. **[diagnose]**
+
+### What did the integration receive? (`logs.fhir_writes`)
+
+`logs.fhir_writes` records non-GET calls only (so GET polls never appear — use the
+Caddy log for poll/status evidence). It has **no** `response_status` column: only
+`id, created_at, verb, url, body, headers, user_id` (confirmed
+`database/model/logs/fhir_writes.yml`). Useful to see result payloads Tamanu
+received, joined via `body`. **[diagnose]**
+
+```sql
+SELECT frl.body
+FROM logs.fhir_writes frl
+JOIN fhir.service_requests sr
+  ON split_part(frl.body->'basedOn'->0->>'reference', '/', 2)::uuid = sr.id
+JOIN lab_requests lr ON sr.upstream_id = lr.id
+WHERE lr.display_id = 'LAB_REQUEST_DISPLAY_ID';
+```
+
+### Tamanu status to FHIR ServiceRequest status (reference)
+
+An integration only sees requests in the FHIR statuses it expects. Tamanu status
+maps to FHIR `ServiceRequest.status` as:
+
+| Tamanu status | FHIR ServiceRequest status |
+| --- | --- |
+| Reception Pending / Sample Not Collected | draft |
+| Results Pending / Interim Results / To Be Verified / Verified | active |
+| Published | completed |
+| Cancelled / Invalidated / Deleted / Entered in error | revoked |
+
+`revoked` requests are ignored by the integration (SENAITE, RIS/PACS) — that is
+expected, not a fault.
+
+For the `logs.fhir_writes` join that shows what an integration received for a lab
+request, and the SENAITE-specific interpretation, see
+`../runbooks/senaite-integration-delay.md`.
 
 ## DHIS2 push log
 
@@ -361,6 +467,6 @@ ssh ubuntu@<server name or IP>
 ```
 
 On Windows Terminal the equivalent search is
-`tailscale status | Select-String -Pattern "<name-or-ip>"`. Which VPN a
-deployment uses (Tailscale or Fortinet) is in its Canopy notes
-(`../deployment-context.md`).
+`tailscale status | Select-String -Pattern "<name-or-ip>"`. Assume Tailscale for
+the VPN (the exception is MSF); a deployment's Canopy notes record it if it
+differs (`../deployment-context.md`).

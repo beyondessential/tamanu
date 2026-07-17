@@ -61,7 +61,7 @@ ls `bestool tamanu find -n1`/alerts         # e.g. list its alerts folder
 bestool tamanu status          # what is running
 bestool tamanu start           # reconcile: start missing, stop extraneous
 bestool tamanu restart api     # restart a single service (api/sync/tasks/fhir)
-bestool restart fhir           # restart FHIR workers
+bestool tamanu restart fhir    # restart the FHIR workers (refresh + resolve)
 bestool caddy upgrade          # upgrade Caddy (Windows; causes brief downtime)
 ```
 

@@ -5,8 +5,8 @@ foreign-key conflict errors that do not otherwise make sense — the server appe
 not to receive rows it is requesting.
 
 Every action is tagged with its class from the ladder in `../README.md`. Check
-`../ruled-out-actions.md` before running anything mutating — the fix here touches
-a **ruled-out** action, so read this carefully.
+`../ruled-out-actions.md` before running anything mutating — the fix here is a
+**[dev-OTS]** action (truncating `sync_lookup`), so read this carefully.
 
 ## 1. When this applies
 
@@ -31,10 +31,10 @@ signature. **[diagnose]**
 The documented fix is to **truncate the `sync_lookup` table** so it rebuilds,
 which lets the restored facility catch up. Truncating `sync_lookup` forces a full
 re-sync for **every** device on the next session and can cause a long fleet-wide
-slowdown — so it is a **[ruled-out]** first-line action and a **developer
-decision** (`../ruled-out-actions.md`). This restore-recovery case is exactly the
-narrow scenario the ruled-out entry carves out: only a developer, having
-confirmed the restore, runs it, with OTS.
+slowdown — but it is **recoverable** (the cost is sync duration, not data), so it
+is **[dev-OTS]**, a **developer decision**, not a ruled-out hard gate
+(`../ruled-out-actions.md`). It is never a support first-line action: only a
+developer, having confirmed the restore, runs it, with OTS.
 
 - **[dev-OTS / developer-run]** Truncate `sync_lookup` (central), accepting the
   one-off slower sync for all devices next session. The cost is temporary and

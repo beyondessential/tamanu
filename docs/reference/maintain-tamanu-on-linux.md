@@ -10,7 +10,7 @@ mutating (see `../sops/restart-services.md` for its class).
 
 ## Get on the box
 
-Connect over the deployment's VPN (Tailscale or Fortinet — check Canopy notes,
+Connect over the deployment's VPN — assume **Tailscale** (the exception is MSF;
 see `../deployment-context.md`), then SSH:
 
 ```bash
@@ -82,8 +82,8 @@ sudo systemctl restart tamanu-central-fhir-{refresh,resolve}
 
 ## Out of scope here (see beyondessential/ops)
 
-- Disk resize / repartition (also see ruled-out actions for the destructive
-  variants)
+- Disk resize / repartition — developer/ops-run **[dev-OTS]** (a destructive
+  shrink can still wreck a filesystem; see `../ruled-out-actions.md`)
 - Database restore from backup
 - Snapshots
 - AWS console / instance-level changes

@@ -37,33 +37,28 @@ deployments deliberately configure the SENAITE integration user differently.
 
 ## 3. Investigate
 
-Work central-side. Open psql on central (`../sops/connect-psql.md`), read-only.
-Replace the placeholder display IDs with the real ones the facility gave you (see
-`../reference/id-vs-display-id.md`).
+Work central-side (this is a central-side integration today). Open psql on central
+(`../sops/connect-psql.md`), read-only. Replace the placeholder display IDs with
+the real ones the facility gave you (see `../reference/id-vs-display-id.md`).
+
+> `[pending — Rohan to confirm]` whether any SENAITE integrations are moving
+> facility-side. If some deployments run SENAITE against the facility server,
+> these checks would run there instead of central for those sites.
 
 ### 3.1 Is Tamanu healthy? — sync
 
-Sync must succeed before a request can be materialised. **[diagnose]**
+Sync must succeed before a request can be materialised. Run the **Sync health**
+queries in `../reference/query-cookbook.md` (recent sessions / last errors) —
+those are the single source of truth; don't inline a copy here. **[diagnose]**
 
-```sql
-SELECT start_time,
-       snapshot_completed_at - start_time AS snapshot_duration,
-       completed_at - start_time          AS full_duration,
-       errors IS NOT NULL                 AS is_error,
-       parameters->'facilityIds'->>0      AS facility_id
-FROM sync_sessions
-ORDER BY updated_at DESC
-LIMIT 10;
-```
-
-Healthy = recent sessions have `completed_at` populated and `errors IS NULL`.
-Columns `completed_at`, `errors`, `start_time`, `snapshot_completed_at`,
-`parameters` confirmed present in `database/model/public/sync_sessions.yml`.
+Healthy = recent sessions have `completed_at` populated and `errors IS NULL`. If
+sync is failing, fix that first (the sync runbooks) — a request that has not
+synced to central cannot materialise.
 
 ### 3.2 Is Tamanu healthy? — is the newest lab request materialised?
 
-Find the most recent lab request, then check it materialised into
-`fhir.service_requests` by `upstream_id`. **[diagnose]**
+Find the most recent lab request (lab-specific), then run the shared
+materialisation checks. **[diagnose]**
 
 ```sql
 -- newest lab request
@@ -75,15 +70,8 @@ ORDER BY created_at DESC
 LIMIT 1;
 ```
 
-```sql
--- did it materialise? use the id from above
-SELECT id, version_id, upstream_id, resolved, is_live, last_updated
-FROM fhir.service_requests
-WHERE upstream_id = '<lab_request_id_from_above>';
-```
-
 To investigate a specific request the facility named, look it up by `display_id`
-instead and join in one shot:
+and join to the materialised ServiceRequest in one shot:
 
 ```sql
 SELECT lr.id            AS lab_request_id,
@@ -99,37 +87,14 @@ LEFT JOIN fhir.service_requests sr ON sr.upstream_id = lr.id
 WHERE lr.display_id = 'Lab Request ID as seen on Tamanu';
 ```
 
-Columns `upstream_id`, `resolved`, `is_live`, `version_id`, `last_updated`
-confirmed in `database/model/fhir/service_requests.yml`; `senaite_id`,
-`sample_id`, `published_date`, `status`, `display_id`, `deleted_at` confirmed in
-`database/model/public/lab_requests.yml`.
+`senaite_id`, `sample_id`, `published_date`, `status`, `display_id`, `deleted_at`
+confirmed in `database/model/public/lab_requests.yml`.
 
-Check the materialisation worker is configured on. **[diagnose]** On central,
-confirm:
-
-- config `integrations.fhir.enabled` is `true`
-  (confirmed key, `packages/central-server/config/default.json5`)
-- config `integrations.fhir.worker.enabled` is `true` (same file)
-- setting `fhir.worker.resourceMaterialisationEnabled.ServiceRequest` is `true`
-  (confirmed in `packages/settings/src/schema/definitions/fhir.ts`; the on-call
-  docs shorthand this as `resourceMaterialisationEnabled.ServiceRequest`)
-
-Look at the worker queue and recent errors: **[diagnose]**
-
-```sql
-SELECT topic, status, COUNT(*)
-FROM fhir.jobs
-GROUP BY topic, status
-ORDER BY topic, status;
-```
-
-```sql
-SELECT id, topic, status, error, errored_at, updated_at
-FROM fhir.jobs
-WHERE errored_at IS NOT NULL
-ORDER BY errored_at DESC
-LIMIT 50;
-```
+Then use the shared checks in `../reference/query-cookbook.md` → **FHIR
+ServiceRequest materialisation investigation**: whether the upstream row reached
+`fhir.service_requests`, whether the materialisation worker is on, and the FHIR
+queue depth / errored jobs. Those queries are common to labs and imaging and are
+not duplicated here.
 
 Trace the request's status history if you need it. **[diagnose]** Note the column
 is `created_at`, **not** `date` (confirmed: `lab_request_logs` has
@@ -188,43 +153,24 @@ inspect the `status` field (see the PowerShell snippet in
 Then check the **SENAITE `event.log`** on the SENAITE host for the corresponding
 polls and any errors it logged pulling or posting.
 
-**Palau caveat — do not misread the integration user.** At Palau the SENAITE
-integration user is deliberately configured as **`mSupply`**, recorded in the
-deployment's Canopy notes. A generic "confirm the caller/user is SENAITE" check
-would wrongly flag Palau as broken. Always read the Canopy notes
-(`../deployment-context.md`) before treating an unexpected integration user as a
-fault. **[diagnose]**
+**Do not misread the integration user-agent.** The caller you see for lab traffic
+is not always obviously "SENAITE". In older deployments all integrations were
+configured with the **same** user-agent, confusingly **`mSupply`** (the LMIS
+Tamanu integrates with, not the lab system). This is known at more than one site —
+do not assume it is only Palau. A generic "confirm the caller is SENAITE" check
+would wrongly flag those deployments as broken. Always read the deployment's
+Canopy notes (`../deployment-context.md`) before treating an unexpected
+integration user-agent as a fault. To tell lab (SENAITE) from imaging (RIS/PACS)
+traffic — both use FHIR `ServiceRequest` — use the imaging-vs-labs
+differentiation (user-agent, or the presence of `Specimen`-endpoint requests) in
+`../reference/query-cookbook.md`. **[diagnose]**
 
-> Note on `logs.fhir_writes`: some older checklists query
-> `logs.fhir_writes` with a `response_status` column. That column does **not**
-> exist — `logs.fhir_writes` has only `id, created_at, verb, url, body, headers,
-> user_id` (confirmed `database/model/logs/fhir_writes.yml`), and it records
-> non-GET calls only, so SENAITE's GET polls never appear there. Use the **Caddy
-> log** (above) for poll/status evidence. `logs.fhir_writes` is still useful to
-> see result payloads Tamanu received, joined via `body`. **[diagnose]**
->
-> ```sql
-> SELECT frl.body
-> FROM logs.fhir_writes frl
-> JOIN fhir.service_requests sr
->   ON split_part(frl.body->'basedOn'->0->>'reference', '/', 2)::uuid = sr.id
-> JOIN lab_requests lr ON sr.upstream_id = lr.id
-> WHERE lr.display_id = 'LAB_REQUEST_DISPLAY_ID';
-> ```
-
-### FHIR ServiceRequest status mapping (reference)
-
-SENAITE only sees requests in statuses it expects. Tamanu status maps to FHIR
-`ServiceRequest.status` as:
-
-| Tamanu status | FHIR ServiceRequest status |
-| --- | --- |
-| Reception Pending / Sample Not Collected | draft |
-| Results Pending / Interim Results / To Be Verified / Verified | active |
-| Published | completed |
-| Cancelled / Invalidated / Deleted / Entered in error | revoked |
-
-`revoked` requests are ignored by SENAITE — that is expected, not a fault.
+For what SENAITE actually received (the `logs.fhir_writes` join, which has **no**
+`response_status` column and records non-GET calls only — so GET polls never
+appear there; use the Caddy log above for poll/status evidence) and the Tamanu →
+FHIR `ServiceRequest` status mapping (SENAITE ignores `revoked`, which is
+expected), see the same **FHIR ServiceRequest materialisation investigation**
+section of `../reference/query-cookbook.md`. **[diagnose]**
 
 ## 4. Interpret
 
@@ -260,7 +206,7 @@ docs; steps the sources leave open are written here and marked
 
 - **Worker stalled / queue not draining (rows not materialising, jobs queued).**
   Restart the FHIR workers so they process the queue. **[approved-mitigation]**
-  (pre-signed here) — `bestool restart fhir`, or on Linux
+  (pre-signed here) — `bestool tamanu restart fhir`, or on Linux
   `sudo systemctl restart tamanu-central-fhir-{refresh,resolve}` (cited:
   cheat sheet "FHIR Services Restart on Linux"; healthcheck solve for
   `fhir_service_requests_unresolved`). See `../sops/restart-services.md`.
@@ -287,7 +233,7 @@ docs; steps the sources leave open are written here and marked
   are running (as above); if references stay unresolved after a worker restart,
   `[inferred — dev to confirm]` whether a targeted re-materialisation of the
   referenced Patient/Encounter is needed — escalate rather than bulk-disabling
-  triggers (**[ruled-out]**).
+  triggers (that is **[dev-OTS]**, developer-run — `../ruled-out-actions.md`).
 
 ## 6. Escalate
 

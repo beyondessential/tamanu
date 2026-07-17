@@ -10,8 +10,7 @@ step, get a developer OTS first. Restarting the API or sync interrupts live work
 Restarting the FHIR refresh/resolve workers so they pick up config and drain the
 queue:
 
-- **bestool (either platform):** `bestool restart fhir` (also written
-  `bestool tamanu restart fhir` depending on version).
+- **bestool (either platform):** `bestool tamanu restart fhir`.
 - **systemd (Linux):**
 
   ```
@@ -59,9 +58,9 @@ This is disruptive; dev-OTS.
 
 - **Linux:** `sudo systemctl restart postgresql` (dev-OTS; interrupts all DB
   work).
-- **Windows tuning reload:** use `pg_ctl -D data reload` only. **Never**
-  `pg_ctl restart`/`start` for a tuning reload — that is ruled out
-  (`../ruled-out-actions.md`).
+- **Windows tuning reload:** use `pg_ctl -D data reload` for `postgresql.conf`
+  tuning. `pg_ctl restart`/`start` risks unplanned downtime, so it is **[dev-OTS]**
+  (developer-run) — not a support default (`../ruled-out-actions.md`).
 
 ## Caddy
 

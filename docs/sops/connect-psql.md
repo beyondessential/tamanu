@@ -40,11 +40,17 @@ On Kubernetes-hosted deployments there is no host to bestool into. Get a shell o
 the database via the cluster:
 
 - Use Headlamp (or `kubectl`) to open a shell on the CloudNativePG primary pod,
-  then run `psql` inside it, or
-- `kubectl exec -it <cnpg-primary-pod> -- psql -U postgres <database>`
+  then run `psql app` inside it, or
+- `kubectl exec -it <cnpg-primary-pod> -- psql -U postgres app`
 
-Identify the primary pod first (do not assume an ordinal). Cluster-mutating
-`kubectl` actions are ruled out — see `../ruled-out-actions.md`.
+Name the database explicitly: on CloudNativePG the Tamanu database is **`app`**
+(the CNPG default database name), so a bare `psql` connects to the wrong database
+— run `psql app`.
+
+Identify the primary pod first (do not assume an ordinal). Cluster/storage
+**destroying** `kubectl` actions (deleting PVCs, wiping a facility) are ruled out;
+recoverable instance-level operations like `kubectl cnpg destroy` are **[dev-OTS]**
+— see `../ruled-out-actions.md`.
 
 ## Notes
 
