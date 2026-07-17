@@ -793,7 +793,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.unknown"
-          fallback="The stock status of this medication is currently unknown."
+          fallback="The stock status of this medication is currently unknown"
         />
       );
     }
@@ -802,7 +802,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.outOfStock"
-          fallback="Medication is currently marked as out of stock."
+          fallback="Medication is currently marked as out of stock"
         />
       );
     }
