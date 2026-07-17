@@ -528,6 +528,11 @@ export class Invoice extends Model {
   /**
    * The encounter's location timeline from the audit changelog. The admission (first) row anchors
    * to startDate, not its write time, so backdated admission nights bill to the correct ward.
+   *
+   * The changelog trigger is deferred to commit, so when this runs in the same transaction as an
+   * encounter update (e.g. a ward move via the encounter route) that update's row isn't written
+   * yet. Append the encounter's live current location as the latest point so a just-made move is
+   * billed immediately, matching what the nightly charger later derives from the committed row.
    */
   private static async loadEncounterLocationHistory(
     encounter: Encounter,
@@ -544,7 +549,7 @@ export class Invoice extends Model {
       order: [['recordUpdatedAt', 'ASC']],
       attributes: ['recordUpdatedAt', 'recordData'],
     });
-    return changelogRows.map((row, index) => ({
+    const history = changelogRows.map((row, index) => ({
       date:
         index === 0
           ? encounter.startDate
@@ -552,6 +557,10 @@ export class Invoice extends Model {
       // recordData is a JSONB encounter snapshot (typed as string on the model, object at runtime).
       locationId: (row.recordData as unknown as Record<string, any>)?.location_id ?? null,
     }));
+    if (encounter.locationId) {
+      history.push({ date: getCurrentDateTimeString(), locationId: encounter.locationId });
+    }
+    return history;
   }
 
   /**

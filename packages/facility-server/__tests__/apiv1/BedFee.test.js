@@ -2,7 +2,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import { storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
 import { ReadSettings } from '@tamanu/settings';
 import {
   ENCOUNTER_TYPES,
@@ -194,6 +194,52 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(items).toHaveLength(2);
     expect(nightsByProduct[bedProduct.id]).toBe(1);
     expect(nightsByProduct[bedProductB.id]).toBe(2);
+  });
+
+  it('bills a ward move recomputed in the same transaction, before the changelog trigger fires', async () => {
+    // The audit changelog trigger is deferred to commit, so a recompute run in the same transaction
+    // as a ward move (as the encounter route does) can't see that move's changelog row yet. The
+    // recompute must still bill the new location — from the encounter's live location, not the
+    // stale changelog — rather than waiting for the next nightly charger.
+    const locationB = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-MOVE-TXN' }),
+    );
+    const bedProductB = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.BED_FEE],
+        sourceRecordId: locationB.id,
+      }),
+    );
+
+    // Admitted to bed A and still admitted (endDate null) — committed, so its changelog row exists.
+    const startDate = getCurrentDateTimeString();
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      locationId: bedLocation.id,
+      departmentId: department.id,
+      examinerId: user.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate,
+      endDate: null,
+    });
+    const invoice = await models.Invoice.create({
+      encounterId: encounter.id,
+      displayId: `INV-${encounter.id.slice(0, 8)}`,
+      date: startDate,
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+
+    await models.Invoice.sequelize.transaction(async () => {
+      await encounter.update({ locationId: locationB.id });
+      await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    });
+
+    const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    const nightsByProduct = Object.fromEntries(items.map(item => [item.productId, item.quantity]));
+    expect(nightsByProduct[bedProductB.id]).toBe(1); // the just-made move is billed immediately
+    expect(nightsByProduct[bedProduct.id] ?? 0).toBe(0); // bed A no longer qualifies
   });
 
   it('bills the admission ward for backdated-admission nights recorded before a later ward move', async () => {
