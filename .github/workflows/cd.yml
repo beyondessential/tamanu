@@ -368,10 +368,11 @@ jobs:
       server: central.${{ matrix.name }}.cd.tamanu.app
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
-      # Test builds are for QA on physical (arm64) devices, so only compile that
-      # ABI. Avoids the New Architecture C++/CMake compile running once per ABI;
-      # release builds (below) still produce all ABIs.
-      architectures: arm64-v8a
+      # Test builds are for QA on physical (arm64) devices and x86_64 emulators,
+      # so compile both ABIs. The New Architecture C++/CMake compile runs once per
+      # ABI, so this roughly doubles the build time versus arm64 alone; release
+      # builds (below) still produce all ABIs.
+      architectures: arm64-v8a,x86_64
     secrets:
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
