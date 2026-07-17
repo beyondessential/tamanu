@@ -65,9 +65,11 @@ export const facilitySettings = {
               defaultValue: '2022-09-01',
             },
             daysSinceSampleTime: {
-              description: '-',
+              description:
+                'The number of days since the sample was taken for a test to count towards clearance',
               type: yup.number().integer().positive(),
               defaultValue: 13,
+              unit: 'days',
             },
             labTestCategories: {
               description: 'List of valid lab test categories',

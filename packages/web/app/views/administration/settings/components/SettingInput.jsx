@@ -1554,6 +1554,26 @@ export const SettingInput = ({
   }, [type, typeSchema]);
   const isPrimitiveArray = arrayInnerType === 'string' || arrayInnerType === 'number';
 
+  // An array whose inner type is constrained with yup `.oneOf([...])` becomes
+  // a multi-select of the allowed values — no typos, no invalid entries —
+  // mirroring the scalar oneOf → select logic above.
+  const arrayOneOfOptions = useMemo(() => {
+    if (type !== SETTING_TYPES.ARRAY) return null;
+    try {
+      const allowed = typeSchema.describe?.().innerType?.oneOf;
+      if (!Array.isArray(allowed) || allowed.length === 0) return null;
+      return allowed
+        .filter(allowedValue => allowedValue != null)
+        .map(allowedValue => ({
+          value: allowedValue,
+          label: String(allowedValue),
+        }));
+    } catch {
+      return null;
+    }
+  }, [type, typeSchema]);
+  const hasArrayOneOfOptions = Array.isArray(arrayOneOfOptions) && arrayOneOfOptions.length > 0;
+
   // Built-in length constraints (yup `.min`/`.max`/`.length`) are surfaced in
   // describe().tests; the list editor uses them to bound add/remove and show
   // the expected count. A `.length(n)` reads as a fixed count (min === max).
@@ -1976,6 +1996,36 @@ export const SettingInput = ({
       return renderJsonEditor();
     }
     case SETTING_TYPES.ARRAY:
+      // arrays constrained to a fixed set of values use a multi-select of the
+      // allowed values rather than free-text rows
+      if (isPrimitiveArray && hasArrayOneOfOptions && arrayItems !== null) {
+        return (
+          <LongTextFlexbox data-testid="flexbox-array-enum">
+            <ListInputWrapper
+              style={{ width: 'auto' }}
+              data-error-anchor={shownError ? 'true' : undefined}
+              data-testid="settings-array-enum"
+            >
+              <SearchMultiSelectInput
+                value={arrayItems}
+                options={arrayOneOfOptions}
+                onChange={e => handleChangeValue(e.target.value)}
+                disabled={disabled}
+                label={
+                  <TranslatedText
+                    stringId="admin.settings.selectValues.label"
+                    fallback="Select values"
+                  />
+                }
+                data-testid="settings-array-enum-select"
+              />
+              {shownError && (
+                <ListError data-testid="settings-array-enum-error">{shownError.message}</ListError>
+              )}
+            </ListInputWrapper>
+          </LongTextFlexbox>
+        );
+      }
       // primitive arrays use the list editor, unless the stored value is a
       // string we can't read as an array (arrayItems === null) — then the
       // JSON editor keeps the raw text editable

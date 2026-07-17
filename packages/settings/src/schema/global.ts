@@ -628,7 +628,6 @@ export const globalSettings = {
             enabled: {
               type: yup.boolean(),
               defaultValue: true,
-              unit: 'seconds',
             },
             interval: {
               description: 'Interval in seconds between check for new records.',
@@ -650,7 +649,6 @@ export const globalSettings = {
             dischargeNoteMandatory: {
               type: yup.boolean(),
               defaultValue: false,
-              unit: 'seconds',
             },
             dischargeDiagnosisMandatory: {
               description: 'Require at least one diagnosis to be selected before discharging',
@@ -1964,9 +1962,11 @@ export const globalSettings = {
       exposedToWeb: true,
       properties: {
         ageLimit: {
-          description: '_',
+          description:
+            'The maximum patient age in years to include in the upcoming vaccinations list',
           type: yup.number(),
           defaultValue: 15,
+          unit: 'years',
         },
         thresholds: {
           description: '_',
