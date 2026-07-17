@@ -724,10 +724,9 @@ export const MedicationForm = ({
       toast.error(error.message);
       return Promise.reject(error);
     }
-    if (loadEncounter && encounterId) {
-      loadEncounter(encounterId, false);
-    }
+
     if (encounterId) {
+      loadEncounter?.(encounterId, false);
       queryClient.invalidateQueries(['encounterMedication', encounterId]);
     }
     if (patient) {
