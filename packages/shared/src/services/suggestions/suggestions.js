@@ -124,6 +124,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
+      const search = `%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -131,13 +132,20 @@ function createSuggesterRoute(
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
       // either use the bind key in SQL or in the whereBuilder directly using sequelize
       const where = whereBuilder({
-        search: `%${searchQuery}%`,
+        search,
         query,
         req,
         endpoint,
         modelName,
         searchColumn,
       });
+
+      // The admin reference-data screen displays and filters FK columns by raw id, so it sends
+      // searchById=true to match the search term against the record id instead of the translated
+      // name. Handled here rather than in each where-builder so every suggester endpoint honours it.
+      if (query.searchById === 'true' && searchQuery) {
+        where[Op.or] = [{ id: { [Op.iLike]: search } }];
+      }
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -272,20 +280,8 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-// searchById=true matches the search term against the record id instead of the name — used by
-// the admin panel reference data manage screen, where the columns display and filter on raw ids.
-const DEFAULT_WHERE_BUILDER = ({
-  endpoint,
-  modelName,
-  searchColumn = 'name',
-  skipVisibilityFilter = false,
-  search,
-  query,
-}) => ({
-  [Op.or]:
-    query?.searchById === 'true' && search
-      ? [{ id: { [Op.iLike]: search } }]
-      : [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
+const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
+  [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
 
@@ -474,11 +470,11 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName, req, search, query }) => {
+    ({ endpoint, modelName, req, search }) => {
       const { parentId } = req.query;
 
       const baseWhere = {
-        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName, search, query }),
+        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
 
@@ -779,9 +775,9 @@ createSuggester(
 createSuggester(
   'invoiceProduct',
   'InvoiceProduct',
-  ({ endpoint, modelName, query, search }) => {
+  ({ endpoint, modelName, query }) => {
     if (!query.priceListId) {
-      return DEFAULT_WHERE_BUILDER({ endpoint, modelName, search, query });
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
 
     return {
