@@ -406,6 +406,34 @@ the caller is mSupply; it may be SENAITE or RIS/PACS. This is not limited to one
 site — always read the deployment's Canopy notes (`../deployment-context.md`)
 before treating an unexpected integration user-agent as a fault. **[diagnose]**
 
+### Is the integration polling? — Caddy log
+
+Confirm the integration is actually pulling. SENAITE and RIS/PACS **both** poll
+the central FHIR materialised route `/api/integration/fhir/mat/ServiceRequest`
+(route confirmed: `packages/facility-server/app/createApiApp.js` mounts
+`/integration/fhir/mat`; central serves the same `fhir/mat` integration route).
+
+Grep the central Tamanu **Caddy** log for those ServiceRequest requests and check
+they are returning `200`. Times are UTC — convert with the deployment offset. Read
+the caller's **user-agent** on the same lines to attribute the traffic to the
+right integration (see the imaging-vs-labs differentiation above, including the
+`mSupply` caveat). GET polls never appear in `logs.fhir_writes`, so the Caddy log
+is the poll/status evidence. See `../sops/read-logs.md`. **[diagnose]**
+
+Linux (grep in place — do **not** copy the log off the server; that is
+**sensitive-data**, see `../ruled-out-actions.md`):
+
+```bash
+journalctl -u caddy -o cat \
+  | jq -c 'select(.request.uri | test("/fhir/mat/ServiceRequest")) | {ts:(.ts|todate), status, uri:.request.uri, ip:.request.remote_ip, ua:(.request.headers["User-Agent"]|first)}'
+```
+
+Windows: search `C:\caddy\logs\server.log` for `/fhir/mat/ServiceRequest` and
+inspect the `status` field (see the PowerShell snippet in `../sops/read-logs.md`).
+
+No ServiceRequest polls / `200`s at all = the integration's poller is down or its
+auth/network is broken (attribute to the right integration by user-agent first).
+
 ### What did the integration receive? (`logs.fhir_writes`)
 
 `logs.fhir_writes` records non-GET calls only (so GET polls never appear — use the

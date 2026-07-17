@@ -42,12 +42,9 @@ Work central-side (this is a central-side integration today). Open psql on centr
 the real ones the facility gave you (see `../reference/id-vs-display-id.md`).
 
 > **Central vs facility.** SENAITE is a **central-side** integration today, so
-> these checks run on central. But some integrations are moving facility-side
-> over time — so keep the facility server as an open possibility: if the
-> central-side checks turn up nothing, run the same checks against the facility
-> server too, and check the deployment's Canopy notes for where its integration
-> actually runs (standing guidance in `../reference/query-cookbook.md` → **FHIR
-> ServiceRequest materialisation investigation**).
+> these checks run on central — but keep the facility server open as a
+> possibility per the standing note in `../reference/query-cookbook.md` → **FHIR
+> ServiceRequest materialisation investigation**.
 
 ### 3.1 Is Tamanu healthy? — sync
 
@@ -130,48 +127,21 @@ LEFT JOIN lab_test_panels ltp ON ltp.id = ltpr.lab_test_panel_id
 WHERE lt.lab_request_id = '<lab_request_id>';
 ```
 
-### 3.3 Is SENAITE receiving? — Caddy log + SENAITE event.log
+### 3.3 Is SENAITE receiving? — SENAITE event.log
 
-Once Tamanu-side looks healthy, confirm SENAITE is actually pulling. SENAITE
-polls the central FHIR materialised route
-`/api/integration/fhir/mat/ServiceRequest` (route confirmed:
-`packages/facility-server/app/createApiApp.js` mounts `/integration/fhir/mat`;
-central serves the same `fhir/mat` integration route).
+Once Tamanu-side looks healthy, confirm SENAITE is actually pulling. First use the
+shared **Is the integration polling? — Caddy log** check in
+`../reference/query-cookbook.md` to confirm ServiceRequest polls are arriving and
+returning `200`, and that the caller is SENAITE (per the imaging-vs-labs
+differentiation and the `mSupply` user-agent caveat in the same section).
+**[diagnose]**
 
-Grep the central Tamanu **Caddy** log for those ServiceRequest requests and check
-they are returning `200`. Times are UTC — convert with the deployment offset. See
-`../sops/read-logs.md`. **[diagnose]**
+Then, SENAITE-side, check the **SENAITE `event.log`** on the SENAITE host for the
+corresponding polls and any errors it logged pulling or posting results. No
+ServiceRequest polls in the Caddy log at all = the SENAITE poller is down or its
+auth is broken. **[diagnose]**
 
-Linux (grep in place — do **not** copy the log off the server; that is
-**sensitive-data**, see `../ruled-out-actions.md`):
-
-```bash
-journalctl -u caddy -o cat \
-  | jq -c 'select(.request.uri | test("/fhir/mat/ServiceRequest")) | {ts:(.ts|todate), status, uri:.request.uri, ip:.request.remote_ip}'
-```
-
-Windows: search `C:\caddy\logs\server.log` for `/fhir/mat/ServiceRequest` and
-inspect the `status` field (see the PowerShell snippet in
-`../sops/read-logs.md`).
-
-Then check the **SENAITE `event.log`** on the SENAITE host for the corresponding
-polls and any errors it logged pulling or posting.
-
-**Do not misread the integration user-agent.** The caller you see for lab traffic
-is not always obviously "SENAITE". In older deployments all integrations were
-configured with the **same** user-agent, confusingly **`mSupply`** (the LMIS
-Tamanu integrates with, not the lab system). This is known at more than one site —
-do not assume it is only Palau. A generic "confirm the caller is SENAITE" check
-would wrongly flag those deployments as broken. Always read the deployment's
-Canopy notes (`../deployment-context.md`) before treating an unexpected
-integration user-agent as a fault. To tell lab (SENAITE) from imaging (RIS/PACS)
-traffic — both use FHIR `ServiceRequest` — use the imaging-vs-labs
-differentiation (user-agent, or the presence of `Specimen`-endpoint requests) in
-`../reference/query-cookbook.md`. **[diagnose]**
-
-For what SENAITE actually received (the `logs.fhir_writes` join, which has **no**
-`response_status` column and records non-GET calls only — so GET polls never
-appear there; use the Caddy log above for poll/status evidence) and the Tamanu →
+For what SENAITE actually received (the `logs.fhir_writes` join) and the Tamanu →
 FHIR `ServiceRequest` status mapping (SENAITE ignores `revoked`, which is
 expected), see the same **FHIR ServiceRequest materialisation investigation**
 section of `../reference/query-cookbook.md`. **[diagnose]**

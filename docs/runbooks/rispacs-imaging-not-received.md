@@ -223,7 +223,12 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 ```
 
 No `imaging_results` row = RIS/PACS has not returned a result — either it has not
-processed the request yet, or it is not reading the `ServiceRequest`.
+processed the request yet, or it is not reading the `ServiceRequest`. To check
+whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
+**Is the integration polling? — Caddy log** check in
+`../reference/query-cookbook.md` (attribute RIS/PACS vs SENAITE traffic by
+user-agent — both use FHIR `ServiceRequest` — per the imaging-vs-labs
+differentiation and the `mSupply` caveat in the same section). **[diagnose]**
 
 ## 4. Interpret
 

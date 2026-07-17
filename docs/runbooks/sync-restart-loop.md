@@ -58,6 +58,40 @@ Central-side, read-only psql (`../sops/connect-psql.md`). **[diagnose]**
   notes / the deployment's change record). Otherwise treat the fkey conflict as
   its own error and diagnose it from the session error, not as a restore.
 
+  The session error names the child table and the **missing referenced record** —
+  the parent row a child points at (e.g. the `patient_id` / `encounter_id` on the
+  child) that never arrived on this side. The standard resolution is to **re-queue
+  that missing FK record for sync**: on the server that actually has it (often
+  central), bump its sync tick so the next session picks it up.
+
+  1. **Identify the missing FK record** from the error — the referenced table and
+     id — and confirm it exists on the source server. **[diagnose]**
+
+     ```sql
+     SELECT id, updated_at_sync_tick FROM <table> WHERE id = '<missing-record-id>';
+     ```
+
+  2. **Bump it for resync** (read/write psql). Set the sync tick to `1`; the
+     `set_updated_at_sync_tick` DB trigger rewrites it to the current tick, which
+     re-queues the record so it syncs on the next session. **[approved-mitigation]**
+
+     ```sql
+     UPDATE <table> SET updated_at_sync_tick = 1 WHERE id = '<missing-record-id>';
+     COMMIT;
+     ```
+
+     Classed **[approved-mitigation]** as the sanctioned resolution: a targeted,
+     single-row write to a source table, and the trigger (not you) sets the real
+     tick — writing `1` is the documented re-queue sentinel, **not** a hand-picked
+     tick value, so only ever write `1` and never set a specific tick by hand.
+     (Because it is still a write to a live source table, a deployment may prefer
+     to treat it as **[any-OTS]** — _flag for the reviewer to confirm the tier._)
+     Trigger and flags confirmed in
+     `packages/database/src/migrations/1744340076240-fixRaceConditionInSettingUpdateSyncTick.ts`
+     and `SYNC_TICK_FLAGS` in `packages/database/src/sync/constants.ts`; the
+     trigger is attached per-table via
+     `packages/database/src/services/migrations/migrationHooks.ts`.
+
 ## 6. Escalate
 
 As in `sync-facility-stale.md` §6 — escalate when the fix is code-level or

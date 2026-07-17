@@ -46,9 +46,13 @@ whether a narrower remediation (e.g. resetting only the affected device's lookup
 rows) is preferable to a full truncate — a developer should decide which is
 appropriate for the blast radius.
 
-Do **not** attempt to hand-edit `updated_at_sync_tick` or the device's tick to
-"line them up" — sync ticks are enforced by a database trigger and must never be
-set manually.
+Do **not** attempt to hand-edit `updated_at_sync_tick` or the device's tick to a
+**specific value** to "line them up" — sync ticks are enforced by a database
+trigger, so a hand-picked value is just overwritten and cannot force sync state
+into alignment. (This is distinct from the sanctioned single-record re-queue bump
+— setting a *missing FK record*'s tick to `1` and letting the trigger promote it
+to the current tick — in `sync-restart-loop.md` §5; that works precisely because
+of the same trigger.)
 
 ## 4. Escalate
 
