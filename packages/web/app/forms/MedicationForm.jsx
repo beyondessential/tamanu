@@ -195,7 +195,7 @@ const TooltipTextField = ({ tooltip, label, id, ...props }) => (
     <FieldLabel
       component="label"
       htmlFor={id}
-      style={{ display: 'inline-block', marginBottom: 4 }}
+      style={{ display: 'inline-block', marginBlockEnd: 4 }}
     >
       {label}
     </FieldLabel>
@@ -1158,14 +1158,10 @@ export const MedicationForm = ({
             <Field
               name="quantity"
               label={
-                encounterId ? (
-                  <TranslatedText
-                    stringId="medication.details.dischargeQuantity"
-                    fallback="Dispensing quantity"
-                  />
-                ) : (
-                  <TranslatedText stringId="medication.quantity.label" fallback="Quantity" />
-                )
+                <TranslatedText
+                  stringId="medication.details.dischargeQuantity"
+                  fallback="Dispensing quantity"
+                />
               }
               min={0}
               component={NumberField}
