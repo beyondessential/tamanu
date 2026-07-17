@@ -127,6 +127,11 @@ recoverable but consequential — see `../ruled-out-actions.md`,
 `../sops/disable-fhir-jobs.md` and `../sops/disable-materialised-resources.md`).
 If the situation seems to call for one, escalate rather than run it.
 
+Recovering materialisation afterwards — forcing a rebuild of the stale or missing
+rows once triggers are back on — uses the `node dist fhir --refresh` command
+documented in `../sops/disable-fhir-jobs.md` (in-process, no worker needed).
+**[dev-OTS]**
+
 ## 6. Escalate
 
 As in `sync-facility-stale.md` §6 — escalate when the fix is code-level or needs

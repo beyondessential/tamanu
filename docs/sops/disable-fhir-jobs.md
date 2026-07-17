@@ -80,8 +80,49 @@ needed for those.
 resources. A row that was **updated** while the triggers were off — its
 `fhir.<resource>` row still exists but is now **stale** — is invisible to the
 reconciliation and will **not** be refreshed. Those need an explicit
-re-materialisation: re-touch the upstream row so the trigger re-fires, or run a
-targeted/full rebuild. `[pending — Rohan/dev to confirm]` the standard operational
-way to force a full re-materialisation for the affected window; the mechanism
-above is certain from the code, the "force a full rebuild" procedure is a dev
-call.
+re-materialisation (below).
+
+## Forcing a re-materialisation (dev-OTS)
+
+There is a first-class command for this. It is a rebuild op, so **[dev-OTS]** — a
+dev-run recovery, not a first-line action. Run it from the central-server release
+directory, the same place report generation runs from
+(`../sops/run-db-report.md`); it operates on a whole resource type at a time:
+
+```bash
+node dist fhir --refresh ServiceRequest --existing
+```
+
+- `--existing` rebuilds rows that are **already materialised**: it re-materialises
+  each from its upstream, so any that had drifted pick up the changed mapped
+  value. This is what covers the **stale-update gap** the daily
+  `FhirMissingResources` reconciliation misses (reconciliation only finds
+  *entirely missing* rows).
+- `--missing` handles the other half — upstream rows **not yet materialised** (the
+  same set `FhirMissingResources` would eventually pick up), run on demand.
+- `--since <date>` limits the scan to upstream rows whose `updated_at` is after
+  that date, to bound a known window.
+- With neither flag, both existing and missing are refreshed; pass `all` instead
+  of a resource name to sweep every materialisable resource.
+
+It runs **in-process and synchronously** — it materialises each row itself in a
+loop and then resolves references, so it does **not** need the FHIR worker running
+or the queue draining (confirmed
+`packages/shared/src/tasks/fhir/fhirCommand.js`). That is what makes it the right
+tool here: it works even with the `fhir_refresh` triggers disabled and the queue
+truncated.
+
+**Targeted alternative — touch the upstream rows.** To re-materialise only
+specific rows, re-touch them so the `fhir_refresh` DB trigger re-enqueues exactly
+those (`packages/database/src/services/setFhirRefreshTriggers.js`):
+
+```sql
+UPDATE lab_requests SET updated_at = updated_at WHERE <condition>;
+commit;
+```
+
+Caveat: the write re-stamps each row's `updated_at_sync_tick` (via the
+`set_updated_at_sync_tick` trigger), so those rows also **re-sync to facilities**,
+and it needs the FHIR worker running plus `integrations.fhir.enabled` and
+`integrations.fhir.worker.enabled`. Prefer `node dist fhir --refresh` unless that
+re-sync side-effect is actually what you want.

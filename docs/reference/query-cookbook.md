@@ -108,7 +108,7 @@ WITH all_devices AS (
 ),
 recent_syncs AS (
   SELECT COALESCE(parameters->>'deviceId', debug_info->>'deviceId') AS device_id,
-         parameters->'facilityIds'->>0 AS facility_id,
+         (SELECT string_agg(value, ',') FROM jsonb_array_elements_text(parameters->'facilityIds')) AS facility_id,
          completed_at,
          completed_at - start_time     AS duration,
          errors IS NOT NULL            AS has_error
@@ -165,7 +165,7 @@ SELECT start_time,
        snapshot_completed_at - start_time AS snapshot_duration,
        completed_at - start_time          AS full_duration,
        errors IS NOT NULL                 AS is_error,
-       parameters->'facilityIds'->>0      AS facility_id
+       (SELECT string_agg(value, ',') FROM jsonb_array_elements_text(parameters->'facilityIds')) AS facility_ids
 FROM sync_sessions
 ORDER BY updated_at DESC
 LIMIT 10;
@@ -181,7 +181,7 @@ Last 10 errors:
 SELECT start_time,
        snapshot_completed_at - start_time AS snapshot_duration,
        completed_at - start_time          AS full_duration,
-       parameters->'facilityIds'->>0      AS facility_id,
+       (SELECT string_agg(value, ',') FROM jsonb_array_elements_text(parameters->'facilityIds')) AS facility_ids,
        errors
 FROM sync_sessions
 WHERE errors IS NOT NULL
@@ -363,6 +363,11 @@ WHERE upstream_id = '<lab_request_id or imaging_request_id>';
 No row = it never materialised (check the queue and worker below). `resolved =
 false` = unresolved references (the patient/encounter it points at is not
 materialised yet).
+
+To force a rebuild of stale or missing `ServiceRequest` rows rather than wait for
+the trigger/reconciliation, run `node dist fhir --refresh ServiceRequest` from the
+central-server release dir — it re-materialises in-process, no worker needed. See
+the re-materialise command in `../sops/disable-fhir-jobs.md`. **[dev-OTS]**
 
 ### Is the materialisation worker on?
 
