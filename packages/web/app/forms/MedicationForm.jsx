@@ -192,11 +192,7 @@ const FieldLabel = styled(Box)`
 
 const TooltipTextField = ({ tooltip, label, id, ...props }) => (
   <FullWidthFieldWrapper>
-    <FieldLabel
-      component="label"
-      htmlFor={id}
-      style={{ display: 'inline-block', marginBottom: 4 }}
-    >
+    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
       {label}
     </FieldLabel>
     <ThemedTooltip disableFocusListener title={tooltip}>
@@ -370,9 +366,18 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
+function PlainTimeRangeDisplay({ start, end }) {
+  const { formatTime } = useDateTime();
+  return (
+    <>
+      {formatTime(start)}&thinsp;&ndash;&thinsp;{formatTime(end)}
+    </>
+  );
+}
+
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTime, formatShort } = useDateTime();
+  const { formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -392,10 +397,16 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
+    return (
+      <>
+        <PlainTimeRangeDisplay
+          start={getDateFromTimeString(firstSlot.startTime)}
+          end={getDateFromTimeString(firstSlot.endTime)}
+        />{' '}
+        {formatShort(new Date(firstStartTime))}
+      </>
+    );
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -549,14 +560,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       py={1.25}
                       bgcolor={isDisabled ? undefined : Colors.white}
                       borderRadius="3px"
-                      width="187px"
                       height="fit-content"
                       border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
                     >
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+                            <PlainTimeRangeDisplay start={startTime} end={endTime} />
                           </FieldContent>
                         }
                         value={checked}
