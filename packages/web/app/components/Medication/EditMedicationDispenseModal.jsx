@@ -10,6 +10,7 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -215,7 +216,7 @@ export const EditMedicationDispenseModal = memo(
         medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions: item.instructions,
         quantity: item.quantity,
-        units: item.pharmacyOrderPrescription.prescription?.dispensingUnit,
+        dispensingUnit: item.pharmacyOrderPrescription.prescription?.dispensingUnit,
         remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
         prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
@@ -296,6 +297,7 @@ export const EditMedicationDispenseModal = memo(
           ),
           accessor: item => {
             const { quantity } = item;
+            const dispensingUnit = item.pharmacyOrderPrescription?.prescription?.dispensingUnit;
             const hasQuantityError = errors.hasQuantityError || false;
             return (
               <QuantityInput
@@ -303,6 +305,11 @@ export const EditMedicationDispenseModal = memo(
                 onChange={e => handleQuantityChange(e)}
                 error={showValidationErrors && hasQuantityError}
                 InputProps={{ inputProps: { min: 1 } }}
+                unit={
+                  dispensingUnit
+                    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                    : undefined
+                }
                 data-testid="dispense-quantity"
                 required
                 helperText={

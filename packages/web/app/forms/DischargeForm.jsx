@@ -1,60 +1,67 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
+import CloseIcon from '@mui/icons-material/Close';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
+
 import {
   FORM_TYPES,
-  SUBMIT_ATTEMPTED_STATUS,
+  MAX_REPEATS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   NOTE_TYPES,
-  MAX_REPEATS,
+  SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
-import CloseIcon from '@mui/icons-material/Close';
-import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
-  TextField,
-  TextInput,
-  NumberInput,
-  FormGrid,
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
+import {
+  AutocompleteField,
+  ConditionalTooltip,
+  DateTimeField,
+  DateTimeInput,
+  Field,
   FormConfirmCancelBackRow,
+  FormGrid,
   FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
+  NumberInput,
+  OuterLabelFieldWrapper,
+  TextField,
+  TextInput,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useTranslation,
+  VisuallyHidden,
 } from '@tamanu/ui-components';
-import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { useApi } from '../api';
-import { foreignKey } from '../utils/validation';
-import { Colors, PATIENT_STATUS } from '../constants';
+import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
+import { BodyText, SmallBodyText } from '../components';
+import { DiagnosisList } from '../components/DiagnosisList';
+import { EncounterSummaryContent } from '../components/EncounterSummary';
 import {
-  AutocompleteField,
   DefaultFormScreen,
-  Field,
   LocalisedField,
   PaginatedForm,
   useLocalisedSchema,
 } from '../components/Field';
-import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
-import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TableFormFields } from '../components/Table';
-
-import { DiagnosisList } from '../components/DiagnosisList';
-import { useEncounter } from '../contexts/Encounter';
-import { BodyText, SmallBodyText } from '../components';
-import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
-import { useSettings } from '../contexts/Settings';
-import { ConditionalTooltip } from '../components/Tooltip';
-import { useAuth } from '../contexts/Auth';
-import { getPatientStatus } from '../utils/getPatientStatus';
-import { useTranslation } from '../contexts/Translation';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
-import { EncounterSummaryContent } from '../components/EncounterSummary';
-import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash, getDrugUnitLabel } from '../utils/medications';
+import { TableFormFields } from '../components/Table';
+import { Colors, PATIENT_STATUS } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
+import { getPatientStatus } from '../utils/getPatientStatus';
+import { createPrescriptionHash } from '../utils/medications';
+import { foreignKey } from '../utils/validation';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -115,38 +122,39 @@ const MedicationHeader = styled(Box)`
 
 const TableContainer = styled(Box)`
   padding: 20px;
-  padding-bottom: 15px;
+  padding-block-end: 15px;
+  font-size: 14px;
+  line-height: 1.3;
   .MuiTable-root {
     border: none;
   }
+
   .MuiTableHead-root {
-    background-color: ${Colors.white};
-    .MuiTableCell-head {
-      padding: 0 30px 5px 0;
-      text-align: left;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 18px;
-      color: ${Colors.darkText};
-      &:nth-child(4) {
-        padding-right: 0;
-      }
+    background-color: transparent;
+  }
+
+  .MuiTableCell-root {
+    padding-block: 3px;
+    padding-inline: 15px;
+    &:first-of-type {
+      padding-inline-start: 0;
+    }
+    &:last-of-type {
+      padding-inline-end: 0;
     }
   }
-  .MuiTableBody-root {
-    .MuiTableCell-body {
-      padding: 5px 30px 0 0;
-      border: none;
-      &:nth-child(4),
-      &:nth-child(5) {
-        padding-right: 0;
-      }
-      ${({ $isEmpty }) =>
-        $isEmpty &&
-        `
-        padding: 0;
-        padding-top: 15px;
-      `}
+
+  .MuiTableCell-head {
+    color: ${p => p.theme.palette.text.secondary};
+    font: inherit;
+    font-weight: 500;
+    text-align: start;
+  }
+
+  .MuiTableBody-root .MuiTableCell-body {
+    border: none;
+    &:not(:has(:nth-child(1))) {
+      padding-block: 15px 0;
     }
   }
 `;
@@ -160,11 +168,10 @@ const dischargingClinicianLabel = (
         <TranslatedText
           stringId="general.localisedField.clinician.label"
           fallback="Clinician"
-          data-testid="translatedtext-q0hb"
+          casing="lower"
         />
       ),
     }}
-    data-testid="translatedtext-buzh"
   />
 );
 
@@ -241,11 +248,7 @@ const ProcedureList = React.memo(({ procedures }) => (
         </li>
       ))
     ) : (
-      <TranslatedText
-        stringId="general.fallback.notApplicable"
-        fallback="N/A"
-        data-testid="translatedtext-9pcc"
-      />
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
     )}
   </StyledUnorderedList>
 ));
@@ -317,7 +320,7 @@ const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
   </DarkestText>
 );
 
-const MEDICATION_COLUMNS = (
+export const MEDICATION_COLUMNS = (
   getTranslation,
   getEnumTranslation,
   handleDiscontinueMedication,
@@ -326,13 +329,7 @@ const MEDICATION_COLUMNS = (
 ) => [
   {
     key: 'medication',
-    title: (
-      <TranslatedText
-        stringId="discharge.table.column.medication"
-        fallback="Medication"
-        data-testid="translatedtext-qyha"
-      />
-    ),
+    title: <TranslatedText stringId="discharge.table.column.medication" fallback="Medication" />,
     accessor: medication => (
       <MedicationAccessor
         medication={medication}
@@ -340,7 +337,7 @@ const MEDICATION_COLUMNS = (
         getEnumTranslation={getEnumTranslation}
       />
     ),
-    width: '250px',
+    style: { inlineSize: '18em' },
   },
   {
     key: 'quantity',
@@ -348,7 +345,6 @@ const MEDICATION_COLUMNS = (
       <TranslatedText
         stringId="discharge.table.column.dischargeQuantity"
         fallback="Discharge qty"
-        data-testid="translatedtext-8e5k"
       />
     ),
     accessor: ({ id, medication, dispensingUnit }) => (
@@ -363,17 +359,11 @@ const MEDICATION_COLUMNS = (
         }
       />
     ),
-    width: '150px',
+    style: { inlineSize: '10em', minInlineSize: '10em' },
   },
   {
     key: 'repeats',
-    title: (
-      <TranslatedText
-        stringId="discharge.table.column.repeats"
-        fallback="Repeats"
-        data-testid="translatedtext-opjr"
-      />
-    ),
+    title: <TranslatedText stringId="discharge.table.column.repeats" fallback="Repeats" />,
     accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
@@ -389,19 +379,23 @@ const MEDICATION_COLUMNS = (
         onInput={preventInvalidRepeatsInput}
       />
     ),
-    width: '120px',
+    style: { inlineSize: '8em', minInlineSize: '8em' },
   },
   {
     key: 'Ongoing',
     title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
     accessor: OngoingAccessor,
-    width: '60px',
+    style: { minWidth: 0 },
   },
   ...(canUpdateMedication
     ? [
         {
           key: 'Discontinued',
-          title: '',
+          title: (
+            <VisuallyHidden>
+              <TranslatedText stringId="medication.details.discontinue" fallback="Discontinue" />
+            </VisuallyHidden>
+          ),
           accessor: medication =>
             medication?.medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication ? (
               <div />
@@ -411,7 +405,7 @@ const MEDICATION_COLUMNS = (
                 handleDiscontinueMedication={handleDiscontinueMedication}
               />
             ),
-          width: '75px',
+          style: { minWidth: 0 },
         },
       ]
     : []),
@@ -430,11 +424,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput
         label={
-          <TranslatedText
-            stringId="discharge.admissionDate.label"
-            fallback="Admission date"
-            data-testid="translatedtext-gkby"
-          />
+          <TranslatedText stringId="discharge.admissionDate.label" fallback="Admission date" />
         }
         value={startDate}
         disabled
@@ -451,11 +441,9 @@ const EncounterOverview = ({
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                  data-testid="translatedtext-67df"
                 />
               ),
             }}
-            data-testid="translatedtext-62et"
           />
         }
         value={examiner ? examiner.displayName : '-'}
@@ -467,7 +455,6 @@ const EncounterOverview = ({
           <TranslatedText
             stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
-            data-testid="translatedtext-v2va"
           />
         }
         value={reasonForEncounter}
@@ -476,13 +463,7 @@ const EncounterOverview = ({
         data-testid="textinput-11vp"
       />
       <OuterLabelFieldWrapper
-        label={
-          <TranslatedText
-            stringId="general.diagnosis.label"
-            fallback="Diagnosis"
-            data-testid="translatedtext-320n"
-          />
-        }
+        label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
         style={{ gridColumn: '1 / -1' }}
         data-testid="outerlabelfieldwrapper-2u7q"
       >
@@ -491,7 +472,6 @@ const EncounterOverview = ({
             <TranslatedText
               stringId="discharge.diagnosis.empty"
               fallback="No diagnosis recorded. A diagnosis must be recorded in order to finalise a discharge."
-              data-testid="translatedtext-ajd4"
             />
           </BodyText>
         ) : (
@@ -499,13 +479,7 @@ const EncounterOverview = ({
         )}
       </OuterLabelFieldWrapper>
       <OuterLabelFieldWrapper
-        label={
-          <TranslatedText
-            stringId="discharge.procedures.label"
-            fallback="Procedures"
-            data-testid="translatedtext-3s6j"
-          />
-        }
+        label={<TranslatedText stringId="discharge.procedures.label" fallback="Procedures" />}
         style={{ gridColumn: '1 / -1' }}
         data-testid="outerlabelfieldwrapper-qzw5"
       >
@@ -574,7 +548,6 @@ const DischargeFormScreen = props => {
                     <TranslatedText
                       stringId="discharge.diagnosisMustBeRecord.tooltip"
                       fallback="Diagnosis must be recorded to finalise discharge"
-                      data-testid="translatedtext-562y"
                     />
                   </SmallBodyText>
                 }
@@ -585,20 +558,13 @@ const DischargeFormScreen = props => {
                     <TranslatedText
                       stringId="general.action.finaliseDischarge"
                       fallback="Finalise discharge"
-                      data-testid="translatedtext-afge"
                     />
                   </Box>
                 </FormSubmitButton>
               </ConditionalTooltip>
             )}
             confirmDisabled={isDiagnosisEmpty}
-            cancelText={
-              <TranslatedText
-                stringId="general.action.cancel"
-                fallback="Cancel"
-                data-testid="translatedtext-2w8k"
-              />
-            }
+            cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
             data-testid="formconfirmcancelbackrow-xkrs"
           />
         }
@@ -616,14 +582,12 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
         <TranslatedText
           stringId="discharge.modal.confirm.heading"
           fallback="Confirm patient discharge"
-          data-testid="translatedtext-vfv1"
         />
       </h3>
       <p>
         <TranslatedText
           stringId="discharge.modal.confirm.warningText"
           fallback="Are you sure you want to discharge the patient? This action is irreversible."
-          data-testid="translatedtext-4o2r"
         />
       </p>
     </ConfirmContent>
@@ -652,7 +616,6 @@ const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
         <TranslatedText
           stringId="discharge.modal.unsavedChanges.message"
           fallback="You have unsaved changes. Are you sure you would like to discard these changes or would you like to 'Save & exit'?"
-          data-testid="translatedtext-774e"
         />
       </UnsavedContent>
       <StyledDivider data-testid="styleddivider-0thc" />
@@ -660,28 +623,14 @@ const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
         onConfirm={onCancel}
         confirmText={
           <Box whiteSpace="nowrap" data-testid="box-gxxv">
-            <TranslatedText
-              stringId="general.action.discardChanges"
-              fallback="Discard changes"
-              data-testid="translatedtext-nd4x"
-            />
+            <TranslatedText stringId="general.action.discardChanges" fallback="Discard changes" />
           </Box>
         }
         onCancel={onStepBack}
-        cancelText={
-          <TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-            data-testid="translatedtext-cw71"
-          />
-        }
+        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         {...(canWriteDischarge && { onBack: onSave })}
         backButtonText={
-          <TranslatedText
-            stringId="general.action.saveAndExit"
-            fallback="Save & exit"
-            data-testid="translatedtext-6xd9"
-          />
+          <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
         }
         data-testid="formconfirmcancelbackrow-8nre"
       />
@@ -761,18 +710,11 @@ export const DischargeForm = ({
         <TranslatedText
           stringId="discharge.modal.unsavedChanges.title"
           fallback="Unsaved changes"
-          data-testid="translatedtext-os9t"
         />,
       );
       return;
     }
-    onTitleChange(
-      <TranslatedText
-        stringId="discharge.modal.title"
-        fallback="Discharge patient"
-        data-testid="translatedtext-juk1"
-      />,
-    );
+    onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
   }, [showWarningScreen, onTitleChange]);
 
   useEffect(() => {
@@ -838,11 +780,7 @@ export const DischargeForm = ({
             .date()
             .required()
             .translatedLabel(
-              <TranslatedText
-                stringId="discharge.dischargeDate.label"
-                fallback="Discharge date"
-                data-testid="translatedtext-542l"
-              />,
+              <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />,
             ),
           medications: yup.lazy(obj =>
             yup.object(
@@ -866,7 +804,6 @@ export const DischargeForm = ({
                     <TranslatedText
                       stringId="discharge.notes.label"
                       fallback="Discharge treatment plan and follow-up notes"
-                      data-testid="translatedtext-208f"
                     />,
                   )
                 : yup.string().optional(),
@@ -876,7 +813,6 @@ export const DischargeForm = ({
               <TranslatedText
                 stringId="general.localisedField.dischargeDisposition.label"
                 fallback="Discharge disposition"
-                data-testid="translatedtext-5ib8"
               />,
             ),
         })}
@@ -896,11 +832,7 @@ export const DischargeForm = ({
           <Field
             name="endDate"
             label={
-              <TranslatedText
-                stringId="discharge.dischargeDate.label"
-                fallback="Discharge date"
-                data-testid="translatedtext-mhlm"
-              />
+              <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />
             }
             component={DateTimeField}
             min={encounter.startDate}
@@ -921,7 +853,6 @@ export const DischargeForm = ({
               <TranslatedText
                 stringId="general.localisedField.dischargeDisposition.label"
                 fallback="Discharge disposition"
-                data-testid="translatedtext-scxc"
               />
             }
             path="fields.dischargeDisposition"
@@ -930,13 +861,7 @@ export const DischargeForm = ({
             data-testid="localisedfield-d7fu"
           />
           <OuterLabelFieldWrapper
-            label={
-              <TranslatedText
-                stringId="discharge.medications.label"
-                fallback="Medications"
-                data-testid="translatedtext-6d1o"
-              />
-            }
+            label={<TranslatedText stringId="discharge.medications.label" fallback="Medications" />}
             style={{ gridColumn: '1 / -1' }}
             data-testid="outerlabelfieldwrapper-axm9"
           >
@@ -947,7 +872,7 @@ export const DischargeForm = ({
                   fallback="Encounter medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={activeMedications.length === 0}>
+              <TableContainer>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
@@ -969,13 +894,14 @@ export const DischargeForm = ({
                   fallback="Other ongoing medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={ongoingMedications.length === 0}>
+              <TableContainer>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
                     getEnumTranslation,
                     handleDiscontinueMedication,
                     canUpdateMedication,
+                    canWriteSensitiveMedication,
                   )}
                   data={ongoingMedications}
                   data-testid="tableformfields-i8q7"
@@ -997,7 +923,6 @@ export const DischargeForm = ({
               <TranslatedText
                 stringId="discharge.notes.label"
                 fallback="Discharge treatment plan and follow-up notes"
-                data-testid="translatedtext-kr28"
               />
             }
             component={TextField}

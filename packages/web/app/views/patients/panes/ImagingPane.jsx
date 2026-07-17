@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
-import {
-  TableButtonRow,
-  NoteModalActionBlocker,
-} from '../../../components';
+import styled from 'styled-components';
+
+import { Button, ButtonWithPermissionCheck, TranslatedText } from '@tamanu/ui-components';
+import { NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+
+const StyledImagingRequestsTable = styled(ImagingRequestsTable)`
+  border-block-start: 1px solid ${p => p.theme.palette.divider};
+  border-start-end-radius: ${p => p.theme.shape.borderRadius}px;
+  border-start-start-radius: ${p => p.theme.shape.borderRadius}px;
+`;
 
 export const ImagingPane = React.memo(({ encounter, disabled }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
@@ -61,7 +65,10 @@ export const ImagingPane = React.memo(({ encounter, disabled }) => {
           </ButtonWithPermissionCheck>
         </NoteModalActionBlocker>
       </TableButtonRow>
-      <ImagingRequestsTable encounterId={encounter.id} data-testid="imagingrequeststable-csir" />
+      <StyledImagingRequestsTable
+        data-testid="imagingrequeststable-csir"
+        encounterId={encounter.id}
+      />
     </TabPane>
   );
 });

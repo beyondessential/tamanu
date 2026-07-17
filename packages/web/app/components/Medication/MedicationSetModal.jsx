@@ -244,13 +244,15 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
 
   const onSelect = medicationSet => {
+    const startDate = getCurrentDateTime();
+    const date = getCurrentDate();
     const newMedicationSetChildren = medicationSet.children
       .filter(child => child.medicationTemplate)
       .map(({ medicationTemplate }) => ({
         ...medicationTemplate,
         idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
-        startDate: getCurrentDateTime(),
-        date: getCurrentDate(),
+        startDate,
+        date,
         prescriberId: currentUser.id,
         ...(medicationTemplate.doseAmount && {
           doseAmount: Number(medicationTemplate.doseAmount),

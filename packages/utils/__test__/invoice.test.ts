@@ -10,6 +10,8 @@ import {
   getItemTotalInsuranceCoverageAmount,
   getInvoiceItemNetCost,
   isFixedPriceItem,
+  getPatientPaymentsWithRemainingBalance,
+  getInsurerPaymentsWithRemainingBalance,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -649,6 +651,144 @@ describe('Invoice Utils', () => {
         // fixed line $2 + per-unit line $100
         expect(summary.invoiceItemsTotal).toEqual(102);
       });
+    });
+  });
+
+  describe('getPatientPaymentsWithRemainingBalance', () => {
+    it('nets refunds out of the remaining balance so it agrees with getInvoiceSummary', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 1,
+            insurancePlanItems: [],
+          },
+        ],
+        payments: [
+          {
+            id: 'payment-1',
+            amount: 100,
+            patientPayment: { id: 'patient-1' },
+            refundPayment: { id: 'refund-1' },
+          },
+          {
+            id: 'refund-1',
+            amount: 100,
+            patientPayment: { id: 'patient-2' },
+            originalPayment: { id: 'payment-1' },
+          },
+        ],
+      };
+      const summary = getInvoiceSummary(invoice);
+      const paymentsWithRemainingBalance = getPatientPaymentsWithRemainingBalance(invoice);
+      const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
+      expect(summary.patientPaymentRemainingBalance).toEqual(100);
+      expect(lastPayment.remainingBalance).toEqual(summary.patientPaymentRemainingBalance);
+    });
+
+    it('still deducts non-refunded payments from the remaining balance', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 1,
+            insurancePlanItems: [],
+          },
+        ],
+        payments: [
+          {
+            id: 'payment-1',
+            amount: 30,
+            patientPayment: { id: 'patient-1' },
+          },
+          {
+            id: 'payment-2',
+            amount: 20,
+            patientPayment: { id: 'patient-2' },
+            refundPayment: { id: 'refund-1' },
+          },
+          {
+            id: 'refund-1',
+            amount: 20,
+            patientPayment: { id: 'patient-3' },
+            originalPayment: { id: 'payment-2' },
+          },
+        ],
+      };
+      const summary = getInvoiceSummary(invoice);
+      const paymentsWithRemainingBalance = getPatientPaymentsWithRemainingBalance(invoice);
+      const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
+      expect(summary.patientPaymentRemainingBalance).toEqual(70);
+      expect(lastPayment.remainingBalance).toEqual(summary.patientPaymentRemainingBalance);
+    });
+  });
+
+  describe('getInsurerPaymentsWithRemainingBalance', () => {
+    it('nets refunds out of the remaining balance so it agrees with getInvoiceSummary', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 1,
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 100 }],
+            product: {
+              insurable: true,
+            },
+          },
+        ],
+        payments: [
+          {
+            id: 'payment-1',
+            amount: 40,
+            insurerPayment: { id: 'insurer-1', insurerId: 'insurer-a' },
+          },
+          {
+            id: 'payment-2',
+            amount: 60,
+            insurerPayment: { id: 'insurer-2', insurerId: 'insurer-a' },
+            refundPayment: { id: 'refund-1' },
+          },
+          {
+            id: 'refund-1',
+            amount: 60,
+            insurerPayment: { id: 'insurer-3', insurerId: 'insurer-a' },
+            originalPayment: { id: 'payment-2' },
+          },
+        ],
+      };
+      const summary = getInvoiceSummary(invoice);
+      const paymentsWithRemainingBalance = getInsurerPaymentsWithRemainingBalance(invoice);
+      const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
+      expect(lastPayment.remainingBalance).toEqual(60);
+      expect(summary.insurerPaymentsTotal).toEqual(40);
+      expect(summary.insurerPaymentRemainingBalance).toEqual(lastPayment.remainingBalance);
+    });
+
+    it('agrees with getInvoiceSummary when there are no refunds', () => {
+      const invoice = {
+        items: [
+          {
+            manualEntryPrice: 100,
+            quantity: 1,
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 100 }],
+            product: {
+              insurable: true,
+            },
+          },
+        ],
+        payments: [
+          {
+            id: 'payment-1',
+            amount: 40,
+            insurerPayment: { id: 'insurer-1', insurerId: 'insurer-a' },
+          },
+        ],
+      };
+      const summary = getInvoiceSummary(invoice);
+      const paymentsWithRemainingBalance = getInsurerPaymentsWithRemainingBalance(invoice);
+      const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
+      expect(summary.insurerPaymentRemainingBalance).toEqual(60);
+      expect(lastPayment.remainingBalance).toEqual(summary.insurerPaymentRemainingBalance);
     });
   });
 });

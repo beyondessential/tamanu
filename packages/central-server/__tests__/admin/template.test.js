@@ -1,4 +1,4 @@
-import { TEMPLATE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('Patient merge', () => {
@@ -70,11 +70,11 @@ describe('Patient merge', () => {
       type: TEMPLATE_TYPES.PATIENT_LETTER,
     });
 
-    expect(response).toHaveRequestError(422);
+    expect(response).toHaveRequestError(409);
     expect(response.body).toMatchObject({
       error: {
         message: 'Template name must be unique',
-        name: 'DatabaseValidationError',
+        name: 'EditConflictError',
       },
     });
   });
@@ -90,12 +90,33 @@ describe('Patient merge', () => {
       name: 'Sick note - name should conflict',
       type: TEMPLATE_TYPES.PATIENT_LETTER,
     });
-    expect(response).toHaveRequestError(422);
+    expect(response).toHaveRequestError(409);
     expect(response.body).toMatchObject({
       error: {
         message: 'Template name must be unique',
-        name: 'DatabaseValidationError',
+        name: 'EditConflictError',
       },
     });
+  });
+
+  it('Should allow reusing a name from a historical Template', async () => {
+    const { Template } = models;
+    const name = 'Sick note - reused after delete';
+
+    await Template.create({
+      name,
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+
+    const response = await adminApp.post('/api/admin/template').send({
+      name,
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+    });
+    expect(response).toHaveSucceeded();
+
+    const createdTemplate = await Template.findByPk(response.body.id);
+    expect(createdTemplate.name).toEqual(name);
+    expect(createdTemplate.visibilityStatus).toEqual(VISIBILITY_STATUSES.CURRENT);
   });
 });

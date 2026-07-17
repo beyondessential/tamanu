@@ -31,6 +31,7 @@
   "devDependencies": {
     "@casl/ability": "^6.8.0",
     "@tamanu/build-tooling": "*",
+    "@tamanu/fake-data": "*",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.13",
     "@types/jsonpath": "^0.2.4",

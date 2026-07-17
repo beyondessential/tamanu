@@ -11,7 +11,6 @@ import { Box } from '@mui/material';
 import { Field, NoteModalActionBlocker } from '../../../../components';
 import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
-import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
 import { CELL_WIDTHS } from '../../constants';
 
@@ -128,7 +127,7 @@ export const PriceCell = ({
   const showDiscount = hasDiscount && !isEditing && isSaved;
 
   return (
-    <StyledItemCell $width={cellWidths.PRICE}>
+    <td style={{ minInlineSize: cellWidths.PRICE }}>
       <Container>
         <MainContent>
           {hidePriceInput ? (
@@ -165,6 +164,6 @@ export const PriceCell = ({
           </Collapse>
         )}
       </Container>
-    </StyledItemCell>
+    </td>
   );
 };

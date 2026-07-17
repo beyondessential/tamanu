@@ -293,8 +293,8 @@ export class Encounter extends BaseModel implements IEncounter {
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
+      .andWhere('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
       .groupBy('date(encounter.startDate)')
-      .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
       .orderBy('encounterDate', 'ASC');
 
     return query.getRawMany();

@@ -1,41 +1,43 @@
+import Box from '@mui/material/Box';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
 
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   Button,
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
+  ConditionalTooltip,
   DateDisplay,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { DataFetchingTable } from '../../../components/Table';
-
-import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
-
-import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { MedicationModal } from '../../../components/Medication/MedicationModal';
-import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
-import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
-import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { MenuButton } from '../../../components/MenuButton';
-import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
-import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
-import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
-import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
-import { useApi } from '../../../api';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
-import { useSettings } from '../../../contexts/Settings';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
+import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
+import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
+import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
+import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
+import { MenuButton } from '../../../components/MenuButton';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
+import { DataFetchingTable } from '../../../components/Table';
+import { PATIENT_STATUS_COLORS } from '../../../constants';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
+import SendToPharmacyButton from './SendToPharmacyButton';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -84,9 +86,6 @@ const TableTitleText = styled(Box)`
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     max-width: 180px;
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 400;
   }
 `;
 
@@ -96,10 +95,6 @@ const ButtonGroup = styled(Box)`
   align-items: center;
 `;
 
-const SendToPharmacyButton = styled.div`
-  cursor: pointer;
-  ${props => props.disabled && 'opacity: 0.3; cursor: default;'}
-`;
 const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
   .MuiTooltip-tooltip {
@@ -488,7 +483,7 @@ export const PatientMedicationPane = ({ patient }) => {
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
-          units: prescription?.dispensingUnit,
+          dispensingUnit: prescription?.dispensingUnit,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,
@@ -615,7 +610,8 @@ export const PatientMedicationPane = ({ patient }) => {
             {pharmacyOrderEnabled &&
               canRequestPharmacyOrder &&
               activeOngoingPrescriptions.length > 0 && (
-                <ThemedTooltip
+                <StyledConditionalTooltip
+                  visible
                   PopperProps={{
                     popperOptions: {
                       positionFixed: true,
@@ -630,34 +626,21 @@ export const PatientMedicationPane = ({ patient }) => {
                     },
                   }}
                   title={
-                    !currentEncounter ? (
-                      <Box width="120px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy"
-                          fallback="Send to pharmacy"
-                        />
-                      </Box>
+                    currentEncounter ? (
+                      <TranslatedText
+                        stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                        fallback="Please send to pharmacy via the patient active encounter"
+                      />
                     ) : (
-                      <Box width="150px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
-                          fallback="Please send to pharmacy via the patient active encounter"
-                        />
-                      </Box>
+                      <TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />
                     )
                   }
                 >
                   <SendToPharmacyButton
-                    aria-label={getTranslation(
-                      'patient.medication.ongoing.sendToPharmacy',
-                      'Send to pharmacy',
-                    )}
                     disabled={!!currentEncounter}
                     onClick={handleSendToPharmacyClick}
-                  >
-                    <SendToPharmacyIcon aria-hidden />
-                  </SendToPharmacyButton>
-                </ThemedTooltip>
+                  />
+                </StyledConditionalTooltip>
               )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip
@@ -698,7 +681,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          endpoint={`patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
@@ -730,7 +713,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </TableTitle>
           <StyledDataFetchingTable
             $compact
-            endpoint={`/patient/${patient.id}/dispensed-medications`}
+            endpoint={`patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,
               getEnumTranslation,

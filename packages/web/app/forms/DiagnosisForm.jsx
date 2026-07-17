@@ -23,9 +23,15 @@ import { useAuth } from '../contexts/Auth';
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
 
-const shouldIncludeCertaintyOption = (option, isTriage, isEdit) => {
+export const shouldIncludeCertaintyOption = (option, isTriage, isEdit, currentCertainty) => {
   if (isTriage && TRIAGE_ONLY.includes(option.value)) return true;
   if (isEdit && EDIT_ONLY.includes(option.value)) return true;
+  // keep the diagnosis' existing ED certainty selectable when editing, even if the
+  // encounter is no longer a triage (e.g. it has since moved to Emergency short stay)
+  if (isEdit && TRIAGE_ONLY.includes(option.value) && option.value === currentCertainty) {
+    return true;
+  }
+  if (!isTriage && TRIAGE_ONLY.includes(option.value)) return false;
   return !EDIT_ONLY.includes(option.value);
 };
 
@@ -35,7 +41,7 @@ export const DiagnosisForm = React.memo(
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
-      shouldIncludeCertaintyOption({ value }, isTriage, isEdit),
+      shouldIncludeCertaintyOption({ value }, isTriage, isEdit, diagnosis?.certainty),
     );
     const defaultCertainty = certaintyOptions[0].value;
     const hasDiagnosis = Boolean(diagnosis?.id);
@@ -131,7 +137,9 @@ export const DiagnosisForm = React.memo(
               component={TranslatedSelectField}
               enumValues={DIAGNOSIS_CERTAINTY_LABELS}
               transformOptions={options =>
-                options.filter(option => shouldIncludeCertaintyOption(option, isTriage, isEdit))
+                options.filter(option =>
+                  shouldIncludeCertaintyOption(option, isTriage, isEdit, diagnosis?.certainty),
+                )
               }
               required
               data-testid="field-a9rl"

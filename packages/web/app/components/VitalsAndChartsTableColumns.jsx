@@ -15,12 +15,10 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { useChartData } from '../contexts/ChartData';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import {
-  DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
   RangeValidatedCell,
-  TimeBodyCell,
 } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
@@ -151,17 +149,8 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 
 const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
   return cells => {
-    const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
-    const isCalculatedQuestion =
-      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const { answerId, value, component } = cells[date];
     const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
-    const handleCellClick = () => {
-      onCellClick(cells[date]);
-    };
-    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-    const isValid = isCurrent ? true : Boolean(value);
-    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid;
 
     if (isPhoto && value) {
       return (
@@ -175,21 +164,26 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       );
     }
 
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
-      return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
-    }
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const onClick =
+      isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid
+        ? () => void onCellClick(cells[date])
+        : null;
 
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TIME && value) {
-      return <TimeBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
-    }
+    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const { config, historyLogs, validationCriteria } = cells[date];
 
     return (
       <RangeValidatedCell
         value={isMultiSelect ? parseMultiselectValue(value) : value}
+        component={component}
         config={config}
         validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
         isEdited={historyLogs.length > 1}
-        onClick={shouldBeClickable ? handleCellClick : null}
+        onClick={onClick}
         ValueWrapper={VitalsLimitedLinesCell}
         data-testid={`rangevalidatedcell-${date}`}
       />

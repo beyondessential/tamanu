@@ -1,51 +1,53 @@
+import CheckSharp from '@mui/icons-material/CheckSharp';
+import Box from '@mui/material/Box';
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
 
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import CheckSharp from '@mui/icons-material/CheckSharp';
-import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
   MAX_REPEATS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDrugUnitLabel,
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-
-import { TranslatedText } from '../Translation/TranslatedText';
 import {
-  TextField,
-  Form,
   Button,
-  OutlinedButton,
-  FormGrid,
   DateDisplay,
+  Field,
+  Form,
+  FormGrid,
+  NumberField,
+  OutlinedButton,
+  TextField,
   TimeDisplay,
   TimeRangeDisplay,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { CheckField, Field, NumberField } from '../Field';
-import { FormModal } from '../FormModal';
-import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api';
-import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
-import { useTranslation } from '../../contexts/Translation';
-import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { MedicationPauseModal } from './MedicationPauseModal';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
+import { Colors } from '../../constants/styles';
+import { useAuth } from '../../contexts/Auth';
 import { useEncounter } from '../../contexts/Encounter';
-import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
-import { getDrugUnitLabel } from '../../utils/medications';
-import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
+import { CheckField } from '../Field';
+import { FormModal } from '../FormModal';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
+import { MedicationPauseModal } from './MedicationPauseModal';
+import { MedicationResumeModal } from './MedicationResumeModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -146,46 +148,51 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-        {
-          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-          value: medication.durationValue
-            ? `${medication.durationValue} ${singularize(
-              getEnumTranslation(
-                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                medication.durationUnit,
-              ),
-              medication.durationValue,
-            ).toLowerCase()}`
-            : '-',
-        },
-      ]),
+          {
+            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+            value: medication.durationValue ? (
+              `${medication.durationValue} ${singularize(
+                getEnumTranslation(
+                  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                  medication.durationUnit,
+                ),
+                medication.durationValue,
+              ).toLowerCase()}`
+            ) : (
+              <>&mdash;</>
+            ),
+          },
+        ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
-      value: medication.indication || '-',
+      value: medication.indication || <>&mdash;</>,
     },
     {
-      label: (
-        isOngoingPrescription ? (
-          <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
-        ) : (
-          <TranslatedText
-            stringId="medication.details.dischargeQuantity"
-            fallback="Discharge quantity"
-          />
-        )
+      label: isOngoingPrescription ? (
+        <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
+      ) : (
+        <TranslatedText
+          stringId="medication.details.dischargeQuantity"
+          fallback="Dispensing quantity"
+        />
       ),
-      value: medication.quantity != null
-        ? `${medication.quantity}${medication.dispensingUnit ? ` ${getDrugUnitLabel(medication.dispensingUnit, medication.quantity, getEnumTranslation)}` : ''}`
-        : '-',
-    }
+      value:
+        medication.quantity != null ? (
+          `${medication.quantity}${medication.dispensingUnit ? ` ${getDrugUnitLabel(medication.dispensingUnit, medication.quantity, getEnumTranslation)}` : ''}`
+        ) : (
+          <>&mdash;</>
+        ),
+    },
   ];
 
   const rightDetails = [
     {
       label: <TranslatedText stringId="medication.details.frequency" fallback="Frequency" />,
-      value: medication.frequency
-        ? getTranslatedFrequency(medication.frequency, getTranslation)
-        : '-',
+      value: medication.frequency ? (
+        getTranslatedFrequency(medication.frequency, getTranslation)
+      ) : (
+        <>&mdash;</>
+      ),
     },
     {
       label: (
@@ -199,13 +206,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-        {
-          label: (
-            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-          ),
-          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />,
-        },
-      ]),
+          {
+            label: (
+              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+            ),
+            value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />,
+          },
+        ]),
     {
       label: (
         <TranslatedText
@@ -213,13 +220,13 @@ export const MedicationDetails = ({
           fallback="Original prescriber"
         />
       ),
-      value: medication.prescriber?.displayName || '-',
+      value: medication.prescriber?.displayName || <>&mdash;</>,
     },
     {
       label: <TranslatedText stringId="medication.details.phoneOrder" fallback="Phone order" />,
       value:
-        medication.isPhoneOrder == undefined ? (
-          '-'
+        medication.isPhoneOrder == null ? (
+          <>&mdash;</>
         ) : medication.isPhoneOrder ? (
           <TranslatedText stringId="general.yes" fallback="Yes" />
         ) : (
@@ -228,7 +235,7 @@ export const MedicationDetails = ({
     },
     {
       label: <TranslatedText stringId="medication.details.notes" fallback="Notes" />,
-      value: medication.notes || '-',
+      value: medication.notes || <>&mdash;</>,
     },
   ];
 
@@ -302,7 +309,9 @@ export const MedicationDetails = ({
                           fallback="Discontinue reason"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{medication.discontinuingReason || '-'}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        {medication.discontinuingReason || <>&mdash;</>}
+                      </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
                       <MidText>
@@ -361,7 +370,7 @@ export const MedicationDetails = ({
                       <MidText>
                         <TranslatedText stringId="medication.details.notes" fallback="Notes" />
                       </MidText>
-                      <DarkestText mt={0.5}>{pauseData.notes || '-'}</DarkestText>
+                      <DarkestText mt={0.5}>{pauseData.notes || <>&mdash;</>}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -487,8 +496,7 @@ export const MedicationDetails = ({
                   <DetailsContainer mt={0.5} display={'flex'}>
                     <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
                       {medication?.idealTimes
-                        ?.slice()
-                        .sort((a, b) => {
+                        ?.toSorted((a, b) => {
                           const timeA = getDateFromTimeString(a);
                           const timeB = getDateFromTimeString(b);
                           return timeA - timeB;
@@ -509,29 +517,26 @@ export const MedicationDetails = ({
                     </Box>
                     <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
                       {medication?.idealTimes
-                        ?.slice()
-                        .sort((a, b) => {
+                        ?.toSorted((a, b) => {
                           const timeA = getDateFromTimeString(a);
                           const timeB = getDateFromTimeString(b);
                           return timeA - timeB;
                         })
-                        .map(time => {
-                          return (
-                            <MidText key={time}>
-                              <TimeDisplay
-                                date={getDateFromTimeString(time)}
-                                noTooltip
-                              />
-                            </MidText>
-                          );
-                        })}
+                        .map(time => (
+                          <MidText key={time}>
+                            <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
+                          </MidText>
+                        ))}
                     </Box>
                   </DetailsContainer>
                 </Box>
                 <Box flex={1}>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
                     {encounter && !isOngoingPrescription ? (
-                      <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+                      <TranslatedText
+                        stringId="medication.details.repeatsOnDischarge"
+                        fallback="Repeats on discharge"
+                      />
                     ) : (
                       <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
                     )}

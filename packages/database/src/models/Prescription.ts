@@ -7,6 +7,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  type DrugUnit,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
@@ -35,8 +36,8 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare dosingUnit: string;
-  declare dispensingUnit: string;
+  declare dosingUnit: DrugUnit;
+  declare dispensingUnit: DrugUnit;
   declare unitConversion: number;
   declare frequency: string;
   declare idealTimes?: `${number}:${number}`[];
@@ -366,10 +367,15 @@ export class Prescription extends Model {
       ))
     ) {
       const admissionStart = await getAdmissionStartDate(this.sequelize.models, encounter.id);
+      // Convert the pre-admission dosing-unit total to dispensing units (ceil once), the
+      // same way marQty is derived above, so the invoice quantity is in dispensing units.
+      const unitConversion = Number(prescription.unitConversion) || 1;
       administeredQty = admissionStart
-        ? doses
-            .filter((d: any) => d.givenTime && d.givenTime < admissionStart)
-            .reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0)
+        ? Math.ceil(
+            doses
+              .filter((d: any) => d.givenTime && d.givenTime < admissionStart)
+              .reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0) / unitConversion,
+          )
         : 0;
     }
 

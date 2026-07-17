@@ -46,10 +46,13 @@ const Caption = styled.span`
 const NotesInput = styled(Field)`
   flex: 1;
 
+  .MuiInputBase-root {
+    padding: 8px;
+  }
+
   .MuiInputBase-input {
     font-size: 12px;
     line-height: 15px;
-    padding: 8px;
   }
 `;
 

@@ -9,9 +9,12 @@ import { FieldArray } from 'formik';
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { useTranslation } from '../../../contexts/Translation';
+import { isWithinTimeSlot } from '../../../utils/medications';
+import { ChangeStatusModal } from './ChangeStatusModal';
 
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
   Button,
@@ -27,7 +30,6 @@ import {
   TranslatedText,
   useDateTime,
   useSuggester,
-  useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
@@ -36,14 +38,12 @@ import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
 import { CheckField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { FormModal } from '../../FormModal';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { ConditionalTooltip } from '../../Tooltip';
 import { WarningModal } from '../WarningModal';
-import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import { MarInfoPane } from './MarInfoPane';
 import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
@@ -232,22 +232,6 @@ export const MarDetails = ({
 
   const canEditMar = ability.can('write', 'MedicationAdministration');
 
-  const handleOpenChangeStatusModal = () => {
-    setShowChangeStatusModal(true);
-  };
-
-  const handleCloseChangeStatusModal = () => {
-    setShowChangeStatusModal(false);
-  };
-
-  const handleRemoveExistingDose = async dose => {
-    setShowRemoveDoseModal(dose);
-  };
-
-  const handleOpenEditDoseModal = dose => {
-    setShowEditDoseModal(dose);
-  };
-
   const onSubmit = async (data, { setFieldValue }) => {
     const isDoseAmountNotMatch =
       !medication.isVariableDose &&
@@ -426,7 +410,10 @@ export const MarDetails = ({
                   </DarkestText>
                   {canEditMar && (
                     <NoteModalActionBlocker>
-                      <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
+                      <StyledEditButton
+                        disableRipple
+                        onClick={() => void setShowChangeStatusModal(true)}
+                      >
                         <StyledEditIcon />
                       </StyledEditButton>
                     </NoteModalActionBlocker>
@@ -462,7 +449,7 @@ export const MarDetails = ({
                         <NoteModalActionBlocker>
                           <StyledEditButton
                             disableRipple
-                            onClick={() => handleOpenEditDoseModal({})}
+                            onClick={() => void setShowEditDoseModal({})}
                           >
                             <StyledEditIcon />
                           </StyledEditButton>
@@ -498,7 +485,7 @@ export const MarDetails = ({
                             )}
                           </DoseIndex>
                           {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-                            <RemoveDoseText onClick={() => handleRemoveExistingDose(dose)}>
+                            <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
                                 stringId="medication.mar.action.removeAdditionalDose"
@@ -554,7 +541,7 @@ export const MarDetails = ({
                             <NoteModalActionBlocker>
                               <StyledEditButton
                                 disableRipple
-                                onClick={() => handleOpenEditDoseModal(dose)}
+                                onClick={() => setShowEditDoseModal(dose)}
                               >
                                 <StyledEditIcon />
                               </StyledEditButton>
@@ -731,7 +718,7 @@ export const MarDetails = ({
       {!!showChangeStatusModal && (
         <ChangeStatusModal
           open={showChangeStatusModal}
-          onClose={handleCloseChangeStatusModal}
+          onClose={() => void setShowChangeStatusModal(false)}
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}

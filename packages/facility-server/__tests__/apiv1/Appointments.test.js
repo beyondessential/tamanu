@@ -325,6 +325,58 @@ describe('Appointments', () => {
       });
     });
 
+    describe('reschedule conflict checking', () => {
+      afterEach(async () => {
+        await models.Appointment.truncate();
+      });
+
+      it('should allow rescheduling into a slot freed by a cancelled booking', async () => {
+        const cancelledBookingResult = await makeBooking(
+          '2024-10-03 12:00:00',
+          '2024-10-03 12:30:00',
+        );
+        expect(cancelledBookingResult).toHaveSucceeded();
+        const cancelResult = await userApp
+          .put(`/api/appointments/locationBooking/${cancelledBookingResult.body.id}?skipConflictCheck=true`)
+          .send({
+            status: APPOINTMENT_STATUSES.CANCELLED,
+          });
+        expect(cancelResult).toHaveSucceeded();
+
+        const otherBookingResult = await makeBooking(
+          '2024-10-03 14:00:00',
+          '2024-10-03 14:30:00',
+        );
+        expect(otherBookingResult).toHaveSucceeded();
+
+        const result = await userApp
+          .put(`/api/appointments/locationBooking/${otherBookingResult.body.id}`)
+          .send({
+            startTime: '2024-10-03 12:00:00',
+            endTime: '2024-10-03 12:30:00',
+            locationId,
+          });
+        expect(result).toHaveSucceeded();
+      });
+
+      it('should reject rescheduling into a slot still occupied by an active booking', async () => {
+        await makeBooking('2024-10-03 12:00:00', '2024-10-03 12:30:00');
+        const otherBookingResult = await makeBooking(
+          '2024-10-03 14:00:00',
+          '2024-10-03 14:30:00',
+        );
+
+        const result = await userApp
+          .put(`/api/appointments/locationBooking/${otherBookingResult.body.id}`)
+          .send({
+            startTime: '2024-10-03 12:00:00',
+            endTime: '2024-10-03 12:30:00',
+            locationId,
+          });
+        expect(result.status).toBe(409);
+      });
+    });
+
     describe('booking confirmation emails', () => {
       const TEST_EMAIL = 'booking@test.com';
 

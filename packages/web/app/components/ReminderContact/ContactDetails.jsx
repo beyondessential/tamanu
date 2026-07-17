@@ -1,17 +1,15 @@
+import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
-import { TextButton, VisuallyHidden } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { WS_EVENTS } from '@tamanu/constants';
 
+import { WS_EVENTS } from '@tamanu/constants';
+import { TextButton, TranslatedText, VisuallyHidden, useTranslation } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
-import { DataFetchingTable, Table } from '../Table';
 import { joinNames } from '../../utils/user';
-import { useTranslation } from '../../contexts/Translation';
-import { TranslatedText } from '../Translation/TranslatedText';
 import { useSocket } from '../../utils/useSocket';
+import { DataFetchingTable, Table } from '../Table';
 
 const StyledText = styled(Typography)`
   margin: 14px 0px 30px 0;
@@ -33,9 +31,9 @@ const StyledTextButton = styled(TextButton)`
   }
 `;
 
-const StyledContactListTable = (props) => {
+const StyledContactListTable = props => {
   const Component = styled(DataFetchingTable)`
-    display: ${(props) => (props.isEmpty ? 'none' : 'block')};
+    display: ${props => (props.isEmpty ? 'none' : 'block')};
     margin-bottom: 28px;
     border-radius: 5px;
     border: 1px solid ${Colors.outline};
@@ -81,10 +79,10 @@ const RowActionLink = styled.a`
 `;
 
 const ColoredText = styled.span`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
 `;
 
-const ContactDetailTable = (props) => {
+const ContactDetailTable = props => {
   const Component = styled(Table)`
     border: 1px solid ${Colors.outline};
     box-shadow: none;
@@ -155,7 +153,7 @@ export const ContactDetails = ({
 }) => {
   const { socket } = useSocket();
   const { getTranslation } = useTranslation();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -164,7 +162,7 @@ export const ContactDetails = ({
   const canRemoveReminderContacts = ability.can('write', 'Patient');
 
   const unsubscribersListener = useCallback(() => {
-    setRefreshCount((prev) => prev + 1);
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -290,7 +288,7 @@ export const ContactDetails = ({
               </VisuallyHidden>
             ),
             sortable: false,
-            accessor: (data) => {
+            accessor: data => {
               return (
                 <StyledTextButton
                   onClick={() => onRemoveContact(data)}
@@ -316,7 +314,7 @@ export const ContactDetails = ({
               </VisuallyHidden>
             ),
             sortable: false,
-            accessor: (row) =>
+            accessor: row =>
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
                 <RowActionLink onClick={() => onRetry(row)} data-testid="rowactionlink-pfr5">
@@ -368,7 +366,7 @@ export const ContactDetails = ({
       )}
       <StyledContactListTable
         columns={columns}
-        endpoint={`/patient/${patient.id}/reminderContacts`}
+        endpoint={`patient/${patient.id}/reminderContacts`}
         disablePagination
         initialSort={{ orderBy: 'name', order: 'asc' }}
         allowExport={false}
