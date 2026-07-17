@@ -17,6 +17,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
+import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
 export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const { getTranslation } = useTranslation();
@@ -35,6 +36,13 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const { data: certificateData } = certificateQuery;
 
   const { encounter } = useEncounter();
+
+  // In-progress invoices can be printed, so drop bed-fee lines zeroed by a ward move — they carry
+  // no charge and are cleaned off at finalisation anyway.
+  const printableInvoice = {
+    ...invoice,
+    items: invoice.items?.filter(item => !isZeroedBedFeeItem(item)),
+  };
 
   const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;
@@ -84,7 +92,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           certificateData={certificateData}
           getSetting={getSetting}
           clinicianText={clinicianText}
-          invoice={invoice}
+          invoice={printableInvoice}
           enablePatientInsurer={enablePatientInsurer}
           primaryTimeZone={primaryTimeZone}
           data-testid="invoicerecordprintout-0r2o"

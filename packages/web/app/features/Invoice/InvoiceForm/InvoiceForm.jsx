@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
+import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -163,6 +164,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                 <InvoiceItemHeader cellWidths={cellWidths} />
                 <Box>
                   {values.invoiceItems?.map((item, index) => {
+                    // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                    // and the save payload are unchanged.
+                    if (isZeroedBedFeeItem(item)) return null;
                     return (
                       <InvoiceItemRow
                         key={item.id}
