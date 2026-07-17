@@ -11,10 +11,10 @@ import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { useDateTime } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   DispensedMedicationName,
   getDispensedMedication,
-  getDrugUnitLabel,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
@@ -109,7 +109,7 @@ export const MedicationDispensesTable = () => {
         medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions,
         quantity,
-        units: prescription?.dispensingUnit,
+        dispensingUnit: prescription?.dispensingUnit,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         prescriberName: prescription?.prescriber?.displayName,
         requestNumber: pharmacyOrderPrescription?.displayId,

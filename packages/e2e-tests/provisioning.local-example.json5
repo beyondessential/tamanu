@@ -1,0 +1,59 @@
+// Example central-server provisioning for local e2e runs — mirrors the file CI writes in
+// .github/scripts/e2e-test-setup.sh. Copy to packages/central-server/provisioning.json5
+// (gitignored) and adjust if needed; see packages/e2e-tests/README.md.
+{
+  users: {
+    "admin@tamanu.io": {
+      role: "admin",
+      password: "admin",
+      displayName: "Initial Admin",
+    },
+  },
+
+  facilities: {
+    "facility-1": {
+      name: "facility-1",
+      code: "facility-1",
+      user: "facility-1@tamanu.io",
+      password: "facility-1",
+    },
+  },
+
+  settings: {
+    global: {
+      features: {
+        deviceRegistrationQuota: {
+          enabled: false,
+        },
+        desktopCharting: {
+          enabled: true,
+        },
+        enableTasking: true,
+      },
+      patientSummary: {
+        enabled: true,
+      },
+      encounterSummary: {
+        enabled: true,
+      },
+    },
+  },
+
+  referenceData: [
+    {
+      defaultSpreadsheet: true,
+    },
+  ],
+
+  programs: [
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx',
+    },
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/neurological-assessment.xlsx',
+    },
+    {
+      url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx',
+    },
+  ],
+}

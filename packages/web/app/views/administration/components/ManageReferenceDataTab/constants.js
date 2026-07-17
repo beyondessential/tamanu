@@ -4,7 +4,7 @@ import { startCase } from 'es-toolkit/compat';
 export const ENDPOINT = 'admin/referenceData/manage';
 export const COLUMNS_ENDPOINT = 'admin/referenceData/manage/columns';
 
-export const DATA_TYPE_OPTIONS = [...MANAGEABLE_REFERENCE_DATA_TYPES].sort().map(value => ({
+export const DATA_TYPE_OPTIONS = MANAGEABLE_REFERENCE_DATA_TYPES.toSorted().map(value => ({
   value,
   label: startCase(value),
 }));

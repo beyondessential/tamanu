@@ -1,26 +1,30 @@
+import Box from '@mui/material/Box';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import {
-  NumberInput,
-  DateDisplay,
-  TimeDisplay,
-  ThemedTooltip,
-  ConditionalTooltip,
-  RequiredOrnament,
-} from '@tamanu/ui-components';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-
-import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput } from '../Field';
-import { Table } from '../Table';
-import { useTranslation } from '../../contexts/Translation';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { singularize } from '../../utils';
-import { getDrugUnitLabel } from '../../utils/medications';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
+import {
+  ConditionalTooltip,
+  DateDisplay,
+  NumberInput,
+  OuterLabelFieldWrapper,
+  RequiredOrnament,
+  ThemedTooltip,
+  TimeDisplay,
+  TranslatedReferenceData,
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { Colors } from '../../constants/styles';
+import { singularize } from '../../utils';
+import { CheckInput } from '../Field';
+import { Table } from '../Table';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -109,36 +113,27 @@ export const COLUMN_KEYS = {
 const getColumns = (
   getTranslation,
   getEnumTranslation,
-  onSelectAll,
-  selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false } = {},
 ) => {
+  const includes = new Set(columnsToInclude);
   const allColumns = [
     {
       key: COLUMN_KEYS.SELECT,
-      title: (
-        <CheckInput
-          value={selectAllChecked}
-          onChange={onSelectAll}
-          style={{ margin: 'auto' }}
-          data-testid="select-all-checkbox"
-        />
-      ),
+      // Title is injected by PharmacyOrderMedicationTable so select-all state
+      // updates do not recreate column accessors (which remount inputs).
+      title: null,
       sortable: false,
-      maxWidth: 50,
-      accessor: ({ selected, onSelect, id }) => {
-        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
+      accessor: ({ selected, onSelect, isSelectionDisabled }) => {
+        const isDisabled = Boolean(isSelectionDisabled);
         return (
           <ConditionalTooltip
             visible={isDisabled}
             title={
-              <Box width="122px">
-                <TranslatedText
-                  stringId="medication.sendToPharmacy.noRepeatsRemaining"
-                  fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
-                />
-              </Box>
+              <TranslatedText
+                stringId="medication.sendToPharmacy.noRepeatsRemaining"
+                fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
+              />
             }
           >
             <span>
@@ -157,15 +152,8 @@ const getColumns = (
 
     {
       key: COLUMN_KEYS.MEDICATION,
-      title: (
-        <TranslatedText
-          stringId="medication.medication.label"
-          fallback="Medication"
-          data-testid="translatedtext-fmmr"
-        />
-      ),
+      title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
       sortable: false,
-      maxWidth: 300,
       accessor: ({ medication }) => (
         <TranslatedReferenceData
           fallback={medication.name}
@@ -177,13 +165,7 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.DOSE,
-      title: (
-        <TranslatedText
-          stringId="medication.dose.label"
-          fallback="Dose"
-          data-testid="translatedtext-dose"
-        />
-      ),
+      title: <TranslatedText stringId="medication.dose.label" fallback="Dose" />,
       sortable: false,
       accessor: ({ doseAmount, dosingUnit, isVariableDose }) =>
         getMedicationDoseDisplay(
@@ -194,30 +176,18 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.FREQUENCY,
-      title: (
-        <TranslatedText
-          stringId="medication.frequency.label"
-          fallback="Frequency"
-          data-testid="translatedtext-frequency"
-        />
-      ),
+      title: <TranslatedText stringId="medication.frequency.label" fallback="Frequency" />,
       sortable: false,
       accessor: ({ frequency }) =>
         frequency ? getTranslatedFrequency(frequency, getTranslation) : '',
     },
     {
       key: COLUMN_KEYS.DURATION,
-      title: (
-        <TranslatedText
-          stringId="medication.details.duration"
-          fallback="Duration"
-          data-testid="translatedtext-duration"
-        />
-      ),
+      title: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
       sortable: false,
       accessor: ({ durationValue, durationUnit }) => {
         if (!durationValue || !durationUnit) {
-          return '-';
+          return <>&mdash;</>;
         }
 
         const unitLabel = getEnumTranslation(
@@ -230,13 +200,7 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.DATE,
-      title: (
-        <TranslatedText
-          stringId="general.date.label"
-          fallback="Date"
-          data-testid="translatedtext-xv2x"
-        />
-      ),
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       sortable: false,
       accessor: ({ date }) => <DateDisplay date={trimToDate(date)} format="shortest" />,
     },
@@ -247,19 +211,18 @@ const getColumns = (
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
           return (
-            <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+            <NoWrapCell color="inherit" fontStyle="normal">
               <TranslatedText
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
                 casing="lower"
-                data-testid="translatedtext-nc3a"
               />
             </NoWrapCell>
           );
         }
 
         return (
-          <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+          <NoWrapCell color="inherit" fontStyle="normal">
             <Box>
               <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
@@ -283,11 +246,7 @@ const getColumns = (
           $maxWidth="150px"
         >
           <span>
-            <TranslatedText
-              stringId="pharmacyOrder.table.column.repeats"
-              fallback="Remaining"
-              data-testid="translatedtext-psdf"
-            />
+            <TranslatedText stringId="pharmacyOrder.table.column.repeats" fallback="Remaining" />
           </span>
         </ThemedTooltip>
       ) : (
@@ -295,7 +254,6 @@ const getColumns = (
           <TranslatedText
             stringId="pharmacyOrder.table.column.repeatsOnDischarge"
             fallback="Repeats on discharge"
-            data-testid="translatedtext-psdf"
           />
         </TwoLineHeaderText>
       ),
@@ -316,21 +274,20 @@ const getColumns = (
       title: (
         <OuterLabelFieldWrapper
           label={
-            <TranslatedText
-              stringId="pharmacyOrder.table.column.quantity"
-              fallback="Quantity"
-              data-testid="translatedtext-3j93"
-            />
+            <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
           }
           required
         />
       ),
       sortable: false,
-      maxWidth: 130,
       accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
         <NumberInput
           min={1}
-          unit={dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined}
+          unit={
+            dispensingUnit
+              ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+              : undefined
+          }
           value={quantity}
           onChange={onChange}
           required
@@ -346,7 +303,7 @@ const getColumns = (
     },
   ];
 
-  return allColumns.filter(column => columnsToInclude.includes(column.key));
+  return allColumns.filter(column => includes.has(column.key));
 };
 
 export const PharmacyOrderMedicationTable = ({
@@ -358,32 +315,40 @@ export const PharmacyOrderMedicationTable = ({
   selectAllChecked,
   columnsToInclude,
   isOngoingMode = false,
-  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
 
-  const disabledIdsKey = disabledPrescriptionIds.join(',');
-
+  /**
+   * Memoised separately from `columns` below to avoid reinstantiating column accessors as much as
+   * possible. This keeps references to <NumberInput>s in `columns` more stable, so we don’t get
+   * this horrible UX: type into empty ‘Quantity’ field → row is auto-selected → field remounts →
+   * focus lost.
+   */
+  const baseColumns = useMemo(
+    () =>
+      getColumns(getTranslation, getEnumTranslation, columnsToInclude, {
+        isOngoingMode,
+      }),
+    [columnsToInclude, getEnumTranslation, getTranslation, isOngoingMode],
+  );
   const columns = useMemo(
     () =>
-      getColumns(
-        getTranslation,
-        getEnumTranslation,
-        handleSelectAll,
-        selectAllChecked,
-        columnsToInclude,
-        { isOngoingMode, disabledPrescriptionIds },
+      baseColumns.map(column =>
+        column.key === COLUMN_KEYS.SELECT
+          ? {
+              ...column,
+              title: (
+                <CheckInput
+                  data-testid="select-all-checkbox"
+                  onChange={handleSelectAll}
+                  style={{ margin: 'auto' }}
+                  value={selectAllChecked}
+                />
+              ),
+            }
+          : column,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      getTranslation,
-      getEnumTranslation,
-      handleSelectAll,
-      selectAllChecked,
-      columnsToInclude,
-      isOngoingMode,
-      disabledIdsKey,
-    ],
+    [baseColumns, selectAllChecked, handleSelectAll],
   );
 
   return (
@@ -398,7 +363,6 @@ export const PharmacyOrderMedicationTable = ({
         <TranslatedText
           stringId="pharmacyOrder.table.noData"
           fallback="No medications found for this encounter"
-          data-testid="translatedtext-mj0s"
         />
       }
       allowExport={false}

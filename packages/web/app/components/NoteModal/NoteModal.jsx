@@ -159,11 +159,12 @@ export const MuiNoteModalComponent = ({
   }, []);
 
   useEffect(() => {
+    if (!open || !encounterId) return;
     (async () => {
       const noteTypeCountResponse = await api.get(`encounter/${encounterId}/notes/noteTypes`);
       setNoteTypeCountByType(noteTypeCountResponse.data);
     })();
-  }, [api, note, encounterId]);
+  }, [api, note, encounterId, open]);
 
   const handleCreateOrEditNewNote = useCallback(
     async (data, { resetForm }) => {

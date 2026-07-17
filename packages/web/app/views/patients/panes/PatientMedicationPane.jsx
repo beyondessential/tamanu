@@ -3,12 +3,15 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   Button,
   ConditionalTooltip,
   DateDisplay,
-  ThemedTooltip,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
@@ -20,7 +23,6 @@ import {
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
-import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
@@ -38,13 +40,13 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import {
   DispensedMedicationName,
   getDispensedMedication,
-  getDrugUnitLabel,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
   PharmacyModifiedFootnote,
 } from '../../../utils/medications';
 import { PrescriptionChangeHistoryModal } from '../../../components/Medication/PrescriptionChangeHistoryModal';
+import SendToPharmacyButton from './SendToPharmacyButton';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -93,9 +95,6 @@ const TableTitleText = styled(Box)`
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     max-width: 180px;
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 400;
   }
 `;
 
@@ -105,10 +104,6 @@ const ButtonGroup = styled(Box)`
   align-items: center;
 `;
 
-const SendToPharmacyButton = styled.div`
-  cursor: pointer;
-  ${props => props.disabled && 'opacity: 0.3; cursor: default;'}
-`;
 const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
   .MuiTooltip-tooltip {
@@ -511,7 +506,7 @@ export const PatientMedicationPane = ({ patient }) => {
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
-          units: prescription?.dispensingUnit,
+          dispensingUnit: prescription?.dispensingUnit,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,
@@ -638,7 +633,8 @@ export const PatientMedicationPane = ({ patient }) => {
             {pharmacyOrderEnabled &&
               canRequestPharmacyOrder &&
               activeOngoingPrescriptions.length > 0 && (
-                <ThemedTooltip
+                <StyledConditionalTooltip
+                  visible
                   PopperProps={{
                     popperOptions: {
                       positionFixed: true,
@@ -653,34 +649,21 @@ export const PatientMedicationPane = ({ patient }) => {
                     },
                   }}
                   title={
-                    !currentEncounter ? (
-                      <Box width="120px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy"
-                          fallback="Send to pharmacy"
-                        />
-                      </Box>
+                    currentEncounter ? (
+                      <TranslatedText
+                        stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                        fallback="Please send to pharmacy via the patient active encounter"
+                      />
                     ) : (
-                      <Box width="150px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
-                          fallback="Please send to pharmacy via the patient active encounter"
-                        />
-                      </Box>
+                      <TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />
                     )
                   }
                 >
                   <SendToPharmacyButton
-                    aria-label={getTranslation(
-                      'patient.medication.ongoing.sendToPharmacy',
-                      'Send to pharmacy',
-                    )}
                     disabled={!!currentEncounter}
                     onClick={handleSendToPharmacyClick}
-                  >
-                    <SendToPharmacyIcon aria-hidden />
-                  </SendToPharmacyButton>
-                </ThemedTooltip>
+                  />
+                </StyledConditionalTooltip>
               )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip

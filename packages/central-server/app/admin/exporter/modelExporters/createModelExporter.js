@@ -1,23 +1,28 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  OTHER_REFERENCE_TYPES,
+  PSEUDO_REFERENCE_TYPES,
+  REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
-import { PatientExporter } from './PatientExporter';
-import { LabTestPanelExporter } from './LabTestPanelExporter';
-import { PermissionExporter } from './PermissionExporter';
-import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter';
-import { ReferenceDataExporter } from './ReferenceDataExporter';
-import { TranslatedStringExporter } from './TranslatedStringExporter';
-import { TaskSetExporter } from './TaskSetExporter';
-import { UserExporter } from './UserExporter';
-import { TaskTemplateExporter } from './TaskTemplateExporter';
 import { DrugExporter } from './DrugExporter';
-import { MedicationTemplateExporter } from './MedicationTemplateExporter';
-import { MedicationSetExporter } from './MedicationSetExporter';
-import { ProcedureTypeExporter } from './ProcedureTypeExporter';
-import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
-import { InvoicePriceListChargingExporter } from './InvoicePriceListChargingExporter';
 import { InvoiceInsurancePlanItemExporter } from './InvoiceInsurancePlanItemExporter';
+import { InvoicePriceListChargingExporter } from './InvoicePriceListChargingExporter';
+import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
 import { InvoiceProductExporter } from './InvoiceProductExporter';
+import { LabTestPanelExporter } from './LabTestPanelExporter';
+import { MedicationSetExporter } from './MedicationSetExporter';
+import { MedicationTemplateExporter } from './MedicationTemplateExporter';
+import { PatientExporter } from './PatientExporter';
+import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter';
+import { PermissionExporter } from './PermissionExporter';
+import { ProcedureTypeExporter } from './ProcedureTypeExporter';
+import { ReferenceDataExporter } from './ReferenceDataExporter';
+import { TaskSetExporter } from './TaskSetExporter';
+import { TaskTemplateExporter } from './TaskTemplateExporter';
+import { TranslatedStringExporter } from './TranslatedStringExporter';
+import { UserExporter } from './UserExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -34,7 +39,7 @@ const CustomExportersByDataType = {
   [REFERENCE_TYPES.MEDICATION_SET]: MedicationSetExporter,
   [REFERENCE_TYPES.PROCEDURE_TYPE]: ProcedureTypeExporter,
   invoicePriceListItem: InvoicePriceListItemExporter,
-  [OTHER_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: InvoicePriceListChargingExporter,
+  [PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: InvoicePriceListChargingExporter,
   invoiceInsurancePlanItem: InvoiceInsurancePlanItemExporter,
   [OTHER_REFERENCE_TYPES.INVOICE_PRODUCT]: InvoiceProductExporter,
 };

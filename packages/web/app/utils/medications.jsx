@@ -1,6 +1,5 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -41,12 +40,8 @@ const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
   }
-  .MuiInputBase-multiline {
-    padding-block: 0;
-  }
   .MuiInputBase-input {
     font-size: 14px;
-    padding-block: 10px;
   }
 `;
 
@@ -88,10 +83,8 @@ export const InstructionsInput = memo(({ value, onChange, disabled, testId, ...p
 });
 
 const StyledQuantityTextInput = styled(NumberInput)`
-  .MuiInputBase-input {
+  .MuiInputBase-root {
     font-size: 14px;
-    padding-block: 10px;
-    padding-inline: 8px;
   }
 `;
 
@@ -144,9 +137,7 @@ export const resolvePresetLabelText = (presetId, presetLabelsList, fallbackText)
 // 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
 // symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
 const lowercaseFirstLetter = text =>
-  /^[A-Z][a-z]/.test(text ?? '')
-    ? `${text.charAt(0).toLowerCase()}${text.slice(1)}`
-    : text;
+  /^[A-Z][a-z]/.test(text ?? '') ? `${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
 
 // Shared sentence assembly for the Instructions and Label text defaults. The two
 // differ only in how the dose/frequency/route tokens are derived and whether a
@@ -213,15 +204,6 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   );
 };
 
-// Returns the singular or plural drug unit label for a given quantity.
-// Uses the curated DRUG_UNIT_PLURAL_LABELS (not a generic inflection library) so
-// irregular plurals (e.g. Suppository → Suppositories) are handled correctly.
-// quantity <= 1 or non-numeric → singular.
-export const getDrugUnitLabel = (unitKey, quantity, getEnumTranslation) => {
-  const isPlural = Number.isFinite(Number(quantity)) && Number(quantity) > 1;
-  return getEnumTranslation(isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS, unitKey);
-};
-
 // Builds the default dispensed-medication "Label text". Same sentence structure as
 // buildInstructionText, but with the patient-facing formatting from TAM-6813:
 //  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
@@ -249,7 +231,7 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   const unitText = units ? lowercaseFirstLetter(getEnumTranslation(unitEnum, units)) : '';
   const amountText = isVariableDose
     ? lowercaseFirstLetter(getTranslation('medication.table.variable', 'Variable'))
-    : doseAmount ?? '';
+    : (doseAmount ?? '');
   const dose = `${amountText} ${unitText}`.trim();
 
   const frequency = prescriptionFrequency
@@ -262,8 +244,7 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   // falls back to the raw value, so an unmapped unit would otherwise start the
   // sentence with the unit noun (e.g. 'Wafer 2 wafers...'); omitting it is safer
   // than assuming an (oral) default verb for a unit we don't recognise.
-  const verb =
-    units && DRUG_UNIT_VERBS[units] ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
+  const verb = units && DRUG_UNIT_VERBS[units] ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
 
   return assembleMedicationLine(
     {
@@ -376,13 +357,11 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
     return (
       <ThemedTooltip
         title={
-          <Box maxWidth="75px">
-            <TranslatedText
-              stringId="medication.stockLevel.tooltip"
-              fallback="Stock level: :quantity units"
-              replacements={{ quantity }}
-            />
-          </Box>
+          <TranslatedText
+            stringId="medication.stockLevel.tooltip"
+            fallback="Stock level: :quantity units"
+            replacements={{ quantity }}
+          />
         }
       >
         <span>{content}</span>
