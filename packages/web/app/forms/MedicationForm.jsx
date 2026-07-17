@@ -336,7 +336,14 @@ const AllergiesList = styled.ul`
   list-style-type: disc;
 `;
 
-const AllergyItem = styled.li`
+const AllergyItem = styled(({ allergy, ...props }) => (
+  <li {...props}>
+    <TranslatedText
+      stringId={getReferenceDataStringId(allergy.id, allergy.type)}
+      fallback={allergy.name}
+    />
+  </li>
+))`
   color: ${Colors.darkestText};
   font-size: 14px;
   line-height: 20px;
@@ -687,14 +694,8 @@ export const MedicationForm = ({
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
-  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList =
-    allergies?.data?.map(allergyDetail =>
-      getTranslation(
-        getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
-        allergyDetail?.allergy.name,
-      ),
-    ) || [];
+  const { data, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
+  const patientAllergies = data?.data;
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -857,7 +858,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                {!isLoadingAllergies && allergiesList.length > 0 && (
+                {!isLoadingAllergies && patientAllergies?.length > 0 && (
                   <AllergiesWarningBox>
                     <AllergiesWarningHeader>
                       <WarningOutlineIcon />
@@ -869,8 +870,8 @@ export const MedicationForm = ({
                       </AllergiesWarningTitle>
                     </AllergiesWarningHeader>
                     <AllergiesList>
-                      {allergiesList.map((allergy, index) => (
-                        <AllergyItem key={index}>{allergy}</AllergyItem>
+                      {patientAllergies.map(({ allergy }) => (
+                        <AllergyItem allergy={allergy} key={allergy.id} />
                       ))}
                     </AllergiesList>
                   </AllergiesWarningBox>
