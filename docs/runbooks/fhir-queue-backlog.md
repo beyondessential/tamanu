@@ -127,10 +127,13 @@ recoverable but consequential — see `../ruled-out-actions.md`,
 `../sops/disable-fhir-jobs.md` and `../sops/disable-materialised-resources.md`).
 If the situation seems to call for one, escalate rather than run it.
 
-Recovering materialisation afterwards — forcing a rebuild of the stale or missing
-rows once triggers are back on — uses the `node dist fhir --refresh` command
-documented in `../sops/disable-fhir-jobs.md` (in-process, no worker needed).
-**[dev-OTS]**
+**Emptying the queue requires a follow-up re-materialisation.** The queue is the
+only record of "what's left" to materialise, so any resolution that empties it
+(`TRUNCATE fhir.jobs`) **drops outstanding refresh state** and is not complete on
+its own — it must be followed by forcing a rebuild of the stale or missing rows
+once triggers are back on. Use the `node dist fhir --refresh <Resource> --existing`
+command in `../sops/disable-fhir-jobs.md` → **Forcing a re-materialisation**
+(in-process, no worker needed). **[dev-OTS]**
 
 ## 6. Escalate
 

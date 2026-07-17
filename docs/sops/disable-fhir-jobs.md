@@ -43,6 +43,13 @@ consumes. If FHIR *is* in use, do not disable it — drain the queue instead
    commit;
    ```
 
+   **Emptying the queue drops outstanding refresh state** — the queue is the only
+   record of "what's left" to materialise (see the materialiser note below), so a
+   `TRUNCATE` here **requires a follow-up re-materialisation** to rebuild the rows
+   that were queued or had drifted. Do not treat the truncate as complete on its
+   own: follow it with the **Forcing a re-materialisation** section below
+   (`node dist fhir --refresh <Resource> --existing`).
+
 ## Reversing it
 
 Re-enable every trigger you disabled (`ENABLE TRIGGER fhir_refresh`) — leaving

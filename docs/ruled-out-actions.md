@@ -46,8 +46,12 @@ the reasoning:
 - **`TRUNCATE fhir.jobs`** and **mass `ALTER TABLE ... DISABLE TRIGGER
   fhir_refresh`** — empty the FHIR queue / stop new FHIR jobs. Recoverable (the
   queue rebuilds; see the materialiser note in `sops/disable-fhir-jobs.md`). Prefer
-  draining by restarting the workers first. **[dev-OTS]** —
-  `sops/disable-fhir-jobs.md`, `runbooks/fhir-queue-backlog.md`.
+  draining by restarting the workers first. Emptying the queue **drops outstanding
+  refresh state and requires a follow-up re-materialisation** — it is not complete
+  on its own; rebuild the stale/missing rows with `node dist fhir --refresh
+  <Resource> --existing` (`sops/disable-fhir-jobs.md` → **Forcing a
+  re-materialisation**). **[dev-OTS]** — `sops/disable-fhir-jobs.md`,
+  `runbooks/fhir-queue-backlog.md`.
 - **Truncating `sync_lookup`** — forces a full re-sync for every device (a one-off
   fleet slowdown, not data loss). The restore-from-backup case is the usual
   reason. **[dev-OTS]** — `runbooks/facility-restored-from-backup.md`.

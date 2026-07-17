@@ -92,11 +92,10 @@ Examples of what lives in notes:
 
 ## VPN access
 
-Access to a deployment's servers is over a VPN. Assume **Tailscale** — it is the
-access path for essentially every deployment. The one exception is **MSF**, which
-uses a different VPN. `[pending — Félix to confirm]` the exact MSF mechanism
-(believed to be Fortinet). If a deployment's Canopy notes record a different
-method, follow the notes; otherwise assume Tailscale.
+Access to a deployment's servers is over a VPN. **Tailscale is the default** — it
+is the access path for every deployment except one. The sole exception is
+**MSF**, which uses **Fortinet**. If a deployment's Canopy notes record a
+different method, follow the notes; otherwise assume Tailscale.
 
 Once on the VPN, on Linux hosts you typically `ssh ubuntu@<server>`; see
 `reference/maintain-tamanu-on-linux.md` for the frontline host workflow.

@@ -10,8 +10,8 @@ mutating (see `../sops/restart-services.md` for its class).
 
 ## Get on the box
 
-Connect over the deployment's VPN — assume **Tailscale** (the exception is MSF;
-see `../deployment-context.md`), then SSH:
+Connect over the deployment's VPN — **Tailscale by default; the sole exception is
+MSF, which uses Fortinet** (see `../deployment-context.md`), then SSH:
 
 ```bash
 ssh ubuntu@<server name>

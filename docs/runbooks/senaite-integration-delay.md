@@ -41,9 +41,13 @@ Work central-side (this is a central-side integration today). Open psql on centr
 (`../sops/connect-psql.md`), read-only. Replace the placeholder display IDs with
 the real ones the facility gave you (see `../reference/id-vs-display-id.md`).
 
-> `[pending — Rohan to confirm]` whether any SENAITE integrations are moving
-> facility-side. If some deployments run SENAITE against the facility server,
-> these checks would run there instead of central for those sites.
+> **Central vs facility.** SENAITE is a **central-side** integration today, so
+> these checks run on central. But some integrations are moving facility-side
+> over time — so keep the facility server as an open possibility: if the
+> central-side checks turn up nothing, run the same checks against the facility
+> server too, and check the deployment's Canopy notes for where its integration
+> actually runs (standing guidance in `../reference/query-cookbook.md` → **FHIR
+> ServiceRequest materialisation investigation**).
 
 ### 3.1 Is Tamanu healthy? — sync
 

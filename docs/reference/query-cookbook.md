@@ -340,6 +340,12 @@ imaging materialise into `fhir.service_requests`, so these checks apply to both;
 see the imaging-vs-labs differentiation below to tell them apart. The runbooks
 carry only the per-integration specifics; the common queries live here.
 
+> **Central vs facility.** These integrations run **central-side** today, so
+> investigate central first. But some integrations are moving facility-side over
+> time — so keep the facility server as an open possibility: if the central-side
+> checks come up empty, run the same checks against the facility server too, and
+> check the deployment's Canopy notes for where its integration actually runs.
+
 > Config keys are moving. Several toggles below are read from `config`
 > (`packages/*/config/default.json5`) today, but configuration is migrating to
 > DB-backed **settings** (and in some cases **environment variables**) — an
