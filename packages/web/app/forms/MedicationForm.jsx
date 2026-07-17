@@ -192,7 +192,11 @@ const FieldLabel = styled(Box)`
 
 const TooltipTextField = ({ tooltip, label, id, ...props }) => (
   <FullWidthFieldWrapper>
-    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
+    <FieldLabel
+      component="label"
+      htmlFor={id}
+      style={{ display: 'inline-block', marginBlockEnd: 4 }}
+    >
       {label}
     </FieldLabel>
     <ThemedTooltip disableFocusListener title={tooltip}>
