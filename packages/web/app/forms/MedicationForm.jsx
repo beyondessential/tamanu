@@ -245,7 +245,10 @@ const StyledAccordionDetails = styled(AccordionDetails)`
   flex-direction: column;
 `;
 
-const ResetToDefaultButton = styled(Box)`
+const ResetToDefaultButton = styled(Box).attrs({
+  'data-testid': 'medication-button-resetToDefault-9h6k',
+  children: <TranslatedText stringId="general.action.resetToDefault" fallback="Reset to default" />,
+})`
   font-size: 14px;
   font-weight: 400;
   text-decoration: underline;
@@ -482,12 +485,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             </FieldLabel>
             <FieldContent>&nbsp;{firstAdministrationTime}</FieldContent>
           </Box>
-          <ResetToDefaultButton
-            onClick={handleResetToDefault}
-            data-testid="medication-button-resetToDefault-9h6k"
-          >
-            <TranslatedText stringId="general.action.resetToDefault" fallback="Reset to default" />
-          </ResetToDefaultButton>
+          <ResetToDefaultButton onClick={handleResetToDefault} />
         </Box>
         <Box display="flex" flexDirection="column" mt={2} style={{ gap: 12 }}>
           {MEDICATION_ADMINISTRATION_TIME_SLOTS.map((slot, index) => {
