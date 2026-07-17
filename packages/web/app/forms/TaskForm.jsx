@@ -193,13 +193,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-xzvu">
                 <Field
                   name="taskId"
-                  label={
-                    <TranslatedText
-                      stringId="encounter.task.task.label"
-                      fallback="Task"
-                      data-testid="translatedtext-5mtn"
-                    />
-                  }
+                  label={<TranslatedText stringId="encounter.task.task.label" fallback="Task" />}
                   component={AutocompleteField}
                   suggester={combinedTaskSuggester}
                   multiSection
@@ -216,7 +210,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.startTime.label"
                       fallback="Start date & time"
-                      data-testid="translatedtext-as4z"
                     />
                   }
                   required
@@ -232,7 +225,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.requestedBy.label"
                       fallback="Requested by"
-                      data-testid="translatedtext-qqag"
                     />
                   }
                   required
@@ -246,7 +238,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.requestTime.label"
                       fallback="Request date & time"
-                      data-testid="translatedtext-342j"
                     />
                   }
                   required
@@ -256,13 +247,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               </FormGrid>
               <Field
                 name="note"
-                label={
-                  <TranslatedText
-                    stringId="general.notes.label"
-                    fallback="Notes"
-                    data-testid="translatedtext-h0ro"
-                  />
-                }
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 minRows={4}
@@ -282,7 +267,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="task.frequency.label"
                         fallback="Frequency (if repeating task)"
-                        data-testid="translatedtext-o2sl"
                       />
                     }
                     min={0}
@@ -372,7 +356,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="encounter.task.highPriority.label"
                         fallback="High priority task"
-                        data-testid="translatedtext-fyjp"
                       />
                     </span>
                   }
@@ -388,13 +371,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             <FormSubmitCancelRow
               onCancel={onClose}
               onConfirm={submitForm}
-              confirmText={
-                <TranslatedText
-                  stringId="general.action.confirm"
-                  fallback="Confirm"
-                  data-testid="translatedtext-fdxl"
-                />
-              }
+              confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
               confirmDisabled={isCreatingTasks}
               data-testid="formsubmitcancelrow-jcmz"
             />
