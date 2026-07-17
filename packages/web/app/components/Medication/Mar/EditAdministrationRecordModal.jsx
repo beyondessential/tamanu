@@ -2,7 +2,7 @@ import { Divider } from '@material-ui/core';
 import Box from '@mui/material/Box';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
