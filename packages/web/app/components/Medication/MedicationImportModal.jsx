@@ -1,39 +1,49 @@
+import { CircularProgress } from '@mui/material';
+import Box from '@mui/material/Box';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useMemo, useState } from 'react';
-import * as yup from 'yup';
-import {
-  ConfirmCancelRow,
-  Modal,
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
-  DateDisplay,
-  TextInput,
-  NumberInput,
-  Form,
-} from '@tamanu/ui-components';
-import { Colors } from '../../constants';
-import { Box, CircularProgress } from '@mui/material';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { AutocompleteField, CheckInput, Field } from '../Field';
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { TableFormFields } from '..';
-import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { useTranslation } from '../../contexts/Translation';
+import * as yup from 'yup';
+
 import {
   DRUG_ROUTE_LABELS,
   DRUG_STOCK_STATUSES,
-  MAX_REPEATS,
   FORM_TYPES,
+  MAX_REPEATS,
   SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
-import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
+import {
+  AutocompleteField,
+  ConfirmCancelRow,
+  DateDisplay,
+  Field,
+  Form,
+  Modal,
+  NumberInput,
+  RequiredOrnament,
+  TextInput,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
+  useSuggester,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash, getDrugUnitLabel } from '../../utils/medications';
-import { foreignKey } from '../../utils/validation';
+import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
 import { preventInvalidRepeatsInput } from '../../utils';
+import { createPrescriptionHash } from '../../utils/medications';
+import { foreignKey } from '../../utils/validation';
+import { CheckInput } from '../Field';
+import { TableFormFields } from '../Table';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -236,9 +246,7 @@ const getColumns = (
           stringId="medication.dischargeQuantity.label.short"
           fallback="Discharge qty"
         />
-        <Box component="span" color={Colors.alert} ml={0.5}>
-          *
-        </Box>
+        <RequiredOrnament />
       </Box>
     ),
     width: '115px',
@@ -251,13 +259,16 @@ const getColumns = (
       return (
         <NumberInput
           min={0}
-          unit={data.dispensingUnit ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation) : undefined}
+          unit={
+            data.dispensingUnit
+              ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation)
+              : undefined
+          }
           value={value}
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
           helperText={hasError && fieldError}
-          style={{ maxWidth: '100px' }}
         />
       );
     },

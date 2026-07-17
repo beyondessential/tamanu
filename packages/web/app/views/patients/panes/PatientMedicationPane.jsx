@@ -3,7 +3,11 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   Button,
   ConditionalTooltip,
@@ -32,11 +36,7 @@ import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
-import {
-  getDrugUnitLabel,
-  getMedicationLabelData,
-  getTranslatedMedicationName,
-} from '../../../utils/medications';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 import SendToPharmacyButton from './SendToPharmacyButton';
 
 const NotifyBanner = styled(Box)`
@@ -483,7 +483,7 @@ export const PatientMedicationPane = ({ patient }) => {
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
-          units: prescription?.dispensingUnit,
+          dispensingUnit: prescription?.dispensingUnit,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,

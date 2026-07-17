@@ -295,9 +295,9 @@ const Row = React.memo(
                 />
               ) : (
                 <DisplayValue
-                  maxWidth={maxWidth}
-                  displayValue={displayValue}
                   data-testid={`displayvalue-ds9w-${rowIndex}-${key}`}
+                  displayValue={displayValue}
+                  style={maxWidth ? { maxWidth } : undefined}
                 />
               )}
             </ErrorBoundary>
@@ -325,14 +325,10 @@ const ErrorSpan = styled.span`
   color: ${p => p.theme.palette.error.main};
 `;
 
-const DisplayValue = ({ maxWidth, displayValue }) => {
+const DisplayValue = ({ displayValue, style }) => {
   const title = typeof displayValue === 'string' ? displayValue : null;
-  return maxWidth ? (
-    <StyledTableCellContent
-      title={title}
-      data-testid="styledtablecellcontent-t9n3"
-      style={{ maxWidth }}
-    >
+  return style ? (
+    <StyledTableCellContent title={title} data-testid="styledtablecellcontent-t9n3" style={style}>
       {displayValue}
     </StyledTableCellContent>
   ) : (

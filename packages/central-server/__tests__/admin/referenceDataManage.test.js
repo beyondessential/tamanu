@@ -5,6 +5,7 @@ import {
   SYSTEM_DATA_TYPES,
   VISIBILITY_STATUSES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
+  PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -60,27 +61,36 @@ describe('Reference Data Manage', () => {
     });
 
     it('should forbid access without permission', async () => {
-      const response = await noPermissionApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      const response = await noPermissionApp
+        .get(COLUMNS_URL)
+        .query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
     });
 
     it('should resolve all FK columns to a suggester endpoint for every manageable type', async () => {
       const failures = [];
       for (const type of MANAGEABLE_REFERENCE_DATA_TYPES) {
-        const response = await adminApp.get(COLUMNS_URL).query({ type });
+        const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
         if (response.status >= 400) continue;
         for (const col of response.body) {
           if (col.readOnlyOnEdit && !col.suggesterEndpoint && col.key.endsWith('Id')) {
             failures.push(
               `${type}.${col.key}: FK column has no suggester endpoint. ` +
-              'Either the suggester endpoint is missing in packages/constants/src/suggesters.ts, ' +
-              "or the association alias doesn't match the endpoint name and needs an override in " +
-              'packages/central-server/app/admin/referenceDataManageUtils.js (FK_ENDPOINT_OVERRIDES).',
+                'Either the suggester endpoint is missing in packages/constants/src/suggesters.ts, ' +
+                "or the association alias doesn't match the endpoint name and needs an override in " +
+                'packages/central-server/app/admin/referenceDataManageUtils.js (FK_ENDPOINT_OVERRIDES).',
             );
           }
         }
       }
       expect(failures).toEqual([]);
+    });
+
+    it('should reject import-only “reference” types that have no model', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({
+        referenceDataType: PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
+      });
+      expect(response).toHaveRequestError();
     });
   });
 

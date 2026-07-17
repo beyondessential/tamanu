@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteInput,
   ConfirmCancelRow,
@@ -16,7 +17,6 @@ import {
   OuterLabelFieldWrapper,
   RequiredOrnament,
   TextField,
-  TextInput,
   TranslatedReferenceData,
   TranslatedText,
   useApi,
@@ -30,6 +30,23 @@ import { useAuth } from '../../../contexts/Auth';
 import { preventInvalidRepeatsInput, singularize } from '../../../utils';
 import { Table, useSelectableColumn } from '../../Table';
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
+
+const QuantityCell = ({ quantity, dispensingUnit, onChange }) => {
+  const { getEnumTranslation } = useTranslation();
+  const unit = dispensingUnit
+    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+    : undefined;
+  return (
+    <NumberInput
+      data-testid="textinput-rxbh"
+      min={1}
+      onChange={onChange}
+      required
+      unit={unit}
+      value={quantity}
+    />
+  );
+};
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -51,7 +68,6 @@ const COLUMNS = [
     key: COLUMN_KEYS.MEDICATION,
     title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
     sortable: false,
-    maxWidth: 300,
     accessor: ({ medication }) => (
       <TranslatedReferenceData
         fallback={medication.name}
@@ -84,21 +100,7 @@ const COLUMNS = [
       </span>
     ),
     sortable: false,
-    maxWidth: 70,
-    accessor: ({ quantity, onChange }) => (
-      <TextInput
-        type="number"
-        InputProps={{
-          inputProps: {
-            min: 1,
-          },
-        }}
-        value={quantity}
-        onChange={onChange}
-        required
-        data-testid="textinput-rxbh"
-      />
-    ),
+    accessor: QuantityCell,
   },
   {
     key: COLUMN_KEYS.REPEATS,
