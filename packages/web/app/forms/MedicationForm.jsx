@@ -388,9 +388,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
+    return (
+      <>
+        {formatTime(getDateFromTimeString(firstSlot.startTime))}&thinsp;&ndash;&thinsp;
+        {formatTime(getDateFromTimeString(firstSlot.endTime))}{' '}
+        {formatShort(new Date(firstStartTime))}
+      </>
+    );
   }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
 
   useEffect(() => {
