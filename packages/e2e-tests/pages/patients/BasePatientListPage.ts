@@ -208,7 +208,7 @@ export abstract class BasePatientListPage extends BasePage {
         if (cellText) Values.push(cellText);
       }
 
-      const sortedValues = [...Values].sort((a, b) => {
+      const sortedValues = Values.toSorted((a, b) => {
         return isAscending ? a.localeCompare(b) : b.localeCompare(a);
       });
 
@@ -229,7 +229,7 @@ export abstract class BasePatientListPage extends BasePage {
         if (cellText) dateValues.push(cellText);
       }
 
-      const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
+      const sortedValues = dateValues.toSorted(compareDisplayDates(isAscending ? 'asc' : 'desc'));
       expect(dateValues).toEqual(sortedValues);
     }).toPass({ timeout: 10000 });
   }
