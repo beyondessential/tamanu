@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import PrintIcon from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -630,6 +630,10 @@ const MedicationBox = styled.div`
   grid-column: 1 / -1;
 `;
 
+const Hr = styled.hr`
+  grid-column: 1 / -1;
+`;
+
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -1136,9 +1140,7 @@ export const MedicationForm = ({
               component={TooltipTextField}
               data-testid="medication-field-notes-5b3t"
             />
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             {values.frequency ? (
               <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
@@ -1158,9 +1160,7 @@ export const MedicationForm = ({
               </div>
             )}
 
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             <Field
               name="quantity"
               label={
@@ -1204,9 +1204,7 @@ export const MedicationForm = ({
 
             {showPatientWeight && (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
+                <Hr />
                 <Field
                   name="patientWeight"
                   label={
@@ -1224,9 +1222,7 @@ export const MedicationForm = ({
                 />
               </>
             )}
-            <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
-              <Divider />
-            </div>
+            <Hr style={{ inlineSize: 'calc(100% + 64px)', marginInline: '-32px' }} />
             <ButtonRow>
               {isOngoingPrescription || isEditing || !canPrintPrescription ? (
                 <div />
