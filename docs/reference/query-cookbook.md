@@ -297,6 +297,38 @@ WHERE query NOT LIKE '%pg_stat_activity%'
 
 From the end of the query text (to see which table it is on) use `right(query, 200)`.
 
+### Bump a record for resync (fkey-conflict resolution)
+
+Re-queue a single record so the next sync session picks it up — the standard
+resolution when a session error names a **missing referenced record** (a parent
+row a child points at that never arrived), used by the fkey-conflict step in
+`../runbooks/sync-restart-loop.md`. Run it on the server that actually has the
+record (often central), in read/write psql. **[approved-mitigation]**
+
+```sql
+UPDATE <table> SET updated_at_sync_tick = 1 WHERE id = '<record-id>';
+COMMIT;
+```
+
+**Why it works.** You never set the tick by hand — the trigger does. The
+`set_updated_at_sync_tick` DB trigger fires on every insert/update (unless
+`local_system_facts.syncTrigger = 'disabled'`) and rewrites `updated_at_sync_tick`:
+the sentinel `-1` becomes `-999` (`LAST_UPDATED_ELSEWHERE`), and **any other
+value is overwritten with `local_system_facts.currentSyncTick`** (the current
+sync tick). So writing `1` is not stored as `1` — it is promoted to the latest
+tick, which re-queues the row into the next sync. Because the trigger picks the
+real tick, only ever write `1` as the re-queue sentinel; never hand-pick a
+specific tick value. Trigger defined in
+`packages/database/src/migrations/1744340076240-fixRaceConditionInSettingUpdateSyncTick.ts`
+(rewrites `-1` → `-999`, else → `currentSyncTick`) and attached per-table via
+`packages/database/src/services/migrations/migrationHooks.ts`; the flag constants
+are `SYNC_TICK_FLAGS` in `packages/database/src/sync/constants.ts`.
+
+Classed **[approved-mitigation]** because it is a targeted single-row write to a
+source table and the trigger (not you) sets the real tick. Because it is still a
+write to a live source table, a deployment may prefer to treat it as
+**[any-OTS]** — flag for the reviewer to confirm the tier.
+
 ## Sync snapshot inspection (facility)
 
 Summary of records in the current sync snapshot:

@@ -71,26 +71,12 @@ Central-side, read-only psql (`../sops/connect-psql.md`). **[diagnose]**
      SELECT id, updated_at_sync_tick FROM <table> WHERE id = '<missing-record-id>';
      ```
 
-  2. **Bump it for resync** (read/write psql). Set the sync tick to `1`; the
-     `set_updated_at_sync_tick` DB trigger rewrites it to the current tick, which
-     re-queues the record so it syncs on the next session. **[approved-mitigation]**
-
-     ```sql
-     UPDATE <table> SET updated_at_sync_tick = 1 WHERE id = '<missing-record-id>';
-     COMMIT;
-     ```
-
-     Classed **[approved-mitigation]** as the sanctioned resolution: a targeted,
-     single-row write to a source table, and the trigger (not you) sets the real
-     tick — writing `1` is the documented re-queue sentinel, **not** a hand-picked
-     tick value, so only ever write `1` and never set a specific tick by hand.
-     (Because it is still a write to a live source table, a deployment may prefer
-     to treat it as **[any-OTS]** — _flag for the reviewer to confirm the tier._)
-     Trigger and flags confirmed in
-     `packages/database/src/migrations/1744340076240-fixRaceConditionInSettingUpdateSyncTick.ts`
-     and `SYNC_TICK_FLAGS` in `packages/database/src/sync/constants.ts`; the
-     trigger is attached per-table via
-     `packages/database/src/services/migrations/migrationHooks.ts`.
+  2. **Bump it for resync** on the source server (read/write psql) — see the
+     cookbook "Bump a record for resync (fkey-conflict resolution)"
+     (`../reference/query-cookbook.md`), which carries the query, the mechanism
+     (the `set_updated_at_sync_tick` trigger promotes the written `1` to the
+     current tick, re-queuing the row), and the classification.
+     **[approved-mitigation]**
 
 ## 6. Escalate
 
