@@ -192,11 +192,7 @@ const FieldLabel = styled(Box)`
 
 const TooltipTextField = ({ tooltip, label, id, ...props }) => (
   <FullWidthFieldWrapper>
-    <FieldLabel
-      component="label"
-      htmlFor={id}
-      style={{ display: 'inline-block', marginBottom: 4 }}
-    >
+    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
       {label}
     </FieldLabel>
     <ThemedTooltip disableFocusListener title={tooltip}>
@@ -549,14 +545,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       py={1.25}
                       bgcolor={isDisabled ? undefined : Colors.white}
                       borderRadius="3px"
-                      width="187px"
                       height="fit-content"
                       border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
                     >
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+                            {formatTime(startTime)}&thinsp;&ndash;&thinsp;{formatTime(endTime)}
                           </FieldContent>
                         }
                         value={checked}
