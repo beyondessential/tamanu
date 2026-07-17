@@ -38,7 +38,7 @@ export const CheckControl = React.memo(({ value, ...props }) => (
       )
     }
     checkedIcon={<StyledIcon className="far fa-check-square" />}
-    indeterminateIcon={<StyledIcon className="far fa-minus-square"></StyledIcon>}
+    indeterminateIcon={<StyledIcon className="far fa-minus-square" />}
     {...props}
     checked={Boolean(value)}
     value="true"
