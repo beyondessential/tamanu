@@ -366,9 +366,18 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
+function PlainTimeRangeDisplay({ start, end }) {
+  const { formatTime } = useDateTime();
+  return (
+    <>
+      {formatTime(start)}&thinsp;&ndash;&thinsp;{formatTime(end)}
+    </>
+  );
+}
+
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTime, formatShort } = useDateTime();
+  const { formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -390,12 +399,14 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     return (
       <>
-        {formatTime(getDateFromTimeString(firstSlot.startTime))}&thinsp;&ndash;&thinsp;
-        {formatTime(getDateFromTimeString(firstSlot.endTime))}{' '}
+        <PlainTimeRangeDisplay
+          start={getDateFromTimeString(firstSlot.startTime)}
+          end={getDateFromTimeString(firstSlot.endTime)}
+        />{' '}
         {formatShort(new Date(firstStartTime))}
       </>
     );
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -555,7 +566,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       <CheckInput
                         label={
                           <FieldContent>
-                            {formatTime(startTime)}&thinsp;&ndash;&thinsp;{formatTime(endTime)}
+                            <PlainTimeRangeDisplay start={startTime} end={endTime} />
                           </FieldContent>
                         }
                         value={checked}
