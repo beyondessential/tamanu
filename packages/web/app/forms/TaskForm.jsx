@@ -78,14 +78,14 @@ const InvisibleTitle = styled.div`
   opacity: 0;
 `;
 
-const combinedTaskSuggesterOptions = {
+const combinedTaskSuggesterOptions = /** @type const */ ({
   baseQueryParameters: {
     types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
     relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
   },
   formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
   baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
-};
+});
 
 export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
