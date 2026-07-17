@@ -94,13 +94,11 @@ const useInvoiceItemActionsMenu = ({
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeMarkup"
             fallback="Remove markup"
-            data-testid="translatedtext-hhna"
           />
         ) : (
           <TranslatedText
             stringId="invoice.modal.editInvoice.removeDiscount"
             fallback="Remove discount"
-            data-testid="translatedtext-n4xe"
           />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
@@ -108,11 +106,7 @@ const useInvoiceItemActionsMenu = ({
     },
     {
       label: (
-        <TranslatedText
-          stringId="invoice.modal.editInvoice.addDiscount"
-          fallback="Add discount"
-          data-testid="translatedtext-huq9"
-        />
+        <TranslatedText stringId="invoice.modal.editInvoice.addDiscount" fallback="Add discount" />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
@@ -120,11 +114,7 @@ const useInvoiceItemActionsMenu = ({
     },
     {
       label: (
-        <TranslatedText
-          stringId="invoice.modal.editInvoice.addMarkup"
-          fallback="Add markup"
-          data-testid="translatedtext-5y9x"
-        />
+        <TranslatedText stringId="invoice.modal.editInvoice.addMarkup" fallback="Add markup" />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
@@ -132,17 +122,9 @@ const useInvoiceItemActionsMenu = ({
     },
     {
       label: item.note ? (
-        <TranslatedText
-          stringId="invoice.modal.editInvoice.editNote"
-          fallback="Edit note"
-          data-testid="translatedtext-bqqi"
-        />
+        <TranslatedText stringId="invoice.modal.editInvoice.editNote" fallback="Edit note" />
       ) : (
-        <TranslatedText
-          stringId="invoice.modal.editInvoice.addNote"
-          fallback="Add note"
-          data-testid="translatedtext-swkc"
-        />
+        <TranslatedText stringId="invoice.modal.editInvoice.addNote" fallback="Add note" />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
@@ -150,11 +132,7 @@ const useInvoiceItemActionsMenu = ({
     },
     {
       label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.removeApproval"
-          fallback="Remove approval"
-          data-testid="translatedtext-y43b"
-        />
+        <TranslatedText stringId="invoice.editInvoice.removeApproval" fallback="Remove approval" />
       ),
       onClick: () => handleApproval(false),
       hidden: !item.approved || !isSaved,
@@ -197,9 +175,8 @@ const useInvoiceItemActionsMenu = ({
 };
 
 const MenuAnchor = styled.div`
-  position: absolute;
-  top: 2px;
-  right: 0;
+  margin-block: -12px;
+  margin-inline: -10px;
 `;
 
 export const InvoiceItemActionsMenu = ({

@@ -1,24 +1,24 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, PSEUDO_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { invoiceInsurancePlanItemLoaderFactory } from './invoiceInsurancePlanItemLoaderFactory';
+import { invoicePriceListChargingLoaderFactory } from './invoicePriceListChargingLoaderFactory';
+import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
+import { invoicePriceListLoader } from './invoicePriceListLoader';
 import {
   administeredVaccineLoader,
+  drugLoader,
+  invoiceProductLoader,
   labTestPanelLoader,
+  medicationSetLoader,
+  medicationTemplateLoader,
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
-  taskTemplateLoader,
+  procedureTypeLoader,
   taskSetLoader,
+  taskTemplateLoader,
   translatedStringLoader,
   userLoader,
-  drugLoader,
-  medicationTemplateLoader,
-  medicationSetLoader,
-  procedureTypeLoader,
-  invoiceProductLoader,
 } from './loaders';
-import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
-import { invoicePriceListChargingLoaderFactory } from './invoicePriceListChargingLoaderFactory';
-import { invoiceInsurancePlanItemLoaderFactory } from './invoiceInsurancePlanItemLoaderFactory';
-import { invoicePriceListLoader } from './invoicePriceListLoader';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -84,7 +84,7 @@ export default {
     },
     needs: ['invoicePriceList', 'invoiceProduct'],
   },
-  invoicePriceListCharging: {
+  [PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: {
     // Sets isFixedPrice on the same InvoicePriceListItem rows; runs after the price items exist
     // so it reuses their ids and merges onto the same rows.
     model: 'InvoicePriceListItem',

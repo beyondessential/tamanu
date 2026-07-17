@@ -1,33 +1,33 @@
-import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'es-toolkit/compat';
+import JSON5 from 'json5';
+import fs from 'node:fs';
+import { join, parse, resolve } from 'node:path';
 import { Op } from 'sequelize';
 import { utils } from 'xlsx';
-import fs from 'node:fs';
-import JSON5 from 'json5';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  PSEUDO_REFERENCE_TYPES,
   SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
   USER_KINDS,
 } from '@tamanu/constants';
-import { log } from '@tamanu/shared/services/logging';
 import { extractSecretPaths, getScopedSchema, ReadSettings } from '@tamanu/settings';
+import { log } from '@tamanu/shared/services/logging';
 import {
   encryptSecret,
   getSettingsPskKeyBuffer,
   isEncryptedSecret,
 } from '@tamanu/shared/utils/crypto';
-
+import { normaliseSheetName } from '../admin/importer/importerEndpoint';
+import { programImporter } from '../admin/programImporter/programImporter';
+import { referenceDataImporter } from '../admin/referenceDataImporter';
+import { getRandomBase64String } from '../auth/utils';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
-import { referenceDataImporter } from '../admin/referenceDataImporter';
-import { normaliseSheetName } from '../admin/importer/importerEndpoint';
-import { getRandomBase64String } from '../auth/utils';
-import { programImporter } from '../admin/programImporter/programImporter';
 
 /**
  * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
@@ -99,9 +99,13 @@ const initialiseDatabaseWithRetry = async () => {
  */
 function validateFullReferenceDataImport(workbook) {
   // 'user' has special logic and 'administeredVaccine' is a special case used for existing
-  // deployments. 'invoicePriceListCharging' is an optional overlay on price-list items (absent =
-  // per-unit, the default), so a complete seed doesn't require charging data.
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine', 'invoicePriceListCharging'];
+  // deployments. Charging overlays are optional (absent = per-unit, the default), so a complete
+  // seed doesn't require charging data.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = [
+    'user',
+    'administeredVaccine',
+    PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
+  ];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
