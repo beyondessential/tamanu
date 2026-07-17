@@ -14,6 +14,10 @@ Prefer **fewer, higher-value E2E tests** and push granular logic to unit/integra
 
 ## Local run prerequisites
 
+Full local setup (databases, provisioning, facility sync setup, the tsx loader requirement, and a
+troubleshooting table) is documented in `packages/e2e-tests/README.md` — follow it for a first-time
+setup or when the environment is broken.
+
 Before debugging a feature spec, verify environment and auth first:
 
 - Confirm `packages/e2e-tests/.env` has valid `FACILITY_FRONTEND_URL`, `TEST_EMAIL`, and `TEST_PASSWORD`.

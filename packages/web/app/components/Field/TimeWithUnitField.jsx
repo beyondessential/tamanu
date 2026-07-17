@@ -55,7 +55,7 @@ export const TimeWithUnitInput = ({
       return;
     }
 
-    const multiple = [...TIME_UNIT_OPTIONS].sort((a, b) => b.minutes - a.minutes).find(
+    const multiple = TIME_UNIT_OPTIONS.toSorted((a, b) => b.minutes - a.minutes).find(
       (o) => valueInMinutes % o.minutes === 0,
     );
     setUnit(multiple.unit);
@@ -100,7 +100,7 @@ export const TimeWithUnitInput = ({
           data-testid="mainfield-r4oz"
         />
         <Select select onChange={onUnitChange} value={unit} data-testid="select-f39x">
-          {[...TIME_UNIT_OPTIONS].sort((a, b) => a.minutes - b.minutes).map((option) => (
+          {TIME_UNIT_OPTIONS.toSorted((a, b) => a.minutes - b.minutes).map((option) => (
             <MenuItem
               key={option.unit}
               value={option.unit}

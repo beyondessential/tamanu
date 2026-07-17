@@ -74,7 +74,7 @@ export class LabRequestPane {
     await this.labRequestTable.waitFor({ state: 'visible' });
     
     // Sort panel categories alphabetically
-    const sortedCategories = [...categories].sort();
+    const sortedCategories = categories.toSorted();
     
     // Validate each lab request row
     for (let i = 0; i < sortedCategories.length; i++) {
