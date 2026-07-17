@@ -1,39 +1,35 @@
-import React, { useEffect, useMemo, useState, memo } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 
-
-
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
+  AutocompleteInput,
   BaseModal,
   Button,
+  DateDisplay,
+  notifyError,
+  notifySuccess,
   OutlinedButton,
+  RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
+  useApi,
   useDateTime,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { useTranslation } from '../../contexts/Translation';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { PATIENT_TABS } from '../../constants/patientPaths';
-import { notifyError, notifySuccess } from '../../utils';
-import { AutocompleteInput, CheckInput } from '../Field';
-import { TableFormFields } from '../Table/TableFormFields';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
-import { BodyText } from '../Typography';
-import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { useAuth } from '../../contexts/Auth';
 import {
   buildInstructionText,
   buildLabelText,
-  getDrugUnitLabel,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -43,6 +39,11 @@ import {
   StyledPresetLabelAutocomplete,
   usePresetLabelsQuery,
 } from '../../utils/medications';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { CheckInput } from '../Field';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
+import { TableFormFields } from '../Table/TableFormFields';
+import { BodyText } from '../Typography';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -409,7 +410,7 @@ export const DispenseMedicationWorkflowModal = memo(
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions: item.instructions,
           quantity: item.quantity,
-          units: item.prescription?.dispensingUnit,
+          dispensingUnit: item.prescription?.dispensingUnit,
           remainingRepeats: item.remainingRepeats,
           prescriberName: item.prescription?.prescriber?.displayName,
           requestNumber: item.displayId,
@@ -488,7 +489,7 @@ export const DispenseMedicationWorkflowModal = memo(
       const base = [
         {
           key: 'select',
-          width: '50px',
+          width: 0,
           title: (
             <CheckInput
               value={selectAllChecked}
@@ -510,19 +511,19 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'prescriptionDate',
-          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.prescriptionDate"
               fallback="Prescription date"
             />
           ),
+          style: { minInlineSize: 0 },
           accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
-          width: '200px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+          style: { minInlineSize: '16em' },
           accessor: ({ prescription }) => (
             <TranslatedReferenceData
               fallback={prescription?.medication?.name}
@@ -533,14 +534,10 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '140px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
           accessor: (item, rowIndex) => {
@@ -555,9 +552,10 @@ export const DispenseMedicationWorkflowModal = memo(
                 disabled={!selected}
                 min={1}
                 unit={
-                  dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined
+                  dispensingUnit
+                    ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                    : undefined
                 }
-                style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
                 required={selected}
                 helperText={
@@ -571,13 +569,13 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'remainingRepeats',
-          width: '80px',
           title: (
             <TranslatedText
               stringId="medication.dispense.remainingRepeats"
               fallback="Remaining repeats"
             />
           ),
+          style: { minInlineSize: 0 },
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
         {
@@ -585,6 +583,7 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <TranslatedText stringId="medication.dispense.instructions" fallback="Instructions" />
           ),
+          style: { minInlineSize: '16em' },
           accessor: item => (
             <InstructionsInput
               value={buildInstructionText(item.prescription, getTranslation, getEnumTranslation)}
@@ -597,13 +596,13 @@ export const DispenseMedicationWorkflowModal = memo(
           ? [
               {
                 key: 'presetLabel',
-                width: '150px',
                 title: (
                   <TranslatedText
                     stringId="medication.dispense.presetLabel"
                     fallback="Preset labels"
                   />
                 ),
+                style: { minInlineSize: '10em' },
                 accessor: (item, rowIndex) => (
                   <StyledPresetLabelAutocomplete
                     name={`presetLabel-${item.id}`}
@@ -621,12 +620,10 @@ export const DispenseMedicationWorkflowModal = memo(
           title: (
             <>
               <TranslatedText stringId="medication.dispense.labelText" fallback="Label text" />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
+              <RequiredOrnament />
             </>
           ),
+          style: { minInlineSize: '16em' },
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
@@ -648,13 +645,13 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'lastDispensedAt',
-          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.lastDispensed"
               fallback="Last dispensed"
             />
           ),
+          style: { minInlineSize: 0 },
           accessor: ({ lastDispensedAt }) =>
             lastDispensedAt ? (
               <DateDisplay date={lastDispensedAt} />
@@ -671,7 +668,6 @@ export const DispenseMedicationWorkflowModal = memo(
       if (stockColumnEnabled) {
         base.push({
           key: 'stock',
-          width: '76px',
           title: (
             <TranslatedText
               stringId="medication-requests.table.column.stockStatus"
@@ -809,7 +805,7 @@ export const DispenseMedicationWorkflowModal = memo(
               <BodyText>
                 <TranslatedText
                   stringId="modal.medication.dispense.description"
-                  fallback="Select the medications you'd like to dispense below."
+                  fallback="Select the medications you’d like to dispense below"
                 />
               </BodyText>
               <DispenseHeaderToolbarRow>

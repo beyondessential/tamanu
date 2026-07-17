@@ -30,6 +30,7 @@ describe('Inpatient fee inclusions', () => {
   let location;
   let labPanel;
   let drug;
+  let drugWithConversion;
 
   const createEncounterWithInvoice = async encounterType => {
     const encounter = await models.Encounter.create({
@@ -162,6 +163,27 @@ describe('Inpatient fee inclusions', () => {
       }),
     );
 
+    // Drug product whose dosing unit differs from its dispensing unit (e.g. mg dosed, 5mg
+    // tablets dispensed): unitConversion 5 is snapshotted onto prescriptions from ReferenceDrug.
+    drugWithConversion = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, code: 'INC-EXC-DRUG-CONV' }),
+    );
+    await models.ReferenceDrug.create(
+      fake(models.ReferenceDrug, {
+        referenceDataId: drugWithConversion.id,
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        unitConversion: 5,
+      }),
+    );
+    const drugWithConversionProduct = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+        sourceRecordId: drugWithConversion.id,
+      }),
+    );
+
     // Imaging product
     const [imagingType] = await models.ReferenceData.findOrCreate({
       where: { type: REFERENCE_TYPES.IMAGING_TYPE, code: IMAGING_TYPES.CT_SCAN },
@@ -185,7 +207,7 @@ describe('Inpatient fee inclusions', () => {
         rules: { facilityId: facility.id },
       }),
     );
-    for (const product of [panelProduct, drugProduct, imagingProduct]) {
+    for (const product of [panelProduct, drugProduct, imagingProduct, drugWithConversionProduct]) {
       await models.InvoicePriceListItem.create(
         fake(models.InvoicePriceListItem, {
           invoiceProductId: product.id,
@@ -312,6 +334,55 @@ describe('Inpatient fee inclusions', () => {
     const items = result.body.items ?? [];
     expect(items).toHaveLength(1);
     // Pre-admission dose (3) billed; post-admission dose (4) bundled into the admission fee.
+    expect(items[0].quantity).toBe(3);
+  });
+
+  it('converts the pre-admission dosing total to dispensing units when medications are bundled', async () => {
+    // Drug with unitConversion 5 — doses are in mg, dispensing unit is 5mg tablets.
+    // Emergency encounter (started 30 days ago via the helper).
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.EMERGENCY);
+    const { body: prescription } = await app
+      .post(`/api/medication/encounterPrescription/${encounter.id}`)
+      .send({
+        medicationId: drugWithConversion.id,
+        prescriberId: user.id,
+        doseAmount: 1,
+        units: 'mg',
+        frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+        route: 'dermal',
+        date: '2025-01-01',
+        startDate: getCurrentDateTimeString(),
+      });
+    // Doses administered during the ED phase (before admission) totalling 12mg — should stay
+    // billed, but converted to dispensing units: Math.ceil(12 / 5) = 3 tablets.
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: 6, givenTime: toDateTimeString(sub(new Date(), { days: 22 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 22 })),
+    });
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: 6, givenTime: toDateTimeString(sub(new Date(), { days: 20 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 20 })),
+    });
+    // Admit the encounter in place, effective 15 days ago.
+    await encounter.update({
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      submittedTime: toDateTimeString(sub(new Date(), { days: 15 })),
+    });
+    // Dose administered after admission — should be bundled (excluded).
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: 8, givenTime: toDateTimeString(sub(new Date(), { days: 10 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 10 })),
+    });
+
+    const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(result).toHaveSucceeded();
+    const items = result.body.items ?? [];
+    expect(items).toHaveLength(1);
+    // Pre-admission total is 12mg → Math.ceil(12 / 5) = 3 dispensing units, NOT the raw dosing
+    // total of 12; post-admission dose (8mg) bundled into the admission fee.
     expect(items[0].quantity).toBe(3);
   });
 });

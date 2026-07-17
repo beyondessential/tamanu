@@ -12,7 +12,7 @@ function hasHistoricalData(answer) {
 
 function getSortedLogsByDate(logs) {
   if (!logs) return [];
-  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
+  return logs.toSorted((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getDatesAndRecords(data, surveyData, dateElementId) {
