@@ -78,6 +78,15 @@ const InvisibleTitle = styled.div`
   opacity: 0;
 `;
 
+const combinedTaskSuggesterOptions = {
+  baseQueryParameters: {
+    types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
+    relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
+  },
+  formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
+  baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
+};
+
 export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
@@ -88,14 +97,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
-  const combinedTaskSuggester = useSuggester('multiReferenceData', {
-    baseQueryParameters: {
-      types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
-      relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
-    },
-    formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
-    baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
-  });
+  const combinedTaskSuggester = useSuggester('multiReferenceData', combinedTaskSuggesterOptions);
 
   const [selectedTask, setSelectedTask] = useState({});
 
@@ -407,7 +409,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)), 
+              new Date(new Date().setHours(0, 0, 0, 0)),
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
