@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeBedFeeChargeInstants } from '../src';
+import { computeBedFeeChargeInstants, countBedFeeNightsByLocation } from '../src';
 
 const base = {
   overnightChargeTime: '02:00',
@@ -69,5 +69,57 @@ describe('computeBedFeeChargeInstants', () => {
       endDateTime: '2024-06-17 16:00:00',
     });
     expect(instants).toEqual(['2024-06-17 15:00:00']);
+  });
+});
+
+describe('countBedFeeNightsByLocation', () => {
+  const nights = (map: Map<string, number>) => Object.fromEntries(map);
+
+  it('attributes every night to the current location when there is no change history', () => {
+    const result = countBedFeeNightsByLocation(
+      ['2024-06-17 02:00:00', '2024-06-18 02:00:00'],
+      [],
+      'loc-current',
+    );
+    expect(nights(result)).toEqual({ 'loc-current': 2 });
+  });
+
+  it('attributes each night to the location occupied at that instant across a mid-stay move', () => {
+    const result = countBedFeeNightsByLocation(
+      ['2024-06-17 02:00:00', '2024-06-18 02:00:00', '2024-06-19 02:00:00'],
+      [
+        { date: '2024-06-16 18:00:00', locationId: 'loc-a' },
+        { date: '2024-06-17 12:00:00', locationId: 'loc-b' },
+      ],
+      'loc-b',
+    );
+    // 17th check precedes the move → loc-a; 18th + 19th → loc-b.
+    expect(nights(result)).toEqual({ 'loc-a': 1, 'loc-b': 2 });
+  });
+
+  it('follows a move that precedes every instant (early ward move)', () => {
+    const result = countBedFeeNightsByLocation(
+      ['2024-06-16 14:00:00'],
+      [
+        { date: '2024-06-16 09:00:00', locationId: 'loc-a' },
+        { date: '2024-06-16 11:00:00', locationId: 'loc-b' },
+      ],
+      'loc-b',
+    );
+    expect(nights(result)).toEqual({ 'loc-b': 1 });
+  });
+
+  it('skips instants that resolve to no location', () => {
+    const result = countBedFeeNightsByLocation(['2024-06-17 02:00:00'], [], null);
+    expect(nights(result)).toEqual({});
+  });
+
+  it('returns an empty tally when there are no charge instants', () => {
+    const result = countBedFeeNightsByLocation(
+      [],
+      [{ date: '2024-06-16 18:00:00', locationId: 'loc-a' }],
+      'loc-a',
+    );
+    expect(nights(result)).toEqual({});
   });
 });

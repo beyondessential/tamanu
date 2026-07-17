@@ -29,7 +29,11 @@ import {
   getCurrentDateTimeString,
   instantToDateTimeStringInTimezone,
 } from '@tamanu/utils/dateTime';
-import { selectEncounterFeeCode, computeBedFeeChargeInstants } from '@tamanu/utils/invoice';
+import {
+  selectEncounterFeeCode,
+  computeBedFeeChargeInstants,
+  countBedFeeNightsByLocation,
+} from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 import type { Location } from '../Location';
@@ -504,9 +508,6 @@ export class Invoice extends Model {
       return;
     }
 
-    const { InvoiceItem, InvoiceProduct, ChangeLog } = this.sequelize.models;
-    const locationSourceType = this.sequelize.models.Location.name;
-
     const chargeInstants = computeBedFeeChargeInstants({
       startDateTime: encounter.startDate,
       endDateTime: encounter.endDate || getCurrentDateTimeString(),
@@ -515,27 +516,35 @@ export class Invoice extends Model {
       facilityTimeZone: (await settings.get('facilityTimeZone')) as string | null,
     });
 
-    // Reconstruct the location at each instant from the audit changelog (logs.changes) — the
-    // source of truth for encounter history. Each row is a full encounter snapshot, so its
-    // location_id is the location as of that write. `record_updated_at` (a timestamptz) is the
-    // write clock; rendered in the primary timezone it dates each ward move to when it happened,
-    // since moves are recorded as they occur. The exception is the admission itself: encounters
-    // are often recorded after the patient arrived, so the earliest row takes effect from
-    // encounter.startDate (the same anchor as the charge instants) rather than its data-entry
-    // time — otherwise backdated admission nights would fall back to the current location and be
-    // billed to a ward the patient later moved to. migrationContext is excluded so rows backfilled
-    // by data migrations (which may lack location_id) don't shadow real writes.
+    const locationHistory = await this.loadEncounterLocationHistory(encounter, primaryTimeZone);
+    const nightsByLocation = countBedFeeNightsByLocation(
+      chargeInstants,
+      locationHistory,
+      encounter.locationId ?? null,
+    );
+    await this.reconcileBedFeeLines(invoice, nightsByLocation);
+  }
+
+  /**
+   * The encounter's location timeline from the audit changelog. The admission (first) row anchors
+   * to startDate, not its write time, so backdated admission nights bill to the correct ward.
+   */
+  private static async loadEncounterLocationHistory(
+    encounter: Encounter,
+    primaryTimeZone: string,
+  ): Promise<{ date: string; locationId: string | null }[]> {
+    const { ChangeLog } = this.sequelize.models;
     const changelogRows = await ChangeLog.findAll({
       where: {
         tableSchema: 'public',
         tableName: 'encounters',
         recordId: encounter.id,
-        migrationContext: null,
+        migrationContext: null, // exclude migration-backfilled rows; they may lack a location
       },
       order: [['recordUpdatedAt', 'ASC']],
       attributes: ['recordUpdatedAt', 'recordData'],
     });
-    const locationHistory = changelogRows.map((row, index) => ({
+    return changelogRows.map((row, index) => ({
       date:
         index === 0
           ? encounter.startDate
@@ -543,28 +552,19 @@ export class Invoice extends Model {
       // recordData is a JSONB encounter snapshot (typed as string on the model, object at runtime).
       locationId: (row.recordData as unknown as Record<string, any>)?.location_id ?? null,
     }));
-    const locationIdAtInstant = (instant: string): string | null => {
-      let locationId: string | null | undefined;
-      for (const change of locationHistory) {
-        if (change.date! > instant) break; // ascending history — no later row can precede this instant
-        locationId = change.locationId;
-      }
-      return locationId ?? encounter.locationId ?? null;
-    };
+  }
 
-    // Count qualifying nights per location — the rate follows the location occupied at each instant.
-    const nightsByLocation = new Map<string, number>();
-    for (const instant of chargeInstants) {
-      const locationId = locationIdAtInstant(instant);
-      if (!locationId) {
-        continue;
-      }
-      nightsByLocation.set(locationId, (nightsByLocation.get(locationId) ?? 0) + 1);
-    }
+  /**
+   * Reconcile per-location lines to the night counts: departed locations are zeroed (kept
+   * revivable, not soft-deleted — that's a cashier action); locations with no product are skipped.
+   */
+  private static async reconcileBedFeeLines(
+    invoice: Invoice,
+    nightsByLocation: Map<string, number>,
+  ) {
+    const { InvoiceItem, InvoiceProduct } = this.sequelize.models;
+    const locationSourceType = this.sequelize.models.Location.name;
 
-    // Zero out existing bed-fee lines for locations that no longer qualify (not a soft-delete —
-    // that's reserved for cashier removals, and the line must stay revivable if the patient
-    // returns to the location). Quantity-0 lines are cleaned off the invoice at finalisation.
     const existingItems = await InvoiceItem.findAll({
       where: { invoiceId: invoice.id, sourceRecordType: locationSourceType },
     });

@@ -63,3 +63,38 @@ export const computeBedFeeChargeInstants = ({
   // so the night follows the patient's current location — an early ward move is reflected at once.
   return instants.length > 0 ? instants : [endDateTime];
 };
+
+export interface BedFeeLocationChange {
+  /** Effective time of the location change, a primary-tz ISO 9075 string. */
+  date: string;
+  locationId: string | null;
+}
+
+/**
+ * Tally bed-fee nights per location: each charge instant is attributed to the location occupied
+ * then (latest change at or before it), else the current location. Inputs are ascending ISO 9075.
+ */
+export const countBedFeeNightsByLocation = (
+  chargeInstants: string[],
+  locationChanges: BedFeeLocationChange[],
+  currentLocationId: string | null,
+): Map<string, number> => {
+  const locationIdAtInstant = (instant: string): string | null => {
+    let locationId: string | null | undefined;
+    for (const change of locationChanges) {
+      if (change.date > instant) break; // ascending — no later change can precede this instant
+      locationId = change.locationId;
+    }
+    return locationId ?? currentLocationId ?? null;
+  };
+
+  const nightsByLocation = new Map<string, number>();
+  for (const instant of chargeInstants) {
+    const locationId = locationIdAtInstant(instant);
+    if (!locationId) {
+      continue;
+    }
+    nightsByLocation.set(locationId, (nightsByLocation.get(locationId) ?? 0) + 1);
+  }
+  return nightsByLocation;
+};
