@@ -28,7 +28,6 @@ import {
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   AutocompleteField,
   ConditionalTooltip,
@@ -52,8 +51,6 @@ import {
 } from '@tamanu/ui-components';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
@@ -68,6 +65,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { foreignKey } from '../utils/validation';
+import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -121,6 +119,11 @@ const validationSchema = yup.object().shape({
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
 });
+
+const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
+  margin-block-end: 1em;
+  grid-column: 1 / -1;
+`;
 
 const FullWidthFieldWrapper = styled.div`
   position: relative;
@@ -304,42 +307,6 @@ const StyledTimePicker = styled(TimePicker)`
       border-color: ${Colors.softText};
     }
   }
-`;
-
-const AllergiesWarningBox = styled(Box)`
-  grid-column: 1 / -1;
-  border: 1px solid ${Colors.alert};
-  border-radius: 3px;
-  padding: 10px 26px;
-  background-color: ${Colors.lightAlert};
-  margin-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const AllergiesWarningHeader = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 14px;
-`;
-
-const AllergiesList = styled.ul`
-  margin: 0;
-  padding-left: 41px;
-  list-style-type: disc;
-`;
-
-const AllergyItem = styled.li`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  line-height: 20px;
 `;
 
 const StockLevelContainer = styled.div`
@@ -687,15 +654,6 @@ export const MedicationForm = ({
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
-  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList =
-    allergies?.data?.map(allergyDetail =>
-      getTranslation(
-        getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
-        allergyDetail?.allergy.name,
-      ),
-    ) || [];
-
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
     (async () => {
@@ -857,24 +815,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                {!isLoadingAllergies && allergiesList.length > 0 && (
-                  <AllergiesWarningBox>
-                    <AllergiesWarningHeader>
-                      <WarningOutlineIcon />
-                      <AllergiesWarningTitle>
-                        <TranslatedText
-                          stringId="medication.allergies.title"
-                          fallback="Patient allergies"
-                        />
-                      </AllergiesWarningTitle>
-                    </AllergiesWarningHeader>
-                    <AllergiesList>
-                      {allergiesList.map((allergy, index) => (
-                        <AllergyItem key={index}>{allergy}</AllergyItem>
-                      ))}
-                    </AllergiesList>
-                  </AllergiesWarningBox>
-                )}
+                <StyledPatientAllergiesWarning patientId={patient.id} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
