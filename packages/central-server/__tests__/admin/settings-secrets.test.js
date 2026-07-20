@@ -188,5 +188,23 @@ describe('Settings Admin - secrets', () => {
       const row = await models.Setting.findOne({ where: { key: 'mail.transportPassword' } });
       expect(row).toBeNull();
     });
+
+    it('refuses a non-admin changing any secret, even outside a highRisk group', async () => {
+      // secrets are high-risk by definition — a plain secret like the dhis2 password
+      // is refused for a write-Setting-only user too
+      const writeOnlyApp = await ctx.baseApp.asNewRole([
+        ['read', 'Setting'],
+        ['write', 'Setting'],
+      ]);
+      const res = await writeOnlyApp.put('/v1/admin/settings').send({
+        settings: { integrations: { dhis2: { password: 'sneaky-pw' } } },
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(res).toBeForbidden();
+      expect(JSON.stringify(res.body)).not.toContain('sneaky-pw');
+
+      const row = await findSecretRow();
+      expect(row).toBeNull();
+    });
   });
 });

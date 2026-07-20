@@ -22,16 +22,18 @@ describe('extractHighRiskPaths', () => {
         properties: {
           safe: { type: yup.string(), defaultValue: '' },
           alsoRisky: { type: yup.string(), defaultValue: '', highRisk: true },
+          apiKey: { type: yup.string(), secret: true },
         },
       },
     },
   };
 
-  it('collects flagged leaves and cascades group flags', () => {
+  it('collects flagged leaves, cascades group flags, and treats secrets as high-risk', () => {
     expect(extractHighRiskPaths(schema).sort()).toEqual([
       'mail.from',
       'mail.transport.host',
       'nested.alsoRisky',
+      'nested.apiKey',
       'risky',
     ]);
   });

@@ -49,7 +49,9 @@ export const extractSecretPaths = (schema: SettingsSchema, parentKey = ''): stri
 
 /**
  * Extracts all leaf paths in the schema that are high-risk — flagged on the
- * setting itself or inherited from any ancestor group's highRisk flag.
+ * setting itself, inherited from any ancestor group's highRisk flag, or a
+ * secret (secrets are high-risk by definition, matching the editor, which
+ * disables them without full permissions).
  * Returns dot-separated paths, like extractSecretPaths.
  */
 export const extractHighRiskPaths = (
@@ -63,7 +65,7 @@ export const extractHighRiskPaths = (
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      if (inherited || value.highRisk) {
+      if (inherited || value.highRisk || value.secret) {
         paths.push(fullKey);
       }
     } else if (isSettingsSchema(value)) {

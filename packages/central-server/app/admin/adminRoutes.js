@@ -221,9 +221,10 @@ adminRoutes.put(
       return;
     }
 
-    // High-risk settings may only be changed with the manage-all wildcard (mirrors the editor,
-    // which disables those inputs). The editor PUTs the whole scope object, so unchanged
-    // high-risk values ride along in every save — gate on actual changes, not presence.
+    // High-risk settings — flagged in the schema, plus all secrets — may only be changed with
+    // the manage-all wildcard (mirrors the editor, which disables those inputs). The editor PUTs
+    // the whole scope object, so unchanged high-risk values ride along in every save — gate on
+    // actual changes, not presence.
     if (!req.ability.can('manage', 'all')) {
       const highRiskPaths = extractHighRiskPaths(schema);
       if (highRiskPaths.length > 0) {
