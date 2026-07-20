@@ -1,27 +1,18 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { usePatientNavigation } from '../utils/usePatientNavigation';
-
-import { FormModal } from './FormModal';
-import { useSuggester } from '../api';
-import { DischargeForm } from '../forms/DischargeForm';
+import { useSettings, useSuggester } from '@tamanu/ui-components';
+import { PATIENT_STATUS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
+import { DischargeForm } from '../forms/DischargeForm';
 import { reloadPatient } from '../store/patient';
 import { getPatientStatus } from '../utils/getPatientStatus';
-import { PATIENT_STATUS } from '../constants';
-import { useSettings } from '../contexts/Settings';
-import styled from 'styled-components';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { FormModal } from './FormModal';
 
 const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
 const DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY = 'IN-';
 const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
-
-const StyledFormModal = styled(FormModal)`
-  .MuiPaper-root {
-    max-width: 764px;
-  }
-`;
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -99,12 +90,13 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <StyledFormModal
+    <FormModal
       title={title}
       open={open}
       onClose={onClose}
       cornerExitButton={false}
       data-testid="formmodal-ti1m"
+      width="md"
     >
       <DischargeForm
         onSubmit={handleDischarge}
@@ -115,6 +107,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         dispositionSuggester={dispositionSuggester}
         data-testid="dischargeform-xolc"
       />
-    </StyledFormModal>
+    </FormModal>
   );
 });
