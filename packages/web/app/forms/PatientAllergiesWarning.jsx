@@ -17,6 +17,7 @@ const Article = styled.article`
   grid-column: 1 / -1;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
+  line-height: 1.4;
   padding-block: 10px;
   padding-inline: 16px;
 `;
@@ -29,11 +30,8 @@ const Heading = styled.h3`
 
 const UnorderedList = styled.ul`
   color: ${p => p.theme.palette.text.primary};
-  font-size: 14px;
-  line-height: 1.4;
-  list-style-type: disc;
-  margin: 0;
   grid-column-start: 2;
+  margin-block: 0;
   padding-inline-start: 1em;
 `;
 
