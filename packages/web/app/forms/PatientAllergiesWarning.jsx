@@ -21,13 +21,13 @@ const Article = styled.article`
   padding-inline: 16px;
 `;
 
-const AllergiesWarningTitle = styled.h3`
+const Heading = styled.h3`
   font-size: inherit;
   font-weight: 500;
   margin-block: 0;
 `;
 
-const AllergiesList = styled.ul`
+const UnorderedList = styled.ul`
   color: ${p => p.theme.palette.text.primary};
   font-size: 14px;
   line-height: 1.4;
@@ -46,10 +46,10 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
   return (
     <Article {...props}>
       <TriangleAlert color={TAMANU_COLORS.alert} />
-      <AllergiesWarningTitle>
+      <Heading>
         <TranslatedText stringId="medication.allergies.title" fallback="Patient allergies" />
-      </AllergiesWarningTitle>
-      <AllergiesList>
+      </Heading>
+      <UnorderedList>
         {patientAllergies.map(({ allergy, id }) =>
           // Overly defensive guard, but preserves pre-refactor behaviour where properties of
           // `allergy` were accessed with optional chain.
@@ -62,7 +62,7 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
             </li>
           ) : null,
         )}
-      </AllergiesList>
+      </UnorderedList>
     </Article>
   );
 }
