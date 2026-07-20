@@ -231,6 +231,38 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
+  describe('data set completion', () => {
+    afterEach(async () => {
+      await reportVersion.update({ advancedConfig: null });
+    });
+
+    it('marks the data set complete when advancedConfig.dhis2DataSet is set', async () => {
+      await reportVersion.update({ advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+
+      await dhis2IntegrationProcessor.run();
+
+      expect(dhis2IntegrationProcessor.postToDHIS2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dataSet: 'test-dataset-id',
+          completeDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          period: '202401',
+          orgUnit: 'OU_TEST',
+        }),
+      );
+    });
+
+    it('does not set dataSet or completeDate when no dhis2DataSet is configured', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+
+      await dhis2IntegrationProcessor.run();
+
+      const [dataValueSet] = dhis2IntegrationProcessor.postToDHIS2.mock.calls[0];
+      expect(dataValueSet).not.toHaveProperty('dataSet');
+      expect(dataValueSet).not.toHaveProperty('completeDate');
+    });
+  });
+
   describe('auditing', () => {
     it('should create a failure log when cant connect to DHIS2', async () => {
       await dhis2IntegrationProcessor.run();

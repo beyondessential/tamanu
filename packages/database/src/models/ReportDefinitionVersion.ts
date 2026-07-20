@@ -25,6 +25,14 @@ const optionsValidator = yup.object({
   defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
 });
 
+// Freeform metadata, but known keys are type-checked so misconfiguration is caught
+// before it reaches an integration. dhis2DataSet is sent to the DHIS2 API as-is.
+const advancedConfigValidator = yup
+  .object({
+    dhis2DataSet: yup.string().strict(),
+  })
+  .nullable();
+
 const generateReportFromQueryData = (queryData: any[]) => {
   if (queryData.length === 0) {
     return [];
@@ -101,6 +109,9 @@ export class ReportDefinitionVersion extends Model {
            */
           type: DataTypes.JSONB,
           allowNull: true,
+          validate: {
+            matchesSchema: (value: Record<string, any>) => advancedConfigValidator.validate(value),
+          },
         },
       },
       {

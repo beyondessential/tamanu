@@ -262,17 +262,18 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           conflicts.forEach(conflict => log.warn(conflict.value));
         }
       } catch (error) {
-        await this.logDHIS2Push({
-          reportId,
-          status: AUDIT_STATUSES.FAILURE,
-          message: error.message,
-        });
+        // Log the underlying error first so it survives even if the audit write below throws.
         log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
           reportId,
           period: dataValueSet.period,
           orgUnit: dataValueSet.orgUnit,
           dataValueCount: dataValueSet.dataValues?.length,
           error: error.message,
+        });
+        await this.logDHIS2Push({
+          reportId,
+          status: AUDIT_STATUSES.FAILURE,
+          message: error.message,
         });
       }
     }

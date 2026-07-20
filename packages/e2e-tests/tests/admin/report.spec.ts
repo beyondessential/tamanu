@@ -3,7 +3,7 @@ import { test, expect } from '../../fixtures/baseFixture';
 import { selectFieldOption } from '@utils/fieldHelpers';
 import { constructAdminUrl } from '@utils/navigation';
 
-// Admin panel auth is included in the shared storageState via adminAuth.setup.ts.
+// Admin panel auth is included in the shared storageState via auth.setup.ts.
 test.beforeEach(async ({ page }) => {
   await page.goto(constructAdminUrl('/admin/reports'));
 });
@@ -48,5 +48,14 @@ test.describe('Admin panel report editor', () => {
 
     // After creation the app navigates to the edit view for the new version
     await expect(page).toHaveURL(/\/admin\/reports\/.+\/versions\/.+\/edit/, { timeout: 15000 });
+
+    // Confirm the advanced config round-tripped: re-open the accordion and check the saved value
+    const editAdvancedConfigSummary = page.getByTestId('accordionsummary-advanced-config');
+    await editAdvancedConfigSummary.scrollIntoViewIfNeeded();
+    await editAdvancedConfigSummary.click();
+    await expect(page.getByTestId('accordiondetails-advanced-config')).toContainText(
+      'some-dataset-id',
+      { timeout: 15000 },
+    );
   });
 });

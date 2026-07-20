@@ -174,6 +174,23 @@ describe('reportRoutes', () => {
         ]),
       );
     });
+
+    it('should persist a non-null advancedConfig', async () => {
+      const name = 'Test Report advancedConfig';
+      const { ReportDefinition, ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...definition } = getMockReportVersion(1, 'select 1');
+      const res = await adminApp
+        .post('/api/admin/reports')
+        .send({ name, dbSchema, ...definition, advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
+      expect(res).toHaveSucceeded();
+      const [report] = await ReportDefinition.findAll({ where: { name } });
+      const versions = await ReportDefinitionVersion.findAll({
+        where: { reportDefinitionId: report.id },
+      });
+      expect(versions).toHaveLength(1);
+      expect(versions[0].advancedConfig).toEqual({ dhis2DataSet: 'test-dataset-id' });
+    });
   });
 
   describe('POST /reports/:id/versions', () => {
