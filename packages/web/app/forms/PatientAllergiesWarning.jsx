@@ -50,14 +50,18 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
         <TranslatedText stringId="medication.allergies.title" fallback="Patient allergies" />
       </AllergiesWarningTitle>
       <AllergiesList>
-        {patientAllergies.map(({ allergy }) => (
-          <li key={allergy.id}>
-            <TranslatedText
-              stringId={getReferenceDataStringId(allergy.id, allergy.type)}
-              fallback={allergy.name}
-            />
-          </li>
-        ))}
+        {patientAllergies.map(({ allergy, id }) =>
+          // Overly defensive guard, but preserves pre-refactor behaviour where properties of
+          // `allergy` were accessed with optional chain.
+          allergy != null ? (
+            <li key={id}>
+              <TranslatedText
+                stringId={getReferenceDataStringId(allergy.id, allergy.type)}
+                fallback={allergy.name}
+              />
+            </li>
+          ) : null,
+        )}
       </AllergiesList>
     </Article>
   );
