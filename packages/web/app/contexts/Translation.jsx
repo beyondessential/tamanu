@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { TranslationContext, useTranslation } from '@tamanu/ui-components';
-import { LOCAL_STORAGE_KEYS } from '../constants';
-import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
-import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
-import { getCurrentLanguageCode } from '../utils/translation';
+import React, { useCallback, useMemo, useState } from 'react';
+
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { getEnumStringId } from '../components/Translation/TranslatedEnum';
+import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
+import { TranslationContext, useTranslation, getEnumStringId } from '@tamanu/ui-components';
+import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
+import { LOCAL_STORAGE_KEYS } from '../constants';
+import { getCurrentLanguageCode } from '../utils/translation';
 
 export { useTranslation };
 
