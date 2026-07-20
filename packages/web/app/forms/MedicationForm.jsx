@@ -810,7 +810,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                <PatientAllergiesWarning patientId={patient.id} />
+                <PatientAllergiesWarning patientId={patient.id} style={{ marginBlockEnd: '1em' }} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"

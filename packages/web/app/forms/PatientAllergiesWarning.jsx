@@ -18,7 +18,6 @@ const Root = styled.div`
   grid-column: 1 / -1;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
-  margin-block-end: 4px;
   padding-block: 10px;
   padding-inline: 16px;
 `;
