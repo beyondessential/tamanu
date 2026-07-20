@@ -18,6 +18,12 @@ import { ID_SEARCH_SUGGESTER_OPTIONS, SUGGESTER_OPTIONS } from './constants';
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
 const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
 const NUMERIC_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL'];
+// string values so an explicit "No" survives the search bar's empty-value filtering
+// ('false' is truthy as a string); Postgres casts them back to booleans on the exact match
+const BOOLEAN_SEARCH_OPTIONS = [
+  { value: 'true', label: 'Yes' },
+  { value: 'false', label: 'No' },
+];
 
 const CentredCheckContainer = styled.div`
   display: flex;
@@ -122,15 +128,18 @@ export const SearchField = ({ col }) => {
     return <SuggesterSearchField col={col} />;
   }
   if (col.type === 'BOOLEAN') {
+    // a Yes/No dropdown over a bare checkbox: the raw column-name label isn't sentence
+    // English so a checkbox is hard to read, and a cleared dropdown (no filter) is
+    // distinct from an explicit "No"
     return (
-      <CentredCheckContainer>
-        <Field
-          component={CheckField}
-          name={col.key}
-          label={col.key}
-          data-testid={`searchfield-${col.key}`}
-        />
-      </CentredCheckContainer>
+      <Field
+        component={SelectField}
+        name={col.key}
+        label={col.key}
+        options={BOOLEAN_SEARCH_OPTIONS}
+        size="small"
+        data-testid={`searchfield-${col.key}`}
+      />
     );
   }
   const isNumeric = NUMERIC_TYPES.includes(col.type);
