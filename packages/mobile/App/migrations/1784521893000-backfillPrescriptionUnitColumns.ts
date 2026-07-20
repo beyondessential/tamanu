@@ -1,7 +1,6 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
-import { getTable } from './utils/queryRunner';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class setPrescriptionUnitColumnsNotNull1784521893000 implements MigrationInterface {
+export class backfillPrescriptionUnitColumns1784521893000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       UPDATE prescriptions
@@ -51,44 +50,9 @@ export class setPrescriptionUnitColumnsNotNull1784521893000 implements Migration
     await queryRunner.query(
       'UPDATE prescriptions SET unitConversion = 1 WHERE unitConversion IS NULL',
     );
-
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'dosingUnit',
-      new TableColumn({ name: 'dosingUnit', type: 'varchar', isNullable: false }),
-    );
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'dispensingUnit',
-      new TableColumn({ name: 'dispensingUnit', type: 'varchar', isNullable: false }),
-    );
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'unitConversion',
-      new TableColumn({
-        name: 'unitConversion',
-        type: 'decimal',
-        isNullable: false,
-        default: 1,
-      }),
-    );
   }
 
-  async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'dosingUnit',
-      new TableColumn({ name: 'dosingUnit', type: 'varchar', isNullable: true }),
-    );
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'dispensingUnit',
-      new TableColumn({ name: 'dispensingUnit', type: 'varchar', isNullable: true }),
-    );
-    await queryRunner.changeColumn(
-      await getTable(queryRunner, 'prescriptions'),
-      'unitConversion',
-      new TableColumn({ name: 'unitConversion', type: 'decimal', isNullable: true }),
-    );
+  async down(): Promise<void> {
+    // DESTRUCTIVE: cannot restore original nulls after backfill
   }
 }
