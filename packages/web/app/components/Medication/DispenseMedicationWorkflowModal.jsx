@@ -54,11 +54,12 @@ const StyledModal = styled(BaseModal).attrs(props => ({
   width: props.$step === MODAL_STEPS.REVIEW ? 'sm' : 'xl',
 }))`
   .MuiDialogActions-root {
+    background-color: ${p => p.theme.palette.background.default};
+    border-block-start: 1px solid ${p => p.theme.palette.divider};
+    inset-block-end: 0;
+    padding-block: 10px 20px;
+    padding-inline: 40px;
     position: sticky;
-    bottom: 0;
-    background-color: ${Colors.background};
-    border-top: 1px solid ${Colors.outline};
-    padding: 10px 40px 20px 40px;
   }
 `;
 
