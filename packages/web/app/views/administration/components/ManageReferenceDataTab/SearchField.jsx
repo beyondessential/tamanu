@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import styled from 'styled-components';
 import { useTranslation } from '@tamanu/ui-components';
@@ -58,12 +58,21 @@ const NameSuggesterSearchField = ({ col }) => {
   const suggester = useSuggester(col.suggesterEndpoint, {
     formatter: ({ name }) => ({ label: name, value: name }),
   });
+  // The field's value IS the name, so resolve "current option" locally — the autocomplete's
+  // default behaviour is a by-id lookup, which 404s when handed a name
+  const nameModeSuggester = useMemo(
+    () => ({
+      fetchSuggestions: search => suggester.fetchSuggestions(search),
+      fetchCurrentOption: async value => ({ label: value, value }),
+    }),
+    [suggester],
+  );
   return (
     <Field
       name={col.key}
       label={col.key}
       component={AutocompleteField}
-      suggester={suggester}
+      suggester={nameModeSuggester}
       data-testid={`searchfield-${col.key}`}
     />
   );

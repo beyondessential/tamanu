@@ -56,6 +56,7 @@ const FK_ENDPOINT_OVERRIDES = /** @type {const} */ {
   'PatientFieldDefinition.categoryId': 'patientFieldDefinitionCategory',
   'InvoicePriceListItem.invoiceProductId': 'invoiceProduct',
   'InvoicePriceListItem.invoicePriceListId': 'invoicePriceList',
+  'InvoiceInsurancePlanItem.invoiceProductId': 'invoiceProduct',
   'CertifiableVaccine.vaccineId': 'drug',
   'ScheduledVaccine.vaccineId': 'drug',
   'ReferenceDataRelation.referenceDataId': 'referenceData',
