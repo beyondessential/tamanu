@@ -184,21 +184,23 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
         })
         .map(m => {
-          let durationDisplay = '-';
-          if (m.isOngoing) {
-            durationDisplay = (
-              <TranslatedText
-                stringId="medication.table.ongoing"
-                fallback="Ongoing"
-                data-testid="translatedtext-ongoing"
-              />
-            );
-          } else if (m.durationValue) {
-            durationDisplay = `${m.durationValue} ${singularize(
-              getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, m.durationUnit),
-              m.durationValue,
-            ).toLowerCase()}`;
-          }
+          const durationDisplay = m.isOngoing ? (
+            <TranslatedText stringId="medication.table.ongoing" fallback="Ongoing" />
+          ) : m.durationValue ? (
+            <>
+              {m.durationValue}
+              &nbsp;
+              {singularize(
+                getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, m.durationUnit, {
+                  casing: 'lower',
+                }),
+                m.durationValue,
+              )}
+            </>
+          ) : (
+            <>&mdash;</>
+          );
+
           return {
             ...m,
             quantity: m.quantity ?? '',
