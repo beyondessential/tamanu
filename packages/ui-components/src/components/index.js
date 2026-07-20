@@ -9,6 +9,7 @@ export { EditedOrnament } from './EditedOrnament';
 export * from './Field';
 export { SignaturePathDisplay, SignatureSvg } from './Field/signature';
 export * from './Form';
+export * from './JSONEditor';
 export * from './Modal';
 export * from './PatientNameDisplay';
 export { RequiredOrnament } from './RequiredOrnament';
