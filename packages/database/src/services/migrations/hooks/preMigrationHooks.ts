@@ -1,11 +1,10 @@
 import { GLOBAL_EXCLUDE_TABLES, NON_SYNCING_TABLES } from '../constants';
 import { tablesWithTrigger } from '../../../utils';
-import { requireFunction } from './prerequisites';
 import type { MigrationHook } from './types';
 
 const removeUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'removeUpdatedAtSyncTickTrigger',
-  prerequisites: [requireFunction('set_updated_at_sync_tick')],
+  prerequisites: [],
   async run({ log, sequelize }) {
     // remove updated sync tick trigger before migrations
     // migrations are deterministic, so updating the sync tick just creates useless churn
