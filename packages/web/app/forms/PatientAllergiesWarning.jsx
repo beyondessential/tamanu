@@ -22,9 +22,10 @@ const Article = styled.article`
   padding-inline: 16px;
 `;
 
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${p => p.theme.palette.text.primary};
+const AllergiesWarningTitle = styled.h3`
+  font-size: inherit;
   font-weight: 500;
+  margin-block: 0;
 `;
 
 const AllergiesList = styled.ul`
