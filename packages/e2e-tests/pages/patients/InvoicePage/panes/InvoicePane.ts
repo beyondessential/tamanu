@@ -38,10 +38,10 @@ export class InvoicePane {
   }
 
   // Finalise the invoice: the Finalise button only shows once the encounter is discharged, and it
-  // opens a confirm modal. Finalisation is one-way. Clicking the confirm button auto-waits for the
-  // modal; the finalised state is asserted by the caller (expectStatus), so we don't wait on close.
+  // opens a confirm modal. Finalisation is one-way. The confirm button (only one on-screen while
+  // the modal is open) auto-waits; the finalised state is asserted by the caller (expectStatus).
   async finalise(): Promise<void> {
     await this.finaliseButton.click();
-    await this.page.getByTestId('modal-j1bi').getByTestId('confirmbutton-tok1').click();
+    await this.page.getByTestId('confirmbutton-tok1').click();
   }
 }
