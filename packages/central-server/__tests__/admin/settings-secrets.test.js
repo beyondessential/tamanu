@@ -161,5 +161,32 @@ describe('Settings Admin - secrets', () => {
       const row = await models.Setting.findOne({ where: { key: SECRET_PATH } });
       expect(row).toBeNull();
     });
+
+    it('does not echo the secret value in a failed save response', async () => {
+      const res = await adminApp.put('/v1/admin/settings').send({
+        settings: { integrations: { dhis2: { password: 'should-not-store' } } },
+      });
+      expect(res.status).toBe(422);
+      expect(JSON.stringify(res.body)).not.toContain('should-not-store');
+    });
+
+    it('does not echo the secret value when a non-admin is refused on a highRisk secret', async () => {
+      // mail.transportPassword is a secret inside the highRisk mail subtree, so a
+      // write-Setting-only user is refused — the refusal must name the path, not the value
+      const writeOnlyApp = await ctx.baseApp.asNewRole([
+        ['read', 'Setting'],
+        ['write', 'Setting'],
+      ]);
+      const res = await writeOnlyApp.put('/v1/admin/settings').send({
+        settings: { mail: { transportPassword: 'super-secret-pw' } },
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(res).toBeForbidden();
+      expect(JSON.stringify(res.body)).not.toContain('super-secret-pw');
+
+      // and nothing was written
+      const row = await models.Setting.findOne({ where: { key: 'mail.transportPassword' } });
+      expect(row).toBeNull();
+    });
   });
 });

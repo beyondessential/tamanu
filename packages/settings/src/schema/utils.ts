@@ -48,6 +48,33 @@ export const extractSecretPaths = (schema: SettingsSchema, parentKey = ''): stri
 };
 
 /**
+ * Extracts all leaf paths in the schema that are high-risk — flagged on the
+ * setting itself or inherited from any ancestor group's highRisk flag.
+ * Returns dot-separated paths, like extractSecretPaths.
+ */
+export const extractHighRiskPaths = (
+  schema: SettingsSchema,
+  parentKey = '',
+  inherited = false,
+): string[] => {
+  const paths: string[] = [];
+
+  for (const [key, value] of Object.entries(schema.properties)) {
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+    if (isSetting(value)) {
+      if (inherited || value.highRisk) {
+        paths.push(fullKey);
+      }
+    } else if (isSettingsSchema(value)) {
+      paths.push(...extractHighRiskPaths(value, fullKey, inherited || value.highRisk === true));
+    }
+  }
+
+  return paths;
+};
+
+/**
  * Placeholder value used to indicate that a secret exists but its value is hidden.
  */
 export const SECRET_PLACEHOLDER = '••••••••';

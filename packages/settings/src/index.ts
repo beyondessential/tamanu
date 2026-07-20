@@ -16,6 +16,7 @@ export {
   fhirCountParametersSchema,
   fhirExtensionsSchema,
   extractSecretPaths,
+  extractHighRiskPaths,
   maskSecrets,
   isSecretPath,
   getSettingAtPath,
