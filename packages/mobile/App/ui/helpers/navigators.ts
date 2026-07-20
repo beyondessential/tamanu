@@ -1,5 +1,6 @@
 import { CommonActions, NavigationProp } from '@react-navigation/native';
 
+import type { VaccineDataProps } from '/components/VaccineCard';
 import { Routes } from './routes';
 
 export const noTabComponent = (): null => null;
@@ -96,7 +97,7 @@ export const returnToVaccineTableWithRefresh = (
  */
 export const returnToVaccineModalWithUpdatedVaccine = (
   navigation: NavigationProp<any>,
-  vaccine: object,
+  vaccine: VaccineDataProps,
 ): void => {
   const stackNavigation = getVaccineStackNavigation(navigation);
 
