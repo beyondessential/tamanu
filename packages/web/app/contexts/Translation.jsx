@@ -21,23 +21,32 @@ export const TranslationProvider = ({ children, value }) => {
    * @param {TranslationOptions} translationOptions
    * @returns {string}
    */
-  const getTranslation = useCallback((stringId, fallback, translationOptions = {}) => {
-    const { value } = translationFunc(stringId, fallback, translationOptions);
-    return value;
-  }, [translationFunc]);
+  const getTranslation = useCallback(
+    (stringId, fallback, translationOptions = {}) => {
+      const { value } = translationFunc(stringId, fallback, translationOptions);
+      return value;
+    },
+    [translationFunc],
+  );
 
-  const getEnumTranslation = useCallback((enumValues, currentValue) => {
-    const fallback = enumValues[currentValue];
-    const stringId = getEnumStringId(currentValue ?? '', enumValues);
-    const { value } = translationFunc(stringId, fallback);
-    return value;
-  }, [translationFunc]);
+  const getEnumTranslation = useCallback(
+    (enumValues, currentValue, translationOptions) => {
+      const fallback = enumValues[currentValue];
+      const stringId = getEnumStringId(currentValue ?? '', enumValues);
+      const { value } = translationFunc(stringId, fallback, translationOptions);
+      return value;
+    },
+    [translationFunc],
+  );
 
-  const getReferenceDataTranslation = useCallback(({ value, category, fallback, placeholder }) => {
-    return value
-      ? getTranslation(getReferenceDataStringId(value, category), fallback)
-      : placeholder;
-  }, [getTranslation]);
+  const getReferenceDataTranslation = useCallback(
+    ({ value, category, fallback, placeholder }) => {
+      return value
+        ? getTranslation(getReferenceDataStringId(value, category), fallback)
+        : placeholder;
+    },
+    [getTranslation],
+  );
 
   const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
