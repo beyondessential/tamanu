@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,16 +17,17 @@ import { TranslatedText } from '../../components/Translation';
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledFixedTable = styled(MaterialTable)`
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px 3px 0 0;
+  background-color: ${p => p.theme.palette.background.paper};
   border-collapse: unset;
-  background: ${Colors.white};
-
-  table-layout: fixed;
-  width: 100%;
+  border-end-end-radius: 0;
+  border-end-start-radius: 0;
+  border-start-end-radius: ${p => p.theme.shape.borderRadius};
+  border-start-start-radius: ${p => p.theme.shape.borderRadius};
+  border: 1px solid ${p => p.theme.palette.divider};
+  inline-size: 100%;
 
   &:last-child {
-    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
+    border-block-end: ${props => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -34,8 +35,14 @@ const StyledTableHead = styled(TableHead)`
   background: ${Colors.background};
 `;
 
-const StyledTableHeaderCell = styled(TableCell)`
-  width: ${props => (props.width ? props.width : 'auto')};
+const StyledTableHeaderCell = styled(TableCell).withConfig({
+  shouldForwardProp: prop => prop !== 'width',
+})`
+  ${props =>
+    props.width &&
+    css`
+      width: ${props.width};
+    `};
   padding: 1.5%;
   text-align: center;
 `;
@@ -122,11 +129,12 @@ export const TableFormFields = React.memo(
           >
             <StyledTableHead data-testid="styledtablehead-86fw">
               <TableRow data-testid="tablerow-xx17">
-                {columns.map(({ key, title, width }) => (
+                {columns.map(({ key, title, width, style }) => (
                   <StyledTableHeaderCell
                     key={key}
                     width={width}
                     data-testid={`styledtableheadercell-wvus-${key}`}
+                    style={style}
                   >
                     {title}
                   </StyledTableHeaderCell>
@@ -188,7 +196,9 @@ TableFormFields.propTypes = {
       key: PropTypes.string.isRequired,
       title: PropTypes.node,
       accessor: PropTypes.func.isRequired,
+      /** @deprecated Prefer passing `style` prop */
       width: PropTypes.string,
+      style: PropTypes.object,
     }),
   ).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

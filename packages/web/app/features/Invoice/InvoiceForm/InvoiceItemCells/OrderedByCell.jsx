@@ -1,7 +1,5 @@
 import React from 'react';
 import { AutocompleteField, Field, NoteModalActionBlocker } from '../../../../components';
-import { ViewOnlyCell } from './ViewOnlyCell';
-import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
 import { useSuggester } from '../../../../api';
 
@@ -15,7 +13,7 @@ export const OrderedByCell = ({
   const practitionerSuggester = useSuggester('practitioner');
 
   return (
-    <ItemCell $width={cellWidths.ORDERED_BY}>
+    <td style={{ minInlineSize: cellWidths.ORDERED_BY }}>
       {isEditing ? (
         <NoteModalActionBlocker>
           <Field
@@ -28,8 +26,8 @@ export const OrderedByCell = ({
           />
         </NoteModalActionBlocker>
       ) : (
-        <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+        item?.orderedByUser?.displayName
       )}
-    </ItemCell>
+    </td>
   );
 };

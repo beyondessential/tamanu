@@ -1,76 +1,71 @@
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { useQueryClient } from '@tanstack/react-query';
+import { format, subSeconds } from 'date-fns';
+import { capitalize } from 'es-toolkit/compat';
+import { useFormikContext } from 'formik';
+import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import PrintIcon from '@mui/icons-material/Print';
+
 import {
+  ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   DRUG_ROUTE_VALUES,
-  MEDICATION_DURATION_UNITS_LABELS,
-  MEDICATION_ADMINISTRATION_TIME_SLOTS,
-  ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
   MAX_REPEATS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+  MEDICATION_DURATION_UNITS_LABELS,
 } from '@tamanu/constants';
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { format, subSeconds } from 'date-fns';
-import { useFormikContext } from 'formik';
-import { toast } from 'react-toastify';
-
-import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
-import { foreignKey } from '../utils/validation';
-import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
   AutocompleteField,
-  BodyText,
-  CheckField,
-  CheckInput,
+  ConditionalTooltip,
   DateField,
   DateTimeField,
-  Field,
-  NumberField,
-  SmallBodyText,
-} from '../components';
-import {
-  TextField,
-  TranslatedSelectField,
+  Dialog,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  Dialog,
+  NumberField,
+  TextField,
+  ThemedTooltip,
+  TranslatedSelectField,
+  TranslatedText,
+  useApi,
   useDateTime,
+  useSettings,
+  useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQueryClient } from '@tanstack/react-query';
-import { useApi, useSuggester } from '../api';
-import { useSelector } from 'react-redux';
-import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
-import { useAuth } from '../contexts/Auth';
-import { useSettings } from '../contexts/Settings';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip } from '../components/Tooltip';
-import { capitalize } from 'es-toolkit/compat';
+import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { PrintPrescriptionModal } from '../components/PatientPrinting';
+import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
+import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import {
   preventInvalidNumber,
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
-import { getDrugUnitLabel } from '../utils/medications';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { useEncounter } from '../contexts/Encounter';
-import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
-import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
+import { foreignKey } from '../utils/validation';
+import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -124,6 +119,11 @@ const validationSchema = yup.object().shape({
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
 });
+
+const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
+  margin-block-end: 1em;
+  grid-column: 1 / -1;
+`;
 
 const FullWidthFieldWrapper = styled.div`
   position: relative;
@@ -192,6 +192,19 @@ const FieldLabel = styled(Box)`
   font-weight: 500;
   font-size: 14px;
 `;
+
+const TooltipTextField = ({ tooltip, label, id, ...props }) => (
+  <FullWidthFieldWrapper>
+    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
+      {label}
+    </FieldLabel>
+    <ThemedTooltip disableFocusListener title={tooltip}>
+      <div>
+        <TextField id={id} {...props} />
+      </div>
+    </ThemedTooltip>
+  </FullWidthFieldWrapper>
+);
 
 const FieldContent = styled(Box)`
   color: ${Colors.darkText};
@@ -296,42 +309,6 @@ const StyledTimePicker = styled(TimePicker)`
   }
 `;
 
-const AllergiesWarningBox = styled(Box)`
-  grid-column: 1 / -1;
-  border: 1px solid ${Colors.alert};
-  border-radius: 3px;
-  padding: 10px 26px;
-  background-color: ${Colors.lightAlert};
-  margin-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const AllergiesWarningHeader = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 14px;
-`;
-
-const AllergiesList = styled.ul`
-  margin: 0;
-  padding-left: 41px;
-  list-style-type: disc;
-`;
-
-const AllergyItem = styled.li`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  line-height: 20px;
-`;
-
 const StockLevelContainer = styled.div`
   padding: 12px 10px;
   margin-top: 4px;
@@ -356,9 +333,18 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
+function PlainTimeRangeDisplay({ start, end }) {
+  const { formatTime } = useDateTime();
+  return (
+    <>
+      {formatTime(start)}&thinsp;&ndash;&thinsp;{formatTime(end)}
+    </>
+  );
+}
+
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTime, formatShort } = useDateTime();
+  const { formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -378,10 +364,16 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
+    return (
+      <>
+        <PlainTimeRangeDisplay
+          start={getDateFromTimeString(firstSlot.startTime)}
+          end={getDateFromTimeString(firstSlot.endTime)}
+        />{' '}
+        {formatShort(new Date(firstStartTime))}
+      </>
+    );
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -535,14 +527,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       py={1.25}
                       bgcolor={isDisabled ? undefined : Colors.white}
                       borderRadius="3px"
-                      width="187px"
                       height="fit-content"
                       border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
                     >
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+                            <PlainTimeRangeDisplay start={startTime} end={endTime} />
                           </FieldContent>
                         }
                         value={checked}
@@ -606,6 +597,10 @@ const MedicationBox = styled.div`
   grid-column: 1 / -1;
 `;
 
+const Hr = styled.hr`
+  grid-column: 1 / -1;
+`;
+
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -658,15 +653,6 @@ export const MedicationForm = ({
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
-
-  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList =
-    allergies?.data?.map(allergyDetail =>
-      getTranslation(
-        getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
-        allergyDetail?.allergy.name,
-      ),
-    ) || [];
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -769,7 +755,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.unknown"
-          fallback="The stock status of this medication is currently unknown."
+          fallback="The stock status of this medication is currently unknown"
         />
       );
     }
@@ -778,7 +764,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.outOfStock"
-          fallback="Medication is currently marked as out of stock."
+          fallback="Medication is currently marked as out of stock"
         />
       );
     }
@@ -829,24 +815,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                {!isLoadingAllergies && allergiesList.length > 0 && (
-                  <AllergiesWarningBox>
-                    <AllergiesWarningHeader>
-                      <WarningOutlineIcon />
-                      <AllergiesWarningTitle>
-                        <TranslatedText
-                          stringId="medication.allergies.title"
-                          fallback="Patient allergies"
-                        />
-                      </AllergiesWarningTitle>
-                    </AllergiesWarningHeader>
-                    <AllergiesList>
-                      {allergiesList.map((allergy, index) => (
-                        <AllergyItem key={index}>{allergy}</AllergyItem>
-                      ))}
-                    </AllergiesList>
-                  </AllergiesWarningBox>
-                )}
+                <StyledPatientAllergiesWarning patientId={patient.id} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
@@ -1101,14 +1070,18 @@ export const MedicationForm = ({
             </div>
             <Field
               name="notes"
+              id="medication-notes"
               label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
-              component={TextField}
-              style={{ gridColumn: '1/-1' }}
+              tooltip={
+                <TranslatedText
+                  stringId="medication.notes.tooltip"
+                  fallback="This text will appear on the prescription label"
+                />
+              }
+              component={TooltipTextField}
               data-testid="medication-field-notes-5b3t"
             />
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             {values.frequency ? (
               <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
@@ -1128,16 +1101,14 @@ export const MedicationForm = ({
               </div>
             )}
 
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             <Field
               name="quantity"
               label={
                 encounterId ? (
                   <TranslatedText
                     stringId="medication.details.dischargeQuantity"
-                    fallback="Discharge quantity"
+                    fallback="Dispensing quantity"
                   />
                 ) : (
                   <TranslatedText stringId="medication.quantity.label" fallback="Quantity" />
@@ -1174,9 +1145,7 @@ export const MedicationForm = ({
 
             {showPatientWeight && (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
+                <Hr />
                 <Field
                   name="patientWeight"
                   label={
@@ -1194,9 +1163,7 @@ export const MedicationForm = ({
                 />
               </>
             )}
-            <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
-              <Divider />
-            </div>
+            <Hr style={{ inlineSize: 'calc(100% + 64px)', marginInline: '-32px' }} />
             <ButtonRow>
               {isOngoingPrescription || isEditing || !canPrintPrescription ? (
                 <div />
@@ -1280,7 +1247,7 @@ export const MedicationForm = ({
               <FieldContent pt={3} pb={4}>
                 <TranslatedText
                   stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
-                  fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+                  fallback="There are fewer administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
                 />
               </FieldContent>
               <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />

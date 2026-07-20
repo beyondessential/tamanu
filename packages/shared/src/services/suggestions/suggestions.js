@@ -785,19 +785,44 @@ createSuggester(
     includeBuilder: req => {
       const { priceListId } = req.query;
 
-      if (!priceListId) return [];
-
-      return [
+      const includes = [
+        /**
+         * Include dispensing unit (populated for drug-category products only) so front-end can
+         * display it alongside the quantity when adding invoice items.
+         */
         {
+          model: req.models.ReferenceData,
+          as: 'sourceRefDataRecord',
+          attributes: ['id'],
+          required: false,
+          include: [
+            {
+              model: req.models.ReferenceDrug,
+              as: 'referenceDrug',
+              attributes: ['dispensingUnit'],
+              required: false,
+            },
+          ],
+        },
+      ];
+
+      if (priceListId) {
+        includes.push({
           model: req.models.InvoicePriceListItem,
           as: 'invoicePriceListItems',
           required: false,
-          where: {
-            invoicePriceListId: priceListId,
-          },
-        },
-      ];
+          where: { invoicePriceListId: priceListId },
+        });
+      }
+
+      return includes;
     },
+    mapper: ({ name, code, id, sourceRefDataRecord }) => ({
+      name,
+      code,
+      id,
+      dispensingUnit: sourceRefDataRecord?.referenceDrug?.dispensingUnit,
+    }),
     queryOptions: { subQuery: false },
   },
 );

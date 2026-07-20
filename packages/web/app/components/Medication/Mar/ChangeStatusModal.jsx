@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
   ConfirmCancelRow,
@@ -26,7 +27,7 @@ import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
-import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
+import { isWithinTimeSlot } from '../../../utils/medications';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { FormModal } from '../../FormModal';
 import { WarningModal } from '../WarningModal';

@@ -14,7 +14,8 @@ import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
-import { buildInstructionText, getDrugUnitLabel, usePresetLabelsQuery } from '../../utils/medications';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {

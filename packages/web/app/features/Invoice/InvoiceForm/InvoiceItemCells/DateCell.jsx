@@ -1,12 +1,10 @@
 import React from 'react';
 import { Field, DateField, NoteModalActionBlocker } from '../../../../components';
-import { ViewOnlyCell } from './ViewOnlyCell';
-import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
 import { DateDisplay } from '@tamanu/ui-components';
 
 export const DateCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) => (
-  <ItemCell $width={cellWidths.DATE}>
+  <td style={{ minInlineSize: cellWidths.DATE }}>
     {isEditing ? (
       <NoteModalActionBlocker>
         <Field
@@ -18,9 +16,7 @@ export const DateCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) =
         />
       </NoteModalActionBlocker>
     ) : (
-      <ViewOnlyCell>
-        <DateDisplay date={item?.orderDate} format="shortest" />
-      </ViewOnlyCell>
+      <DateDisplay date={item?.orderDate} format="shortest" />
     )}
-  </ItemCell>
+  </td>
 );

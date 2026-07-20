@@ -283,7 +283,8 @@ const StyledTextInput = styled(TextInput)`
       $isDraggingFileOver ? TAMANU_COLORS.primary10 : TAMANU_COLORS.white};
     border-radius: 10px;
     min-block-size: 118px;
-    padding-block-end: 58px;
+    padding-block: 15px 58px;
+    padding-inline: 17px;
     transition:
       background 120ms ease-out,
       box-shadow 120ms ease-out;
@@ -305,7 +306,6 @@ const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {
     max-block-size: 170px;
     overflow-y: auto !important;
-    padding: 15px 17px;
   }
 
   .MuiInputBase-input::placeholder {

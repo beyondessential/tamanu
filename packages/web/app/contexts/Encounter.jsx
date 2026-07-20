@@ -62,23 +62,27 @@ export const EncounterProvider = ({ children }) => {
         setIsLoadingEncounter(true);
       }
       try {
-        const data = await api.get(`encounter/${encounterId}`);
-        const { data: diagnoses } = await getDataOrDefaultOnError(
-          () => api.get(`encounter/${encounterId}/diagnoses`),
-          { data: [] },
-        );
-        const { data: procedures } = await getDataOrDefaultOnError(
-          () => api.get(`encounter/${encounterId}/procedures`),
-          { data: [] },
-        );
-        const { data: medications } = await getDataOrDefaultOnError(
-          () => api.get(`encounter/${encounterId}/medications`),
-          { data: [] },
-        );
-        const { data: triages } = await getDataOrDefaultOnError(
-          () => api.get(`encounter/${encounterId}/triages`),
-          { data: [] },
-        );
+        const [
+          data,
+          { data: diagnoses },
+          { data: procedures },
+          { data: medications },
+          { data: triages },
+        ] = await Promise.all([
+          api.get(`encounter/${encounterId}`),
+          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/diagnoses`), {
+            data: [],
+          }),
+          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/procedures`), {
+            data: [],
+          }),
+          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/medications`), {
+            data: [],
+          }),
+          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/triages`), {
+            data: [],
+          }),
+        ]);
         setEncounterData({ ...data, diagnoses, procedures, medications, triages });
       } finally {
         if (shouldUpdateLoading) {
