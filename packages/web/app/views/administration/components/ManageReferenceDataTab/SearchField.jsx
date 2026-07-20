@@ -52,6 +52,23 @@ const SuggesterSearchField = ({ col }) => {
   );
 };
 
+// Companion name column for an FK: a name-mode autocomplete over the same suggester.
+// The submitted value is the record's name (not id), matching the server's name filter.
+const NameSuggesterSearchField = ({ col }) => {
+  const suggester = useSuggester(col.suggesterEndpoint, {
+    formatter: ({ name }) => ({ label: name, value: name }),
+  });
+  return (
+    <Field
+      name={col.key}
+      label={col.key}
+      component={AutocompleteField}
+      suggester={suggester}
+      data-testid={`searchfield-${col.key}`}
+    />
+  );
+};
+
 export const SearchField = ({ col }) => {
   const { getTranslation } = useTranslation();
 
@@ -89,6 +106,9 @@ export const SearchField = ({ col }) => {
       />
     );
   }
+  if (col.isFkName) {
+    return <NameSuggesterSearchField col={col} />;
+  }
   if (col.suggesterEndpoint) {
     return <SuggesterSearchField col={col} />;
   }
@@ -110,7 +130,8 @@ export const SearchField = ({ col }) => {
       component={isNumeric ? NumberField : SearchTextField}
       name={col.key}
       label={col.key}
-      placeholder={getTranslation('general.placeholder.search...', 'Search…')}
+      // a "Search…" hint reads oddly on numeric fields (e.g. price), so leave those empty
+      placeholder={isNumeric ? undefined : getTranslation('general.placeholder.search...', 'Search…')}
       data-testid={`searchfield-${col.key}`}
     />
   );

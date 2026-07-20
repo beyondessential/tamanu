@@ -101,6 +101,8 @@ const getForeignKeyNameColumns = model => {
       isFkName: true,
       fkKey: assoc.foreignKey,
       fkAlias: assoc.as,
+      // lets the search bar render a name-mode autocomplete rather than free text
+      suggesterEndpoint: endpoint,
     });
   }
   return columns;
