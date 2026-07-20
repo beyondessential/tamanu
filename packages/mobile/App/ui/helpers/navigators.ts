@@ -85,6 +85,36 @@ export const returnToVaccineTableWithRefresh = (
   stackNavigation.goBack();
 };
 
+/**
+ * After editing an administered vaccine, update the modal route's params in place and pop
+ * the edit form. Prefer this over navigate(...params): the modal already sits under the form
+ * in the stack, so navigate does not reliably re-apply params to that existing route.
+ */
+export const returnToVaccineModalWithUpdatedVaccine = (
+  navigation: NavigationProp<any>,
+  vaccine: object,
+): void => {
+  const stackNavigation = getVaccineStackNavigation(navigation);
+
+  if (!stackNavigation) {
+    navigation.goBack();
+    return;
+  }
+
+  const modalRoute = stackNavigation
+    .getState()
+    .routes.find(route => route.name === Routes.HomeStack.VaccineStack.VaccineModalScreen);
+
+  if (modalRoute?.key) {
+    stackNavigation.dispatch({
+      ...CommonActions.setParams({ vaccine }),
+      source: modalRoute.key,
+    });
+  }
+
+  stackNavigation.goBack();
+};
+
 /** Reset ReferralStack to the View referrals tab after submitting a referral form. */
 export const resetToReferralHistory = (navigation: NavigationProp<any>): void => {
   navigation.dispatch(
