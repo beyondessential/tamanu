@@ -28,7 +28,6 @@ import {
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   AutocompleteField,
   ConditionalTooltip,
@@ -52,8 +51,6 @@ import {
 } from '@tamanu/ui-components';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
@@ -68,6 +65,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { foreignKey } from '../utils/validation';
+import PatientAllergiesWarning from './PatientAllergiesWarning';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -304,49 +302,6 @@ const StyledTimePicker = styled(TimePicker)`
       border-color: ${Colors.softText};
     }
   }
-`;
-
-const AllergiesWarningBox = styled(Box)`
-  grid-column: 1 / -1;
-  border: 1px solid ${Colors.alert};
-  border-radius: 3px;
-  padding: 10px 26px;
-  background-color: ${Colors.lightAlert};
-  margin-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const AllergiesWarningHeader = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 14px;
-`;
-
-const AllergiesList = styled.ul`
-  margin: 0;
-  padding-left: 41px;
-  list-style-type: disc;
-`;
-
-const AllergyItem = styled(({ allergy, ...props }) => (
-  <li {...props}>
-    <TranslatedText
-      stringId={getReferenceDataStringId(allergy.id, allergy.type)}
-      fallback={allergy.name}
-    />
-  </li>
-))`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  line-height: 20px;
 `;
 
 const StockLevelContainer = styled.div`
@@ -694,9 +649,6 @@ export const MedicationForm = ({
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
-  const { data, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const patientAllergies = data?.data;
-
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
     (async () => {
@@ -858,24 +810,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                {!isLoadingAllergies && patientAllergies?.length > 0 && (
-                  <AllergiesWarningBox>
-                    <AllergiesWarningHeader>
-                      <WarningOutlineIcon />
-                      <AllergiesWarningTitle>
-                        <TranslatedText
-                          stringId="medication.allergies.title"
-                          fallback="Patient allergies"
-                        />
-                      </AllergiesWarningTitle>
-                    </AllergiesWarningHeader>
-                    <AllergiesList>
-                      {patientAllergies.map(({ allergy }) => (
-                        <AllergyItem allergy={allergy} key={allergy.id} />
-                      ))}
-                    </AllergiesList>
-                  </AllergiesWarningBox>
-                )}
+                <PatientAllergiesWarning patientId={patient.id} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
