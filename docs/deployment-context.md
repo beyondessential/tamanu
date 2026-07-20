@@ -29,8 +29,10 @@ From these, establish:
   backend can legitimately differ; two API servers on different versions is the
   problem (`version_drift`).
 - **Health checks** — which checks are failing and at what severity. Use
-  `healthchecks.md` to map a failing check to a deeper runbook, and Canopy's
-  `get_check_documentation` for the meaning and solve of each check.
+  `healthchecks.md` to map a failing check to a deeper runbook, and **call
+  Canopy's `get_check_documentation` yourself** for the meaning and solve of each
+  failing check as context before suggesting steps. This is a read-only Canopy
+  read, the same category as `get_server` / `get_group`.
 - **Topology** — is this a single-server deployment or central + multiple
   facilities? Which server is central? A facility problem and a central problem
   are investigated differently.
