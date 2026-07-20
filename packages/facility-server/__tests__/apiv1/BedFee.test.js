@@ -2,6 +2,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { getCurrentDateTimeString, storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
 import { ReadSettings } from '@tamanu/settings';
 import {
   ENCOUNTER_TYPES,
@@ -46,6 +47,31 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     });
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
     return models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+  };
+
+  // recalculateBedFee reconstructs location history from the audit changelog (logs.changes).
+  // These helpers stand in for the encounter writes that would populate it: clear the rows the
+  // always-on trigger wrote when the encounter was created, then record a location as of a given
+  // (write-)time, so a test controls the timeline the same way it used to with EncounterHistory.
+  // `at` is a primary-tz wall-clock string, stored as the real absolute instant the trigger would
+  // write (a timestamptz), so the test exercises the same instant→primary-tz conversion as prod.
+  const clearEncounterChangelog = encounterId =>
+    models.ChangeLog.destroy({ where: { recordId: encounterId } });
+  const recordLocationAt = (encounterId, locationId, at) => {
+    const instant = new Date(storedDateTimeToEpochMilliseconds(at, primaryTimeZone));
+    return models.ChangeLog.create({
+      tableOid: 0,
+      tableSchema: 'public',
+      tableName: 'encounters',
+      loggedAt: instant,
+      updatedByUserId: user.id,
+      recordId: encounterId,
+      recordCreatedAt: instant,
+      recordUpdatedAt: instant,
+      recordData: { location_id: locationId },
+      deviceId: 'test',
+      version: 'test',
+    });
   };
 
   beforeAll(async () => {
@@ -157,26 +183,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     });
 
     // Location history: bed A from admission, moved to bed B mid-day on the 17th.
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: bedLocation.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 18:00:00',
-      }),
-    );
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: locationB.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-17 12:00:00',
-      }),
-    );
+    await clearEncounterChangelog(encounter.id);
+    await recordLocationAt(encounter.id, bedLocation.id, '2024-06-16 18:00:00');
+    await recordLocationAt(encounter.id, locationB.id, '2024-06-17 12:00:00');
 
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
     const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
@@ -185,6 +194,99 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(items).toHaveLength(2);
     expect(nightsByProduct[bedProduct.id]).toBe(1);
     expect(nightsByProduct[bedProductB.id]).toBe(2);
+  });
+
+  it('bills a ward move recomputed in the same transaction, before the changelog trigger fires', async () => {
+    // The audit changelog trigger is deferred to commit, so a recompute run in the same transaction
+    // as a ward move (as the encounter route does) can't see that move's changelog row yet. The
+    // recompute must still bill the new location — from the encounter's live location, not the
+    // stale changelog — rather than waiting for the next nightly charger.
+    const locationB = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-MOVE-TXN' }),
+    );
+    const bedProductB = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.BED_FEE],
+        sourceRecordId: locationB.id,
+      }),
+    );
+
+    // Admitted to bed A and still admitted (endDate null) — committed, so its changelog row exists.
+    const startDate = getCurrentDateTimeString();
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      locationId: bedLocation.id,
+      departmentId: department.id,
+      examinerId: user.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate,
+      endDate: null,
+    });
+    const invoice = await models.Invoice.create({
+      encounterId: encounter.id,
+      displayId: `INV-${encounter.id.slice(0, 8)}`,
+      date: startDate,
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+
+    await models.Invoice.sequelize.transaction(async () => {
+      await encounter.update({ locationId: locationB.id });
+      await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    });
+
+    const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    const nightsByProduct = Object.fromEntries(items.map(item => [item.productId, item.quantity]));
+    expect(nightsByProduct[bedProductB.id]).toBe(1); // the just-made move is billed immediately
+    expect(nightsByProduct[bedProduct.id] ?? 0).toBe(0); // bed A no longer qualifies
+  });
+
+  it('bills the admission ward for backdated-admission nights recorded before a later ward move', async () => {
+    // Admitted to bed A at 22:00 on the 16th, but only recorded in Tamanu at 09:00 on the 17th —
+    // after that night's 02:00 check — then moved to bed B at 12:00 the same day. The admission
+    // takes effect from startDate, not the (later) data-entry time, so the 17th night is bed A's
+    // even though the changelog row was written after the check and the current location is bed B.
+    const locationB = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-BACKDATED' }),
+    );
+    const bedProductB = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.BED_FEE],
+        sourceRecordId: locationB.id,
+      }),
+    );
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      locationId: locationB.id, // current location after the move
+      departmentId: department.id,
+      examinerId: user.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate: '2024-06-16 22:00:00',
+      endDate: '2024-06-18 06:00:00',
+    });
+    const invoice = await models.Invoice.create({
+      encounterId: encounter.id,
+      displayId: `INV-${encounter.id.slice(0, 8)}`,
+      date: '2024-06-16 22:00:00',
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+
+    // Admission to bed A recorded late (09:00 on the 17th), then moved to bed B at 12:00.
+    await clearEncounterChangelog(encounter.id);
+    await recordLocationAt(encounter.id, bedLocation.id, '2024-06-17 09:00:00');
+    await recordLocationAt(encounter.id, locationB.id, '2024-06-17 12:00:00');
+
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    const nightsByProduct = Object.fromEntries(items.map(item => [item.productId, item.quantity]));
+    // Overnight (02:00) checks: 17th → bed A (admission night), 18th → bed B.
+    expect(items).toHaveLength(2);
+    expect(nightsByProduct[bedProduct.id]).toBe(1);
+    expect(nightsByProduct[bedProductB.id]).toBe(1);
   });
 
   it('charges the minimum-one-night to the current location after an early ward move (before any check)', async () => {
@@ -219,26 +321,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     });
 
     // Bed A from admission, moved to bed B at 11:00 — both before the next 02:00 check.
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: bedLocation.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 09:00:00',
-      }),
-    );
-    await models.EncounterHistory.create(
-      fake(models.EncounterHistory, {
-        encounterId: encounter.id,
-        locationId: locationB.id,
-        departmentId: department.id,
-        examinerId: user.id,
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        date: '2024-06-16 11:00:00',
-      }),
-    );
+    await clearEncounterChangelog(encounter.id);
+    await recordLocationAt(encounter.id, bedLocation.id, '2024-06-16 09:00:00');
+    await recordLocationAt(encounter.id, locationB.id, '2024-06-16 11:00:00');
 
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
     const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
@@ -275,18 +360,9 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
       date: '2024-06-16 09:00:00',
       status: INVOICE_STATUSES.IN_PROGRESS,
     });
-    const addHistory = (locationId, date) =>
-      models.EncounterHistory.create(
-        fake(models.EncounterHistory, {
-          encounterId: encounter.id,
-          locationId,
-          departmentId: department.id,
-          examinerId: user.id,
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          date,
-        }),
-      );
+    const addHistory = (locationId, date) => recordLocationAt(encounter.id, locationId, date);
 
+    await clearEncounterChangelog(encounter.id);
     // Admitted to bed A; same-day stay → minimum-one-night charged to A.
     await addHistory(bedLocation.id, '2024-06-16 09:00:00');
     await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);

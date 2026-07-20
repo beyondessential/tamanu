@@ -149,6 +149,24 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 
   return response.json();
 };
+
+// Discharge = give the encounter an end date. An invoice can only be finalised once its encounter
+// has been discharged, so this is the arrange step for the finalisation journey.
+export const dischargeEncounterViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  endDate: string = new Date().toISOString().replace('T', ' ').substring(0, 19),
+) => {
+  const encounterUrl = constructFacilityUrl(`/api/encounter/${encounterId}`);
+  const response = await api.put(encounterUrl, { data: { endDate } });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to discharge encounter: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
 // TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createTriageEncounterViaApi = async (
   api: APIRequestContext,
