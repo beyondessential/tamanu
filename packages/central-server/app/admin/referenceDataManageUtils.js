@@ -80,6 +80,32 @@ const getForeignKeySuggesters = model => {
   return fkToEndpoint;
 };
 
+// For each BelongsTo FK column that gets a suggester, expose a read-only companion column holding
+// the associated record's name, so admins can see and search on the name (the raw FK column shows
+// only the id). Keyed by the association alias, and only when the target actually has a `name`.
+const getForeignKeyNameColumns = model => {
+  const associations = model.associations ?? {};
+  const columns = [];
+  for (const assoc of Object.values(associations)) {
+    if (assoc.associationType !== 'BelongsTo') continue;
+    const overrideKey = `${model.name}.${assoc.foreignKey}`;
+    const endpoint = FK_ENDPOINT_OVERRIDES[overrideKey] ?? assoc.as;
+    if (!SUGGESTER_ENDPOINTS.includes(endpoint)) continue;
+    if (!assoc.target?.rawAttributes?.name) continue;
+    columns.push({
+      key: assoc.as,
+      type: 'STRING',
+      allowNull: true,
+      hasDefault: false,
+      readOnly: true, // excluded from the create/edit form, validation and writable data
+      isFkName: true,
+      fkKey: assoc.foreignKey,
+      fkAlias: assoc.as,
+    });
+  }
+  return columns;
+};
+
 const getDbColumnInfo = async model => {
   const tableName = model.getTableName();
   const [results] = await model.sequelize.query(
@@ -96,7 +122,7 @@ export const getColumnsForModel = async model => {
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
 
-  return Object.entries(rawAttributes)
+  const baseColumns = Object.entries(rawAttributes)
     .filter(([key]) => !isColumnHidden(key, model.name))
     .map(([key, attr]) => {
       const dbField = attr.field ?? key;
@@ -122,6 +148,13 @@ export const getColumnsForModel = async model => {
       }
       return col;
     });
+
+  // Slot each FK's read-only name column in immediately after its id column.
+  const nameColByFk = new Map(getForeignKeyNameColumns(model).map(c => [c.fkKey, c]));
+  return baseColumns.flatMap(col => {
+    const nameCol = nameColByFk.get(col.key);
+    return nameCol ? [col, nameCol] : [col];
+  });
 };
 
 export const assertValidType = type => {
