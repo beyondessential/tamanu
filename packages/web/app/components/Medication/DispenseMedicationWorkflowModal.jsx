@@ -45,18 +45,14 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import { TableFormFields } from '../Table/TableFormFields';
 import { BodyText } from '../Typography';
 
-const MODAL_STEPS = {
+const MODAL_STEPS = /** @type {const} */ ({
   DISPENSE: 'dispense',
   REVIEW: 'review',
-};
+});
 
-const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
-
-const StyledModal = styled(BaseModal)`
-  .MuiPaper-root {
-    max-width: ${({ $step }) => ($step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px')};
-  }
-
+const StyledModal = styled(BaseModal).attrs(props => ({
+  width: props.$step === MODAL_STEPS.REVIEW ? 'sm' : 'xl',
+}))`
   .MuiDialogActions-root {
     position: sticky;
     bottom: 0;
