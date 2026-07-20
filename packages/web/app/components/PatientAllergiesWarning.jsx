@@ -1,18 +1,13 @@
-import React from 'react';
-import styled from 'styled-components';
 import Alert from '@mui/material/Alert';
 import AlertTitle, { alertTitleClasses } from '@mui/material/AlertTitle';
-import { TriangleAlert } from 'lucide-react';
+import React from 'react';
+import styled from 'styled-components';
 
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { TranslatedText } from '@tamanu/ui-components';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 
-const StyledAlert = styled(Alert).attrs({
-  color: 'error',
-  icon: <TriangleAlert />,
-  severity: 'warning',
-})`
+const StyledAlert = styled(Alert).attrs({ color: 'error', severity: 'warning' })`
   border: 1px solid ${p => p.theme.palette.error.main};
 `;
 

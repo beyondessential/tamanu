@@ -1,6 +1,9 @@
-import { Colors } from '../constants/styles';
 import { createTheme } from '@material-ui/core/styles';
+import React from 'react';
+import { CircleAlert, CircleCheckBig, Info, TriangleAlert, X } from 'lucide-react';
+
 import { MUI_SPACING_UNIT } from '../constants';
+import { Colors } from '../constants/styles';
 
 const cssReset = {
   fieldset: {
@@ -148,6 +151,16 @@ const themeConfig = {
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
+    MuiAlert: {
+      defaultProps: {
+        iconMapping: {
+          success: <CircleCheckBig />,
+          info: <Info />,
+          warning: <TriangleAlert />,
+          error: <CircleAlert />,
+        },
+      },
+    },
     MuiCard: {
       root: {
         borderColor: Colors.outline,
