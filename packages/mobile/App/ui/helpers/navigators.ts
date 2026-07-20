@@ -86,9 +86,13 @@ export const returnToVaccineTableWithRefresh = (
 };
 
 /**
- * After editing an administered vaccine, update the modal route's params in place and pop
- * the edit form. Prefer this over navigate(...params): the modal already sits under the form
- * in the stack, so navigate does not reliably re-apply params to that existing route.
+ * After editing an administered vaccine, update the modal route’s params in place and pop
+ * the edit form. Used over `navigate`; the modal already sits under the form in the stack, so
+ * `navigate` doesn’t reliably reapply params to existing route.
+ *
+ * Callers reach this only via `<VaccineModalScreen>` → `<NewVaccineTabs>`, so the modal is expected
+ * under the form. (Undesirable UX, but legacy behaviour.) If it is somehow missing unexpected, pop
+ * anyway to reveal table of administered vaccines.
  */
 export const returnToVaccineModalWithUpdatedVaccine = (
   navigation: NavigationProp<any>,
