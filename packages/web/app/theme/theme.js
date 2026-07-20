@@ -67,6 +67,7 @@ const cssReset = {
 const themeConfig = {
   themeName: 'Tamanu',
   palette: {
+    mode: 'light',
     primary: {
       main: Colors.primary,
       dark: Colors.primaryDark,
