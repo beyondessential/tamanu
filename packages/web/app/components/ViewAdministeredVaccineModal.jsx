@@ -25,7 +25,11 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${Colors.white};
-  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
+  ${props =>
+    props.$editMode &&
+    css`
+      margin-block-end: 20px;
+    `}
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -38,14 +42,14 @@ const DisplayField = styled.div`
   color: ${Colors.darkestText};
   font-weight: 500;
 
-  &:nth-child(2n) {
-    ${props =>
-      props.$editMode &&
-      css`
+  ${props =>
+    props.$editMode &&
+    css`
+      &:nth-child(2n) {
         border-inline-start: 1px solid ${Colors.outline};
         padding-inline-start: 15px;
-      `}
-  }
+      }
+    `}
 `;
 
 const Label = styled.div`
