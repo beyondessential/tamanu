@@ -33,6 +33,11 @@ export async function up(query: QueryInterface): Promise<void> {
     WHERE key LIKE 'uncategorised.%'
       AND deleted_at IS NULL;
   `);
+
+  // Migrations run with the sync tick trigger dropped, so the updates above
+  // don't bump updated_at_sync_tick - without this, sync_lookup would keep
+  // serving the stale/corrupted rows to any facility that syncs afterwards.
+  await query.sequelize.query(`SELECT flag_lookup_model_to_rebuild('settings');`);
 }
 
 export async function down(_query: QueryInterface): Promise<void> {
