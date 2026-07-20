@@ -59,25 +59,13 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DATE,
-    title: (
-      <TranslatedText
-        stringId="general.date.label"
-        fallback="Date"
-        data-testid="translatedtext-xv2x"
-      />
-    ),
+    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
     accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-zo5j" />,
   },
   {
     key: COLUMN_KEYS.MEDICATION,
-    title: (
-      <TranslatedText
-        stringId="medication.medication.label"
-        fallback="Medication"
-        data-testid="translatedtext-fmmr"
-      />
-    ),
+    title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
     sortable: false,
     accessor: ({ medication }) => (
       <TranslatedReferenceData
@@ -94,7 +82,6 @@ const COLUMNS = [
       <TranslatedText
         stringId="medication.modal.printMultiple.table.column.duration"
         fallback="Duration"
-        data-testid="translatedtext-duration"
       />
     ),
     sortable: false,
@@ -107,7 +94,6 @@ const COLUMNS = [
         <TranslatedText
           stringId="medication.modal.printMultiple.table.column.quantity"
           fallback="Quantity"
-          data-testid="translatedtext-3j93"
         />
         <span style={{ color: Colors.alert }}> *</span>
       </span>
@@ -121,7 +107,6 @@ const COLUMNS = [
       <TranslatedText
         stringId="medication.modal.printMultiple.table.column.repeats"
         fallback="Repeats"
-        data-testid="translatedtext-psdf"
       />
     ),
     sortable: false,
@@ -199,21 +184,23 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
         })
         .map(m => {
-          let durationDisplay = '-';
-          if (m.isOngoing) {
-            durationDisplay = (
-              <TranslatedText
-                stringId="medication.table.ongoing"
-                fallback="Ongoing"
-                data-testid="translatedtext-ongoing"
-              />
-            );
-          } else if (m.durationValue) {
-            durationDisplay = `${m.durationValue} ${singularize(
-              getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, m.durationUnit),
-              m.durationValue,
-            ).toLowerCase()}`;
-          }
+          const durationDisplay = m.isOngoing ? (
+            <TranslatedText stringId="medication.table.ongoing" fallback="Ongoing" />
+          ) : m.durationValue ? (
+            <>
+              {m.durationValue}
+              &nbsp;
+              {singularize(
+                getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, m.durationUnit, {
+                  casing: 'lower',
+                }),
+                m.durationValue,
+              )}
+            </>
+          ) : (
+            <>&mdash;</>
+          );
+
           return {
             ...m,
             quantity: m.quantity ?? '',
@@ -284,19 +271,12 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             <Box width="147px">
               <TranslatedText
                 stringId="medication.modal.printMultiple.prescriber.tooltip"
-                fallback="This prescriber will appear on the printed prescription."
-                data-testid="translatedtext-s7yn"
+                fallback="This prescriber will appear on the printed prescription"
               />
             </Box>
           }
           name="prescriberId"
-          label={
-            <TranslatedText
-              stringId="medication.prescriber.label"
-              fallback="Prescriber"
-              data-testid="translatedtext-aemx"
-            />
-          }
+          label={<TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />}
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
@@ -307,7 +287,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
               <TranslatedText
                 stringId="medication.modal.printMultiple.prescriber.helperText"
                 fallback="Please select a prescriber"
-                data-testid="translatedtext-lart"
               />
             )
           }
@@ -325,7 +304,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
                 stringId="medication.patientWeight.label"
                 fallback="Patient weight :unit"
                 replacements={{ unit: `(${weightUnit})` }}
-                data-testid="translatedtext-m7qh"
               />
             }
             placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
@@ -341,7 +319,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             <TranslatedText
               stringId="medication.modal.printMultiple.table.title"
               fallback="Select the prescriptions you would like to print"
-              data-testid="translatedtext-qydt"
             />
           </Box>
         }
@@ -358,7 +335,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             <TranslatedText
               stringId="medication.modal.printMultiple.table.noData"
               fallback="No medication requests found"
-              data-testid="translatedtext-mj0s"
             />
           }
           allowExport={false}
@@ -368,18 +344,11 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
       </OuterLabelFieldWrapper>
       <HorizontalDivider color={Colors.outline} />
       <ConfirmCancelRow
-        cancelText={
-          <TranslatedText
-            stringId="general.action.close"
-            fallback="Close"
-            data-testid="translatedtext-9xde"
-          />
-        }
+        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
         confirmText={
           <TranslatedText
             stringId="medication.action.printPrescription"
             fallback="Print prescription"
-            data-testid="translatedtext-ojsa"
           />
         }
         confirmDisabled={!selectedRows.length || !prescriberSelected || !hasValidQuantity}
