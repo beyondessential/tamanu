@@ -7,7 +7,7 @@ import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { BodyText } from '../components';
 
-const Root = styled.div`
+const Article = styled.article`
   align-items: center;
   background-color: ${TAMANU_COLORS.lightAlert};
   border-radius: ${p => p.theme.shape.borderRadius}px;
@@ -44,7 +44,7 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
   if (isLoading || !patientAllergies?.length) return null;
 
   return (
-    <Root {...props}>
+    <Article {...props}>
       <TriangleAlert color={TAMANU_COLORS.alert} />
       <AllergiesWarningTitle>
         <TranslatedText stringId="medication.allergies.title" fallback="Patient allergies" />
@@ -59,6 +59,6 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
           </li>
         ))}
       </AllergiesList>
-    </Root>
+    </Article>
   );
 }
