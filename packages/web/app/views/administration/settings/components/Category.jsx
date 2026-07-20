@@ -1,18 +1,17 @@
-import React, { memo } from 'react';
-import styled from 'styled-components';
+import KeyIcon from '@mui/icons-material/Key';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Alert } from '@material-ui/lab';
-import KeyIcon from '@mui/icons-material/Key';
+import React, { memo } from 'react';
+import styled from 'styled-components';
 
 import { isSetting } from '@tamanu/settings';
 
-import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
+import { Alert, ThemedTooltip, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
-import { ThemedTooltip } from '../../../../components/Tooltip';
-import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
+import { ResetToDefaultButton, SettingInput } from './SettingInput';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;

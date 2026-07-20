@@ -1,17 +1,18 @@
+import { Typography } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { omit } from 'es-toolkit/compat';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Alert from '@material-ui/lab/Alert';
-import { omit } from 'es-toolkit/compat';
-import { Box, Typography } from '@material-ui/core';
-import {
-  Form,
-  Button,
-  OutlinedButton,
-  ButtonRow,
-  usePaginatedForm,
-  TranslatedText,
-} from '@tamanu/ui-components';
 
+import {
+  Alert,
+  Button,
+  ButtonRow,
+  Form,
+  OutlinedButton,
+  TranslatedText,
+  usePaginatedForm,
+} from '@tamanu/ui-components';
 import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 

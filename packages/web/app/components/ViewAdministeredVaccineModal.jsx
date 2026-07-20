@@ -1,15 +1,22 @@
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import styled from 'styled-components';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
-import { useQuery } from '@tanstack/react-query';
+
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
-import { ModalActionRow } from './ModalActionRow';
-import { Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
-import { useApi } from '../api';
-import { DateDisplay } from './DateDisplay';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import {
+  Alert,
+  DateDisplay,
+  Modal,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useApi,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { ModalActionRow } from './ModalActionRow';
 
 import { useTranslation } from '../contexts/Translation.jsx';
 

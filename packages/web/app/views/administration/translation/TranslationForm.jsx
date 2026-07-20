@@ -1,26 +1,34 @@
+import { Tooltip } from '@material-ui/core';
+import HelpIcon from '@mui/icons-material/HelpOutlined';
+import Box from '@mui/material/Box';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import * as yup from 'yup';
 import { omit, sortBy } from 'es-toolkit/compat';
 import React, { useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { Box, Tooltip } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
-import HelpIcon from '@mui/icons-material/HelpOutlined';
+import styled from 'styled-components';
+import * as yup from 'yup';
+
 import {
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-  DEFAULT_LANGUAGE_CODE,
   COUNTRY_CODE_STRING_ID,
+  DEFAULT_LANGUAGE_CODE,
   LANGUAGE_NAME_STRING_ID,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
-import { useApi } from '../../../api';
-import { TextField, Form, Button, TranslatedText, Field } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
+import {
+  Alert,
+  Button,
+  Field,
+  Form,
+  TextField,
+  ThemedTooltip,
+  TranslatedText,
+  useApi,
+} from '@tamanu/ui-components';
 import { SearchInput, TableFormFields } from '../../../components';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { Colors } from '../../../constants/styles';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
-import { ThemedTooltip } from '../../../components/Tooltip';
 
 const Container = styled.div`
   padding: 30px;

@@ -1,30 +1,31 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
-import Select from 'react-select';
-import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import CloseIcon from '@mui/icons-material/Close';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+import Select from 'react-select';
+import styled from 'styled-components';
+
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import {
+  Alert,
   Button,
-  DeleteButton,
-  Modal,
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedSex,
   DateDisplay,
   DateTimeRangeDisplay,
+  DeleteButton,
+  Modal,
+  TranslatedReferenceData,
+  TranslatedSex,
+  TranslatedText,
+  useApi,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { PatientNameDisplay } from '../PatientNameDisplay';
-import { TextDisplayIdLabel } from '../DisplayIdLabel';
-import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
-import { AppointmentModal } from './AppointmentModal';
-import { EncounterModal } from '../EncounterModal';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
+import { Colors } from '../../constants/styles';
+import { reloadPatient } from '../../store/patient';
+import { TextDisplayIdLabel } from '../DisplayIdLabel';
+import { EncounterModal } from '../EncounterModal';
+import { PatientNameDisplay } from '../PatientNameDisplay';
+import { AppointmentModal } from './AppointmentModal';
 
 const Heading = styled.div`
   font-weight: 700;

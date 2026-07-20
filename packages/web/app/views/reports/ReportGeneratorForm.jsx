@@ -1,40 +1,43 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { keyBy, orderBy } from 'es-toolkit/compat';
-import { format } from 'date-fns';
-import { Box, Typography } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Typography } from '@material-ui/core';
 import GetAppIcon from '@mui/icons-material/GetApp';
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import { format } from 'date-fns';
+import { keyBy, orderBy } from 'es-toolkit/compat';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+
 import {
+  FORM_TYPES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
-  FORM_TYPES,
 } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
+  Alert,
+  Button,
   Form,
   FormGrid,
   TextButton,
-  Button,
-  useDateTime,
   ThemedTooltip,
+  TranslatedText,
+  useApi,
+  useDateTime,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
-import { useAuth } from '../../contexts/Auth';
 import { AutocompleteField, DateField, Field, RadioField } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { prepareExcelFile } from '../../utils/saveExcelFile';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { Colors } from '../../constants/styles';
+import { useAuth } from '../../contexts/Auth';
+import { useLocalisation } from '../../contexts/Localisation';
 import { saveFile } from '../../utils/fileSystemAccess';
+import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
-import { useLocalisation } from '../../contexts/Localisation';
-import { TranslatedText } from '../../components/Translation';
 import { ReportAboutModal } from './ReportAboutModal';
-import { useTranslation } from '../../contexts/Translation';
 
 const Spacer = styled.div`
   padding-top: 30px;

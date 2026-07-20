@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-
 import { Typography } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+
 import {
-  BodyText,
-  CheckField,
+  Alert,
   Field,
-} from '../components';
-import {
-  TextField,
   Form,
   FormGrid,
   FormSubmitButton,
   TextButton,
+  TextField,
+  TranslatedText,
+  useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
+import { BodyText, CheckField } from '../components';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
+import { Colors } from '../constants/styles';
 
-export const LoginAlert = styled(({ children, ...props }) => (
-  <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
-    {children}
-  </Alert>
-))`
-  border: oklch(from currentColor calc(l * 1.9) calc(c * 2) h) solid 1px;
-  border-radius: 0.5em;
+export const LoginAlert = styled(Alert).attrs({
+  'data-testid': 'loginerror-ppw6',
+  icon: false,
+  severity: 'error',
+})`
   margin-top: 1em;
   white-space: pre-line;
 `;

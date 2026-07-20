@@ -1,8 +1,10 @@
 import React, { memo, useEffect, useState } from 'react';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import AlertTitle from '@mui/material/AlertTitle';
+
 import { BaseModal } from './BaseModal';
 import { useFormSubmission } from '../contexts';
 import { IS_DEVELOPMENT } from '../utils/env';
+import Alert from './Alert';
 
 /**
  * @param {React.ComponentProps<typeof BaseModal> & {
@@ -22,13 +24,13 @@ export const Modal = memo(({ children, disableDevWarning, ...props }) => {
     <BaseModal {...props} data-testid="basemodal-65p9">
       {showUsingFormWarning && (
         <Alert
-          severity="warning"
           onClose={() => setShowUsingFormWarning(false)}
-          data-testid="alert-4soq"
+          severity="warning"
+          style={{ marginBlockEnd: '1em' }}
         >
-          <AlertTitle data-testid="alerttitle-upc8">
-            DEV Warning: This generic Modal contains a Form. Please use Form Modal instead
-          </AlertTitle>
+          <AlertTitle data-testid="alerttitle-upc8">Dev warning</AlertTitle>
+          This generic <code>&lt;Modal&gt;</code> contains a form. Consider using{' '}
+          <code>&lt;FormModal&gt;</code>.
         </Alert>
       )}
       {children}

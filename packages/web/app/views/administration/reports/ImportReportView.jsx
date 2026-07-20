@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
 import * as yup from 'yup';
-import Alert from '@material-ui/lab/Alert/Alert';
-import { FileChooserField, TextField, Form, OutlinedButton, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
+
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { useApi } from '../../../api';
-import { BodyText, CheckField, Field, Heading4 } from '../../../components';
+import {
+  Alert,
+  Field,
+  FileChooserField,
+  Form,
+  FormGrid,
+  OutlinedButton,
+  TextField,
+  TranslatedText,
+  useApi,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { BodyText, CheckField, Heading4 } from '../../../components';
+import { Colors } from '../../../constants/styles';
 import { ReportSelectField } from './ReportsSelectFields';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useTranslation } from '../../../contexts/Translation';
 
 const InnerContainer = styled.div`
   padding: 20px;
