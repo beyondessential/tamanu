@@ -16,9 +16,7 @@ const StyledAlert = styled(Alert).attrs({
   border: 1px solid ${p => p.theme.palette.error.main};
 `;
 
-const StyledAlertTitle = styled(AlertTitle).attrs({
-  component: 'h3',
-})`
+const StyledAlertTitle = styled(AlertTitle).attrs({ component: 'h3' })`
   &.${alertTitleClasses.root} {
     font-size: inherit;
     margin-block-end: 0;
