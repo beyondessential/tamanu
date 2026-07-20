@@ -18,16 +18,16 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 
 ## Flagging records for rebuild
 
-- [ ] The lookup table carries a boolean `needs_rebuild` flag on each row, indicating the row must be rebuilt from source. The mechanism uses this flag rather than comparing sync ticks, so that healing a row never requires advancing its sync tick.
-- [ ] Every table that feeds the lookup table (pull-from-central or bidirectional models) on the central server carries a trigger that fires on insert or update of a source record.
-- [ ] The trigger marks the corresponding lookup row as needing rebuild. If no lookup row exists for the record yet, it creates a stub row marked as needing rebuild.
+- [ ] The lookup table carries a boolean `needs_rebuild` flag on each row. The mechanism uses this flag rather than comparing sync ticks, so healing a row never requires advancing its sync tick.
+- [ ] Flagging is performed by the sync tick trigger itself, not a separate trigger. A write that advances the sync clock stamps the source record's tick as normal and does not touch the lookup table — the incremental build catches such writes. When the trigger is in its disabled mode instead, it marks the corresponding lookup row as needing rebuild.
+- [ ] The trigger flags for rebuild only for tables that feed the lookup table, and only on the central server. This is fixed when the trigger is installed: the install process, which has each model's sync direction and the server type in context, tells the trigger per table whether that table is lookup-tracked.
+- [ ] When flagging a record that has no lookup row yet, the trigger creates a stub row marked as needing rebuild.
 - [ ] A stub row has no data payload — its `data` is null — and carries placeholder values for its other columns, which are never read because the row is excluded from snapshots until it is healed.
-- [ ] The trigger only sets the rebuild flag and, where needed, stubs a missing row; it never rebuilds a row's data inline.
-- [ ] The trigger fires on every write, including writes made while the sync tick trigger is disabled (for example, bulk imports), so that changes which do not advance the sync clock are still captured.
-- [ ] The trigger is installed only on the central server, and only on tables that feed the lookup table.
-- [ ] A post-migration hook ensures the rebuild trigger is present on every qualifying table, adding it to any that lacks it — the same mechanism that maintains the sync tick trigger — so a table introduced by a later migration is always covered.
-- [ ] Unlike the sync tick trigger, the rebuild trigger is not removed before migrations run, so that data changed by migrations, which does not advance the sync clock, is still captured.
-- [ ] Lookup rows with no data payload are excluded from outgoing sync snapshots, so a stub is never sent to a facility before it has been built.
+- [ ] In the flag branch the trigger only sets the flag and, where needed, stubs a missing row; it never rebuilds a row's data inline. Clock-advancing writes add no lookup-table write at all, so normal traffic places no extra load on the lookup table.
+- [ ] Migrations put the sync tick trigger into its disabled mode rather than removing it, so data changed by migrations — which does not advance the sync clock — is flagged for rebuild without churning sync ticks.
+- [ ] Hard-deleted source records are removed from the lookup table by a delete trigger on lookup-tracked tables, which deletes the corresponding lookup row directly. It fires on every hard delete and remains active during migrations, so bulk deletions performed by a migration are cleaned up. Soft deletes are ordinary updates and need no special handling.
+- [ ] A post-migration step keeps both triggers correct on every lookup-tracked table, including tables introduced by a later migration: the sync tick trigger configured as lookup-tracked, and the delete trigger present.
+- [ ] Lookup rows with no data payload are excluded from outgoing sync snapshots, so a stub is never sent to a facility before it is built.
 
 ## Rebuilding flagged records
 
@@ -38,7 +38,7 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 - [ ] The self-heal pass rebuilds each flagged row's data from its source record and sets the row's sync tick to the source record's current sync tick, without routing through the incremental build's staged-tick handling.
 - [ ] Taking the tick from the source record means a healed existing row keeps its sync tick — a drifted record's source tick has not moved, so facilities do not re-pull records they already hold — while a record that reached the table only as a stub propagates on the same terms its source record would.
 - [ ] A source record that is soft-deleted is rebuilt normally, with its lookup row marked as deleted.
-- [ ] If a flagged row's source record no longer exists at all, the lookup row is deleted from the lookup table.
+- [ ] If the self-heal pass finds a flagged row whose source record no longer exists, it deletes the lookup row — a backstop to the delete trigger for any row flagged before its source was removed.
 
 ## Blocking upgrades until the lookup table is consistent
 
