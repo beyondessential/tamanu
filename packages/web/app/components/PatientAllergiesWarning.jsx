@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
+import AlertTitle, { alertTitleClasses } from '@mui/material/AlertTitle';
 import { TriangleAlert } from 'lucide-react';
 
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
@@ -16,7 +16,16 @@ const StyledAlert = styled(Alert).attrs({
   border: 1px solid ${p => p.theme.palette.error.main};
 `;
 
-const AllergyList = styled.ul`
+const StyledAlertTitle = styled(AlertTitle).attrs({
+  component: 'h3',
+})`
+  &.${alertTitleClasses.root} {
+    font-size: inherit;
+    margin-block-end: 0;
+  }
+`;
+
+const UnorderedList = styled.ul`
   margin-block: 0;
   padding-inline-start: 1em;
 `;
@@ -29,10 +38,10 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
 
   return (
     <StyledAlert {...props}>
-      <AlertTitle component="h3">
+      <StyledAlertTitle component="h3">
         <TranslatedText stringId="medication.allergies.title" fallback="Patient allergies" />
-      </AlertTitle>
-      <AllergyList>
+      </StyledAlertTitle>
+      <UnorderedList>
         {patientAllergies.map(({ allergy, id }) =>
           // Overly defensive guard, but preserves pre-refactor behaviour where properties of
           // `allergy` were accessed with optional chain.
@@ -45,7 +54,7 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
             </li>
           ) : null,
         )}
-      </AllergyList>
+      </UnorderedList>
     </StyledAlert>
   );
 }
