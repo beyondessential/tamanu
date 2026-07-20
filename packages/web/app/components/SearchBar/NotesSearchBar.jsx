@@ -36,10 +36,11 @@ const Container = styled.div`
   // (eg with the console drawer open) rather than clipping them off screen.
   overflow-x: auto;
 
+  // Labels and input placeholders/values for the search filters render at 14px.
   .MuiInputBase-input,
   .MuiFormControlLabel-label,
   .label-field {
-    font-size: 11px;
+    font-size: 14px;
   }
 `;
 
