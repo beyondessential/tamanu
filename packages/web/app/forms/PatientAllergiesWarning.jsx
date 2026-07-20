@@ -5,7 +5,6 @@ import { TriangleAlert } from 'lucide-react';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { BodyText } from '../components';
 
 const Article = styled.article`
   align-items: center;
