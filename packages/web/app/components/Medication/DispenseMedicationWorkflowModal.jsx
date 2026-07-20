@@ -95,7 +95,7 @@ const DispensedByField = styled(Box)`
 
 const StyledTableFormFields = styled(TableFormFields)`
   .MuiTableCell-root {
-    padding: 4px 10px;
+    padding: 10px;
     vertical-align: middle;
     text-align: left;
     font-size: 14px;
