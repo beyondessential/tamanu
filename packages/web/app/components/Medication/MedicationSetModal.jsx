@@ -12,8 +12,10 @@ import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 import { MedicationForm } from '../../forms/MedicationForm';
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
+import { getAutocalculatedDispensingQuantity } from '@tamanu/shared/utils/medication';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { useAuth } from '../../contexts/Auth';
+import { useSettings } from '../../contexts/Settings';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
 import { WarningOutlineIcon } from '../../assets/icons/WarningOutlineIcon';
@@ -229,6 +231,10 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
+  const { getSetting } = useSettings();
+  const isDispensingQuantityAutocalculationEnabled = getSetting(
+    'medications.dispensing.dispensingQuantityAutocalculation',
+  );
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
@@ -248,19 +254,35 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     const date = getCurrentDate();
     const newMedicationSetChildren = medicationSet.children
       .filter(child => child.medicationTemplate)
-      .map(({ medicationTemplate }) => ({
-        ...medicationTemplate,
-        idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
-        startDate,
-        date,
-        prescriberId: currentUser.id,
-        ...(medicationTemplate.doseAmount && {
-          doseAmount: Number(medicationTemplate.doseAmount),
-        }),
-        ...(medicationTemplate.durationValue && {
-          durationValue: Number(medicationTemplate.durationValue),
-        }),
-      }))
+      .map(({ medicationTemplate }) => {
+        const child = {
+          ...medicationTemplate,
+          idealTimes:
+            ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
+          startDate,
+          date,
+          prescriberId: currentUser.id,
+          ...(medicationTemplate.doseAmount && {
+            doseAmount: Number(medicationTemplate.doseAmount),
+          }),
+          ...(medicationTemplate.durationValue && {
+            durationValue: Number(medicationTemplate.durationValue),
+          }),
+        };
+
+        // Snapshot the drug's dispensing unit and conversion so the quantity field can show the
+        // unit, and so the quantity can be autocalculated (and recalculated if edited in the set).
+        const referenceDrug = medicationTemplate.medication?.referenceDrug;
+        child.dispensingUnit = referenceDrug?.dispensingUnit ?? '';
+        child.unitConversion = referenceDrug?.unitConversion ?? 1;
+
+        if (isDispensingQuantityAutocalculationEnabled) {
+          const quantity = getAutocalculatedDispensingQuantity(child);
+          if (quantity !== null) child.quantity = quantity;
+        }
+
+        return child;
+      })
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
       ...medicationSet,

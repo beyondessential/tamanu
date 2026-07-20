@@ -56,6 +56,7 @@ import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { DispensingQuantityAutocalculator } from '../components/Medication/DispensingQuantityAutocalculator';
 import { prescriptionClinicalValidation } from '../components/Medication/prescriptionValidation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
@@ -602,6 +603,9 @@ export const MedicationForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
+  const isDispensingQuantityAutocalculationEnabled = getSetting(
+    'medications.dispensing.dispensingQuantityAutocalculation',
+  );
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
@@ -844,6 +848,7 @@ export const MedicationForm = ({
                       setFieldValue('route', referenceDrug?.route?.toLowerCase() || '');
                       setFieldValue('dosingUnit', referenceDrug?.dosingUnit || '');
                       setFieldValue('dispensingUnit', referenceDrug?.dispensingUnit || '');
+                      setFieldValue('unitConversion', referenceDrug?.unitConversion ?? 1);
                       setFieldValue('notes', referenceDrug?.notes || '');
                       handleChangeMedication(e);
                     }}
@@ -1139,6 +1144,9 @@ export const MedicationForm = ({
               }
               data-testid="medication-field-quantity-6j9m"
             />
+            {isDispensingQuantityAutocalculationEnabled && (
+              <DispensingQuantityAutocalculator enabled />
+            )}
             <Field
               name="repeats"
               label={

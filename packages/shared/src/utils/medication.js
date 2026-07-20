@@ -1,11 +1,23 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
 import {
+  ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_UNIT_LABELS,
   DRUG_UNIT_PLURAL_LABELS,
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
+  MEDICATION_DURATION_UNITS,
 } from '@tamanu/constants';
 import { camelCase } from 'es-toolkit/compat';
+
+// One month is always treated as 30 days for dispensing quantity calculations.
+const DAYS_PER_MONTH = 30;
+
+const DAYS_PER_DURATION_UNIT = {
+  [MEDICATION_DURATION_UNITS.DAYS]: 1,
+  [MEDICATION_DURATION_UNITS.WEEKS]: 7,
+  [MEDICATION_DURATION_UNITS.MONTHS]: DAYS_PER_MONTH,
+};
 
 /**
  * @template {`${number}:${number}` | Date} T
@@ -84,4 +96,65 @@ export const getTranslatedFrequency = (frequency, getTranslation) => {
 export const getDrugUnitLabel = (unitKey, quantity, getEnumTranslation) => {
   const isPlural = Number.isFinite(Number(quantity)) && Number(quantity) > 1;
   return getEnumTranslation(isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS, unitKey);
+};
+
+/**
+ * Auto-calculates the dispensing quantity (in dispensing units) for a prescription:
+ *
+ *   dispensing quantity = ceil(doseAmount / unitConversion × dosesPerDay × durationInDays)
+ *
+ * `doseAmount` is measured in dosing units and `unitConversion` is how many dosing units
+ * make up one dispensing unit (both snapshotted onto the prescription at creation time).
+ * Doses are summed across the whole course before rounding up once, matching the invoice
+ * quantity logic in `Prescription.recalculateAndApplyInvoiceQuantity`.
+ *
+ * Returns `null` when a quantity should not be auto-calculated (and should be left blank for
+ * manual entry):
+ *  - variable dose (no fixed dose amount)
+ *  - frequency of 'As directed' (no schedule)
+ *  - duration expressed in hours
+ *  - no duration and not an ongoing medication
+ *  - missing/invalid dose amount or frequency
+ *
+ * @param {object} prescription
+ * @param {number|string} prescription.doseAmount
+ * @param {number|string} [prescription.unitConversion] - defaults to 1
+ * @param {string} prescription.frequency - an ADMINISTRATION_FREQUENCIES value
+ * @param {number|string} [prescription.durationValue]
+ * @param {string} [prescription.durationUnit] - a MEDICATION_DURATION_UNITS value
+ * @param {boolean} [prescription.isOngoing]
+ * @param {boolean} [prescription.isVariableDose]
+ * @returns {number|null}
+ */
+export const getAutocalculatedDispensingQuantity = ({
+  doseAmount,
+  unitConversion,
+  frequency,
+  durationValue,
+  durationUnit,
+  isOngoing,
+  isVariableDose,
+}) => {
+  if (isVariableDose) return null;
+  if (frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED) return null;
+  if (durationUnit === MEDICATION_DURATION_UNITS.HOURS) return null;
+
+  const dose = Number(doseAmount);
+  if (!Number.isFinite(dose) || dose <= 0) return null;
+
+  // 'Immediately' represents a single administration, so its frequency multiplier is 1.
+  const dosesPerDay =
+    frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
+      ? 1
+      : ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.dosesPerDay;
+  if (!dosesPerDay || dosesPerDay <= 0) return null;
+
+  // Ongoing medications default to a one-month (30 day) supply.
+  const durationInDays = isOngoing
+    ? DAYS_PER_MONTH
+    : Number(durationValue) * DAYS_PER_DURATION_UNIT[durationUnit];
+  if (!Number.isFinite(durationInDays) || durationInDays <= 0) return null;
+
+  const conversion = Number(unitConversion) || 1;
+  return Math.ceil((dose * dosesPerDay * durationInDays) / conversion);
 };

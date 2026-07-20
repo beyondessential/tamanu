@@ -627,6 +627,14 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                   as: 'medication',
                   where: medicationWhere,
                   required: !!facilityFilter,
+                  include: {
+                    model: ReferenceDrug,
+                    as: 'referenceDrug',
+                    // referenceDataId (the FK) must be selected or Sequelize can't associate the
+                    // hasOne and returns referenceDrug as null.
+                    attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+                    required: false,
+                  },
                 },
               },
             };
