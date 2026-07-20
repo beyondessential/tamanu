@@ -1,6 +1,6 @@
 import { createTheme } from '@material-ui/core/styles';
 import React from 'react';
-import { CircleAlert, CircleCheckBig, Info, TriangleAlert, X } from 'lucide-react';
+import { CircleAlert, CircleCheckBig, Info, TriangleAlert } from 'lucide-react';
 
 import { MUI_SPACING_UNIT } from '../constants';
 import { Colors } from '../constants/styles';
