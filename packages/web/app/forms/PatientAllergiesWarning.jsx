@@ -11,6 +11,7 @@ const Article = styled.article`
   background-color: ${TAMANU_COLORS.lightAlert};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.error.main};
+  color: ${p => p.theme.palette.text.primary};
   column-gap: 0.75em;
   display: grid;
   font-size: 14px;
@@ -29,7 +30,6 @@ const Heading = styled.h3`
 `;
 
 const UnorderedList = styled.ul`
-  color: ${p => p.theme.palette.text.primary};
   grid-column-start: 2;
   margin-block: 0;
   padding-inline-start: 1em;
