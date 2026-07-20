@@ -55,10 +55,10 @@ export class Prescription extends BaseModel {
   @Column()
   dosingUnit: string;
 
-  @Column({ nullable: true })
+  @Column()
   dispensingUnit: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'decimal', default: 1 })
   unitConversion: number;
 
   @Column()

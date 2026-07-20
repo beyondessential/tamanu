@@ -91,6 +91,7 @@ import { addLabTestReferenceRangeText1779700000000 } from './1779700000000-addLa
 import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
 import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
+import { setPrescriptionUnitColumnsNotNull1784521893000 } from './1784521893000-setPrescriptionUnitColumnsNotNull';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -185,4 +186,5 @@ export const migrationList = [
   removeDietIdFromEncounter1781501076000,
   addUserKind1783118255000,
   addDosingAndDispensingUnitColumns1779900000001,
+  setPrescriptionUnitColumnsNotNull1784521893000,
 ];

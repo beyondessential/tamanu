@@ -111,10 +111,13 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   }, [selectedPatient?.id, models.PatientAllergy]);
 
   const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateActiveEncounter(
-      selectedPatient.id,
-      user.id,
-    );
+    const [encounter, referenceDrug] = await Promise.all([
+      models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
+      models.ReferenceDrug.findOne({
+        where: { referenceDataId: values.medicationId },
+        select: ['dosingUnit', 'dispensingUnit', 'unitConversion'],
+      }),
+    ]);
 
     const idealTimes =
       values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
@@ -126,6 +129,9 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       doseAmount: values.doseAmount || null,
       durationValue: values.durationValue || null,
       durationUnit: values.durationUnit || null,
+      dosingUnit: values.dosingUnit || referenceDrug?.dosingUnit || '',
+      dispensingUnit: values.dispensingUnit || referenceDrug?.dispensingUnit || '',
+      unitConversion: values.unitConversion ?? referenceDrug?.unitConversion ?? 1,
       idealTimes,
       prescriber: values.prescriberId,
       medication: values.medicationId,
@@ -191,10 +197,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   );
 
   // Convert constants to dropdown options
-  const unitOptions = Object.entries(DRUG_UNIT_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
   const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
     value,
     label,
@@ -226,7 +228,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         otherwise: schema =>
           schema.required(getTranslation('validation.required.inline', '*Required')),
       }),
-    units: Yup.string()
+    dosingUnit: Yup.string()
       .required(getTranslation('validation.required.inline', '*Required'))
       .oneOf(DRUG_UNIT_VALUES),
     frequency: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
@@ -273,7 +275,8 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
               >
                 <RowView alignItems="flex-start">
                   <StyledText color={theme.colors.TEXT_MID}>
-                    <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />:{' '}
+                    <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />
+                    :{' '}
                   </StyledText>
                   {patientAllergies.length ? (
                     patientAllergies.map((allergy, index) => (
@@ -353,7 +356,9 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                       setValues({
                         ...values,
                         route: selectedItem?.referenceDrug_route?.toLowerCase() || undefined,
-                        units: selectedItem?.referenceDrug_units || undefined,
+                        dosingUnit: selectedItem?.referenceDrug_dosingUnit || undefined,
+                        dispensingUnit: selectedItem?.referenceDrug_dispensingUnit || undefined,
+                        unitConversion: selectedItem?.referenceDrug_unitConversion ?? 1,
                         notes: selectedItem?.referenceDrug_notes || '',
                       });
                     }}
@@ -424,18 +429,17 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   fieldFontSize={14}
                 />
 
-                <Field
-                  component={Dropdown}
-                  name="units"
+                <TextField
+                  fieldFontSize={14}
                   label={<TranslatedText stringId="medication.units.label" fallback="Units" />}
-                  selectPlaceholderText={getTranslation('general.placeholder.select', 'Select')}
-                  options={unitOptions}
-                  required
                   labelColor={theme.colors.TEXT_DARK}
                   labelFontSize={14}
-                  fieldFontSize={14}
-                  value={values.units}
-                  allowResetSingleValue
+                  onChange={() => {}}
+                  readOnly
+                  required
+                  value={
+                    values.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dosingUnit) : ''
+                  }
                 />
 
                 <Field
