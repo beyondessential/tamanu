@@ -10,7 +10,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 import { MedicationForm } from '../../forms/MedicationForm';
-import PatientAllergiesWarning from '../../forms/PatientAllergiesWarning';
+import PatientAllergiesWarning from '../PatientAllergiesWarning';
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { useAuth } from '../../contexts/Auth';

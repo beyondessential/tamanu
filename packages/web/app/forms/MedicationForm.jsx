@@ -65,7 +65,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { foreignKey } from '../utils/validation';
-import PatientAllergiesWarning from './PatientAllergiesWarning';
+import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
