@@ -57,7 +57,7 @@ const StyledModal = styled(BaseModal).attrs(props => ({
     background-color: ${p => p.theme.palette.background.default};
     border-block-start: 1px solid ${p => p.theme.palette.divider};
     inset-block-end: 0;
-    padding-block: 10px 20px;
+    padding-block: 20px;
     padding-inline: 40px;
     position: sticky;
   }
