@@ -15,7 +15,6 @@ const Article = styled.article`
   column-gap: 0.75em;
   display: grid;
   font-size: 14px;
-  grid-column: 1 / -1;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
   line-height: 1.4;

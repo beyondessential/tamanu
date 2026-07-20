@@ -120,6 +120,11 @@ const validationSchema = yup.object().shape({
   patientWeight: yup.number().positive(),
 });
 
+const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
+  margin-block-end: 1em;
+  grid-column: 1 / -1;
+`;
+
 const FullWidthFieldWrapper = styled.div`
   position: relative;
   grid-column: 1 / -1;
@@ -810,7 +815,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                <PatientAllergiesWarning patientId={patient.id} style={{ marginBlockEnd: '1em' }} />
+                <StyledPatientAllergiesWarning patientId={patient.id} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
