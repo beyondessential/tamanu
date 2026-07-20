@@ -127,7 +127,6 @@ const useTranslationMutation = () => {
           <TranslatedText
             stringId="admin.translation.notification.translationsSaved"
             fallback="Translations saved"
-            data-testid="translatedtext-dg1v"
           />
           {newStringIds ? (
             <>
@@ -136,7 +135,6 @@ const useTranslationMutation = () => {
                 stringId="admin.translation.notification.newStringIdCreated"
                 fallback={`Created ${newStringIds} new translated string entries`}
                 replacements={{ newStringIds }}
-                data-testid="translatedtext-aw7k"
               />
             </>
           ) : (
@@ -152,7 +150,6 @@ const useTranslationMutation = () => {
           stringId="admin.translation.notification.savingFailed"
           fallback={`Error saving translations: ${err.message}`}
           replacements={{ message: err.message }}
-          data-testid="translatedtext-8708"
         />,
       );
     },
@@ -204,7 +201,6 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
             <TranslatedText
               stringId="admin.translation.table.column.translationId"
               fallback="Translation ID"
-              data-testid="translatedtext-cwdl"
             />
           </Box>
         ),
@@ -220,14 +216,12 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                         <TranslatedText
                           stringId="admin.translation.table.languageName.toolTip"
                           fallback="Language name is a reserved translation ID used for displaying language in selector"
-                          data-testid="translatedtext-rxfz"
                         />
                       )}
                       {stringId === COUNTRY_CODE_STRING_ID && (
                         <TranslatedText
                           stringId="admin.translation.table.countryCode.toolTip"
                           fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
-                          data-testid="translatedtext-yt19"
                         />
                       )}
                     </>
@@ -248,11 +242,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
       {
         key: DEFAULT_LANGUAGE_CODE,
         title: (
-          <TranslatedText
-            stringId="admin.translation.table.column.default"
-            fallback="Default"
-            data-testid="translatedtext-cwdl"
-          />
+          <TranslatedText stringId="admin.translation.table.column.default" fallback="Default" />
         ),
         accessor: row => `${row[DEFAULT_LANGUAGE_CODE]}`,
       },
@@ -296,13 +286,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
       <Box display="flex" alignItems="flex-end" mb={2} data-testid="box-bfr9">
         <SearchArea data-testid="searcharea-1yo4">
           <StyledSearchInput
-            label={
-              <TranslatedText
-                stringId="general.action.search"
-                fallback="Search"
-                data-testid="translatedtext-iba8"
-              />
-            }
+            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
@@ -315,18 +299,13 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
               <TranslatedText
                 stringId="admin.translation.showReferenceData"
                 fallback="Show reference data"
-                data-testid="translatedtext-pqyl"
               />
             }
             data-testid="referencedataswitchinput-80o1"
           />
         </SearchArea>
         <Button disabled={isSaving || !dirty} onClick={handleSave} data-testid="button-a3nd">
-          <TranslatedText
-            stringId="general.action.saveChanges"
-            fallback="Save changes"
-            data-testid="translatedtext-umrz"
-          />
+          <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
         </Button>
       </Box>
       <StyledTableFormFields
@@ -368,7 +347,6 @@ export const TranslationForm = () => {
           <TranslatedText
             stringId="admin.translation.error.loadTranslations"
             fallback="Error: Could not load translations:"
-            data-testid="translatedtext-sh00"
           />
         }
         error={error}

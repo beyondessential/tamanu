@@ -93,11 +93,7 @@ const PatientInfo = ({ patient }) => {
         <tbody>
           <tr>
             <PatientInfoLabel data-testid="patientinfolabel-tjca">
-              <TranslatedText
-                stringId="general.sex.label"
-                fallback="Sex"
-                data-testid="translatedtext-zmey"
-              />
+              <TranslatedText stringId="general.sex.label" fallback="Sex" />
             </PatientInfoLabel>
             <PatientInfoValue data-testid="patientinfovalue-y2mw">
               <TranslatedSex sex={sex} data-testid="translatedsex-gu10" />
@@ -105,11 +101,7 @@ const PatientInfo = ({ patient }) => {
           </tr>
           <tr>
             <PatientInfoLabel data-testid="patientinfolabel-oa60">
-              <TranslatedText
-                stringId="general.dateOfBirth.label"
-                fallback="Date of Birth"
-                data-testid="translatedtext-ery9"
-              />
+              <TranslatedText stringId="general.dateOfBirth.label" fallback="Date of Birth" />
             </PatientInfoLabel>
             <PatientInfoValue data-testid="patientinfovalue-5sc3">
               <DateDisplay date={dateOfBirth} data-testid="datedisplay-j9tl" />
@@ -118,11 +110,7 @@ const PatientInfo = ({ patient }) => {
           {additionalData && additionalData.primaryContactNumber && (
             <tr>
               <PatientInfoLabel data-testid="patientinfolabel-ali9">
-                <TranslatedText
-                  stringId="general.contactNumber.label"
-                  fallback="Contact Number"
-                  data-testid="translatedtext-tvfa"
-                />
+                <TranslatedText stringId="general.contactNumber.label" fallback="Contact Number" />
               </PatientInfoLabel>
               <PatientInfoValue data-testid="patientinfovalue-mmk8">
                 {additionalData.primaryContactNumber}
@@ -132,18 +120,13 @@ const PatientInfo = ({ patient }) => {
           {village && (
             <tr>
               <PatientInfoLabel data-testid="patientinfolabel-f18g">
-                <TranslatedText
-                  stringId="general.village.label"
-                  fallback="Village"
-                  data-testid="translatedtext-nlcf"
-                />
+                <TranslatedText stringId="general.village.label" fallback="Village" />
               </PatientInfoLabel>
               <PatientInfoValue data-testid="patientinfovalue-sldm">
                 <TranslatedReferenceData
                   fallback={village.name}
                   value={village.id}
                   category="village"
-                  data-testid="translatedreferencedata-rdkq"
                 />
               </PatientInfoValue>
             </tr>
@@ -172,7 +155,6 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.title"
           fallback="Cancel Appointment"
-          data-testid="translatedtext-99vs"
         />
       }
       onClose={onClose}
@@ -183,7 +165,6 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <TranslatedText
           stringId="scheduling.modal.cancelAppointment.heading"
           fallback="Are you sure you want to cancel this appointment?"
-          data-testid="translatedtext-4zav"
         />
       </Heading>
       <Details data-testid="details-mez6">
@@ -192,7 +173,6 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
             stringId="scheduling.modal.cancelAppointment.detailsText"
             fallback=":appointmentType appointment for"
             replacements={{ appointmentType: appointmentType.name }}
-            data-testid="translatedtext-ert6"
           />
         }{' '}
         <PatientNameDisplay patient={patient} data-testid="patientnamedisplay-bdl0" />
@@ -210,7 +190,6 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
           <TranslatedText
             stringId="scheduling.modal.cancelAppointment.action.cancel"
             fallback="Yes, Cancel"
-            data-testid="translatedtext-7d6z"
           />
         </DeleteButton>
       </Row>
@@ -316,26 +295,17 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           {appointmentType && (
             <>
               <Heading data-testid="heading-e5k4">
-                <TranslatedText
-                  stringId="general.type.label"
-                  fallback="Type"
-                  data-testid="translatedtext-bsai"
-                />
+                <TranslatedText stringId="general.type.label" fallback="Type" />
               </Heading>
               <TranslatedReferenceData
                 value={appointmentType.id}
                 fallback={appointmentType.name}
                 category="appointmentType"
-                data-testid="translatedreferencedata-kwtk"
               />
             </>
           )}
           <Heading data-testid="heading-9cda">
-            <TranslatedText
-              stringId="general.time.label"
-              fallback="Time"
-              data-testid="translatedtext-nko3"
-            />
+            <TranslatedText stringId="general.time.label" fallback="Time" />
           </Heading>
           <div>
             <DateTimeRangeDisplay
@@ -352,7 +322,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <TranslatedText
               stringId="scheduling.appointmentDetail.select.status.label"
               fallback="Select Status"
-              data-testid="translatedtext-mv15"
             />
           }
           options={APPOINTMENT_STATUS_OPTIONS}
@@ -408,7 +377,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
             fallback="Clinician"
-            data-testid="translatedtext-bxc9"
           />
         </Heading>
         {clinician.displayName}
@@ -416,17 +384,12 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       <PatientInfo patient={patient} data-testid="patientinfo-rb4a" />
       <Section data-testid="section-a3ne">
         <Heading data-testid="heading-a94h">
-          <TranslatedText
-            stringId="general.area.label"
-            fallback="Area"
-            data-testid="translatedtext-xbbh"
-          />
+          <TranslatedText stringId="general.area.label" fallback="Area" />
         </Heading>
         <TranslatedReferenceData
           fallback={locationGroup.name}
           value={locationGroup.id}
           category="locationGroup"
-          data-testid="translatedreferencedata-f39c"
         />
       </Section>
       <Button
@@ -438,7 +401,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         <TranslatedText
           stringId="scheduling.appointmentDetail.action.reschedule"
           fallback="Reschedule"
-          data-testid="translatedtext-by16"
         />
       </Button>
       {!currentEncounter &&
@@ -456,7 +418,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
               <TranslatedText
                 stringId="scheduling.action.admitOrCheckIn"
                 fallback="Admit or check in"
-                data-testid="translatedtext-111l"
               />
             </u>
           </Button>
@@ -510,7 +471,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
               <TranslatedText
                 stringId="scheduling.modal.cancelAppointment.error.unableToCancel"
                 fallback="Unable to cancel appointment. Please try again."
-                data-testid="translatedtext-ob26"
               />,
             );
           }

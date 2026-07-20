@@ -1,6 +1,6 @@
-import { Box } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { keyBy, pick } from 'es-toolkit/compat';
 import React, { useCallback, useMemo } from 'react';
@@ -173,48 +173,27 @@ const getValidationSchema = getTranslation =>
     resultsInterpretation: yup.string().nullable(),
   });
 
-const getColumns = (
-  {
-    labTestResults,
-    onChangeResult,
-    areLabTestResultsReadOnly
-  }
-) => {
+const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly }) => {
   const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
-  const showSecondaryResultColumn = data?.some(
-    row => row.labTestType?.supportsSecondaryResults,
-  );
+  const showSecondaryResultColumn = data?.some(row => row.labTestType?.supportsSecondaryResults);
   return [
     {
       key: 'labTestType',
-      title: (
-        <TranslatedText
-          stringId="lab.test.label"
-          fallback="Test"
-          data-testid="translatedtext-8oo7"
-        />
-      ),
+      title: <TranslatedText stringId="lab.test.label" fallback="Test" />,
       width: '120px',
       accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
           category="labTestType"
-          data-testid="translatedreferencedata-gvnb"
         />
       ),
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
-      title: (
-        <TranslatedText
-          stringId="lab.results.table.column.result"
-          fallback="Result"
-          data-testid="translatedtext-0937"
-        />
-      ),
+      title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
       accessor: (row, i) => {
         const { resultType, options, id: labTestTypeId } = row.labTestType;
         return (
@@ -234,13 +213,7 @@ const getColumns = (
     },
     {
       key: 'unit',
-      title: (
-        <TranslatedText
-          stringId="lab.results.table.column.unit"
-          fallback="Units"
-          data-testid="translatedtext-9rpw"
-        />
-      ),
+      title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
       width: '80px',
       accessor: row => (
         <BodyText color="textTertiary" data-testid="bodytext-uq3u">
@@ -250,52 +223,44 @@ const getColumns = (
     },
     ...(showSecondaryResultColumn
       ? [
-        {
-          key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
-          title: (
-            <TranslatedText
-              stringId="lab.results.table.column.secondaryResult"
-              fallback="Secondary result"
-              data-testid="translatedtext-secondary-result"
-            />
-          ),
-          accessor: (row, i) => {
-            const { supportsSecondaryResults } = row.labTestType;
-            return (
-              <ConditionalTooltip
-                visible={!supportsSecondaryResults}
-                maxWidth="140px"
-                title={
-                  <TranslatedText
-                    stringId="lab.results.tooltip.secondaryResultNotSupported"
-                    fallback="Secondary result is not supported for this test."
-                    data-testid="translatedtext-secondary-not-supported"
+          {
+            key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+            title: (
+              <TranslatedText
+                stringId="lab.results.table.column.secondaryResult"
+                fallback="Secondary result"
+              />
+            ),
+            accessor: (row, i) => {
+              const { supportsSecondaryResults } = row.labTestType;
+              return (
+                <ConditionalTooltip
+                  visible={!supportsSecondaryResults}
+                  maxWidth="140px"
+                  title={
+                    <TranslatedText
+                      stringId="lab.results.tooltip.secondaryResultNotSupported"
+                      fallback="Secondary result is not supported for this test."
+                    />
+                  }
+                >
+                  <AccessorField
+                    id={row.id}
+                    component={TextField}
+                    name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                    disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                    tabIndex={tabIndex(1, i)}
+                    data-testid="accessorfield-secondary-result"
                   />
-                }
-              >
-                <AccessorField
-                  id={row.id}
-                  component={TextField}
-                  name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
-                  disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
-                  tabIndex={tabIndex(1, i)}
-                  data-testid="accessorfield-secondary-result"
-                />
-              </ConditionalTooltip>
-            );
+                </ConditionalTooltip>
+              );
+            },
           },
-        },
-      ]
+        ]
       : []),
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
-      title: (
-        <TranslatedText
-          stringId="lab.results.table.column.method"
-          fallback="Method"
-          data-testid="translatedtext-wrj3"
-        />
-      ),
+      title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -311,11 +276,7 @@ const getColumns = (
     {
       key: LAB_TEST_PROPERTIES.VERIFICATION,
       title: (
-        <TranslatedText
-          stringId="lab.results.table.column.verification"
-          fallback="Verification"
-          data-testid="translatedtext-q47o"
-        />
+        <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
       ),
       accessor: (row, i) => (
         <AccessorField
@@ -330,11 +291,7 @@ const getColumns = (
     {
       key: LAB_TEST_PROPERTIES.COMPLETED_DATE,
       title: (
-        <TranslatedText
-          stringId="lab.results.table.column.completedDate"
-          fallback="Completed"
-          data-testid="translatedtext-3tgn"
-        />
+        <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
       ),
       width: '260px',
       accessor: (row, i) => (
@@ -355,23 +312,11 @@ const ResultsFormSkeleton = () => (
     <SkeletonContainer data-testid="box-40fc">
       <SkeletonSection data-testid="box-ccfc">
         <div>
-          <SkeletonTitle
-            variant="text"
-            width={124}
-            data-testid="skeleton-um2y"
-          />
-          <SkeletonSubtitle
-            variant="text"
-            width={270}
-            data-testid="skeleton-llaz"
-          />
+          <SkeletonTitle variant="text" width={124} data-testid="skeleton-um2y" />
+          <SkeletonSubtitle variant="text" width={270} data-testid="skeleton-llaz" />
         </div>
       </SkeletonSection>
-      <SkeletonRect
-        variant="rect"
-        height={254}
-        data-testid="skeleton-dl86"
-      />
+      <SkeletonRect variant="rect" height={254} data-testid="skeleton-dl86" />
     </SkeletonContainer>
   </>
 );
@@ -441,14 +386,12 @@ const ResultsForm = ({
             <TranslatedText
               stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
-              data-testid="translatedtext-8n3h"
             />
           </StyledHeading4>
           <StyledSmallBodyText data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results, other test result details and any relevant notes."
-              data-testid="translatedtext-3nvu"
             />
           </StyledSmallBodyText>
         </div>
@@ -501,7 +444,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
             fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
             replacements={{ length: labTestRes.length, displayId }}
-            data-testid="translatedtext-h2yk"
           />,
         );
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
@@ -515,7 +457,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
             fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
             replacements={{ message: err.message, displayId }}
-            data-testid="translatedtext-6nu5"
           />,
         );
       },
@@ -542,7 +483,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
           stringId="patient.lab.modal.enterResults.title"
           fallback="Enter results | Request ID :testId"
           replacements={{ testId: displayId }}
-          data-testid="translatedtext-r9ex"
         />
       }
       open={open}

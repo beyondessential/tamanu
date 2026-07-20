@@ -51,7 +51,6 @@ export const SendToPatientModal = ({ patient }) => {
         <TranslatedText
           stringId="patientDetails.resources.patientPortalRegistration.modal.title"
           fallback="Patient Portal registration"
-          data-testid="translatedtext-patient-portal-title"
         />
       }
       open={open}

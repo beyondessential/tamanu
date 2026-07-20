@@ -21,7 +21,7 @@ const FormModalComponent = memo(({ children, ...props }) => {
           severity="warning"
           style={{ marginBlockEnd: '1em' }}
         >
-          <AlertTitle data-testid="alerttitle-f5qb">Dev warning</AlertTitle>
+          <AlertTitle>Dev warning</AlertTitle>
           This <code>&lt;FormModal&gt;</code> doesn’t contain a form. Consider using generic{' '}
           <code>&lt;Modal&gt;</code>.
         </Alert>

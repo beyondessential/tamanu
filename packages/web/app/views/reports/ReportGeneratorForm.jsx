@@ -118,7 +118,6 @@ const getAboutReportText = reportName => (
     stringId="report.generate.about.label"
     fallback="About :reportName"
     replacements={{ reportName }}
-    data-testid="translatedtext-report-about-modal-title"
   />
 );
 
@@ -131,11 +130,7 @@ const isJsonString = str => {
   return true;
 };
 
-const getTimeZoneDisplayLabel = tz =>
-  tz
-    ?.split('/')
-    ?.pop()
-    ?.replace(/_/g, ' ') ?? tz;
+const getTimeZoneDisplayLabel = tz => tz?.split('/')?.pop()?.replace(/_/g, ' ') ?? tz;
 
 const TimezoneLabel = ({ timeZone }) => (
   <ThemedTooltip title={timeZone} placement="top" arrow>
@@ -166,7 +161,6 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.timezone.option.country"
             fallback="Use primary timezone for Tamanu deployment"
-            data-testid="translatedtext-tz-country"
           />
         ),
         value: primaryTimeZone,
@@ -177,7 +171,6 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.timezone.option.facility"
             fallback="Use facility configured timezone"
-            data-testid="translatedtext-tz-facility"
           />
         ),
         value: facilityTimeZone,
@@ -199,11 +192,7 @@ export const ReportGeneratorForm = () => {
   const {
     parameters = [],
     dateRangeLabel = (
-      <TranslatedText
-        stringId="report.generate.dateRange.label"
-        fallback="Date range"
-        data-testid="translatedtext-hf3l"
-      />
+      <TranslatedText stringId="report.generate.dateRange.label" fallback="Date range" />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
   } = reportsById[selectedReportId] || {};
@@ -285,7 +274,6 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.message.request.success"
             fallback="Report successfully requested. You will receive an email soon."
-            data-testid="translatedtext-byjn"
           />,
         );
       }
@@ -295,7 +283,6 @@ export const ReportGeneratorForm = () => {
           stringId="reportGenerator.error.cantSubmitRequest"
           fallback="Unable to submit report request - :errorMessage"
           replacements={{ errorMessage: e.message }}
-          data-testid="translatedtext-mrf5"
         />,
       );
     }
@@ -315,7 +302,6 @@ export const ReportGeneratorForm = () => {
         <TranslatedText
           stringId="report.generate.message.export.success"
           fallback="Report successfully exported"
-          data-testid="translatedtext-mr0n"
         />,
       );
     } catch (error) {
@@ -359,13 +345,7 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2} data-testid="formgrid-8gz6">
             <Field
               name="reportId"
-              label={
-                <TranslatedText
-                  stringId="report.generate.report.label"
-                  fallback="Report"
-                  data-testid="translatedtext-2jvz"
-                />
-              }
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
               component={ReportIdField}
               options={reportOptions}
               required
@@ -396,7 +376,6 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.thisFacility"
                       fallback="This facility"
-                      data-testid="translatedtext-jqr4"
                     />
                   ),
                   value: REPORT_DATA_SOURCES.THIS_FACILITY,
@@ -406,7 +385,6 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.allFacilities"
                       fallback="All facilities"
-                      data-testid="translatedtext-mdzf"
                     />
                   ),
                   value: REPORT_DATA_SOURCES.ALL_FACILITIES,
@@ -467,11 +445,7 @@ export const ReportGeneratorForm = () => {
               <Field
                 name="timezone"
                 label={
-                  <TranslatedText
-                    stringId="report.generate.timezone.label"
-                    fallback="Timezone"
-                    data-testid="translatedtext-tz"
-                  />
+                  <TranslatedText stringId="report.generate.timezone.label" fallback="Timezone" />
                 }
                 onChange={() => resetDownload()}
                 options={timezoneOptions}
@@ -485,11 +459,7 @@ export const ReportGeneratorForm = () => {
             <Field
               name="fromDate"
               label={
-                <TranslatedText
-                  stringId="report.generate.fromDate.label"
-                  fallback="From date"
-                  data-testid="translatedtext-ckj1"
-                />
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
               }
               onChange={() => resetDownload()}
               component={DateField}
@@ -497,13 +467,7 @@ export const ReportGeneratorForm = () => {
             />
             <Field
               name="toDate"
-              label={
-                <TranslatedText
-                  stringId="report.generate.toDate.label"
-                  fallback="To date"
-                  data-testid="translatedtext-5ucj"
-                />
-              }
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
               onChange={() => resetDownload()}
               component={DateField}
               data-testid="field-2d95"
@@ -546,12 +510,7 @@ export const ReportGeneratorForm = () => {
                 startIcon={<GetAppIcon data-testid="getappicon-xgvk" />}
                 data-testid="button-f4xo"
               >
-                <TranslatedText
-                  stringId="report.generate.action.download"
-                  fallback="Download"
-                  data-testid="translatedtext-97hn"
-                />{' '}
-                (
+                <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
                 {(
                   (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
                   1024
@@ -568,7 +527,6 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateXLSX"
                         fallback="Generate as .XLSX"
-                        data-testid="translatedtext-2hhw"
                       />
                     ),
                     onClick: event => {
@@ -581,7 +539,6 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateCSV"
                         fallback="Generate as .CSV"
-                        data-testid="translatedtext-h038"
                       />
                     ),
                     onClick: event => {
