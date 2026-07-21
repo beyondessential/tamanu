@@ -2,8 +2,8 @@ import React, { ReactElement, useCallback } from 'react';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
 import { IPatient } from '~/types';
-import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
 import { FullView } from '/styled/common';
+import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
 import { theme } from '/styled/theme';

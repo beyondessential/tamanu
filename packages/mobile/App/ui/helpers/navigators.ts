@@ -1,6 +1,5 @@
 import { CommonActions, NavigationProp } from '@react-navigation/native';
 
-import type { VaccineDataProps } from '/components/VaccineCard';
 import { Routes } from './routes';
 
 export const noTabComponent = (): null => null;
@@ -80,40 +79,6 @@ export const returnToVaccineTableWithRefresh = (
     stackNavigation.dispatch({
       ...CommonActions.setParams({ latestAdministeredVaccineId }),
       source: tableRoute.key,
-    });
-  }
-
-  stackNavigation.goBack();
-};
-
-/**
- * After editing an administered vaccine, update the modal route’s params in place and pop
- * the edit form. Used over `navigate`; the modal already sits under the form in the stack, so
- * `navigate` doesn’t reliably reapply params to existing route.
- *
- * Callers reach this only via `<VaccineModalScreen>` → `<NewVaccineTabs>`, so the modal is expected
- * under the form. (Undesirable UX, but legacy behaviour.) If it is somehow missing unexpected, pop
- * anyway to reveal table of administered vaccines.
- */
-export const returnToVaccineModalWithUpdatedVaccine = (
-  navigation: NavigationProp<any>,
-  vaccine: VaccineDataProps,
-): void => {
-  const stackNavigation = getVaccineStackNavigation(navigation);
-
-  if (!stackNavigation) {
-    navigation.goBack();
-    return;
-  }
-
-  const modalRoute = stackNavigation
-    .getState()
-    .routes.find(route => route.name === Routes.HomeStack.VaccineStack.VaccineModalScreen);
-
-  if (modalRoute?.key) {
-    stackNavigation.dispatch({
-      ...CommonActions.setParams({ vaccine }),
-      source: modalRoute.key,
     });
   }
 
