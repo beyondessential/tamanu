@@ -646,8 +646,6 @@ export const MedicationForm = ({
     .filter(({ discontinued }) => !discontinued)
     .map(({ medication }) => medication?.id);
 
-  const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
-
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
@@ -1200,7 +1198,9 @@ export const MedicationForm = ({
                     <TranslatedText
                       stringId="medication.patientWeightIfPrinting.label"
                       fallback="Patient weight if printing (:unit)"
-                      replacements={{ unit: weightUnit }}
+                      replacements={{
+                        unit: getTranslation('general.localisedField.weightUnit.label', 'kg'),
+                      }}
                     />
                   }
                   onChange={e => setPatientWeight(e.target.value)}
