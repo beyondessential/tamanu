@@ -10,7 +10,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 
 | # | Original request | Feature | Priority | Design work |
 |---|------------------|---------|----------|-------------|
-| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Some** — request & table display |
+| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
 | 2 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
 | 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
 | 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | _TBC_ |
@@ -40,13 +40,17 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 **How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
 
-**Desired behaviour.** When multiple panels from the **same lab category** are requested together, they are combined into a single lab request (and a single SENAITE sample). Panels from different categories remain separate requests.
+**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests.
 
-- The lab request view shows the full list of tests across the merged panels.
-- The Active Lab Requests table shows the list of panels on the request.
+- The lab request view shows the full list of tests across the grouped panels and individual tests.
+- The Active Lab Requests table shows the panels and tests on the request.
 - The patient results table still supports filtering by panel.
 
-**Out of scope (separate card).** Merging individual tests with panels from the same category (e.g. an FBC panel plus a standalone HbA1c). This relates to the combined ordering workflow in requirement 2.
+**Design — new lab request workflow.**
+- On the **Sample details** step, samples are grouped by category, with each category's sample listing all the tests and panels it contains.
+- The **Finalise** modal lists tests and panels the same way, grouped within each category.
+
+**Relationship to requirement 2.** The combined ordering interaction — one search across panels and tests, seeing a panel's contents, and preventing duplicates — is specified in requirement 2. This requirement covers how the resulting panels and individual tests are grouped under one request and sample, and how they are displayed.
 
 **Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
