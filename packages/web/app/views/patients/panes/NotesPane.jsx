@@ -15,7 +15,7 @@ const NotesCard = styled.div`
   background: ${Colors.white};
 `;
 
-export const NotesPane = React.memo(({ encounter, readonly }) => {
+export const NotesPane = React.memo(({ encounter, disabled }) => {
   // Filters are intentionally kept in local state so they reset whenever the user
   // navigates away from and back to the notes pane. Saving a note refreshes the
   // table via refreshCount rather than reloading the encounter, so the pane stays
@@ -49,7 +49,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
             <NoteModalActionBlocker>
               <ButtonWithPermissionCheck
                 onClick={handleOpenNewNote}
-                disabled={readonly}
+                disabled={disabled}
                 verb="create"
                 noun="EncounterNote"
                 data-testid="buttonwithpermissioncheck-qbou"
