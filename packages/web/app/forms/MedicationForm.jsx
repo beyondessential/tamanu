@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@material-ui/core';
-=======
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
->>>>>>> main
 import PrintIcon from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -32,10 +28,6 @@ import {
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-<<<<<<< HEAD
-import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-=======
->>>>>>> main
 import {
   AutocompleteField,
   ConditionalTooltip,
@@ -59,14 +51,10 @@ import {
 } from '@tamanu/ui-components';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-<<<<<<< HEAD
-import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
-=======
->>>>>>> main
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
@@ -78,10 +66,6 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { foreignKey } from '../utils/validation';
-<<<<<<< HEAD
-=======
-import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
->>>>>>> main
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -211,15 +195,11 @@ const FieldLabel = styled(Box)`
 
 const TooltipTextField = ({ tooltip, label, id, ...props }) => (
   <FullWidthFieldWrapper>
-<<<<<<< HEAD
     <FieldLabel
       component="label"
       htmlFor={id}
       style={{ display: 'inline-block', marginBlockEnd: 4 }}
     >
-=======
-    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
->>>>>>> main
       {label}
     </FieldLabel>
     <ThemedTooltip disableFocusListener title={tooltip}>
