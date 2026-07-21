@@ -122,7 +122,10 @@ describe('sync_lookup self healing (trigger level)', () => {
   });
 
   describe('hard deletes', () => {
-    it('deletes the matching lookup row immediately on hard delete', async () => {
+    // The trigger flags rather than deleting directly, so a row referencing the deleted record
+    // (rebuilt in the same later build) and the deleted record's own removal (via the self-heal
+    // backstop) land together, atomically — see flagSyncLookupForRebuildOnHardDelete migration.
+    it('flags the matching lookup row for rebuild on hard delete, without deleting it', async () => {
       const patient = await models.Patient.create(fake(models.Patient));
       await createLookupRow(models, {
         recordId: patient.id,
@@ -136,10 +139,11 @@ describe('sync_lookup self healing (trigger level)', () => {
       const lookupRow = await models.SyncLookup.findOne({
         where: { recordId: patient.id, recordType: 'patients' },
       });
-      expect(lookupRow).toBeNull();
+      expect(lookupRow).not.toBeNull();
+      expect(lookupRow.needsRebuild).toBe(true);
     });
 
-    it('deletes the matching lookup row on hard delete even while the sync tick trigger is disabled', async () => {
+    it('flags the matching lookup row on hard delete even while the sync tick trigger is disabled', async () => {
       const patient = await models.Patient.create(fake(models.Patient));
       await createLookupRow(models, {
         recordId: patient.id,
@@ -155,7 +159,21 @@ describe('sync_lookup self healing (trigger level)', () => {
       const lookupRow = await models.SyncLookup.findOne({
         where: { recordId: patient.id, recordType: 'patients' },
       });
-      expect(lookupRow).toBeNull();
+      expect(lookupRow).not.toBeNull();
+      expect(lookupRow.needsRebuild).toBe(true);
+    });
+
+    it('stubs a lookup row on hard delete when no row exists yet (created and deleted before ever being built)', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      await patient.destroy({ force: true });
+
+      const lookupRow = await models.SyncLookup.findOne({
+        where: { recordId: patient.id, recordType: 'patients' },
+      });
+      expect(lookupRow).not.toBeNull();
+      expect(lookupRow.data).toBeNull();
+      expect(lookupRow.needsRebuild).toBe(true);
     });
   });
 

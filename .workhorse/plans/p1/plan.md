@@ -66,11 +66,30 @@ against what's already installed first, since the DDL itself is cheap and touche
 ### Hard deletes need their own trigger
 `set_updated_at_sync_tick` is `BEFORE INSERT OR UPDATE`, so it never sees a hard `DELETE` and a
 hard-deleted source would orphan its lookup row. Add a separate `AFTER DELETE` trigger on
-lookup-tracked tables that **directly deletes** the matching `sync_lookup` row (not flag-and-defer —
-deferring leaves a window where a snapshot could ship a phantom record). It fires on every hard delete
-(deletes never advance a tick and the build never removes rows) and must remain active during
-migrations. Soft deletes are ordinary `UPDATE`s and need no special handling. Pass 2 keeps a
-source-gone delete as a cheap backstop.
+lookup-tracked tables that **flags** the matching `sync_lookup` row (`needs_rebuild = true`), rather
+than deleting it directly. Flagging, not an immediate delete, is what makes the removal atomic with
+any other row's rebuild in the same later build: consider record_a with a foreign key that gets
+repointed from record_b to record_c, then record_b is hard-deleted. An immediate delete removes
+record_b from the lookup table the instant it happens, fully decoupled from whenever record_a's
+rebuild (reflecting the FK switch) next runs — a snapshot taken in between would ship record_a still
+pointing at a record_b that's no longer in the lookup table. Flagging defers record_b's removal to
+the next build's self-heal pass, which runs in the same transaction as record_a's rebuild, so an
+outgoing snapshot only ever sees both changes together. It fires on every hard delete (deletes never
+advance a tick and the build never removes rows) and must remain active during migrations. Soft
+deletes are ordinary `UPDATE`s and need no special handling. Pass 2's source-gone delete is no longer
+just a backstop — it's the only place a hard-deleted row is actually removed from `sync_lookup`.
+
+A hard delete concurrent with an in-progress build can still race that build's own rebuild of the
+*same* record (a different problem from the above): under `REPEATABLE READ`, the build's read of the
+source table can still see a row as present via its pinned snapshot even after a separate,
+already-committed transaction has hard-deleted it for real, so the build could write stale
+pre-deletion data. `FOR KEY SHARE OF <table>` on the build's source `SELECT` (shared by both passes)
+turns this into a serialization failure instead of a silent stale write — the whole build aborts and
+the next scheduled cycle (fresh snapshot) retries cleanly. `FOR KEY SHARE`, not the stronger
+`FOR SHARE`, so it only conflicts with a concurrent delete (or a change to key columns, which never
+happens), not with an ordinary concurrent column update — otherwise this would trip constantly on
+the routine case of a row being updated twice within one build's lifetime. Verified empirically
+(two-session psql tests) against both conflict types before relying on it.
 
 ## Build steps
 
@@ -116,9 +135,12 @@ source-gone delete as a cheap backstop.
   "what's already installed" comparison needed, since the DDL is cheap and touches no data.
 
 ### Trigger — hard deletes
-- [x] Create an `AFTER DELETE` trigger function (`remove_from_sync_lookup_on_hard_delete`, migration
-  `1784602090407-addSyncLookupHardDeleteTrigger.ts`) on lookup-tracked tables that directly deletes the
-  matching lookup row. It fires unconditionally (not gated on disabled mode).
+- [x] Create an `AFTER DELETE` trigger function (`flag_sync_lookup_for_rebuild_on_hard_delete`,
+  migration `1784602090407-addSyncLookupHardDeleteTrigger.ts`) on lookup-tracked tables that flags
+  (`needs_rebuild = true`) the matching lookup row — not a direct delete, so a hard-deleted record's
+  removal lands atomically with any other row's rebuild that depends on it, via the same later
+  build (see the "Hard deletes need their own trigger" design note above). It fires unconditionally
+  (not gated on disabled mode).
 - [x] Install it on pull/bidirectional tables on central (same direction/server scoping as the flag) via
   `addSyncLookupDeleteTrigger` in `postMigrationHooks.ts`; ensures new lookup-tracked tables get it too.
 - [x] Not added to `runPreMigration`'s drop loop — it's a separate trigger name, untouched by the
@@ -145,8 +167,15 @@ source-gone delete as a cheap backstop.
     makes `buildSyncLookupSelect`'s tick clause collapse to the source/historic tick in every case
     (both the full-rebuild CASE branches and the plain `COALESCE` form), without needing any change to
     `buildSyncLookupSelect.ts` itself.
-  - [x] Deletes flagged rows whose source record no longer exists (backstop for the delete trigger).
+  - [x] Deletes flagged rows whose source record no longer exists — this is the only place a
+    hard-deleted row is actually removed from `sync_lookup`, since the delete trigger now only flags.
   - [x] Soft-deleted source rows rebuild normally (`is_deleted = true`) — no special-casing needed.
+  - [x] Both the flagged-row rebuild and the source-gone delete lock the source rows they read via
+    `FOR KEY SHARE OF <table>` (added to the shared `buildLookupUpsertQuery`), so a hard delete
+    racing this same build's own upsert for that record aborts the build (serialization failure)
+    instead of writing stale, pre-deletion data. Verified with a dedicated concurrency test
+    (`CentralSyncManager.updateLookupTable.test.js`, "concurrent hard delete during an in-progress
+    build") and empirically against real Postgres sessions beforehand.
 - [x] The `-2` sweep (`updateSyncLookupPendingRecords`) is untouched; pass 2 writes real ticks so it
   cannot rewrite them (verified in a dedicated central-server test).
 
@@ -178,7 +207,10 @@ See `.workhorse/test-cases/p1/overview.md` for the concrete scenarios. Key ones:
 - A migration (trigger in disabled mode) that mutates data with no tick bump is flagged and healed —
   data corrected, tick unchanged — and the gate drains all flags.
 - A stub is excluded from snapshots pre-build, then healed with the source tick and appears.
-- A hard delete removes the lookup row directly, including hard deletes performed during a migration.
+- A hard delete flags the lookup row (removal happens via the next build's self-heal pass), including
+  hard deletes performed during a migration.
+- A hard delete concurrent with an in-progress build's own rebuild of that record aborts the build
+  rather than resurrecting stale data.
 - A soft delete keeps `is_deleted = true`.
 - A healed row is byte-identical to a normally-built one.
 - The flag branch runs only for lookup-tracked tables on central: no flagging for push-only tables,

@@ -69,6 +69,14 @@ const buildLookupUpsertQuery = ({
     ${whereClause}
     ORDER BY ${table}.id
     LIMIT :limit
+    -- Locks the source rows we're about to copy from, scoped to ${table} so the LEFT JOINs above
+    -- aren't affected. Under REPEATABLE READ, if one of these rows was concurrently hard-deleted
+    -- (committed after this transaction's snapshot was taken), Postgres raises a serialization
+    -- failure here instead of letting us silently resurrect it in sync_lookup from stale data —
+    -- the whole build aborts and retries on the next cycle, by which point the row is genuinely
+    -- gone. FOR KEY SHARE (not FOR SHARE) so an ordinary concurrent UPDATE of these rows — the
+    -- common case — is not itself treated as a conflict.
+    FOR KEY SHARE OF ${table}
     ON CONFLICT (record_id, record_type)
     DO UPDATE SET
       data = EXCLUDED.data,
@@ -203,8 +211,10 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
     healedCount += chunkCount;
   }
 
-  // Backstop for the delete trigger: a row can be flagged and then have its source hard-deleted
-  // before this build runs, in which case there was nothing for the delete trigger to catch.
+  // The hard-delete trigger only flags rather than removing directly (see
+  // flagSyncLookupForRebuildOnHardDelete migration), so this is where flagged rows whose source is
+  // actually gone get removed — in the same transaction as any other row's rebuild above, so an
+  // external snapshot never sees one change without the other.
   const [deletedRows] = await model.sequelize.query(
     `
       DELETE FROM sync_lookup sl

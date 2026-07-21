@@ -25,8 +25,9 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 - [ ] A stub row has no data payload — its `data` is null — and carries placeholder values for its other columns, which are never read because the row is excluded from snapshots until it is healed.
 - [ ] In the flag branch the trigger only sets the flag and, where needed, stubs a missing row; it never rebuilds a row's data inline. Clock-advancing writes add no lookup-table write at all, so normal traffic places no extra load on the lookup table.
 - [ ] Migrations put the sync tick trigger into its disabled mode rather than removing it, so data changed by migrations — which does not advance the sync clock — is flagged for rebuild without churning sync ticks.
-- [ ] Hard-deleted source records are removed from the lookup table by a delete trigger on lookup-tracked tables, which deletes the corresponding lookup row directly. It fires on every hard delete and remains active during migrations, so bulk deletions performed by a migration are cleaned up. Soft deletes are ordinary updates and need no special handling.
+- [ ] Hard-deleted source records are handled by a delete trigger on lookup-tracked tables, which marks the corresponding lookup row as needing rebuild. It fires on every hard delete and remains active during migrations, so bulk deletions performed by a migration are flagged too. A hard-deleted record's removal from the lookup table and any other record's rebuild that depends on it (for example, a foreign key repointed away from the deleted record) are applied together by the same build, so an outgoing snapshot never observes one change without the other. Soft deletes are ordinary updates and need no special handling.
 - [ ] A post-migration step keeps both triggers correct on every lookup-tracked table, including tables introduced by a later migration: the sync tick trigger configured as lookup-tracked, and the delete trigger present.
+- [ ] A hard delete concurrent with an in-progress build is detected: the build locks the source rows it reads, and aborts if one of them was hard-deleted by a separately-committed transaction after the build's read snapshot was taken. The next scheduled build retries with a fresh snapshot.
 - [ ] Lookup rows with no data payload are excluded from outgoing sync snapshots, so a stub is never sent to a facility before it is built.
 
 ## Rebuilding flagged records
@@ -38,7 +39,7 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 - [ ] The self-heal pass rebuilds each flagged row's data from its source record and sets the row's sync tick to the source record's current sync tick, without routing through the incremental build's staged-tick handling.
 - [ ] Taking the tick from the source record means a healed existing row keeps its sync tick — a drifted record's source tick has not moved, so facilities do not re-pull records they already hold — while a record that reached the table only as a stub propagates on the same terms its source record would.
 - [ ] A source record that is soft-deleted is rebuilt normally, with its lookup row marked as deleted.
-- [ ] If the self-heal pass finds a flagged row whose source record no longer exists, it deletes the lookup row — a backstop to the delete trigger for any row flagged before its source was removed.
+- [ ] If the self-heal pass finds a flagged row whose source record no longer exists, it deletes the lookup row. This is where a hard-deleted record's lookup row is removed, and it also covers any row flagged for another reason (for example, a migration) whose source was separately removed.
 
 ## Blocking upgrades until the lookup table is consistent
 

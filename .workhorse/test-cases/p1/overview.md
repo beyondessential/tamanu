@@ -18,8 +18,9 @@ cite the criterion they exercise; uncited ones are operational.
 
 ## Hard deletes
 
-- [x] Hard-delete a record on a lookup-tracked table and confirm its `sync_lookup` row is deleted immediately. verifies spec: LOOKUP#flagging-records-for-rebuild — `packages/database/__tests__/sync/syncLookupSelfHeal.test.ts`
-- [x] Hard-delete records on a lookup-tracked table during a migration (trigger in disabled mode) and confirm their lookup rows are removed. verifies spec: LOOKUP#flagging-records-for-rebuild — same file
+- [x] Hard-delete a record on a lookup-tracked table and confirm its `sync_lookup` row is flagged `needs_rebuild = true` (not deleted immediately — removal happens via the next build's self-heal pass, so it lands atomically with any other row's rebuild that depended on the deleted record). verifies spec: LOOKUP#flagging-records-for-rebuild — `packages/database/__tests__/sync/syncLookupSelfHeal.test.ts`
+- [x] Hard-delete records on a lookup-tracked table during a migration (trigger in disabled mode) and confirm their lookup rows are flagged. verifies spec: LOOKUP#flagging-records-for-rebuild — same file
+- [x] Hard-delete a record concurrently with an in-progress build that would otherwise rebuild that same record, and confirm the build aborts (serialization failure) rather than resurrecting stale pre-deletion data. verifies spec: LOOKUP#populating-the-lookup-table — `packages/central-server/__tests__/sync/CentralSyncManager.updateLookupTable.test.js` ("concurrent hard delete during an in-progress build")
 - [ ] Soft-delete a record (set `deleted_at` via a normal update) and confirm the lookup row is rebuilt with `is_deleted = true` and is retained, not deleted. verifies spec: LOOKUP#rebuilding-flagged-records — not yet covered by a dedicated test (soft deletes are ordinary updates, so this is exercised implicitly by the untouched pre-existing `CentralSyncManager.updateLookupTable` suite, but no test asserts `is_deleted = true` post-soft-delete specifically for this feature)
 - [ ] Hard-delete on a facility server and confirm no error and no lookup interaction (no delete trigger there). operational — not covered; would need a facility-server-configured test DB
 
@@ -35,7 +36,7 @@ cite the criterion they exercise; uncited ones are operational.
 - [x] Insert a new record in disabled mode (stub created), run the build, and confirm it is healed with the sync tick taken from the source record. verifies spec: LOOKUP#rebuilding-flagged-records — same file
 - [x] Flag a row (disabled write), then update it normally so its tick advances past the build cursor; run the build and confirm pass 1 rebuilds and clears the flag and pass 2 does not rework it. verifies spec: LOOKUP#rebuilding-flagged-records — same file
 - [ ] Confirm a healed row's tick is not rewritten by the `-2` pending sweep after commit (pass 2 writes a real source tick, not `-2`). verifies spec: LOOKUP#rebuilding-flagged-records — not covered by a dedicated test; follows by construction (pass 2 never writes `-2`, and the sweep only matches `= -2`), but not independently verified
-- [x] Flag a row then hard-delete its source before the build runs (bypassing the delete trigger in the test), run the build, and confirm the backstop deletes the orphaned lookup row. verifies spec: LOOKUP#rebuilding-flagged-records — same file
+- [x] Flag a row whose source no longer exists (its own hard delete already flagged it, or via any other means), run the build, and confirm pass 2 deletes the orphaned lookup row — this is the only path that removes a hard-deleted record's lookup row, since the delete trigger only flags it. verifies spec: LOOKUP#rebuilding-flagged-records — same file
 - [x] Confirm a partial index on `needs_rebuild` exists so the self-heal scan does not sequentially scan `sync_lookup`. operational — `packages/database/__tests__/sync/syncLookupSelfHeal.test.ts`
 
 ## Migration hooks (disable, not drop)

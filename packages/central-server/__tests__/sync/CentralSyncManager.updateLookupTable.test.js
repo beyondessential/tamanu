@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 
 import {
   FACT_CURRENT_SYNC_TICK,
@@ -6,8 +6,9 @@ import {
   FACT_LOOKUP_MODELS_TO_REBUILD,
   FACT_SYNC_TRIGGER_CONTROL,
 } from '@tamanu/constants/facts';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
+import { updateLookupTable as runLookupTableBuild } from '../../app/sync/updateLookupTable';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -966,6 +967,91 @@ describe('CentralSyncManager.updateLookupTable', () => {
       });
       expect(row.needsRebuild).toBe(false);
       expect(row.data.firstName).toEqual('Advanced past cursor');
+    });
+  });
+
+  // A hard delete concurrent with an in-progress build can race the build's own upsert for that
+  // record: under REPEATABLE READ, the build's SELECT of the source table can still see a row as
+  // "there" via its pinned snapshot even after a concurrent transaction has hard-deleted (and
+  // committed) it for real. Without protection, the build would then resurrect a sync_lookup row
+  // from stale, pre-delete data. FOR KEY SHARE OF <table> on the source SELECT (see
+  // buildLookupUpsertQuery) turns this into a serialization failure instead — the build aborts and
+  // the next scheduled cycle (fresh snapshot) retries cleanly. See specs/sync/lookup-table.md.
+  describe('concurrent hard delete during an in-progress build', () => {
+    it('aborts instead of resurrecting a row hard-deleted after the build snapshot was taken', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      // Establish a baseline lookup row and settle the build cursor.
+      await centralSyncManager.updateLookupTable();
+      expect(
+        await models.SyncLookup.findOne({
+          where: { recordId: patient.id, recordType: 'patients' },
+        }),
+      ).not.toBeNull();
+
+      // Make the record eligible for the next incremental pass.
+      await patient.update({ firstName: 'Updated before rebuild' });
+      const previouslyUpToTick = await models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+
+      let raceError = null;
+      try {
+        await sequelize.transaction(
+          { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+          async buildTransaction => {
+            // Pin the build's snapshot before the concurrent delete happens.
+            await sequelize.query('SELECT 1', { transaction: buildTransaction });
+
+            // Concurrently (a separate, already-committed transaction), hard-delete the source
+            // row — simulating a delete that lands after the build's snapshot was taken but
+            // before the build reaches this record.
+            await sequelize.transaction(async deleteTransaction => {
+              await models.Patient.destroy({
+                where: { id: patient.id },
+                force: true,
+                transaction: deleteTransaction,
+              });
+            });
+
+            // The build now tries to read/lock a row that, from its own snapshot, still exists.
+            await runLookupTableBuild(
+              models,
+              { Patient: models.Patient },
+              previouslyUpToTick,
+              centralSyncManager.constructor.config,
+              SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE,
+              { addInfo: async () => {} },
+            );
+          },
+        );
+      } catch (e) {
+        raceError = e;
+      }
+
+      expect(raceError).not.toBeNull();
+      expect(raceError.message).toMatch(/could not serialize access|concurrent update/i);
+
+      // The failed build attempt rolled back entirely, so the only lasting effect is the delete
+      // trigger's own (successfully committed) flag — not yet removed, since removal only happens
+      // via a build's self-heal backstop.
+      const flaggedRow = await models.SyncLookup.findOne({
+        where: { recordId: patient.id, recordType: 'patients' },
+      });
+      expect(flaggedRow).not.toBeNull();
+      expect(flaggedRow.needsRebuild).toBe(true);
+
+      // A subsequent build (fresh snapshot, no concurrent race) succeeds and cleans it up.
+      await centralSyncManager.updateLookupTable();
+      expect(
+        await models.SyncLookup.findOne({
+          where: { recordId: patient.id, recordType: 'patients' },
+        }),
+      ).toBeNull();
     });
   });
 });

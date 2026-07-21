@@ -98,7 +98,7 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
 
 const addSyncLookupDeleteTrigger: MigrationHook = {
   name: 'addSyncLookupDeleteTrigger',
-  prerequisites: [requireFunction('remove_from_sync_lookup_on_hard_delete')],
+  prerequisites: [requireFunction('flag_sync_lookup_for_rebuild_on_hard_delete')],
   async run({ log, sequelize }) {
     const isCentralServer = !selectFacilityIds(config);
     if (!isCentralServer) {
@@ -121,7 +121,7 @@ const addSyncLookupDeleteTrigger: MigrationHook = {
       CREATE TRIGGER ${triggerName}
       AFTER DELETE ON "${schema}"."${table}"
       FOR EACH ROW
-      EXECUTE FUNCTION public.remove_from_sync_lookup_on_hard_delete();
+      EXECUTE FUNCTION public.flag_sync_lookup_for_rebuild_on_hard_delete();
     `);
     }
   },
