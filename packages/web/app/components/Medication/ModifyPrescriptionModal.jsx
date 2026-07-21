@@ -57,6 +57,10 @@ const ButtonRow = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
+const PharmacyNoteDescription = styled(SmallBodyText)`
+  font-weight: 400;
+`;
+
 const validationSchema = yup.object().shape({
   // medicationId, doseAmount, frequency, route, durationValue, durationUnit — same clinical
   // invariants as prescribing (MedicationForm).
@@ -286,12 +290,12 @@ export const ModifyPrescriptionModal = ({
                     stringId="medication.details.pharmacyNotes"
                     fallback="Pharmacy notes"
                   />{' '}
-                  <SmallBodyText as="i" color={Colors.softText}>
+                  <PharmacyNoteDescription as="i" color={Colors.softText}>
                     <TranslatedText
                       stringId="medication.pharmacyNotes.notificationHint"
                       fallback="This note will be sent to the original prescriber as a notification"
                     />
-                  </SmallBodyText>
+                  </PharmacyNoteDescription>
                 </span>
               }
               component={TextField}
