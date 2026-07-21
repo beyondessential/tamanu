@@ -21,10 +21,21 @@ const validateUser = async (existingStore, username) => {
   }
 };
 
+// Concurrently-starting processes race on this cluster-global grant
+// ("tuple concurrently updated"). Serialise with a transaction-scoped
+// advisory lock; the grant is idempotent so re-applying it once per
+// process startup is harmless. Same lock key as main's reporting roles.
+const REPORTING_GRANTS_LOCK_KEY = '7829301042';
+
 const grantPrivileges = async (existingStore, schemaName, username) => {
-  await existingStore.sequelize.query(`
+  await existingStore.sequelize.transaction(async () => {
+    await existingStore.sequelize.query(
+      `SELECT pg_advisory_xact_lock(${REPORTING_GRANTS_LOCK_KEY}::bigint);`,
+    );
+    await existingStore.sequelize.query(`
       GRANT SELECT ON ALL TABLES IN SCHEMA ${schemaName} TO ${username};
     `);
+  });
 };
 
 const initReportStore = async (existingStore, connectionName, credentials) => {
