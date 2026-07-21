@@ -2,25 +2,45 @@
 
 ## Overview
 
-A set of enhancements across Tamanu's labs subsystem, compiled from the planned cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by priority.
+A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcoming** cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by the priority set in Tamanu (Urgent → High → Medium → No priority); within a tier the order is not yet fixed.
 
 ---
 
 ## Priority summary
 
-| # | Original request | Feature | Design work |
-|---|------------------|---------|-------------|
-| 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | **Yes** — new ordering workflow |
-| 2 | _TBC_ | _Awaiting card_ | _TBC_ |
-| 3 | TAM-2045 | Specimen type shown next to sample collected date & time | **Minimal** — surface an existing field on the tile |
+| # | Original request | Feature | Priority | Design work |
+|---|------------------|---------|----------|-------------|
+| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | _TBC_ |
+| 2 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
+| 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
+| 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | _TBC_ |
+| 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
+| 6 | TAM-4421 | Retain search parameters across logout/login | High | _TBC_ |
+| 7 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
+| 8 | TAM-6734 | Lab request label format with auto-print prompt | High | _TBC_ |
+| 9 | TAM-6827 | Multiselect status filter on the active requests page | High | _TBC_ |
+| 10 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
+| 11 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
+| 12 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
+| 13 | TAM-2018 | Blood bank workflow | Medium | _TBC_ |
+| 14 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 15 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
 
 ---
 
 ## Requirements
 
-Priority-ordered. Only cards we've talked through are detailed; the rest will be added as we pull them from Linear.
+Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be worked through one at a time. The `#` here aligns with the priority summary above.
 
-### 1. See the test types within a panel when requesting
+### 1. Merge multiple lab requests into a single request
+
+**Summary.** When several tests can be run off one sample, lab users want multiple lab requests merged into a single request so fewer samples need to be created in SENAITE. Today lab users must ensure the correct sample ID is used when running a sample on an interfaced analyser, which means printing lab requests from Tamanu to track them. Raised by Palau (SENAITE integration).
+
+_To be detailed._
+
+---
+
+### 2. See the test types within a panel when requesting
 
 **Problem.** Not all clinicians remember by heart which individual test types a panel contains, and the request form never shows a panel's contents. This leaves the clinician unable to confirm that a panel actually covers the tests they need — so they may add individual tests to be safe, or pick the wrong panel without realising. It also means a clinician can add an individual test that a selected panel already includes, producing a double entry (a duplicate request for the same lab result).
 
@@ -43,7 +63,39 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 ---
 
-### 3. Show specimen type next to sample collected date & time
+### 3. Receive numeric results outside the detection limit
+
+**Summary.** SENAITE sometimes reports that a value fell outside the detection limit, e.g. `< 0.3` (the lowest detectable value is 0.3 and the real result is below it). Tamanu should display the `< 0.3` value wherever the result is shown, while still applying reference-range validation so the result flags as out of range.
+
+_To be detailed._
+
+---
+
+### 4. Auto-cancel lab requests with no sample collected
+
+**Summary.** Automatically cancel lab requests left in "Sample not collected" beyond a threshold, to reduce the volume of active lab requests. A large backlog of uncollected requests overloads the API after lab reference data is updated, causing integration delays (Palau had 900+ such requests, Nauru ~80). Raised by Palau and Nauru.
+
+_To be detailed._
+
+---
+
+### 5. Add a "Recollect" lab request status
+
+**Summary.** Add a new "Recollect" lab request status. Lab staff transition to it when a sample is unsuitable for testing, signalling the requesting doctor to organise a new sample. For LIMS-integrated instances, it pairs with a "Cancelled" diagnostic report carrying a PDF rejection report so the doctor can see why the sample was rejected.
+
+_To be detailed._
+
+---
+
+### 6. Retain search parameters across logout/login
+
+**Summary.** Regression from v2.51: search parameters are no longer retained across logout/login on the Active Labs, Outpatient, and Imaging search pages (worked in v2.50). Parameters are still retained when navigating away and back within the same session — the issue is specific to logout/login. Restore retention.
+
+_To be detailed._
+
+---
+
+### 7. Show specimen type next to sample collected date & time
 
 **Applies to:** all deployments with the Tamanu–SENAITE integration.
 
@@ -54,3 +106,67 @@ Once selected, panels and individual tests do not need to be visually distinguis
 **Desired behaviour.** The specimen type is shown next to the sample collected date & time on the lab request view, so lab staff can check it at a glance before transitioning the request — without opening the sample details modal.
 
 **Rationale / current cost.** Because the specimen type isn't visible up front, wrong assignments slip through to SENAITE. The workaround is for the lab to phone the doctor to cancel and re-order the request so the correct specimen type can be assigned.
+
+---
+
+### 8. Lab request label format with auto-print prompt
+
+**Summary.** Standardise the lab request label format and automatically prompt to print labels, minimising manual errors when handling samples. Initial request from Nauru; applies to all countries and projects using the lab module.
+
+_To be detailed._
+
+---
+
+### 9. Multiselect status filter on the active requests page
+
+**Summary.** Make the "Status" search field on the active lab requests page multiselect, so lab staff can view "Sample not collected" and "Reception pending" together. Today these two statuses (which lab staff alternate between while managing collections) can only be filtered one at a time.
+
+_To be detailed._
+
+---
+
+### 10. Default "Collected by" to the current user
+
+**Summary.** Default the "Collected by" field to the current user when recording lab sample details, across both collect-sample workflows (recording at request creation, and recording later). Desktop is the priority; mobile may be split into a separate card.
+
+_To be detailed._
+
+---
+
+### 11. Support a default specimen type for lab tests
+
+**Summary.** Support setting a default specimen type against individual lab test types and panels, via a new `specimenType` reference-data column on both, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
+
+_To be detailed._
+
+---
+
+### 12. Support a default method for lab tests
+
+**Summary.** Support a default "Method" for lab tests to reduce data entry, where staff currently pick a method from the full list for each result. Needed for phase 3 of the integration. Raised by FSM and Nauru.
+
+_To be detailed._
+
+---
+
+### 13. Blood bank workflow
+
+**Summary.** Streamline blood bank testing — reduce paper forms and speed up cross-match testing. Raised by FSM, with other deployments expected to use it.
+
+_To be detailed._
+
+---
+
+### 14. Manage panelOnly lab test types on central
+
+**Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
+
+_To be detailed._
+
+---
+
+### 15. Add a "Reflex test" visibility status
+
+**Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
+
+_To be detailed._
