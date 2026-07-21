@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.59.7",
+  "version": "2.59.8",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "swc --out-dir dist --copy-files --source-maps true src",
