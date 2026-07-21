@@ -112,7 +112,7 @@ export const HiddenSyncAvatar = forwardRef(({ children, onClick, onMetaClick, im
 
     if (event.ctrlKey || event.altKey) {
       handleEvent(async () => {
-        const status = await api.get('/sync/status');
+        const status = await api.get('sync/status');
         const parts = [];
         if (status.lastCompletedAt === 0) {
           parts.push(
