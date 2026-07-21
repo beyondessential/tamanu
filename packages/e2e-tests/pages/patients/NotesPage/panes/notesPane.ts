@@ -16,6 +16,15 @@ export class NotesPane {
   readonly newNoteButton!: Locator;
   readonly noteTypeOptions!: Locator;
 
+  // Search bar filters
+  readonly searchInput!: Locator;
+  readonly authorSelect!: Locator;
+  readonly authorOptions!: Locator;
+  readonly advancedSearchToggle!: Locator;
+  readonly clearButton!: Locator;
+  readonly dateFromField!: Locator;
+  readonly dateToField!: Locator;
+
   // Individual note elements
   readonly noteRows!: Locator;
   readonly noteHeaderTexts!: Locator;
@@ -52,6 +61,14 @@ export class NotesPane {
       notesTable: 'datafetchingtable-qdej',
       noteTypeOptions: 'field-notes-type-suggestionslist',
       noDataMessage: 'nodatamessage-78ud',
+      // Search bar filters
+      searchInput: 'field-notes-search-input',
+      authorSelect: 'field-notes-author',
+      authorOptions: 'field-notes-author-suggestionslist',
+      advancedSearchToggle: 'notes-search-expand',
+      clearButton: 'notes-search-clear',
+      dateFromField: 'field-notes-from-date',
+      dateToField: 'field-notes-to-date',
     } as const;
 
     // Create locators using the testId mapping
@@ -84,6 +101,24 @@ export class NotesPane {
   async selectNoteType(noteType: string) {
     await this.noteTypeSelect.click();
     await this.noteTypeOptions.getByText(noteType).click();
+  }
+
+  // Free-text search over note content (debounced; assertions auto-wait for the result).
+  async searchNotes(text: string) {
+    await this.searchInput.fill(text);
+  }
+
+  async selectAuthor(author: string) {
+    await this.authorSelect.click();
+    await this.authorOptions.getByText(author).click();
+  }
+
+  async openAdvancedSearch() {
+    await this.advancedSearchToggle.click();
+  }
+
+  async clearFilters() {
+    await this.clearButton.click();
   }
 
   // Modal getters
