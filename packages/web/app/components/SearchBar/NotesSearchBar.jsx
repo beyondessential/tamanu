@@ -13,6 +13,7 @@ import { useAdvancedFields } from './useAdvancedFields';
 import { useSuggester } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ThemedTooltip } from '../Tooltip';
+import { useTranslation } from '../../contexts/Translation';
 import { Colors } from '../../constants';
 
 // Date filters live in the advanced search drawer.
@@ -141,6 +142,7 @@ export const NotesSearchBar = ({ searchParameters, setSearchParameters, extraAct
     ADVANCED_FIELDS,
     searchParameters,
   );
+  const { getTranslation } = useTranslation();
   const noteTypeSuggester = useSuggester('noteType', NOTE_TYPE_SUGGESTER_OPTIONS);
   const authorSuggester = useSuggester('practitioner');
 
@@ -220,10 +222,28 @@ export const NotesSearchBar = ({ searchParameters, setSearchParameters, extraAct
               )}
             </FieldsArea>
             <Actions>
-              <ThemedTooltip title={showAdvancedFields ? 'Hide advanced search' : 'Advanced search'}>
+              <ThemedTooltip
+                title={
+                  showAdvancedFields ? (
+                    <TranslatedText
+                      stringId="general.search.hideAdvanced"
+                      fallback="Hide advanced search"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="general.search.advanced"
+                      fallback="Advanced search"
+                    />
+                  )
+                }
+              >
                 <IconButton
                   aria-expanded={showAdvancedFields}
-                  aria-label={`${showAdvancedFields ? 'hide' : 'show'} advanced search`}
+                  aria-label={
+                    showAdvancedFields
+                      ? getTranslation('general.search.hideAdvanced', 'Hide advanced search')
+                      : getTranslation('general.search.showAdvanced', 'Show advanced search')
+                  }
                   onClick={() => setShowAdvancedFields(previous => !previous)}
                   color="primary"
                   style={{ padding: 6 }}
