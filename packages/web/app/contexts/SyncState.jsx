@@ -53,7 +53,7 @@ export const SyncStateProvider = ({ children }) => {
 
   // query the facility server for sync status
   const querySync = useCallback(async () => {
-    const status = await api.get('/sync/status');
+    const status = await api.get('sync/status');
     setSyncStatus(status);
     clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
   }, [api, clearSyncingPatients]);
