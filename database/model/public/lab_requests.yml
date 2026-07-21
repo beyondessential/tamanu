@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_lab_requests_from_sync_lookup
               - notify_lab_requests_changed
               - record_lab_requests_changelog
               - set_lab_requests_updated_at

@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_appointment_procedure_types_from_sync_lookup
               - notify_appointment_procedure_types_changed
               - record_appointment_procedure_types_changelog
               - set_appointment_procedure_types_updated_at

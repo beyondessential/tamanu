@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_invoice_insurer_payments_from_sync_lookup
               - notify_invoice_insurer_payments_changed
               - record_invoice_insurer_payments_changelog
               - set_invoice_insurer_payments_updated_at

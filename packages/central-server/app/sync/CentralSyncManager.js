@@ -37,7 +37,11 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
-import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import {
+  healFlaggedLookupRows,
+  updateLookupTable,
+  updateSyncLookupPendingRecords,
+} from './updateLookupTable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -380,6 +384,16 @@ export class CentralSyncManager {
           previouslyUpToTick,
           this.constructor.config,
           syncLookupTick,
+          debugObject,
+        );
+
+        // Self-heal pass: rebuild rows still flagged needs_rebuild (drifted without advancing the
+        // sync clock, e.g. by a migration). Runs in the same transaction as the incremental build
+        // above so the whole build is atomic.
+        await healFlaggedLookupRows(
+          getModelsForPull(this.store.models),
+          previouslyUpToTick,
+          this.constructor.config,
           debugObject,
         );
 

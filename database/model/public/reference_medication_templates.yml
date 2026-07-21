@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_reference_medication_templates_from_sync_lookup
               - notify_reference_medication_templates_changed
               - record_reference_medication_templates_changelog
               - set_reference_medication_templates_updated_at

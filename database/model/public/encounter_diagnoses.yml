@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_encounter_diagnoses_from_sync_lookup
               - notify_encounter_diagnoses_changed
               - record_encounter_diagnoses_changelog
               - set_encounter_diagnoses_updated_at

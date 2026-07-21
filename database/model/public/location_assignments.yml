@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_location_assignments_from_sync_lookup
               - notify_location_assignments_changed
               - record_location_assignments_changelog
               - set_location_assignments_updated_at

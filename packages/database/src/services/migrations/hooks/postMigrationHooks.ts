@@ -1,4 +1,7 @@
 import config from 'config';
+
+import type { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
@@ -6,6 +9,23 @@ import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '..
 import { allTables, tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
 import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
+
+const DELETE_TRIGGER_PREFIX = 'delete_';
+const DELETE_TRIGGER_SUFFIX = '_from_sync_lookup';
+const LOOKUP_TRACKED_DIRECTIONS: string[] = [
+  SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+  SYNC_DIRECTIONS.BIDIRECTIONAL,
+];
+
+// Postgres silently truncates identifiers over 63 bytes; match that so a later lookup against the
+// installed trigger name (pg_trigger.tgname) finds what CREATE TRIGGER actually stored.
+const truncatedTriggerName = (prefix: string, table: string, suffix: string) =>
+  `${prefix}${table}${suffix}`.slice(0, 63);
+
+const isTableLookupTracked = (sequelize: Sequelize, table: string): boolean => {
+  const model = Object.values(sequelize.models).find(m => m.tableName === table);
+  return !!model && LOOKUP_TRACKED_DIRECTIONS.includes(model.syncDirection);
+};
 
 const addUpdatedAtSyncTickColumn: MigrationHook = {
   name: 'addUpdatedAtSyncTickColumn',
@@ -54,18 +74,54 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
+    const isCentralServer = !selectFacilityIds(config);
+
     for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_SYNCING_TABLES,
     ])) {
-      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
+      const isLookupTracked = isCentralServer && isTableLookupTracked(sequelize, table);
+      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`, {
+        lookupTracked: isLookupTracked,
+      });
       await sequelize.query(`
         DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
-
+        
         CREATE TRIGGER set_${table}_updated_at_sync_tick
         BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
         FOR EACH ROW
-        EXECUTE FUNCTION public.set_updated_at_sync_tick();
+        EXECUTE FUNCTION public.set_updated_at_sync_tick(${isLookupTracked ? `'true'` : ''});
+    `);
+    }
+  },
+};
+
+const addSyncLookupDeleteTrigger: MigrationHook = {
+  name: 'addSyncLookupDeleteTrigger',
+  prerequisites: [requireFunction('remove_from_sync_lookup_on_hard_delete')],
+  async run({ log, sequelize }) {
+    const isCentralServer = !selectFacilityIds(config);
+    if (!isCentralServer) {
+      return;
+    }
+
+    for (const { schema, table } of await tablesWithoutTrigger(
+      sequelize,
+      DELETE_TRIGGER_PREFIX,
+      DELETE_TRIGGER_SUFFIX,
+      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
+    )) {
+      if (!isTableLookupTracked(sequelize, table)) {
+        continue;
+      }
+
+      log.info(`Adding sync_lookup delete trigger to ${schema}.${table}`);
+      const triggerName = truncatedTriggerName(DELETE_TRIGGER_PREFIX, table, DELETE_TRIGGER_SUFFIX);
+      await sequelize.query(`
+      CREATE TRIGGER ${triggerName}
+      AFTER DELETE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION public.remove_from_sync_lookup_on_hard_delete();
     `);
     }
   },
@@ -125,6 +181,7 @@ export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
   addOrReplaceUpdatedAtSyncTickTrigger,
+  addSyncLookupDeleteTrigger,
   addNotifyTableChangedTrigger,
   addRecordChangeTrigger,
   enableSyncTickTrigger,

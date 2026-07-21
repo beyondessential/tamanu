@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_task_designations_from_sync_lookup
               - notify_task_designations_changed
               - record_task_designations_changelog
               - set_task_designations_updated_at

@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_referrals_from_sync_lookup
               - notify_referrals_changed
               - record_referrals_changelog
               - set_referrals_updated_at

@@ -3,6 +3,91 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
+// Shared by the incremental build (pass 1) and the self-heal pass (pass 2) so a healed row is
+// built by the exact same query shape as a normally-built one — they differ only in whereClause
+// (which rows to select) and the updatedAtSyncTick replacement (which tick to stamp).
+const buildLookupUpsertQuery = ({
+  table,
+  selectClause,
+  joins,
+  useUpdatedAtByFieldSum,
+  avoidRepull,
+  whereClause,
+  perModelUpdateTimeoutMs,
+}) => `
+  ${
+    perModelUpdateTimeoutMs
+      ? `
+        --- Set timeout duration for a single query that updates sync_lookup table for a model
+        SET LOCAL statement_timeout = :perModelUpdateTimeoutMs;`
+      : ''
+  }
+
+  WITH inserted AS (
+    INSERT INTO sync_lookup (
+      record_id,
+      record_type,
+      is_deleted,
+      updated_at_sync_tick,
+      pushed_by_device_id,
+      data,
+
+      patient_id,
+      facility_id,
+      encounter_id,
+      is_lab_request,
+      updated_at_by_field_sum,
+      needs_rebuild
+    )
+    ${selectClause},
+    false
+    FROM
+      ${table}
+     ${
+       useUpdatedAtByFieldSum
+         ? `
+    LEFT JOIN (
+      SELECT
+        ${table}.id, sum(value::text::bigint) sum
+      FROM
+        ${table}, json_each(${table}.updated_at_by_field)
+      GROUP BY
+        ${table}.id
+    ) updated_at_by_field_summary
+    ON
+      ${table}.id = updated_at_by_field_summary.id`
+         : ''
+     }
+    ${
+      avoidRepull
+        ? `LEFT JOIN sync_device_ticks
+            ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
+        : 'LEFT JOIN (select NULL as device_id) AS sync_device_ticks ON 1 = 1'
+    }
+    ${joins || ''}
+    WHERE
+    ${whereClause}
+    ORDER BY ${table}.id
+    LIMIT :limit
+    ON CONFLICT (record_id, record_type)
+    DO UPDATE SET
+      data = EXCLUDED.data,
+      updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
+      is_lab_request = EXCLUDED.is_lab_request,
+      patient_id = EXCLUDED.patient_id,
+      encounter_id = EXCLUDED.encounter_id,
+      facility_id = EXCLUDED.facility_id,
+      updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
+      is_deleted = EXCLUDED.is_deleted,
+      pushed_by_device_id = EXCLUDED.pushed_by_device_id,
+      needs_rebuild = false
+    RETURNING record_id
+  )
+  SELECT MAX(record_id) as "maxId",
+    count(*) as "count"
+  FROM inserted;
+`;
+
 const updateLookupTableForModel = async (
   model,
   config,
@@ -24,82 +109,22 @@ const updateLookupTableForModel = async (
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
-      `
-        ${
-          perModelUpdateTimeoutMs
-            ? `
-              --- Set timeout duration for a single query that updates sync_lookup table for a model
-              SET LOCAL statement_timeout = :perModelUpdateTimeoutMs;`
-            : ''
-        }
-
-        WITH inserted AS (
-          INSERT INTO sync_lookup (
-            record_id,
-            record_type,
-            is_deleted,
-            updated_at_sync_tick,
-            pushed_by_device_id,
-            data,
-
-            patient_id,
-            facility_id,
-            encounter_id,
-            is_lab_request,
-            updated_at_by_field_sum
-          )
-          ${select || (await buildSyncLookupSelect(model))}
-          FROM
-            ${table}
-           ${
-             useUpdatedAtByFieldSum
-               ? `
-          LEFT JOIN (
-            SELECT
-              ${table}.id, sum(value::text::bigint) sum
-            FROM
-              ${table}, json_each(${table}.updated_at_by_field)
-            GROUP BY
-              ${table}.id
-          ) updated_at_by_field_summary
-          ON
-            ${table}.id = updated_at_by_field_summary.id`
-               : ''
-           }
-          ${
-            avoidRepull
-              ? `LEFT JOIN sync_device_ticks
-                  ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
-              : 'LEFT JOIN (select NULL as device_id) AS sync_device_ticks ON 1 = 1'
-          }
-          ${joins || ''}
-          WHERE
-          -- on a full rebuild, reselect every row; the custom where is only an incremental filter
+      buildLookupUpsertQuery({
+        table,
+        selectClause: select || (await buildSyncLookupSelect(model)),
+        joins,
+        useUpdatedAtByFieldSum,
+        avoidRepull,
+        whereClause: `
           (${
             shouldFullyRebuild
               ? `${table}.updated_at_sync_tick > -1`
               : where || `${table}.updated_at_sync_tick > :since`
           })
           ${fromId ? `AND ${table}.id > :fromId` : ''}
-          ORDER BY ${table}.id
-          LIMIT :limit
-          ON CONFLICT (record_id, record_type)
-          DO UPDATE SET
-            data = EXCLUDED.data,
-            updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
-            is_lab_request = EXCLUDED.is_lab_request,
-            patient_id = EXCLUDED.patient_id,
-            encounter_id = EXCLUDED.encounter_id,
-            facility_id = EXCLUDED.facility_id,
-            updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
-            is_deleted = EXCLUDED.is_deleted,
-            pushed_by_device_id = EXCLUDED.pushed_by_device_id
-          RETURNING record_id
-        )
-        SELECT MAX(record_id) as "maxId",
-          count(*) as "count"
-        FROM inserted;
-      `,
+        `,
+        perModelUpdateTimeoutMs,
+      }),
       {
         replacements: {
           since,
@@ -122,6 +147,76 @@ const updateLookupTableForModel = async (
   });
 
   return totalCount;
+};
+
+// Self-heal (pass 2): rebuilds rows still flagged `needs_rebuild` after the incremental pass —
+// records whose source changed without advancing the sync clock (a migration, or any other write
+// made while the sync tick trigger was disabled). Reuses the exact same upsert query as pass 1,
+// scoped to the flagged record ids for this model instead of the tick cursor, and always resolves
+// the tick to the source record's own current tick (updatedAtSyncTick: null makes
+// buildSyncLookupSelect's tick clause collapse to the historic/source tick regardless of
+// isFullyRebuilding), so a healed row keeps its existing tick and facilities do not re-pull it.
+const healFlaggedLookupRowsForModel = async (model, config, since) => {
+  const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
+  const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
+
+  const { tableName: table } = model;
+
+  let fromId = '';
+  let healedCount = 0;
+  const attributes = model.getAttributes();
+  const { select, joins } = (await model.buildSyncLookupQueryDetails({})) || {};
+  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
+  while (fromId != null) {
+    const [[{ maxId, count }]] = await model.sequelize.query(
+      buildLookupUpsertQuery({
+        table,
+        selectClause: select || (await buildSyncLookupSelect(model)),
+        joins,
+        useUpdatedAtByFieldSum,
+        avoidRepull,
+        whereClause: `
+          (
+            ${table}.id IN (
+              SELECT record_id FROM sync_lookup WHERE record_type = :recordType AND needs_rebuild
+            )
+          )
+          ${fromId ? `AND ${table}.id > :fromId` : ''}
+        `,
+        perModelUpdateTimeoutMs,
+      }),
+      {
+        replacements: {
+          since,
+          recordType: table,
+          limit: CHUNK_SIZE,
+          fromId,
+          perModelUpdateTimeoutMs,
+          updatedAtSyncTick: null,
+        },
+      },
+    );
+
+    const chunkCount = parseInt(count, 10); // count should always be default to '0'
+    fromId = maxId;
+    healedCount += chunkCount;
+  }
+
+  // Backstop for the delete trigger: a row can be flagged and then have its source hard-deleted
+  // before this build runs, in which case there was nothing for the delete trigger to catch.
+  const [deletedRows] = await model.sequelize.query(
+    `
+      DELETE FROM sync_lookup sl
+      WHERE sl.record_type = :recordType
+        AND sl.needs_rebuild
+        AND NOT EXISTS (SELECT 1 FROM ${table} t WHERE t.id = sl.record_id)
+      RETURNING sl.record_id;
+    `,
+    { replacements: { recordType: table } },
+  );
+
+  return { healedCount, deletedCount: deletedRows.length };
 };
 
 export const updateLookupTable = withConfig(
@@ -175,6 +270,30 @@ export const updateLookupTable = withConfig(
     log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
     return changesCount;
+  },
+);
+
+export const healFlaggedLookupRows = withConfig(
+  async (outgoingModels, since, config, debugObject) => {
+    let healedCount = 0;
+    let deletedCount = 0;
+
+    for (const model of Object.values(outgoingModels)) {
+      try {
+        const result = await healFlaggedLookupRowsForModel(model, config, since);
+        healedCount += result.healedCount || 0;
+        deletedCount += result.deletedCount || 0;
+      } catch (e) {
+        log.error(`Failed to self-heal ${model.name} for lookup table`);
+        log.debug(e);
+        throw new Error(`Failed to self-heal ${model.name} for lookup table: ${e.message}`);
+      }
+    }
+
+    await debugObject?.addInfo({ healedCount, deletedCount });
+    log.info('updateLookupTable.selfHeal', { healedCount, deletedCount, since });
+
+    return { healedCount, deletedCount };
   },
 );
 

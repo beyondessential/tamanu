@@ -12,6 +12,7 @@ sources:
           meta:
             js_class: PatientDeathData
             triggers:
+              - delete_patient_death_data_from_sync_lookup
               - notify_patient_death_data_changed
               - record_patient_death_data_changelog
               - set_patient_death_data_updated_at

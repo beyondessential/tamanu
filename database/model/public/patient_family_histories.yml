@@ -12,6 +12,7 @@ sources:
           meta:
             js_class: PatientFamilyHistory
             triggers:
+              - delete_patient_family_histories_from_sync_lookup
               - notify_patient_family_histories_changed
               - record_patient_family_histories_changelog
               - set_patient_family_histories_updated_at

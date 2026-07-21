@@ -17,6 +17,7 @@ export class SyncLookup extends Model {
   declare isDeleted?: boolean;
   declare updatedAtByFieldSum?: number;
   declare pushedByDeviceId?: string;
+  declare needsRebuild?: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -24,7 +25,7 @@ export class SyncLookup extends Model {
         id: primaryKey,
         recordId: { type: DataTypes.TEXT },
         recordType: { type: DataTypes.STRING },
-        data: { type: DataTypes.JSON },
+        data: { type: DataTypes.JSON, allowNull: true },
         updatedAtSyncTick: { type: DataTypes.BIGINT },
         patientId: { type: DataTypes.STRING },
         encounterId: { type: DataTypes.STRING },
@@ -33,6 +34,7 @@ export class SyncLookup extends Model {
         isDeleted: { type: DataTypes.BOOLEAN },
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
         pushedByDeviceId: { type: DataTypes.TEXT },
+        needsRebuild: { type: DataTypes.BOOLEAN, defaultValue: false },
       },
       {
         ...options,

@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_contributing_death_causes_from_sync_lookup
               - notify_contributing_death_causes_changed
               - record_contributing_death_causes_changelog
               - set_contributing_death_causes_updated_at

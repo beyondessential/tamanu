@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_departments_from_sync_lookup
               - notify_departments_changed
               - record_departments_changelog
               - set_departments_updated_at

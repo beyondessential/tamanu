@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_notifications_from_sync_lookup
               - notify_notifications_changed
               - record_notifications_changelog
               - set_notifications_updated_at
