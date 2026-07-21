@@ -45,7 +45,7 @@ sources:
                   arguments:
                     to: source('tamanu', 'reference_data')
                     field: id
-                    to_condition: type = 'vaccine'
+                    to_condition: type = 'drug'
           - name: manufacturer_id
             data_type: character varying(255)
             description: "{{ doc('certifiable_vaccines__manufacturer_id') }}"
