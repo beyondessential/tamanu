@@ -178,7 +178,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
         avoidRepull,
         whereClause: `
           (
-            ${table}.id IN (
+            ${table}.id::text IN (
               SELECT record_id FROM sync_lookup WHERE record_type = :recordType AND needs_rebuild
             )
           )
@@ -210,7 +210,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
       DELETE FROM sync_lookup sl
       WHERE sl.record_type = :recordType
         AND sl.needs_rebuild
-        AND NOT EXISTS (SELECT 1 FROM ${table} t WHERE t.id = sl.record_id)
+        AND NOT EXISTS (SELECT 1 FROM ${table} t WHERE t.id::text = sl.record_id)
       RETURNING sl.record_id;
     `,
     { replacements: { recordType: table } },
