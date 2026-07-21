@@ -40,23 +40,27 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 **How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
 
-**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests.
+**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests. The patient results table still supports filtering by panel.
 
-- The lab request view shows the full list of tests across the grouped panels and individual tests.
-- The Active Lab Requests table shows the panels and tests on the request.
-- The patient results table still supports filtering by panel.
+**Design.** Two display patterns recur across the surfaces below:
+- **Category grouping** — items grouped by category, each category listing all the tests and panels it contains.
+- **Printout layout** — the layout used for the lab results printout: individual tests listed alphabetically first, then each panel under a subheading, with the panel's constituent tests listed in reference-data order.
 
-**Design — new lab request workflow.**
-- On the **Sample details** step, samples are grouped by category, with each category's sample listing all the tests and panels it contains.
-- The **Finalise** modal lists tests and panels the same way, grouped within each category.
+Applied per surface:
+
+- **New lab request workflow — Sample details step.** Samples are grouped by category, each category's sample listing all the tests and panels it contains (category grouping).
+- **New lab request workflow — Finalise modal.** Lists tests and panels the same way, grouped within each category (category grouping).
+- **Encounter-level labs table.** No panels column. Hovering over the **Test category** column reveals the tests and panels ordered on the request.
+- **Lab request view (encounter level).** Uses the printout layout.
+- **Results entry modal.** Uses the printout layout.
+- **Active requests table.** Mark is following up on what information lab staff need here. _To be detailed._
 
 **Relationship to requirement 2.** The combined ordering interaction — one search across panels and tests, seeing a panel's contents, and preventing duplicates — is specified in requirement 2. This requirement covers how the resulting panels and individual tests are grouped under one request and sample, and how they are displayed.
 
 **Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
 **Open questions (to resolve before design):**
-- **Display grouping:** within a merged request, are tests shown as one flat list, or grouped under panel headings? The card's refinement note says a flat list; Mark's later comments ask for panel grouping to support reflex display.
-- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel heading, while an individual reflex test (e.g. LDL when triglycerides are high) appears at the bottom of the request? Depends on the reflex visibility work in requirement 15.
+- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 15.
 
 _To be detailed._
 
