@@ -14,10 +14,8 @@ import { useBackend } from '~/ui/hooks';
 import { EncounterType, IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import {
-  returnToVaccineModalWithUpdatedVaccine,
-  returnToVaccineTableWithRefresh,
-} from '~/ui/helpers/navigators';
+import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
+import { Routes } from '~/ui/helpers/routes';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { VaccineCategory } from '../../../../helpers/patient';
 import { AdministeredVaccine } from '~/models/AdministeredVaccine';
@@ -141,20 +139,22 @@ export const NewVaccineTabComponent = ({
       });
       const department = await models.Department.findOne({ where: { id: departmentId } });
       if (values.administeredVaccine) {
-        returnToVaccineModalWithUpdatedVaccine(navigation, {
-          ...vaccine,
-          scheduledVaccine,
-          administeredVaccine: {
-            ...updatedVaccine,
-            encounter,
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+          vaccine: {
+            ...vaccine,
             scheduledVaccine,
-            notGivenReason,
-            locationId,
-            departmentId,
-            location,
-            department,
+            administeredVaccine: {
+              ...updatedVaccine,
+              encounter,
+              scheduledVaccine,
+              notGivenReason,
+              locationId,
+              departmentId,
+              location,
+              department,
+            },
+            status: updatedVaccine.status,
           },
-          status: updatedVaccine.status,
         });
       } else {
         returnToVaccineTableWithRefresh(navigation, updatedVaccine.id);
