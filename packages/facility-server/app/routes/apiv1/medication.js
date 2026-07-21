@@ -135,8 +135,8 @@ medication.post(
       const prescription = await Prescription.create(
         {
           ...data,
-          dosingUnit: referenceDrug?.dosingUnit ?? '',
-          dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+          dosingUnit: referenceDrug?.dosingUnit || null,
+          dispensingUnit: referenceDrug?.dispensingUnit || null,
           unitConversion: referenceDrug?.unitConversion ?? 1,
         },
         { transaction },
@@ -164,8 +164,8 @@ const createEncounterPrescription = async ({ encounter, data, models }) => {
   const prescription = await Prescription.create({
     ...data,
     id: undefined,
-    dosingUnit: referenceDrug?.dosingUnit ?? '',
-    dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+    dosingUnit: referenceDrug?.dosingUnit || null,
+    dispensingUnit: referenceDrug?.dispensingUnit || null,
     unitConversion: referenceDrug?.unitConversion ?? 1,
   });
   await EncounterPrescription.create({
