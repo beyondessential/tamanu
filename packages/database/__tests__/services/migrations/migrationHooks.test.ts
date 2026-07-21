@@ -3,7 +3,7 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { closeDatabase, initDatabase } from '../../utilities';
 import { runPostMigration, runPreMigration } from '../../../src/services/migrations/hooks';
-import { tablesWithTrigger, tablesWithoutTrigger } from '../../../src/utils';
+import { tablesWithTrigger } from '../../../src/utils';
 import { createMigrationInterface } from '../../../src/services/migrations/migrations';
 import { log } from '@tamanu/shared/services/logging/log';
 import { Umzug } from 'umzug';
@@ -136,75 +136,6 @@ describe('migrationHooks', () => {
 
       expect(tables.sort(sortTables)).toEqual(
         triggeredTables.filter(table => !excludeTables.includes(table)).sort(sortTables),
-      );
-    });
-  });
-
-  describe('tablesWithoutTrigger', () => {
-    it('should return all tables for non-existing trigger', async () => {
-      const tables = await tablesWithoutTrigger(database.sequelize, 'banana_', '_chocolate');
-      expect(tables.sort(sortTables)).toEqual(allTables.sort(sortTables));
-    });
-
-    it('should return tables that do not have a trigger', async () => {
-      const prefix = 'cat_';
-      const suffix = '_dog';
-      const triggeredTables = randomSelection(allTables);
-      for (const table of triggeredTables) {
-        await addTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix);
-
-      for (const table of triggeredTables) {
-        await removeTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const expectedTables = allTables.filter(table => !triggeredTables.includes(table));
-      expect(tables.sort(sortTables)).toEqual(expectedTables.sort(sortTables));
-    });
-
-    it('should return tables that do not have a trigger even if it exceeds trigger character limit', async () => {
-      const prefix = 'super_duper_long_trigger_name_';
-      const suffix = '_really_silly_ridiculous_crazy_long_suffix';
-      const triggeredTables = randomSelection(allTables);
-      for (const table of triggeredTables) {
-        await addTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix);
-
-      for (const table of triggeredTables) {
-        await removeTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const expectedTables = allTables.filter(table => !triggeredTables.includes(table));
-      expect(tables.sort(sortTables)).toEqual(expectedTables.sort(sortTables));
-    });
-
-    it('should not return tables that are flagged in the exclude list', async () => {
-      const prefix = 'bird_';
-      const suffix = '_bat';
-      const triggeredTables = randomSelection(allTables);
-      for (const table of triggeredTables) {
-        await addTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const excludeTables = randomSelection(allTables);
-      const tables = await tablesWithoutTrigger(
-        database.sequelize,
-        prefix,
-        suffix,
-        excludeTables.map(({ schema, table }) => `${schema}.${table}`),
-      );
-
-      for (const table of triggeredTables) {
-        await removeTrigger(database.sequelize, table, prefix, suffix);
-      }
-
-      const expectedTables = allTables.filter(table => !triggeredTables.includes(table));
-      expect(tables.sort(sortTables)).toEqual(
-        expectedTables.filter(table => !excludeTables.includes(table)).sort(sortTables),
       );
     });
   });

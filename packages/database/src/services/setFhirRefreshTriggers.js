@@ -1,4 +1,4 @@
-import { tablesWithoutTrigger, tablesWithTrigger } from '../utils';
+import { tablesWithTrigger } from '../utils';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
@@ -22,24 +22,16 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
   );
 
   await sequelize.transaction(async () => {
-    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'fhir_refresh_', '')) {
-      if (!fhirWorkerEnabled || schema !== 'public' || !allUpstreams.includes(table)) {
-        continue;
+    if (fhirWorkerEnabled) {
+      for (const table of allUpstreams) {
+        log.info(`Adding fhir_refresh trigger to public.${table}`);
+        await sequelize.query(`
+          DROP TRIGGER IF EXISTS "fhir_refresh_${table}" ON "public"."${table}";
+          CREATE TRIGGER "fhir_refresh_${table}"
+            AFTER INSERT OR UPDATE OR DELETE ON "public"."${table}"
+            FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
+        `);
       }
-
-      log.info(`Adding fhir_refresh trigger to ${schema}.${table}`);
-      // PL/pgSQL block handles the race where multiple concurrent
-      // ApplicationContext.init() calls all see the trigger as missing
-      // and try to create it simultaneously.
-      await sequelize.query(`
-          DO $block$ BEGIN
-            CREATE TRIGGER "fhir_refresh_${table}"
-              AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
-              FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
-          EXCEPTION WHEN duplicate_object THEN
-            NULL;
-          END $block$;
-      `);
     }
 
     for (const { schema, table } of await tablesWithTrigger(sequelize, 'fhir_refresh_', '')) {

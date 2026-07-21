@@ -50,12 +50,7 @@ export const tablesWithTrigger = (
     );
 };
 
-export const tablesWithoutTrigger = (
-  sequelize: Sequelize,
-  prefix: string,
-  suffix: string,
-  excludes: string[] = [],
-) => {
+export const allTables = (sequelize: Sequelize, excludes: string[] = []) => {
   return sequelize
     .query(
       `
@@ -63,17 +58,11 @@ export const tablesWithoutTrigger = (
           t.table_schema as schema,
           t.table_name as table
         FROM information_schema.tables t
-        LEFT JOIN information_schema.triggers triggers ON
-          t.table_name = triggers.event_object_table
-          AND t.table_schema = triggers.event_object_schema
-          AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
         WHERE
           t.table_schema IN ('public', 'logs')
           AND t.table_type != 'VIEW'
-          AND triggers.trigger_name IS NULL -- No matching trigger
-        GROUP BY t.table_schema, t.table_name -- Group to ensure unique results
       `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
+      { type: QueryTypes.SELECT },
     )
     .then(rows =>
       rows

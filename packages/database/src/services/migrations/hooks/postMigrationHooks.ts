@@ -2,7 +2,7 @@ import config from 'config';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
-import { tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
+import { allTables, tablesWithoutColumn } from '../../../utils';
 import { requireFunction } from './prerequisites';
 import type { MigrationHook } from './types';
 
@@ -34,12 +34,13 @@ const addUpdatedAtTrigger: MigrationHook = {
   name: 'addUpdatedAtTrigger',
   prerequisites: [requireFunction('set_updated_at')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at', [
+    for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_SYNCING_TABLES,
     ])) {
       log.info(`Adding updated_at trigger to ${schema}.${table}`);
       await sequelize.query(`
+      DROP TRIGGER IF EXISTS set_${table}_updated_at ON "${schema}"."${table}";
       CREATE TRIGGER set_${table}_updated_at
       BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
       FOR EACH ROW
@@ -53,14 +54,13 @@ const addUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'addUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(
-      sequelize,
-      'set_',
-      '_updated_at_sync_tick',
-      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
-    )) {
+    for (const { schema, table } of await allTables(sequelize, [
+      ...GLOBAL_EXCLUDE_TABLES,
+      ...NON_SYNCING_TABLES,
+    ])) {
       log.info(`Adding updated_at_sync_tick trigger to ${schema}.${table}`);
       await sequelize.query(`
+      DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
       CREATE TRIGGER set_${table}_updated_at_sync_tick
       BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
       FOR EACH ROW
@@ -74,12 +74,13 @@ const addNotifyTableChangedTrigger: MigrationHook = {
   name: 'addNotifyTableChangedTrigger',
   prerequisites: [requireFunction('notify_table_changed')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'notify_', '_changed', [
+    for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_SYNCING_TABLES,
     ])) {
       log.info(`Adding notify change trigger to ${schema}.${table}`);
       await sequelize.query(`
+      DROP TRIGGER IF EXISTS notify_${table}_changed ON "${schema}"."${table}";
       CREATE TRIGGER notify_${table}_changed
       AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
       FOR EACH ROW
@@ -93,12 +94,13 @@ const addRecordChangeTrigger: MigrationHook = {
   name: 'addRecordChangeTrigger',
   prerequisites: [requireFunction('record_change')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', [
+    for (const { schema, table } of await allTables(sequelize, [
       ...GLOBAL_EXCLUDE_TABLES,
       ...NON_LOGGED_TABLES,
     ])) {
       log.info(`Adding changelog trigger to ${schema}.${table}`);
       await sequelize.query(`
+      DROP TRIGGER IF EXISTS record_${table}_changelog ON "${schema}"."${table}";
       CREATE CONSTRAINT TRIGGER record_${table}_changelog
       AFTER INSERT OR UPDATE ON "${schema}"."${table}"
       DEFERRABLE INITIALLY DEFERRED
