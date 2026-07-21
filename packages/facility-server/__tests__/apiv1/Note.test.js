@@ -479,6 +479,34 @@ describe('Note', () => {
         const original = await getNotes('search=original');
         expect(original.body.data).toHaveLength(0);
       });
+
+      it('treats ILIKE wildcards in the search term literally', async () => {
+        // Use a dedicated encounter so these notes don't affect the shared counts above.
+        const wildcardEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+        const makeWildcardNote = (content, date) =>
+          models.Note.create({
+            recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+            recordId: wildcardEncounter.id,
+            noteTypeId: NOTE_TYPES.OTHER,
+            authorId: authorA.id,
+            content,
+            date,
+          });
+        await makeWildcardNote('progress 100% complete', '2024-06-01 09:00:00');
+        // Would be a false positive if '%' were treated as a wildcard.
+        await makeWildcardNote('100 items done', '2024-06-02 09:00:00');
+
+        const response = await app.get(
+          `/api/encounter/${wildcardEncounter.id}/notes?search=${encodeURIComponent(
+            '100%',
+          )}&rowsPerPage=20`,
+        );
+        expect(response).toHaveSucceeded();
+        expect(response.body.data.map((n) => n.content)).toEqual(['progress 100% complete']);
+      });
     });
 
     describe('author filter', () => {
