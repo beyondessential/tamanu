@@ -22,9 +22,16 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 10 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
 | 11 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
 | 12 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
-| 13 | TAM-2018 | Blood bank workflow | Medium | _TBC_ |
-| 14 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
-| 15 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 13 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 14 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
+
+### Backlog
+
+Captured but not currently prioritised in this project.
+
+| Original request | Feature | Design work |
+|------------------|---------|-------------|
+| TAM-2018 | Blood bank workflow | _TBC_ |
 
 ---
 
@@ -87,7 +94,7 @@ Applied per surface:
 **Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
 **Open questions (to resolve before design):**
-- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 15.
+- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 14.
 
 _To be detailed._
 
@@ -179,15 +186,7 @@ _To be detailed._
 
 ---
 
-### 13. Blood bank workflow
-
-**Summary.** Streamline blood bank testing — reduce paper forms and speed up cross-match testing. Raised by FSM, with other deployments expected to use it.
-
-_To be detailed._
-
----
-
-### 14. Manage panelOnly lab test types on central
+### 13. Manage panelOnly lab test types on central
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
@@ -195,8 +194,22 @@ _To be detailed._
 
 ---
 
-### 15. Add a "Reflex test" visibility status
+### 14. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
+
+_To be detailed._
+
+---
+
+## Backlog
+
+Captured for future consideration but not currently prioritised in this project.
+
+### Blood bank workflow
+
+**Original request:** TAM-2018
+
+**Summary.** Streamline blood bank testing — reduce paper forms and speed up cross-match testing. Raised by FSM, with other deployments expected to use it.
 
 _To be detailed._
