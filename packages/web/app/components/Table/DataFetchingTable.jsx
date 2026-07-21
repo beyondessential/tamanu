@@ -58,9 +58,6 @@ export const DataFetchingTable = memo(
     const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
     const tableRef = useRef(null);
-    // Incremented on every fetch so out-of-order responses (e.g. a slow search resolving after a
-    // newer one) can be discarded instead of overwriting the current results.
-    const latestFetchId = useRef(0);
     const api = useApi();
 
     const { getSetting } = useSettings();
@@ -229,9 +226,6 @@ export const DataFetchingTable = memo(
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
       const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
 
-      latestFetchId.current += 1;
-      const thisFetchId = latestFetchId.current;
-
       (async () => {
         try {
           if (!endpoint) {
@@ -240,21 +234,15 @@ export const DataFetchingTable = memo(
           setErrorMessage('');
           const { data, count, ...rest } = await fetchData();
 
-          if (isSuperseded) return; // a newer fetch has superseded this one
+          if (isSuperseded) return; // a newer fetch has superseded this one, or the table unmounted
 
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
-
-          // A newer fetch has started since this one; ignore this stale response so it can't
-          // overwrite the current page/sort/filter results.
-          if (thisFetchId !== latestFetchId.current) return;
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count, rest); // Set the data for table rows and update the previous fetch state
         } catch (error) {
-          if (isSuperseded) return;
+          if (isSuperseded) return; // stale request / unmounted; don't surface its error
           clearTimeout(loadingDelay);
-          // Don't surface an error from a stale request over the current results.
-          if (thisFetchId !== latestFetchId.current) return;
           clearLoadingIndicators();
           // eslint-disable-next-line no-console
           console.error(error);
