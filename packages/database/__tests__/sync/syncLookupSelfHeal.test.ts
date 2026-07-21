@@ -186,6 +186,7 @@ describe('sync_lookup self healing (trigger level)', () => {
         );
         expect(row.definition).not.toContain(`'true'`);
       } finally {
+        // eslint-disable-next-line require-atomic-updates -- single-threaded test, no concurrent writers
         config.serverFacilityId = originalServerFacilityId;
         // restore the central-mode trigger for the rest of the suite
         await runPostMigration(log, sequelize);
