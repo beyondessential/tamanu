@@ -32,10 +32,15 @@ export const VaccineModalScreen = ({
   const { vaccine, patient } = route.params;
   const administeredVaccineId = vaccine.administeredVaccine?.id;
 
-  // The read-only view sits below the edit form in the stack, so returning here after an
-  // edit no longer reliably re-applies the route params. Re-read the record from the DB
+  // The edit form pops back to this screen after saving. Re-read the record from the DB
   // (keyed on focus) so the card always reflects the latest saved data rather than stale params.
   const isFocused = useIsFocused();
+
+  /**
+   * Ideally we’d declare, declaratively, the relevant vaccine data and delegate state management
+   * to something like TanStack Query. In its absence, we use an Effect dependent on focus to
+   * imperatively refetch data if and when the administered vaccine is edited.
+   */
   const [administeredVaccine, error, isLoading] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getById(administeredVaccineId),
     [administeredVaccineId, isFocused],
