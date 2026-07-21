@@ -322,7 +322,7 @@ const Row = React.memo(
 );
 
 const ErrorSpan = styled.span`
-  color: #ff0000;
+  color: ${p => p.theme.palette.error.main};
 `;
 
 const DisplayValue = ({ displayValue, style }) => {
@@ -336,19 +336,18 @@ const DisplayValue = ({ displayValue, style }) => {
   );
 };
 
-const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
-  <RowContainer className={className} data-testid="rowcontainer-x9xp">
+const StatusRow = ({ colSpan, children, statusCellStyle, ...props }) => (
+  <RowContainer data-testid="rowcontainer-x9xp" {...props}>
     <StatusTableCell
       colSpan={colSpan}
       align="center"
       $statusCellStyle={statusCellStyle}
       data-testid="statustablecell-rwkq"
-      style={{ color: textColor }}
     >
       {children}
     </StatusTableCell>
   </RowContainer>
-));
+);
 
 class TableComponent extends React.Component {
   getStatusMessage() {
@@ -359,9 +358,9 @@ class TableComponent extends React.Component {
     return null;
   }
 
-  handleChangePage = (event, newPage) => {
+  handleChangePage = (_event, newPage) => {
     const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(newPage - 1);
+    onChangePage?.(newPage - 1);
   };
 
   handleScroll = event => {

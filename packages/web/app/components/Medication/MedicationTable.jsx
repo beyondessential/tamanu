@@ -422,10 +422,8 @@ export const EncounterMedicationTable = ({
                   variant="outlined"
                   color="primary"
                   onClick={onImportOngoingPrescriptions}
+                  startIcon={<AddMedicationIcon />}
                 >
-                  <Box mr={1} display="flex">
-                    <AddMedicationIcon />
-                  </Box>
                   <TranslatedText
                     stringId="action.importMedications"
                     fallback="Import existing medications"

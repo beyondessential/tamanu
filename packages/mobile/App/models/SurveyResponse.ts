@@ -172,13 +172,17 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     values: object,
     setNote: (note: string) => void = () => null,
   ): Promise<SurveyResponse> {
-    return getConnection().transaction(async () => {
-      const { surveyId, encounterReason, components, ...otherData } = surveyData;
+    const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
-      const survey = await Survey.findOne({ where: { id: surveyId } });
-      if (!survey) throw new Error(`Survey with id ${surveyId} not found`);
+    const survey = await Survey.findOne({ where: { id: surveyId } });
+    if (!survey) throw new Error(`Survey with id ${surveyId} not found`);
 
-      try {
+    // The try/catch must wrap the transaction, not sit inside its callback: a catch
+    // inside the callback that returns normally makes TypeORM COMMIT the partial
+    // writes. Letting the error propagate out of the callback rolls the transaction
+    // back, then we report the failure to the caller as a null result.
+    try {
+      return await getConnection().transaction(async () => {
         setNote('Creating encounter...');
         const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
           startDate: getCurrentDateTimeString(),
@@ -268,11 +272,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         setNote('Done');
 
         return responseRecord;
-      } catch (e) {
-        setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
-        return null;
-      }
-    });
+      });
+    } catch (e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
+      return null;
+    }
   }
 
   static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {

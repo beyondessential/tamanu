@@ -173,7 +173,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         designations?.map(item => item.designationId),
       );
       setFieldValue('highPriority', highPriority);
-      frequencyValue ? setFieldValue('frequencyValue', Number(frequencyValue)) : null;
+      frequencyValue
+        ? setFieldValue('frequencyValue', Number(frequencyValue))
+        : setFieldValue('frequencyValue', '');
       setFieldValue('frequencyUnit', frequencyUnit);
     }
   };

@@ -21,13 +21,13 @@ import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation.jsx';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
-const ConditionsCell = ({ conditions, getTranslation }) => {
+export const ConditionsCell = ({ conditions, getTranslation }) => {
   return conditions
     ?.map(condition => {
       const { id, name } = condition;
       return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
     })
-    .sort((a, b) => b.localeCompare(a))
+    .sort((a, b) => a.localeCompare(b))
     .join(', ');
 };
 

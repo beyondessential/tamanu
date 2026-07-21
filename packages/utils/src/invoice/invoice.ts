@@ -133,6 +133,8 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
     .toNumber();
   const insurerPaymentsTotal = payments
     .filter(payment => payment?.insurerPayment?.id)
+    .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
+    .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
   const paymentsTotal = payments

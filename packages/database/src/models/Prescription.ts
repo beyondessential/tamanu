@@ -7,6 +7,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  type DrugUnit,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
@@ -35,8 +36,8 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare dosingUnit: string;
-  declare dispensingUnit: string;
+  declare dosingUnit: DrugUnit;
+  declare dispensingUnit: DrugUnit;
   declare unitConversion: number;
   declare frequency: string;
   declare idealTimes?: `${number}:${number}`[];

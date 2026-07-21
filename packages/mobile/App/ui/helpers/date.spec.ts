@@ -1,4 +1,4 @@
-import { formatDateForDisplay, formatStringDateForDisplay } from './date';
+import { formatDateForDisplay, formatPlainTime, formatStringDateForDisplay } from './date';
 import { DateFormats } from './constants';
 
 describe('formatStringDateForDisplay', () => {
@@ -35,6 +35,24 @@ describe('formatStringDateForDisplay', () => {
 
   it('returns an empty string for empty input', () => {
     expect(formatStringDateForDisplay('', DateFormats.DDMMYY, 'en-GB')).toBe('');
+  });
+});
+
+describe('formatPlainTime', () => {
+  it('renders midday as 12pm rather than 00pm', () => {
+    expect(formatPlainTime('12:30:00')).toBe('12:30pm');
+  });
+
+  it('renders midnight as 12am rather than 00am', () => {
+    expect(formatPlainTime('00:30:00')).toBe('12:30am');
+  });
+
+  it('leaves other morning times unchanged', () => {
+    expect(formatPlainTime('09:05:00')).toBe('09:05am');
+  });
+
+  it('leaves other afternoon times unchanged', () => {
+    expect(formatPlainTime('15:45:00')).toBe('03:45pm');
   });
 });
 

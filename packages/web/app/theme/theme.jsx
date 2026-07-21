@@ -1,6 +1,9 @@
-import { Colors } from '../constants/styles';
 import { createTheme } from '@material-ui/core/styles';
+import React from 'react';
+import { CircleAlert, CircleCheckBig, Info, TriangleAlert } from 'lucide-react';
+
 import { MUI_SPACING_UNIT } from '../constants';
+import { Colors } from '../constants/styles';
 
 const cssReset = {
   fieldset: {
@@ -19,6 +22,13 @@ const cssReset = {
   },
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
+  },
+  ':where(hr)': {
+    borderBlockEnd: `1px solid ${Colors.outline}`,
+    borderBlockStart: 0,
+    borderInline: 0,
+    inlineSize: '100%',
+    margin: 0,
   },
   iframe: {
     border: 0,
@@ -43,18 +53,24 @@ const cssReset = {
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
-  table: {
+  ':where(table)': {
     borderCollapse: 'collapse',
   },
-  th: {
+  ':where(td, th)': {
     padding: 0,
+  },
+  ':where(th)': {
     textAlign: 'start',
+  },
+  '[popover]': {
+    inset: 'auto',
   },
 };
 
 const themeConfig = {
   themeName: 'Tamanu',
   palette: {
+    mode: 'light',
     primary: {
       main: Colors.primary,
       dark: Colors.primaryDark,
@@ -91,7 +107,6 @@ const themeConfig = {
   },
   typography: {
     useNextVariants: true,
-    fontSize: 15,
     fontFamily: 'Roboto',
   },
   shape: { borderRadius: 3 },
@@ -136,6 +151,16 @@ const themeConfig = {
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
+    MuiAlert: {
+      defaultProps: {
+        iconMapping: {
+          success: <CircleCheckBig />,
+          info: <Info />,
+          warning: <TriangleAlert />,
+          error: <CircleAlert />,
+        },
+      },
+    },
     MuiCard: {
       root: {
         borderColor: Colors.outline,

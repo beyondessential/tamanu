@@ -15,6 +15,7 @@ import {
   DateDisplay,
   NumberInput,
   OuterLabelFieldWrapper,
+  RequiredOrnament,
   TextField,
   TranslatedReferenceData,
   TranslatedText,
@@ -95,7 +96,7 @@ const COLUMNS = [
           stringId="medication.modal.printMultiple.table.column.quantity"
           fallback="Quantity"
         />
-        <span style={{ color: Colors.alert }}> *</span>
+        <RequiredOrnament />
       </span>
     ),
     sortable: false,

@@ -1,6 +1,8 @@
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
 import React from 'react';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
+
+import { Alert } from '@tamanu/ui-components';
 
 export const ErrorMessage = ({ title, errorMessage, error }) => {
   return (

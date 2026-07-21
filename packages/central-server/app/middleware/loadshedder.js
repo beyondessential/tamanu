@@ -73,7 +73,7 @@ export class RequestQueue {
           // also has to dequeue the request to stop it being started
           cancel: () => {
             clearTimeout(timeoutHandle);
-            this.queuedRequests = this.queuedRequests.filter(j => j === request);
+            this.queuedRequests = this.queuedRequests.filter(j => j !== request);
             logEvent('rejected (timeout)');
             reject(
               new RateLimitedError(

@@ -6,7 +6,7 @@ import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
-  const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
+  const appointmentsByStartTime = appointments.toSorted((a, b) => a.startTime - b.startTime);
   // If header's length is larger than 14 characters, split it into two lines. Width expands if needed.
   const hasSpace = header.includes(' ');
   let width = '100%';

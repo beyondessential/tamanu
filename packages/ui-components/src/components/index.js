@@ -1,3 +1,4 @@
+export { default as Alert } from './Alert';
 export * from './BaseModal';
 export * from './Button';
 export { ContentUnavailableView } from './ContentUnavailableView';
@@ -5,7 +6,7 @@ export * from './CustomToastContainer';
 export * from './DateDisplay';
 export * from './Dialog';
 export { EditedEntryLegend, EditedLegend } from './EditedLegend';
-export { EditedOrnament, EditedOrnamentRoot } from './EditedOrnament';
+export { EditedOrnament } from './EditedOrnament';
 export * from './Field';
 export { SignaturePathDisplay, SignatureSvg } from './Field/signature';
 export * from './Form';

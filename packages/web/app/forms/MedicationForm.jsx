@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Accordion, AccordionDetails, AccordionSummary, Divider } from '@material-ui/core';
+=======
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+>>>>>>> main
 import PrintIcon from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -28,7 +32,10 @@ import {
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
+<<<<<<< HEAD
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+=======
+>>>>>>> main
 import {
   AutocompleteField,
   ConditionalTooltip,
@@ -52,8 +59,11 @@ import {
 } from '@tamanu/ui-components';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+<<<<<<< HEAD
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
+=======
+>>>>>>> main
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
@@ -68,6 +78,10 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { foreignKey } from '../utils/validation';
+<<<<<<< HEAD
+=======
+import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
+>>>>>>> main
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -121,6 +135,11 @@ const validationSchema = yup.object().shape({
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
 });
+
+const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
+  margin-block-end: 1em;
+  grid-column: 1 / -1;
+`;
 
 const FullWidthFieldWrapper = styled.div`
   position: relative;
@@ -192,11 +211,15 @@ const FieldLabel = styled(Box)`
 
 const TooltipTextField = ({ tooltip, label, id, ...props }) => (
   <FullWidthFieldWrapper>
+<<<<<<< HEAD
     <FieldLabel
       component="label"
       htmlFor={id}
       style={{ display: 'inline-block', marginBlockEnd: 4 }}
     >
+=======
+    <FieldLabel component="label" htmlFor={id} style={{ display: 'inline-block', marginBottom: 4 }}>
+>>>>>>> main
       {label}
     </FieldLabel>
     <ThemedTooltip disableFocusListener title={tooltip}>
@@ -310,42 +333,6 @@ const StyledTimePicker = styled(TimePicker)`
   }
 `;
 
-const AllergiesWarningBox = styled(Box)`
-  grid-column: 1 / -1;
-  border: 1px solid ${Colors.alert};
-  border-radius: 3px;
-  padding: 10px 26px;
-  background-color: ${Colors.lightAlert};
-  margin-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const AllergiesWarningHeader = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 14px;
-`;
-
-const AllergiesList = styled.ul`
-  margin: 0;
-  padding-left: 41px;
-  list-style-type: disc;
-`;
-
-const AllergyItem = styled.li`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  line-height: 20px;
-`;
-
 const StockLevelContainer = styled.div`
   padding: 12px 10px;
   margin-top: 4px;
@@ -370,22 +357,27 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
+function PlainTimeRangeDisplay({ start, end }) {
+  const { formatTime } = useDateTime();
+  return (
+    <>
+      {formatTime(start)}&thinsp;&ndash;&thinsp;{formatTime(end)}
+    </>
+  );
+}
+
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTime, formatShort } = useDateTime();
+  const { formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
-  const { defaultTimeSlots } = useMedicationIdealTimes({
-    frequency: values.frequency,
-  });
+  const { defaultTimeSlots } = useMedicationIdealTimes({ frequency: values.frequency });
 
   const firstAdministrationTime = useMemo(() => {
-    if (!values.startDate) return '';
-    if (!values.frequency) return '';
-    if (!selectedTimeSlots?.length) return '';
+    if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
 
     const startDate = new Date(values.startDate);
 
@@ -396,10 +388,16 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
+    return (
+      <>
+        <PlainTimeRangeDisplay
+          start={getDateFromTimeString(firstSlot.startTime)}
+          end={getDateFromTimeString(firstSlot.endTime)}
+        />{' '}
+        {formatShort(new Date(firstStartTime))}
+      </>
+    );
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -553,14 +551,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       py={1.25}
                       bgcolor={isDisabled ? undefined : Colors.white}
                       borderRadius="3px"
-                      width="187px"
                       height="fit-content"
                       border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
                     >
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+                            <PlainTimeRangeDisplay start={startTime} end={endTime} />
                           </FieldContent>
                         }
                         value={checked}
@@ -624,6 +621,10 @@ const MedicationBox = styled.div`
   grid-column: 1 / -1;
 `;
 
+const Hr = styled.hr`
+  grid-column: 1 / -1;
+`;
+
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -676,15 +677,6 @@ export const MedicationForm = ({
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
-
-  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList =
-    allergies?.data?.map(allergyDetail =>
-      getTranslation(
-        getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
-        allergyDetail?.allergy.name,
-      ),
-    ) || [];
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -787,7 +779,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.unknown"
-          fallback="The stock status of this medication is currently unknown."
+          fallback="The stock status of this medication is currently unknown"
         />
       );
     }
@@ -796,7 +788,7 @@ export const MedicationForm = ({
       return (
         <TranslatedText
           stringId="medication.stockLevel.outOfStock"
-          fallback="Medication is currently marked as out of stock."
+          fallback="Medication is currently marked as out of stock"
         />
       );
     }
@@ -847,24 +839,7 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                {!isLoadingAllergies && allergiesList.length > 0 && (
-                  <AllergiesWarningBox>
-                    <AllergiesWarningHeader>
-                      <WarningOutlineIcon />
-                      <AllergiesWarningTitle>
-                        <TranslatedText
-                          stringId="medication.allergies.title"
-                          fallback="Patient allergies"
-                        />
-                      </AllergiesWarningTitle>
-                    </AllergiesWarningHeader>
-                    <AllergiesList>
-                      {allergiesList.map((allergy, index) => (
-                        <AllergyItem key={index}>{allergy}</AllergyItem>
-                      ))}
-                    </AllergiesList>
-                  </AllergiesWarningBox>
-                )}
+                <StyledPatientAllergiesWarning patientId={patient.id} />
                 <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
@@ -1130,9 +1105,7 @@ export const MedicationForm = ({
               component={TooltipTextField}
               data-testid="medication-field-notes-5b3t"
             />
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             {values.frequency ? (
               <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
@@ -1152,9 +1125,7 @@ export const MedicationForm = ({
               </div>
             )}
 
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
+            <Hr />
             <Field
               name="quantity"
               label={
@@ -1194,9 +1165,7 @@ export const MedicationForm = ({
 
             {showPatientWeight && (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
+                <Hr />
                 <Field
                   name="patientWeight"
                   label={
@@ -1214,9 +1183,7 @@ export const MedicationForm = ({
                 />
               </>
             )}
-            <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
-              <Divider />
-            </div>
+            <Hr style={{ inlineSize: 'calc(100% + 64px)', marginInline: '-32px' }} />
             <ButtonRow>
               {isOngoingPrescription || isEditing || !canPrintPrescription ? (
                 <div />
@@ -1300,7 +1267,7 @@ export const MedicationForm = ({
               <FieldContent pt={3} pb={4}>
                 <TranslatedText
                   stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
-                  fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+                  fallback="There are fewer administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
                 />
               </FieldContent>
               <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />

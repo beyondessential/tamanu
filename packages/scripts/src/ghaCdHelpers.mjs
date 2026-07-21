@@ -100,6 +100,9 @@ const OPTIONS = [
 
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
+  // Build the full image set (linux amd64 + arm64 + Windows VHDX). Autodeploys
+  // otherwise build linux/arm64 only; releases always build everything.
+  { key: 'allimages', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },
   { key: 'seed-snapshot', defaultValue: false, presence: true },
 
@@ -302,12 +305,12 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
       centralApiReplicas: options.centralapis,
       centralDbReplicas: options.centraldbs,
       centralTasksReplicas: options.centraltasks,
-      centralWebReplicas: options.centraldbs,
+      centralWebReplicas: options.centralwebs,
 
       facilityApiReplicas: options.facilityapis,
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
-      facilityWebReplicas: options.facilitydbs,
+      facilityWebReplicas: options.facilitywebs,
 
       patientPortalReplicas: options.patientportals,
 

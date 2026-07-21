@@ -305,6 +305,37 @@ describe('PatientLocations', () => {
     });
   });
 
+  it('should treat a facilityId containing a single quote as data, not SQL (parameterised query)', async () => {
+    // Regression: facilityId was previously interpolated directly into the SQL string, so a
+    // value containing a single quote produced a syntax error (500). It must now be bound as a
+    // parameter, so a malicious-looking facilityId is treated as data and simply matches no
+    // locations (empty/zero result) rather than erroring.
+    const maliciousFacilityId = "x'orinjection";
+
+    const occupancyResponse = await app.get(
+      `/api/patient/locations/occupancy?facilityId=${encodeURIComponent(maliciousFacilityId)}`,
+    );
+    expect(occupancyResponse).toHaveSucceeded();
+    expect(occupancyResponse.body.data).toEqual(0);
+
+    const statsResponse = await app.get(
+      `/api/patient/locations/stats?facilityId=${encodeURIComponent(maliciousFacilityId)}`,
+    );
+    expect(statsResponse).toHaveSucceeded();
+    expect(statsResponse.body.data).toEqual({
+      availableLocationCount: 0,
+      reservedLocationCount: 0,
+      occupiedLocationCount: 0,
+    });
+
+    // Contrast: a real facilityId still returns a valid numeric result shape.
+    const validStatsResponse = await app.get(
+      `/api/patient/locations/stats?facilityId=${facilityId}`,
+    );
+    expect(validStatsResponse).toHaveSucceeded();
+    expect(typeof validStatsResponse.body.data.occupiedLocationCount).toBe('number');
+  });
+
   it('should hide historical and merged locations', async () => {
     // Arrange
     const { Location } = models;
