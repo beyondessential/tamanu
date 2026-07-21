@@ -40,7 +40,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 **How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
 
-**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests. The patient results table still supports filtering by panel.
+**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests. The patient-level results table is unchanged — no work required there.
 
 **Design.** Two display patterns recur across the surfaces below:
 - **Category grouping** — items grouped by category, each category listing all the tests and panels it contains.
