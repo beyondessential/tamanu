@@ -27,7 +27,6 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { FrequencySearchField } from '~/ui/components/FrequencySearchField/FrequencySearchField';
 import { Checkbox } from '~/ui/components/Checkbox';
 import {
-  DRUG_UNIT_VALUES,
   DRUG_ROUTE_VALUES,
   MEDICATION_DURATION_UNITS_LABELS,
   ADMINISTRATION_FREQUENCIES,
@@ -228,9 +227,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         otherwise: schema =>
           schema.required(getTranslation('validation.required.inline', '*Required')),
       }),
-    dosingUnit: Yup.string()
-      .required(getTranslation('validation.required.inline', '*Required'))
-      .oneOf(DRUG_UNIT_VALUES),
+    dosingUnit: Yup.string(),
     frequency: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
     route: Yup.string()
       .required(getTranslation('validation.required.inline', '*Required'))
@@ -436,7 +433,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   labelFontSize={14}
                   onChange={() => {}}
                   readOnly
-                  required
                   value={
                     values.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dosingUnit) : ''
                   }
