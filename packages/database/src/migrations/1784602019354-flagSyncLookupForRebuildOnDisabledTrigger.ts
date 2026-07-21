@@ -52,7 +52,7 @@ export async function up(query: QueryInterface): Promise<void> {
       BEGIN
         IF ((SELECT value FROM local_system_facts WHERE key = 'syncTrigger') = 'disabled') THEN
           IF (TG_NARGS > 0 AND TG_ARGV[0]::boolean) THEN
-            PERFORM flag_for_rebuild_in_sync_lookup(TG_TABLE_NAME, NEW.id);
+            PERFORM flag_for_rebuild_in_sync_lookup(TG_TABLE_NAME, NEW.id::text);
           END IF;
           RETURN NEW;
         END IF;

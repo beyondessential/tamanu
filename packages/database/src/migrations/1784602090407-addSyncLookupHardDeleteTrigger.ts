@@ -12,7 +12,7 @@ export async function up(query: QueryInterface): Promise<void> {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        DELETE FROM sync_lookup WHERE record_type = TG_TABLE_NAME AND record_id = OLD.id;
+        DELETE FROM sync_lookup WHERE record_type = TG_TABLE_NAME AND record_id = OLD.id::text;
         RETURN OLD;
       END
       $func$;
