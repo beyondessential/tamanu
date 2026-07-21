@@ -26,13 +26,12 @@ Priority-ordered. Only cards we've talked through are detailed; the rest will be
 
 **How it works today.** The request type (individual test / panel) is chosen up front via a radio on the first form step, and that choice drives a different selector on the next step. When requesting by panel, the selector shows each panel's name and category but never the individual test types inside it. Because panels and individual tests are selected in separate workflows, a clinician can request an individual test that a chosen panel already covers, with no signal of the overlap.
 
-**Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Three changes:
+**Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Four changes:
 
-1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow. 
+1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow.
 2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
-   3.  Search results should not include individual tests as part of a panel. Megan to confirm this with Mark. 
-4. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
-5. **Prevent duplicates.** An individual test that is already covered by a panel selected in the same request cannot also be selected on its own — the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
+3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
+4. **Prevent duplicates.** An individual test that is already covered by a panel selected in the same request cannot also be selected on its own — the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
 
 Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
 
