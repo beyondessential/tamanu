@@ -1,9 +1,9 @@
 import React from 'react';
 import { get } from 'es-toolkit/compat';
 import { styled } from '@mui/material';
-import { Alert } from '@material-ui/lab';
+
 import { useQuery } from '@tanstack/react-query';
-import { SettingsContext, useApi } from '@tamanu/ui-components';
+import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
 
 const ErrorAlert = styled(Alert)(() => ({

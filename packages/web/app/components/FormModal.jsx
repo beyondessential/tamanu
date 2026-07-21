@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import AlertTitle from '@mui/material/AlertTitle';
 
-import { FormSubmissionProvider, useFormSubmission, BaseModal } from '@tamanu/ui-components';
+import { Alert, FormSubmissionProvider, useFormSubmission, BaseModal } from '@tamanu/ui-components';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 const FormModalComponent = memo(({ children, ...props }) => {
@@ -17,13 +17,13 @@ const FormModalComponent = memo(({ children, ...props }) => {
     <BaseModal isClosable={isClosable} {...props} data-testid="basemodal-ufzv">
       {showNotUsingFormWarning && (
         <Alert
-          severity="warning"
           onClose={() => setShowNotUsingFormWarning(false)}
-          data-testid="alert-64xp"
+          severity="warning"
+          style={{ marginBlockEnd: '1em' }}
         >
-          <AlertTitle data-testid="alerttitle-f5qb">
-            DEV Warning: This Form Modal does not contain a Form. Please use generic Modal instead
-          </AlertTitle>
+          <AlertTitle>Dev warning</AlertTitle>
+          This <code>&lt;FormModal&gt;</code> doesn’t contain a form. Consider using generic{' '}
+          <code>&lt;Modal&gt;</code>.
         </Alert>
       )}
       {children}

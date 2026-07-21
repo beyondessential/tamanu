@@ -1,15 +1,10 @@
-import Alert from '@mui/material/Alert';
 import AlertTitle, { alertTitleClasses } from '@mui/material/AlertTitle';
 import React from 'react';
 import styled from 'styled-components';
 
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { TranslatedText } from '@tamanu/ui-components';
+import { Alert, TranslatedText } from '@tamanu/ui-components';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
-
-const StyledAlert = styled(Alert).attrs({ color: 'error', severity: 'warning' })`
-  border: 1px solid ${p => p.theme.palette.error.main};
-`;
 
 const StyledAlertTitle = styled(AlertTitle).attrs({ component: 'h3' })`
   &.${alertTitleClasses.root} {
@@ -30,7 +25,7 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
   if (isLoading || !patientAllergies?.length) return null;
 
   return (
-    <StyledAlert {...props}>
+    <Alert color="error" severity="warning" {...props}>
       <StyledAlertTitle component="h3">
         <TranslatedText stringId="medication.allergies.title" fallback="Patient allergies" />
       </StyledAlertTitle>
@@ -48,6 +43,6 @@ export default function PatientAllergiesWarning({ patientId, ...props }) {
           ) : null,
         )}
       </UnorderedList>
-    </StyledAlert>
+    </Alert>
   );
 }
