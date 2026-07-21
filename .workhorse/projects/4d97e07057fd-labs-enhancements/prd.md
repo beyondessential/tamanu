@@ -25,14 +25,6 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 13 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
 | 14 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
 
-### Backlog
-
-Captured but not currently prioritised in this project.
-
-| Original request | Feature | Design work |
-|------------------|---------|-------------|
-| TAM-2018 | Blood bank workflow | _TBC_ |
-
 ---
 
 ## Requirements
@@ -197,19 +189,5 @@ _To be detailed._
 ### 14. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
-
-_To be detailed._
-
----
-
-## Backlog
-
-Captured for future consideration but not currently prioritised in this project.
-
-### Blood bank workflow
-
-**Original request:** TAM-2018
-
-**Summary.** Streamline blood bank testing — reduce paper forms and speed up cross-match testing. Raised by FSM, with other deployments expected to use it.
 
 _To be detailed._
