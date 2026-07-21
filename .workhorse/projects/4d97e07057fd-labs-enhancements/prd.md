@@ -10,8 +10,8 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 
 | # | Original request | Feature | Priority | Design work |
 |---|------------------|---------|----------|-------------|
-| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
-| 2 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
+| 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
+| 2 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
 | 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
 | 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | _TBC_ |
 | 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
@@ -32,7 +32,30 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 
 Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be worked through one at a time. The `#` here aligns with the priority summary above.
 
-### 1. Merge multiple lab requests into a single request
+### 1. See the test types within a panel when requesting
+
+**Problem.** Not all clinicians remember by heart which individual test types a panel contains, and the request form never shows a panel's contents. This leaves the clinician unable to confirm that a panel actually covers the tests they need — so they may add individual tests to be safe, or pick the wrong panel without realising. It also means a clinician can add an individual test that a selected panel already includes, producing a double entry (a duplicate request for the same lab result).
+
+**How it works today.** The request type (individual test / panel) is chosen up front via a radio on the first form step, and that choice drives a different selector on the next step. When requesting by panel, the selector shows each panel's name and category but never the individual test types inside it. Because panels and individual tests are selected in separate workflows, a clinician can request an individual test that a chosen panel already covers, with no signal of the overlap.
+
+**Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Four changes:
+
+1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow.
+2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
+3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
+4. **Prevent duplicates.** An individual test that is already covered by a panel selected in the same request cannot also be selected on its own — the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
+
+Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
+
+**Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
+
+**Open questions (to resolve before design):**
+- **Panel absorption:** when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
+- **Search results and panel members:** should search results exclude individual tests that are members of a panel? Megan to confirm with Mark.
+
+---
+
+### 2. Merge multiple lab requests into a single request
 
 **Applies to:** deployments with the Tamanu–SENAITE (LIMS) integration. Driven by Palau, and urgent for the Samoa SENAITE go-live, where high sample volumes (up to ~2,000 samples/day) would otherwise create thousands of separate requests and samples per day if Biochem panels are ordered separately.
 
@@ -55,7 +78,7 @@ Applied per surface:
 - **Results entry modal.** Uses the printout layout.
 - **Active requests table.** Mark is following up on what information lab staff need here. _To be detailed._
 
-**Relationship to requirement 2.** The combined ordering interaction — one search across panels and tests, seeing a panel's contents, and preventing duplicates — is specified in requirement 2. This requirement covers how the resulting panels and individual tests are grouped under one request and sample, and how they are displayed.
+**Relationship to requirement 1.** The combined ordering interaction — one search across panels and tests, seeing a panel's contents, and preventing duplicates — is specified in requirement 1. This requirement covers how the resulting panels and individual tests are grouped under one request and sample, and how they are displayed.
 
 **Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
@@ -63,29 +86,6 @@ Applied per surface:
 - **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 15.
 
 _To be detailed._
-
----
-
-### 2. See the test types within a panel when requesting
-
-**Problem.** Not all clinicians remember by heart which individual test types a panel contains, and the request form never shows a panel's contents. This leaves the clinician unable to confirm that a panel actually covers the tests they need — so they may add individual tests to be safe, or pick the wrong panel without realising. It also means a clinician can add an individual test that a selected panel already includes, producing a double entry (a duplicate request for the same lab result).
-
-**How it works today.** The request type (individual test / panel) is chosen up front via a radio on the first form step, and that choice drives a different selector on the next step. When requesting by panel, the selector shows each panel's name and category but never the individual test types inside it. Because panels and individual tests are selected in separate workflows, a clinician can request an individual test that a chosen panel already covers, with no signal of the overlap.
-
-**Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Four changes:
-
-1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow.
-2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
-3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
-4. **Prevent duplicates.** An individual test that is already covered by a panel selected in the same request cannot also be selected on its own — the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
-
-Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
-
-**Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
-
-**Open questions (to resolve before design):**
-- **Panel absorption:** when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
-- **Search results and panel members:** should search results exclude individual tests that are members of a panel? Megan to confirm with Mark.
 
 ---
 
