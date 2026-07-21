@@ -171,6 +171,30 @@ describe('getAutocalculatedDispensingQuantity', () => {
     ).toBe(9);
   });
 
+  it("treats 'Immediately' as a single administration (frequency 1, one dose)", () => {
+    // 2 units immediately, no duration → one dose of 2 ÷ 5 per pack = 0.4 → 1
+    expect(
+      getAutocalculatedDispensingQuantity({
+        ...base,
+        doseAmount: 2,
+        unitConversion: 5,
+        frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+        durationValue: undefined,
+        durationUnit: undefined,
+      }),
+    ).toBe(1);
+    // with a 1:1 conversion the quantity is just the single dose
+    expect(
+      getAutocalculatedDispensingQuantity({
+        ...base,
+        doseAmount: 2,
+        frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+        durationValue: undefined,
+        durationUnit: undefined,
+      }),
+    ).toBe(2);
+  });
+
   it('defaults ongoing medications to a one-month (30 day) supply', () => {
     expect(
       getAutocalculatedDispensingQuantity({
@@ -219,18 +243,6 @@ describe('getAutocalculatedDispensingQuantity', () => {
     it('duration value without a unit', () => {
       expect(
         getAutocalculatedDispensingQuantity({ ...base, durationUnit: undefined }),
-      ).toBeNull();
-    });
-
-    it("frequency of 'Immediately' with no duration", () => {
-      // Immediately always has an empty duration, so it never auto-calculates.
-      expect(
-        getAutocalculatedDispensingQuantity({
-          ...base,
-          frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-          durationValue: undefined,
-          durationUnit: undefined,
-        }),
       ).toBeNull();
     });
 

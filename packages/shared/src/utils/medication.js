@@ -19,6 +19,14 @@ const DAYS_PER_DURATION_UNIT = {
   [MEDICATION_DURATION_UNITS.MONTHS]: DAYS_PER_MONTH,
 };
 
+const getDurationInDays = ({ isImmediately, isOngoing, durationValue, durationUnit }) => {
+  // 'Immediately' has no duration and covers a single administration (one day / one dose).
+  if (isImmediately) return 1;
+  // Ongoing medications default to a one-month (30 day) supply.
+  if (isOngoing) return DAYS_PER_MONTH;
+  return Number(durationValue) * DAYS_PER_DURATION_UNIT[durationUnit];
+};
+
 /**
  * @template {`${number}:${number}` | Date} T
  * @param {T} idealTime - A time string (HH:mm) whose time falls within a slot.
@@ -142,17 +150,14 @@ export const getAutocalculatedDispensingQuantity = ({
   const dose = Number(doseAmount);
   if (!Number.isFinite(dose) || dose <= 0) return null;
 
-  // 'Immediately' represents a single administration, so its frequency multiplier is 1.
-  const dosesPerDay =
-    frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
-      ? 1
-      : ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.dosesPerDay;
+  // 'Immediately' is a single administration: frequency multiplier of 1 and no duration, so the
+  // quantity is just enough for that one dose (dose ÷ unitConversion).
+  const isImmediately = frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY;
+
+  const dosesPerDay = isImmediately ? 1 : ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.dosesPerDay;
   if (!dosesPerDay || dosesPerDay <= 0) return null;
 
-  // Ongoing medications default to a one-month (30 day) supply.
-  const durationInDays = isOngoing
-    ? DAYS_PER_MONTH
-    : Number(durationValue) * DAYS_PER_DURATION_UNIT[durationUnit];
+  const durationInDays = getDurationInDays({ isImmediately, isOngoing, durationValue, durationUnit });
   if (!Number.isFinite(durationInDays) || durationInDays <= 0) return null;
 
   const conversion = Number(unitConversion) || 1;
