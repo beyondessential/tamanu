@@ -89,6 +89,21 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   vaccineName?: string;
 
+  static async getById(id: string): Promise<IAdministeredVaccine | null> {
+    return this.getRepository()
+      .createQueryBuilder('administered_vaccine')
+      .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
+      .leftJoinAndSelect('encounter.examiner', 'examiner')
+      .leftJoinAndSelect('administered_vaccine.notGivenReason', 'notGivenReason')
+      .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
+      .leftJoinAndSelect('administered_vaccine.location', 'location')
+      .leftJoinAndSelect('administered_vaccine.department', 'department')
+      .leftJoinAndSelect('location.locationGroup', 'locationGroup')
+      .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
+      .where('administered_vaccine.id = :id', { id })
+      .getOne();
+  }
+
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
     return this.getRepository()
       .createQueryBuilder('administered_vaccine')
