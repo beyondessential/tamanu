@@ -10,7 +10,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 
 | # | Original request | Feature | Priority | Design work |
 |---|------------------|---------|----------|-------------|
-| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | _TBC_ |
+| 1 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Some** — request & table display |
 | 2 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
 | 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
 | 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | _TBC_ |
@@ -34,7 +34,25 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 ### 1. Merge multiple lab requests into a single request
 
-**Summary.** When several tests can be run off one sample, lab users want multiple lab requests merged into a single request so fewer samples need to be created in SENAITE. Today lab users must ensure the correct sample ID is used when running a sample on an interfaced analyser, which means printing lab requests from Tamanu to track them. Raised by Palau (SENAITE integration).
+**Applies to:** deployments with the Tamanu–SENAITE (LIMS) integration. Driven by Palau, and urgent for the Samoa SENAITE go-live, where high sample volumes (up to ~2,000 samples/day) would otherwise create thousands of separate requests and samples per day if Biochem panels are ordered separately.
+
+**Problem.** Panels that could be run off a single sample are split across separate lab requests, each of which creates its own sample in SENAITE. This multiplies the number of samples the lab must create and track. To run a sample on an interfaced analyser with the correct sample ID, lab users print the lab requests from Tamanu rather than labelling the tube with one SENAITE sample ID — increasing delays, the chance a request isn't run first time, and the risk of the wrong sample ID being used.
+
+**How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
+
+**Desired behaviour.** When multiple panels from the **same lab category** are requested together, they are combined into a single lab request (and a single SENAITE sample). Panels from different categories remain separate requests.
+
+- The lab request view shows the full list of tests across the merged panels.
+- The Active Lab Requests table shows the list of panels on the request.
+- The patient results table still supports filtering by panel.
+
+**Out of scope (separate card).** Merging individual tests with panels from the same category (e.g. an FBC panel plus a standalone HbA1c). This relates to the combined ordering workflow in requirement 2.
+
+**Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
+
+**Open questions (to resolve before design):**
+- **Display grouping:** within a merged request, are tests shown as one flat list, or grouped under panel headings? The card's refinement note says a flat list; Mark's later comments ask for panel grouping to support reflex display.
+- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel heading, while an individual reflex test (e.g. LDL when triglycerides are high) appears at the bottom of the request? Depends on the reflex visibility work in requirement 15.
 
 _To be detailed._
 
