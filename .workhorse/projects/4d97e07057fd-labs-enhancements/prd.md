@@ -32,14 +32,14 @@ Priority-ordered. Only cards we've talked through are detailed; the rest will be
 2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
    3.  Search results should not include individual tests as part of a panel. Megan to confirm this with Mark. 
 4. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
-5. **Prevent duplicates.** An individual test that is already covered by a selected panel cannot also be selected on its own — the workflow stops the double entry rather than just warning about it.
+5. **Prevent duplicates.** An individual test that is already covered by a panel selected in the same request cannot also be selected on its own — the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
 
 Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
 
 **Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
 
 **Open questions (to resolve before design):**
-- **Duplicate scope & direction:** does "already covered by a selected panel" apply only within the request being built, or also against active requests already ordered for the patient? And when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
+- **Panel absorption:** when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
 
 ---
 
