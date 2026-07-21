@@ -113,8 +113,8 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     const [encounter, referenceDrug] = await Promise.all([
       models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
       models.ReferenceDrug.findOne({
-        where: { referenceDataId: values.medicationId },
-        select: ['dosingUnit', 'dispensingUnit', 'unitConversion'],
+        where: { referenceData: { id: values.medicationId } },
+        select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
       }),
     ]);
 
