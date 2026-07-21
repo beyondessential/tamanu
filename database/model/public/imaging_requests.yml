@@ -110,6 +110,8 @@ sources:
                       - fluroscopy
                       - holterMonitor
                       - mammogram
+                      - mammogramScreen
+                      - mammogramDiag
                       - orthopantomography
                       - mri
                       - stressTest

@@ -28,8 +28,8 @@ sources:
               - accepted_values:
                   arguments:
                     values:
-                      - GIVEN
-                      - NOT_GIVEN
+                      - given
+                      - not-given
           - name: due_at
             data_type: character(19)
             description: "{{ doc('medication_administration_records__due_at') }}"

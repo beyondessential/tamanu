@@ -60,6 +60,9 @@ sources:
                       - referral
                       - obsolete
                       - vitals
+                      - simpleChart
+                      - complexChart
+                      - complexChartCore
           - name: is_sensitive
             data_type: boolean
             description: "{{ doc('surveys__is_sensitive') }}"
