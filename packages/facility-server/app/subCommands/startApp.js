@@ -23,7 +23,7 @@ import { createApiApp } from '../createApiApp';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
-import { startTasks } from './startTasks';
+import { startScheduledTasks } from '../tasks';
 import { SyncTask } from '../tasks/SyncTask';
 
 const APP_TYPES = {
@@ -82,6 +82,7 @@ const startApp =
     }
 
     let server, express, port;
+    let cancelSyncTask = () => {};
     switch (appType) {
       case APP_TYPES.API:
         ({ express, server } = await createApiApp(context));
@@ -91,25 +92,16 @@ const startApp =
         ({ express, server } = await createSyncApp(context));
         ({ port } = config.sync.syncApiConnection);
 
-        // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
-        const startSyncTask = () =>
-          startTasks({
-            skipMigrationCheck: false,
-            taskClasses: [SyncTask],
-            syncManager: context.syncManager, // passing syncManager because it must be shared with SyncTask to prevent multiple syncs
-          });
-        if (context.syncManager) {
-          startSyncTask();
-        } else {
-          // Booted unconfigured: wire the runtime once setup completes, and only
-          // then start SyncTask so it shares the manager created here rather than
-          // its own startTasks poll making a second one.
-          cancelConfigPoll = startSyncRuntimeWhenConfigured(context, {
-            setup: async ctx => {
-              await setupSyncRuntime(ctx);
-              startSyncTask();
-            },
-          });
+        // Register SyncTask synchronously on this process's context (matching
+        // startAll): starting it via startTasks' full boot chain left an
+        // unawaited promise that could stall silently (e.g. central unreachable
+        // during a restart) and leave the facility without scheduled sync while
+        // manual sync kept working. SyncTask no-ops until syncManager is wired,
+        // so scheduling it before first-run setup completes is safe.
+        cancelSyncTask = startScheduledTasks(context, [SyncTask]);
+        if (!context.syncManager) {
+          // Booted unconfigured: poll for first-run setup, then wire the runtime.
+          cancelConfigPoll = startSyncRuntimeWhenConfigured(context);
         }
         break;
       }
@@ -120,6 +112,7 @@ const startApp =
     listenForBindAddresses({ server, app: express, fallbackPort: port });
     process.once('SIGTERM', () => {
       log.info('Received SIGTERM, closing HTTP server');
+      cancelSyncTask();
       cancelConfigPoll();
       server.close();
     });

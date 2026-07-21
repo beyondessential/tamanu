@@ -13,7 +13,7 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
+export async function startTasks({ skipMigrationCheck }) {
   log.info(`Starting facility task runner version ${version}`, {
     serverFacilityIds: getServerFacilityIds(),
   });
@@ -31,9 +31,9 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
-  const isConfigured = await setupSyncRuntime(context, { syncManager });
+  const isConfigured = await setupSyncRuntime(context);
 
-  const cancelTasks = startScheduledTasks(context, taskClasses);
+  const cancelTasks = startScheduledTasks(context);
   // If booted unconfigured, start syncing once first-run setup completes.
   const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
   process.once('SIGTERM', () => {

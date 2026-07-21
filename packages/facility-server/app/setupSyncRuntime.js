@@ -16,7 +16,7 @@ export const SYNC_NOT_CONFIGURED_WARNING =
 
 // Wire up the sync runtime when configured, else warn and leave it disabled (a
 // fresh server still boots to serve the wizard). Returns whether it was set up.
-export async function setupSyncRuntime(context, { syncManager } = {}) {
+export async function setupSyncRuntime(context) {
   if (!isServerConfigured()) {
     log.warn(SYNC_NOT_CONFIGURED_WARNING);
     return false;
@@ -29,7 +29,7 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
     url: `${host.replace(/\/*$/, '')}/api/timesync`,
   });
   context.centralServer = new CentralServerConnection(context);
-  context.syncManager = syncManager ?? new FacilitySyncManager(context);
+  context.syncManager = new FacilitySyncManager(context);
 
   await performTimeZoneChecks({
     remote: context.centralServer,
