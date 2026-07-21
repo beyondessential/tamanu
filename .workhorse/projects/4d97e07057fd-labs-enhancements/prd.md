@@ -39,6 +39,7 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 **Open questions (to resolve before design):**
 - **Panel absorption:** when a clinician selects a panel whose tests are already selected individually, are those individual selections absorbed into the panel?
+- **Search results and panel members:** should search results exclude individual tests that are members of a panel? Megan to confirm with Mark.
 
 ---
 
