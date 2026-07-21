@@ -32,36 +32,50 @@ export class ViewVaccineModal extends BasePatientModal {
   constructor(page: Page) {
     super(page);
     this.modalTitle = this.page.getByTestId('modaltitle-ojhf');
-    this.givenVaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-igtk');
-    this.vaccineNameOther = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-jbi4');
-    this.vaccineBatch = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-j02w');
-    this.scheduleOption = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-s88j');
-    this.givenStatus = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-qgo7');
-    this.dateGiven = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-t6f2');
-    this.dateNotGiven = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-r2gm');
-    this.injectionSite = this.page.getByTestId('displayfield-jkpx-vaccine-injectsite-m8uo');
-    this.area = this.page.getByTestId('displayfield-jkpx-location-translatedtext-zk1l');
-    this.location = this.page.getByTestId('displayfield-jkpx-location-translatedtext-7h0p');
-    this.givenBy = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-21u3');
-    this.department = this.page.getByTestId('displayfield-jkpx-location-translatedtext-n704');
-    this.notGivenReason = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-ewjz');
-    this.otherDisease = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-h50a');
-    this.notGivenSupervisingClinician = this.page.getByTestId(
-      'displayfield-jkpx-recorded-translatedtext-qoi6',
+    this.givenVaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.vaccine.label');
+    this.vaccineNameOther = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-vaccine.vaccineName.label',
     );
-    this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
-    this.facilityLocation = this.page.getByTestId('displayfield-jkpx-location-translatedtext-iukb');
-    this.recordedBy = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-e9ru');
+    this.vaccineBatch = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.batch.label');
+    this.scheduleOption = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.schedule.label');
+    this.givenStatus = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.status.label');
+    this.dateGiven = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.dateGiven.label');
+    this.dateNotGiven = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-vaccine.dateRecorded.label',
+    );
+    this.injectionSite = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-vaccine.injectionSite.label',
+    );
+    this.area = this.page.getByTestId('displayfield-jkpx-location-general.area.label');
+    this.location = this.page.getByTestId('displayfield-jkpx-location-general.location.label');
+    this.givenBy = this.page.getByTestId('displayfield-jkpx-recorded-vaccine.givenBy.label');
+    this.department = this.page.getByTestId(
+      'displayfield-jkpx-location-general.department.label',
+    );
+    this.notGivenReason = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-general.localisedField.notGivenReasonId.label.short',
+    );
+    this.otherDisease = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.disease.label');
+    this.notGivenSupervisingClinician = this.page.getByTestId(
+      'displayfield-jkpx-recorded-general.supervisingClinician.label',
+    );
+    this.otherBrand = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-vaccine.vaccineBrand.label',
+    );
+    this.facilityLocation = this.page.getByTestId(
+      'displayfield-jkpx-location-general.facility.label',
+    );
+    this.recordedBy = this.page.getByTestId('displayfield-jkpx-recorded-vaccine.recordedBy.label');
     this.givenElsewhereReason = this.page.getByTestId(
-      'displayfield-jkpx-status-translatedtext-rth0',
+      'displayfield-jkpx-status-vaccine.circumstance.label',
     );
     this.givenElsewhereCountry = this.page.getByTestId(
-      'displayfield-jkpx-country-translatedtext-c7hy',
+      'displayfield-jkpx-country-vaccine.country.label',
     );
     this.givenElsewhereFacility = this.page.getByTestId(
-      'displayfield-jkpx-recorded-translatedtext-iukb',
+      'displayfield-jkpx-recorded-general.facility.label',
     );
-    this.status = this.page.getByTestId('displayfield-jkpx-status-translatedtext-qgo7');
+    this.status = this.page.getByTestId('displayfield-jkpx-status-vaccine.status.label');
   }
 
   async waitForModalToOpen() {

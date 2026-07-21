@@ -71,26 +71,27 @@ const FieldGroup = styled.div`
   padding-top: 20px;
 `;
 
-/* eslint-disable react/jsx-key */
 const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
   <Container $editMode={editMode} data-testid="container-p4ga">
     {labelValueFieldGroups.map(({ key, fields }) => (
       <FieldGroup key={key} data-testid={`fieldgroup-noro-${key}`}>
-        {fields.map(({ label, value }) => (
-          <DisplayField
-            key={label}
-            $editMode={editMode}
-            data-testid={`displayfield-jkpx-${key}-${label.props['data-testid']}`}
-          >
-            <Label data-testid={`label-4tcx-${key}-${label}`}>{label}</Label>
-            {value}
-          </DisplayField>
-        ))}
+        {fields.map(({ label, value }) => {
+          const testId = label.props['data-testid'] ?? label.props.stringId;
+          return (
+            <DisplayField
+              key={testId}
+              $editMode={editMode}
+              data-testid={`displayfield-jkpx-${key}-${testId}`}
+            >
+              <Label data-testid={`label-4tcx-${key}-${testId}`}>{label}</Label>
+              {value}
+            </DisplayField>
+          );
+        })}
       </FieldGroup>
     ))}
   </Container>
 );
-/* eslint-enable react/jsx-key */
 
 const ErrorMessage = () => {
   return (
