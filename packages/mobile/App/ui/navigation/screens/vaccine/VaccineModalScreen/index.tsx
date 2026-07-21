@@ -31,9 +31,6 @@ export const VaccineModalScreen = ({
 }: VaccineModalScreenProps): ReactElement => {
   const { vaccine, patient } = route.params;
   const administeredVaccineId = vaccine.administeredVaccine?.id;
-
-  // The edit form pops back to this screen after saving. Re-read the record from the DB
-  // (keyed on focus) so the card always reflects the latest saved data rather than stale params.
   const isFocused = useIsFocused();
 
   /**
