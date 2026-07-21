@@ -10,27 +10,19 @@ import { checkNotePermission } from '../../utils/checkNotePermission';
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const {
-      order = 'ASC',
-      orderBy,
-      noteTypeId,
-      search,
-      authorId,
-      fromDate,
-      toDate,
-      facilityId,
-      rowsPerPage,
-      page,
-    } = query;
+    const { order = 'ASC', orderBy, noteTypeId, search, authorId, fromDate, toDate, rowsPerPage, page } = query;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
 
     // Convert the date-only filter boundaries into stored datetime strings in the
     // primary timezone so they can be compared against the notes' stored dates.
+    // Use the authenticated session's facility (never a client-supplied id) to
+    // resolve the facility timezone.
     let fromDateTime;
     let toDateTime;
     if (fromDate || toDate) {
+      const { facilityId } = req;
       const facilityTimeZone = facilityId
         ? await req.settings[facilityId]?.get('facilityTimeZone')
         : undefined;

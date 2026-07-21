@@ -285,7 +285,7 @@ const NoteTable = ({
   searchParameters = {},
   refreshCount,
 }) => {
-  const { currentUser, facilityId } = useAuth();
+  const { currentUser } = useAuth();
   const { noteTypeId } = searchParameters;
   const { openNoteModal } = useNoteModal();
   const [selectedNote, setSelectedNote] = useState(null);
@@ -364,7 +364,7 @@ const NoteTable = ({
         allowExport={false}
         columns={COLUMNS}
         endpoint={`encounter/${encounterId}/notes`}
-        fetchOptions={{ ...searchParameters, facilityId }}
+        fetchOptions={searchParameters}
         // Remount to fully reload (rather than lazy-append) when a note is saved.
         // Filter state lives in the parent, so remounting here preserves the filters.
         key={refreshCount}
