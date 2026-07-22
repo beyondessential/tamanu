@@ -7,8 +7,8 @@ import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
 const xAxisTickDateY = 9;
-const xAxisTickTimeY = 23;
-export const customisedXAxisLabelHeight = xAxisTickTimeY + TextFontSize - 0.5;
+const xAxisTickSecondaryLineY = 23;
+export const customisedXAxisLabelHeight = xAxisTickSecondaryLineY + TextFontSize - 0.5;
 export const customisedXAxisDateOnlyLabelHeight = xAxisTickDateY + TextFontSize - 0.5;
 
 const Text = styled.text`
@@ -17,12 +17,36 @@ const Text = styled.text`
 `;
 
 export const CustomisedXAxisTick = (props) => {
-  const { formatShortest, formatTime } = useDateTime();
-  const { x, y, payload, showTime = true } = props;
+  const {
+    formatShortest,
+    formatTime,
+    formatWeekdayShort,
+    formatDayMonthYearShort,
+    formatMonthYearShort,
+  } = useDateTime();
+  const { x, y, payload, variant = 'time' } = props;
   const { value } = payload;
   const date = new Date(value);
   if (!isValid(date)) return null;
   const dateString = toDateTimeString(date);
+
+  // 'dayMonthYear' and 'monthYear' are single, differently-formatted lines
+  // (e.g. "18 May '26" / "May '26"); every other variant shows the date on
+  // the first line, optionally followed by a time or weekday second line.
+  const formatSingleLine = { dayMonthYear: formatDayMonthYearShort, monthYear: formatMonthYearShort }[
+    variant
+  ];
+  if (formatSingleLine) {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <Text x={0} y={xAxisTickDateY} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
+          {formatSingleLine(dateString)}
+        </Text>
+      </g>
+    );
+  }
+
+  const formatSecondaryLine = { time: formatTime, weekday: formatWeekdayShort }[variant];
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -35,15 +59,15 @@ export const CustomisedXAxisTick = (props) => {
       >
         {formatShortest(dateString)}
       </Text>
-      {showTime && (
+      {formatSecondaryLine && (
         <Text
           x={0}
-          y={xAxisTickTimeY}
+          y={xAxisTickSecondaryLineY}
           textAnchor="middle"
           fill={Colors.midText}
           data-testid="text-cydx"
         >
-          {formatTime(dateString)}
+          {formatSecondaryLine(dateString)}
         </Text>
       )}
     </g>

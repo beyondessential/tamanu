@@ -21,20 +21,35 @@ const ceilToStartOfMonth = date => {
   return monthStart < date ? addMonths(monthStart, 1) : monthStart;
 };
 
+// `tickLabelVariant` controls what CustomisedXAxisTick renders for each tick:
+// - 'time': date line + time line (24h/48h/custom ranges)
+// - 'weekday': date line + abbreviated weekday line (7-day range)
+// - 'dayMonthYear': single "D MMM 'YY" line (30-day range)
+// - 'monthYear': single "MMM 'YY" line, no day (1-year range)
 const X_AXIS_INTERVALS = {
-  fourHourly: { addIntervals: addHours, amount: 4, getFirstTickDate: date => date, showTime: true },
-  daily: { addIntervals: addDays, amount: 1, getFirstTickDate: ceilToStartOfDay, showTime: false },
+  fourHourly: {
+    addIntervals: addHours,
+    amount: 4,
+    getFirstTickDate: date => date,
+    tickLabelVariant: 'time',
+  },
+  daily: {
+    addIntervals: addDays,
+    amount: 1,
+    getFirstTickDate: ceilToStartOfDay,
+    tickLabelVariant: 'weekday',
+  },
   fiveDaily: {
     addIntervals: addDays,
     amount: 5,
     getFirstTickDate: ceilToStartOfDay,
-    showTime: false,
+    tickLabelVariant: 'dayMonthYear',
   },
   monthly: {
     addIntervals: addMonths,
     amount: 1,
     getFirstTickDate: ceilToStartOfMonth,
-    showTime: false,
+    tickLabelVariant: 'monthYear',
   },
 };
 
@@ -68,7 +83,7 @@ export const getXAxisTicks = dateRange => {
   return ticks;
 };
 
-export const isTimeShownOnXAxis = dateRange => getXAxisInterval(dateRange).showTime;
+export const getXAxisTickLabelVariant = dateRange => getXAxisInterval(dateRange).tickLabelVariant;
 
 export const getYAxisTicks = (yAxisConfigs) => {
   const { graphRange, interval } = yAxisConfigs;

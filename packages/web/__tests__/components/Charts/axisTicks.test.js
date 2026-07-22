@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { getTime } from 'date-fns';
 
 import {
+  getXAxisTickLabelVariant,
   getXAxisTicks,
-  isTimeShownOnXAxis,
 } from '../../../app/components/Charts/helpers/axisTicks';
 
 const timestampOf = dateString => getTime(new Date(dateString));
@@ -124,15 +124,15 @@ describe('getXAxisTicks', () => {
   });
 });
 
-describe('isTimeShownOnXAxis', () => {
+describe('getXAxisTickLabelVariant', () => {
   it.each([
-    ['24-hour', ['2026-07-12 10:30:00', '2026-07-13 10:30:00'], true],
-    ['48-hour', ['2026-07-11 10:30:00', '2026-07-13 10:30:00'], true],
-    ['custom single day', ['2026-07-13 00:00:00', '2026-07-14 00:00:00'], true],
-    ['7-day', ['2026-07-06 10:30:00', '2026-07-13 10:30:00'], false],
-    ['30-day', ['2026-06-13 10:30:00', '2026-07-13 10:30:00'], false],
-    ['1-year', ['2025-07-13 10:30:00', '2026-07-13 10:30:00'], false],
+    ['24-hour', ['2026-07-12 10:30:00', '2026-07-13 10:30:00'], 'time'],
+    ['48-hour', ['2026-07-11 10:30:00', '2026-07-13 10:30:00'], 'time'],
+    ['custom single day', ['2026-07-13 00:00:00', '2026-07-14 00:00:00'], 'time'],
+    ['7-day', ['2026-07-06 10:30:00', '2026-07-13 10:30:00'], 'weekday'],
+    ['30-day', ['2026-06-13 10:30:00', '2026-07-13 10:30:00'], 'dayMonthYear'],
+    ['1-year', ['2025-07-13 10:30:00', '2026-07-13 10:30:00'], 'monthYear'],
   ])('returns %s range as %s', (_label, dateRange, expected) => {
-    expect(isTimeShownOnXAxis(dateRange)).toBe(expected);
+    expect(getXAxisTickLabelVariant(dateRange)).toBe(expected);
   });
 });

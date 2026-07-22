@@ -32,8 +32,15 @@ export const LineChart = (props) => {
     secondaryConfig,
   } = props;
 
-  const { margin, tableHeight, height, xAxisTicks, xAxisDomain, showTimeOnXAxis, yAxisTicks } =
-    chartProps;
+  const {
+    margin,
+    tableHeight,
+    height,
+    xAxisTicks,
+    xAxisDomain,
+    xAxisTickLabelVariant,
+    yAxisTicks,
+  } = chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const measureData = getMeasureData(
     chartData,
@@ -51,7 +58,7 @@ export const LineChart = (props) => {
           interval={0}
           tick={
             <CustomisedXAxisTick
-              showTime={showTimeOnXAxis}
+              variant={xAxisTickLabelVariant}
               data-testid="customisedxaxistick-vyn4"
             />
           }
