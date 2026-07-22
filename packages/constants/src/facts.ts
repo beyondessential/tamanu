@@ -36,6 +36,12 @@ export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
+// Deployment-wide pre-shared key that encrypts integration secrets in the
+// settings table. Generated on central and pulled by facilities (settings sync
+// central→facility, so a per-host key can't decrypt cross-server secrets). Held
+// here encrypted at rest under the per-host config key, like the other secrets.
+export const FACT_SETTINGS_PSK = 'settingsPsk';
+
 // Random per-server secret the reporting/raw role passwords are derived from.
 export const FACT_REPORTING_ROLE_SECRET = 'reportingRoleSecret';
 // When that secret was last (re)generated, for automatic age-based rotation.

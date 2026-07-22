@@ -9,8 +9,10 @@ import {
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
   FACT_FACILITY_IDS,
+  FACT_SETTINGS_PSK,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { clearSettingsPskCache } from '@tamanu/shared/utils/crypto';
 
 import { isServerConfigured, initServerConfig } from '../../serverConfig';
 import { version } from '../../serverInfo';
@@ -150,6 +152,14 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
     // Password encrypted at rest, out of local_system_facts and the raw reporting role.
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, syncCredentials.password);
+    // Deployment-wide settings PSK, pulled from central. Absent when talking to
+    // an older central that doesn't serve it yet; a later sync/upgrade fills it.
+    if (syncCredentials.settingsPsk) {
+      await LocalSystemSecret.setIfAbsent(FACT_SETTINGS_PSK, syncCredentials.settingsPsk);
+      // The server keeps running after setup: drop any key buffer cached from the
+      // legacy config fallback so reads pick up the pulled PSK without a restart.
+      clearSettingsPskCache();
+    }
   });
 
   if (alreadyConfigured) {

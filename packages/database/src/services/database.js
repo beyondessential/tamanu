@@ -3,9 +3,15 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  AUDIT_USERID_KEY,
+  SYSTEM_USER_UUID,
+  FACT_SETTINGS_PSK,
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
+import { setSettingsPskSource } from '@tamanu/shared/utils/crypto';
 
 import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
@@ -264,6 +270,12 @@ export async function initDatabase(dbOptions) {
   // add isInsideTransaction and isTransactionReady helpers to avoid exposing the asynclocalstorage
   sequelize.isInsideTransaction = isInsideTransaction;
   sequelize.isTransactionReady = isTransactionReady;
+
+  // Let the shared crypto helpers read the settings PSK from the local secrets
+  // store without shared/ importing a database model. Every entrypoint (both
+  // servers, the upgrade command) goes through initDatabase, so this is the one
+  // place the model is guaranteed available.
+  setSettingsPskSource(() => models.LocalSystemSecret.get(FACT_SETTINGS_PSK));
 
   return { sequelize, models };
 }
