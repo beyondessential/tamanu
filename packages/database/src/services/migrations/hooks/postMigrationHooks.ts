@@ -50,9 +50,6 @@ const addUpdatedAtTrigger: MigrationHook = {
   },
 };
 
-// Drops and recreates the trigger unconditionally on every table, every migration batch (rather
-// than first checking what's already installed) — DROP TRIGGER IF EXISTS + CREATE TRIGGER, not
-// CREATE OR REPLACE TRIGGER, to stay compatible with Postgres 12.
 const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
   name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
@@ -62,14 +59,13 @@ const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
       ...NON_SYNCING_TABLES,
     ])) {
       log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
-      await sequelize.query(
-        `DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}"`,
-      );
       await sequelize.query(`
-      CREATE TRIGGER set_${table}_updated_at_sync_tick
-      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
-      FOR EACH ROW
-      EXECUTE FUNCTION public.set_updated_at_sync_tick();
+        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
+
+        CREATE TRIGGER set_${table}_updated_at_sync_tick
+        BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+        FOR EACH ROW
+        EXECUTE FUNCTION public.set_updated_at_sync_tick();
     `);
     }
   },

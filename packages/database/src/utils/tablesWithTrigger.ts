@@ -85,7 +85,6 @@ export const tablesWithoutTrigger = (
     );
 };
 
-/** All tables (public and logs schemas), regardless of trigger/column state. */
 export const allTables = (sequelize: Sequelize, excludes: string[] = []) => {
   return sequelize
     .query(
