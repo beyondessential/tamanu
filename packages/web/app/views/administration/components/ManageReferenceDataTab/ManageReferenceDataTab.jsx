@@ -120,7 +120,8 @@ export const ManageReferenceDataTab = () => {
       const column = {
         key: col.key,
         title: col.key,
-        sortable: true,
+        // FK name columns are computed from an association, not a sortable DB column on this model
+        sortable: !col.isFkName,
       };
       if (col.type === 'BOOLEAN') {
         column.accessor = row => (row[col.key] ? 'Yes' : 'No');
