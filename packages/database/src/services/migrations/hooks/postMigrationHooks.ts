@@ -3,7 +3,7 @@ import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
-import { tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
+import { allTables, tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
 import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
@@ -50,17 +50,21 @@ const addUpdatedAtTrigger: MigrationHook = {
   },
 };
 
-const addUpdatedAtSyncTickTrigger: MigrationHook = {
-  name: 'addUpdatedAtSyncTickTrigger',
+// Drops and recreates the trigger unconditionally on every table, every migration batch (rather
+// than first checking what's already installed) — DROP TRIGGER IF EXISTS + CREATE TRIGGER, not
+// CREATE OR REPLACE TRIGGER, to stay compatible with Postgres 12.
+const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
+  name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(
-      sequelize,
-      'set_',
-      '_updated_at_sync_tick',
-      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
-    )) {
-      log.info(`Adding updated_at_sync_tick trigger to ${schema}.${table}`);
+    for (const { schema, table } of await allTables(sequelize, [
+      ...GLOBAL_EXCLUDE_TABLES,
+      ...NON_SYNCING_TABLES,
+    ])) {
+      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
+      await sequelize.query(
+        `DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}"`,
+      );
       await sequelize.query(`
       CREATE TRIGGER set_${table}_updated_at_sync_tick
       BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
@@ -124,7 +128,7 @@ const enableSyncTickTrigger: MigrationHook = {
 export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
-  addUpdatedAtSyncTickTrigger,
+  addOrReplaceUpdatedAtSyncTickTrigger,
   addNotifyTableChangedTrigger,
   addRecordChangeTrigger,
   enableSyncTickTrigger,
