@@ -30,8 +30,9 @@ const CellText = styled.span`
   min-width: 0;
 `;
 
-const invoiceProductSuggesterFormatter = ({ dispensingUnit, id, name }) => ({
+const invoiceProductSuggesterFormatter = ({ dispensingUnit, id, name, sourceRecordId }) => ({
   dispensingUnit,
+  sourceRecordId,
   label: name,
   value: id,
 });
