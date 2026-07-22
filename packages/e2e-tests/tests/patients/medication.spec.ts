@@ -1,6 +1,7 @@
 import { test, expect } from '../../fixtures/baseFixture';
 import {
   createPatientOngoingPrescriptionViaApi,
+  getFacilityId,
   getUser,
   getPractitioners,
 } from '@utils/apiHelpers';
@@ -18,7 +19,8 @@ test.describe('Medication - Patient', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
-    await createPatientOngoingPrescriptionViaApi(api, page, newPatient.id);
+    const facilityId = await getFacilityId(page);
+    await createPatientOngoingPrescriptionViaApi(api, newPatient.id, facilityId);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();
@@ -52,7 +54,8 @@ test.describe('Medication - Patient', () => {
       'Requires a second practitioner to switch the discontinued-by user to',
     );
 
-    await createPatientOngoingPrescriptionViaApi(api, page, newPatient.id);
+    const facilityId = await getFacilityId(page);
+    await createPatientOngoingPrescriptionViaApi(api, newPatient.id, facilityId);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();

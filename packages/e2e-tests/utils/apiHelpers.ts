@@ -24,6 +24,12 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+// Resolves the logged-in facility from browser storage. Kept separate from the API helpers so
+// they stay independent of the browser context: callers that have a page resolve the facilityId
+// here and pass it in, while callers that already hold it (e.g. fixtures) pass it directly.
+export const getFacilityId = (page: Page): Promise<string> =>
+  getItemFromLocalStorage(page, 'facilityId');
+
 // Returns every practitioner the "Discontinued by" / clinician suggesters offer. Maps to
 // { id, name } where name is the user's display name.
 export const getPractitioners = async (
@@ -244,10 +250,27 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
+// Fetches the id of the first available drug. When a facilityId is given the suggester excludes
+// drugs unavailable at that facility, matching the real prescribing UI. Otherwise the row click
+// in the medication table is a no-op (the pane ignores clicks on unavailable medications) and the
+// details modal never opens.
+const fetchFirstDrugId = async (api: APIRequestContext, facilityId?: string): Promise<string> => {
+  const facilityParam = facilityId ? `&facilityId=${facilityId}` : '';
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1${facilityParam}`);
+  const suggestResponse = await api.get(suggestUrl);
+  if (!suggestResponse.ok()) {
+    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
+  }
+  const medications = await suggestResponse.json();
+  const medicationId = medications[0]?.id;
+  if (!medicationId) throw new Error('No medications found in drug reference data');
+  return medicationId;
+};
+
 export const createEncounterPrescriptionViaApi = async (
   api: APIRequestContext,
-  page: Page,
   encounterId: string,
+  facilityId?: string,
   overrides: Partial<{
     medicationId: string;
     route: string;
@@ -256,19 +279,7 @@ export const createEncounterPrescriptionViaApi = async (
   }> = {},
 ) => {
   const user = await getUser(api);
-
-  // Pass facilityId so the suggester excludes drugs that are unavailable at this facility,
-  // matching the real prescribing UI. Otherwise the row click in the medication table is a
-  // no-op (the pane ignores clicks on unavailable medications) and the details modal never opens.
-  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
-  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1&facilityId=${facilityId}`);
-  const suggestResponse = await api.get(suggestUrl);
-  if (!suggestResponse.ok()) {
-    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
-  }
-  const medications = await suggestResponse.json();
-  const medicationId = medications[0]?.id;
-  if (!medicationId) throw new Error('No medications found in drug reference data');
+  const medicationId = await fetchFirstDrugId(api, facilityId);
 
   const now = new Date();
   const dateString = now.toISOString().substring(0, 10);
@@ -298,8 +309,8 @@ export const createEncounterPrescriptionViaApi = async (
 
 export const createPatientOngoingPrescriptionViaApi = async (
   api: APIRequestContext,
-  page: Page,
   patientId: string,
+  facilityId?: string,
   overrides: Partial<{
     medicationId: string;
     route: string;
@@ -309,19 +320,7 @@ export const createPatientOngoingPrescriptionViaApi = async (
   }> = {},
 ) => {
   const user = await getUser(api);
-
-  // Pass facilityId so the suggester excludes drugs that are unavailable at this facility,
-  // matching the real prescribing UI. Otherwise the row click in the medication table is a
-  // no-op (the pane ignores clicks on unavailable medications) and the details modal never opens.
-  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
-  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1&facilityId=${facilityId}`);
-  const suggestResponse = await api.get(suggestUrl);
-  if (!suggestResponse.ok()) {
-    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
-  }
-  const medications = await suggestResponse.json();
-  const medicationId = medications[0]?.id;
-  if (!medicationId) throw new Error('No medications found in drug reference data');
+  const medicationId = await fetchFirstDrugId(api, facilityId);
 
   const now = new Date();
   const dateString = now.toISOString().substring(0, 10);

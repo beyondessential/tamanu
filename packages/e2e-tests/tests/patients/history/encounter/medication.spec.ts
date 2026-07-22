@@ -2,6 +2,7 @@ import { test, expect } from '@fixtures/baseFixture';
 import {
   createHospitalAdmissionEncounterViaAPI,
   createEncounterPrescriptionViaApi,
+  getFacilityId,
   getUser,
   getPractitioners,
 } from '@utils/apiHelpers';
@@ -72,8 +73,9 @@ test.describe('Medication - Encounter', () => {
     test.setTimeout(60000);
 
     const currentUser = await getUser(api);
+    const facilityId = await getFacilityId(page);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, page, encounter.id);
+    await createEncounterPrescriptionViaApi(api, encounter.id, facilityId);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
@@ -108,8 +110,9 @@ test.describe('Medication - Encounter', () => {
       'Requires a second practitioner to switch the discontinued-by user to',
     );
 
+    const facilityId = await getFacilityId(page);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, page, encounter.id);
+    await createEncounterPrescriptionViaApi(api, encounter.id, facilityId);
 
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
@@ -135,8 +138,9 @@ test.describe('Medication - Encounter', () => {
     test.setTimeout(60000);
 
     // Create encounter and prescription via API
+    const facilityId = await getFacilityId(page);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    await createEncounterPrescriptionViaApi(api, page, encounter.id);
+    await createEncounterPrescriptionViaApi(api, encounter.id, facilityId);
 
     await patientDetailsPage.goToPatient(newPatient);
 
