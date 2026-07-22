@@ -23,7 +23,9 @@ const truncatedTriggerName = (prefix: string, table: string, suffix: string) =>
   `${prefix}${table}${suffix}`.slice(0, 63);
 
 const isTableLookupTracked = (sequelize: Sequelize, table: string): boolean => {
-  const model = Object.values(sequelize.models).find(m => m.tableName === table);
+  const model = Object.values(sequelize.models).find(
+    m => m.tableName === table && m.usesPublicSchema,
+  );
   return !!model && LOOKUP_TRACKED_DIRECTIONS.includes(model.syncDirection);
 };
 
