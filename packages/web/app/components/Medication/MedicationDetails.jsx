@@ -286,7 +286,7 @@ export const MedicationDetails = ({
             <Container>
               {medication.discontinued && (
                 <>
-                  <DiscontinuedText>
+                  <DiscontinuedText data-testid="medicationdetails-discontinued-status">
                     <TranslatedText
                       stringId="medication.details.medicationDiscontinued"
                       fallback="Medication discontinued"

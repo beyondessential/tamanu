@@ -66,5 +66,10 @@ test.describe('Medication - Patient', () => {
     await discontinueModal.changeDiscontinuedBy(currentUser.displayName);
     await discontinueModal.fillReason('Test reason');
     await discontinueModal.submit();
+
+    // The details modal stays open and re-renders as discontinued, confirming the
+    // medication was actually discontinued rather than just the form closing.
+    await detailsModal.waitForDiscontinuedStatus();
+    await expect(detailsModal.discontinuedStatus).toBeVisible();
   });
 });
