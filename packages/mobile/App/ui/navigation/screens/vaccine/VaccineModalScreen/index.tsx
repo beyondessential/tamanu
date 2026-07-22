@@ -39,7 +39,10 @@ export const VaccineModalScreen = ({
    * imperatively refetch data if and when the administered vaccine is edited.
    */
   const [administeredVaccine, error, isLoading] = useBackendEffect(
-    ({ models }) => models.AdministeredVaccine.getById(administeredVaccineId),
+    ({ models }) => {
+      if (administeredVaccineId === undefined) return null;
+      return models.AdministeredVaccine.getById(administeredVaccineId);
+    },
     [administeredVaccineId, isFocused],
   );
 
