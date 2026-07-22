@@ -12,6 +12,7 @@ import {
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
+import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -23,7 +24,6 @@ import { FormModal } from '../FormModal';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { BodyText, SmallBodyText } from '../Typography';
 import { Colors } from '../../constants';
-import { getDrugUnitLabel } from '../../utils/medications';
 import {
   DoseAmountField,
   DurationUnitField,
