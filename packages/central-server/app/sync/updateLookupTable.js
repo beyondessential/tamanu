@@ -3,6 +3,20 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
+// Postgres SQLSTATE for "could not serialize access due to concurrent update" — what the FOR KEY
+// SHARE lock in buildLookupUpsertQuery raises when a hard delete concurrent with this build
+// touched a row it's reading (see the comment on that clause). Expected occasionally; not a bug.
+const SERIALIZATION_FAILURE_SQLSTATE = '40001';
+
+export const isConcurrentHardDeleteConflict = (error) =>
+  !!error &&
+  (error.original?.code === SERIALIZATION_FAILURE_SQLSTATE ||
+    error.parent?.code === SERIALIZATION_FAILURE_SQLSTATE ||
+    isConcurrentHardDeleteConflict(error.cause));
+
+const HARD_DELETE_DURING_BUILD_MESSAGE =
+  'an underlying record was hard deleted during this build. This will self heal in the next build';
+
 // Shared by the incremental build (pass 1) and the self-heal pass (pass 2) so a healed row is
 // built by the exact same query shape as a normally-built one — they differ only in whereClause
 // (which rows to select) and the updatedAtSyncTick replacement (which tick to stamp).
@@ -270,9 +284,16 @@ export const updateLookupTable = withConfig(
 
         changesCount += modelChangesCount || 0;
       } catch (e) {
+        if (isConcurrentHardDeleteConflict(e)) {
+          const message = `Sync lookup rebuild for ${model.tableName}: ${HARD_DELETE_DURING_BUILD_MESSAGE}`;
+          log.warn(message);
+          throw new Error(message, { cause: e });
+        }
         log.error(`Failed to update ${model.name} for lookup table`);
         log.debug(e);
-        throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
+        throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`, {
+          cause: e,
+        });
       }
     }
 
@@ -294,9 +315,16 @@ export const healFlaggedLookupRows = withConfig(
         healedCount += result.healedCount || 0;
         deletedCount += result.deletedCount || 0;
       } catch (e) {
+        if (isConcurrentHardDeleteConflict(e)) {
+          const message = `Sync lookup self-heal for ${model.tableName}: ${HARD_DELETE_DURING_BUILD_MESSAGE}`;
+          log.warn(message);
+          throw new Error(message, { cause: e });
+        }
         log.error(`Failed to self-heal ${model.name} for lookup table`);
         log.debug(e);
-        throw new Error(`Failed to self-heal ${model.name} for lookup table: ${e.message}`);
+        throw new Error(`Failed to self-heal ${model.name} for lookup table: ${e.message}`, {
+          cause: e,
+        });
       }
     }
 

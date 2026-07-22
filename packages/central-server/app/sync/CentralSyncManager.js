@@ -39,6 +39,7 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import {
   healFlaggedLookupRows,
+  isConcurrentHardDeleteConflict,
   updateLookupTable,
   updateSyncLookupPendingRecords,
 } from './updateLookupTable';
@@ -406,7 +407,10 @@ export class CentralSyncManager {
         await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
       });
     } catch (error) {
-      log.error('CentralSyncManager.updateLookupTable encountered an error', {
+      // A hard delete racing this build's own read of that record is expected occasionally and
+      // self-heals on the next scheduled rebuild — log it at a level that won't page anyone.
+      const logMethod = isConcurrentHardDeleteConflict(error) ? 'warn' : 'error';
+      log[logMethod]('CentralSyncManager.updateLookupTable encountered an error', {
         error: error.message,
       });
 

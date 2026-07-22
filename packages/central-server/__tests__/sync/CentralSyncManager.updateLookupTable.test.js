@@ -1034,7 +1034,10 @@ describe('CentralSyncManager.updateLookupTable', () => {
       }
 
       expect(raceError).not.toBeNull();
-      expect(raceError.message).toMatch(/could not serialize access|concurrent update/i);
+      expect(raceError.message).toMatch(
+        /an underlying record was hard deleted during this build. This will self heal in the next build/i,
+      );
+      expect(raceError.cause?.original?.code ?? raceError.cause?.parent?.code).toEqual('40001');
 
       // The failed build attempt rolled back entirely, so the only lasting effect is the delete
       // trigger's own (successfully committed) flag — not yet removed, since removal only happens

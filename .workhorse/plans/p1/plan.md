@@ -176,6 +176,14 @@ the routine case of a row being updated twice within one build's lifetime. Verif
     instead of writing stale, pre-deletion data. Verified with a dedicated concurrency test
     (`CentralSyncManager.updateLookupTable.test.js`, "concurrent hard delete during an in-progress
     build") and empirically against real Postgres sessions beforehand.
+  - [x] The serialization failure (SQLSTATE `40001`) is detected explicitly
+    (`isConcurrentHardDeleteConflict`, checking `.original`/`.parent`/`.cause` for that code) so it
+    gets a clear, specific message (`HARD_DELETE_DURING_BUILD_MESSAGE`: "an underlying record was
+    hard deleted during this build. This will self heal in the next build") logged at `warn`,
+    rather than surfacing as a bare, easy-to-mistake-for-a-bug "could not serialize access due to
+    concurrent update" at `error`. `CentralSyncManager.updateLookupTable`'s outer catch checks the
+    same helper to log at the right level too. Any other failure still logs at `error` with its
+    original message.
 - [x] The `-2` sweep (`updateSyncLookupPendingRecords`) is untouched; pass 2 writes real ticks so it
   cannot rewrite them (verified in a dedicated central-server test).
 
