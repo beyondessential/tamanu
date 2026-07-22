@@ -13,3 +13,10 @@ export const REQUIRED_FIELDS = new Set(['id', 'code', 'name']);
 
 export const SUGGESTER_FORMATTER = ({ name, id }) => ({ label: `${name} (${id})`, value: id });
 export const SUGGESTER_OPTIONS = { formatter: SUGGESTER_FORMATTER };
+
+// Search bar fields sit over columns that display raw ids, so they search on and display the
+// id alone — unlike the create/edit form, which searches by name.
+export const ID_SEARCH_SUGGESTER_OPTIONS = {
+  formatter: ({ id }) => ({ label: id, value: id }),
+  baseQueryParameters: { searchById: true },
+};
