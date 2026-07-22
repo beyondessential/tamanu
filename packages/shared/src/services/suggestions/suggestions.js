@@ -140,10 +140,13 @@ function createSuggesterRoute(
         searchColumn,
       });
 
-      // The admin reference-data screen displays and filters FK columns by raw id, so it sends
-      // searchById=true to match the search term against the record id instead of the translated
-      // name. Handled here rather than in each where-builder so every suggester endpoint honours it.
+      // searchById (admin reference-data screen only) matches the term against the record id
+      // instead of the name. Builders put term-matching in Op.or, or move it into Op.and next to
+      // structural filters (e.g. drug facility-availability) — dropping both and replacing with an
+      // id match avoids the name clause being AND-combined with the id and returning nothing. Scalar
+      // filters (visibilityStatus, sensitive-drug guard) are plain keys and survive.
       if (query.searchById === 'true' && searchQuery) {
+        delete where[Op.and];
         where[Op.or] = [{ id: { [Op.iLike]: search } }];
       }
 
