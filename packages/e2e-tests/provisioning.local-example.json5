@@ -36,6 +36,13 @@
       encounterSummary: {
         enabled: true,
       },
+      medications: {
+        dispensing: {
+          // Auto-calculate the dispensing quantity from dose, frequency and duration when
+          // prescribing (exercised by the medication prescribe e2e spec).
+          dispensingQuantityAutocalculation: true,
+        },
+      },
     },
   },
 

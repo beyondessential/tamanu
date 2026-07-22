@@ -51,6 +51,21 @@ test.describe('Medication - Encounter', () => {
       selectFirst: true,
     });
 
+    // Dispensing quantity auto-calculation (medications.dispensing.dispensingQuantityAutocalculation
+    // is enabled for the suite via provisioning). The quantity is empty until a duration is entered,
+    // then the DispensingQuantityAutocalculator populates it reactively from dose, frequency and
+    // duration.
+    const quantityInput = page.getByTestId('medication-field-quantity-6j9m').locator('input');
+    await expect(quantityInput).toHaveValue('');
+
+    await page.getByTestId('medication-field-durationValue-7p2n').locator('input').fill('5');
+    await selectFieldOption(page, page.getByTestId('medication-field-durationUnit-4q8f-select'), {
+      optionToSelect: 'day (s)',
+    });
+
+    // dose 1 × Daily (1 dose/day) × 5 days ÷ unit conversion 1 = 5
+    await expect(quantityInput).toHaveValue('5');
+
     // Submit (prescriber and dates are auto-populated)
     await page.getByTestId('medication-button-finalise-7x3d').click();
 
