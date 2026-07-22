@@ -817,10 +817,11 @@ createSuggester(
 
       return includes;
     },
-    mapper: ({ name, code, id, sourceRefDataRecord }) => ({
+    mapper: ({ name, code, id, sourceRecordId, sourceRefDataRecord }) => ({
       name,
       code,
       id,
+      sourceRecordId,
       dispensingUnit: sourceRefDataRecord?.referenceDrug?.dispensingUnit,
     }),
     queryOptions: { subQuery: false },
