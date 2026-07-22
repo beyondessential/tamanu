@@ -85,6 +85,30 @@ export const tablesWithoutTrigger = (
     );
 };
 
+export const allTables = (sequelize: Sequelize, excludes: string[] = []) => {
+  return sequelize
+    .query(
+      `
+        SELECT
+          t.table_schema as schema,
+          t.table_name as table
+        FROM information_schema.tables t
+        WHERE
+          t.table_schema IN ('public', 'logs')
+          AND t.table_type != 'VIEW'
+      `,
+      { type: QueryTypes.SELECT },
+    )
+    .then(rows =>
+      rows
+        .map(row => ({
+          schema: (row as any).schema as string,
+          table: (row as any).table as string,
+        }))
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
+    );
+};
+
 export const tablesWithoutColumn = (
   sequelize: Sequelize,
   column: string,

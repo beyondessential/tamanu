@@ -1,22 +1,20 @@
-import React, { memo } from 'react';
-import styled from 'styled-components';
+import KeyIcon from '@mui/icons-material/Key';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Alert } from '@material-ui/lab';
+import React, { memo } from 'react';
 import BlockIcon from '@mui/icons-material/Block';
-import KeyIcon from '@mui/icons-material/Key';
 import WarningIcon from '@mui/icons-material/WarningAmber';
+import styled from 'styled-components';
 import { escapeRegExp } from 'es-toolkit/compat';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
-import { isSetting } from '@tamanu/settings/schema';
-
-import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
+import { isSetting } from '@tamanu/settings';
+import { Alert, ThemedTooltip, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
-import { ThemedTooltip } from '../../../../components/Tooltip';
-import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../formatSettingName';
+import { ResetToDefaultButton, SettingInput } from './SettingInput';
 
 const StyledLockIcon = styled(LockIcon)`
   flex-shrink: 0;
@@ -209,13 +207,11 @@ const SettingName = memo(
           <TranslatedText
             stringId="admin.settings.highRiskSettingTooltip"
             fallback="User does not required permissions to update this setting"
-            data-testid="translatedtext-2xq4"
           />
         ) : isSecret ? (
           <TranslatedText
             stringId="admin.settings.secretSettingTooltip"
             fallback="This is a secret setting. The current value is hidden."
-            data-testid="translatedtext-secret"
           />
         ) : (
           description
@@ -243,7 +239,6 @@ const SettingName = memo(
           <TranslatedText
             stringId="admin.settings.requiresRestartTooltip"
             fallback="Requires server restart to take effect"
-            data-testid="translatedtext-rr01"
           />
         }
         data-testid="themedtooltip-rr01"

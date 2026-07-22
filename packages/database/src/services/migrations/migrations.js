@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { QueryTypes } from 'sequelize';
-import { runPostMigration, runPreMigration } from './migrationHooks';
+import { runPostMigration, runPreMigration } from './hooks';
 import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
 import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';

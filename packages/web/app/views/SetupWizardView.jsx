@@ -1,23 +1,29 @@
+import { Typography } from '@material-ui/core';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import IconButton from '@mui/material/IconButton';
+import { useQueryClient } from '@tanstack/react-query';
+import { FieldArray } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { FieldArray } from 'formik';
-import { useQueryClient } from '@tanstack/react-query';
-import { Typography } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import IconButton from '@mui/material/IconButton';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-import { Form, FormGrid, TextField, FormSubmitButton, TextButton } from '@tamanu/ui-components';
-
-import { Field, BodyText, LogoDark } from '../components';
+import {
+  Alert,
+  Field,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+  TextButton,
+  TextField,
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { useApi } from '../api';
+import { BodyText, LogoDark } from '../components';
 import { Colors } from '../constants';
 import { splashImages } from '../constants/images';
 import { getBrandId, notifySuccess } from '../utils';
 import { FULL_VERSION } from '../utils/env';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
-import { useApi } from '../api';
 
 // Dedicated layout rather than AuthFlowView, whose centred body + fixed logo
 // don't suit a tall scrolling form: logo in normal flow atop a scrollable column.
