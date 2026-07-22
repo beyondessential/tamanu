@@ -40,7 +40,7 @@ export const VaccineModalScreen = ({
    */
   const [administeredVaccine, error, isLoading] = useBackendEffect(
     ({ models }) => {
-      if (!administeredVaccineId) return null;
+      if (administeredVaccineId === undefined) return null;
       return models.AdministeredVaccine.getById(administeredVaccineId);
     },
     [administeredVaccineId, isFocused],
