@@ -2,11 +2,8 @@ import util from 'util';
 
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidOperationError, RemoteCallError } from '@tamanu/errors';
-import { stringToStableInteger } from '@tamanu/shared/utils';
 
 import * as schema from './schema';
-
-const BASE_VRS_PATIENT_UPSERT_ADVISORY_KEY = 'vrsPatientUpsertAdvisoryLock';
 
 export class VRSActionHandler {
   store = null;
@@ -98,19 +95,7 @@ export class VRSActionHandler {
     } else if ([schema.OPERATIONS.INSERT, schema.OPERATIONS.UPDATE].includes(operation)) {
       await sequelize.transaction(async () => {
         // Not a plain upsert() because patients_display_id_key is DEFERRABLE (see
-        // TAM-7004), and Postgres forbids deferrable constraints as ON CONFLICT
-        // arbiters. Guarded by an advisory lock (same pattern as
-        // Invoice.addItemToInvoice) since this find-then-write would otherwise race
-        // against a concurrent call for the same displayId -- applyAction is invoked
-        // both from the retry poller and the real-time webhook route, so the same
-        // patient could genuinely be processed by both around the same time.
-        const lockId = stringToStableInteger(
-          `${BASE_VRS_PATIENT_UPSERT_ADVISORY_KEY}:${patient.displayId}`,
-        );
-        await sequelize.query(`SELECT pg_advisory_xact_lock(:lockId)`, {
-          replacements: { lockId },
-        });
-
+        // TAM-7004), and Postgres forbids deferrable constraints as ON CONFLICT arbiters.
         const existingPatient = await Patient.findOne({
           where: { displayId: patient.displayId },
           paranoid: false,
