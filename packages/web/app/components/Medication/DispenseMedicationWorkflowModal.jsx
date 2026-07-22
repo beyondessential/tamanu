@@ -47,10 +47,10 @@ import { TableFormFields } from '../Table/TableFormFields';
 import { BodyText } from '../Typography';
 import { ModifyPrescriptionModal } from './ModifyPrescriptionModal';
 
-const MODAL_STEPS = {
+const MODAL_STEPS = /** @type {const} */ ({
   DISPENSE: 'dispense',
   REVIEW: 'review',
-};
+});
 
 // The details this fill will be dispensed with: the pharmacy modification when one has been made
 // in this workflow, otherwise the prescription as written.
@@ -63,19 +63,16 @@ const getEffectivePrescription = ({ prescription, modification }) =>
       }
     : prescription;
 
-const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
-
-const StyledModal = styled(BaseModal)`
-  .MuiPaper-root {
-    max-width: ${({ $step }) => ($step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px')};
-  }
-
+const StyledModal = styled(BaseModal).attrs(props => ({
+  width: props.$step === MODAL_STEPS.REVIEW ? 'sm' : 'xl',
+}))`
   .MuiDialogActions-root {
+    background-color: ${p => p.theme.palette.background.default};
+    border-block-start: 1px solid ${p => p.theme.palette.divider};
+    inset-block-end: 0;
+    padding-block: 20px;
+    padding-inline: 40px;
     position: sticky;
-    bottom: 0;
-    background-color: ${Colors.background};
-    border-top: 1px solid ${Colors.outline};
-    padding: 10px 40px 20px 40px;
   }
 `;
 
@@ -111,7 +108,7 @@ const DispensedByField = styled(Box)`
 
 const StyledTableFormFields = styled(TableFormFields)`
   .MuiTableCell-root {
-    padding: 4px 10px;
+    padding: 10px;
     vertical-align: middle;
     text-align: left;
     font-size: 14px;

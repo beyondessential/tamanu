@@ -4,16 +4,15 @@ import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { FieldArray } from 'formik';
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { useTranslation } from '../../../contexts/Translation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { ChangeStatusModal } from './ChangeStatusModal';
 
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
@@ -30,6 +29,7 @@ import {
   TranslatedText,
   useDateTime,
   useSuggester,
+  useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
@@ -420,7 +420,7 @@ export const MarDetails = ({
                   )}
                 </DetailsContainer>
                 {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
-                  <Fragment>
+                  <>
                     <HorizontalSeparator />
                     <DetailsContainer display="flex">
                       <Box flex={1}>
@@ -456,7 +456,7 @@ export const MarDetails = ({
                         </NoteModalActionBlocker>
                       )}
                     </DetailsContainer>
-                  </Fragment>
+                  </>
                 )}
                 {marInfo.status === ADMINISTRATION_STATUS.GIVEN &&
                   marDoses.map(dose => (
