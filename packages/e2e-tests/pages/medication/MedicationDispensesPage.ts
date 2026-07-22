@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructFacilityUrl } from '@utils/navigation';
 
@@ -31,11 +31,20 @@ export class MedicationDispensesPage extends BasePage {
   // history modal to load. The action only appears for fills modified by pharmacy at dispensing
   // time. The row actions MenuButton renders with the shared 'openbutton-d1ec' testid; scoping to
   // the patient's row keeps it unambiguous across parallel test data.
+  //
+  // The dispensed table auto-refreshes, which re-renders the row and can close (detach) an open
+  // menu mid-click. Retrying the whole open-menu → click-item → modal-visible sequence rides out
+  // any refresh that lands between steps.
   async openModifyHistoryForPatient(patientDisplayId: string): Promise<void> {
     const row = this.rowForPatient(patientDisplayId);
     await row.waitFor({ state: 'visible' });
-    await row.getByTestId('openbutton-d1ec').click();
-    await this.page.getByTestId('list-i0ae').getByText('View modify history').click();
-    await this.historyModalCurrentCard.waitFor({ state: 'visible' });
+    await expect(async () => {
+      await row.getByTestId('openbutton-d1ec').click();
+      await this.page
+        .getByTestId('list-i0ae')
+        .getByText('View modify history')
+        .click({ timeout: 5000 });
+      await this.historyModalCurrentCard.waitFor({ state: 'visible', timeout: 5000 });
+    }).toPass({ timeout: 30000 });
   }
 }
