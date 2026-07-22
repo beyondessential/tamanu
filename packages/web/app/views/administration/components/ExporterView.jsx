@@ -52,29 +52,27 @@ export const ExporterView = memo(
 
     const onSubmit = useCallback(
       async queryParameters => {
-        await saveFile({
+        const saved = await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTime()}`,
           getData: async () => await api.download(`admin/export/${endpoint}`, queryParameters),
           extension: 'xlsx',
         });
-        notifySuccess(
-          <TranslatedText
-            stringId="document.notification.downloadSuccess"
-            fallback="Successfully downloaded file"
-          />,
-        );
+        if (saved) {
+          notifySuccess(
+            <TranslatedText
+              stringId="document.notification.downloadSuccess"
+              fallback="Successfully downloaded file"
+            />,
+          );
+        }
       },
-      [title, getCurrentDateTime, api, endpoint],
+      [api, getCurrentDateTime, title, endpoint],
     );
 
     const buttonLabel = useMemo(() => {
       return (
         <span>
-          <TranslatedText
-            stringId="general.action.export"
-            fallback="Export"
-            data-testid="translatedtext-vthi"
-          />{' '}
+          <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
           {pluralize(title).toLowerCase()}
         </span>
       );
