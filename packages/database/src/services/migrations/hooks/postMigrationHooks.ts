@@ -1,9 +1,10 @@
 import config from 'config';
+import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
 import { tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
-import { requireFunction } from './prerequisites';
+import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
 const addUpdatedAtSyncTickColumn: MigrationHook = {
@@ -109,10 +110,22 @@ const addRecordChangeTrigger: MigrationHook = {
   },
 };
 
+const enableSyncTickTrigger: MigrationHook = {
+  name: 'enableSyncTickTrigger',
+  prerequisites: [requireTable('local_system_facts')],
+  async run({ log, sequelize }) {
+    log.info('Re-enabling sync tick trigger after migrations');
+    await sequelize.query(`
+      UPDATE local_system_facts SET value = 'enabled' WHERE key = '${FACT_SYNC_TRIGGER_CONTROL}';
+    `);
+  },
+};
+
 export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
   addUpdatedAtSyncTickTrigger,
   addNotifyTableChangedTrigger,
   addRecordChangeTrigger,
+  enableSyncTickTrigger,
 ];
