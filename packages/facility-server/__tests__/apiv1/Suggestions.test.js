@@ -583,6 +583,33 @@ describe('Suggestions', () => {
       const idArray = body.map(({ id }) => id);
       expect(idArray).not.toContain(obsoleteSurveyId);
     });
+
+    it('should match a drug by id with searchById even when facilityId is passed', async () => {
+      // Regression: with facilityId present the drug endpoint moves name-matching into Op.and,
+      // which previously combined with the searchById id match under AND and returned nothing. The admin
+      // reference-data screen always sends facilityId, so this is the real-world path.
+      const drug = await models.ReferenceData.create({
+        id: 'drug-searchbyid-RX99123',
+        type: 'drug',
+        name: 'Ibuprofen tablet',
+        code: 'searchbyid-RX99123',
+      });
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const byId = await userApp.get(
+        `/api/suggestions/drug?q=RX99123&searchById=true&facilityId=${facility.id}`,
+      );
+      expect(byId).toHaveSucceeded();
+      expect(byId.body.map(({ id }) => id)).toContain(drug.id);
+
+      // and the same term must not match by name under searchById
+      const byName = await userApp.get(
+        `/api/suggestions/drug?q=Ibuprofen&searchById=true&facilityId=${facility.id}`,
+      );
+      expect(byName).toHaveSucceeded();
+      expect(byName.body.map(({ id }) => id)).not.toContain(drug.id);
+    });
+
   });
 
   describe('Order of results (via diagnoses)', () => {
