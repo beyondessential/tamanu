@@ -120,6 +120,16 @@ referenceDataManageRouter.get(
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model);
 
+    // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
+    // We eager-load those associations so the name can be displayed and searched on.
+    const fkNameColumns = columns.filter(c => c.isFkName);
+    const fkNameByKey = new Map(fkNameColumns.map(c => [c.key, c]));
+    const include = fkNameColumns.map(c => ({
+      association: c.fkAlias,
+      attributes: ['id', 'name'],
+      required: false,
+    }));
+
     // Build search filters from query params
     const searchWhere = {};
     const searchableKeys = new Set(
@@ -160,6 +170,12 @@ referenceDataManageRouter.get(
         searchWhere.visibilityStatus = value.split(',');
         continue;
       }
+      const fkNameCol = fkNameByKey.get(key);
+      if (fkNameCol) {
+        // search the associated record's name, not a column on this model
+        searchWhere[`$${fkNameCol.fkAlias}.name$`] = { [Op.iLike]: `%${value}%` };
+        continue;
+      }
       if (searchableKeys.has(key)) {
         searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
       }
@@ -173,9 +189,10 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    const count = await model.count({ where });
+    const count = await model.count({ where, include });
     const data = await model.findAll({
       where,
+      include,
       order: [
         [orderBy, normalizedOrder],
         ['id', 'ASC'],
@@ -186,7 +203,13 @@ referenceDataManageRouter.get(
 
     res.send({
       count,
-      data: data.map(record => record.forResponse()),
+      data: data.map(record => {
+        const row = record.forResponse();
+        for (const c of fkNameColumns) {
+          row[c.key] = record[c.fkAlias]?.name ?? null;
+        }
+        return row;
+      }),
     });
   }),
 );

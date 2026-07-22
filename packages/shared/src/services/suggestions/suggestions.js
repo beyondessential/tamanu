@@ -124,6 +124,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
+      const search = `%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -131,13 +132,20 @@ function createSuggesterRoute(
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
       // either use the bind key in SQL or in the whereBuilder directly using sequelize
       const where = whereBuilder({
-        search: `%${searchQuery}%`,
+        search,
         query,
         req,
         endpoint,
         modelName,
         searchColumn,
       });
+
+      // The admin reference-data screen displays and filters FK columns by raw id, so it sends
+      // searchById=true to match the search term against the record id instead of the translated
+      // name. Handled here rather than in each where-builder so every suggester endpoint honours it.
+      if (query.searchById === 'true' && searchQuery) {
+        where[Op.or] = [{ id: { [Op.iLike]: search } }];
+      }
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
