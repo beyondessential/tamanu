@@ -4,12 +4,6 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
-// Covers TAM-7004: addItemToInvoice used to rely on InvoiceItem.upsert with explicit
-// conflictFields, which Sequelize turns into an ON CONFLICT ... DO UPDATE — not
-// possible once invoice_items_invoice_id_source_record_type_source_record_id_un is
-// DEFERRABLE, since Postgres requires a non-deferrable arbiter for DO UPDATE. Rewritten
-// as a find-then-update-or-create; these tests confirm that rewrite preserves the
-// original upsert semantics (create once, update on repeat, restore if soft-deleted).
 describe('Invoice.addItemToInvoice', () => {
   let ctx;
   let models;
@@ -117,12 +111,6 @@ describe('Invoice.addItemToInvoice', () => {
     expect(items[0].quantity).toBe(3);
   });
 
-  // The find-then-write in addItemToInvoice is a check-then-insert race if two calls for
-  // the same (invoice, source record) pair run concurrently -- this happens in practice,
-  // e.g. LabRequest/ImagingRequest afterUpdateHook fan out over Promise.all, so two
-  // concurrent updates to the same request would race on the same invoice item. Guarded
-  // by an advisory lock (see Invoice.ts); this proves that lock actually serialises
-  // concurrent calls rather than letting the second one's create() throw.
   it('does not create a duplicate or throw when called concurrently for the same source record', async () => {
     const { encounter, invoiceProduct, sourceItem } = await setup();
 
