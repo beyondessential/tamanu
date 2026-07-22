@@ -122,10 +122,6 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     expect(child.original_payment_id).toBe(parentId);
   });
 
-  // Reproduces the TAM-7004 scenario: a report is renamed off "cat" and a new report
-  // named "cat" is created in the same push. Creates are applied before updates within a
-  // batch, so without deferring report_definitions_name_key, this push would fail with a
-  // spurious unique violation even though the end state is valid.
   it('persists a push that renames a report off a name reused by a new report in the same batch', async () => {
     const facility = await models.Facility.create(fake(models.Facility));
     const renamedReport = await models.ReportDefinition.create({

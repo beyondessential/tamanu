@@ -2,25 +2,8 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
 
-// See TAM-7004. Intentionally left non-deferrable, and excluded from this check:
-// - id-only unique constraints: id is the sync discriminator, so a duplicate indicates
-//   a real bug rather than the benign rename/reuse ordering issue this migration
-//   targets. patient_program_registrations_id_key is also a foreign key target, so
-//   converting it would require dropping and recreating the referencing FK too.
-// - partial/expression unique indexes: Postgres cannot make these DEFERRABLE at all —
-//   only a plain (full-table, column-list-only) UNIQUE constraint or an
-//   EXCLUDE ... USING gist constraint supports DEFERRABLE. Converting these needs the
-//   btree_gist extension and is left for a follow-up ticket.
-// - constraints/indexes relied on as an ON CONFLICT arbiter: Postgres forbids deferrable
-//   constraints as ON CONFLICT arbiters. patient_facilities_patient_id_facility_id_key
-//   backs an ON CONFLICT DO NOTHING; a WHERE NOT EXISTS rewrite avoids the Postgres
-//   restriction but introduces a real check-then-insert race under concurrent encounter
-//   creation for the same patient+facility pairing (confirmed via existing tests that
-//   create encounters concurrently), so it's left non-deferrable rather than accepting
-//   that trade-off. (sync_lookup's equivalent constraint has the same ON CONFLICT DO
-//   UPDATE issue invoice_items used to have, but doesn't need whitelisting here —
-//   SyncLookup's syncDirection is DO_NOT_SYNC, so it's never in the syncable-tables set
-//   this test scans in the first place.)
+// TAM-7004: constraints/indexes that can't be made deferrable (id-only, partial/expression
+// indexes, or relied on as an ON CONFLICT arbiter elsewhere) — see migration for details.
 const EXCLUDED_FROM_DEFERRABLE_UNIQUE_CHECK = [
   'ai_documents_id_key',
   'patient_ongoing_prescriptions_id_key',

@@ -197,10 +197,6 @@ describe('withDeferredSyncSafeguards', () => {
     expect(operationCompleted).toBe(true);
   });
 
-  // Reproduces the TAM-7004 scenario: a report is renamed off "cat" and a new report
-  // named "cat" is created in the same sync batch. Creates are applied before updates
-  // within a batch, so without deferring report_definitions_name_key, the create would
-  // hit the old row's still-unrenamed "cat" value.
   it('persists records when a create reuses a name freed by a concurrent rename', async () => {
     const renamedReport = await models.ReportDefinition.create(
       fake(models.ReportDefinition, { name: 'cat' }),
@@ -208,8 +204,6 @@ describe('withDeferredSyncSafeguards', () => {
 
     await sequelize.transaction(async () => {
       await withDeferredSyncSafeguards(sequelize, async () => {
-        // Create the new report before the rename is applied, matching the actual
-        // creates-before-updates ordering within a sync batch
         await models.ReportDefinition.create(fake(models.ReportDefinition, { name: 'cat' }));
 
         await renamedReport.update({ name: 'cat_deprecated' });
