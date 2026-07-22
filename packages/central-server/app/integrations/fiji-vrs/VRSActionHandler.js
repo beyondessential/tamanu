@@ -2,8 +2,11 @@ import util from 'util';
 
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidOperationError, RemoteCallError } from '@tamanu/errors';
+import { stringToStableInteger } from '@tamanu/shared/utils';
 
 import * as schema from './schema';
+
+const BASE_VRS_PATIENT_UPSERT_ADVISORY_KEY = 'vrsPatientUpsertAdvisoryLock';
 
 export class VRSActionHandler {
   store = null;
@@ -94,11 +97,37 @@ export class VRSActionHandler {
       }
     } else if ([schema.OPERATIONS.INSERT, schema.OPERATIONS.UPDATE].includes(operation)) {
       await sequelize.transaction(async () => {
-        // allow inserts and updates to resurrect deleted records - real deletion path
-        const [{ id: upsertedPatientId }] = await Patient.upsert(
-          { ...patient, deletedAt: null },
-          { returning: true, paranoid: false },
+        // Not a plain upsert() because patients_display_id_key is DEFERRABLE (see
+        // TAM-7004), and Postgres forbids deferrable constraints as ON CONFLICT
+        // arbiters. Guarded by an advisory lock (same pattern as
+        // Invoice.addItemToInvoice) since this find-then-write would otherwise race
+        // against a concurrent call for the same displayId -- applyAction is invoked
+        // both from the retry poller and the real-time webhook route, so the same
+        // patient could genuinely be processed by both around the same time.
+        const lockId = stringToStableInteger(
+          `${BASE_VRS_PATIENT_UPSERT_ADVISORY_KEY}:${patient.displayId}`,
         );
+        await sequelize.query(`SELECT pg_advisory_xact_lock(:lockId)`, {
+          replacements: { lockId },
+        });
+
+        const existingPatient = await Patient.findOne({
+          where: { displayId: patient.displayId },
+          paranoid: false,
+        });
+
+        let upsertedPatientId;
+        if (existingPatient) {
+          if (existingPatient.deletedAt) {
+            await existingPatient.restore(); // allow inserts and updates to resurrect deleted records - real deletion path
+          }
+          await existingPatient.update(patient);
+          upsertedPatientId = existingPatient.id;
+        } else {
+          const createdPatient = await Patient.create(patient);
+          upsertedPatientId = createdPatient.id;
+        }
+
         patientAdditionalData.patientId = upsertedPatientId;
         patientVRSData.patientId = upsertedPatientId;
         await PatientAdditionalData.upsert(patientAdditionalData);
