@@ -5,7 +5,6 @@ import {
   getUser,
   getPractitioners,
 } from '@utils/apiHelpers';
-import { MedicationDetailsModal } from '@pages/patients/MedicationsPage/modals/MedicationDetailsModal';
 
 test.describe('Medication - Patient', () => {
   test.describe.configure({ mode: 'parallel' });
@@ -25,10 +24,7 @@ test.describe('Medication - Patient', () => {
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();
 
-    await medicationPane.clickFirstOngoingMedicationRow();
-
-    const detailsModal = new MedicationDetailsModal(page);
-    await detailsModal.waitForModalToLoad();
+    const detailsModal = await medicationPane.clickFirstOngoingMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
     expect(await discontinueModal.getDiscontinuedByValue()).toBe(currentUser.displayName);
@@ -60,10 +56,7 @@ test.describe('Medication - Patient', () => {
     await patientDetailsPage.goToPatient(newPatient);
     const medicationPane = await patientDetailsPage.navigateToPatientMedicationTab();
 
-    await medicationPane.clickFirstOngoingMedicationRow();
-
-    const detailsModal = new MedicationDetailsModal(page);
-    await detailsModal.waitForModalToLoad();
+    const detailsModal = await medicationPane.clickFirstOngoingMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
     await discontinueModal.changeDiscontinuedBy(currentUser.displayName);

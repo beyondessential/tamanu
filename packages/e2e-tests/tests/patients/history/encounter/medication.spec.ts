@@ -7,7 +7,6 @@ import {
   getPractitioners,
 } from '@utils/apiHelpers';
 import { selectFieldOption } from '@utils/fieldHelpers';
-import { MedicationDetailsModal } from '@pages/patients/MedicationsPage/modals/MedicationDetailsModal';
 
 test.describe('Medication - Encounter', () => {
   test.describe.configure({ mode: 'parallel' });
@@ -81,10 +80,7 @@ test.describe('Medication - Encounter', () => {
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
     await medicationPane.waitForPaneToLoad();
 
-    await medicationPane.clickFirstMedicationRow();
-
-    const detailsModal = new MedicationDetailsModal(page);
-    await detailsModal.waitForModalToLoad();
+    const detailsModal = await medicationPane.clickFirstMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
     expect(await discontinueModal.getDiscontinuedByValue()).toBe(currentUser.displayName);
@@ -118,10 +114,7 @@ test.describe('Medication - Encounter', () => {
     const medicationPane = await patientDetailsPage.navigateToMedicationTab();
     await medicationPane.waitForPaneToLoad();
 
-    await medicationPane.clickFirstMedicationRow();
-
-    const detailsModal = new MedicationDetailsModal(page);
-    await detailsModal.waitForModalToLoad();
+    const detailsModal = await medicationPane.clickFirstMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
     await discontinueModal.changeDiscontinuedBy(currentUser.displayName);

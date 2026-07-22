@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
+import { MedicationDetailsModal } from '../modals/MedicationDetailsModal';
 
 export class EncounterMedicationPane extends BasePatientPane {
   readonly contentPane!: Locator;
@@ -58,7 +59,7 @@ export class EncounterMedicationPane extends BasePatientPane {
     await this.medicationTable.waitFor({ state: 'visible' });
   }
 
-  async clickFirstMedicationRow(): Promise<void> {
+  async clickFirstMedicationRow(): Promise<MedicationDetailsModal> {
     // The table always renders a single <tr>: a status row (loading/error/no-data,
     // one cell with testid `statustablecell-rwkq`) until real data arrives, then data
     // rows whose cells carry `styledtablecell-2gyy-<row>-<col>`. The `statusrow-fsiy`
@@ -70,5 +71,9 @@ export class EncounterMedicationPane extends BasePatientPane {
       .first();
     await firstDataCell.waitFor({ state: 'visible' });
     await firstDataCell.click();
+
+    const detailsModal = new MedicationDetailsModal(this.page);
+    await detailsModal.waitForModalToLoad();
+    return detailsModal;
   }
 }
