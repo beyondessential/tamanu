@@ -120,6 +120,16 @@ referenceDataManageRouter.get(
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model);
 
+    // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
+    // The list query eager-loads those associations so the name can be displayed in the row.
+    const fkNameColumns = columns.filter(c => c.isFkName);
+    const fkNameByKey = new Map(fkNameColumns.map(c => [c.key, c]));
+    const include = fkNameColumns.map(c => ({
+      association: c.key,
+      attributes: ['id', 'name'],
+      required: false,
+    }));
+
     // Build search filters from query params
     const searchWhere = {};
     const searchableKeys = new Set(
@@ -160,6 +170,12 @@ referenceDataManageRouter.get(
         searchWhere.visibilityStatus = value.split(',');
         continue;
       }
+      const fkNameCol = fkNameByKey.get(key);
+      if (fkNameCol) {
+        // search the associated record's name, not a column on this model
+        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
+        continue;
+      }
       if (searchableKeys.has(key)) {
         searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
       }
@@ -173,9 +189,17 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    const count = await model.count({ where });
+    // count() only needs the FK joins that a name filter actually references; the rest are
+    // display-only and would add pointless LEFT JOINs to the count query. findAll keeps them
+    // all so every companion column can be populated in the response.
+    const countInclude = include.filter(({ association }) =>
+      Object.prototype.hasOwnProperty.call(searchWhere, `$${association}.name$`),
+    );
+
+    const count = await model.count({ where, include: countInclude });
     const data = await model.findAll({
       where,
+      include,
       order: [
         [orderBy, normalizedOrder],
         ['id', 'ASC'],
@@ -186,7 +210,13 @@ referenceDataManageRouter.get(
 
     res.send({
       count,
-      data: data.map(record => record.forResponse()),
+      data: data.map(record => {
+        const row = record.forResponse();
+        for (const c of fkNameColumns) {
+          row[c.key] = record[c.key]?.name ?? null;
+        }
+        return row;
+      }),
     });
   }),
 );

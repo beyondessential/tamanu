@@ -603,6 +603,32 @@ describe('Suggestions', () => {
       expect(names).toContain('Suggestions Sync Clinician');
       expect(names).not.toContain('System: facility-sync-test sync');
     });
+
+    it('should match a drug by id with searchById even when facilityId is passed', async () => {
+      // Regression: with facilityId present the drug endpoint moves name-matching into Op.and,
+      // which previously combined with the searchById id match under AND and returned nothing. The admin
+      // reference-data screen always sends facilityId, so this is the real-world path.
+      const drug = await models.ReferenceData.create({
+        id: 'drug-searchbyid-RX99123',
+        type: 'drug',
+        name: 'Ibuprofen tablet',
+        code: 'searchbyid-RX99123',
+      });
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const byId = await userApp.get(
+        `/api/suggestions/drug?q=RX99123&searchById=true&facilityId=${facility.id}`,
+      );
+      expect(byId).toHaveSucceeded();
+      expect(byId.body.map(({ id }) => id)).toContain(drug.id);
+
+      // and the same term must not match by name under searchById
+      const byName = await userApp.get(
+        `/api/suggestions/drug?q=Ibuprofen&searchById=true&facilityId=${facility.id}`,
+      );
+      expect(byName).toHaveSucceeded();
+      expect(byName.body.map(({ id }) => id)).not.toContain(drug.id);
+    });
   });
 
   describe('Order of results (via diagnoses)', () => {
@@ -1177,6 +1203,29 @@ describe('Suggestions', () => {
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0]).toHaveProperty('id', invoiceProduct.id);
+  });
+
+  it('should match on record id instead of name when searchById is passed', async () => {
+    const product = await models.InvoiceProduct.create({
+      id: 'invoiceProduct-drug-RX00343',
+      name: 'Paracetamol tablet',
+      category: INVOICE_ITEMS_CATEGORIES.OTHER,
+      visibilityStatus: 'current',
+    });
+
+    const byId = await userApp.get('/api/suggestions/invoiceProduct?q=RX00343&searchById=true');
+    expect(byId).toHaveSucceeded();
+    expect(byId.body.map(({ id }) => id)).toContain(product.id);
+
+    const byNameWithFlag = await userApp.get(
+      '/api/suggestions/invoiceProduct?q=Paracetamol&searchById=true',
+    );
+    expect(byNameWithFlag).toHaveSucceeded();
+    expect(byNameWithFlag.body.map(({ id }) => id)).not.toContain(product.id);
+
+    const byIdWithoutFlag = await userApp.get('/api/suggestions/invoiceProduct?q=RX00343');
+    expect(byIdWithoutFlag).toHaveSucceeded();
+    expect(byIdWithoutFlag.body.map(({ id }) => id)).not.toContain(product.id);
   });
 
   it('should return the dispensing unit for a drug invoice product', async () => {
