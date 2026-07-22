@@ -30,6 +30,7 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     await models.Facility.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.ReportDefinition.truncate({ cascade: true, force: true });
     await models.User.create({
       id: SYSTEM_USER_UUID,
       email: 'system',
@@ -119,5 +120,63 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
 
     const child = results.find(r => r.id === childId);
     expect(child.original_payment_id).toBe(parentId);
+  });
+
+  // Reproduces the TAM-7004 scenario: a report is renamed off "cat" and a new report
+  // named "cat" is created in the same push. Creates are applied before updates within a
+  // batch, so without deferring report_definitions_name_key, this push would fail with a
+  // spurious unique violation even though the end state is valid.
+  it('persists a push that renames a report off a name reused by a new report in the same batch', async () => {
+    const facility = await models.Facility.create(fake(models.Facility));
+    const renamedReport = await models.ReportDefinition.create({
+      id: fakeUUID(),
+      name: 'cat',
+      dbSchema: 'reporting',
+    });
+    const newReportId = fakeUUID();
+
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
+    await waitForSession(centralSyncManager, sessionId);
+
+    const changes = [
+      {
+        direction: SYNC_SESSION_DIRECTION.OUTGOING,
+        isDeleted: false,
+        recordType: 'report_definitions',
+        recordId: newReportId,
+        data: {
+          id: newReportId,
+          name: 'cat',
+          dbSchema: 'reporting',
+        },
+      },
+      {
+        direction: SYNC_SESSION_DIRECTION.OUTGOING,
+        isDeleted: false,
+        recordType: 'report_definitions',
+        recordId: renamedReport.id,
+        data: {
+          id: renamedReport.id,
+          name: 'cat_deprecated',
+          dbSchema: 'reporting',
+        },
+      },
+    ];
+
+    await centralSyncManager.addIncomingChanges(sessionId, changes);
+    await centralSyncManager.completePush(sessionId, facility.id, ['report_definitions']);
+    await waitForPushCompleted(centralSyncManager, sessionId);
+
+    const [results] = await sequelize.query(
+      `SELECT id, name FROM report_definitions WHERE id IN (:renamedId, :newId)`,
+      { replacements: { renamedId: renamedReport.id, newId: newReportId } },
+    );
+    expect(results).toHaveLength(2);
+
+    const renamed = results.find(r => r.id === renamedReport.id);
+    const created = results.find(r => r.id === newReportId);
+    expect(renamed.name).toBe('cat_deprecated');
+    expect(created.name).toBe('cat');
   });
 });
