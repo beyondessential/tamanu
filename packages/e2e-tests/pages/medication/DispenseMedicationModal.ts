@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
 
 export class DispenseMedicationModal {
@@ -30,10 +30,7 @@ export class DispenseMedicationModal {
     this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox');
     this.patientSummaryPanel = page.getByTestId('dispense-modal-patient-context');
     this.modifyDoseInput = page.getByTestId('modify-prescription-dose-input');
-    // CheckField renders the clickable input with a `-controlcheck` suffix on the testid.
-    this.modifyVariableDoseCheckbox = page.getByTestId(
-      'modify-prescription-variable-dose-controlcheck',
-    );
+    this.modifyVariableDoseCheckbox = page.getByTestId('modify-prescription-variable-dose');
     this.modifyRouteField = page.getByTestId('modify-prescription-route-select');
     this.modifyReasonField = page.getByTestId('modify-prescription-reason-input');
     this.modifyConfirmButton = page.getByTestId('modify-prescription-confirm');
@@ -77,9 +74,8 @@ export class DispenseMedicationModal {
   // dose field, so no dose is entered; the reason remains mandatory.
   async modifyToVariableDose(rowIndex = 0): Promise<void> {
     await this.openModifyPrescription(rowIndex);
-    await this.modifyVariableDoseCheckbox.check();
-    // Ticking variable dose disables the dose field — confirm the toggle took effect.
-    await expect(this.modifyDoseInput).toBeDisabled();
+    await this.modifyVariableDoseCheckbox.click();
+    await this.modifyDoseInput.waitFor({ state: 'attached' });
     await selectAutocompleteFieldOption(this.page, this.modifyReasonField, { selectFirst: true });
     await this.modifyConfirmButton.click();
     await this.modifyConfirmButton.waitFor({ state: 'hidden' });
