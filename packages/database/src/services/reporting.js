@@ -27,15 +27,34 @@ const validateUser = async (existingStore, username) => {
 // process startup is harmless. Same lock key as main's reporting roles.
 const REPORTING_GRANTS_LOCK_KEY = '7829301042';
 
+// The grant can also race autovacuum's in-place pg_class updates ("tuple
+// concurrently updated", XX000) — the advisory lock only serialises our own
+// processes, not background workers. Fixed upstream in the 2024-11 postgres
+// minors (12.21+), but deployments run older; the grant is idempotent, so
+// retry with backoff.
+const GRANT_ATTEMPTS = 3;
+
 const grantPrivileges = async (existingStore, schemaName, username) => {
-  await existingStore.sequelize.transaction(async () => {
-    await existingStore.sequelize.query(
-      `SELECT pg_advisory_xact_lock(${REPORTING_GRANTS_LOCK_KEY}::bigint);`,
-    );
-    await existingStore.sequelize.query(`
-      GRANT SELECT ON ALL TABLES IN SCHEMA ${schemaName} TO ${username};
-    `);
-  });
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await existingStore.sequelize.transaction(async () => {
+        await existingStore.sequelize.query(
+          `SELECT pg_advisory_xact_lock(${REPORTING_GRANTS_LOCK_KEY}::bigint);`,
+        );
+        await existingStore.sequelize.query(`
+          GRANT SELECT ON ALL TABLES IN SCHEMA ${schemaName} TO ${username};
+        `);
+      });
+      return;
+    } catch (error) {
+      const code = error?.original?.code ?? error?.parent?.code;
+      if (code !== 'XX000' || attempt >= GRANT_ATTEMPTS) throw error;
+      log.warn(`grantPrivileges(${username}): retrying after catalog update race`, { attempt });
+      await new Promise(resolve => {
+        setTimeout(resolve, 500 * attempt);
+      });
+    }
+  }
 };
 
 const initReportStore = async (existingStore, connectionName, credentials) => {
