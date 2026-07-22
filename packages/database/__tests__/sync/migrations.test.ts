@@ -1,5 +1,5 @@
 import { closeDatabase, initDatabase } from '../utilities';
-import { runPostMigration, runPreMigration } from '../../src/services/migrations/migrationHooks';
+import { runPostMigration, runPreMigration } from '../../src/services/migrations/hooks';
 import { createMigrationInterface } from '../../src/services/migrations/migrations';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
