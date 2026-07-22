@@ -82,6 +82,25 @@ describe('Reference Data Manage', () => {
       }
       expect(failures).toEqual([]);
     });
+
+    it('should add a read-only name companion column for FK columns whose target has a name', async () => {
+      let sawCompanion = false;
+      for (const type of MANAGEABLE_REFERENCE_DATA_TYPES) {
+        const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
+        if (response.status >= 400) continue;
+        const cols = response.body;
+        for (const col of cols.filter(c => c.isFkName)) {
+          sawCompanion = true;
+          // display/search only — never written through the create/edit form
+          expect(col).toMatchObject({ type: 'STRING', readOnly: true, isFkName: true });
+          expect(typeof col.fkKey).toBe('string');
+          // it sits alongside a real FK id column that carries the suggester
+          const fkCol = cols.find(c => c.key === col.fkKey);
+          expect(fkCol?.suggesterEndpoint).toBeTruthy();
+        }
+      }
+      expect(sawCompanion).toBe(true);
+    });
   });
 
   describe('POST /', () => {
