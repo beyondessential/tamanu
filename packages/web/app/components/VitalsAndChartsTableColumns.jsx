@@ -195,6 +195,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
         config={config}
         validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
         isEdited={historyLogs.length > 1}
+        isFreeText={component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TEXT}
         onClick={shouldBeClickable ? handleCellClick : null}
         ValueWrapper={VitalsLimitedLinesCell}
         data-testid={`rangevalidatedcell-${date}`}
