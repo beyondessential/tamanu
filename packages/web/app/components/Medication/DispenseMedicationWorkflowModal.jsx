@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
@@ -227,6 +227,12 @@ export const DispenseMedicationWorkflowModal = memo(
     const [labelsForPrint, setLabelsForPrint] = useState([]);
     const [isDispensing, setIsDispensing] = useState(false);
     const [modifyRowIndex, setModifyRowIndex] = useState(null);
+    // The dispensable list is built into local `items` once per open. In-progress edits
+    // (modification, quantity, instructions) live only in local state, so the list must not be
+    // rebuilt from a later query refetch or a translation-load re-render — opening the modify
+    // modal loads new strings/reference data, which changes the translation fn identities and
+    // would otherwise re-run the build effect and wipe the just-entered modification.
+    const itemsInitialisedRef = useRef(false);
 
     const patientId = patient?.id;
 
@@ -259,6 +265,7 @@ export const DispenseMedicationWorkflowModal = memo(
       setLabelsForPrint([]);
       setIsDispensing(false);
       setModifyRowIndex(null);
+      itemsInitialisedRef.current = false;
     }, [open]);
 
     useEffect(() => {
@@ -267,6 +274,9 @@ export const DispenseMedicationWorkflowModal = memo(
 
     useEffect(() => {
       if (!open) return;
+      // Only build the working list once per open, so a refetch or translation-load re-render
+      // does not discard in-progress modifications / quantity / label edits.
+      if (itemsInitialisedRef.current) return;
       const { data: dispensableData } = dispensableResponse || {};
       if (!dispensableData) return;
 
@@ -293,6 +303,7 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
+      itemsInitialisedRef.current = true;
     }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
