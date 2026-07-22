@@ -121,11 +121,11 @@ referenceDataManageRouter.get(
     const columns = await getColumnsForModel(model);
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
-    // We eager-load those associations so the name can be displayed and searched on.
+    // The list query eager-loads those associations so the name can be displayed in the row.
     const fkNameColumns = columns.filter(c => c.isFkName);
     const fkNameByKey = new Map(fkNameColumns.map(c => [c.key, c]));
     const include = fkNameColumns.map(c => ({
-      association: c.fkAlias,
+      association: c.key,
       attributes: ['id', 'name'],
       required: false,
     }));
@@ -173,7 +173,7 @@ referenceDataManageRouter.get(
       const fkNameCol = fkNameByKey.get(key);
       if (fkNameCol) {
         // search the associated record's name, not a column on this model
-        searchWhere[`$${fkNameCol.fkAlias}.name$`] = { [Op.iLike]: `%${value}%` };
+        searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
         continue;
       }
       if (searchableKeys.has(key)) {
@@ -189,7 +189,14 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    const count = await model.count({ where, include });
+    // count() only needs the FK joins that a name filter actually references; the rest are
+    // display-only and would add pointless LEFT JOINs to the count query. findAll keeps them
+    // all so every companion column can be populated in the response.
+    const countInclude = include.filter(({ association }) =>
+      Object.prototype.hasOwnProperty.call(searchWhere, `$${association}.name$`),
+    );
+
+    const count = await model.count({ where, include: countInclude });
     const data = await model.findAll({
       where,
       include,
@@ -206,7 +213,7 @@ referenceDataManageRouter.get(
       data: data.map(record => {
         const row = record.forResponse();
         for (const c of fkNameColumns) {
-          row[c.key] = record[c.fkAlias]?.name ?? null;
+          row[c.key] = record[c.key]?.name ?? null;
         }
         return row;
       }),
