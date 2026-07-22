@@ -83,7 +83,7 @@ const validationSchema = yup.object().shape({
 
 // Appends the standard "modified by pharmacy" note to the end of any existing pharmacy notes,
 // without duplicating it if it is already present.
-const appendPharmacyNote = (existingNotes, note) => {
+export const appendPharmacyNote = (existingNotes, note) => {
   const existing = existingNotes ?? '';
   if (!existing.trim()) return note;
   return existing.includes(note) ? existing : `${existing}\n${note}`;

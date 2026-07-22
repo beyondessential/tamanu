@@ -66,7 +66,17 @@ function mockPostResponse(success = true, message = 'ok', items = undefined) {
 
 async function createMedicationDispenses(
   models,
-  { facilityId, encounterId, orderingClinicianId, dispensedByUserId, medicationId, count = 1 },
+  {
+    facilityId,
+    encounterId,
+    orderingClinicianId,
+    dispensedByUserId,
+    medicationId,
+    // When set, simulates a pharmacy substitution: the fill is dispensed with this medication
+    // rather than the prescribed one (as the dispense route records via medication_dispenses).
+    dispensedMedicationId,
+    count = 1,
+  },
 ) {
   const { PharmacyOrder, Prescription, PharmacyOrderPrescription, MedicationDispense } = models;
   const order = await PharmacyOrder.create({
@@ -97,10 +107,29 @@ async function createMedicationDispenses(
       pharmacyOrderPrescriptionId: pop.id,
       quantity: 1,
       dispensedByUserId,
+      ...(dispensedMedicationId && {
+        medicationId: dispensedMedicationId,
+        modifiedAt: getCurrentDateTimeString(),
+        modifiedById: dispensedByUserId,
+      }),
     });
     dispenses.push(dispense);
   }
   return dispenses;
+}
+
+// Every itemCode across all GraphQL push calls made in a run (auth calls are skipped).
+function pushedItemCodes() {
+  return fetchWithRetryBackoff.mock.calls
+    .map(call => {
+      try {
+        return JSON.parse(call[1].body);
+      } catch {
+        return null;
+      }
+    })
+    .flatMap(body => body?.variables?.input?.items ?? [])
+    .map(item => item.itemCode);
 }
 
 describe('mSupplyMedIntegrationProcessor', () => {
@@ -346,6 +375,44 @@ describe('mSupplyMedIntegrationProcessor', () => {
       expect(successLog).not.toBeNull();
       expect(successLog.message).toBe('Batch received');
       expect(sleepAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when a fill was dispensed with a substituted medication', () => {
+    it('sends the dispensed medication code, not the prescribed one', async () => {
+      const prescribed = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-PRESCRIBED',
+        name: 'Prescribed medication (sub test)',
+      });
+      const substitute = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-SUBSTITUTE',
+        name: 'Substitute medication (sub test)',
+      });
+
+      await createMedicationDispenses(models, {
+        facilityId,
+        encounterId,
+        orderingClinicianId: clinicianId,
+        dispensedByUserId,
+        medicationId: prescribed.id,
+        dispensedMedicationId: substitute.id,
+        count: 1,
+      });
+
+      mockAuthResponse();
+      // Mock generously so any leftover un-pushed dispenses batched alongside are covered.
+      for (let i = 0; i < 10; i++) mockPostResponse(true, 'ok');
+
+      const task = new mSupplyMedIntegrationProcessor(context);
+      await task.run();
+
+      const codes = pushedItemCodes();
+      expect(codes).toContain('MED-SUBTEST-SUBSTITUTE');
+      expect(codes).not.toContain('MED-SUBTEST-PRESCRIBED');
     });
   });
 

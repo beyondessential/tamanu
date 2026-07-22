@@ -4,6 +4,7 @@ import { constructFacilityUrl } from '@utils/navigation';
 
 export class MedicationDispensesPage extends BasePage {
   readonly table: Locator;
+  readonly modifiedFootnote: Locator;
   readonly historyModalCurrentCard: Locator;
   readonly historyModalOriginalCard: Locator;
   readonly historyModalCloseButton: Locator;
@@ -11,6 +12,8 @@ export class MedicationDispensesPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.table = page.getByTestId('searchtablewithpermissioncheck-medication-dispenses');
+    // Shown below the table when it contains at least one pharmacy-modified fill.
+    this.modifiedFootnote = page.getByText('*Prescription modified by pharmacy');
     this.historyModalCurrentCard = page.getByTestId('modify-history-current');
     this.historyModalOriginalCard = page.getByTestId('modify-history-original');
     this.historyModalCloseButton = page.getByTestId('modify-history-close');
