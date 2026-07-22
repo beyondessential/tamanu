@@ -199,6 +199,7 @@ export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
 
   const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
+  const isPriorityEditingEnabled = getSetting('features.labRequest.priorityEditable');
 
   const closeModal = () => {
     setModalOpen(false);
@@ -241,6 +242,9 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
+  const isPriorityLocked =
+    isPriorityEditingEnabled && labRequest.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING;
+  const isPriorityReadOnly = areLabRequestsReadOnly || isPriorityLocked;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);
   const canEnterResults = !isPublished && !areLabTestsReadOnly;
@@ -527,7 +531,7 @@ export const LabRequestView = () => {
                 <>&mdash;</>
               )
             }
-            isReadOnly={areLabRequestsReadOnly}
+            isReadOnly={isPriorityReadOnly}
             actions={[
               {
                 label: (

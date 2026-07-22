@@ -476,6 +476,19 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
+            priorityMandatory: {
+              name: 'Lab request priority mandatory',
+              description: 'Require a priority to be selected when creating a lab request',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            priorityEditable: {
+              name: 'Lab request priority editable',
+              description:
+                'Allow lab request priority to be edited after the request has been submitted. When disabled, the option to change priority is not offered once the request is no longer reception pending.',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
           },
         },
         covidCertificates: {
