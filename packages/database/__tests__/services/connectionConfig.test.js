@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { resolveDbConfig } from '../../src/services/connectionConfig';
+import { pgStartupOptions, resolveDbConfig } from '../../src/services/connectionConfig';
 
 describe('resolveDbConfig', () => {
   const structured = {
@@ -54,5 +54,27 @@ describe('resolveDbConfig', () => {
   it('throws a clear error when DATABASE_URL is not a postgres connection string', () => {
     process.env.DATABASE_URL = 'localhost:5432/tamanu';
     expect(() => resolveDbConfig(structured)).toThrow(/postgres/);
+  });
+});
+
+describe('pgStartupOptions', () => {
+  it('returns the GUC flag for a positive millisecond value', () => {
+    expect(pgStartupOptions({ idleInTransactionSessionTimeout: 600000 })).toEqual(
+      '-c idle_in_transaction_session_timeout=600000',
+    );
+  });
+
+  it('floors fractional values', () => {
+    expect(pgStartupOptions({ idleInTransactionSessionTimeout: 1500.9 })).toEqual(
+      '-c idle_in_transaction_session_timeout=1500',
+    );
+  });
+
+  it('is disabled when unset, zero, negative, or junk', () => {
+    expect(pgStartupOptions()).toBeUndefined();
+    expect(pgStartupOptions({})).toBeUndefined();
+    expect(pgStartupOptions({ idleInTransactionSessionTimeout: 0 })).toBeUndefined();
+    expect(pgStartupOptions({ idleInTransactionSessionTimeout: -5 })).toBeUndefined();
+    expect(pgStartupOptions({ idleInTransactionSessionTimeout: 'ten minutes' })).toBeUndefined();
   });
 });

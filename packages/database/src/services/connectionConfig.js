@@ -25,6 +25,19 @@ const poolFromConnectionString = parsed => {
  * Callers spread the result and may still override individual fields (e.g. the
  * reporting connections reuse the resolved host/name but set their own user).
  */
+/**
+ * Postgres startup options (the `options` connection parameter): session GUCs
+ * applied to every pooled connection at connect time, no per-connect round
+ * trip. Currently just idle_in_transaction_session_timeout, which aborts
+ * sessions left idle inside an open transaction so a stuck process can't hold
+ * locks forever. Milliseconds; unset/zero/invalid disables.
+ */
+export const pgStartupOptions = ({ idleInTransactionSessionTimeout } = {}) => {
+  const ms = Number(idleInTransactionSessionTimeout);
+  if (!Number.isFinite(ms) || ms <= 0) return undefined;
+  return `-c idle_in_transaction_session_timeout=${Math.floor(ms)}`;
+};
+
 export const resolveDbConfig = (dbConfig = {}) => {
   const url = process.env.DATABASE_URL;
   if (!url) return dbConfig;

@@ -8,6 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
 import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
+import { pgStartupOptions } from './connectionConfig';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
@@ -110,9 +111,13 @@ async function connectToDatabase(dbOptions) {
     logging = null;
   }
 
+  const startupOptions = pgStartupOptions(dbOptions);
   const options = {
     dialect: 'postgres',
-    dialectOptions: { application_name: serviceName(serviceContext()) ?? 'tamanu' },
+    dialectOptions: {
+      application_name: serviceName(serviceContext()) ?? 'tamanu',
+      ...(startupOptions && { options: startupOptions }),
+    },
   };
 
   const sequelize = new Sequelize(name, username, password, {

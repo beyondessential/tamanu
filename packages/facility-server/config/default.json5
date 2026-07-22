@@ -63,6 +63,9 @@
     "verbose": false,
     "migrateOnStartup": false,
     "skipVersionCompatibilityCheck": false,
+    // Abort sessions left idle inside an open transaction for longer than this
+    // (milliseconds; 0 disables), so a stuck process can't hold locks forever.
+    "idleInTransactionSessionTimeout": 600000,
   },
   "metaServer": {
     "hosts": [
