@@ -76,6 +76,50 @@ bespoke handlers, without rewriting them.
   the outer transaction — fine, but confirm none rely on committing independently
   mid-request.
 
+## Idempotency key table
+
+Model `IdempotencyKey`, table `idempotency_keys`. Facility-server-side only,
+`SYNC_DIRECTIONS.DO_NOT_SYNC` (like `RefreshToken` / `OneTimeLogin`): UUID `id`
+PK, standard `created_at`/`updated_at`, **no `updated_at_sync_tick`**, no mobile
+(TypeORM) counterpart. Records are operational state local to the facility server.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | `gen_random_uuid()` default |
+| `key` | TEXT not null | the client's `Idempotency-Key` header value |
+| `user_id` | FK `users` not null | scope — `belongsTo(User)` |
+| `facility_id` | FK `facilities` not null | scope — a facility server may host several |
+| `method` | TEXT not null | HTTP method |
+| `path` | TEXT not null | request path, binds the key to its endpoint |
+| `request_hash` | TEXT not null | fingerprint of method + path + normalised body; detects the same key reused for a *different* request |
+| `status` | TEXT not null | `in_progress` \| `completed` |
+| `response_status` | INTEGER null | HTTP status, set on completion |
+| `response_body` | JSONB null | recorded JSON response, set on completion (PII → dbt masking) |
+| `claimed_at` | TIMESTAMP not null | when the in-progress claim was taken; drives the lease |
+| `completed_at` | TIMESTAMP null | when completed |
+| `expires_at` | TIMESTAMP not null | retention horizon for cleanup |
+
+**Uniqueness / lookup:** unique index on (`key`, `user_id`, `facility_id`). This
+is both the dedup key and the row-lock point for Design A concurrency. Scoping by
+user + facility satisfies IDEM's "a key under a different user/facility does not
+resolve to another context's outcome".
+
+**Supporting indexes:** `expires_at` (cleanup scans); (`status`, `claimed_at`)
+(lease-reclamation scans, only exercised under Design B).
+
+**Behaviour notes:**
+- `status` + `claimed_at` are carried even though Design A (single wrapping txn)
+  never exposes a visible `in_progress` row — so the table already supports
+  Design B and the lease without a later migration.
+- A request presenting an existing `key` whose `request_hash` differs from the
+  stored one is a client bug (same key, different operation): respond with a
+  client error rather than replaying the unrelated response.
+- Only `application/json` responses are memoised in v1 (`response_status` +
+  `response_body`, replayed with `content-type: application/json`). Other response
+  headers are not recorded — consistent with excluding binary/download endpoints.
+- Schema change ⇒ regenerate dbt source models (`database/model/`) with a
+  `config.meta.masking` entry for `response_body` (may contain PII).
+
 ## Classification pass — mutating endpoints
 
 Headline result: the "idempotency isn't systematic" problem is real at the
