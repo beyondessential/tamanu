@@ -10,7 +10,7 @@ import { useSettings } from '../../contexts/Settings';
 export const FrequencySearchInput = ({ ...props }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const frequenciesEnabled = getSetting(`medications.frequenciesEnabled`);
+  const frequenciesEnabled = getSetting('medications.frequenciesEnabled');
 
   const frequencySuggestions = Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS)
     .filter(([frequency]) => frequenciesEnabled?.[frequency])
