@@ -149,10 +149,20 @@ Entity-level "this patient is being edited" locking was considered and is
 lifetime), Tamanu's distributed/sync model makes a global hard lock infeasible,
 and the idempotency layer does not provide it.
 
+## Spec
+
+Server-side behaviour is specified in `specs/platform/request-idempotency.md`
+(id `IDEM`). The client durable-queue follow-up is captured in `card-plan.md`.
+
 ## Open questions
-- Header-based `Idempotency-Key` vs deriving a key from a client-generated
-  operation id already in the body.
-- Backlog threshold signal (count vs age of oldest pending) — deferred until the
-  client side is back in scope.
+- **Resolved:** key is carried in an `Idempotency-Key` header (not derived from a
+  body id) — see IDEM.
+- **Resolved:** the key store is facility-local and non-synced — see IDEM.
+- Transaction topology is deliberately left to implementation: a single wrapping
+  transaction is lease-free for crash safety but holds a connection for the whole
+  request; a committed in-progress marker shortens locks but needs the lease. IDEM
+  specifies the guarantees both must satisfy; the lock optimisation is deferred.
+- Backlog threshold signal (count vs age of oldest pending) — belongs to the
+  client follow-up card, not this one.
 - Where the client generates and persists keys so a retry after reload reuses the
-  same key.
+  same key — client follow-up card.
