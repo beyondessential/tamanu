@@ -24,6 +24,10 @@ export const MarCellButton = styled(UnstyledHtmlButton)`
     background-size: 100% 5px;
     background-position: 0 2.5px;
   }
+  &[data-paused='true']:disabled {
+    /* Still considered inactive, but keep white background to distinguish from ‘discontinued’ */
+    background-color: unset;
+  }
   &[data-discontinued='true'],
   &[data-ended='true'] {
     background-color: ${p => p.theme.palette.background.default};
