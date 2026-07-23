@@ -58,13 +58,14 @@ test.describe('Medication - Encounter', () => {
     const quantityInput = page.getByTestId('medication-field-quantity-6j9m').locator('input');
     await expect(quantityInput).toHaveValue('');
 
-    await page.getByTestId('medication-field-durationValue-7p2n').locator('input').fill('5');
+    await page.getByTestId('medication-field-durationValue-7p2n').locator('input').fill('90');
     await selectFieldOption(page, page.getByTestId('medication-field-durationUnit-4q8f-select'), {
       optionToSelect: 'day (s)',
     });
 
-    // dose 1 × Daily (1 dose/day) × 5 days ÷ unit conversion 1 = 5
-    await expect(quantityInput).toHaveValue('5');
+    // Acetazolamide dispenses in packs of 30 tablets (unitConversion 30), so a course of
+    // 1 tablet × Daily (1 dose/day) × 90 days = 90 tablets ÷ 30 = 3 packs.
+    await expect(quantityInput).toHaveValue('3');
 
     // Submit (prescriber and dates are auto-populated)
     await page.getByTestId('medication-button-finalise-7x3d').click();
