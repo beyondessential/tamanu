@@ -21,6 +21,43 @@ import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/Mul
 import { BodyText, Heading5 } from '../Typography';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 
+/**
+ * Turns a medication set's template into a prescription for the review/edit screen.
+ *
+ * Snapshots the drug's dispensing unit and conversion factor from its reference drug (falling back
+ * to a blank unit and a conversion of 1 when the reference drug data is missing), and, when
+ * autocalculation is enabled, seeds the dispensing quantity from the dose/frequency/duration.
+ */
+export const buildMedicationSetPrescription = (
+  medicationTemplate,
+  { startDate, date, prescriberId, isDispensingQuantityAutocalculationEnabled },
+) => {
+  const child = {
+    ...medicationTemplate,
+    idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
+    startDate,
+    date,
+    prescriberId,
+    ...(medicationTemplate.doseAmount && {
+      doseAmount: Number(medicationTemplate.doseAmount),
+    }),
+    ...(medicationTemplate.durationValue && {
+      durationValue: Number(medicationTemplate.durationValue),
+    }),
+  };
+
+  const referenceDrug = medicationTemplate.medication?.referenceDrug;
+  child.dispensingUnit = referenceDrug?.dispensingUnit ?? '';
+  child.unitConversion = referenceDrug?.unitConversion ?? 1;
+
+  if (isDispensingQuantityAutocalculationEnabled) {
+    const quantity = getAutocalculatedDispensingQuantity(child);
+    if (quantity !== null) child.quantity = quantity;
+  }
+
+  return child;
+};
+
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
 `;
@@ -201,35 +238,14 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     const date = getCurrentDate();
     const newMedicationSetChildren = medicationSet.children
       .filter(child => child.medicationTemplate)
-      .map(({ medicationTemplate }) => {
-        const child = {
-          ...medicationTemplate,
-          idealTimes:
-            ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
+      .map(({ medicationTemplate }) =>
+        buildMedicationSetPrescription(medicationTemplate, {
           startDate,
           date,
           prescriberId: currentUser.id,
-          ...(medicationTemplate.doseAmount && {
-            doseAmount: Number(medicationTemplate.doseAmount),
-          }),
-          ...(medicationTemplate.durationValue && {
-            durationValue: Number(medicationTemplate.durationValue),
-          }),
-        };
-
-        // Snapshot the drug's dispensing unit and conversion so the quantity field can show the
-        // unit, and so the quantity can be autocalculated (and recalculated if edited in the set).
-        const referenceDrug = medicationTemplate.medication?.referenceDrug;
-        child.dispensingUnit = referenceDrug?.dispensingUnit ?? '';
-        child.unitConversion = referenceDrug?.unitConversion ?? 1;
-
-        if (isDispensingQuantityAutocalculationEnabled) {
-          const quantity = getAutocalculatedDispensingQuantity(child);
-          if (quantity !== null) child.quantity = quantity;
-        }
-
-        return child;
-      })
+          isDispensingQuantityAutocalculationEnabled,
+        }),
+      )
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
       ...medicationSet,
