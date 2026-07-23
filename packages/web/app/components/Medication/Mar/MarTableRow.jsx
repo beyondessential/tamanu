@@ -19,7 +19,7 @@ import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarStatus } from './MarStatus';
 import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
-import TableCellButton from './TableCellButton';
+import { MarCellButton } from './components';
 import useCanViewMedication from './useCanViewMedication';
 
 const TableRow = styled.tr(
@@ -38,9 +38,9 @@ const TableRow = styled.tr(
 
 const TableRowHeader = styled(({ children, disabled, onClick, ...props }) => (
   <th scope="row" {...props}>
-    <TableCellButton disabled={disabled} onClick={onClick}>
+    <MarCellButton disabled={disabled} onClick={onClick}>
       {children}
-    </TableCellButton>
+    </MarCellButton>
   </th>
 ))`
   font-weight: inherit;
