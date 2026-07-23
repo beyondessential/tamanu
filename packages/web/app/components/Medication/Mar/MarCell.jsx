@@ -11,15 +11,15 @@ import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 import getShowDoseInfo from './getShowDoseInfo';
 
 const DoseGrid = styled.div`
-  --mar-status-gap-rule: var(--mar-status-gap-rule-width) solid ${p => p.theme.palette.divider};
-  --mar-status-gap-rule-width: 1px;
+  --mar-cell-gap-rule: var(--mar-cell-gap-rule-width) solid ${p => p.theme.palette.divider};
+  --mar-cell-gap-rule-width: 1px;
   block-size: 100%;
-  column-rule: var(--mar-status-gap-rule);
+  column-rule: var(--mar-cell-gap-rule);
   display: grid;
-  gap: var(--mar-status-gap-rule-width);
+  gap: var(--mar-cell-gap-rule-width);
   grid-template-columns: 1fr;
   inline-size: 100%;
-  row-rule: var(--mar-status-gap-rule);
+  row-rule: var(--mar-cell-gap-rule);
   &:has(> ${MarCellButton}:nth-of-type(2)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -35,7 +35,7 @@ const DoseInfoOverlay = styled(MarDoseInfo)`
   position: absolute;
 `;
 
-export const MarStatus = ({
+export default function MarCell({
   selectedDate,
   timeSlot,
   marInfos,
@@ -45,7 +45,7 @@ export const MarStatus = ({
   pauseRecords,
   anchorEl,
   onAnchorElChange,
-}) => {
+}) {
   const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
   const facilityNow = getFacilityNowDate();
@@ -124,7 +124,7 @@ export const MarStatus = ({
       )}
     </MarDataCell>
   );
-};
+}
 
 /**
  * Resolve an adjacent 2-hour window from the current one.

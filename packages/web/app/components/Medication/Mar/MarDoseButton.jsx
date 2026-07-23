@@ -179,7 +179,7 @@ export function MarDoseButton({
             </IconWrapper>
           );
         }
-        // Dose due info is rendered as a cell-level overlay in MarStatus
+        // Dose due info is rendered as a cell-level overlay in MarCell
         return null;
       }
     }

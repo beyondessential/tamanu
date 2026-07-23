@@ -17,9 +17,9 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
-import { MarStatus } from './MarStatus';
-import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import { MarCellButton } from './components';
+import MarCell from './MarCell';
+import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import useCanViewMedication from './useCanViewMedication';
 
 const TableRow = styled.tr(
@@ -156,7 +156,7 @@ export const MarTableRow = ({
           </Box>
         </TableRowHeader>
         {recordsByWindow.map((marInfos, index) => (
-          <MarStatus
+          <MarCell
             key={marInfos.find(r => r?.id)?.id || index}
             selectedDate={selectedDate}
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
