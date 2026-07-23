@@ -28,7 +28,7 @@ const DarkestText = styled(Box)`
   line-height: 1.3;
 `;
 
-export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) => {
+export default function RemoveAdditionalDoseModal({ open, onClose, medication, dose }) {
   const queryClient = useQueryClient();
 
   const { mutateAsync: deleteDose } = useDeleteDoseMutation(dose.id, {
@@ -97,4 +97,4 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
       />
     </FormModal>
   );
-};
+}
