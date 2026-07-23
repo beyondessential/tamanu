@@ -1112,6 +1112,76 @@ describe('Suggestions', () => {
         'Zebra Medication Set',
       ]);
     });
+
+    it("should return referenceDrug data on each template's medication for dispensing autocalculation", async () => {
+      const { ReferenceData, ReferenceDataRelation, ReferenceMedicationTemplate, ReferenceDrug } =
+        models;
+
+      const medicationSet = await ReferenceData.create({
+        id: 'test-med-set-refdrug',
+        code: 'MED_SET_REFDRUG',
+        type: 'medicationSet',
+        name: 'Reference Drug Medication Set',
+        visibilityStatus: 'current',
+      });
+
+      const drug = await ReferenceData.create({
+        id: 'test-drug-with-refdrug',
+        code: 'DRUG_WITH_REFDRUG',
+        type: 'drug',
+        name: 'Drug With Reference Drug',
+        visibilityStatus: 'current',
+      });
+
+      // The reference drug holds the dosing/dispensing units the frontend uses to auto-calculate
+      // the dispensing quantity.
+      await ReferenceDrug.create({
+        ...fake(models.ReferenceDrug),
+        referenceDataId: drug.id,
+        dosingUnit: 'mg',
+        dispensingUnit: 'Tablet',
+        unitConversion: 250,
+      });
+
+      const templateRef = await ReferenceData.create({
+        id: 'template-ref-with-refdrug',
+        code: 'TEMPLATE_WITH_REFDRUG',
+        type: 'medicationTemplate',
+        name: 'Template With Reference Drug',
+        visibilityStatus: 'current',
+      });
+
+      await ReferenceMedicationTemplate.create({
+        referenceDataId: templateRef.id,
+        medicationId: drug.id,
+        dosingUnit: 'mg',
+        frequency: 'daily',
+        route: 'oral',
+      });
+
+      await ReferenceDataRelation.create({
+        referenceDataId: templateRef.id,
+        referenceDataParentId: medicationSet.id,
+        type: 'medication',
+      });
+
+      const result = await userApp.get('/api/suggestions/medicationSet?language=en');
+      expect(result).toHaveSucceeded();
+
+      const suggestion = result.body.find(item => item.id === medicationSet.id);
+      expect(suggestion).toBeDefined();
+
+      const template = suggestion.children.find(child => child.id === templateRef.id);
+      expect(template).toBeDefined();
+
+      const { referenceDrug } = template.medicationTemplate.medication;
+      expect(referenceDrug).toMatchObject({
+        dosingUnit: 'mg',
+        dispensingUnit: 'Tablet',
+      });
+      // unitConversion is a DECIMAL, serialised as a string.
+      expect(Number(referenceDrug.unitConversion)).toBe(250);
+    });
   });
 
   it('should respect visibility status', async () => {

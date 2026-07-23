@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructFacilityUrl } from '@utils/navigation';
 
@@ -31,8 +31,20 @@ export class MedicationDispensesPage extends BasePage {
   async openModifyHistoryForPatient(patientDisplayId: string): Promise<void> {
     const row = this.rowForPatient(patientDisplayId);
     await row.waitFor({ state: 'visible' });
-    await row.getByTestId('openbutton-d1ec').click();
-    await this.page.getByTestId('list-i0ae').getByText('View modify history').click();
+
+    const menuItem = this.page.getByTestId('list-i0ae').getByText('View modify history');
+
+    // The dispensed table re-renders while its row actions menu is open, which can detach the
+    // just-opened menu item before the click lands. Retry opening the menu and clicking the item
+    // as a unit; only open the menu when it isn't already showing so a retry doesn't toggle an
+    // open menu shut.
+    await expect(async () => {
+      if (!(await menuItem.isVisible())) {
+        await row.getByTestId('openbutton-d1ec').click();
+      }
+      await menuItem.click({ timeout: 2000 });
+    }).toPass({ timeout: 15000 });
+
     await this.historyModalCurrentCard.waitFor({ state: 'visible' });
   }
 }
