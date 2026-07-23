@@ -780,7 +780,7 @@ export const DispenseMedicationWorkflowModal = memo(
                   action: () => setModifyRowIndex(rowIndex),
                 },
               ]}
-              data-testid={`dispense-row-actions-${rowIndex}`}
+              buttonTestId={`dispense-row-actions-${rowIndex}`}
             />
           ),
         });

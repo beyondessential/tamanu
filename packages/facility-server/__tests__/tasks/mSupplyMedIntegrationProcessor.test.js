@@ -403,9 +403,11 @@ describe('mSupplyMedIntegrationProcessor', () => {
         count: 1,
       });
 
+      // One dispense → one batch → one push. Queue exactly that: mockResolvedValueOnce responses
+      // are not drained by clearAllMocks between tests, so over-queuing here would leak leftover
+      // POST responses into later tests and break their auth call.
       mockAuthResponse();
-      // Mock generously so any leftover un-pushed dispenses batched alongside are covered.
-      for (let i = 0; i < 10; i++) mockPostResponse(true, 'ok');
+      mockPostResponse(true, 'ok');
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
