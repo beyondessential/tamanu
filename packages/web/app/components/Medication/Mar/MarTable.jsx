@@ -9,7 +9,7 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
-import TableCellButton from './TableCellButton';
+import { MarCellButton } from './components';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table`
@@ -33,7 +33,7 @@ const Table = styled.table`
   }
 
   /* If cell is non-interactive, pad. Else let button(s) fill cell & delegate padding to them. */
-  & :is(th, td):not(:has(${TableCellButton})) {
+  & :is(th, td):not(:has(${MarCellButton})) {
     padding: 10px;
   }
 
