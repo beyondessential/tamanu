@@ -40,7 +40,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 **Desired behaviour.** The ordering workflow is streamlined so panels and individual tests are requested together, with panel contents visible. Four changes:
 
 1. **Remove the request-type step.** The clinician no longer selects "individual" vs "panel" before choosing tests — both are requested in a single workflow.
-2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place.
+2. **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place. Results list matching individual tests first, followed by the panels that contain those tests.
 3. **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
 4. **Prevent duplicates.** Duplicate detection runs in both directions while building a request:
    - An individual test already covered by a selected panel cannot also be selected on its own.
@@ -53,7 +53,6 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 **Open questions (to resolve before design):**
 - **Panel-then-individual resolution:** when a clinician selects a panel that contains a test already selected individually, how is the duplicate resolved — is the standalone individual selection silently absorbed into (removed in favour of) the panel, or is the clinician prompted to confirm?
-- **Search results and panel members:** should search results exclude individual tests that are members of a panel? Megan to confirm with Mark.
 
 ---
 
