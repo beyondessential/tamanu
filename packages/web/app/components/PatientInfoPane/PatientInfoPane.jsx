@@ -23,6 +23,7 @@ import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { useSettings } from '../../contexts/Settings';
+import { useAuth } from '../../contexts/Auth';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -261,7 +262,18 @@ export const PatientInfoPane = () => {
   );
 
   const readonly = !!patient.dateOfDeath;
-  const showRecordDeathActions = !isFetching && patientDeathsEnabled && !deathData?.isFinal;
+  const { ability } = useAuth();
+  const canRecordPatientDeath =
+    ability?.can('create', 'PatientDeath') && ability?.can('write', 'Patient');
+  const canReadPatientDeath = ability?.can('read', 'PatientDeath');
+  const isPatientDeceased = readonly;
+  // Reverting a death record requires read as well as create: the revert link is only
+  // valid for a non-final record, and isFinal can only be determined with read access.
+  const canActOnDeath = isPatientDeceased
+    ? canRecordPatientDeath && canReadPatientDeath
+    : canRecordPatientDeath;
+  const showRecordDeathActions =
+    !isFetching && patientDeathsEnabled && !deathData?.isFinal && canActOnDeath;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   return (
