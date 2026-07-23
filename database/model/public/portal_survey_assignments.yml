@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_portal_survey_assignments_from_sync_lookup
               - notify_portal_survey_assignments_changed
               - record_portal_survey_assignments_changelog
               - set_portal_survey_assignments_updated_at

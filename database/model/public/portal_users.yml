@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_portal_users_from_sync_lookup
               - notify_portal_users_changed
               - record_portal_users_changelog
               - set_portal_users_updated_at

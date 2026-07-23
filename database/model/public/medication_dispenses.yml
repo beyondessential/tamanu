@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_medication_dispenses_from_sync_lookup
               - notify_medication_dispenses_changed
               - record_medication_dispenses_changelog
               - set_medication_dispenses_updated_at

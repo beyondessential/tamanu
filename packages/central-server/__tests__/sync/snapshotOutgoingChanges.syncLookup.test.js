@@ -188,6 +188,93 @@ describe('snapshotOutgoingChanges', () => {
     expect(outgoingSnapshotRecords[0].recordId).toEqual(refData1Id);
   });
 
+  it('excludes a stub row (data IS NULL) from an outgoing snapshot, then includes it once healed', async () => {
+    const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+      ctx.store.sequelize,
+      sessionId,
+      true,
+      [facility.id],
+      tock - 1,
+    );
+
+    const stubRecordId = fakeUUID();
+
+    const [stubLookupRow] = await models.SyncLookup.bulkCreate([
+      fake(models.SyncLookup, {
+        id: 1,
+        recordId: stubRecordId,
+        recordType: 'reference_data',
+        patientId: null,
+        facilityId: null,
+        encounterId: null,
+        isLabRequest: false,
+        data: null,
+        needsRebuild: true,
+        updatedAtByFieldSum: null,
+        updatedAtSyncTick: 1,
+      }),
+    ]);
+
+    await snapshotOutgoingChanges(
+      ctx.store,
+      outgoingModels,
+      -1,
+      0,
+      fullSyncPatientsTable,
+      sessionId,
+      [''],
+      null,
+      simplestSessionConfig,
+      simplestConfig,
+    );
+
+    const beforeHeal = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
+      sessionId,
+      SYNC_SESSION_DIRECTION.OUTGOING,
+    );
+    expect(beforeHeal.map(r => r.recordId)).not.toContain(stubRecordId);
+
+    await stubLookupRow.update({ data: { test: 'healed' }, needsRebuild: false });
+
+    const secondSessionId = fakeUUID();
+    const startTime = new Date();
+    await models.SyncSession.create({
+      id: secondSessionId,
+      startTime,
+      lastConnectionTime: startTime,
+      debugInfo: {},
+    });
+    await createSnapshotTable(ctx.store.sequelize, secondSessionId);
+    const secondFullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+      ctx.store.sequelize,
+      secondSessionId,
+      true,
+      [facility.id],
+      tock - 1,
+    );
+
+    await snapshotOutgoingChanges(
+      ctx.store,
+      outgoingModels,
+      -1,
+      0,
+      secondFullSyncPatientsTable,
+      secondSessionId,
+      [''],
+      null,
+      simplestSessionConfig,
+      simplestConfig,
+    );
+
+    const afterHeal = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
+      secondSessionId,
+      SYNC_SESSION_DIRECTION.OUTGOING,
+    );
+    expect(afterHeal.map(r => r.recordId)).toContain(stubRecordId);
+  });
+
   it('returns records that linked to marked for sync patients', async () => {
     const patientData = createDummyPatient(models);
     const patient = await models.Patient.create(patientData);

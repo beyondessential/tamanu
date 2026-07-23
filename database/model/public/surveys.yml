@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_surveys_from_sync_lookup
               - notify_surveys_changed
               - record_surveys_changelog
               - set_surveys_updated_at

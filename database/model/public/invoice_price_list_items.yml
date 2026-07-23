@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_invoice_price_list_items_from_sync_lookup
               - notify_invoice_price_list_items_changed
               - record_invoice_price_list_items_changelog
               - set_invoice_price_list_items_updated_at

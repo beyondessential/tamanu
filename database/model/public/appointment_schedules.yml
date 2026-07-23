@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_appointment_schedules_from_sync_lookup
               - notify_appointment_schedules_changed
               - record_appointment_schedules_changelog
               - set_appointment_schedules_updated_at

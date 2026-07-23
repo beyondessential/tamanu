@@ -12,6 +12,7 @@ sources:
             - deprecated
           meta:
             triggers:
+              - delete_vitals_from_sync_lookup
               - notify_vitals_changed
               - record_vitals_changelog
               - set_vitals_updated_at

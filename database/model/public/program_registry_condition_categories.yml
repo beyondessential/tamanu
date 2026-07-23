@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_program_registry_condition_categories_from_sync_lookup
               - notify_program_registry_condition_categories_changed
               - record_program_registry_condition_categories_changelog
               - set_program_registry_condition_categories_updated_at

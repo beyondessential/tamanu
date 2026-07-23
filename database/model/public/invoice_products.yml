@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_invoice_products_from_sync_lookup
               - notify_invoice_products_changed
               - record_invoice_products_changelog
               - set_invoice_products_updated_at

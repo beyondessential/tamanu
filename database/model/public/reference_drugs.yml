@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_reference_drugs_from_sync_lookup
               - notify_reference_drugs_changed
               - record_reference_drugs_changelog
               - set_reference_drugs_updated_at

@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_encounter_history_from_sync_lookup
               - notify_encounter_history_changed
               - record_encounter_history_changelog
               - set_encounter_history_updated_at

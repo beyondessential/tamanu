@@ -37,7 +37,12 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
-import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import {
+  healFlaggedLookupRows,
+  isConcurrentHardDeleteConflict,
+  updateLookupTable,
+  updateSyncLookupPendingRecords,
+} from './updateLookupTable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -383,6 +388,16 @@ export class CentralSyncManager {
           debugObject,
         );
 
+        // Self-heal pass: rebuild rows still flagged needs_rebuild (drifted without advancing the
+        // sync clock, e.g. by a migration). Runs in the same transaction as the incremental build
+        // above so the whole build is atomic.
+        await healFlaggedLookupRows(
+          getModelsForPull(this.store.models),
+          previouslyUpToTick,
+          this.constructor.config,
+          debugObject,
+        );
+
         // update the last successful lookup table in the same transaction - if updating the cursor fails,
         // we want to roll back the rest of the saves so that the next update can still detect the records that failed
         // to be updated last time
@@ -392,7 +407,10 @@ export class CentralSyncManager {
         await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
       });
     } catch (error) {
-      log.error('CentralSyncManager.updateLookupTable encountered an error', {
+      // A hard delete racing this build's own read of that record is expected occasionally and
+      // self-heals on the next scheduled rebuild — log it at a level that won't page anyone.
+      const logMethod = isConcurrentHardDeleteConflict(error) ? 'warn' : 'error';
+      log[logMethod]('CentralSyncManager.updateLookupTable encountered an error', {
         error: error.message,
       });
 

@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_templates_from_sync_lookup
               - notify_templates_changed
               - record_templates_changelog
               - set_templates_updated_at

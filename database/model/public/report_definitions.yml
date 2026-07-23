@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_report_definitions_from_sync_lookup
               - notify_report_definitions_changed
               - record_report_definitions_changelog
               - set_report_definitions_updated_at

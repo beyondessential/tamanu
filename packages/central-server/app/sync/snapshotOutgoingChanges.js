@@ -257,6 +257,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         FROM
           sync_lookup
         WHERE updated_at_sync_tick > :since
+        AND data IS NOT NULL
         ${fromId ? `AND id > :fromId` : ''}
         AND (
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)

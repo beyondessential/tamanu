@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_tasks_from_sync_lookup
               - notify_tasks_changed
               - record_tasks_changelog
               - set_tasks_updated_at

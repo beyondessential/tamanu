@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_user_designations_from_sync_lookup
               - notify_user_designations_changed
               - record_user_designations_changelog
               - set_user_designations_updated_at

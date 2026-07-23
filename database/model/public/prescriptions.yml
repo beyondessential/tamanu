@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_prescriptions_from_sync_lookup
               - notify_encounter_medications_changed
               - notify_prescriptions_changed
               - record_encounter_medications_changelog

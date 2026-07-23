@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_users_from_sync_lookup
               - notify_users_changed
               - record_users_changelog
               - set_users_updated_at

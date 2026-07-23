@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_lab_test_panels_from_sync_lookup
               - notify_lab_test_panels_changed
               - record_lab_test_panels_changelog
               - set_lab_test_panels_updated_at
