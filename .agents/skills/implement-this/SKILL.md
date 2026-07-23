@@ -8,7 +8,7 @@ pill-order:
   implementing: 1
   reviewing: 2
 jockey-hint: "Demote once implementation has begun on this card — the user typically doesn't want to restart from scratch. Leave high when the card is still in specifying phase, or when the user explicitly asks to resume or redo."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Implement this

@@ -7,7 +7,7 @@ pill-order:
   specifying: 5
   implementing: 6
   reviewing: 6
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Hand off to an external agent

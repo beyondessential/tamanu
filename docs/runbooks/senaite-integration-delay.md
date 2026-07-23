@@ -20,6 +20,10 @@ Tamanu; it syncs facility to central; central materialises it into a FHIR
 SENAITE processes the tests and posts results back; Tamanu updates the lab
 request. A delay can sit at any of those hops.
 
+For the imaging equivalent of this pull-based flow (RIS/PACS in place of
+SENAITE), see `rispacs-imaging-not-received.md` — the two integrations share the
+same FHIR materialisation checks.
+
 Example provenance: this runbook consolidates the on-call cheat sheet's SENAITE
 checklist, the authoritative Tamanu Integration Investigation doc, and the
 standalone "SENAITE integration delays" procedure. The originating incident was

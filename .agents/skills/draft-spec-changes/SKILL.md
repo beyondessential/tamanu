@@ -6,7 +6,7 @@ pill-order:
   not-started: 3
   specifying: 2
 jockey-hint: "Demote once spec drafts have already been produced in this conversation, unless the user signals they want another pass or the scope has materially shifted."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Draft spec changes
