@@ -1,19 +1,19 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { svgIconClasses } from '@mui/material/SvgIcon';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import DashedCircleOutlineIcon from './DashedCircleOutline';
-import { MarDataCell } from './MarStatus';
-import TableCellButton from './TableCellButton';
 
 const styles = css`
-  font-size: 24px;
-  ${MarDataCell}:has(${TableCellButton}:nth-of-type(2)) & {
-    font-size: 16px;
+  &,
+  &.lucide,
+  &.${svgIconClasses.root} {
+    font-size: inherit;
   }
 `;
 
