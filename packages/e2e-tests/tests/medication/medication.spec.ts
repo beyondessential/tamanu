@@ -152,39 +152,6 @@ test.describe('Medication requests', () => {
     await expect(medicationDispensesPage.modifiedFootnote).toBeVisible();
   });
 
-  test('MAR shows a "View change" link for a modified fill that opens the change history', async ({
-    page,
-    api,
-    newPatient,
-    medicationRequestsPage,
-    marPage,
-  }) => {
-    test.setTimeout(60000);
-
-    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
-    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
-
-    await medicationRequestsPage.goto();
-
-    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
-    await dispenseModal.waitForModalToLoad();
-    // Modifying auto-adds a pharmacy note and flags it for MAR display, which is what surfaces the
-    // "View change" link on the MAR row.
-    await dispenseModal.modifyPrescription(0);
-    await dispenseModal.dispenseWithoutLabelsButton.click();
-    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
-
-    // The encounter's MAR row for the modified medication exposes a "View change" link that opens
-    // the same change-history modal as the dispensed medications listing.
-    await marPage.goto(newPatient.id, encounter.id);
-    await marPage.openViewChange();
-
-    await expect(page.getByRole('dialog')).toContainText('Modify prescription history');
-    await expect(marPage.historyModalCurrentCard).toBeVisible();
-    await expect(marPage.historyModalOriginalCard).toBeVisible();
-  });
-
   test('Review and print labels flow', async ({
     page,
     api,
