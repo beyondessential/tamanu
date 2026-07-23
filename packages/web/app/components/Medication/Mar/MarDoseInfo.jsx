@@ -20,14 +20,14 @@ const Root = styled.div`
 export default function MarDoseInfo({ doseAmount, dosingUnit, isVariableDose, ...props }) {
   const body = isVariableDose ? (
     <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
-  ) : dosingUnit ? null : (
+  ) : dosingUnit ? (
     <>
       <div>{doseAmount}</div>
       <div>
         <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
       </div>
     </>
-  );
+  ) : null;
 
   return <Root {...props}>{body}</Root>;
 }
