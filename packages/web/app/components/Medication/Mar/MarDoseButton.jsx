@@ -19,9 +19,7 @@ export function MarDoseButton({
   timeSlot,
   parentTimeSlot,
   marInfo,
-  previousMarInfo,
   nextMarInfo,
-  previousSubSlot,
   medication,
   pauseRecords,
   anchorEl,
@@ -33,12 +31,10 @@ export function MarDoseButton({
     timeSlot,
     selectedDate,
   });
-  const { isDiscontinued, isEnd, isPaused, isPausedThenDiscontinued } = useMarDoseScheduleStatus({
+  const { isDiscontinued, isEnd, isPaused } = useMarDoseScheduleStatus({
     medication,
     marInfo,
     nextMarInfo,
-    previousMarInfo,
-    previousSubSlot,
     timeSlot,
     selectedDate,
     pauseRecords,
@@ -143,7 +139,6 @@ export function MarDoseButton({
           isNotDue={isNotDue}
           isPast={isPast}
           isPaused={isPaused}
-          isPausedThenDiscontinued={isPausedThenDiscontinued}
           marInfo={marInfo}
           medication={medication}
         />
