@@ -1,12 +1,10 @@
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import MarDoseStatus from './MarDoseStatus';
-import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import { MarCellButton } from './components';
 import useMarDoseAlerts from './useMarDoseAlerts';
@@ -14,15 +12,6 @@ import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
-
-const DiscontinuedDivider = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background-color: ${p => p.theme.palette.text.tertiary};
-`;
 
 export function MarDoseButton({
   selectedDate,
@@ -56,9 +45,7 @@ export function MarDoseButton({
   });
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const {
-    isAlert,
     isDoseAmountNotMatch,
-    isError,
     isRecordedDuringPaused,
     isRecordedOutsideAdministrationSchedule,
   } = useMarDoseAlerts({
@@ -69,8 +56,7 @@ export function MarDoseButton({
     isPast,
   });
 
-  const { dueAt, status, reasonNotGiven, isEdited } = marInfo || {};
-  const { dosingUnit, endDate, isPrn } = medication || {};
+  const { status } = marInfo || {};
 
   const [isSelected, setIsSelected] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState('');
@@ -146,36 +132,16 @@ export function MarDoseButton({
         }
         onClick={onSelected}
       >
-        <MarStatusTooltip
-          dosingUnit={dosingUnit}
-          dueAt={dueAt}
-          endDate={endDate}
-          isAlert={isAlert}
+        <MarDoseStatus
           isDiscontinued={isDiscontinued}
           isEnd={isEnd}
-          isError={isError}
           isNotDue={isNotDue}
           isPast={isPast}
           isPaused={isPaused}
-          isPrn={isPrn}
-          marDoses={marDoses}
+          isPausedThenDiscontinued={isPausedThenDiscontinued}
           marInfo={marInfo}
-          reasonNotGiven={reasonNotGiven}
-          status={status}
-        >
-          {isPausedThenDiscontinued && <DiscontinuedDivider />}
-          <MarDoseStatus
-            isAlert={isAlert}
-            isDiscontinued={isDiscontinued}
-            isEdited={isEdited}
-            isEnd={isEnd}
-            isPast={isPast}
-            isPaused={isPaused}
-            isPrn={isPrn}
-            marInfo={marInfo}
-            status={status}
-          />
-        </MarStatusTooltip>
+          medication={medication}
+        />
       </MarCellButton>
       <StatusPopper
         open={Boolean(anchorEl) && Boolean(buttonRef.current) && anchorEl === buttonRef.current}
