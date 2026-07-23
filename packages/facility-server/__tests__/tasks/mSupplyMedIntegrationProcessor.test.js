@@ -75,6 +75,8 @@ async function createMedicationDispenses(
     // When set, simulates a pharmacy substitution: the fill is dispensed with this medication
     // rather than the prescribed one (as the dispense route records via medication_dispenses).
     dispensedMedicationId,
+    // Quantity recorded on the dispense (what mSupply is sent as numberOfUnits).
+    dispensedQuantity = 1,
     count = 1,
   },
 ) {
@@ -105,7 +107,7 @@ async function createMedicationDispenses(
     });
     const dispense = await MedicationDispense.create({
       pharmacyOrderPrescriptionId: pop.id,
-      quantity: 1,
+      quantity: dispensedQuantity,
       dispensedByUserId,
       ...(dispensedMedicationId && {
         medicationId: dispensedMedicationId,
@@ -118,8 +120,8 @@ async function createMedicationDispenses(
   return dispenses;
 }
 
-// Every itemCode across all GraphQL push calls made in a run (auth calls are skipped).
-function pushedItemCodes() {
+// Every pushed line item across all GraphQL push calls made in a run (auth calls are skipped).
+function pushedItems() {
   return fetchWithRetryBackoff.mock.calls
     .map(call => {
       try {
@@ -128,8 +130,12 @@ function pushedItemCodes() {
         return null;
       }
     })
-    .flatMap(body => body?.variables?.input?.items ?? [])
-    .map(item => item.itemCode);
+    .flatMap(body => body?.variables?.input?.items ?? []);
+}
+
+// Every itemCode across all pushed line items.
+function pushedItemCodes() {
+  return pushedItems().map(item => item.itemCode);
 }
 
 describe('mSupplyMedIntegrationProcessor', () => {
@@ -400,6 +406,8 @@ describe('mSupplyMedIntegrationProcessor', () => {
         dispensedByUserId,
         medicationId: prescribed.id,
         dispensedMedicationId: substitute.id,
+        // Distinctive value so the assertion proves the dispensed quantity is sent, not a default.
+        dispensedQuantity: 7,
         count: 1,
       });
 
@@ -412,9 +420,12 @@ describe('mSupplyMedIntegrationProcessor', () => {
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
 
-      const codes = pushedItemCodes();
-      expect(codes).toContain('MED-SUBTEST-SUBSTITUTE');
-      expect(codes).not.toContain('MED-SUBTEST-PRESCRIBED');
+      // mSupply must receive the actually-dispensed drug and its dispensed quantity — not the
+      // prescribed drug.
+      expect(pushedItems()).toContainEqual(
+        expect.objectContaining({ itemCode: 'MED-SUBTEST-SUBSTITUTE', numberOfUnits: 7 }),
+      );
+      expect(pushedItemCodes()).not.toContain('MED-SUBTEST-PRESCRIBED');
     });
   });
 
