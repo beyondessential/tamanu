@@ -2,10 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { useDateTime } from '@tamanu/ui-components';
 import { MarDoseButton } from './MarDoseButton';
+import MarDoseInfo from './MarDoseInfo';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
 import { MarDataCell, MarCellButton } from './components';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
+import getShowDoseInfo, { hasVisibleMarStatusIcon } from './getShowDoseInfo';
+import { getIsPast } from './useMarDoseTiming';
+import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
 const DoseGrid = styled.div`
   --mar-cell-gap-rule: var(--mar-cell-gap-rule-width) solid ${p => p.theme.palette.divider};
@@ -26,6 +31,13 @@ const DoseGrid = styled.div`
   }
 `;
 
+const DoseInfoOverlay = styled(MarDoseInfo)`
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  visibility: ${p => (p.$hidden ? 'hidden' : 'visible')};
+`;
+
 export default function MarCell({
   selectedDate,
   timeSlot,
@@ -37,6 +49,10 @@ export default function MarCell({
   anchorEl,
   onAnchorElChange,
 }) {
+  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
+    useDateTime();
+  const facilityNow = getFacilityNowDate();
+
   const isCurrentTimeSlot = useIsCurrentTimeSlot({
     startTime: timeSlot.startTime,
     endTime: timeSlot.endTime,
@@ -50,6 +66,64 @@ export default function MarCell({
     previousWindowMarInfos && previousParentSlot
       ? getSubSlots(previousParentSlot, dosesPerSlot)
       : null;
+
+  const { doseAmount, dosingUnit, isVariableDose, isPrn, discontinuedDate, endDate } =
+    medication || {};
+
+  const showDoseInfo = marInfos.some((marInfo, index) => {
+    const nextMarInfo =
+      index < marInfos.length - 1 ? marInfos[index + 1] : (nextWindowMarInfos?.[0] ?? null);
+    return getShowDoseInfo({
+      marInfo,
+      medication,
+      timeSlot: subSlots[index],
+      selectedDate,
+      nextMarInfo,
+      pauseRecords,
+      now: facilityNow,
+      toFacilityDateTime,
+      storedDateTimeToEpochMilliseconds,
+    });
+  });
+
+  const anyStatusIcon =
+    dosesPerSlot > 1 &&
+    subSlots.some((subSlot, i) => {
+      const marInfo = marInfos[i] ?? null;
+      const nextMarInfo =
+        i < marInfos.length - 1 ? marInfos[i + 1] : (nextWindowMarInfos?.[0] ?? null);
+      const { recordedAt, dueAt } = marInfo || {};
+
+      return hasVisibleMarStatusIcon({
+        marInfo,
+        isDiscontinued: getIsDiscontinued({
+          discontinuedDate,
+          dueAt,
+          isRecordedStatus: Boolean(recordedAt),
+          timeSlot: subSlot,
+          selectedDate,
+          nextMarInfo,
+          toFacilityDateTime,
+          storedDateTimeToEpochMilliseconds,
+        }),
+        isEnd: getIsEnd({
+          endDate,
+          hasRecord: Boolean(marInfo),
+          timeSlot: subSlot,
+          selectedDate,
+          toFacilityDateTime,
+        }),
+        isPast: getIsPast({ timeSlot: subSlot, selectedDate, now: facilityNow }),
+        isPaused: getIsPaused({
+          pauseRecords: pauseRecords?.data,
+          timeSlot: subSlot,
+          selectedDate,
+          recordedAt,
+          toFacilityDateTime,
+        }),
+        isPrn,
+      });
+    });
 
   return (
     <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
@@ -80,6 +154,14 @@ export default function MarCell({
           );
         })}
       </DoseGrid>
+      {showDoseInfo && (
+        <DoseInfoOverlay
+          $hidden={dosesPerSlot > 1 && anyStatusIcon}
+          doseAmount={doseAmount}
+          dosingUnit={dosingUnit}
+          isVariableDose={isVariableDose}
+        />
+      )}
     </MarDataCell>
   );
 }
