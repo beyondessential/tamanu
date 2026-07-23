@@ -117,6 +117,12 @@ _To be detailed._
 
 **Summary.** Add a new "Recollect" lab request status. Lab staff transition to it when a sample is unsuitable for testing, signalling the requesting doctor to organise a new sample. For LIMS-integrated instances, it pairs with a "Cancelled" diagnostic report carrying a PDF rejection report so the doctor can see why the sample was rejected.
 
+**Context.** A `Rejected` status already exists but is integration-driven and terminal: a SENAITE rejection arrives as a FHIR DiagnosticReport with status `cancelled`, which materialises the request to `Rejected`. `Rejected` is excluded from the change-status options, so it is not staff-settable and gives the doctor no actionable signal to recollect. "Recollect" is intended as the actionable counterpart.
+
+**Open questions (to resolve before design):**
+- **Relationship to "Rejected":** for LIMS instances, when SENAITE rejects a sample (DiagnosticReport `cancelled` + rejection PDF), should the request land in "Recollect" instead of "Rejected" — making Recollect the new home for LIMS rejections — or does "Rejected" stay as-is with "Recollect" a separate, manually-set status alongside it?
+- **Lifecycle:** is "Recollect" an active, recoverable status — does the doctor act by recording a new sample on the same request (transitioning it back toward Reception pending) or by creating a brand-new request — or is it terminal like "Rejected"?
+
 _To be detailed._
 
 ---
