@@ -630,6 +630,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                   deleted_at: null,
                 },
               },
+              // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
+              // loaded here: nested four associations deep its column aliases would exceed
+              // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
+              // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
               include: {
                 model: ReferenceMedicationTemplate,
                 as: 'medicationTemplate',
@@ -638,14 +642,6 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                   as: 'medication',
                   where: medicationWhere,
                   required: !!facilityFilter,
-                  include: {
-                    model: ReferenceDrug,
-                    as: 'referenceDrug',
-                    // referenceDataId (the FK) must be selected or Sequelize can't associate the
-                    // hasOne and returns referenceDrug as null.
-                    attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
-                    required: false,
-                  },
                 },
               },
             };
@@ -656,13 +652,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       },
       queryOptions:
         typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
-          ? // minifyAliases: the medication set nests referenceDrug four levels deep
-            // (children.medicationTemplate.medication.referenceDrug.<column>), whose generated
-            // column aliases exceed PostgreSQL's 63-byte identifier limit and get silently
-            // truncated — dropping dispensingUnit/unitConversion so the dispensing quantity
-            // autocalculation falls back to a conversion of 1. Minifying the aliases keeps them
-            // within the limit.
-            { subQuery: false, minifyAliases: true }
+          ? { subQuery: false }
           : {},
       extraReplacementsBuilder: ({ parentId, relationType = DEFAULT_HIERARCHY_TYPE }) => ({
         parentId,
@@ -670,7 +660,40 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       }),
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
-      mapper: item => item,
+      mapper: async item => {
+        if (typeName !== REFERENCE_TYPES.MEDICATION_SET) return item;
+        // Attach each set member's referenceDrug (dosing/dispensing units and conversion) that the
+        // dispensing quantity autocalculation relies on. It is loaded here rather than eager loaded
+        // in the suggestion query because nesting it four associations deep produces column aliases
+        // longer than PostgreSQL's 63-byte identifier limit, which get truncated and silently drop
+        // dispensingUnit/unitConversion from the response.
+        const suggestion = item.get({ plain: true });
+        const members = suggestion.children ?? [];
+        const medicationIds = [
+          ...new Set(
+            members.map(member => member.medicationTemplate?.medication?.id).filter(Boolean),
+          ),
+        ];
+        if (medicationIds.length === 0) return suggestion;
+
+        const referenceDrugs = await item.sequelize.models.ReferenceDrug.findAll({
+          where: { referenceDataId: medicationIds },
+          attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+        });
+        const referenceDrugByMedicationId = new Map(
+          referenceDrugs.map(referenceDrug => [
+            referenceDrug.referenceDataId,
+            referenceDrug.get({ plain: true }),
+          ]),
+        );
+        for (const member of members) {
+          const medication = member.medicationTemplate?.medication;
+          if (medication) {
+            medication.referenceDrug = referenceDrugByMedicationId.get(medication.id) ?? null;
+          }
+        }
+        return suggestion;
+      },
       orderBuilder: () => REFERENCE_DATA_ORDER_OVERRIDES[typeName],
     },
     true,

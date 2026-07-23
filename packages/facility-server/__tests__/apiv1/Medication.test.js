@@ -1442,6 +1442,9 @@ describe('Medication', () => {
           prescriptionId: prescription.id,
           quantity: 10,
           repeats: 1,
+          // fake() randomises this boolean; the endpoint only returns outstanding (not completed)
+          // items, so pin it or the row is intermittently filtered out.
+          isCompleted: false,
         }),
         id: crypto.randomUUID(),
       });
