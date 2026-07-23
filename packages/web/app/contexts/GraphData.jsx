@@ -5,6 +5,7 @@ export const GraphDataProviderFactory = ({
   visualisationConfigQueryArgs = [],
   Context,
   isVital = false,
+  isProgramRegistry = false,
   children,
 }) => {
   const [chartKeys, setChartKeys] = useState([]);
@@ -17,6 +18,7 @@ export const GraphDataProviderFactory = ({
 
   const contextValue = useMemo(() => ({
     isVital,
+    isProgramRegistry,
     visualisationConfigs,
     allGraphedChartKeys,
     vitalChartModalOpen,
@@ -31,6 +33,7 @@ export const GraphDataProviderFactory = ({
     setIsInMultiChartsView,
   }), [
     isVital,
+    isProgramRegistry,
     visualisationConfigs,
     allGraphedChartKeys,
     vitalChartModalOpen,

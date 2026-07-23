@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { formatShort, formatFullDate, formatShortDateTime } from '../src/dateFormatters';
+import {
+  formatShort,
+  formatFullDate,
+  formatShortDateTime,
+  formatDayMonthYearShort,
+  formatMonthYearShort,
+} from '../src/dateFormatters';
 
 const PRIMARY_TZ = 'Pacific/Auckland';
 
@@ -23,6 +29,18 @@ describe('dateFormatters locale handling', () => {
     expect(formatShortDateTime(storedDateTime, PRIMARY_TZ, null, 'en-US')).toBe(
       '04/12/2024 3:30pm',
     );
+  });
+
+  it('orders day/month/year per locale, with a short month and no comma', () => {
+    expect(formatDayMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-GB')).toBe("12 Apr '24");
+    expect(formatDayMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-US')).toBe("Apr 12 '24");
+    expect(formatDayMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-AU')).toBe("12 Apr '24");
+  });
+
+  it('formats a short month/year with a short month and no comma', () => {
+    expect(formatMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-GB')).toBe("Apr '24");
+    expect(formatMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-US')).toBe("Apr '24");
+    expect(formatMonthYearShort(storedDateTime, PRIMARY_TZ, null, 'en-AU')).toBe("Apr '24");
   });
 
   it('falls back to the runtime locale when none is given', () => {
