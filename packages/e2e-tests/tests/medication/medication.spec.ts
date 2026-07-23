@@ -3,6 +3,7 @@ import {
   createHospitalAdmissionEncounterViaAPI,
   createEncounterPrescriptionViaApi,
   createPharmacyOrderViaApi,
+  getFacilityId,
 } from '@utils/apiHelpers';
 
 test.describe('Medication requests', () => {
@@ -16,8 +17,9 @@ test.describe('Medication requests', () => {
   }) => {
     test.setTimeout(60000);
 
+    const facilityId = await getFacilityId(page);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id, facilityId);
     await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
 
     await medicationRequestsPage.goto();
@@ -42,8 +44,9 @@ test.describe('Medication requests', () => {
   }) => {
     test.setTimeout(60000);
 
+    const facilityId = await getFacilityId(page);
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
-    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id, facilityId);
     await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
 
     await medicationRequestsPage.goto();
