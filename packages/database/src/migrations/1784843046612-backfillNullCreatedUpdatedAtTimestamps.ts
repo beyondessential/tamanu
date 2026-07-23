@@ -2,16 +2,16 @@ import { QueryInterface } from 'sequelize';
 
 // #10364 added DEFAULT now() to created_at / updated_at on these tables, but rows inserted
 // outside the ORM before that (data migrations, manual SQL, bulk loads) still carry NULLs.
-// Backfill each NULL from the sibling timestamp where available, so the value is deterministic
-// and identical on every server, falling back to now().
+// Backfill each NULL from the sibling timestamp where available, falling back to now().
+//
+// Sync: created_at / updated_at are in COLUMNS_EXCLUDED_FROM_SYNC, so these values are
+// per-server and never propagate — every server heals its own rows when it runs this. No sync
+// churn either: runPreMigration drops the set_updated_at_sync_tick triggers while migrations
+// run, so ticks are untouched and nothing gets re-queued.
 //
 // Performance:
 // - Each UPDATE touches only rows with a NULL timestamp, so work is bounded by the actual bad
 //   rows; on servers with none it's a no-op.
-// - The sync tick trigger re-stamps touched rows, so they re-sync once. That's deliberate: it
-//   refreshes sync_lookup with the fixed values, and whichever server migrates first (central,
-//   in practice) syncs the fix to the rest — by the time other servers run this, their WHERE
-//   matches few or no rows.
 // - None of these tables are FHIR upstreams, so no rematerialisation is triggered.
 const TABLES = [
   'ai_chat_sessions',
@@ -36,11 +36,11 @@ const TABLES = [
 
 export async function up(query: QueryInterface): Promise<void> {
   for (const table of TABLES) {
-    // The set_updated_at BEFORE UPDATE trigger re-stamps updated_at to current_timestamp
-    // whenever other columns change but updated_at doesn't. For rows where only created_at is
-    // NULL we want to keep the existing updated_at, so nudge it by 1 microsecond — a changed
-    // value passes through the trigger untouched, stays deterministic across servers, and
-    // preserves the history.
+    // The set_updated_at BEFORE UPDATE trigger (which stays active during migrations, unlike
+    // the sync tick ones) re-stamps updated_at to current_timestamp whenever other columns
+    // change but updated_at doesn't. For rows where only created_at is NULL we want to keep
+    // the row's genuine updated_at rather than stamping migration-run time, so nudge it by
+    // 1 microsecond — a changed value passes through the trigger untouched.
     await query.sequelize.query(`
       UPDATE "${table}"
       SET
