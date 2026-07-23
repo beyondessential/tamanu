@@ -27,7 +27,7 @@ export class DispenseMedicationModal {
     this.cancelButton = page.getByTestId('dispense-cancel-button');
     this.dispenseAndPrintButton = page.getByTestId('dispense-and-print-button');
     this.dispensedByInput = page.getByTestId('dispense-dispensed-by-input');
-    this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox');
+    this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox-controlcheck');
     this.patientSummaryPanel = page.getByTestId('dispense-modal-patient-context');
     this.modifyDoseInput = page.getByTestId('modify-prescription-dose-input');
     this.modifyVariableDoseCheckbox = page.getByTestId(
@@ -40,7 +40,7 @@ export class DispenseMedicationModal {
   }
 
   getRowCheckbox(rowIndex: number): Locator {
-    return this.page.getByTestId(`dispense-row-checkbox-${rowIndex}`);
+    return this.page.getByTestId(`dispense-row-checkbox-${rowIndex}-controlcheck`);
   }
 
   getRowActionsButton(rowIndex: number): Locator {
