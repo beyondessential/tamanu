@@ -36,8 +36,8 @@ The sync lookup table (`sync_lookup`) is a central-server-only denormalised snap
 - [ ] Both passes clear the rebuild flag on any row they rebuild.
 - [ ] After the incremental pass, the only rows left marked for rebuild are those whose source record changed without advancing the sync clock, which the incremental pass does not select.
 - [ ] Rows marked for rebuild are located through a partial index covering only those rows, so the self-heal pass does not scan the whole lookup table.
-- [ ] The self-heal pass rebuilds each flagged row's data from its source record and sets the row's sync tick to the source record's current sync tick, without routing through the incremental build's staged-tick handling.
-- [ ] Taking the tick from the source record means a healed existing row keeps its sync tick — a drifted record's source tick has not moved, so facilities do not re-pull records they already hold — while a record that reached the table only as a stub propagates on the same terms its source record would.
+- [ ] The self-heal pass rebuilds each flagged row's data from its source record but leaves the row's sync tick, without routing through the incremental build's staged-tick handling.
+— a healed record's source tick has not moved, so facilities do not re-pull records they already hold.
 - [ ] A source record that is soft-deleted is rebuilt normally, with its lookup row marked as deleted.
 - [ ] If the self-heal pass finds a flagged row whose source record no longer exists, it deletes the lookup row. This is where a hard-deleted record's lookup row is removed, and it also covers any row flagged for another reason (for example, a migration) whose source was separately removed.
 

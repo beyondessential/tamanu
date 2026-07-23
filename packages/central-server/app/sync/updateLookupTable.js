@@ -8,7 +8,7 @@ import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 // touched a row it's reading (see the comment on that clause). Expected occasionally; not a bug.
 const SERIALIZATION_FAILURE_SQLSTATE = '40001';
 
-export const isConcurrentHardDeleteConflict = (error) =>
+export const isConcurrentHardDeleteConflict = error =>
   !!error &&
   (error.original?.code === SERIALIZATION_FAILURE_SQLSTATE ||
     error.parent?.code === SERIALIZATION_FAILURE_SQLSTATE ||
@@ -19,7 +19,7 @@ const HARD_DELETE_DURING_BUILD_MESSAGE =
 
 // Shared by the incremental build (pass 1) and the self-heal pass (pass 2) so a healed row is
 // built by the exact same query shape as a normally-built one — they differ only in whereClause
-// (which rows to select) and the updatedAtSyncTick replacement (which tick to stamp).
+// (which rows to select) and whether an existing row's tick is preserved.
 const buildLookupUpsertQuery = ({
   table,
   selectClause,
@@ -28,6 +28,7 @@ const buildLookupUpsertQuery = ({
   avoidRepull,
   whereClause,
   perModelUpdateTimeoutMs,
+  preserveExistingTick,
 }) => `
   ${
     perModelUpdateTimeoutMs
@@ -94,7 +95,9 @@ const buildLookupUpsertQuery = ({
     ON CONFLICT (record_id, record_type)
     DO UPDATE SET
       data = EXCLUDED.data,
-      updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
+      updated_at_sync_tick = ${
+        preserveExistingTick ? 'sync_lookup.updated_at_sync_tick' : 'EXCLUDED.updated_at_sync_tick'
+      },
       is_lab_request = EXCLUDED.is_lab_request,
       patient_id = EXCLUDED.patient_id,
       encounter_id = EXCLUDED.encounter_id,
@@ -172,12 +175,10 @@ const updateLookupTableForModel = async (
 };
 
 // Self-heal (pass 2): rebuilds rows still flagged `needs_rebuild` after the incremental pass —
-// records whose source changed without advancing the sync clock (a migration, or any other write
-// made while the sync tick trigger was disabled). Reuses the exact same upsert query as pass 1,
-// scoped to the flagged record ids for this model instead of the tick cursor, and always resolves
-// the tick to the source record's own current tick (updatedAtSyncTick: null makes
-// buildSyncLookupSelect's tick clause collapse to the historic/source tick regardless of
-// isFullyRebuilding), so a healed row keeps its existing tick and facilities do not re-pull it.
+// records whose source changed without advancing the sync clock, i.e. a write made while the sync
+// tick trigger was disabled (a migration). Reuses the exact same upsert query as pass 1, scoped to
+// the flagged record ids for this model instead of the tick cursor. preserveExistingTick keeps a
+// flagged row's existing sync_lookup tick to avoid resyncing
 const healFlaggedLookupRowsForModel = async (model, config, since) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
@@ -207,6 +208,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
           ${fromId ? `AND ${table}.id > :fromId` : ''}
         `,
         perModelUpdateTimeoutMs,
+        preserveExistingTick: true,
       }),
       {
         replacements: {
@@ -247,12 +249,12 @@ export const updateLookupTable = withConfig(
   async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
-        (m) =>
+        m =>
           ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
             m.syncDirection,
           ),
       )
-      .map((m) => m.tableName);
+      .map(m => m.tableName);
 
     if (invalidModelNames.length) {
       throw new Error(
