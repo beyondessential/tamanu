@@ -55,15 +55,15 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 ### 2. Merge multiple lab requests into a single request
 
-**Applies to:** deployments with the Tamanu–SENAITE (LIMS) integration. Driven by Palau, and urgent for the Samoa SENAITE go-live, where high sample volumes (up to ~2,000 samples/day) would otherwise create thousands of separate requests and samples per day if Biochem panels are ordered separately.
+**Applies to:** all Tamanu deployments — the grouping behaviour works whether or not a deployment has a SENAITE integration. Motivated by the Tamanu–SENAITE (LIMS) integration: driven by Palau, and urgent for the Samoa SENAITE go-live, where high sample volumes (up to ~2,000 samples/day) would otherwise create thousands of separate requests and samples per day if Biochem panels are ordered separately.
 
 **Problem.** Panels that could be run off a single sample are split across separate lab requests, each of which creates its own sample in SENAITE. This multiplies the number of samples the lab must create and track. To run a sample on an interfaced analyser with the correct sample ID, lab users print the lab requests from Tamanu rather than labelling the tube with one SENAITE sample ID — increasing delays, the chance a request isn't run first time, and the risk of the wrong sample ID being used.
 
 **How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
 
-**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single SENAITE sample. Items from different categories remain separate requests. The patient-level results table is unchanged — no work required there.
+**Desired behaviour.** When panels and individual tests from the **same lab category** are requested together, they are grouped under a single lab request — one test ID, and a single sample (a single SENAITE sample where that integration is in place). Items from different categories remain separate requests. The patient-level results table is unchanged — no work required there.
 
-**Design.** Two display patterns recur across the surfaces below:
+**Design updates.** Two display patterns recur across the surfaces below:
 - **Category grouping** — items grouped by category, each category listing all the tests and panels it contains.
 - **Printout layout** — the layout used for the lab results printout: individual tests listed alphabetically first, then each panel under a subheading, with the panel's constituent tests listed in reference-data order.
 
