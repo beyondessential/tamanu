@@ -1,18 +1,28 @@
 import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
 
+import { useDateTime } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { useEncounter } from '../../../contexts/Encounter';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
+import MarDoseInfo from './MarDoseInfo';
 import MarDoseStatus from './MarDoseStatus';
 import { StatusPopper } from './StatusPopper';
 import { MarCellButton } from './components';
+import getShowDoseInfo from './getShowDoseInfo';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
+
+const DoseInfoOverlay = styled(MarDoseInfo)`
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+`;
 
 export function MarDoseButton({
   selectedDate,
@@ -27,12 +37,13 @@ export function MarDoseButton({
   anchorEl,
   onAnchorElChange,
 }) {
+  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
+    useDateTime();
   const canViewMedication = useCanViewMedication(medication?.medication);
   const { canCreateMar, canViewMar } = useMarPermissions();
   const { isPast, isCurrent, isFuture, isNotDue } = useMarDoseTiming({
     timeSlot,
     selectedDate,
-    hasRecord: Boolean(marInfo),
   });
   const { isDiscontinued, isEnd, isPaused, isPausedThenDiscontinued } = useMarDoseScheduleStatus({
     medication,
@@ -45,19 +56,17 @@ export function MarDoseButton({
     pauseRecords,
   });
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
-  const {
-    isDoseAmountNotMatch,
-    isRecordedDuringPaused,
-    isRecordedOutsideAdministrationSchedule,
-  } = useMarDoseAlerts({
-    marInfo,
-    medication,
-    marDoses,
-    isPaused,
-    isPast,
-  });
+  const { isDoseAmountNotMatch, isRecordedDuringPaused, isRecordedOutsideAdministrationSchedule } =
+    useMarDoseAlerts({
+      marInfo,
+      medication,
+      marDoses,
+      isPaused,
+      isPast,
+    });
 
   const { status } = marInfo || {};
+  const { doseAmount, dosingUnit, isVariableDose } = medication || {};
 
   const { encounter } = useEncounter();
   const isEncounterDischarged = !!encounter?.endDate;
@@ -69,6 +78,18 @@ export function MarDoseButton({
   const buttonRef = useRef(null);
 
   const isInactive = isDiscontinued || isEnd || isPaused;
+
+  const showDoseInfo = getShowDoseInfo({
+    marInfo,
+    medication,
+    timeSlot,
+    selectedDate,
+    nextMarInfo,
+    pauseRecords,
+    now: getFacilityNowDate(),
+    toFacilityDateTime,
+    storedDateTimeToEpochMilliseconds,
+  });
 
   const handleStatusPopperOpen = () => {
     setIsSelected(true);
@@ -151,6 +172,13 @@ export function MarDoseButton({
           marInfo={marInfo}
           medication={medication}
         />
+        {showDoseInfo && (
+          <DoseInfoOverlay
+            doseAmount={doseAmount}
+            dosingUnit={dosingUnit}
+            isVariableDose={isVariableDose}
+          />
+        )}
       </MarCellButton>
       <StatusPopper
         open={Boolean(anchorEl) && Boolean(buttonRef.current) && anchorEl === buttonRef.current}
