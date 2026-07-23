@@ -23,6 +23,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 11 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
 | 12 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
 | 13 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 14 | TAM-2045 | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
 
 ---
 
@@ -195,5 +196,20 @@ _To be detailed._
 ### 13. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
+
+_To be detailed._
+
+---
+
+### 14. Keep test category and test types visible while entering sample details
+
+**Summary.** Lab staff feedback on TAM-2045: when recording sample details they can't see which request they're working on, so they sometimes enter the wrong specimen type. They asked to move the sample details entry box higher so the request's test category and test types stay in view while they select the specimen type, making it clear which request it is.
+
+**Problem.** At the point of entering sample details, the test category and test types aren't visible alongside the entry fields, so staff can't easily confirm which request they're recording against before choosing the specimen type.
+
+**Desired behaviour.** The request's test category and test types are visible while entering sample details, so staff can confirm the request and select the correct specimen type. This complements requirement 6, which surfaces the recorded specimen type on the read-only tile; this one keeps the test context visible at the point of entry.
+
+**Open questions (to resolve before design):**
+- **Surface:** which entry point does this target — the "Record sample details" modal (which today shows no test information), the Sample details step of the new request workflow, or the lab request view layout? The change differs by surface.
 
 _To be detailed._
