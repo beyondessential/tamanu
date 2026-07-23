@@ -51,8 +51,6 @@ export class NotesPane {
     // TestId mapping for NotesPane elements
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
-      // Note-type filter is now the `field-notes-type` autocomplete in the search bar.
-      noteTypeSelect: 'field-notes-type',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
       editIcons: 'styledediticon-nmdz',
@@ -63,7 +61,6 @@ export class NotesPane {
       noDataMessage: 'nodatamessage-78ud',
       // Search bar filters
       searchInput: 'field-notes-search-input',
-      authorSelect: 'field-notes-author',
       authorOptions: 'field-notes-author-suggestionslist',
       advancedSearchToggle: 'notes-search-expand',
       clearButton: 'notes-search-clear',
@@ -75,6 +72,13 @@ export class NotesPane {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+
+    // The note-type and author filters are AutocompleteFields. The bare `field-notes-type` /
+    // `field-notes-author` data-testid is only a prefix; the clickable input is exposed under the
+    // `-input` suffix (the suggestions list stays `-suggestionslist`). Clicking the input focuses it,
+    // which fetches and shows the full option list.
+    this.noteTypeSelect = page.getByTestId('field-notes-type-input').locator('input');
+    this.authorSelect = page.getByTestId('field-notes-author-input').locator('input');
 
     // The New note button now lives in the notes search bar alongside the filters.
     this.newNoteButton = page
