@@ -12,13 +12,26 @@ import getShowDoseInfo from './getShowDoseInfo';
 
 const TableDataCell = styled.td`
   position: relative;
+  &:has(${TableCellButton}:nth-of-type(2)) {
+    /* <table> sets horizontal borders are set on <tr>, so fully define border style */
+    border-block: 1px solid ${p => p.theme.palette.text.secondary};
+  }
+  &:has(${TableCellButton}:nth-of-type(2)):not([aria-current='time']) {
+    /* <table> sets vertical borders on <td>, so just override color */
+    border-inline-color: ${p => p.theme.palette.text.secondary};
+  }
 `;
 
 const DoseGrid = styled.div`
+  --mar-status-gap-rule: var(--mar-status-gap-rule-width) solid ${p => p.theme.palette.divider};
+  --mar-status-gap-rule-width: 1px;
   block-size: 100%;
+  column-rule: var(--mar-status-gap-rule);
   display: grid;
+  gap: var(--mar-status-gap-rule-width);
   grid-template-columns: 1fr;
   inline-size: 100%;
+  row-rule: var(--mar-status-gap-rule);
   &:has(> ${TableCellButton}:nth-of-type(2)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

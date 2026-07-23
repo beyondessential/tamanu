@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 const TableCellButton = styled(UnstyledHtmlButton)`
   background-color: ${p => p.theme.palette.background.paper};
-  outline: 1px solid ${p => p.theme.palette.divider};
   block-size: 100%;
   inline-size: 100%;
   padding: 10px;
