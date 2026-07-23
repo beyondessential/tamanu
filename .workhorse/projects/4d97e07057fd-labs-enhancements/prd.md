@@ -45,8 +45,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 4. **Prevent duplicates.** Duplicate detection runs in both directions while building a request:
    - An individual test already covered by a selected panel cannot also be selected on its own.
    - Selecting a panel that contains a test already selected individually is likewise detected and resolved.
-
-   In both cases the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
+   - In both cases the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
 
 Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
 
