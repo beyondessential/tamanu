@@ -42,7 +42,7 @@ type BaseFixtures = {
   activeLabRequestsPage: ActiveLabRequestsPage;
   publishedLabRequestsPage: PublishedLabRequestsPage;
   medicationRequestsPage: MedicationRequestsPage;
-  medicationDispensesPage: MedicationDispensesPage;
+  // medicationDispensesPage: MedicationDispensesPage;
   allPatientsPage: AllPatientsPage;
   emergencyPatientsPage: EmergencyPatientsPage;
   inpatientsPage: InpatientsPage;
@@ -150,9 +150,9 @@ export const test = base.extend<BaseFixtures>({
     await use(new MedicationRequestsPage(page));
   },
 
-  medicationDispensesPage: async ({ page }, use) => {
-    await use(new MedicationDispensesPage(page));
-  },
+  // medicationDispensesPage: async ({ page }, use) => {
+  //   await use(new MedicationDispensesPage(page));
+  // },
 
   allPatientsPage: async ({ page }, use) => {
     await use(new AllPatientsPage(page));
