@@ -5,9 +5,11 @@ const TableCellButton = styled(UnstyledHtmlButton)`
   background-color: ${p => p.theme.palette.background.paper};
   block-size: 100%;
   inline-size: 100%;
-  padding: 10px;
   position: relative;
 
+  th & {
+    padding: 10px;
+  }
   &:not(:disabled) {
     cursor: pointer;
   }

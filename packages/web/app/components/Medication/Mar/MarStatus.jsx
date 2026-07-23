@@ -10,7 +10,7 @@ import TableCellButton from './TableCellButton';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 import getShowDoseInfo from './getShowDoseInfo';
 
-const TableDataCell = styled.td`
+export const MarDataCell = styled.td`
   position: relative;
   &:has(${TableCellButton}:nth-of-type(2)) {
     /* <table> sets horizontal borders are set on <tr>, so fully define border style */
@@ -95,7 +95,7 @@ export const MarStatus = ({
   const { doseAmount, dosingUnit, isVariableDose } = medication || {};
 
   return (
-    <TableDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
+    <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
       <DoseGrid>
         {subSlots.map((subSlot, index) => {
           const previousMarInfo =
@@ -134,7 +134,7 @@ export const MarStatus = ({
           isVariableDose={isVariableDose}
         />
       )}
-    </TableDataCell>
+    </MarDataCell>
   );
 };
 
