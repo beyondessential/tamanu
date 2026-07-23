@@ -17,7 +17,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
 | 6 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
 | 7 | TAM-6734 | Lab request label format with auto-print prompt | High | _TBC_ |
-| 8 | TAM-6827 | Multiselect status filter on the active requests page | High | _TBC_ |
+| 8 | TAM-6827 | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
 | 9 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
 | 10 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
 | 11 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
@@ -163,9 +163,16 @@ _To be detailed._
 
 ### 8. Multiselect status filter on the active requests page
 
-**Summary.** Make the "Status" search field on the active lab requests page multiselect, so lab staff can view "Sample not collected" and "Reception pending" together. Today these two statuses (which lab staff alternate between while managing collections) can only be filtered one at a time.
+**Problem.** Lab staff managing collections alternate between "Sample not collected" and "Reception pending" but can only filter on one status at a time, so they can't see both groups together.
 
-_To be detailed._
+**How it works today.** The active lab requests search bar has a single-select "Status" field offering the active statuses (terminal and published statuses are excluded from the options). The listing endpoint already accepts multiple statuses (`status in (:statuses)`), so the constraint is only in the single-select control.
+
+**Desired behaviour.** The "Status" filter on the active lab requests listing accepts multiple statuses at once, so staff can view combinations such as "Sample not collected" and "Reception pending" together. With no status selected, all active statuses show, as now. The selectable set stays the active statuses.
+
+**Design updates.**
+- The single-select Status dropdown becomes a multiselect, following the existing multiselect field pattern — selected statuses shown as removable chips.
+
+**Rationale.** Seeing the statuses they alternate between in one view removes the constant re-filtering while managing collections.
 
 ---
 
