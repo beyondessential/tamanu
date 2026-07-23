@@ -36,11 +36,19 @@ const TABLES = [
 
 export async function up(query: QueryInterface): Promise<void> {
   for (const table of TABLES) {
+    // The set_updated_at BEFORE UPDATE trigger re-stamps updated_at to current_timestamp
+    // whenever other columns change but updated_at doesn't. For rows where only created_at is
+    // NULL we want to keep the existing updated_at, so nudge it by 1 microsecond — a changed
+    // value passes through the trigger untouched, stays deterministic across servers, and
+    // preserves the history.
     await query.sequelize.query(`
       UPDATE "${table}"
       SET
         created_at = COALESCE(created_at, updated_at, now()),
-        updated_at = COALESCE(updated_at, created_at, now())
+        updated_at = CASE
+          WHEN updated_at IS NULL THEN COALESCE(created_at, now())
+          ELSE updated_at + interval '1 microsecond'
+        END
       WHERE created_at IS NULL OR updated_at IS NULL;
     `);
   }
