@@ -1,9 +1,10 @@
 import config from 'config';
+import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
-import { tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
-import { requireFunction } from './prerequisites';
+import { allTables, tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
+import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
 const addUpdatedAtSyncTickColumn: MigrationHook = {
@@ -49,22 +50,22 @@ const addUpdatedAtTrigger: MigrationHook = {
   },
 };
 
-const addUpdatedAtSyncTickTrigger: MigrationHook = {
-  name: 'addUpdatedAtSyncTickTrigger',
+const addOrReplaceUpdatedAtSyncTickTrigger: MigrationHook = {
+  name: 'addOrReplaceUpdatedAtSyncTickTrigger',
   prerequisites: [requireFunction('set_updated_at_sync_tick')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(
-      sequelize,
-      'set_',
-      '_updated_at_sync_tick',
-      [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
-    )) {
-      log.info(`Adding updated_at_sync_tick trigger to ${schema}.${table}`);
+    for (const { schema, table } of await allTables(sequelize, [
+      ...GLOBAL_EXCLUDE_TABLES,
+      ...NON_SYNCING_TABLES,
+    ])) {
+      log.debug(`Ensuring updated_at_sync_tick trigger on ${schema}.${table}`);
       await sequelize.query(`
-      CREATE TRIGGER set_${table}_updated_at_sync_tick
-      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
-      FOR EACH ROW
-      EXECUTE FUNCTION public.set_updated_at_sync_tick();
+        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON "${schema}"."${table}";
+
+        CREATE TRIGGER set_${table}_updated_at_sync_tick
+        BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+        FOR EACH ROW
+        EXECUTE FUNCTION public.set_updated_at_sync_tick();
     `);
     }
   },
@@ -109,10 +110,22 @@ const addRecordChangeTrigger: MigrationHook = {
   },
 };
 
+const enableSyncTickTrigger: MigrationHook = {
+  name: 'enableSyncTickTrigger',
+  prerequisites: [requireTable('local_system_facts')],
+  async run({ log, sequelize }) {
+    log.info('Re-enabling sync tick trigger after migrations');
+    await sequelize.query(`
+      UPDATE local_system_facts SET value = 'enabled' WHERE key = '${FACT_SYNC_TRIGGER_CONTROL}';
+    `);
+  },
+};
+
 export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtSyncTickColumn,
   addUpdatedAtTrigger,
-  addUpdatedAtSyncTickTrigger,
+  addOrReplaceUpdatedAtSyncTickTrigger,
   addNotifyTableChangedTrigger,
   addRecordChangeTrigger,
+  enableSyncTickTrigger,
 ];

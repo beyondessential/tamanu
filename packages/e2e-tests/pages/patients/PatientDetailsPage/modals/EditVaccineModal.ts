@@ -46,12 +46,14 @@ export class EditVaccineModal extends BasePatientModal {
   constructor(page: Page) {
     super(page);
     this.modalTitle = this.page.getByTestId('modaltitle-ojhf');
-    this.vaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-igtk');
-    this.vaccineNameOther = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-jbi4');
-    this.schedule = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-s88j');
-    this.givenStatus = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-qgo7');
-    this.recordedBy = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-e9ru');
-    this.facility = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-iukb');
+    this.vaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.vaccine.label');
+    this.vaccineNameOther = this.page.getByTestId(
+      'displayfield-jkpx-vaccine-vaccine.vaccineName.label',
+    );
+    this.schedule = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.schedule.label');
+    this.givenStatus = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.status.label');
+    this.recordedBy = this.page.getByTestId('displayfield-jkpx-vaccine-vaccine.recordedBy.label');
+    this.facility = this.page.getByTestId('displayfield-jkpx-vaccine-general.facility.label');
     this.batch = this.page.getByTestId('field-865y-input');
     this.dateGiven = this.page.getByTestId('field-8sou').getByRole('textbox');
     this.injectionSite = this.page.getByTestId('field-jz48-select');
