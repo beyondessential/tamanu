@@ -48,6 +48,7 @@ import KeyValueDisplay from './KeyValueDisplay';
 import DoseEntry, { DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
+import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 
 const Container = styled.div`
   display: flex;
