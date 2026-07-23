@@ -1,5 +1,3 @@
-import { addHours, isSameDay } from 'date-fns';
-
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { useDateTime } from '@tamanu/ui-components';
 
@@ -14,12 +12,9 @@ export function getIsCurrent({ timeSlot, selectedDate, now }) {
   return now >= slotStartDate && now < slotEndDate;
 }
 
-export function getIsNotDue({ hasRecord, timeSlot, selectedDate, now }) {
+export function getIsNotDue({ timeSlot, selectedDate, now }) {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  if (!hasRecord || !isSameDay(selectedDate, now)) {
-    return slotStartDate > now;
-  }
-  return slotStartDate > addHours(now, 2);
+  return slotStartDate > now;
 }
 
 /**
@@ -27,15 +22,14 @@ export function getIsNotDue({ hasRecord, timeSlot, selectedDate, now }) {
  * @param {Object} props
  * @param {{ startTime: string, endTime: string }} props.timeSlot
  * @param {Date} props.selectedDate
- * @param {boolean} props.hasRecord
  */
-export function useMarDoseTiming({ timeSlot, selectedDate, hasRecord }) {
+export function useMarDoseTiming({ timeSlot, selectedDate }) {
   const { getFacilityNowDate } = useDateTime();
   const facilityNow = getFacilityNowDate();
 
   return {
     isPast: getIsPast({ timeSlot, selectedDate, now: facilityNow }),
-    isNotDue: getIsNotDue({ hasRecord, timeSlot, selectedDate, now: facilityNow }),
+    isNotDue: getIsNotDue({ timeSlot, selectedDate, now: facilityNow }),
     isFuture: getDateFromTimeString(timeSlot.startTime, selectedDate) > facilityNow,
     isCurrent: getIsCurrent({ timeSlot, selectedDate, now: facilityNow }),
   };
