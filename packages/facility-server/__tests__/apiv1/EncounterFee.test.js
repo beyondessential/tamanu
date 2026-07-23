@@ -177,6 +177,52 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     expect(weekend[0].productId).toBe(edWeekendProduct.id);
   });
 
+  it('falls back to the after-hours fee (at its price) for a weekend encounter with no weekend product', async () => {
+    // The clinic family has no weekend product configured here, only an after-hours one, so a
+    // weekend encounter falls back to the after-hours product — and the line carries its price.
+    const clinicAfterHoursProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.AFTER_HOURS);
+    await priceListItem(facilityPriceList.id, clinicAfterHoursProduct.id, { price: 90 });
+
+    const { encounter, invoice } = await createEncounterWithInvoice({
+      encounterType: ENCOUNTER_TYPES.CLINIC,
+      startDate: '2024-06-22 11:00:00', // Saturday → clinic weekend → falls back to after-hours
+    });
+    await models.Invoice.addEncounterFee(encounter, settings, primaryTimeZone);
+
+    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(encounter.id);
+    const [line] = await models.InvoiceItem.findAll({
+      where: { invoiceId: invoice.id },
+      include: [
+        {
+          model: models.InvoiceProduct,
+          as: 'product',
+          include: [
+            {
+              model: models.InvoicePriceListItem,
+              as: 'invoicePriceListItem',
+              where: { invoicePriceListId },
+              required: false,
+            },
+          ],
+        },
+      ],
+    });
+    expect(line.productId).toBe(clinicAfterHoursProduct.id);
+    expect(Number(line.product.invoicePriceListItem.price)).toBe(90);
+  });
+
+  it('does not add a clinic/ED fee that the facility has hidden on its price list', async () => {
+    // A facility suppresses an otherwise-applicable fee by hiding that product on its price list.
+    const clinicWeekendProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.WEEKEND);
+    await priceListItem(facilityPriceList.id, clinicWeekendProduct.id, { isHidden: true });
+
+    const items = await addFeeFor({
+      encounterType: ENCOUNTER_TYPES.CLINIC,
+      startDate: '2024-06-22 11:00:00', // Saturday → clinic weekend → resolves the hidden product
+    });
+    expect(items).toHaveLength(0);
+  });
+
   it('adds no fee for an encounter type that is not invoiceable', async () => {
     const items = await addFeeFor({ encounterType: ENCOUNTER_TYPES.ADMISSION });
     expect(items).toHaveLength(0);

@@ -144,6 +144,46 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
     expect(items[0].quantity).toBe(3);
   });
 
+  it('sets the night total on recompute — re-running is stable and never doubles', async () => {
+    // Recompute-not-increment: re-running within the same window keeps the quantity, and crossing
+    // another overnight check adds exactly one night rather than adding to the previous total.
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      locationId: bedLocation.id,
+      departmentId: department.id,
+      examinerId: user.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      startDate: '2024-06-16 18:00:00',
+      endDate: '2024-06-18 06:00:00', // 2 overnight (02:00) checks → 2 nights
+    });
+    const invoice = await models.Invoice.create({
+      encounterId: encounter.id,
+      displayId: `INV-${encounter.id.slice(0, 8)}`,
+      date: '2024-06-16 18:00:00',
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    const afterFirst = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(afterFirst).toHaveLength(1);
+    expect(afterFirst[0].quantity).toBe(2);
+
+    // Re-run twice with no night passing → still one line at 2, not 4.
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    const afterRerun = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(afterRerun).toHaveLength(1);
+    expect(afterRerun[0].quantity).toBe(2);
+
+    // One more overnight check passes → exactly 3, not 5.
+    await encounter.update({ endDate: '2024-06-19 06:00:00' }); // now 3 overnight checks
+    await models.Invoice.recalculateBedFee(encounter, settings, primaryTimeZone);
+    const afterAnotherNight = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+    expect(afterAnotherNight).toHaveLength(1);
+    expect(afterAnotherNight[0].quantity).toBe(3);
+  });
+
   it('does not charge a location with no bed-fee product (placeholder ward)', async () => {
     const items = await admitAndRecompute({
       locationId: placeholderLocation.id,
