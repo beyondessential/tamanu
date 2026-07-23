@@ -17,12 +17,17 @@ import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
+import { MarDataCell } from './MarStatus';
 
 const IconWrapper = styled.div`
   display: grid;
   place-items: center;
   inline-size: 100%;
   block-size: 100%;
+  font-size: 24px;
+  ${MarDataCell}:has(${TableCellButton}:nth-of-type(2)) & {
+    font-size: 16px;
+  }
 `;
 
 const StyledEditedOrnament = styled(EditedOrnament)`
@@ -191,10 +196,7 @@ export function MarDoseButton({
         data-inactive={isInactive || undefined}
         data-paused={isPaused || undefined}
         disabled={
-          !canViewMedication ||
-          isNotDue ||
-          isInactive ||
-          !(canCreateMar || (status && canViewMar))
+          !canViewMedication || isNotDue || isInactive || !(canCreateMar || (status && canViewMar))
         }
         onClick={onSelected}
       >
