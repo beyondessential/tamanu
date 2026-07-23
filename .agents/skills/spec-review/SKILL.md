@@ -4,7 +4,7 @@ description: "Review this card's specs with fresh eyes for gaps, contradictions,
 label: "Review spec"
 pill-order:
   specifying: 3
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Review spec with fresh eyes

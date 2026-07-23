@@ -6,7 +6,7 @@ pill-order:
   not-started: 6
   specifying: 12
 jockey-hint: "Demote once one or more mockups have been produced in this conversation, unless the user signals they want another variation or a different screen."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Mock this up

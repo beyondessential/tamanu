@@ -1,4 +1,4 @@
-<!-- BEGIN:workhorse 0.1.0 -->
+<!-- BEGIN:workhorse 0.2.0 -->
 # Workhorse framework
 
 This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a spec-driven development workbench. Workhorse ships skills (invokable prompts) and reference docs into this repo to shape how AI agents work here.
@@ -9,7 +9,7 @@ This workspace uses [Workhorse](https://github.com/beyondessential/workhorse), a
 
 When picking up a task, read the skill whose folder name matches what you're being asked to do — its `SKILL.md` describes how to approach the work and which reference docs to follow.
 
-Workhorse manages this section. Run the **Pull Workhorse updates** skill to bring it, the skills, and the reference docs up to the latest release — local edits you make here are preserved through a smart merge. Edit or remove it freely.
+Workhorse keeps this section, the skills, and the reference docs current automatically: the first agent turn of a session smart-merges the latest release over your local edits, so your deliberate changes survive. Edit or remove it freely.
 <!-- END:workhorse -->
 
 # Tamanu - Development Guidelines for AI Assistants

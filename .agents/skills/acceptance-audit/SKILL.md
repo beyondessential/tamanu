@@ -6,7 +6,7 @@ pill-order:
   implementing: 4
   reviewing: 4
   complete: 3
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Acceptance audit

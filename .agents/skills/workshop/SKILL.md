@@ -5,7 +5,7 @@ label: "Workshop this"
 pill-order:
   not-started: 4
   specifying: 10
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Workshop ideas
