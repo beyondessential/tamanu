@@ -13,7 +13,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
 | 2 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
 | 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
-| 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | _TBC_ |
+| 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
 | 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
 | 6 | TAM-4421 | Retain search parameters across logout/login | High | _TBC_ |
 | 7 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
@@ -97,9 +97,19 @@ _To be detailed._
 
 ### 4. Auto-cancel lab requests with no sample collected
 
-**Summary.** Automatically cancel lab requests left in "Sample not collected" beyond a threshold, to reduce the volume of active lab requests. A large backlog of uncollected requests overloads the API after lab reference data is updated, causing integration delays (Palau had 900+ such requests, Nauru ~80). Raised by Palau and Nauru.
+**Problem.** Lab requests left in "Sample not collected" accumulate indefinitely, inflating the active lab request backlog. When lab reference data is updated, a large backlog overloads the API and causes integration delays — Palau reached 900+ uncollected requests, Nauru ~80. Raised by Palau and Nauru.
 
-_To be detailed._
+**How it works today.** A lab request stays in "Sample not collected" until someone records a sample or cancels it manually; nothing clears stale uncollected requests, so they persist as active requests. Manual cancellation transitions the request to "Cancelled" with a chosen cancellation reason (from the configurable lab cancellation reasons) and an accompanying note.
+
+**Desired behaviour.** A facility can opt in to automatically cancelling lab requests that have sat in "Sample not collected" beyond a configurable age. A periodic background process on central transitions requests past the threshold to "Cancelled", the same end state as a manual cancellation.
+
+- **Opt-in, per facility.** Disabled by default and enabled per facility, with the age threshold configured per facility.
+- **Dedicated reason.** Auto-cancelled requests carry a dedicated, system-reserved cancellation reason — "Sample not collected — auto-cancelled" — separate from the user-configurable manual reasons, plus an accompanying note, so they are distinguishable in the request log from manually cancelled requests.
+
+**Rationale.** Clearing stale uncollected requests keeps active lab request volume down, avoiding the API overload and integration delays a large backlog causes when reference data is updated.
+
+**Open questions (to resolve before design):**
+- **Threshold basis, unit, and default:** measured from the request's requested date (time spent uncollected), expressed in what unit, and with what default once a facility enables it? To be determined.
 
 ---
 
