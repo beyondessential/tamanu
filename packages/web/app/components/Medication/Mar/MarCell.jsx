@@ -85,17 +85,13 @@ export default function MarCell({
   return (
     <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
       <DoseGrid>
-        {subSlots.map((subSlot, index) => {
+        {subSlots.map((subSlot, i) => {
           const previousMarInfo =
-            index > 0
-              ? marInfos[index - 1]
-              : (previousWindowMarInfos?.[previousWindowMarInfos.length - 1] ?? null);
+            i > 0 ? marInfos[i - 1] : (previousWindowMarInfos?.at(-1) ?? null);
           const nextMarInfo =
-            index < marInfos.length - 1 ? marInfos[index + 1] : (nextWindowMarInfos?.[0] ?? null);
+            i < marInfos.length - 1 ? marInfos[i + 1] : (nextWindowMarInfos?.[0] ?? null);
           const previousSubSlot =
-            index > 0
-              ? subSlots[index - 1]
-              : (previousWindowSubSlots?.[previousWindowSubSlots.length - 1] ?? null);
+            i > 0 ? subSlots[i - 1] : (previousWindowSubSlots?.at(-1) ?? null);
 
           return (
             <MarDoseButton
@@ -103,7 +99,7 @@ export default function MarCell({
               selectedDate={selectedDate}
               timeSlot={subSlot}
               parentTimeSlot={timeSlot}
-              marInfo={marInfos[index] ?? null}
+              marInfo={marInfos[i] ?? null}
               previousMarInfo={previousMarInfo}
               nextMarInfo={nextMarInfo}
               previousSubSlot={previousSubSlot}
