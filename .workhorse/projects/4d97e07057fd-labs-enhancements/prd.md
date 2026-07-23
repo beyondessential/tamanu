@@ -149,6 +149,14 @@ _To be detailed._
 
 **Summary.** Standardise the lab request label format and automatically prompt to print labels, minimising manual errors when handling samples. Initial request from Nauru; applies to all countries and projects using the lab module.
 
+**Context.** The label (`LabRequestPrintLabel`) is an SVG with fixed fields — Patient Name, Patient ID, DOB, Test ID, Date collected, Lab category, Specimen type — plus a Test ID barcode; field labels are hardcoded English and the width is a setting. Printing is fully manual: after finalising a request, the "Request finalised" summary pane lists requests with checkboxes and "Print label" / "Print request" buttons, with no prompt.
+
+**Open questions (to resolve before design):**
+- **What "standardise the format" means:** the specific gripe Nauru raised, and the target standard — fields/layout on the label, a fixed physical size, translating the field labels, or consistency across deployments.
+- **Auto-print trigger:** when the prompt fires — on finalising a new request, on recording a sample, or both.
+- **Prompt behaviour:** a confirmation prompt ("Print labels now?") the user accepts, or straight to the print dialog automatically.
+- **Configurability:** whether the auto-prompt is a per-facility setting (opt-in) or always on for everyone using the lab module.
+
 _To be detailed._
 
 ---
