@@ -1,39 +1,19 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { EditedOrnament } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
-import AlertOrnament from './AlertOrnament';
 import { MarDetails } from './MarDetails';
-import MarStatusIcon from './MarStatusIcon';
+import MarDoseStatus from './MarDoseStatus';
 import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
-import { MarDataCell, MarCellButton } from './components';
+import { MarCellButton } from './components';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
-
-const IconWrapper = styled.div`
-  display: grid;
-  place-items: center;
-  inline-size: 100%;
-  block-size: 100%;
-  font-size: 24px;
-  ${MarDataCell}:has(${MarCellButton}:nth-of-type(2)) & {
-    font-size: 16px;
-  }
-`;
-
-const StyledEditedOrnament = styled(EditedOrnament)`
-  position: absolute;
-  right: 3px;
-  top: 2px;
-`;
 
 const DiscontinuedDivider = styled.div`
   position: absolute;
@@ -152,39 +132,6 @@ export function MarDoseButton({
     handleStatusPopperOpen();
   };
 
-  const renderStatus = () => {
-    if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
-    switch (status) {
-      case ADMINISTRATION_STATUS.GIVEN:
-        return (
-          <IconWrapper>
-            <MarStatusIcon variant={ADMINISTRATION_STATUS.GIVEN} />
-            {isAlert && <AlertOrnament />}
-            {isEdited && <StyledEditedOrnament />}
-          </IconWrapper>
-        );
-      case ADMINISTRATION_STATUS.NOT_GIVEN:
-        return (
-          <IconWrapper>
-            <MarStatusIcon variant={ADMINISTRATION_STATUS.NOT_GIVEN} />
-            {isAlert && <AlertOrnament />}
-            {isEdited && <StyledEditedOrnament />}
-          </IconWrapper>
-        );
-      default: {
-        if (isPast) {
-          return isPrn ? null : (
-            <IconWrapper>
-              <MarStatusIcon variant="missed" />
-            </IconWrapper>
-          );
-        }
-        // Dose due info is rendered as a cell-level overlay in MarCell
-        return null;
-      }
-    }
-  };
-
   return (
     <>
       <MarCellButton
@@ -217,7 +164,17 @@ export function MarDoseButton({
           status={status}
         >
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
-          {renderStatus()}
+          <MarDoseStatus
+            isAlert={isAlert}
+            isDiscontinued={isDiscontinued}
+            isEdited={isEdited}
+            isEnd={isEnd}
+            isPast={isPast}
+            isPaused={isPaused}
+            isPrn={isPrn}
+            marInfo={marInfo}
+            status={status}
+          />
         </MarStatusTooltip>
       </MarCellButton>
       <StatusPopper
