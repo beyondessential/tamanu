@@ -6,7 +6,7 @@ pill-order:
   not-started: 1
   specifying: 1
 jockey-hint: "Surface as a top pill only when the card carries the `Bug` tag, and only in the `not-started` and `specifying` phases. On untagged cards, do not include in pills or suggestions at all."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Investigate and fix

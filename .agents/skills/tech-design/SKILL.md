@@ -6,7 +6,7 @@ pill-order:
   specifying: 7
   implementing: 4
 jockey-hint: "Good fit when the user wants to talk through technical tradeoffs before committing to implementation. Demote once substantial tech notes are already in the plan unless the user signals a fresh area to workshop."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Tech design workshop
@@ -18,8 +18,10 @@ Workshop the technical approach for this card interactively. The goal is to capt
 1. Read the card's specs and any existing plan at `.workhorse/plans/{card-id}/`
 2. Skim the relevant code in the target repo to anchor the conversation in what exists
 3. Surface the design choices that need making — architecture, data flow, component boundaries, migration steps — and ask the user focused questions one or two at a time
-4. As decisions land, write them into the plan as prose notes under clear section headings. Don't force a checklist yet — notes are fine on their own
-5. If no plan exists, create one at `.workhorse/plans/{card-id}/plan.md` — an H1 title, an optional summary, and sections of notes are enough for a first version
+4. As decisions land, write them into the target document as prose notes under clear section headings. Don't force a checklist yet — notes are fine on their own
+5. If the target is the plan and none exists, create one at `.workhorse/plans/{card-id}/plan.md` — an H1 title, an optional summary, and sections of notes are enough for a first version
+
+**Where notes land:** if a working doc exists for this card in `draft` status (`.workhorse/working-docs/{card-id}/working-doc.md`), write your notes into it — under the conventional sections in `.agents/docs/working-doc-format.md` — rather than the plan. The working doc is the drafting home while the card is being shaped. With no draft working doc, write to the plan as usual.
 
 The plan is a free-form working document, not a spec. It can carry a mix of tech design notes, refinement notes, and (later) a checklist of steps — see `specs/plan/overview.md` for the shape.
 

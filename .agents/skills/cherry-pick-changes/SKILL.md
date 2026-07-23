@@ -2,7 +2,7 @@
 name: cherry-pick-changes
 description: "Cherry-pick post-merge commits onto a new follow-up branch"
 label: "Cherry-pick changes"
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Cherry-pick post-merge changes

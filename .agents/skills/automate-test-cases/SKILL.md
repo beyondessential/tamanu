@@ -6,7 +6,7 @@ pill-order:
   implementing: 6
   reviewing: 5
 jockey-hint: "Surface once the card has a test-cases file with unticked scenarios and implementation is underway. Demote once all scenarios are ticked."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Automate test cases

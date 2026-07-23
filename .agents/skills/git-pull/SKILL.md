@@ -2,7 +2,7 @@
 name: git-pull
 description: "Pull remote changes and reconcile with local work, checking for soft conflicts"
 label: "Pull"
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Pull remote changes
