@@ -656,7 +656,13 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       },
       queryOptions:
         typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
-          ? { subQuery: false }
+          ? // minifyAliases: the medication set nests referenceDrug four levels deep
+            // (children.medicationTemplate.medication.referenceDrug.<column>), whose generated
+            // column aliases exceed PostgreSQL's 63-byte identifier limit and get silently
+            // truncated — dropping dispensingUnit/unitConversion so the dispensing quantity
+            // autocalculation falls back to a conversion of 1. Minifying the aliases keeps them
+            // within the limit.
+            { subQuery: false, minifyAliases: true }
           : {},
       extraReplacementsBuilder: ({ parentId, relationType = DEFAULT_HIERARCHY_TYPE }) => ({
         parentId,
