@@ -19,7 +19,7 @@ const Root = styled.div`
  *   >
  * } props
  */
-export default function MarDoseInfo({ doseAmount, dosingUnit, isVariableDose, ...props }) {
+export default function MarDoseInfoText({ doseAmount, dosingUnit, isVariableDose, ...props }) {
   const body = isVariableDose ? (
     <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
   ) : dosingUnit ? (
