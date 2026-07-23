@@ -2,13 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { useDateTime } from '@tamanu/ui-components';
 import { MarDoseButton } from './MarDoseButton';
-import MarDoseInfo from './MarDoseInfo';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
 import { MarDataCell, MarCellButton } from './components';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
-import getShowDoseInfo from './getShowDoseInfo';
 
 const DoseGrid = styled.div`
   --mar-cell-gap-rule: var(--mar-cell-gap-rule-width) solid ${p => p.theme.palette.divider};
@@ -29,12 +26,6 @@ const DoseGrid = styled.div`
   }
 `;
 
-const DoseInfoOverlay = styled(MarDoseInfo)`
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-`;
-
 export default function MarCell({
   selectedDate,
   timeSlot,
@@ -46,10 +37,6 @@ export default function MarCell({
   anchorEl,
   onAnchorElChange,
 }) {
-  const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
-    useDateTime();
-  const facilityNow = getFacilityNowDate();
-
   const isCurrentTimeSlot = useIsCurrentTimeSlot({
     startTime: timeSlot.startTime,
     endTime: timeSlot.endTime,
@@ -63,24 +50,6 @@ export default function MarCell({
     previousWindowMarInfos && previousParentSlot
       ? getSubSlots(previousParentSlot, dosesPerSlot)
       : null;
-
-  const showDoseInfo = marInfos.some((marInfo, index) => {
-    const nextMarInfo =
-      index < marInfos.length - 1 ? marInfos[index + 1] : (nextWindowMarInfos?.[0] ?? null);
-    return getShowDoseInfo({
-      marInfo,
-      medication,
-      timeSlot: subSlots[index],
-      selectedDate,
-      nextMarInfo,
-      pauseRecords,
-      now: facilityNow,
-      toFacilityDateTime,
-      storedDateTimeToEpochMilliseconds,
-    });
-  });
-
-  const { doseAmount, dosingUnit, isVariableDose } = medication || {};
 
   return (
     <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
@@ -111,13 +80,6 @@ export default function MarCell({
           );
         })}
       </DoseGrid>
-      {showDoseInfo && (
-        <DoseInfoOverlay
-          doseAmount={doseAmount}
-          dosingUnit={dosingUnit}
-          isVariableDose={isVariableDose}
-        />
-      )}
     </MarDataCell>
   );
 }
