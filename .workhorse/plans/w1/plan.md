@@ -76,31 +76,78 @@ bespoke handlers, without rewriting them.
   the outer transaction — fine, but confirm none rely on committing independently
   mid-request.
 
-## Locking: scope and lifetime (do not conflate)
+## Classification pass — mutating endpoints
 
-Two unrelated locks share the word "lock":
+Headline result: the "idempotency isn't systematic" problem is real at the
+*handler* level, but Tamanu funnels nearly all side effects through **DB-backed
+queues and DB-stored blobs**, so a transaction-wrapping idempotency middleware
+makes essentially the **entire clinical mutation surface replay-safe**. Only AI is
+a genuine external-effect exclusion. This replaces the earlier "curated allow-list
+of a subset" with "wrap almost everything; exclude a short, well-understood list".
 
-- **Lock A — idempotency-key lock (this card).** Scope: one operation (one
-  `Idempotency-Key`). Lifetime: one request/transaction. Prevents a concurrent
-  retry of the *same* request from double-executing. Not entity-scoped, invisible
-  to the UI.
-- **Lock B — "patient is being edited" (separate future card, not this one).**
-  Scope: an entity. Lifetime: an editing session across many requests. Pessimistic
-  concurrency / presence. **Lock A does not provide Lock B.**
+Why the earlier "side-effect" greps were mostly false alarms:
+- **Comms are DB-queued** — handlers do `PatientCommunication.create(...)`; a
+  background worker sends later. The row is a DB write; idempotency memoisation
+  prevents the duplicate row that would cause a duplicate send. (e.g.
+  `appointments` email reminder, portal invites.)
+- **Reports are DB-queued** — `reportRequest` writes a `ReportRequest` row; a
+  worker generates + emails downstream.
+- **Attachments are DB blobs** — `Attachment.data` is a `bytea` column that syncs
+  (`attachment.js` reads `.data/.type/.size` from the model). Uploads are DB
+  writes, not filesystem/S3.
+- **Imaging/lab/mSupply integrations run downstream** via FHIR/sync, not inline in
+  the facility mutation. `imaging` POST/PUT are pure DB writes; the external
+  provider is only touched in the GET (`renderResults`).
+- **Telegram** API surface is a read-only `/bot-info` GET; bot messaging is a
+  websocket service.
 
-**Stuck-lock analysis (Lock A):** no "patient stuck" risk. Transaction-scoped; a
-client crash mid-request either completes (key → completed, replay-safe) or drops
-the connection and Postgres rolls back and auto-releases. The one real stuck case
-is a **server** crash after marking a key in-progress but before completing — the
-key then blocks its own retry. **Mitigation (must be specced): a lease/timeout —
-an in-progress key older than N seconds is treated as abandoned and retryable.**
+### Category A — DB-only, replay-safe under the transaction wrap (the default)
+Effectively all clinical data entry: allergy, diagnosis, ongoingCondition,
+familyHistory, vitals, triage, procedure, referral, encounter (+ notes/diets/
+document sub-writes), medication (all endpoints), labs/labRequest/labTest/
+labTestPanel, surveyResponse + surveyResponseAnswer, invoice + patientPayment,
+appointments (incl. email reminder → `PatientCommunication`), notes, tasks,
+notifications, patient + patientContact/patientSecondaryId/patientDeath/
+patientIssue/patientCarePlan/patientRelations, patientProgramRegistration
+(+conditions) + programRegistry, patientVaccine, locationAssignments, location/
+locationGroup/department, reference data (referenceData, program, survey,
+scheduledVaccine, template, certificateNotification, asset,
+patientFieldDefinition), reportRequest (→ `ReportRequest`), imaging POST/PUT.
 
-**On Lock B (advisory only, if pursued later):** Tamanu is distributed/sync-based,
-so a *global* hard lock is architecturally impossible — only a local, single-
-facility, best-effort advisory is feasible. Prefer **presence** (via the existing
-`defineWebsocketService`, auto-expiring on disconnect) and/or **optimistic
-conflict detection at save time** over a pessimistic lock, since stuck-locks are
-the central hazard of hard entity locks. Keep this off W1.
+### Category B — exclude from the middleware (external effect a txn can't cover)
+- **AI summary endpoints** (`/ai/patient/*`, `/ai/encounter/*`) — outbound LLM
+  call, non-transactional, expensive; not data entry.
+
+### Category C — out of scope / never queued (auth, critical, streaming)
+- Auth / token-issuing / pre-auth: login, refresh, setFacility, resetPassword,
+  changePassword, public/setup, admin/impersonate, admin/settings/cache — must not
+  be memoised/replayed; the client treats them as synchronous/critical.
+- Streaming / sync: `/sync`, `/syncHealth`, `/patientFacility`.
+
+### Practical caveat (safe, but handle with care in v1)
+- **Multipart/binary uploads** (document/attachment/profile) are DB-safe, but the
+  middleware buffering a binary response and keying a multipart request is fiddly.
+  Candidate to defer from the *client queue* v1 (large, rare, unlikely to be
+  repeatedly retried on flaky links) even though the *server* layer covers them.
+
+## Locking scope and crash safety
+
+The idempotency-key lock is **operation-scoped** (one `Idempotency-Key`) and lives
+only for the request's transaction. It prevents a concurrent retry of the *same*
+request from double-executing; it is not entity-scoped and is invisible to the UI.
+
+No "patient stuck" risk: a client crash mid-request either completes (key →
+completed, replay-safe) or drops the connection and Postgres rolls back and
+auto-releases. **The one real stuck case is a server crash after a key is marked
+in-progress but before it completes — the key would then block its own retry.
+Mitigation (load-bearing, must be specced): an in-progress lease/timeout — an
+in-progress key older than a bounded interval is treated as abandoned and becomes
+retryable.**
+
+Entity-level "this patient is being edited" locking was considered and is
+**explicitly out of scope** — it's a different feature (entity-scoped, session-
+lifetime), Tamanu's distributed/sync model makes a global hard lock infeasible,
+and the idempotency layer does not provide it.
 
 ## Open questions
 - Header-based `Idempotency-Key` vs deriving a key from a client-generated
