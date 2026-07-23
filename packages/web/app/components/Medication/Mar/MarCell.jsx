@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { MarDoseButton } from './MarDoseButton';
 import MarDoseInfoOverlay from './MarDoseInfoOverlay';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
@@ -31,7 +30,6 @@ export default function MarCell({
   selectedDate,
   timeSlot,
   marInfos,
-  previousWindowMarInfos,
   nextWindowMarInfos,
   medication,
   pauseRecords,
@@ -46,22 +44,13 @@ export default function MarCell({
 
   const dosesPerSlot = getDosesPerSlot(medication?.frequency);
   const subSlots = getSubSlots(timeSlot, dosesPerSlot);
-  const previousParentSlot = getParentTimeSlotForWindow(timeSlot, -1);
-  const previousWindowSubSlots =
-    previousWindowMarInfos && previousParentSlot
-      ? getSubSlots(previousParentSlot, dosesPerSlot)
-      : null;
 
   return (
     <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
       <DoseGrid>
         {subSlots.map((subSlot, i) => {
-          const previousMarInfo =
-            i > 0 ? marInfos[i - 1] : (previousWindowMarInfos?.at(-1) ?? null);
           const nextMarInfo =
             i < marInfos.length - 1 ? marInfos[i + 1] : (nextWindowMarInfos?.[0] ?? null);
-          const previousSubSlot =
-            i > 0 ? subSlots[i - 1] : (previousWindowSubSlots?.at(-1) ?? null);
 
           return (
             <MarDoseButton
@@ -70,9 +59,7 @@ export default function MarCell({
               timeSlot={subSlot}
               parentTimeSlot={timeSlot}
               marInfo={marInfos[i] ?? null}
-              previousMarInfo={previousMarInfo}
               nextMarInfo={nextMarInfo}
-              previousSubSlot={previousSubSlot}
               medication={medication}
               pauseRecords={pauseRecords}
               anchorEl={anchorEl}
@@ -92,16 +79,4 @@ export default function MarCell({
       />
     </MarDataCell>
   );
-}
-
-/**
- * Resolve an adjacent 2-hour window from the current one.
- * @param {{ startTime: string, endTime: string }} timeSlot
- * @param {-1 | 1} offset
- */
-function getParentTimeSlotForWindow(timeSlot, offset) {
-  const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(
-    slot => slot.startTime === timeSlot.startTime,
-  );
-  return MEDICATION_ADMINISTRATION_TIME_SLOTS[index + offset] ?? null;
 }

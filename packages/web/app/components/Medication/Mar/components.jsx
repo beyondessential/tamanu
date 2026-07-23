@@ -50,4 +50,7 @@ export const MarDataCell = styled.td`
     /* <table> sets vertical borders on <td>, so just override color */
     border-inline-color: ${p => p.theme.palette.text.secondary};
   }
+  &:has([data-paused='true']) + &:has([data-discontinued='true']) {
+    border-inline-start-color: ${p => p.theme.palette.text.secondary};
+  }
 `;

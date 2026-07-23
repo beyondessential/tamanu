@@ -162,7 +162,6 @@ export const MarTableRow = ({
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfos={marInfos}
-            previousWindowMarInfos={recordsByWindow[index - 1]}
             nextWindowMarInfos={recordsByWindow[index + 1]}
             pauseRecords={pauseRecords}
             anchorEl={popperAnchorEl}

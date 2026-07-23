@@ -84,15 +84,6 @@ function MarDoseStatusIcon({
   }
 }
 
-const DiscontinuedDivider = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background-color: ${p => p.theme.palette.text.tertiary};
-`;
-
 /**
  * @param {{
  *   isDiscontinued?: boolean;
@@ -100,7 +91,6 @@ const DiscontinuedDivider = styled.div`
  *   isNotDue?: boolean;
  *   isPast?: boolean;
  *   isPaused?: boolean;
- *   isPausedThenDiscontinued?: boolean;
  *   marInfo?: object | null;
  *   medication?: object | null;
  * }} props
@@ -111,7 +101,6 @@ export default function MarDoseStatus({
   isNotDue,
   isPast,
   isPaused,
-  isPausedThenDiscontinued,
   marInfo,
   medication,
 }) {
@@ -145,7 +134,6 @@ export default function MarDoseStatus({
       reasonNotGiven={reasonNotGiven}
       status={status}
     >
-      {isPausedThenDiscontinued && <DiscontinuedDivider />}
       <MarDoseStatusIcon
         isAlert={isAlert}
         isDiscontinued={isDiscontinued}
