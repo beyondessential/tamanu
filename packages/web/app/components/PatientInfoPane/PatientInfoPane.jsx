@@ -258,7 +258,8 @@ export const PatientInfoPane = () => {
   const api = useApi();
   const { ability } = useAuth();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
-  const canRecordPatientDeath = ability?.can('create', 'PatientDeath');
+  const canRecordPatientDeath =
+    ability?.can('create', 'PatientDeath') && ability?.can('write', 'Patient');
   const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
