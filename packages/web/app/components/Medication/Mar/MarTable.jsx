@@ -14,7 +14,7 @@ import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const Table = styled.table`
   --mar-border: 1px solid ${p => p.theme.palette.divider};
-  --mar-current-time-border: ${p => p.theme.palette.primary.main};
+  --mar-current-time-border: 1px solid ${p => p.theme.palette.primary.main};
   border: var(--mar-border);
   border-collapse: collapse;
   font-size: 12px;
@@ -29,6 +29,7 @@ const Table = styled.table`
   /* Hideous hack so children with ‘block-size: 100%’ actually fill table cells */
   & :is(th, td) {
     block-size: 0;
+    border-inline-start: var(--mar-border);
   }
 
   /* If cell is non-interactive, pad. Else let button(s) fill cell & delegate padding to them. */
@@ -36,19 +37,15 @@ const Table = styled.table`
     padding: 10px;
   }
 
-  & :where(th, td):not(:first-child) {
-    border-inline-start: var(--mar-border);
-  }
-
   & :is(th, td)[aria-current='time'] {
-    border-inline: 1px solid var(--mar-current-time-border);
+    border-inline: var(--mar-current-time-border);
   }
   & thead tr:first-of-type :is(th, td)[aria-current='time'] {
-    border-block-start: 1px solid var(--mar-current-time-border);
+    border-block-start: var(--mar-current-time-border);
     color: ${p => p.theme.palette.primary.main};
   }
   & tbody:last-of-type tr:last-of-type :is(th, td)[aria-current='time'] {
-    border-block-end: 1px solid var(--mar-current-time-border);
+    border-block-end: var(--mar-current-time-border);
   }
 `;
 
