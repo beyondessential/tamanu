@@ -1,5 +1,7 @@
 {
-  "sheetName": "Medication Dispense Modify Reason",
+  // PascalCase (no spaces) keeps the Excel sheet name within the 31-char limit while still
+  // normalising to the `medicationDispenseModifyReason` reference type (the importer word-splits it).
+  "sheetName": "MedicationDispenseModifyReason",
   "columns": [
     "id",
     "code",

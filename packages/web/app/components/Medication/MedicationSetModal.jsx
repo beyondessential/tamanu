@@ -1,24 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ConfirmCancelBackRow, TranslatedText, Modal, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { Box, Divider, IconButton } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
+import { Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
-import styled from 'styled-components';
 import Print from '@mui/icons-material/Print';
-import { BodyText, Heading5 } from '..';
-import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
-import { useEncounter } from '../../contexts/Encounter';
-import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
-import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
-import { MedicationForm } from '../../forms/MedicationForm';
-import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
-import { getAutocalculatedDispensingQuantity } from '@tamanu/shared/utils/medication';
-import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
-import { useAuth } from '../../contexts/Auth';
-import { useSettings } from '../../contexts/Settings';
-import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
+import Box from '@mui/material/Box';
 import { toast } from 'react-toastify';
-import { WarningOutlineIcon } from '../../assets/icons/WarningOutlineIcon';
+import styled from 'styled-components';
+
+import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
+import { ConfirmCancelBackRow, Modal, TranslatedText, useDateTime, useSettings } from '@tamanu/ui-components';
+import { getAutocalculatedDispensingQuantity } from '@tamanu/shared/utils/medication';
+
+import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
+import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
+import { Colors } from '../../constants/styles';
+import { useAuth } from '../../contexts/Auth';
+import { useEncounter } from '../../contexts/Encounter';
+import { MedicationForm } from '../../forms/MedicationForm';
+import PatientAllergiesWarning from '../PatientAllergiesWarning';
+import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
+import { BodyText, Heading5 } from '../Typography';
+import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -35,42 +36,6 @@ const SetContainer = styled.div`
   gap: 10px;
   align-items: flex-end;
   height: calc(100vh - 370px);
-`;
-
-const AllergiesWarningBox = styled(Box)`
-  border: 1px solid ${Colors.alert};
-  border-radius: 3px;
-  padding: 10px 26px;
-  background-color: ${Colors.lightAlert};
-  margin-bottom: 10px;
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const AllergiesWarningHeader = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllergiesWarningTitle = styled(BodyText)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 14px;
-`;
-
-const AllergiesList = styled.ul`
-  margin: 0;
-  padding-left: 41px;
-  list-style-type: disc;
-`;
-
-const AllergyItem = styled.li`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  line-height: 20px;
 `;
 
 const MODAL_SCREENS = {
@@ -123,7 +88,7 @@ const CancelMedicationSetScreen = () => {
 };
 
 const SelectScreen = ({
-  allergies,
+  patientId,
   medicationSets,
   medicationSetsLoading,
   onSelect,
@@ -147,24 +112,7 @@ const SelectScreen = ({
   return (
     <SetContainer>
       <Box flex={1} display="flex" flexDirection="column" height="100%">
-        {allergies?.data && allergies.data.length > 0 && (
-          <AllergiesWarningBox>
-            <AllergiesWarningHeader>
-              <WarningOutlineIcon />
-              <AllergiesWarningTitle>
-                <TranslatedText
-                  stringId="medication.allergies.title"
-                  fallback="Patient allergies"
-                />
-              </AllergiesWarningTitle>
-            </AllergiesWarningHeader>
-            <AllergiesList>
-              {allergies.data.map((allergyDetail, index) => (
-                <AllergyItem key={index}>{allergyDetail.allergy.name}</AllergyItem>
-              ))}
-            </AllergiesList>
-          </AllergiesWarningBox>
-        )}
+        <PatientAllergiesWarning patientId={patientId} style={{ marginBlockEnd: '1em' }} />
         <BodyText color={Colors.darkText}>
           <TranslatedText
             stringId="medication.modal.medicationSet.question"
@@ -236,7 +184,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
-  const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
@@ -425,7 +372,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
         return (
           <SelectScreen
-            allergies={allergies}
+            patientId={encounter?.patientId}
             medicationSets={medicationSets}
             medicationSetsLoading={medicationSetsLoading}
             onSelect={onSelect}

@@ -59,6 +59,10 @@ const ButtonRow = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
+const PharmacyNoteDescription = styled(SmallBodyText)`
+  font-weight: 400;
+`;
+
 const validationSchema = yup.object().shape({
   // medicationId, doseAmount, frequency, route, durationValue, durationUnit — same clinical
   // invariants as prescribing (MedicationForm).
@@ -81,7 +85,7 @@ const validationSchema = yup.object().shape({
 
 // Appends the standard "modified by pharmacy" note to the end of any existing pharmacy notes,
 // without duplicating it if it is already present.
-const appendPharmacyNote = (existingNotes, note) => {
+export const appendPharmacyNote = (existingNotes, note) => {
   const existing = existingNotes ?? '';
   if (!existing.trim()) return note;
   return existing.includes(note) ? existing : `${existing}\n${note}`;
@@ -299,12 +303,12 @@ export const ModifyPrescriptionModal = ({
                     stringId="medication.details.pharmacyNotes"
                     fallback="Pharmacy notes"
                   />{' '}
-                  <SmallBodyText as="i" color={Colors.softText}>
+                  <PharmacyNoteDescription as="i" color={Colors.softText}>
                     <TranslatedText
                       stringId="medication.pharmacyNotes.notificationHint"
                       fallback="This note will be sent to the original prescriber as a notification"
                     />
-                  </SmallBodyText>
+                  </PharmacyNoteDescription>
                 </span>
               }
               component={TextField}

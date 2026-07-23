@@ -124,6 +124,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
+      const search = `%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -131,13 +132,23 @@ function createSuggesterRoute(
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
       // either use the bind key in SQL or in the whereBuilder directly using sequelize
       const where = whereBuilder({
-        search: `%${searchQuery}%`,
+        search,
         query,
         req,
         endpoint,
         modelName,
         searchColumn,
       });
+
+      // searchById (admin reference-data screen only) matches the term against the record id
+      // instead of the name. Builders put term-matching in Op.or, or move it into Op.and next to
+      // structural filters (e.g. drug facility-availability) — dropping both and replacing with an
+      // id match avoids the name clause being AND-combined with the id and returning nothing. Scalar
+      // filters (visibilityStatus, sensitive-drug guard) are plain keys and survive.
+      if (query.searchById === 'true' && searchQuery) {
+        delete where[Op.and];
+        where[Op.or] = [{ id: { [Op.iLike]: search } }];
+      }
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -825,10 +836,11 @@ createSuggester(
 
       return includes;
     },
-    mapper: ({ name, code, id, sourceRefDataRecord }) => ({
+    mapper: ({ name, code, id, sourceRecordId, sourceRefDataRecord }) => ({
       name,
       code,
       id,
+      sourceRecordId,
       dispensingUnit: sourceRefDataRecord?.referenceDrug?.dispensingUnit,
     }),
     queryOptions: { subQuery: false },

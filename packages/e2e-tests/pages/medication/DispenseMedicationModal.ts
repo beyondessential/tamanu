@@ -13,6 +13,7 @@ export class DispenseMedicationModal {
   readonly patientSummaryPanel: Locator;
   // Modify prescription modal (opened from a dispense row's actions menu).
   readonly modifyDoseInput: Locator;
+  readonly modifyVariableDoseCheckbox: Locator;
   readonly modifyRouteField: Locator;
   readonly modifyReasonField: Locator;
   readonly modifyConfirmButton: Locator;
@@ -26,9 +27,12 @@ export class DispenseMedicationModal {
     this.cancelButton = page.getByTestId('dispense-cancel-button');
     this.dispenseAndPrintButton = page.getByTestId('dispense-and-print-button');
     this.dispensedByInput = page.getByTestId('dispense-dispensed-by-input');
-    this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox');
+    this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox-controlcheck');
     this.patientSummaryPanel = page.getByTestId('dispense-modal-patient-context');
     this.modifyDoseInput = page.getByTestId('modify-prescription-dose-input');
+    this.modifyVariableDoseCheckbox = page.getByTestId(
+      'modify-prescription-variable-dose-controlcheck',
+    );
     this.modifyRouteField = page.getByTestId('modify-prescription-route-select');
     this.modifyReasonField = page.getByTestId('modify-prescription-reason-input');
     this.modifyConfirmButton = page.getByTestId('modify-prescription-confirm');
@@ -36,7 +40,7 @@ export class DispenseMedicationModal {
   }
 
   getRowCheckbox(rowIndex: number): Locator {
-    return this.page.getByTestId(`dispense-row-checkbox-${rowIndex}`);
+    return this.page.getByTestId(`dispense-row-checkbox-${rowIndex}-controlcheck`);
   }
 
   getRowActionsButton(rowIndex: number): Locator {
@@ -63,6 +67,17 @@ export class DispenseMedicationModal {
     await this.openModifyPrescription(rowIndex);
     await this.modifyDoseInput.fill('2');
     await selectFieldOption(this.page, this.modifyRouteField, { optionToAvoid: 'Oral' });
+    await selectAutocompleteFieldOption(this.page, this.modifyReasonField, { selectFirst: true });
+    await this.modifyConfirmButton.click();
+    await this.modifyConfirmButton.waitFor({ state: 'hidden' });
+  }
+
+  // Modifies a fill to a variable dose and confirms. Ticking variable dose clears and disables the
+  // dose field, so no dose is entered; the reason remains mandatory.
+  async modifyToVariableDose(rowIndex = 0): Promise<void> {
+    await this.openModifyPrescription(rowIndex);
+    await this.modifyVariableDoseCheckbox.click();
+    await this.modifyDoseInput.waitFor({ state: 'attached' });
     await selectAutocompleteFieldOption(this.page, this.modifyReasonField, { selectFirst: true });
     await this.modifyConfirmButton.click();
     await this.modifyConfirmButton.waitFor({ state: 'hidden' });

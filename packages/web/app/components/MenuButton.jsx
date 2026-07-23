@@ -27,7 +27,11 @@ export const MenuButton = React.memo(
     iconColor,
     disabled = false,
     placement = 'bottom-end',
-    'data-testid': dataTestId,
+    // Override for the open-button testid. Deliberately NOT `data-testid`: every call site gets an
+    // auto-injected `data-testid`, so consuming that here would override the shared `openbutton-d1ec`
+    // everywhere and break every test that targets it. Only callers that need to disambiguate
+    // multiple menus (e.g. per-row action menus) pass this explicitly.
+    buttonTestId,
   }) => {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
@@ -56,7 +60,7 @@ export const MenuButton = React.memo(
           disabled={disabled}
           onClick={handleToggle}
           ref={anchorRef}
-          data-testid={dataTestId ?? 'openbutton-d1ec'}
+          data-testid={buttonTestId ?? 'openbutton-d1ec'}
         >
           <Icon style={{ color: iconColor }} data-testid="icon-p0po" />
           {a11yLabel && <VisuallyHidden>{a11yLabel}</VisuallyHidden>}
@@ -105,7 +109,7 @@ MenuButton.propTypes = {
   ).isRequired,
   iconDirection: PropTypes.string,
   iconColor: PropTypes.string,
-  'data-testid': PropTypes.string,
+  buttonTestId: PropTypes.string,
 };
 
 MenuButton.defaultProps = {
