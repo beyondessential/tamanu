@@ -174,6 +174,39 @@ patientFieldDefinition), reportRequest (→ `ReportRequest`), imaging POST/PUT.
   Candidate to defer from the *client queue* v1 (large, rare, unlikely to be
   repeatedly retried on flaky links) even though the *server* layer covers them.
 
+## Central server applicability
+
+The mechanism ports 1:1 — central has the same choke point (`createApi.js`:
+`authModule` → `attachAuditUserToDbSession` → `constructPermission` →
+`buildRoutes`, with `req.db = store.sequelize` on the same `@tamanu/database`, same
+CLS). So building the model, migration, and middleware as **shared infrastructure**
+lets central mount it in a few lines. But the value and risk differ:
+
+- **Sync is the dominant central write path and is out of scope** — it is
+  streaming and already replay-safe by design (sessions, ticks, resumable
+  cursors). Idempotency wouldn't touch it.
+- **The surface that benefits is non-sync, human/admin/patient-driven:**
+  `/admin/*` (users, roles, settings, provisioning, reference data, patient
+  merge), `/facility/*` (registration), and the **patient portal** (`/api/portal`)
+  — patient self-service over the public internet is arguably the strongest
+  central case, given mobile connectivity.
+- **Integrations (`/integration`, FHIR)** have their own conditional-create /
+  `If-None-Exist` idempotency — align with it, don't double up.
+- **Stakes are inverted vs facility:** a duplicate on central is *higher
+  consequence* (central is source of truth; it fans out to every facility via
+  sync) but *lower likelihood* (fewer direct mutating calls, better-behaved
+  clients).
+- **Do not assume facility's "DB-only ⇒ safe" parity holds.** Central runs more
+  external side effects inline — `req.emailService` is injected on central, plus
+  outbound integrations — so a central classification pass is required before
+  mounting. Provisioning / bulk import especially is a poor fit for Design A's
+  single wrapping transaction (long-running, commits in stages) and should be
+  excluded or left to its own idempotency.
+
+**Recommendation:** build shared, mount on **facility in this card** (the
+motivating case); add "mount on central" as a follow-up gated on a central-surface
+classification pass rather than assumed.
+
 ## Locking scope and crash safety
 
 The idempotency-key lock is **operation-scoped** (one `Idempotency-Key`) and lives
