@@ -51,9 +51,6 @@ Once selected, panels and individual tests do not need to be visually distinguis
 
 **Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
 
-**Open questions (to resolve before design):**
-- **Panel-then-individual resolution:** when a clinician selects a panel that contains a test already selected individually, how is the duplicate resolved — is the standalone individual selection silently absorbed into (removed in favour of) the panel, or is the clinician prompted to confirm?
-
 ---
 
 ### 2. Merge multiple lab requests into a single request
