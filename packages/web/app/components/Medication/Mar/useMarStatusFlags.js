@@ -141,61 +141,11 @@ export function useIsPaused({ pauseRecords, timeSlot, selectedDate, recordedAt }
 }
 
 /**
- * @param {Object} props
- * @param {boolean} props.isPreviouslyPaused
- * @param {boolean} props.isDiscontinued
- * @param {{ startTime: string }} props.timeSlot
- * @param {Date} props.selectedDate
- * @param {string} [props.discontinuedDate]
- * @param {(date: string) => string | null | undefined} props.toFacilityDateTime
- */
-export function getIsPausedThenDiscontinued({
-  isPreviouslyPaused,
-  isDiscontinued,
-  timeSlot,
-  selectedDate,
-  discontinuedDate,
-  toFacilityDateTime,
-}) {
-  if (!isPreviouslyPaused || !isDiscontinued) return false;
-  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot;
-}
-
-/**
- * @param {Object} props
- * @param {boolean} props.isPreviouslyPaused
- * @param {boolean} props.isDiscontinued
- * @param {MedicationAdministrationTimeSlot} props.timeSlot
- * @param {Date} props.selectedDate
- * @param {string} [props.discontinuedDate]
- */
-export function useIsPausedThenDiscontinued({
-  isPreviouslyPaused,
-  isDiscontinued,
-  timeSlot,
-  selectedDate,
-  discontinuedDate,
-}) {
-  const { toFacilityDateTime } = useDateTime();
-  return getIsPausedThenDiscontinued({
-    isPreviouslyPaused,
-    isDiscontinued,
-    timeSlot,
-    selectedDate,
-    discontinuedDate,
-    toFacilityDateTime,
-  });
-}
-
-/**
  * Composed schedule-lifecycle flags for a MAR dose cell (end / discontinued / paused).
  * @param {Object} props
  * @param {Object} [props.medication]
  * @param {Object} [props.marInfo]
  * @param {Object} [props.nextMarInfo]
- * @param {Object} [props.previousMarInfo]
- * @param {{ startTime: string, endTime: string } | null | undefined} props.previousSubSlot
  * @param {{ startTime: string, endTime: string }} props.timeSlot
  * @param {Date} props.selectedDate
  * @param {{ data?: Array }} [props.pauseRecords]
@@ -204,8 +154,6 @@ export function useMarDoseScheduleStatus({
   medication,
   marInfo,
   nextMarInfo,
-  previousMarInfo,
-  previousSubSlot,
   timeSlot,
   selectedDate,
   pauseRecords,
@@ -233,19 +181,6 @@ export function useMarDoseScheduleStatus({
     selectedDate,
     recordedAt,
   });
-  const isPreviouslyPaused = useIsPaused({
-    pauseRecords: pauseRecords?.data,
-    timeSlot: previousSubSlot,
-    selectedDate,
-    recordedAt: previousMarInfo?.recordedAt,
-  });
-  const isPausedThenDiscontinued = useIsPausedThenDiscontinued({
-    isPreviouslyPaused,
-    isDiscontinued,
-    timeSlot,
-    selectedDate,
-    discontinuedDate,
-  });
 
-  return { isDiscontinued, isEnd, isPaused, isPausedThenDiscontinued };
+  return { isDiscontinued, isEnd, isPaused };
 }
