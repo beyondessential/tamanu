@@ -1,33 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ButtonWithPermissionCheck, AutocompleteInput } from '@tamanu/ui-components';
-import { NOTE_TYPES } from '@tamanu/constants';
-import { useEncounter } from '../../../contexts/Encounter';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import { TableButtonRow } from '../../../components';
-import { useSuggester } from '../../../api';
+import { NotesSearchBar } from '../../../components/SearchBar';
 import { TabPane } from '../components';
-import { NOTE_FORM_MODES } from '../../../constants';
-import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
+import { Colors, NOTE_FORM_MODES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useNoteModal } from '../../../contexts/NoteModal';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
-const StyledAutocompleteInput = styled(AutocompleteInput)`
-  width: 200px;
+const NotesCard = styled.div`
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  background: ${Colors.white};
 `;
 
 export const NotesPane = React.memo(({ encounter, disabled }) => {
-  const { noteTypeId, setNoteTypeId } = useEncounterNotesQuery();
-  const { loadEncounter } = useEncounter();
+  // Filters are intentionally kept in local state so they reset whenever the user
+  // navigates away from and back to the notes pane. Saving a note refreshes the
+  // table via refreshCount rather than reloading the encounter, so the pane stays
+  // mounted and the current filters are preserved.
+  const [searchParameters, setSearchParameters] = useState({});
+  const [refreshCount, setRefreshCount] = useState(0);
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
-  const noteTypeSuggester = useSuggester('noteType', {
-    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE,
-  });
 
   const noteModalOnSaved = async createdNote => {
     updateNoteModalProps({ note: createdNote });
-    loadEncounter(encounter.id);
+    setRefreshCount(count => count + 1);
   };
 
   const handleOpenNewNote = () => {
@@ -42,39 +41,38 @@ export const NotesPane = React.memo(({ encounter, disabled }) => {
 
   return (
     <TabPane>
-      <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledAutocompleteInput
-          onChange={e => setNoteTypeId(e.target.value)}
-          value={noteTypeId}
-          name="noteType"
-          suggester={noteTypeSuggester}
-          isClearable={false}
-          data-testid="styledtranslatedselectfield-oy9y"
+      <NotesCard>
+        <NotesSearchBar
+          searchParameters={searchParameters}
+          setSearchParameters={setSearchParameters}
+          extraActions={
+            <NoteModalActionBlocker>
+              <ButtonWithPermissionCheck
+                onClick={handleOpenNewNote}
+                disabled={disabled}
+                verb="create"
+                noun="EncounterNote"
+                data-testid="buttonwithpermissioncheck-qbou"
+              >
+                <TranslatedText
+                  stringId="note.action.new"
+                  fallback="New note"
+                  data-testid="translatedtext-r2fu"
+                />
+              </ButtonWithPermissionCheck>
+            </NoteModalActionBlocker>
+          }
         />
-        <NoteModalActionBlocker>
-          <ButtonWithPermissionCheck
-            onClick={handleOpenNewNote}
-            disabled={disabled}
-            verb="create"
-            noun="EncounterNote"
-            data-testid="buttonwithpermissioncheck-qbou"
-          >
-            <TranslatedText
-              stringId="note.action.new"
-              fallback="New note"
-              data-testid="translatedtext-r2fu"
-            />
-          </ButtonWithPermissionCheck>
-        </NoteModalActionBlocker>
-      </TableButtonRow>
-      <NoteTableWithPermission
-        encounterId={encounter.id}
-        verb="write"
-        noun="EncounterNote"
-        noteTypeId={noteTypeId}
-        noteModalOnSaved={noteModalOnSaved}
-        data-testid="notetablewithpermission-ngp2"
-      />
+        <NoteTableWithPermission
+          encounterId={encounter.id}
+          verb="write"
+          noun="EncounterNote"
+          searchParameters={searchParameters}
+          refreshCount={refreshCount}
+          noteModalOnSaved={noteModalOnSaved}
+          data-testid="notetablewithpermission-ngp2"
+        />
+      </NotesCard>
     </TabPane>
   );
 });
