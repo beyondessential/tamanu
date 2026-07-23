@@ -7,7 +7,7 @@ import getShowDoseInfo, { hasVisibleMarStatusIcon } from './getShowDoseInfo';
 import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
-const Overlay = styled.div`
+const Div = styled.div`
   display: grid;
   inset: 0;
   place-items: center;
@@ -101,12 +101,12 @@ export default function MarDoseInfoOverlay({
     });
 
   return (
-    <Overlay style={hidden ? { visibility: 'hidden' } : undefined}>
+    <Div style={hidden ? { visibility: 'hidden' } : undefined}>
       <MarDoseInfoText
         doseAmount={doseAmount}
         dosingUnit={dosingUnit}
         isVariableDose={isVariableDose}
       />
-    </Overlay>
+    </Div>
   );
 }
