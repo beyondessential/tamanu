@@ -15,15 +15,14 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
 | 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
 | 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
-| 6 | TAM-4421 | Retain search parameters across logout/login | High | _TBC_ |
-| 7 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
-| 8 | TAM-6734 | Lab request label format with auto-print prompt | High | _TBC_ |
-| 9 | TAM-6827 | Multiselect status filter on the active requests page | High | _TBC_ |
-| 10 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
-| 11 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
-| 12 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
-| 13 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
-| 14 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 6 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
+| 7 | TAM-6734 | Lab request label format with auto-print prompt | High | _TBC_ |
+| 8 | TAM-6827 | Multiselect status filter on the active requests page | High | _TBC_ |
+| 9 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
+| 10 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
+| 11 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
+| 12 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 13 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
 
 ---
 
@@ -81,7 +80,7 @@ Applied per surface:
 **Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
 **Open questions (to resolve before design):**
-- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 14.
+- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 13.
 
 _To be detailed._
 
@@ -127,15 +126,7 @@ _To be detailed._
 
 ---
 
-### 6. Retain search parameters across logout/login
-
-**Summary.** Regression from v2.51: search parameters are no longer retained across logout/login on the Active Labs, Outpatient, and Imaging search pages (worked in v2.50). Parameters are still retained when navigating away and back within the same session — the issue is specific to logout/login. Restore retention.
-
-_To be detailed._
-
----
-
-### 7. Show specimen type next to sample collected date & time
+### 6. Show specimen type next to sample collected date & time
 
 **Applies to:** all deployments with the Tamanu–SENAITE integration.
 
@@ -149,7 +140,7 @@ _To be detailed._
 
 ---
 
-### 8. Lab request label format with auto-print prompt
+### 7. Lab request label format with auto-print prompt
 
 **Summary.** Standardise the lab request label format and automatically prompt to print labels, minimising manual errors when handling samples. Initial request from Nauru; applies to all countries and projects using the lab module.
 
@@ -157,7 +148,7 @@ _To be detailed._
 
 ---
 
-### 9. Multiselect status filter on the active requests page
+### 8. Multiselect status filter on the active requests page
 
 **Summary.** Make the "Status" search field on the active lab requests page multiselect, so lab staff can view "Sample not collected" and "Reception pending" together. Today these two statuses (which lab staff alternate between while managing collections) can only be filtered one at a time.
 
@@ -165,7 +156,7 @@ _To be detailed._
 
 ---
 
-### 10. Default "Collected by" to the current user
+### 9. Default "Collected by" to the current user
 
 **Summary.** Default the "Collected by" field to the current user when recording lab sample details, across both collect-sample workflows (recording at request creation, and recording later). Desktop is the priority; mobile may be split into a separate card.
 
@@ -173,7 +164,7 @@ _To be detailed._
 
 ---
 
-### 11. Support a default specimen type for lab tests
+### 10. Support a default specimen type for lab tests
 
 **Summary.** Support setting a default specimen type against individual lab test types and panels, via a new `specimenType` reference-data column on both, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
 
@@ -181,7 +172,7 @@ _To be detailed._
 
 ---
 
-### 12. Support a default method for lab tests
+### 11. Support a default method for lab tests
 
 **Summary.** Support a default "Method" for lab tests to reduce data entry, where staff currently pick a method from the full list for each result. Needed for phase 3 of the integration. Raised by FSM and Nauru.
 
@@ -189,7 +180,7 @@ _To be detailed._
 
 ---
 
-### 13. Manage panelOnly lab test types on central
+### 12. Manage panelOnly lab test types on central
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
@@ -197,7 +188,7 @@ _To be detailed._
 
 ---
 
-### 14. Add a "Reflex test" visibility status
+### 13. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
 
