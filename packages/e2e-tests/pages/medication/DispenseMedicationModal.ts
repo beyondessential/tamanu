@@ -30,7 +30,9 @@ export class DispenseMedicationModal {
     this.selectAllCheckbox = page.getByTestId('dispense-select-all-checkbox');
     this.patientSummaryPanel = page.getByTestId('dispense-modal-patient-context');
     this.modifyDoseInput = page.getByTestId('modify-prescription-dose-input');
-    this.modifyVariableDoseCheckbox = page.getByTestId('modify-prescription-variable-dose');
+    this.modifyVariableDoseCheckbox = page.getByTestId(
+      'modify-prescription-variable-dose-controlcheck',
+    );
     this.modifyRouteField = page.getByTestId('modify-prescription-route-select');
     this.modifyReasonField = page.getByTestId('modify-prescription-reason-input');
     this.modifyConfirmButton = page.getByTestId('modify-prescription-confirm');
