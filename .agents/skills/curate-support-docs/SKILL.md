@@ -2,7 +2,7 @@
 name: curate-support-docs
 description: "Maintain a support docs pack — dedup, length budgets, and no splintering — and land changes as a reviewed pull request. Use when a support thread, or a hand-off from Support assist, surfaces a new resolution, a correction to an existing one, or a deployment quirk worth recording. Not for ordinary code changes."
 label: "Curate support docs"
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Curate support docs

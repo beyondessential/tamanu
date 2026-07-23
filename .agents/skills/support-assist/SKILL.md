@@ -2,7 +2,7 @@
 name: support-assist
 description: "Run a support investigation as a suggest-and-interpret loop, never executing anything yourself — orient to the product's support pack and follow the signal with judgment. Use when someone asks for help triaging, investigating, or resolving an operational or support issue on a deployment. Not for feature-development cards (see investigate-and-fix and implement-this)."
 label: "Support assist"
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Support assist
