@@ -1,7 +1,7 @@
 import { UnstyledHtmlButton } from '@tamanu/ui-components';
 import styled from 'styled-components';
 
-const TableCellButton = styled(UnstyledHtmlButton)`
+export const MarCellButton = styled(UnstyledHtmlButton)`
   background-color: ${p => p.theme.palette.background.paper};
   block-size: 100%;
   inline-size: 100%;
@@ -36,4 +36,14 @@ const TableCellButton = styled(UnstyledHtmlButton)`
   }
 `;
 
-export default TableCellButton;
+export const MarDataCell = styled.td`
+  position: relative;
+  &:has(${MarCellButton}:nth-of-type(2)) {
+    /* <table> sets horizontal borders are set on <tr>, so fully define border style */
+    border-block: 1px solid ${p => p.theme.palette.text.secondary};
+  }
+  &:has(${MarCellButton}:nth-of-type(2)):not([aria-current='time']) {
+    /* <table> sets vertical borders on <td>, so just override color */
+    border-inline-color: ${p => p.theme.palette.text.secondary};
+  }
+`;

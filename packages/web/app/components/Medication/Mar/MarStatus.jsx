@@ -6,21 +6,9 @@ import { useDateTime } from '@tamanu/ui-components';
 import { MarDoseButton } from './MarDoseButton';
 import MarDoseInfo from './MarDoseInfo';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
-import TableCellButton from './TableCellButton';
+import { MarDataCell, MarCellButton } from './components';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 import getShowDoseInfo from './getShowDoseInfo';
-
-export const MarDataCell = styled.td`
-  position: relative;
-  &:has(${TableCellButton}:nth-of-type(2)) {
-    /* <table> sets horizontal borders are set on <tr>, so fully define border style */
-    border-block: 1px solid ${p => p.theme.palette.text.secondary};
-  }
-  &:has(${TableCellButton}:nth-of-type(2)):not([aria-current='time']) {
-    /* <table> sets vertical borders on <td>, so just override color */
-    border-inline-color: ${p => p.theme.palette.text.secondary};
-  }
-`;
 
 const DoseGrid = styled.div`
   --mar-status-gap-rule: var(--mar-status-gap-rule-width) solid ${p => p.theme.palette.divider};
@@ -32,10 +20,10 @@ const DoseGrid = styled.div`
   grid-template-columns: 1fr;
   inline-size: 100%;
   row-rule: var(--mar-status-gap-rule);
-  &:has(> ${TableCellButton}:nth-of-type(2)) {
+  &:has(> ${MarCellButton}:nth-of-type(2)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  &:has(> ${TableCellButton}:nth-of-type(4)) {
+  &:has(> ${MarCellButton}:nth-of-type(4)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }

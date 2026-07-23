@@ -11,13 +11,12 @@ import { MarDetails } from './MarDetails';
 import MarStatusIcon from './MarStatusIcon';
 import { MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
-import TableCellButton from './TableCellButton';
+import { MarDataCell, MarCellButton } from './components';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
-import { MarDataCell } from './MarStatus';
 
 const IconWrapper = styled.div`
   display: grid;
@@ -25,7 +24,7 @@ const IconWrapper = styled.div`
   inline-size: 100%;
   block-size: 100%;
   font-size: 24px;
-  ${MarDataCell}:has(${TableCellButton}:nth-of-type(2)) & {
+  ${MarDataCell}:has(${MarCellButton}:nth-of-type(2)) & {
     font-size: 16px;
   }
 `;
@@ -188,7 +187,7 @@ export function MarDoseButton({
 
   return (
     <>
-      <TableCellButton
+      <MarCellButton
         ref={buttonRef}
         aria-selected={isSelected || undefined}
         data-discontinued={isDiscontinued || undefined}
@@ -220,7 +219,7 @@ export function MarDoseButton({
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
         </MarStatusTooltip>
-      </TableCellButton>
+      </MarCellButton>
       <StatusPopper
         open={Boolean(anchorEl) && Boolean(buttonRef.current) && anchorEl === buttonRef.current}
         anchorEl={anchorEl}
