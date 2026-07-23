@@ -334,7 +334,8 @@ const StyledTag = styled(TableCellTag)`
 `;
 
 export const createPrescriptionHash = prescription =>
-  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.dosingUnit}-${prescription.route}-${prescription.frequency}`;
+  // Empty string and NULL both mean unitless — legacy rows may still store ''.
+  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.dosingUnit || ''}-${prescription.route}-${prescription.frequency}`;
 
 export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   const status =
