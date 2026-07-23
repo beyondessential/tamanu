@@ -1,10 +1,11 @@
 # Durable client-side request queuing and retry — working notes
 
-## Status: pivoting
+## Status: reshaped — backend-led
 
-The card as originally written (a purely client-side durable queue + retry over the
-facility web API) is **tabled** pending investigation into making the endpoints
-themselves safe to replay. See "Why we pivoted" below.
+W1 is reshaped into a **backend-led server-side request idempotency** card. The
+client durable queue + retry becomes a **follow-up card that depends on this one**
+(it shrinks to "generate a stable key per action, persist it, retry durably", with
+a small exclusion list for side-effecting endpoints). See "Why we pivoted" below.
 
 ## API surface survey (facility web → facility server)
 
@@ -74,6 +75,32 @@ bespoke handlers, without rewriting them.
 - **Handlers that open their own `req.db.transaction`** become savepoints under
   the outer transaction — fine, but confirm none rely on committing independently
   mid-request.
+
+## Locking: scope and lifetime (do not conflate)
+
+Two unrelated locks share the word "lock":
+
+- **Lock A — idempotency-key lock (this card).** Scope: one operation (one
+  `Idempotency-Key`). Lifetime: one request/transaction. Prevents a concurrent
+  retry of the *same* request from double-executing. Not entity-scoped, invisible
+  to the UI.
+- **Lock B — "patient is being edited" (separate future card, not this one).**
+  Scope: an entity. Lifetime: an editing session across many requests. Pessimistic
+  concurrency / presence. **Lock A does not provide Lock B.**
+
+**Stuck-lock analysis (Lock A):** no "patient stuck" risk. Transaction-scoped; a
+client crash mid-request either completes (key → completed, replay-safe) or drops
+the connection and Postgres rolls back and auto-releases. The one real stuck case
+is a **server** crash after marking a key in-progress but before completing — the
+key then blocks its own retry. **Mitigation (must be specced): a lease/timeout —
+an in-progress key older than N seconds is treated as abandoned and retryable.**
+
+**On Lock B (advisory only, if pursued later):** Tamanu is distributed/sync-based,
+so a *global* hard lock is architecturally impossible — only a local, single-
+facility, best-effort advisory is feasible. Prefer **presence** (via the existing
+`defineWebsocketService`, auto-expiring on disconnect) and/or **optimistic
+conflict detection at save time** over a pessimistic lock, since stuck-locks are
+the central hazard of hard entity locks. Keep this off W1.
 
 ## Open questions
 - Header-based `Idempotency-Key` vs deriving a key from a client-generated
