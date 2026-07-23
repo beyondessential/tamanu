@@ -46,7 +46,7 @@ const iconMapping = /** @type {const} */ ({
 
 /**
  * @param {import('@mui/material/SvgIcon').SvgIconProps & {
- *   variant: typeof ADMINISTRATION_STATUS.GIVEN | typeof ADMINISTRATION_STATUS.NOT_GIVEN | 'missed'
+ *   variant: typeof ADMINISTRATION_STATUS.GIVEN | typeof ADMINISTRATION_STATUS.NOT_GIVEN | 'missed' | 'pending'
  * }} props
  */
 export default function MarStatusIcon({ variant, ...props }) {
