@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
 import { RateLimitedError } from '@tamanu/errors';
@@ -50,18 +49,19 @@ resetPassword.post(
       log.info(`Trying to login with locked user account: ${email}`);
       throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
     } else {
-      const token = await createOneTimeLogin(models, user);
-      await sendResetEmail(req.emailService, user, token);
+      const token = await createOneTimeLogin(models, settings, user);
+      await sendResetEmail(req.emailService, user, token, settings);
     }
 
     return res.send({ ok: 'ok' });
   }),
 );
 
-const createOneTimeLogin = async (models, user) => {
-  const token = await getRandomBase64String(config.auth.resetPassword.tokenLength);
+const createOneTimeLogin = async (models, settings, user) => {
+  const { tokenLength, tokenExpiry } = await settings.get('auth.resetPassword');
+  const token = await getRandomBase64String(tokenLength);
 
-  const expiresAt = addMinutes(new Date(), config.auth.resetPassword.tokenExpiry);
+  const expiresAt = addMinutes(new Date(), tokenExpiry);
 
   await models.OneTimeLogin.create({
     userId: user.id,
@@ -72,7 +72,7 @@ const createOneTimeLogin = async (models, user) => {
   return token;
 };
 
-const sendResetEmail = async (emailService, user, token) => {
+const sendResetEmail = async (emailService, user, token, settings) => {
   const emailText = `
       Hi ${user.displayName},
 
@@ -86,7 +86,7 @@ const sendResetEmail = async (emailService, user, token) => {
       tamanu.io`;
 
   const result = await emailService.sendEmail({
-    from: getDefaultFromAddress(),
+    from: await getDefaultFromAddress(settings),
     to: user.email,
     subject: 'Tamanu password reset',
     text: emailText,

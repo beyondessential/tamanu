@@ -1,4 +1,3 @@
-import config from 'config';
 import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 
@@ -18,7 +17,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    const conf = config.schedules.reportRequestProcessor;
+    const conf = context.schedules.reportRequestProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
@@ -176,6 +175,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.requestedByUserId,
       request.exportFormat,
       sleepAfterReport,
+      this.context.settings,
     );
 
     await reportRunner.run();
@@ -190,7 +190,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
-    const localisation = await getLocalisation();
+    const localisation = await getLocalisation(this.context.settings);
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -202,7 +202,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     for (const request of requests) {
       const reportId = request.getReportId();
 
-      if (!getDefaultFromAddress()) {
+      if (!(await getDefaultFromAddress(this.context.settings))) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,

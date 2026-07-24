@@ -89,7 +89,7 @@ export class ApplicationContext {
 
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
-    this.emailService = new EmailService();
+    this.emailService = await EmailService.fromSettings(this.settings);
 
     try {
       this.reportSchemaStores = await initReporting(this.store);
@@ -112,8 +112,8 @@ export class ApplicationContext {
     }
 
     this.telegramBotService = await defineSingletonTelegramBotService({
-      config,
       models: this.store.models,
+      settings: this.settings,
     });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {

@@ -31,6 +31,7 @@ export async function createApiApp({
   models,
   syncConnection,
   deviceId,
+  settings,
 }) {
   const express = defineExpress();
   // Match Express 4 query parsing (qs) — Express 5 defaults to "simple" and does
@@ -82,7 +83,7 @@ export async function createApiApp({
     next();
   });
 
-  express.use(versionCompatibility);
+  express.use(versionCompatibility(await settings.global.get('metaServer.updateUrls')));
 
   // Resolved facility ids (facts/env/config), not raw config — so a
   // facts-configured server gets its per-facility settings readers.
@@ -98,7 +99,7 @@ export async function createApiApp({
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled
   express.use(requireHttps);
 
-  const limiters = buildRateLimiters();
+  const limiters = buildRateLimiters(await settings.global.get('rateLimit'));
   // Apply a permissive global rate limit to every API request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
   // endpoints are applied inside routes/apiv1 (via createRoutes) so they cover

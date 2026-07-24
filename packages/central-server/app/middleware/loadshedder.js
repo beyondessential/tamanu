@@ -1,4 +1,3 @@
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 
 import { log } from '@tamanu/shared/services/logging';
@@ -130,8 +129,9 @@ export class QueueManager {
   }
 }
 
-export const loadshedder = (options = config.loadshedder) => {
-  const manager = new QueueManager(options.queues);
+export const loadshedder = options => {
+  // No queues (e.g. partial settings in tests) means nothing sheds
+  const manager = new QueueManager(options?.queues ?? []);
 
   return asyncHandler(async (req, res, next) => {
     const queue = manager.getQueue(req.path);

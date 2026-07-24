@@ -1,11 +1,10 @@
-import config from 'config';
-
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
 import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+import { resolveSchedules } from './tasks';
 
 // How often a sync/tasks process re-checks for first-run setup completing.
 const SETUP_POLL_INTERVAL_MS = 30_000;
@@ -27,15 +26,12 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
   context.timesync = await initTimesync({
     models: context.models,
     url: `${host.replace(/\/*$/, '')}/api/timesync`,
+    enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
-  await performTimeZoneChecks({
-    remote: context.centralServer,
-    sequelize: context.sequelize,
-    config,
-  });
+  await performTimeZoneChecks({ sequelize: context.sequelize });
 
   return true;
 }

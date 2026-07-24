@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import crypto from 'crypto';
 
 import { initDatabase } from '../../database';
@@ -21,19 +21,21 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
   avpu: 'pde-PatientVitalsAVPU',
 };
 
-const conversionFunctions = {
+const makeConversionFunctions = temperatureUnit => ({
   temperature: value => {
-    if (value && config.localisation.data.units.temperature === 'fahrenheit') {
+    if (value && temperatureUnit === 'fahrenheit') {
       // Do this the hard way so we don't need to add a conversion lib to central
       return (value * (9 / 5) + 32).toFixed(1);
     }
     return value;
   },
-};
+});
 
 export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
   const { models, sequelize } = store;
+  const settings = new ReadSettings(models);
+  const conversionFunctions = makeConversionFunctions(await settings.get('units.temperature'));
 
   const vitalsSurvey = await models.Survey.findOne({
     where: {

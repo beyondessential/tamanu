@@ -13,6 +13,7 @@ import {
   ENGLISH_LANGUAGE_NAME,
 } from '@tamanu/constants';
 import { getMetaServerHosts } from '@tamanu/shared/utils';
+import { ReadSettings } from '@tamanu/settings';
 
 interface Artifact {
   artifact_type: string;
@@ -72,9 +73,9 @@ async function downloadFromMetaServerHosts(
   extractor: (resp: Response) => Promise<Translation[]>,
   stepArgs: StepArgs,
 ): Promise<Translation[]> {
-  const metaServerHosts = getMetaServerHosts();
+  const { log, models } = stepArgs;
+  const metaServerHosts = getMetaServerHosts(await new ReadSettings(models).get('metaServer'));
 
-  const { log } = stepArgs;
   for (const metaServerHost of metaServerHosts) {
     try {
       const rows = await download(metaServerHost, artifactType, extractor, stepArgs);

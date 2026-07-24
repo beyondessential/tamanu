@@ -1,4 +1,3 @@
-import config from 'config';
 import path from 'path';
 import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
@@ -24,7 +23,7 @@ const SHL_FLAG_SINGLEFILE = 'U';
 
 export class IPSRequestProcessor extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.IPSRequestProcessor;
+    const conf = context.schedules.IPSRequestProcessor;
     const { schedule, enabled } = conf;
     super(schedule, log, undefined, enabled);
     this.config = conf;
@@ -69,7 +68,12 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`No FHIR patient with patient id ${patientId}`);
         }
 
-        const { patient, bundle: ipsJSON } = await generateIPSBundle(fhirPatient.id, user, models);
+        const { patient, bundle: ipsJSON } = await generateIPSBundle(
+          fhirPatient.id,
+          user,
+          models,
+          this.context.settings,
+        );
 
         const sublog = log.child({
           id: notification.id,
@@ -89,7 +93,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           jsonBucketPath,
           viewerBucketPath,
           publicUrl: s3PublicUrl,
-        } = config.s3.ips;
+        } = await this.context.settings.get('s3.ips');
 
         if (!jsonBucketPath) {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
@@ -153,7 +157,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // SEND EMAIL
 
-        const { subject, bodyText } = config.integrations.ips.email;
+        const { subject, bodyText } = await this.context.settings.get('integrations.ips.email');
 
         const content = `
           ${bodyText} \n  Alternatively, use the following link ${fullUrl} \n

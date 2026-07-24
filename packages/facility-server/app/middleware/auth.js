@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import __cjs_bcrypt from 'bcrypt';
 const { compare } = __cjs_bcrypt;
-import config from 'config';
 import * as jose from 'jose';
 import ms from 'ms';
 import * as z from 'zod';
@@ -18,10 +17,9 @@ import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
+import { getAuthSecret, getCanonicalHostName } from '@tamanu/shared/utils';
 
-const { tokenDuration, secret } = config.auth;
-
-const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
+const jwtSecretKey = getAuthSecret() ?? crypto.randomBytes(32).toString('hex');
 
 const CENTRAL_LOGIN_INCOMPATIBLE_ERROR_TYPES = new Set([
   ERROR_TYPE.CLIENT_INCOMPATIBLE,
@@ -57,13 +55,13 @@ function shouldSkipCentralLoginForTest() {
 
 export async function buildToken({
   user,
-  expiresIn = tokenDuration ?? '1h',
+  expiresIn = '1h',
   deviceId = undefined,
   facilityId = undefined,
   impersonateRoleId = undefined,
 }) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
-  const { canonicalHostName = 'localhost' } = config;
+  const canonicalHostName = getCanonicalHostName() ?? 'localhost';
 
   let expirationTime;
   try {
@@ -149,18 +147,16 @@ export async function centralServerLogin({
 }
 
 async function localLogin({ models, settings, email, password, deviceId }) {
-  const {
-    auth: { secret, tokenDuration },
-    canonicalHostName,
-  } = config;
-  const primaryTimeZone = getPrimaryTimeZone(config);
+  const canonicalHostName = getCanonicalHostName();
+  const tokenDuration = await (settings.global ?? settings).get('auth.tokenDuration');
+  const primaryTimeZone = getPrimaryTimeZone();
   const { user } = await models.User.loginFromCredential(
     {
       email,
       password,
       deviceId,
     },
-    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: getAuthSecret() },
   );
 
   const allowedFacilities = await user.allowedFacilities();
@@ -231,7 +227,8 @@ export async function loginHandler(req, res, next) {
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
     const globalSettings =
-      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
+      settings.global ??
+      (typeof settings.get === 'function' ? settings : ReadSettings.forGlobal(models));
 
     const { central, user, localisation, allowedFacilities, primaryTimeZone } =
       await centralServerLoginWithLocalFallback({
@@ -255,7 +252,7 @@ export async function loginHandler(req, res, next) {
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken({ user, deviceId }),
+      buildToken({ user, deviceId, expiresIn: await globalSettings.get('auth.tokenDuration') }),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -288,7 +285,13 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device.id, facilityId, impersonateRoleId });
+    const token = await buildToken({
+      user,
+      deviceId: device.id,
+      facilityId,
+      impersonateRoleId,
+      expiresIn: await (req.settings.global ?? req.settings).get('auth.tokenDuration'),
+    });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -297,25 +300,32 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user, userDevice, facilityId, impersonateRoleId } = req;
+  const { user, userDevice, facilityId, impersonateRoleId, settings } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId, deviceId: userDevice.id, impersonateRoleId });
+  const token = await buildToken({
+    user,
+    facilityId,
+    deviceId: userDevice.id,
+    impersonateRoleId,
+    expiresIn: await (settings.global ?? settings).get('auth.tokenDuration'),
+  });
   res.send({ token });
 }
 
 function createAuthMiddleware({ requireDeviceId }) {
   return async (req, res, next) => {
-    const { canonicalHostName = 'localhost' } = config;
+    const canonicalHostName = getCanonicalHostName() ?? 'localhost';
     const { models, settings } = req;
     try {
+      const globalSettings = settings.global ?? settings;
       const { token, user, facility, device, impersonateRoleId } =
         await models.User.loginFromAuthorizationHeader(req.get('authorization'), {
           log,
-          settings: settings.global ?? settings,
-          tokenDuration,
+          settings: globalSettings,
+          tokenDuration: await globalSettings.get('auth.tokenDuration'),
           tokenIssuer: canonicalHostName,
           tokenSecret: jwtSecretKey,
         });

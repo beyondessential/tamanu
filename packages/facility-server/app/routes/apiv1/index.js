@@ -145,7 +145,7 @@ export function createApiv1({ authLimiter } = {}) {
     asyncHandler(async (req, res) => {
       // Pre-login gate for the web app; the client posts its parsed navigator info.
       req.flagPermissionChecked();
-      const settings = new ReadSettings(req.models);
+      const settings = ReadSettings.forGlobal(req.models);
       const [policy, versionsBack, platformPolicy] = await Promise.all([
         settings.get('browserSupport.policy'),
         settings.get('browserSupport.versionsBack'),
@@ -225,6 +225,7 @@ export function createApiv1({ authLimiter } = {}) {
         deviceId: device?.id,
         facilityId,
         impersonateRoleId: roleId ?? undefined,
+        expiresIn: await (req.settings.global ?? req.settings).get('auth.tokenDuration'),
       });
 
       const roleString = roleId || user.role;

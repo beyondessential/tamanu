@@ -25,8 +25,22 @@ export const FACT_DEVICE_KEY = 'deviceKey';
 export const FACT_FACILITY_IDS = 'facilityIds';
 export const FACT_META_SERVER_ID = 'metaServerId';
 
+// Set once the central server has seeded settings from its legacy config, so the
+// one-off migration doesn't re-run and resurrect a setting an operator has deleted.
+export const FACT_CENTRAL_CONFIG_MIGRATED = 'centralConfigMigratedToSettings';
+
+// Set once a facility server has snapshotted its facility-scoped config into the
+// FacilitySettingMigration carrier to push up to central, so it runs only once.
+export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
+
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
+
+// Deployment-wide pre-shared key that encrypts integration secrets in the
+// settings table. Generated on central and pulled by facilities (settings sync
+// central→facility, so a per-host key can't decrypt cross-server secrets). Held
+// here encrypted at rest under the per-host config key, like the other secrets.
+export const FACT_SETTINGS_PSK = 'settingsPsk';
 
 // Random per-server secret the reporting/raw role passwords are derived from.
 export const FACT_REPORTING_ROLE_SECRET = 'reportingRoleSecret';

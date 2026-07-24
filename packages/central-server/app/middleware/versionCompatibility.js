@@ -40,7 +40,7 @@ export const VERSION_CONTROLLED_CLIENTS = {
   },
 };
 
-export const versionCompatibility = (req, res, next) => {
+export const versionCompatibility = updateUrls => (req, res, next) => {
   const clientType = req.header('X-Tamanu-Client');
 
   if (!clientType) {
@@ -57,6 +57,6 @@ export const versionCompatibility = (req, res, next) => {
   }
 
   const { min, max } = clientInfo;
-  const runCheck = buildVersionCompatibilityCheck(min, max);
+  const runCheck = buildVersionCompatibilityCheck(min, max, updateUrls);
   runCheck(req, res, next);
 };

@@ -1,4 +1,3 @@
-import config from 'config';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
@@ -28,7 +27,7 @@ export async function createApp(ctx) {
     }
   });
 
-  if (config["socket.io"].enabled) {
+  if (await ctx.settings.get('websocket.enabled')) {
     await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);
   }
 

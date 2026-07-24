@@ -1,0 +1,61 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: facility_setting_migrations
+        description: "{{ doc('table__facility_setting_migrations') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - notify_facility_setting_migrations_changed
+              - record_facility_setting_migrations_changelog
+              - set_facility_setting_migrations_updated_at
+              - set_facility_setting_migrations_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: text
+            description: "{{ doc('generic__id') }} in facility_setting_migrations."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in facility_setting_migrations."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in facility_setting_migrations."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in facility_setting_migrations."
+          - name: key
+            data_type: text
+            description: "{{ doc('facility_setting_migrations__key') }}"
+            data_tests:
+              - not_null
+          - name: value
+            data_type: jsonb
+            description: "{{ doc('facility_setting_migrations__value') }}"
+            data_tests:
+              - not_null
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('facility_setting_migrations__facility_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in facility_setting_migrations."
+            data_tests:
+              - not_null

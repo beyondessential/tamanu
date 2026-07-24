@@ -6,10 +6,6 @@
   },
   "db": {
     "name": "tamanu-facility-test",
-    "migrateOnStartup": true,
-  },
-  "log": {
-    "consoleLevel": null,
   },
   "schedules": {
     "refreshMaterializedView": {
@@ -30,10 +26,4 @@
       "maxWaitMs": 0
     }
   },
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": ["test-field-id-1", "test-field-id-2"]
-    }
-  },
-  "primaryTimeZone": "Pacific/Auckland"
 }

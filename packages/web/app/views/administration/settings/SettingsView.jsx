@@ -1,11 +1,10 @@
 import SettingsIcon from '@mui/icons-material/Settings';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { applyDefaults, validateSettings } from '@tamanu/settings';
+import { applyDefaults, validateSettings } from '@tamanu/settings/schema';
 import { Form } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
@@ -21,6 +20,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
+import { readUrlParam, writeUrlParams } from './urlState';
 
 const SETTING_TABS = /** @type {const} */ ({
   EDITOR: 'editor',
@@ -59,7 +59,9 @@ const tabs = [
       return (
         <TabContainer data-testid="tabcontainer-6tbj">
           <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
-          {shouldShowEditor && <EditorView {...props} data-testid="editorview-g9wr" />}
+          {/* keyed: a scope switch remounts the editor, so selection/search state
+              re-derives from the URL against the new scope's schema */}
+          {shouldShowEditor && <EditorView key={scope} {...props} data-testid="editorview-g9wr" />}
         </TabContainer>
       );
     },
@@ -85,15 +87,23 @@ const tabs = [
 
 export const SettingsView = () => {
   const api = useApi();
-  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
-  const [facilityId, setFacilityId] = useState(null);
+  // Scope and facility are deep-linkable (see urlState.js); a bad param just
+  // falls back to the defaults.
+  const [scope, setScope] = useState(() => {
+    const fromUrl = readUrlParam('scope');
+    return Object.values(SETTINGS_SCOPES).includes(fromUrl) ? fromUrl : SETTINGS_SCOPES.GLOBAL;
+  });
+  const [facilityId, setFacilityId] = useState(() => readUrlParam('facilityId'));
 
+  useEffect(() => {
+    writeUrlParams({ scope, facilityId });
+  }, [scope, facilityId]);
+
+  // Snapshot holds only this scope's explicit overrides (no schema defaults filled);
+  // un-set settings read as undefined so the editor shows the effective value.
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useAdminSettingsQuery(
     scope,
     facilityId,
-    {
-      select: data => applyDefaults(data, scope),
-    },
   );
 
   const { data: globalSettings } = useAdminSettingsQuery(
@@ -111,18 +121,19 @@ export const SettingsView = () => {
     try {
       await validateSettings({ settings, scope });
       await api.put('admin/settings', { settings, facilityId, scope });
-      const savedSettings = applyDefaults(await api.get('admin/settings', { scope, facilityId }), scope);
+      const savedSettings = await api.get('admin/settings', { scope, facilityId });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
       return { settings: savedSettings };
     } catch (error) {
-      if (error instanceof ValidationError) {
-        error?.inner?.forEach(e => {
-          notifyError(e.message);
-        });
-      } else {
-        notifyError(`Error while saving settings: ${error.message}`);
+      // Match on name, not instanceof: @tamanu/settings bundles its own yup, so a
+      // ValidationError it throws fails an instanceof check against web's yup.
+      if (error?.name === 'ValidationError') {
+        // surfaced by the tab that submitted: inline + scroll in the editor,
+        // toasts in the JSON editor
+        return { validationError: error };
       }
+      notifyError(`Error while saving settings: ${error.message}`);
       return false;
     }
   };

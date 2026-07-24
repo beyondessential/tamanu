@@ -48,6 +48,35 @@ export const extractSecretPaths = (schema: SettingsSchema, parentKey = ''): stri
 };
 
 /**
+ * Extracts all leaf paths in the schema that are high-risk — flagged on the
+ * setting itself, inherited from any ancestor group's highRisk flag, or a
+ * secret (secrets are high-risk by definition, matching the editor, which
+ * disables them without full permissions).
+ * Returns dot-separated paths, like extractSecretPaths.
+ */
+export const extractHighRiskPaths = (
+  schema: SettingsSchema,
+  parentKey = '',
+  inherited = false,
+): string[] => {
+  const paths: string[] = [];
+
+  for (const [key, value] of Object.entries(schema.properties)) {
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+    if (isSetting(value)) {
+      if (inherited || value.highRisk || value.secret) {
+        paths.push(fullKey);
+      }
+    } else if (isSettingsSchema(value)) {
+      paths.push(...extractHighRiskPaths(value, fullKey, inherited || value.highRisk === true));
+    }
+  }
+
+  return paths;
+};
+
+/**
  * Placeholder value used to indicate that a secret exists but its value is hidden.
  */
 export const SECRET_PLACEHOLDER = '••••••••';
@@ -76,13 +105,15 @@ export const maskSecrets = (
 };
 
 /**
- * Gets the setting definition at a given path, if it exists.
+ * Gets the schema node (setting or subtree) at a given path, if it exists.
  */
-export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting | null => {
-  const parts = path.split('.');
+export const getNodeAtPath = (
+  schema: SettingsSchema,
+  path: string,
+): Setting | SettingsSchema | null => {
   let current: Setting | SettingsSchema = schema;
 
-  for (const part of parts) {
+  for (const part of path.split('.')) {
     if (!isSettingsSchema(current)) {
       return null;
     }
@@ -93,7 +124,15 @@ export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting 
     current = next;
   }
 
-  return isSetting(current) ? current : null;
+  return current;
+};
+
+/**
+ * Gets the setting definition at a given path, if it exists.
+ */
+export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting | null => {
+  const node = getNodeAtPath(schema, path);
+  return node && isSetting(node) ? node : null;
 };
 
 /**

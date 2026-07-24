@@ -4,6 +4,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
   BROWSER_SUPPORT_POLICIES,
+  IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
   PLATFORM_SUPPORT_POLICIES,
   SETTING_EDITORS,
@@ -35,6 +36,8 @@ import {
   fhirNullLastNameSchema,
   fhirAssignersSchema,
   fhirDataDictionariesSchema,
+  urlSchema,
+  msDurationSchema,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -95,6 +98,61 @@ export const globalSettings = {
           description: 'Restrict users from being able to sync based on permissions',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        tokenDuration: {
+          name: 'Session token duration',
+          description: 'How long a login token stays valid, e.g. ‘1h’',
+          type: msDurationSchema,
+          defaultValue: '1h',
+        },
+        useHardcodedPermissions: {
+          name: 'Use hardcoded permissions',
+          description:
+            'Use the built-in role permissions instead of permissions imported into the database',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        refreshToken: {
+          description: 'Refresh tokens (kept by internal clients to renew a session)',
+          properties: {
+            tokenDuration: {
+              name: 'Duration',
+              description: 'How long a refresh token stays valid, e.g. ‘30d’',
+              type: msDurationSchema,
+              defaultValue: '30d',
+            },
+            absoluteExpiration: {
+              name: 'Absolute expiration',
+              description:
+                'When on, refreshing does not extend the expiry beyond the original window',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            refreshIdLength: {
+              name: 'Refresh ID length',
+              description: 'Length in bytes of the random refresh identifier',
+              type: yup.number().integer().positive(),
+              defaultValue: 54,
+            },
+          },
+        },
+        resetPassword: {
+          description: 'One-time password-reset logins',
+          properties: {
+            tokenLength: {
+              name: 'Token length',
+              description: 'Length in bytes of the reset token',
+              type: yup.number().integer().positive(),
+              defaultValue: 6,
+            },
+            tokenExpiry: {
+              name: 'Token expiry',
+              description: 'How long a reset token stays valid',
+              type: yup.number().integer().positive(),
+              defaultValue: 20,
+              unit: 'minutes',
+            },
+          },
         },
       },
     },
@@ -158,6 +216,206 @@ export const globalSettings = {
         }),
       defaultValue: null,
     },
+    country: {
+      name: 'Country',
+      description: 'The country this deployment serves, used on certificates and reports',
+      properties: {
+        name: {
+          name: 'Name',
+          description: 'Country name as shown on documents',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        'alpha-2': {
+          name: 'Alpha-2 code',
+          description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+          defaultValue: '',
+        },
+        'alpha-3': {
+          name: 'Alpha-3 code',
+          description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
+          type: yup
+            .string()
+            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+          defaultValue: '',
+        },
+      },
+    },
+    units: {
+      name: 'Units',
+      description: 'Measurement units used for display',
+      properties: {
+        temperature: {
+          name: 'Temperature',
+          description: 'Unit for displaying body temperature',
+          type: yup.string().oneOf(['celsius', 'fahrenheit']),
+          defaultValue: 'celsius',
+          exposedToWeb: true,
+        },
+      },
+    },
+    imagingTypes: {
+      name: 'Imaging types',
+      description:
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+      type: yup
+        .object()
+        .test(
+          'imaging-type-keys',
+          'imagingTypes keys must be IMAGING_TYPES constants',
+          value => !value || Object.keys(value).every(key => IMAGING_TYPES_VALUES.includes(key)),
+        )
+        .test(
+          'imaging-type-labels',
+          'each imagingTypes entry must have a non-empty label',
+          value =>
+            !value ||
+            Object.values(value).every(
+              entry =>
+                typeof (entry as { label?: unknown })?.label === 'string' &&
+                (entry as { label: string }).label.trim() !== '',
+            ),
+        ),
+      // Keys offered by the mapping editor's key dropdown
+      options: IMAGING_TYPES_VALUES.map(value => ({ value, label: value })),
+      defaultValue: {},
+      exposedToWeb: true,
+      editor: SETTING_EDITORS.MAPPING,
+    },
+    reporting: {
+      description: 'Reporting',
+      properties: {
+        disabledReports: {
+          name: 'Disabled reports',
+          description:
+            'IDs of report definitions that cannot be run or requested on this deployment',
+          type: yup.array(yup.string().required()),
+          suggesterEndpoint: 'reportDefinition',
+          defaultValue: [],
+        },
+      },
+    },
+    supportDeskUrl: {
+      name: 'Support desk URL',
+      description: 'Where the in-app support links point',
+      type: urlSchema,
+      defaultValue: 'https://bes-support.zendesk.com/hc/en-us',
+      exposedToWeb: true,
+    },
+    rateLimit: {
+      highRisk: true,
+      name: 'Rate limiting',
+      description:
+        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      requiresRestart: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Whether rate limiting applies at all',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        global: {
+          description: 'Permissive limit applied to every request as a DoS backstop',
+          properties: {
+            windowMs: {
+              name: 'Window',
+              type: yup.number().integer().positive(),
+              defaultValue: 60000,
+              unit: 'ms',
+            },
+            max: {
+              name: 'Max requests',
+              description: 'Maximum requests per window per IP',
+              type: yup.number().integer().positive(),
+              defaultValue: 600,
+            },
+          },
+        },
+        auth: {
+          description:
+            'Stricter limit for unauthenticated endpoints (login, refresh, password reset); successful requests are not counted',
+          properties: {
+            windowMs: {
+              name: 'Window',
+              type: yup.number().integer().positive(),
+              defaultValue: 900000,
+              unit: 'ms',
+            },
+            max: {
+              name: 'Max requests',
+              description: 'Maximum failed requests per window per IP',
+              type: yup.number().integer().positive(),
+              defaultValue: 30,
+            },
+          },
+        },
+      },
+    },
+    medicationAdministrationRecord: {
+      description: 'Settings for medication administration records',
+      properties: {
+        upcomingRecordsShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) medication administration records are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
+    },
+    metaServer: {
+      highRisk: true,
+      name: 'Meta server',
+      description: 'The Tamanu meta server this deployment reports status to',
+      properties: {
+        updateUrls: {
+          description: 'Where outdated clients are sent to update',
+          // Baked into the version-compatibility middleware at app creation
+          requiresRestart: true,
+          properties: {
+            mobile: {
+              name: 'Mobile update URL',
+              description: 'URL template for mobile client updates ({minVersion} is substituted)',
+              type: urlSchema,
+              defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
+            },
+          },
+        },
+        hosts: {
+          name: 'Hosts',
+          description: 'Meta server base URLs',
+          type: yup.array(urlSchema.required()),
+          defaultValue: ['https://meta.tamanu.app'],
+        },
+        serverId: {
+          name: 'Server ID',
+          description: 'Identifier for this deployment on the meta server',
+          type: yup.string().nullable(),
+          defaultValue: null,
+        },
+        timeoutMs: {
+          name: 'Timeout',
+          description: 'Timeout for meta server requests',
+          type: yup.number().integer().positive(),
+          defaultValue: 20000,
+          unit: 'ms',
+        },
+      },
+    },
+    tasking: {
+      description: 'Tasking settings',
+      properties: {
+        upcomingTasksShouldBeGeneratedTimeFrame: {
+          description: 'How far ahead (hours) repeating tasks are generated',
+          type: yup.number().positive(),
+          unit: 'hours',
+          defaultValue: 72,
+        },
+      },
+    },
     appointments: {
       description: 'Appointment settings',
       exposedToWeb: true,
@@ -174,8 +432,10 @@ export const globalSettings = {
       exposedToWeb: true,
       properties: {
         assignmentMaxFutureMonths: {
+          name: 'Assignment max future',
           description: 'The maximum number of months allowed when creating location assignments',
           type: yup.number().min(1),
+          unit: 'months',
           defaultValue: 24,
         },
       },
@@ -184,9 +444,11 @@ export const globalSettings = {
       description: 'Reporting database settings',
       properties: {
         secretRotationDays: {
+          name: 'Secret rotation',
           description:
             'Auto-rotate the reporting/raw role secret once it is older than this many days (new passwords take effect as servers restart). 0 disables rotation.',
           type: yup.number().integer().min(0),
+          unit: 'days',
           defaultValue: 90,
         },
       },
@@ -366,7 +628,6 @@ export const globalSettings = {
             enabled: {
               type: yup.boolean(),
               defaultValue: true,
-              unit: 'seconds',
             },
             interval: {
               description: 'Interval in seconds between check for new records.',
@@ -388,7 +649,6 @@ export const globalSettings = {
             dischargeNoteMandatory: {
               type: yup.boolean(),
               defaultValue: false,
-              unit: 'seconds',
             },
             dischargeDiagnosisMandatory: {
               description: 'Require at least one diagnosis to be selected before discharging',
@@ -1185,6 +1445,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
@@ -1192,12 +1453,14 @@ export const globalSettings = {
       exposedToWeb: true,
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
       exposedToWeb: true,
       type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
@@ -1209,6 +1472,7 @@ export const globalSettings = {
             width: {
               type: yup.number().min(0),
               defaultValue: 50.8,
+              unit: 'mm',
             },
           },
         },
@@ -1441,16 +1705,19 @@ export const globalSettings = {
             lockoutThreshold: {
               description: 'Number of failed attempts before account is locked',
               type: yup.number().positive().integer(),
+              unit: 'attempts',
               defaultValue: 10,
             },
             observationWindow: {
-              description: 'Time interval in minutes that attempts must occur within',
+              description: 'Time interval that attempts must occur within',
               type: yup.number().positive().integer(),
+              unit: 'minutes',
               defaultValue: 10,
             },
             lockoutDuration: {
-              description: 'Duration of lockout in minutes',
+              description: 'Duration of lockout',
               type: yup.number().positive(),
+              unit: 'minutes',
               defaultValue: 10,
             },
           },
@@ -1687,6 +1954,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: triageCategoriesSchema,
       defaultValue: triageCategoriesDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
@@ -1694,9 +1962,11 @@ export const globalSettings = {
       exposedToWeb: true,
       properties: {
         ageLimit: {
-          description: '_',
+          description:
+            'The maximum patient age in years to include in the upcoming vaccinations list',
           type: yup.number(),
           defaultValue: 15,
+          unit: 'years',
         },
         thresholds: {
           description: '_',
@@ -1710,6 +1980,7 @@ export const globalSettings = {
       exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+      editor: SETTING_EDITORS.OBJECT_LIST,
     },
     patientSearch: {
       description: 'Patient search configuration',
@@ -1745,6 +2016,7 @@ export const globalSettings = {
         recentNotificationsTimeFrame: {
           description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
+          unit: 'hours',
           defaultValue: 48,
         },
       },

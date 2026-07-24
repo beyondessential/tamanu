@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes, Op, type FindOptions } from 'sequelize';
 import {
   COMMUNICATION_STATUSES,
@@ -58,15 +57,16 @@ export class PatientCommunication extends Model {
     });
   }
 
-  static getBaseQueryPendingMessage(channel: InstanceType<typeof PatientCommunication>['channel']) {
-    const threshold = config.patientCommunication?.retryThreshold;
-
+  static getBaseQueryPendingMessage(
+    channel: InstanceType<typeof PatientCommunication>['channel'],
+    retryThreshold: number,
+  ) {
     return {
       where: {
         status: COMMUNICATION_STATUSES.QUEUED,
         channel,
         [Op.or as symbol]: [
-          { retryCount: { [Op.lte as symbol]: threshold } },
+          { retryCount: { [Op.lte as symbol]: retryThreshold } },
           { retryCount: null },
         ],
       },
@@ -75,10 +75,11 @@ export class PatientCommunication extends Model {
 
   static getPendingMessages(
     channel: InstanceType<typeof PatientCommunication>['channel'],
+    retryThreshold: number,
     queryOptions: FindOptions<any> | undefined,
   ) {
     return this.findAll({
-      ...this.getBaseQueryPendingMessage(channel),
+      ...this.getBaseQueryPendingMessage(channel, retryThreshold),
       order: [
         [this.sequelize.literal('retry_count IS NULL'), 'DESC'],
         ['retryCount', 'ASC'],
@@ -88,7 +89,10 @@ export class PatientCommunication extends Model {
     });
   }
 
-  static countPendingMessages(channel: InstanceType<typeof PatientCommunication>['channel']) {
-    return this.count(this.getBaseQueryPendingMessage(channel));
+  static countPendingMessages(
+    channel: InstanceType<typeof PatientCommunication>['channel'],
+    retryThreshold: number,
+  ) {
+    return this.count(this.getBaseQueryPendingMessage(channel, retryThreshold));
   }
 }

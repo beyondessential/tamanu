@@ -24,7 +24,6 @@ import {
   LOCATION_BOOKABLE_VIEW,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
-import config from 'config';
 import {
   configString,
   jsonString,
@@ -233,10 +232,8 @@ export const baseConfigShape = yup.object().noUnknown();
 
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: config.validateQuestionConfigs.enabled
-    ? validationString(baseValidationShape)
-    : jsonString(),
-  config: config.validateQuestionConfigs.enabled ? configString(baseConfigShape) : jsonString(),
+  validationCriteria: validationString(baseValidationShape),
+  config: configString(baseConfigShape),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),
   options: jsonString(),
@@ -245,6 +242,13 @@ export const SurveyScreenComponent = Base.shape({
   detail: yup.string().max(255),
   dataElementId: yup.string().required(),
   visibilityStatus,
+});
+
+// Picked by importRows when the validateQuestionConfigs.enabled setting is off:
+// criteria and config are accepted as any JSON rather than validated shapes.
+export const SurveyScreenComponentUnvalidated = SurveyScreenComponent.shape({
+  validationCriteria: jsonString(),
+  config: jsonString(),
 });
 
 export const ScheduledVaccine = Base.shape({

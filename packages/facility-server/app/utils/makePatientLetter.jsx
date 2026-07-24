@@ -2,7 +2,6 @@ import React from 'react';
 import crypto from 'crypto';
 import path from 'path';
 import ReactPDF from '@react-pdf/renderer';
-import config from 'config';
 import { get } from 'es-toolkit/compat';
 import { Op } from 'sequelize';
 
@@ -44,7 +43,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       language={language}
       dateTimeLocale={dateTimeLocale}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
     />,
     filePath,
   );

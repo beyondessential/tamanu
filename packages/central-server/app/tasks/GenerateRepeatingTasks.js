@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
@@ -19,12 +18,13 @@ export class GenerateRepeatingTasks extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.generateRepeatingTasks;
+    const conf = context.schedules.generateRepeatingTasks;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
     this.config = conf;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   getName() {
@@ -131,6 +131,10 @@ export class GenerateRepeatingTasks extends ScheduledTask {
       );
     }
 
+    const upcomingTasksShouldBeGeneratedTimeFrame = await this.settings.get(
+      'tasking.upcomingTasksShouldBeGeneratedTimeFrame',
+    );
+
     // recordCount is informational only — the loop below runs until it gets a
     // short page, so tasks changed mid-run can't cause rows to be skipped
     log.info('Running batched generating repeating tasks', {
@@ -157,7 +161,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
       lastSeenId = tasks[tasks.length - 1].id;
       isLastPage = tasks.length < batchSize;
 
-      await Task.generateRepeatingTasks(tasks);
+      await Task.generateRepeatingTasks(tasks, upcomingTasksShouldBeGeneratedTimeFrame);
 
       if (!isLastPage) {
         await sleepAsync(batchSleepAsyncDurationInMilliseconds);

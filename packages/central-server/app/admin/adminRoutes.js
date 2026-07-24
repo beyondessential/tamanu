@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { unset, get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
+import { isEqual, unset, get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
@@ -9,6 +9,7 @@ import {
   settingsCache,
   getScopedSchema,
   extractSecretPaths,
+  extractHighRiskPaths,
   maskSecrets,
   SECRET_PLACEHOLDER,
 } from '@tamanu/settings';
@@ -30,7 +31,7 @@ import { referenceDataManageRouter } from './referenceDataManage';
 import { reportsRouter } from './reports/reportRoutes';
 import { roleRouter, rolesRouter } from './roles';
 import { syncLastCompleted } from './sync';
-import { provisionSyncCredentials } from './syncCredentials';
+import { provisionSyncCredentials, getSettingsPsk } from './syncCredentials';
 import { templateRoutes } from './template';
 import { translationRouter } from './translation';
 import { userPreferencesRouter } from './userPreferences';
@@ -78,6 +79,7 @@ adminRoutes.use('/export', exporterRouter);
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 adminRoutes.post('/syncCredentials', provisionSyncCredentials);
+adminRoutes.get('/settingsPsk', getSettingsPsk);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
@@ -218,6 +220,28 @@ adminRoutes.put(
     if (!settings || typeof settings !== 'object') {
       res.json({ code: 200 });
       return;
+    }
+
+    // High-risk settings — flagged in the schema, plus all secrets — may only be changed with
+    // the manage-all wildcard (mirrors the editor, which disables those inputs). The editor PUTs
+    // the whole scope object, so unchanged high-risk values ride along in every save — gate on
+    // actual changes, not presence.
+    if (!req.ability.can('manage', 'all')) {
+      const highRiskPaths = extractHighRiskPaths(schema);
+      if (highRiskPaths.length > 0) {
+        const stored = (await Setting.get('', facilityId, scope)) ?? {};
+        const changedPaths = highRiskPaths.filter(path => {
+          const incoming = getAtPath(settings, path);
+          // a masked secret round-tripping through the editor is unchanged by definition
+          if (incoming === SECRET_PLACEHOLDER) return false;
+          return !isEqual(incoming, getAtPath(stored, path));
+        });
+        if (changedPaths.length > 0) {
+          throw new ForbiddenError(
+            `Cannot modify high-risk settings without full permissions: ${changedPaths.join(', ')}`,
+          );
+        }
+      }
     }
 
     // Guard against locking everyone out: security.requireHttps can only be turned on from an

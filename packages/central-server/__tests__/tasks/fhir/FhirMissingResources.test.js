@@ -20,6 +20,8 @@ describe('FhirMissingResources task', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext({ initFhir: true });
+    // eslint-disable-next-line require-atomic-updates
+    ctx.schedules = await ctx.settings.get('schedules');
     const { FhirEncounter, FhirPractitioner, MediciReport, FhirOrganization } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);

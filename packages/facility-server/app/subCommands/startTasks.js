@@ -33,7 +33,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
 
   const isConfigured = await setupSyncRuntime(context, { syncManager });
 
-  const cancelTasks = startScheduledTasks(context, taskClasses);
+  const cancelTasks = await startScheduledTasks(context, taskClasses);
   // If booted unconfigured, start syncing once first-run setup completes.
   const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
   process.once('SIGTERM', () => {

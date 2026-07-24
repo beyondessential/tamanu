@@ -9,6 +9,7 @@ import { Colors } from '../../../constants/styles';
 import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
+import { notifyValidationErrors } from './notifyValidationErrors';
 import { TranslatedText } from '../../../components/Translation';
 import { isNull } from 'es-toolkit/compat';
 
@@ -82,6 +83,10 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     setValues({ ...values, settings: settingsObject });
 
     const submitted = await submitForm(event);
+    if (submitted?.validationError) {
+      notifyValidationErrors(submitted.validationError);
+      return;
+    }
     if (submitted) {
       turnOffEditMode();
     }

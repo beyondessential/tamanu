@@ -4,14 +4,8 @@ import {
   VERSION_MINIMUM_PROBLEM_KEY,
 } from '@tamanu/constants';
 import { ClientIncompatibleError } from '@tamanu/errors';
-import config from 'config';
 import { buildVersionCompatibilityCheck } from '../../src/utils/buildVersionCompatibilityCheck';
 import { log } from '../../src/services/logging';
-
-jest.mock('config', () => ({
-  __esModule: true,
-  default: {},
-}));
 
 jest.mock('../../src/services/logging', () => ({
   log: {
@@ -34,7 +28,6 @@ function makeRes() {
 describe('buildVersionCompatibilityCheck', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    config.updateUrls = undefined;
   });
 
   it('sets min/max headers when configured', () => {
@@ -153,11 +146,9 @@ describe('buildVersionCompatibilityCheck', () => {
   });
 
   it('includes mobile updateUrl in LOW error extraData when configured', () => {
-    config.updateUrls = {
+    const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0', {
       mobile: 'https://example.com/update?min={minVersion}',
-    };
-
-    const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
+    });
     const req = makeReq({
       'X-Version': '0.1.0',
       'X-Tamanu-Client': 'Tamanu Mobile',

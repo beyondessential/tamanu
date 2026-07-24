@@ -1,4 +1,3 @@
-import config from 'config';
 import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '../ScheduledTask';
 import { log } from '@tamanu/shared/services/logging';
@@ -8,7 +7,11 @@ import { Op } from 'sequelize';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context, overrideConfig = null) {
-    const conf = { ...config.schedules.fhirMissingResources, ...overrideConfig };
+    // schedules is settings-resolved before task startup on both server types
+    const conf = {
+      ...context.schedules?.fhirMissingResources,
+      ...overrideConfig,
+    };
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log.child({ task: 'FhirMissingResources' }), jitterTime, enabled);
     this.config = conf;
