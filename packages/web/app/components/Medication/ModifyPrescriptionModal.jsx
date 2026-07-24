@@ -16,6 +16,7 @@ import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
+import { useSettings } from '../../contexts/Settings';
 import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
 import { preventInvalidNumber } from '../../utils/utils';
@@ -35,6 +36,7 @@ import {
   VariableDoseCheckField,
 } from './PrescriptionFields';
 import { prescriptionClinicalValidation } from './prescriptionValidation';
+import { DispensingQuantityAutocalculator } from './DispensingQuantityAutocalculator';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -105,6 +107,10 @@ export const ModifyPrescriptionModal = ({
   onConfirm,
 }) => {
   const { currentUser } = useAuth();
+  const { getSetting } = useSettings();
+  const isDispensingQuantityAutocalculationEnabled = getSetting(
+    'medications.dispensing.dispensingQuantityAutocalculation',
+  );
   const { getTranslation, getEnumTranslation } = useTranslation();
   // Retains the dose amount when variable dose is toggled on (which clears the field), so
   // unticking it restores the previous value instead of leaving it empty.
@@ -139,6 +145,7 @@ export const ModifyPrescriptionModal = ({
       medication,
       dosingUnit: values.dosingUnit,
       dispensingUnit: values.dispensingUnit,
+      unitConversion: values.unitConversion,
       isVariableDose: values.isVariableDose ?? false,
       doseAmount: values.isVariableDose ? null : values.doseAmount || null,
       frequency: values.frequency,
@@ -172,6 +179,7 @@ export const ModifyPrescriptionModal = ({
           // reference data when the fill is created.
           dosingUnit: source.dosingUnit ?? prescription.dosingUnit ?? '',
           dispensingUnit: source.dispensingUnit ?? prescription.dispensingUnit ?? '',
+          unitConversion: source.unitConversion ?? prescription.unitConversion ?? 1,
           isVariableDose: source.isVariableDose ?? false,
           doseAmount: source.doseAmount ?? '',
           frequency: source.frequency ?? '',
@@ -191,6 +199,10 @@ export const ModifyPrescriptionModal = ({
         }}
         render={({ values, setValues, setFieldError }) => (
           <FormGrid>
+            <DispensingQuantityAutocalculator
+              enabled={isDispensingQuantityAutocalculationEnabled}
+              isOngoing={Boolean(prescription.isOngoing)}
+            />
             <div style={{ gridColumn: '1 / -1' }}>
               <MedicationAutocompleteField
                 suggester={drugSuggester}
@@ -201,6 +213,7 @@ export const ModifyPrescriptionModal = ({
                     medicationId: e.target.value,
                     dosingUnit: referenceDrug?.dosingUnit ?? '',
                     dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+                    unitConversion: referenceDrug?.unitConversion ?? 1,
                   });
                 }}
                 data-testid="modify-prescription-medication"

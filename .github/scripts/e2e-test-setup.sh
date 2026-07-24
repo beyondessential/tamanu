@@ -114,6 +114,11 @@ EOF
                 encounterSummary: {
                     enabled: true,
                 },
+                medications: {
+                    dispensing: {
+                        dispensingQuantityAutocalculation: true,
+                    },
+                },
             },
         },
 

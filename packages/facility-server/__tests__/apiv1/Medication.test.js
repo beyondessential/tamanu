@@ -1402,6 +1402,79 @@ describe('Medication', () => {
     });
   });
 
+  describe('GET /api/medication/dispensable-medications', () => {
+    // Builds an outstanding (not-yet-dispensed) pharmacy order prescription for the patient, with
+    // the prescription fields the dispensing autocalculation relies on set to known values.
+    const createDispensablePrescription = async ({
+      patientId,
+      unitConversion = 250,
+      isOngoing = true,
+    }) => {
+      const { medication } = await createDrug();
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+          unitConversion,
+          isOngoing,
+        }),
+      );
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        fake(models.PharmacyOrder, {
+          orderingClinicianId: app.user.id,
+          encounterId: encounter.id,
+          date: getCurrentDateTimeString(),
+          facilityId,
+        }),
+      );
+      const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
+        ...fake(models.PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.id,
+          quantity: 10,
+          repeats: 1,
+          // fake() randomises this boolean; the endpoint only returns outstanding (not completed)
+          // items, so pin it or the row is intermittently filtered out.
+          isCompleted: false,
+        }),
+        id: crypto.randomUUID(),
+      });
+      return { pharmacyOrderPrescription, prescription, medication };
+    };
+
+    it('should return unitConversion and isOngoing on the dispensable prescriptions', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, prescription } = await createDispensablePrescription({
+        patientId: localPatient.id,
+        unitConversion: 250,
+        isOngoing: true,
+      });
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      expect(row).toBeDefined();
+      expect(row.prescription).toMatchObject({
+        id: prescription.id,
+        isOngoing: true,
+      });
+      // unitConversion is a DECIMAL, serialised as a string.
+      expect(Number(row.prescription.unitConversion)).toBe(250);
+    });
+  });
+
   describe('PUT /api/medication/dispense/:id', () => {
     const createDispensedMedication = async ({ patientId } = {}) => {
       const medication = await models.ReferenceData.create(
