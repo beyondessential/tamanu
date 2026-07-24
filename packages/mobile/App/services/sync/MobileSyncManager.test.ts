@@ -166,6 +166,26 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
     });
+
+    it('should report the sync error to central when a step fails', async () => {
+      const testError = new Error('pull failed');
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
+      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(() => {
+        throw testError;
+      });
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
+      const markSessionErroredSpy = jest
+        .spyOn(centralServerConnection, 'markSessionErrored')
+        .mockImplementationOnce(jest.fn());
+
+      await expect(mobileSyncManager.runSync()).rejects.toThrow('pull failed');
+
+      expect(markSessionErroredSpy).toHaveBeenCalledWith(mockSessionId, 'pull failed');
+    });
   });
 
   describe('pushOutgoingChanges()', () => {
