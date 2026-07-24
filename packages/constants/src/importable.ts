@@ -56,6 +56,8 @@ export const REFERENCE_TYPES = {
   MEDICATION_TEMPLATE: 'medicationTemplate',
   MEDICATION_SET: 'medicationSet',
   NOTE_TYPE: 'noteType',
+  ENCOUNTER_FEE: 'encounterFee',
+  PHARMACY_ENCOUNTER_FEE: 'pharmacyEncounterFee',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);

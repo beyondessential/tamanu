@@ -28,7 +28,30 @@ export const INVOICE_ITEMS_CATEGORIES = {
   DRUG: 'Drug',
   LAB_TEST_TYPE: 'LabTestType',
   LAB_TEST_PANEL: 'LabTestPanel',
+  ENCOUNTER_FEE: 'EncounterFee',
+  PHARMACY_ENCOUNTER_FEE: 'PharmacyEncounterFee',
+  BED_FEE: 'BedFee',
 };
+
+// Stable reference-data codes for the clinic/ED encounter-fee products. A data admin imports
+// `encounterFee` reference data with these codes and prices them per facility via price lists.
+// Outpatient (clinic) and emergency (ED) encounters each resolve to a standard / after-hours /
+// weekend bucket, evaluated against their own facility hours window; the weekend product is
+// optional and falls back to the matching after-hours product where a state doesn't distinguish
+// them.
+export const ENCOUNTER_FEE_CODES = {
+  STANDARD: 'encounterFeeStandard',
+  AFTER_HOURS: 'encounterFeeAfterHours',
+  WEEKEND: 'encounterFeeWeekend',
+  EMERGENCY_STANDARD: 'encounterFeeEmergencyStandard',
+  EMERGENCY_AFTER_HOURS: 'encounterFeeEmergencyAfterHours',
+  EMERGENCY_WEEKEND: 'encounterFeeEmergencyWeekend',
+};
+
+// A walk-in pharmacy dispensing encounter charges its own flat fee, separate from the clinic
+// fees above. It is priced on the same facility price list; a facility that doesn't charge for
+// pharmacy simply leaves this product unpriced (no price-list item → no fee line).
+export const PHARMACY_ENCOUNTER_FEE_CODE = 'encounterFeePharmacy';
 
 // Clinical-item categories that a facility can bundle into the inpatient admission fee
 // (so they don't auto-add for admission encounters). Procedures are never bundled.
@@ -44,6 +67,8 @@ export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
   [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
   [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
   [REFERENCE_TYPES.DRUG]: INVOICE_ITEMS_CATEGORIES.DRUG,
+  [REFERENCE_TYPES.ENCOUNTER_FEE]: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+  [REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE]: INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
 };
 
 // All imaging area reference data types are mapped to the ImagingArea category
@@ -59,6 +84,9 @@ export const INVOICE_ITEMS_CATEGORIES_MODELS = {
   [INVOICE_ITEMS_CATEGORIES.DRUG]: 'ReferenceData',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'LabTestType',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'LabTestPanel',
+  [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.BED_FEE]: 'Location',
 };
 
 export const INVOICE_ITEMS_CATEGORY_LABELS = {
@@ -68,6 +96,9 @@ export const INVOICE_ITEMS_CATEGORY_LABELS = {
   [INVOICE_ITEMS_CATEGORIES.DRUG]: 'Drug',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'Lab test type',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'Lab test panel',
+  [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'Encounter fee',
+  [INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE]: 'Pharmacy encounter fee',
+  [INVOICE_ITEMS_CATEGORIES.BED_FEE]: 'Bed fee',
 };
 
 export const INVOICE_ITEMS_DISCOUNT_TYPES = {

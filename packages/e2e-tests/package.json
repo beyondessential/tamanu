@@ -3,9 +3,9 @@
   "version": "2.60.0",
   "private": true,
   "scripts": {
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed",
+    "test": "NODE_OPTIONS=\"--import tsx ${NODE_OPTIONS:-}\" playwright test",
+    "test:ui": "NODE_OPTIONS=\"--import tsx ${NODE_OPTIONS:-}\" playwright test --ui",
+    "test:headed": "NODE_OPTIONS=\"--import tsx ${NODE_OPTIONS:-}\" playwright test --headed",
     "show-report": "playwright show-report"
   },
   "devDependencies": {
