@@ -78,10 +78,19 @@ bespoke handlers, without rewriting them.
 
 ## Idempotency key table
 
-Model `IdempotencyKey`, table `idempotency_keys`. Facility-server-side only,
-`SYNC_DIRECTIONS.DO_NOT_SYNC` (like `RefreshToken` / `OneTimeLogin`): UUID `id`
-PK, standard `created_at`/`updated_at`, **no `updated_at_sync_tick`**, no mobile
-(TypeORM) counterpart. Records are operational state local to the facility server.
+Model `IdempotencyKey`, table `idempotency_keys`. `SYNC_DIRECTIONS.DO_NOT_SYNC`
+(like `RefreshToken` / `OneTimeLogin`): UUID `id` PK, standard
+`created_at`/`updated_at`, **no `updated_at_sync_tick`**, no mobile (TypeORM)
+counterpart. Records are operational state local to each server.
+
+**Ships on both servers now.** The model lives in `@tamanu/database` and the
+single shared server migration creates `idempotency_keys` on **both central and
+facility** DBs (server migrations run against both). In this card only the
+**facility** app mounts the middleware, so the **central table sits empty** until
+the central follow-up wires it up — this avoids a second migration later. The
+middleware itself is **shared machinery** (a cross-server middleware in
+`@tamanu/shared`, mounted per-app after auth), so mounting on central is a
+few lines once its classification pass is done.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -204,8 +213,9 @@ lets central mount it in a few lines. But the value and risk differ:
   excluded or left to its own idempotency.
 
 **Recommendation:** build shared, mount on **facility in this card** (the
-motivating case); add "mount on central" as a follow-up gated on a central-surface
-classification pass rather than assumed.
+motivating case). The `idempotency_keys` table ships on central now too (empty),
+so mounting the middleware on central is a follow-up gated on a central-surface
+classification pass rather than assumed — no further migration needed.
 
 ## Locking scope and crash safety
 
