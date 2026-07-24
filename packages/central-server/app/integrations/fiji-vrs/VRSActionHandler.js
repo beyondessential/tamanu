@@ -94,11 +94,25 @@ export class VRSActionHandler {
       }
     } else if ([schema.OPERATIONS.INSERT, schema.OPERATIONS.UPDATE].includes(operation)) {
       await sequelize.transaction(async () => {
-        // allow inserts and updates to resurrect deleted records - real deletion path
-        const [{ id: upsertedPatientId }] = await Patient.upsert(
-          { ...patient, deletedAt: null },
-          { returning: true, paranoid: false },
-        );
+        // Not a plain upsert() because patients_display_id_key is DEFERRABLE (see
+        // TAM-7004), and Postgres forbids deferrable constraints as ON CONFLICT arbiters.
+        const existingPatient = await Patient.findOne({
+          where: { displayId: patient.displayId },
+          paranoid: false,
+        });
+
+        let upsertedPatientId;
+        if (existingPatient) {
+          if (existingPatient.deletedAt) {
+            await existingPatient.restore(); // allow inserts and updates to resurrect deleted records - real deletion path
+          }
+          await existingPatient.update(patient);
+          upsertedPatientId = existingPatient.id;
+        } else {
+          const createdPatient = await Patient.create(patient);
+          upsertedPatientId = createdPatient.id;
+        }
+
         patientAdditionalData.patientId = upsertedPatientId;
         patientVRSData.patientId = upsertedPatientId;
         await PatientAdditionalData.upsert(patientAdditionalData);

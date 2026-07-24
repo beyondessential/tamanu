@@ -46,6 +46,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('invoice_insurance_plans__code') }}"
             data_tests:
+              - unique
               - not_null
           - name: name
             data_type: character varying(255)

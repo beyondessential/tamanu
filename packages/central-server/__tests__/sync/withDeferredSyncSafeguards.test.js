@@ -19,6 +19,7 @@ describe('withDeferredSyncSafeguards', () => {
     await models.Facility.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.ReportDefinition.truncate({ cascade: true, force: true });
     await models.User.create({
       id: SYSTEM_USER_UUID,
       email: 'system',
@@ -194,5 +195,35 @@ describe('withDeferredSyncSafeguards', () => {
     // The operation ran to completion -- the FK error came from
     // SET CONSTRAINTS ALL IMMEDIATE, not from the insert itself
     expect(operationCompleted).toBe(true);
+  });
+
+  it('persists records when a create reuses a name freed by a concurrent rename', async () => {
+    const renamedReport = await models.ReportDefinition.create(
+      fake(models.ReportDefinition, { name: 'cat' }),
+    );
+
+    await sequelize.transaction(async () => {
+      await withDeferredSyncSafeguards(sequelize, async () => {
+        await models.ReportDefinition.create(fake(models.ReportDefinition, { name: 'cat' }));
+
+        await renamedReport.update({ name: 'cat_deprecated' });
+      });
+    });
+
+    const reports = await models.ReportDefinition.findAll({ order: [['name', 'ASC']] });
+    expect(reports.map(r => r.name)).toEqual(['cat', 'cat_deprecated']);
+  });
+
+  it('fails without deferred constraints when a create reuses a name freed by a concurrent rename', async () => {
+    const renamedReport = await models.ReportDefinition.create(
+      fake(models.ReportDefinition, { name: 'cat' }),
+    );
+
+    await expect(
+      sequelize.transaction(async () => {
+        await models.ReportDefinition.create(fake(models.ReportDefinition, { name: 'cat' }));
+        await renamedReport.update({ name: 'cat_deprecated' });
+      }),
+    ).rejects.toThrow(/validation error/i);
   });
 });
