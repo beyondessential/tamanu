@@ -70,7 +70,10 @@ const recursiveJsonParse = obj => {
 };
 
 const prepareSchema = scope => {
-  const schema = getScopedSchema(scope);
+  // Clone before restructuring below - getScopedSchema returns the shared schema
+  // singleton (globalSettings/centralSettings/facilitySettings), and mutating it
+  // directly would corrupt it for every other consumer for the rest of the session.
+  const schema = cloneDeep(getScopedSchema(scope));
   const uncategorised = pickBy(schema.properties, isSetting);
   // If there are any top-level settings, move them to an uncategorised category
   if (Object.keys(uncategorised).length) {
