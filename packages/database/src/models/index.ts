@@ -4,6 +4,7 @@ export * from './UserPreference';
 export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
 export * from './LocalSystemSecret';
+export * from './IdempotencyKey';
 export * from './PortalUser';
 export * from './Device';
 

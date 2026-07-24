@@ -253,3 +253,54 @@ Server-side behaviour is specified in `specs/platform/request-idempotency.md`
   client follow-up card, not this one.
 - Where the client generates and persists keys so a retry after reload reuses the
   same key — client follow-up card.
+
+## Implementation checklist (this card — facility)
+
+- [x] `IdempotencyKey` model (`@tamanu/database`), `DO_NOT_SYNC`, columns per the
+  table section above; `belongsTo(User)` + `belongsTo(Facility)`.
+- [x] Export it from `models/index.ts`.
+- [x] Migration creating `idempotency_keys` on both servers (unique
+  `(key, user_id, facility_id)`; `expires_at` and `(status, claimed_at)` indexes).
+  `1784700000000-createIdempotencyKeysTable.ts`.
+- [x] Add `public.idempotency_keys` to `NON_SYNCING_TABLES` and `NON_LOGGED_TABLES`
+  (response bodies may hold PII).
+- [x] Shared middleware factory `@tamanu/database/utils/requestIdempotency` —
+  Design A: single wrapping transaction, claim via unique index, buffer + defer
+  response flush, commit on 2xx / roll back otherwise, replay completed keys,
+  `request_hash` mismatch → 409. Takes an `excludePaths` matcher.
+- [x] Mount on facility `createApiv1` after `attachAuditUserToDbSession`, skipping
+  `/refresh`, `/setFacility`, `/admin/*`, `/sync`, `/syncHealth`, `/patientFacility`,
+  `/ai` (+ the two invoice endpoints below).
+- [x] Retention cleanup `CleanupIdempotencyKeys` `ScheduledTask` + config default.
+- [ ] Regenerate dbt source models (`database/model/`) with `response_body` masking
+  — deferred to handoff (needs a live DB + `npm run dbt-generate-model`).
+- [x] **Design A audit** (see result below).
+
+### Design A audit result
+
+Facility mutating handlers were scanned for the commit-then-continue pattern (an
+independent commit mid-request, which the wrapping transaction would change).
+Only two hits, both invoice endpoints using **unmanaged** transactions with an
+explicit `transaction.commit()` (and both violating the project's managed-
+transaction rule):
+
+- `PUT /invoices/:id/finalise` (`invoice/invoices.js`)
+- `PUT /invoices/:id/insurancePlans` (`invoice/insurancePlans.js`)
+
+Whether these stay atomic under Design A depends on whether Sequelize nests an
+unmanaged `sequelize.transaction()` as a savepoint under the CLS parent — **not
+verified** (needs a runtime check; do not guess). Both are **excluded from
+idempotency** via the skip-list for now — safe either way. Follow-up: migrate them
+to managed transactions (`req.db.transaction(async () => …)`, no `{ transaction }`
+args) per `llm/project-rules/sequelize-transactions.md`, then drop the exclusions.
+
+### Needs runtime verification (can't run here)
+
+- **CLS propagation across `next()`** — that the handler's writes enrol in the
+  middleware's wrapping transaction (the load-bearing premise; same mechanism as
+  `attachAuditUserToDbSession`, but confirm end-to-end).
+- **Error-path rollback** — a handler throw routes to the app error handler, whose
+  `res.status().send()` is captured by the response override, driving rollback +
+  flush of the error response.
+- **Response buffering** under Express 5 for `res.json`/`res.send`/`res.end`.
+- The unmanaged-transaction nesting question above.

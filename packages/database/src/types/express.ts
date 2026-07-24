@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+import type { Sequelize } from 'sequelize';
 import type { AccessLog, User } from '../models';
 import type { ModelProperties, Models } from './model';
 import type { ReadSettings } from '@tamanu/settings';
@@ -10,6 +11,7 @@ export interface ExpressRequest extends Request {
   deviceId?: string;
   sessionId?: string;
   facilityId?: string;
+  db: Sequelize;
   models: Models;
   audit: {
     access: (params: CreateAccessLogParams) => Promise<AccessLog | void>;

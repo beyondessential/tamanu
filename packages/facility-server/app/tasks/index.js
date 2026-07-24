@@ -8,6 +8,7 @@ import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
+import { CleanupIdempotencyKeys } from './CleanupIdempotencyKeys';
 
 export { startFhirWorkerTasks };
 
@@ -18,6 +19,7 @@ const DEFAULT_TASK_CLASSES = [
   FhirMissingResources,
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
+  CleanupIdempotencyKeys,
 ];
 
 export function startScheduledTasks(context, taskClasses) {

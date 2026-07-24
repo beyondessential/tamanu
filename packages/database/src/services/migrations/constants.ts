@@ -12,6 +12,7 @@ export const NON_SYNCING_TABLES = [
   'public.devices',
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
+  'public.idempotency_keys',
   'public.local_system_facts',
   'public.local_system_secrets',
   'public.one_time_logins',
@@ -61,4 +62,7 @@ export const NON_LOGGED_TABLES = [
 
   // server-only secrets (device key, reporting-role secret) — never log values
   'public.local_system_secrets',
+
+  // request idempotency records — ephemeral, and response bodies may hold PII
+  'public.idempotency_keys',
 ];
