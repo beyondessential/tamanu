@@ -18,7 +18,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 6 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
 | 7 | TAM-6734 | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
 | 8 | TAM-6827 | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
-| 9 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
+| 9 | TAM-3086 | Default "Collected by" to the current user | Medium | **None** — field default |
 | 10 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
 | 11 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
 | 12 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
@@ -189,9 +189,15 @@ _To be detailed._
 
 ### 9. Default "Collected by" to the current user
 
-**Summary.** Default the "Collected by" field to the current user when recording lab sample details, across both collect-sample workflows (recording at request creation, and recording later). Desktop is the priority; mobile may be split into a separate card.
+**Problem.** When recording lab sample details, staff must pick the collector from the practitioner list every time, even though it is almost always the logged-in user.
 
-_To be detailed._
+**How it works today.** "Collected by" starts empty in both collect-sample workflows — the Sample details step when recording at request creation, and the record-sample modal when recording later — and is enabled once a sample time is entered.
+
+**Desired behaviour.** "Collected by" defaults to the current user when recording a sample, in both workflows. The default remains editable so staff can select a different collector, and it only applies when no collector is already recorded — editing a sample that already has a collector keeps the existing value.
+
+**Scope.** Desktop. Mobile may follow as a separate card.
+
+**Rationale.** Prefilling the near-universal value removes a repeated manual selection at every sample recording.
 
 ---
 
