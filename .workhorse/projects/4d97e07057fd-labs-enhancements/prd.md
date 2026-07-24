@@ -164,7 +164,6 @@ _To be detailed._
   - Collector's name or initials
 
 **Open questions (to resolve before design):**
-- **Dropped fields:** the standard field set above omits Lab category and Specimen type, which the label carries today — confirm these are intentionally removed.
 - **Auto-print trigger:** when the prompt fires — on finalising a new request, on recording a sample, or both.
 - **Prompt behaviour:** a confirmation prompt ("Print labels now?") the user accepts, or straight to the print dialog automatically.
 - **Configurability:** whether the auto-prompt is a per-facility setting (opt-in) or always on for everyone using the lab module.
