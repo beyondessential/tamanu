@@ -316,6 +316,7 @@ export const IPS_REQUEST_STATUSES = {
 
 export const HTTP_BODY_DATA_PATHS = {
   DIAGNOSTIC_REPORT_ATTACHMENT: '$.presentedForm[*].data',
+  BUNDLE_DIAGNOSTIC_REPORT_ATTACHMENT: '$.entry[*].resource.presentedForm[*].data',
 };
 
 export const SCRUBBED_DATA_MESSAGE = 'Raw data removed from logs';

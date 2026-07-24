@@ -8,6 +8,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  type DrugUnit,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';

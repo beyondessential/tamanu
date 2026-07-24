@@ -340,6 +340,7 @@ patientProgramRegistration.get(
         count: 0,
         data: [],
       });
+      return;
     }
 
     const changes = await ChangeLog.findAll({

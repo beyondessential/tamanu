@@ -682,7 +682,6 @@ export const PharmacyOrderModal = React.memo(
           selectAllChecked={selectAllChecked}
           columnsToInclude={mainTableColumns}
           isOngoingMode={isOngoingMode}
-          disabledPrescriptionIds={prescriptions.filter(p => p.isSelectionDisabled).map(p => p.id)}
         />
 
         <CommentsWrapper>

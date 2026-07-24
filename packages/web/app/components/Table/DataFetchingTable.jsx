@@ -215,6 +215,12 @@ export const DataFetchingTable = memo(
     useEffect(() => {
       if (!hasPermission) return;
 
+      // Guards against a slower earlier request resolving after a newer one (eg
+      // when filters change while a fetch is still in flight) and clobbering the
+      // table with stale data. Flipped by this effect's cleanup once a newer fetch
+      // supersedes it.
+      let isSuperseded = false;
+
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
 
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
@@ -228,11 +234,14 @@ export const DataFetchingTable = memo(
           setErrorMessage('');
           const { data, count, ...rest } = await fetchData();
 
+          if (isSuperseded) return; // a newer fetch has superseded this one, or the table unmounted
+
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count, rest); // Set the data for table rows and update the previous fetch state
         } catch (error) {
+          if (isSuperseded) return; // stale request / unmounted; don't surface its error
           clearTimeout(loadingDelay);
           clearLoadingIndicators();
           // eslint-disable-next-line no-console
@@ -246,9 +255,14 @@ export const DataFetchingTable = memo(
           () => refreshTable(),
           autoRefreshConfig.interval * 1000,
         );
-        return () => clearInterval(tableAutorefresh);
+        return () => {
+          isSuperseded = true;
+          clearInterval(tableAutorefresh);
+        };
       }
-      return () => {}; // Needed to add return due to the conditional return above
+      return () => {
+        isSuperseded = true;
+      };
 
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,3 +2,6 @@
 !/data/.keep
 /realm-object-server
 __disttests__
+
+# Local e2e provisioning file (copy of packages/e2e-tests/provisioning.local-example.json5)
+/provisioning.json5

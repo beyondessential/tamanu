@@ -229,6 +229,7 @@ patientRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const patientReferrals = await models.Referral.findAll({
@@ -322,6 +323,7 @@ patientRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const { count, data } = await runPaginatedQuery(

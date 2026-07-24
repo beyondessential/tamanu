@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { listenForBindAddresses } from '@tamanu/shared/utils/bindAddress';
 import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -28,15 +29,9 @@ async function startApiSyncAndTasks(context) {
   context.syncConnection = new FacilitySyncConnection();
   const isConfigured = await setupSyncRuntime(context);
 
-  const { server } = await createApiApp(context);
+  const { express, server } = await createApiApp(context);
 
-  let { port } = config;
-  if (+process.env.PORT) {
-    port = +process.env.PORT;
-  }
-  server.listen(port, () => {
-    log.info(`API Server is running on port ${port}!`);
-  });
+  listenForBindAddresses({ server, app: express, fallbackPort: config.port, label: 'API Server' });
 
   const { server: syncServer } = await createSyncApp(context);
 
@@ -71,6 +66,13 @@ async function startAll({ skipMigrationCheck }) {
   log.info(`Process info`, {
     execArgs: process.execArgs || '<empty>',
   });
+
+  // Running the api/sync/tasks context and two fhir workers in one process
+  // means each registers its own SIGINT/SIGTERM shutdown handler, as does each
+  // database connection (one per context and two reporting stores) — close
+  // enough to the default limit of 10 to risk spurious warnings. In production
+  // the fhir workers run as separate processes, so this only applies here.
+  process.setMaxListeners(20);
 
   const context = await new ApplicationContext().init({ appType: 'api' });
   await prepareDatabaseForStartup(context, { skipMigrationCheck });

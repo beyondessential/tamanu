@@ -37,8 +37,7 @@ ARG PACKAGE_PATH
 COPY packages/ packages/
 
 # do the build, which will also reduce to just the target package
-RUN scripts/docker-build.sh ${PACKAGE_PATH}
-RUN npm prune --production
+RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Normal final target for servers
@@ -68,9 +67,8 @@ ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
-RUN apk add zstd brotli
 COPY packages/ packages/
-RUN scripts/docker-build.sh ${PACKAGE_PATH}
+RUN DOCKER_BUILD=1 scripts/docker-build.sh ${PACKAGE_PATH}
 
 ## Minimal image to serve frontend packages
 FROM alpine AS frontend-base

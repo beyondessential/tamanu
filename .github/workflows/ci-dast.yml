@@ -33,7 +33,7 @@ jobs:
     outputs:
       requested: ${{ steps.plan.outputs.requested }}
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         id: plan
         with:
           script: |

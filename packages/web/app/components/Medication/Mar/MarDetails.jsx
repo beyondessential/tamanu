@@ -1,46 +1,52 @@
-import React, { Fragment, useState } from 'react';
-
-import styled from 'styled-components';
-import * as yup from 'yup';
-import { FieldArray } from 'formik';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { MarInfoPane } from './MarInfoPane';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
-import { FormModal } from '../../FormModal';
-import {
-  TextField,
-  Form,
-  Button,
-  OutlinedButton,
-  FormGrid,
-  TimeDisplay,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
-import { Box, IconButton } from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { useTranslation } from '../../../contexts/Translation';
-import { ChangeStatusModal } from './ChangeStatusModal';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEncounter } from '../../../contexts/Encounter';
+import { FieldArray } from 'formik';
+import React, { Fragment, useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import {
+  AutocompleteField,
+  Button,
+  Field,
+  Form,
+  FormGrid,
+  NumberField,
+  OutlinedButton,
+  TextField,
+  TimeDisplay,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+  useSuggester,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
-import { useSuggester } from '../../../api';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { useAuth } from '../../../contexts/Auth';
-import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
-import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
-import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { ConditionalTooltip } from '../../Tooltip';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { isWithinTimeSlot } from '../../../utils/medications';
+import { CheckField } from '../../Field';
+import { TimePickerField } from '../../Field/TimePickerField';
+import { FormModal } from '../../FormModal';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { getDrugUnitLabel, getMarDoseDisplay } from '@tamanu/shared/utils/medication';
+import { ConditionalTooltip } from '../../Tooltip';
+import { WarningModal } from '../WarningModal';
+import { ChangeStatusModal } from './ChangeStatusModal';
+import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
+import { MarInfoPane } from './MarInfoPane';
+import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -97,9 +103,7 @@ const StyledEditIcon = styled(Edit)`
 `;
 
 const HorizontalSeparator = styled.hr`
-  border: none;
-  border-top: 1px solid ${Colors.outline};
-  margin: 14px 0;
+  margin-block: 14px;
 `;
 
 const VerticalSeparator = styled.div`
@@ -227,22 +231,6 @@ export const MarDetails = ({
   });
 
   const canEditMar = ability.can('write', 'MedicationAdministration');
-
-  const handleOpenChangeStatusModal = () => {
-    setShowChangeStatusModal(true);
-  };
-
-  const handleCloseChangeStatusModal = () => {
-    setShowChangeStatusModal(false);
-  };
-
-  const handleRemoveExistingDose = async dose => {
-    setShowRemoveDoseModal(dose);
-  };
-
-  const handleOpenEditDoseModal = dose => {
-    setShowEditDoseModal(dose);
-  };
 
   const onSubmit = async (data, { setFieldValue }) => {
     const isDoseAmountNotMatch =
@@ -422,14 +410,17 @@ export const MarDetails = ({
                   </DarkestText>
                   {canEditMar && (
                     <NoteModalActionBlocker>
-                      <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
+                      <StyledEditButton
+                        disableRipple
+                        onClick={() => void setShowChangeStatusModal(true)}
+                      >
                         <StyledEditIcon />
                       </StyledEditButton>
                     </NoteModalActionBlocker>
                   )}
                 </DetailsContainer>
                 {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
-                  <Fragment>
+                  <>
                     <HorizontalSeparator />
                     <DetailsContainer display="flex">
                       <Box flex={1}>
@@ -458,14 +449,14 @@ export const MarDetails = ({
                         <NoteModalActionBlocker>
                           <StyledEditButton
                             disableRipple
-                            onClick={() => handleOpenEditDoseModal({})}
+                            onClick={() => void setShowEditDoseModal({})}
                           >
                             <StyledEditIcon />
                           </StyledEditButton>
                         </NoteModalActionBlocker>
                       )}
                     </DetailsContainer>
-                  </Fragment>
+                  </>
                 )}
                 {marInfo.status === ADMINISTRATION_STATUS.GIVEN &&
                   marDoses.map(dose => (
@@ -494,7 +485,7 @@ export const MarDetails = ({
                             )}
                           </DoseIndex>
                           {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
-                            <RemoveDoseText onClick={() => handleRemoveExistingDose(dose)}>
+                            <RemoveDoseText onClick={() => void setShowRemoveDoseModal(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
                                 stringId="medication.mar.action.removeAdditionalDose"
@@ -550,7 +541,7 @@ export const MarDetails = ({
                             <NoteModalActionBlocker>
                               <StyledEditButton
                                 disableRipple
-                                onClick={() => handleOpenEditDoseModal(dose)}
+                                onClick={() => setShowEditDoseModal(dose)}
                               >
                                 <StyledEditIcon />
                               </StyledEditButton>
@@ -602,9 +593,20 @@ export const MarDetails = ({
                               name={`doses.${index}.doseAmount`}
                               component={NumberField}
                               label={
-                                <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
+                                <TranslatedText
+                                  stringId="mar.details.doseGiven.label"
+                                  fallback="Dose given"
+                                />
                               }
-                              unit={medication?.dosingUnit ? getDrugUnitLabel(medication.dosingUnit, values.doses[index]?.doseAmount, getEnumTranslation) : undefined}
+                              unit={
+                                medication?.dosingUnit
+                                  ? getDrugUnitLabel(
+                                      medication.dosingUnit,
+                                      values.doses[index]?.doseAmount,
+                                      getEnumTranslation,
+                                    )
+                                  : undefined
+                              }
                               required
                             />
                             <div>
@@ -716,7 +718,7 @@ export const MarDetails = ({
       {!!showChangeStatusModal && (
         <ChangeStatusModal
           open={showChangeStatusModal}
-          onClose={handleCloseChangeStatusModal}
+          onClose={() => void setShowChangeStatusModal(false)}
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}

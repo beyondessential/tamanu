@@ -1,6 +1,7 @@
 import config from 'config';
 
 import {
+  ADMINISTRATION_STATUS,
   DRUG_STOCK_STATUSES,
   INVOICE_STATUSES,
   REFERENCE_TYPES,
@@ -802,7 +803,7 @@ describe('Medication', () => {
     });
   });
 
-  describe('findPatientOngoingPrescriptionWithSameDetails', () => {
+describe('findPatientOngoingPrescriptionWithSameDetails', () => {
     const createUnitlessOngoing = async dosingUnit => {
       const medication = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
@@ -878,6 +879,59 @@ describe('Medication', () => {
       );
 
       expect(match).toBeNull();
+    });
+  });
+
+  describe('PUT /api/medication/medication-administration-record/:id', () => {
+    const createMar = async () => {
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: null,
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+      return mar;
+    };
+
+    it('should update the error flag when no doses are provided', async () => {
+      const mar = await createMar();
+
+      const result = await app.put(`/api/medication/medication-administration-record/${mar.id}`).send({
+        isError: true,
+        errorNotes: 'Recorded against the wrong patient',
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const reloadedMar = await models.MedicationAdministrationRecord.findByPk(mar.id);
+      expect(reloadedMar.isError).toBe(true);
+      expect(reloadedMar.errorNotes).toBe('Recorded against the wrong patient');
     });
   });
 });

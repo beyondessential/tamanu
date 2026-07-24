@@ -47,6 +47,14 @@ const CheckInputGroup = styled.div`
   flex-direction: column;
 `;
 
+// Match the search filter styling: label and input placeholder/value render at 14px.
+const StyledAssignedToInput = styled(AutocompleteInput)`
+  .label-field,
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+`;
+
 export const TasksPane = React.memo(({ encounter }) => {
   const { ability } = useAuth();
   const canCreate = ability.can('create', 'Tasking');
@@ -116,7 +124,7 @@ export const TasksPane = React.memo(({ encounter }) => {
             data-testid="styledcheckinput-vgby"
           />
         </CheckInputGroup>
-        <AutocompleteInput
+        <StyledAssignedToInput
           name="designationId"
           label={
             <Box marginBottom="-4px" data-testid="box-4dam">

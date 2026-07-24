@@ -320,7 +320,7 @@ const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
   </DarkestText>
 );
 
-const MEDICATION_COLUMNS = (
+export const MEDICATION_COLUMNS = (
   getTranslation,
   getEnumTranslation,
   handleDiscontinueMedication,
@@ -901,6 +901,7 @@ export const DischargeForm = ({
                     getEnumTranslation,
                     handleDiscontinueMedication,
                     canUpdateMedication,
+                    canWriteSensitiveMedication,
                   )}
                   data={ongoingMedications}
                   data-testid="tableformfields-i8q7"

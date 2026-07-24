@@ -63,6 +63,12 @@ encounter.post(
     req.checkPermission('create', 'Encounter');
 
     const validatedBody = validate(createEncounterSchema, data);
+    const { referralId, ...encounterData } = validatedBody;
+
+    // Linking a referral mutates it, so gate it on the Referral write permission up front.
+    if (referralId) {
+      req.checkPermission('write', 'Referral');
+    }
 
     if (!validatedBody.endDate) {
       const existingOpenEncounterCount = await models.Encounter.count({
@@ -80,19 +86,61 @@ encounter.post(
       }
     }
 
-    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
+    let encounterObject;
+    await req.db.transaction(async () => {
+      encounterObject = await models.Encounter.create({ ...encounterData, actorId: user.id });
 
-    await models.Invoice.automaticallyCreateForEncounter(
-      encounterObject.id,
-      encounterObject.encounterType,
-      encounterObject.startDate,
-      req.settings[facilityId],
-    );
+      const invoice = await models.Invoice.automaticallyCreateForEncounter(
+        encounterObject.id,
+        encounterObject.encounterType,
+        encounterObject.startDate,
+        req.settings[facilityId],
+      );
+      if (invoice) {
+        await models.Invoice.addEncounterFee(
+          encounterObject,
+          req.settings[facilityId],
+          getPrimaryTimeZone(config),
+        );
+        // Charge the admission night immediately; the nightly BedFeeCharger accrues later nights.
+        // The bed fee belongs to the bed's facility (its timezone, overnight-check time and rate),
+        // which may differ from the encounter's — so resolve settings from the location, matching
+        // the charger and the PUT recompute below.
+        const location = await models.Location.findByPk(encounterObject.locationId, {
+          attributes: ['facilityId'],
+        });
+        const facilitySettings = location && req.settings[location.facilityId];
+        if (facilitySettings) {
+          await models.Invoice.recalculateBedFee(
+            encounterObject,
+            facilitySettings,
+            getPrimaryTimeZone(config),
+          );
+        }
+      }
 
-    if (data.dietIds) {
-      const dietIds = JSON.parse(data.dietIds);
-      await encounterObject.addDiets(dietIds);
-    }
+      if (data.dietIds) {
+        const dietIds = JSON.parse(data.dietIds);
+        await encounterObject.addDiets(dietIds);
+      }
+
+      // Link the originating referral (e.g. admitting a patient from a referral) to this encounter
+      // via its completing encounter.
+      if (referralId) {
+        const referral = await models.Referral.findByPk(referralId, {
+          include: [{ model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] }],
+        });
+        if (!referral) {
+          throw new NotFoundError(`Referral with id ${referralId} not found`);
+        }
+        // Guard against re-linking a referral belonging to a different patient.
+        if (referral.initiatingEncounter?.patientId !== encounterObject.patientId) {
+          throw new InvalidOperationError('Referral does not belong to this patient');
+        }
+        await referral.update({ completingEncounterId: encounterObject.id });
+      }
+    });
+
     res.send(encounterObject);
   }),
 );
@@ -101,7 +149,7 @@ encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const { db, models, user, params } = req;
-    const { referralId, id } = params;
+    const { id } = params;
     req.checkPermission('read', 'Encounter');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
@@ -168,13 +216,6 @@ encounter.put(
         }
       }
 
-      if (referralId) {
-        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
-        if (referral && referral.deletedAt)
-          throw new InvalidOperationError('Cannot update a deleted referral.');
-        await referral.update({ encounterId: id });
-      }
-
       if (req.body.locationId != null) {
         const location = await models.Location.findByPk(req.body.locationId);
         if (!location) {
@@ -186,6 +227,29 @@ encounter.put(
       if (req.body.dietIds) {
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
+      }
+
+      // An admission (encounterType change), discharge (endDate) or ward move (locationId) changes
+      // the bed fee — recompute now so the nights land on the invoice immediately, rather than
+      // waiting for the next nightly BedFeeCharger run (which would miss them entirely if the
+      // invoice is finalised first).
+      if (
+        req.body.discharge ||
+        req.body.endDate != null ||
+        req.body.locationId != null ||
+        req.body.encounterType != null
+      ) {
+        const location = await models.Location.findByPk(encounterObject.locationId, {
+          attributes: ['facilityId'],
+        });
+        const facilitySettings = location && req.settings[location.facilityId];
+        if (facilitySettings) {
+          await models.Invoice.recalculateBedFee(
+            encounterObject,
+            facilitySettings,
+            getPrimaryTimeZone(config),
+          );
+        }
       }
     });
     res.send(encounterObject);
@@ -501,7 +565,7 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
+encounterRelations.get('/:id/referral', simpleGetList('Referral', 'completingEncounterId'));
 encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
   '/:id/documentMetadata',
@@ -673,6 +737,7 @@ encounterRelations.get(
         data: [],
         count: 0,
       });
+      return;
     }
 
     const { count, data } = await runPaginatedQuery(

@@ -47,17 +47,27 @@ export class DeceasedPatientDischarger extends ScheduledTask {
       );
     }
 
-    const batchCount = Math.ceil(toProcess / batchSize);
-
     log.info(
-      `Auto-discharging ${toProcess} encounters for deceased patients in ${batchCount} batches (${batchSize} records per batch)`,
+      `Auto-discharging ${toProcess} encounters for deceased patients (${batchSize} records per batch)`,
     );
 
-    for (let i = 0; i < batchCount; i++) {
+    // Keyset pagination: discharged encounters get an endDate and leave the
+    // filter, so an advancing offset would slide past matching rows. Paging
+    // by id is stable whether or not each row leaves the result set.
+    let lastSeenId = '';
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       const encounters = await Encounter.findAll({
         ...query,
+        where: {
+          ...query.where,
+          id: { [Op.gt]: lastSeenId },
+        },
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
+      if (encounters.length === 0) break;
+      lastSeenId = encounters[encounters.length - 1].id;
 
       for (const encounter of encounters) {
         const patient = await encounter.getPatient();
@@ -74,6 +84,12 @@ export class DeceasedPatientDischarger extends ScheduledTask {
         }
 
         const discharger = await patientDeathData.getClinician();
+
+        if (!discharger) {
+          log.warn(`Deceased patient ${patient.id} has no death data clinician! Skipping...`);
+          continue;
+        }
+
         await encounter.update({
           endDate: patient.dateOfDeath,
           systemNote: 'Automatically discharged',

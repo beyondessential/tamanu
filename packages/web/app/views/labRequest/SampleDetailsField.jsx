@@ -1,9 +1,10 @@
 import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import { Heading4 } from '../../components';
-import { useDateTime } from '@tamanu/ui-components';
+import { RequiredOrnament, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -72,52 +73,8 @@ export const SampleDetailsField = ({
 }) => {
   const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
+  const { setFieldValue } = useFormikContext();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
-
-  const HEADERS = [
-    <TranslatedText
-      key="category"
-      stringId="lab.sampleDetail.table.column.category"
-      fallback="Category"
-      data-testid="translatedtext-r56z"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectionDateTime"
-      fallback="Date & time collected"
-      data-testid="translatedtext-2dwc"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectedBy"
-      fallback="Collected by"
-      data-testid="translatedtext-xd1n"
-    />,
-    <>
-      <TranslatedText
-        key="specimentType"
-        stringId="lab.sampleDetail.table.column.specimenType"
-        fallback="Specimen type"
-        data-testid="translatedtext-tznt"
-      />
-      {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
-    </>,
-    <TranslatedText
-      key="site"
-      stringId="lab.site.label"
-      fallback="Site"
-      data-testid="translatedtext-umcq"
-    />,
-  ];
-  const WITH_PANELS_HEADERS = [
-    <TranslatedText
-      key="panel"
-      stringId="lab.sampleDetail.table.column.panel"
-      fallback="Panel"
-      data-testid="translatedtext-8f07"
-    />,
-    ...HEADERS,
-  ];
 
   const [samples, setSamples] = useState({});
 
@@ -125,7 +82,44 @@ export const SampleDetailsField = ({
     return initialSamples.some(sample => sample.panelId);
   }, [initialSamples]);
 
-  const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
+  const headers = useMemo(() => {
+    const columns = hasPanels
+      ? [
+          <TranslatedText
+            key="panel"
+            stringId="lab.sampleDetail.table.column.panel"
+            fallback="Panel"
+          />,
+        ]
+      : [];
+    columns.push(
+      <TranslatedText
+        key="category"
+        stringId="lab.sampleDetail.table.column.category"
+        fallback="Category"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectionDateTime"
+        fallback="Date & time collected"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectedBy"
+        fallback="Collected by"
+      />,
+      <>
+        <TranslatedText
+          key="specimentType"
+          stringId="lab.sampleDetail.table.column.specimenType"
+          fallback="Specimen type"
+        />
+        {mandateSpecimenType && <RequiredOrnament />}
+      </>,
+      <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
+    );
+    return columns;
+  }, [hasPanels, mandateSpecimenType]);
 
   useEffect(() => {
     if (samples && onSampleChange) {
@@ -195,7 +189,16 @@ export const SampleDetailsField = ({
                 if (value) {
                   setValue(identifier, 'sampleTime', value);
                 } else {
+                  // Clearing the collection time abandons the whole sample. Also reset the sibling
+                  // Formik fields so their stale values aren't validated (e.g. mandatory specimen
+                  // type) or left displayed while the submitted sampleDetails no longer has them.
                   removeSample(identifier);
+                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`, undefined);
+                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`, undefined);
+                  setFieldValue(
+                    `${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`,
+                    undefined,
+                  );
                 }
               }}
               data-testid="styledfield-ratc"
@@ -207,7 +210,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[identifier]?.collectedBy}
+              value={samples[identifier]?.collectedBy ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'collectedById', value);
               }}
@@ -220,7 +223,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
-              value={samples[identifier]?.specimenType}
+              value={samples[identifier]?.specimenType ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'specimenTypeId', value);
               }}
@@ -233,7 +236,7 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
-              value={samples[identifier]?.labSampleSite}
+              value={samples[identifier]?.labSampleSite ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(identifier, 'labSampleSiteId', value);
               }}
@@ -250,6 +253,7 @@ export const SampleDetailsField = ({
       samples,
       removeSample,
       setValue,
+      setFieldValue,
       hasPanels,
       getCurrentDateTime,
     ],

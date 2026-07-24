@@ -170,6 +170,7 @@ export const Paginator = React.memo(
           <StyledPagination
             size="small"
             count={numberOfPages}
+            page={selectedPageNumber}
             variant="outlined"
             onChange={onPageChange}
             renderItem={item => {

@@ -30,7 +30,7 @@ import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { getCurrentDateTimeString, toDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 import { Note } from './Note';
 import { EncounterPrescription } from './EncounterPrescription';
@@ -135,13 +135,19 @@ export class Encounter extends BaseModel implements IEncounter {
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
-    const date = addHours(startOfDay(new Date()), TIME_OFFSET);
+    const now = new Date();
+    const cutover = addHours(startOfDay(now), TIME_OFFSET);
+    // Before the 3am cutover we are still within the previous day's clinical window, so the
+    // boundary is yesterday's cutover — otherwise it would sit in the future and match nothing.
+    const dayStart = now < cutover ? subDays(cutover, 1) : cutover;
 
     return repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
-      .andWhere("startDate >= datetime(:date, 'unixepoch')", {
-        date: formatDateForQuery(date),
+      // startDate is stored as a local ISO 9075 string, so compare against a local ISO 9075
+      // boundary directly. datetime(:epoch, 'unixepoch') renders UTC and would be offset.
+      .andWhere('startDate >= :date', {
+        date: toDateTimeString(dayStart),
       })
       .orderBy('startDate', 'DESC')
       .addOrderBy('createdAt', 'DESC')
@@ -287,8 +293,8 @@ export class Encounter extends BaseModel implements IEncounter {
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
+      .andWhere('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
       .groupBy('date(encounter.startDate)')
-      .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
       .orderBy('encounterDate', 'ASC');
 
     return query.getRawMany();

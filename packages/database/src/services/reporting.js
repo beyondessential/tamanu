@@ -9,6 +9,7 @@ import {
   FACT_REPORTING_SECRET_ROTATED_AT,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { openDatabase } from './database';
 import { resolveDbConfig } from './connectionConfig';
@@ -68,6 +69,27 @@ export const getReportingSecret = async ({ models, sequelize }) => {
   });
 };
 
+// Catalog DDL (GRANT etc) updates pg_class rows, which can race autovacuum's
+// in-place catalog updates: "tuple concurrently updated" (XX000). The advisory
+// lock below only serialises our own processes, not background workers. Fixed
+// upstream in the 2024-11 postgres minors (e.g. 12.21), but deployments run
+// older; the DDL is idempotent, so just retry.
+const CATALOG_RACE_ATTEMPTS = 3;
+const withCatalogRaceRetry = async (label, fn) => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const code = error?.original?.code ?? error?.parent?.code;
+      if (code !== 'XX000' || attempt >= CATALOG_RACE_ATTEMPTS) throw error;
+      log.warn(`${label}: retrying after catalog update race`, { attempt });
+      await new Promise(resolve => {
+        setTimeout(resolve, 500 * attempt);
+      });
+    }
+  }
+};
+
 const ensureReportingRole = async (existingStore, connectionName, password) => {
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
   const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
@@ -77,10 +99,11 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
   // would race on these cluster-global role objects ("tuple concurrently
   // updated"). Serialise with a transaction-scoped advisory lock; the DDL is
   // idempotent so re-applying it once per startup is harmless.
-  await sequelize.transaction(async () => {
-    await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_ROLES_LOCK_KEY}::bigint);`);
+  await withCatalogRaceRetry(`ensureReportingRole(${role})`, () =>
+    sequelize.transaction(async () => {
+      await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_ROLES_LOCK_KEY}::bigint);`);
 
-    await sequelize.query(`
+      await sequelize.query(`
       DO $$
       BEGIN
         CREATE ROLE "${role}" LOGIN;
@@ -90,40 +113,42 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
       $$;
     `);
 
-    // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
-    // On failure, re-throw without the original error: its `sql` field holds the
-    // statement with the password inline, which a generic error log would leak.
-    try {
+      // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
+      // On failure, re-throw without the original error: its `sql` field holds the
+      // statement with the password inline, which a generic error log would leak.
+      try {
+        await sequelize.query(
+          `ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`,
+          { logging: false },
+        );
+      } catch (error) {
+        throw new Error(`Failed to set password for reporting role "${role}": ${error.message}`);
+      }
+
+      if (schema !== 'public') {
+        await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
+        // Lets reporting reports reference tables without the schema prefix.
+        await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
+      }
+
+      await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
+      await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
+      // Covers tables created later (e.g. materialised reporting tables).
       await sequelize.query(
-        `ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`,
-        { logging: false },
+        `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
       );
-    } catch (error) {
-      throw new Error(`Failed to set password for reporting role "${role}": ${error.message}`);
-    }
 
-    if (schema !== 'public') {
-      await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
-      // Lets reporting reports reference tables without the schema prefix.
-      await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
-    }
-
-    await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
-    await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
-    // Covers tables created later (e.g. materialised reporting tables).
-    await sequelize.query(
-      `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
-    );
-
-    // The raw role reads all of `public` for reporting, but report SQL has no
-    // business reading credential/token tables: local_system_secrets holds the
-    // device private key and the reporting secret (encrypted, but still not for
-    // reports), and the rest hold auth tokens or certificate signing keys. Revoke
-    // SELECT on them.
-    // to_regclass skips any not present on this server (e.g. central-only ones).
-    if (schema === 'public') {
-      const sensitiveTablesArray = REPORTING_SENSITIVE_TABLES.map(table => `'${table}'`).join(', ');
-      await sequelize.query(`
+      // The raw role reads all of `public` for reporting, but report SQL has no
+      // business reading credential/token tables: local_system_secrets holds the
+      // device private key and the reporting secret (encrypted, but still not for
+      // reports), and the rest hold auth tokens or certificate signing keys. Revoke
+      // SELECT on them.
+      // to_regclass skips any not present on this server (e.g. central-only ones).
+      if (schema === 'public') {
+        const sensitiveTablesArray = REPORTING_SENSITIVE_TABLES.map(table => `'${table}'`).join(
+          ', ',
+        );
+        await sequelize.query(`
         DO $$
         DECLARE
           sensitive_table text;
@@ -136,8 +161,9 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
         END
         $$;
       `);
-    }
-  });
+      }
+    }),
+  );
 };
 
 const initReportStore = async (existingStore, connectionName, secret) => {
