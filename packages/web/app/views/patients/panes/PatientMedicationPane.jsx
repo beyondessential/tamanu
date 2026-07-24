@@ -21,6 +21,7 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
+
 import { useFacilityQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
@@ -36,7 +37,15 @@ import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
+import {
+  DispensedMedicationName,
+  getDispensedMedication,
+  getMedicationLabelData,
+  getTranslatedMedicationName,
+  isDispenseModifiedByPharmacy,
+  PharmacyModifiedFootnote,
+} from '../../../utils/medications';
+import { PrescriptionChangeHistoryModal } from '../../../components/Medication/PrescriptionChangeHistoryModal';
 import SendToPharmacyButton from './SendToPharmacyButton';
 
 const NotifyBanner = styled(Box)`
@@ -267,6 +276,12 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   },
 ];
 
+// The details a fill was actually dispensed with live on the dispense row itself (they may have
+// been modified by pharmacy); fall back to the prescription for rows created before dispensed
+// details were recorded.
+const getDispensedDetails = data =>
+  data?.medicationId ? data : data?.pharmacyOrderPrescription?.prescription;
+
 const DISPENSED_MEDICATION_COLUMNS = (
   getTranslation,
   getEnumTranslation,
@@ -275,6 +290,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
   handlePrintLabel,
   handleEdit,
   handleCancelClick,
+  handleViewModifyHistory,
 ) => [
   {
     key: 'pharmacyOrderPrescription.prescription.medication.name',
@@ -282,24 +298,19 @@ const DISPENSED_MEDICATION_COLUMNS = (
       <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
     ),
     sortable: true,
-    accessor: data => (
-      <TranslatedReferenceData
-        fallback={data?.pharmacyOrderPrescription?.prescription?.medication?.name}
-        value={data?.pharmacyOrderPrescription?.prescription?.medication?.id}
-        category={data?.pharmacyOrderPrescription?.prescription?.medication?.type}
-      />
-    ),
+    accessor: data => <DispensedMedicationName dispense={data} />,
   },
   {
     key: 'dose',
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => {
+      const details = getDispensedDetails(data);
       const prescription = data?.pharmacyOrderPrescription?.prescription;
-      if (!prescription) return '';
+      if (!details) return '';
       return (
         <>
-          {getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)}
-          {prescription.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+          {getMedicationDoseDisplay(details, getTranslation, getEnumTranslation)}
+          {prescription?.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
         </>
       );
     },
@@ -311,7 +322,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
       <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
     ),
     accessor: data => {
-      const frequency = data?.pharmacyOrderPrescription?.prescription?.frequency;
+      const frequency = getDispensedDetails(data)?.frequency;
       return frequency ? getTranslatedFrequency(frequency, getTranslation) : '';
     },
     sortable: false,
@@ -371,7 +382,16 @@ const DISPENSED_MEDICATION_COLUMNS = (
           label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
           action: () => handleCancelClick(row.id),
         },
-      ];
+        isDispenseModifiedByPharmacy(row) && {
+          label: (
+            <TranslatedText
+              stringId="medication.action.viewModifyHistory"
+              fallback="View modify history"
+            />
+          ),
+          action: () => handleViewModifyHistory(row.id),
+        },
+      ].filter(Boolean);
       return (
         <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
           <MenuButton
@@ -427,6 +447,9 @@ export const PatientMedicationPane = ({ patient }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
+  // Modify history modal state
+  const [historyDispenseId, setHistoryDispenseId] = useState(null);
+
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
@@ -476,7 +499,7 @@ export const PatientMedicationPane = ({ patient }) => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
       const prescription = pharmacyOrderPrescription?.prescription;
 
-      const medication = prescription?.medication;
+      const medication = getDispensedMedication(item);
       const labelItems = [
         {
           id,
@@ -722,6 +745,7 @@ export const PatientMedicationPane = ({ patient }) => {
               handlePrintLabel,
               handleEdit,
               handleCancelClick,
+              setHistoryDispenseId,
             )}
             noDataMessage={
               <NoDataContainer>
@@ -744,6 +768,7 @@ export const PatientMedicationPane = ({ patient }) => {
           />
         </TableContainer>
       )}
+      {dispensedMedications.some(isDispenseModifiedByPharmacy) && <PharmacyModifiedFootnote />}
       <MedicationModal
         open={createMedicationModalOpen}
         onClose={() => setCreateMedicationModalOpen(false)}
@@ -789,6 +814,11 @@ export const PatientMedicationPane = ({ patient }) => {
         open={isDetailModalOpen}
         onClose={handleCloseDetailModal}
         item={selectedDetailItem}
+      />
+      <PrescriptionChangeHistoryModal
+        open={Boolean(historyDispenseId)}
+        dispenseId={historyDispenseId}
+        onClose={() => setHistoryDispenseId(null)}
       />
     </Box>
   );

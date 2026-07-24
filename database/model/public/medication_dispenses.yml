@@ -68,3 +68,48 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in medication_dispenses."
             data_tests:
               - not_null
+          - name: medication_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__medication_id') }}"
+          - name: is_variable_dose
+            data_type: boolean
+            description: "{{ doc('medication_dispenses__is_variable_dose') }}"
+          - name: dose_amount
+            data_type: numeric
+            description: "{{ doc('medication_dispenses__dose_amount') }}"
+          - name: dosing_unit
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__dosing_unit') }}"
+          - name: dispensing_unit
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__dispensing_unit') }}"
+          - name: frequency
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__frequency') }}"
+          - name: route
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__route') }}"
+          - name: duration_value
+            data_type: numeric
+            description: "{{ doc('medication_dispenses__duration_value') }}"
+          - name: duration_unit
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__duration_unit') }}"
+          - name: pharmacy_notes
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__pharmacy_notes') }}"
+            config:
+              meta:
+                masking: text
+          - name: display_pharmacy_notes_in_mar
+            data_type: boolean
+            description: "{{ doc('medication_dispenses__display_pharmacy_notes_in_mar') }}"
+          - name: modified_by_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__modified_by_id') }}"
+          - name: modified_reason_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__modified_reason_id') }}"
+          - name: modified_at
+            data_type: character(19)
+            description: "{{ doc('medication_dispenses__modified_at') }}"

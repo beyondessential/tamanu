@@ -66,7 +66,10 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         invoiceId: minMedicationId, // Identify batch by the first medication's id
         customerCode,
         items: medications.map(medication => ({
-          itemCode: medication.pharmacyOrderPrescription.prescription.medication.code,
+          // Prefer the dispensed medication (may be a pharmacy substitution); fall back to the
+          // prescribed medication for any dispense without a snapshotted medication.
+          itemCode: (medication.medication ?? medication.pharmacyOrderPrescription.prescription.medication)
+            .code,
           numberOfUnits: medication.quantity,
         })),
       },
@@ -126,6 +129,13 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     };
 
     const include = [
+      {
+        // The medication actually dispensed for this fill — differs from the prescription's when
+        // pharmacy substituted the drug at dispensing, so mSupply decrements the correct stock item.
+        model: this.models.ReferenceData,
+        as: 'medication',
+        required: false,
+      },
       {
         model: this.models.PharmacyOrderPrescription,
         as: 'pharmacyOrderPrescription',

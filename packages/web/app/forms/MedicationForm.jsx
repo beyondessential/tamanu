@@ -16,7 +16,6 @@ import * as yup from 'yup';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  DRUG_ROUTE_VALUES,
   FORM_TYPES,
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
@@ -55,6 +54,7 @@ import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicati
 import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { prescriptionClinicalValidation } from '../components/Medication/prescriptionValidation';
 import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
@@ -69,51 +69,17 @@ import {
 import { foreignKey } from '../utils/validation';
 
 const validationSchema = yup.object().shape({
-  medicationId: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
+  // medicationId, doseAmount, frequency, route, durationValue, durationUnit
+  ...prescriptionClinicalValidation,
   isOngoing: yup.boolean().optional(),
   isPrn: yup.boolean().optional(),
-  doseAmount: yup
-    .number()
-    .positive()
-    .translatedLabel(
-      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
-    )
-    .when('isVariableDose', {
-      is: true,
-      then: schema => schema.optional(),
-      otherwise: schema =>
-        schema.required(
-          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-        ),
-    }),
   repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
-  frequency: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
-  route: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ).oneOf(DRUG_ROUTE_VALUES),
   date: yup
     .date()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   startDate: yup
     .date()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-  durationValue: yup
-    .number()
-    .positive()
-    .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
-  durationUnit: yup
-    .string()
-    .when('durationValue', (durationValue, schema) =>
-      durationValue
-        ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
-        : schema.optional(),
-    ),
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),

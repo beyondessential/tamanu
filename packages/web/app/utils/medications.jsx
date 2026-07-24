@@ -23,6 +23,7 @@ import {
   TAMANU_COLORS,
   TextInput,
   ThemedTooltip,
+  TranslatedReferenceData,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { AutocompleteInput } from '../components/Field';
@@ -369,3 +370,63 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   }
   return content;
 };
+
+// A fill can be modified by pharmacy at dispensing time, recorded via `modifiedAt` on the
+// medication dispense. When set, dispensed medication rows are flagged with an asterisk and the
+// table shows a "*Prescription modified by pharmacy" footnote. The original prescription is
+// never altered by a dispensing modification.
+export const isDispenseModifiedByPharmacy = dispense => Boolean(dispense?.modifiedAt);
+
+// The medication actually dispensed for a fill — the dispense's own medication (which may be a
+// pharmacy substitution), falling back to the prescription's for rows created before dispensed
+// details were recorded.
+export const getDispensedMedication = dispense =>
+  dispense?.medication ?? dispense?.pharmacyOrderPrescription?.prescription?.medication;
+
+// A fill modified by pharmacy replaces the prescription's pharmacy note on the MAR with the
+// dispense's own note (which already folds in any prescription-level note plus the standard
+// modification note), with a "View change" link to the change history. Returns both values the
+// MAR views need: `modifiedPharmacyNote` (present only when a modified fill supplies the note —
+// gates the link) and `displayedPharmacyNote` (the note text to show, from the modification or,
+// failing that, the prescription).
+export const getDisplayedPharmacyNote = medication => {
+  const { latestModifiedDispense, displayPharmacyNotesInMar, pharmacyNotes } = medication;
+  const modifiedPharmacyNote =
+    latestModifiedDispense?.displayPharmacyNotesInMar && latestModifiedDispense?.pharmacyNotes
+      ? latestModifiedDispense.pharmacyNotes
+      : null;
+  const displayedPharmacyNote =
+    modifiedPharmacyNote ?? (displayPharmacyNotesInMar && pharmacyNotes ? pharmacyNotes : null);
+  return { modifiedPharmacyNote, displayedPharmacyNote };
+};
+
+export const DispensedMedicationName = ({ dispense }) => {
+  const medication = getDispensedMedication(dispense);
+  return (
+    <>
+      <TranslatedReferenceData
+        fallback={medication?.name}
+        value={medication?.id}
+        category={medication?.type ?? 'drug'}
+      />
+      {isDispenseModifiedByPharmacy(dispense) && ' *'}
+    </>
+  );
+};
+
+const PharmacyModifiedFootnoteText = styled.div`
+  margin-top: 8px;
+  text-align: right;
+  font-size: 12px;
+  line-height: 16px;
+  color: ${TAMANU_COLORS.midText};
+`;
+
+export const PharmacyModifiedFootnote = () => (
+  <PharmacyModifiedFootnoteText>
+    <TranslatedText
+      stringId="medication.dispense.modifiedByPharmacyFootnote"
+      fallback="*Prescription modified by pharmacy"
+    />
+  </PharmacyModifiedFootnoteText>
+);

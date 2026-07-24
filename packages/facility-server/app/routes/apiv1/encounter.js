@@ -543,9 +543,33 @@ encounterRelations.get(
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
+      // The most recent pharmacy-modified fill per prescription, so the MAR can show the
+      // modification's pharmacy note and a "View change" link. The original prescription is
+      // never altered by dispensing modifications; the modified details live on the dispense.
+      const [latestModifiedDispenseRows] = await db.query(
+        `
+        SELECT DISTINCT ON (pop.prescription_id)
+          pop.prescription_id,
+          md.id,
+          md.pharmacy_notes AS "pharmacyNotes",
+          md.display_pharmacy_notes_in_mar AS "displayPharmacyNotesInMar",
+          md.modified_at AS "modifiedAt"
+        FROM medication_dispenses md
+        INNER JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND md.modified_at IS NOT NULL
+          AND md.deleted_at IS NULL
+          AND pop.deleted_at IS NULL
+        ORDER BY pop.prescription_id, md.dispensed_at DESC
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const latestModifiedDispenses = keyBy(latestModifiedDispenseRows, 'prescription_id');
+
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
+        latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
 
