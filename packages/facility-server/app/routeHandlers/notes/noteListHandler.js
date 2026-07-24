@@ -1,6 +1,5 @@
 import Sequelize, { Op, QueryTypes } from 'sequelize';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -26,7 +25,7 @@ export const noteListHandler = recordType =>
       const facilityTimeZone = facilityId
         ? await req.settings[facilityId]?.get('facilityTimeZone')
         : undefined;
-      const primaryTimeZone = getPrimaryTimeZone(config);
+      const primaryTimeZone = getPrimaryTimeZone();
       if (fromDate) {
         fromDateTime =
           getDayBoundaries(fromDate, primaryTimeZone, facilityTimeZone)?.start ??

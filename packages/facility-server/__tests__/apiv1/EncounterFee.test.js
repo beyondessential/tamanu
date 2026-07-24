@@ -1,6 +1,5 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import {
@@ -99,7 +98,7 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
-    primaryTimeZone = getPrimaryTimeZone(config);
+    primaryTimeZone = getPrimaryTimeZone();
 
     patient = await models.Patient.create(await createDummyPatient(models));
     user = await models.User.create({ ...fakeUser(), role: 'practitioner' });

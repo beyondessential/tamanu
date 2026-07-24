@@ -71,7 +71,7 @@ export class BedFeeCharger extends ScheduledTask {
     const toProcess = await Encounter.count({ ...query, distinct: true, col: 'id' });
     if (toProcess === 0) return;
 
-    const primaryTimeZone = getPrimaryTimeZone(config);
+    const primaryTimeZone = getPrimaryTimeZone();
     const settingsByFacility = new Map();
     const getSettings = facilityId => {
       if (!settingsByFacility.has(facilityId)) {

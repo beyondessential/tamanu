@@ -101,7 +101,7 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
-    primaryTimeZone = getPrimaryTimeZone(config);
+    primaryTimeZone = getPrimaryTimeZone();
     user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
     app = await ctx.baseApp.asUser(user);
 

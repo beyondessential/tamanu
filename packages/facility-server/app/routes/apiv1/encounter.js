@@ -99,7 +99,7 @@ encounter.post(
         await models.Invoice.addEncounterFee(
           encounterObject,
           req.settings[facilityId],
-          getPrimaryTimeZone(config),
+          getPrimaryTimeZone(),
         );
         // Charge the admission night immediately; the nightly BedFeeCharger accrues later nights.
         // The bed fee belongs to the bed's facility (its timezone, overnight-check time and rate),
@@ -113,7 +113,7 @@ encounter.post(
           await models.Invoice.recalculateBedFee(
             encounterObject,
             facilitySettings,
-            getPrimaryTimeZone(config),
+            getPrimaryTimeZone(),
           );
         }
       }
@@ -246,7 +246,7 @@ encounter.put(
           await models.Invoice.recalculateBedFee(
             encounterObject,
             facilitySettings,
-            getPrimaryTimeZone(config),
+            getPrimaryTimeZone(),
           );
         }
       }

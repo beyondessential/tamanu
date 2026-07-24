@@ -579,7 +579,7 @@ medication.post(
         await models.Invoice.addEncounterFee(
           encounter,
           facilitySettings,
-          getPrimaryTimeZone(config),
+          getPrimaryTimeZone(),
         );
       }
 

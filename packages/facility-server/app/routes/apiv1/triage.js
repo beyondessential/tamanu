@@ -9,7 +9,6 @@ import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import config from 'config';
 
 import { createTriageFilters } from '../../utils/triageFilters';
 import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
@@ -123,7 +122,7 @@ triage.post(
       await models.Invoice.addEncounterFee(
         encounter,
         settings[facilityId],
-        getPrimaryTimeZone(config),
+        getPrimaryTimeZone(),
       );
     }
 
