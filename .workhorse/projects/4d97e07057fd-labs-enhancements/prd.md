@@ -151,7 +151,7 @@ _To be detailed._
 
 **Context.** The label (`LabRequestPrintLabel`) is an SVG with fixed fields — Patient Name, Patient ID, DOB, Test ID, Date collected, Lab category, Specimen type — plus a Test ID barcode; field labels are hardcoded English and the width is a setting. Printing is fully manual: after finalising a request, the "Request finalised" summary pane lists requests with checkboxes and "Print label" / "Print request" buttons, with no prompt.
 
-**Desired behaviour.** The lab request label follows a standard format, and lab staff are automatically prompted to print labels rather than having to remember to do so manually.
+**Desired behaviour.** The lab request label follows a standard format. When a sample is recorded, the sample label is presented for printing automatically — configurable per facility and off by default — so staff no longer have to remember to print it manually.
 
 **Design updates — standard label.**
 - **Size:** 40 × 28 mm.
@@ -163,10 +163,12 @@ _To be detailed._
   - Collection date & time
   - Collector's name or initials
 
-**Open questions (to resolve before design):**
-- **Auto-print trigger:** when the prompt fires — on finalising a new request, on recording a sample, or both.
-- **Prompt behaviour:** a confirmation prompt ("Print labels now?") the user accepts, or straight to the print dialog automatically.
-- **Configurability:** whether the auto-prompt is a per-facility setting (opt-in) or always on for everyone using the lab module.
+**Design updates — auto-print and finalise flow.**
+- **Trigger.** When a sample is recorded — via the new lab request workflow or via the lab request view — the print sample label displays automatically once the sample is recorded.
+- **Configurable, off by default.** Enabled per facility and disabled by default. When disabled, the current workflows apply unchanged.
+- **Finalise screen when recording a new lab request:**
+  - If no sample is recorded, the finalise screen displays (as now).
+  - If a sample is recorded, the finalise screen displays only when there are outstanding requests whose sample has not been collected.
 
 ---
 
