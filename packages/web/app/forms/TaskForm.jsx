@@ -78,6 +78,15 @@ const InvisibleTitle = styled.div`
   opacity: 0;
 `;
 
+const combinedTaskSuggesterOptions = /** @type const */ ({
+  baseQueryParameters: {
+    types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
+    relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
+  },
+  formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
+  baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
+});
+
 export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
@@ -88,14 +97,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
-  const combinedTaskSuggester = useSuggester('multiReferenceData', {
-    baseQueryParameters: {
-      types: [REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE],
-      relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
-    },
-    formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
-    baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
-  });
+  const combinedTaskSuggester = useSuggester('multiReferenceData', combinedTaskSuggesterOptions);
 
   const [selectedTask, setSelectedTask] = useState({});
 
@@ -191,13 +193,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-xzvu">
                 <Field
                   name="taskId"
-                  label={
-                    <TranslatedText
-                      stringId="encounter.task.task.label"
-                      fallback="Task"
-                      data-testid="translatedtext-5mtn"
-                    />
-                  }
+                  label={<TranslatedText stringId="encounter.task.task.label" fallback="Task" />}
                   component={AutocompleteField}
                   suggester={combinedTaskSuggester}
                   multiSection
@@ -214,7 +210,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.startTime.label"
                       fallback="Start date & time"
-                      data-testid="translatedtext-as4z"
                     />
                   }
                   required
@@ -230,7 +225,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.requestedBy.label"
                       fallback="Requested by"
-                      data-testid="translatedtext-qqag"
                     />
                   }
                   required
@@ -244,7 +238,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     <TranslatedText
                       stringId="encounter.task.requestTime.label"
                       fallback="Request date & time"
-                      data-testid="translatedtext-342j"
                     />
                   }
                   required
@@ -254,13 +247,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               </FormGrid>
               <Field
                 name="note"
-                label={
-                  <TranslatedText
-                    stringId="general.notes.label"
-                    fallback="Notes"
-                    data-testid="translatedtext-h0ro"
-                  />
-                }
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 minRows={4}
@@ -280,7 +267,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="task.frequency.label"
                         fallback="Frequency (if repeating task)"
-                        data-testid="translatedtext-o2sl"
                       />
                     }
                     min={0}
@@ -370,7 +356,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       <TranslatedText
                         stringId="encounter.task.highPriority.label"
                         fallback="High priority task"
-                        data-testid="translatedtext-fyjp"
                       />
                     </span>
                   }
@@ -386,13 +371,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             <FormSubmitCancelRow
               onCancel={onClose}
               onConfirm={submitForm}
-              confirmText={
-                <TranslatedText
-                  stringId="general.action.confirm"
-                  fallback="Confirm"
-                  data-testid="translatedtext-fdxl"
-                />
-              }
+              confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
               confirmDisabled={isCreatingTasks}
               data-testid="formsubmitcancelrow-jcmz"
             />
@@ -407,7 +386,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)), 
+              new Date(new Date().setHours(0, 0, 0, 0)),
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
