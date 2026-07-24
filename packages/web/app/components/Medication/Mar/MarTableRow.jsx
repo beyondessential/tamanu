@@ -71,7 +71,7 @@ const MedicationName = styled.span`
 `;
 
 const ViewChangeLink = styled.span`
-  color: ${Colors.darkestText};
+  color: ${p => p.theme.palette.text.primary};
   font-weight: 500;
   text-decoration: underline;
   cursor: pointer;
