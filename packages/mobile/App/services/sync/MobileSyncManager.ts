@@ -267,16 +267,37 @@ export class MobileSyncManager {
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
     console.log('MobileSyncManager.runSync(): Sync started');
 
-    await this.pushOutgoingChanges(sessionId, newSyncClockTime);
-    await this.pullIncomingChanges(sessionId);
-
-    await this.centralServer.endSyncSession(sessionId);
+    try {
+      await this.pushOutgoingChanges(sessionId, newSyncClockTime);
+      await this.pullIncomingChanges(sessionId);
+      await this.centralServer.endSyncSession(sessionId);
+    } catch (error) {
+      // notify central so its own alerting sees the failure immediately, rather than waiting for
+      // the session to time out there (mobile otherwise never reports a session's error to
+      // central, unlike facility servers, which already do this)
+      await this.reportSyncError(sessionId, error);
+      throw error;
+    }
 
     // clear persisted cache from this session
     await dropSnapshotTable();
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
+  }
+
+  /**
+   * Notify central that this sync session failed. Best-effort: a failure here (e.g. no
+   * connectivity) is logged and swallowed, since the sync itself has already failed and will
+   * retry on its normal schedule regardless.
+   */
+  async reportSyncError(sessionId: string, error: unknown): Promise<void> {
+    try {
+      const message = error instanceof Error ? error.message : String(error);
+      await this.centralServer.markSessionErrored(sessionId, message);
+    } catch (reportError) {
+      console.error('MobileSyncManager.reportSyncError(): Failed to report sync error', reportError);
+    }
   }
 
   /**
