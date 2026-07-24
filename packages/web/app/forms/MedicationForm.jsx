@@ -16,7 +16,6 @@ import * as yup from 'yup';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  DRUG_ROUTE_VALUES,
   FORM_TYPES,
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
@@ -34,6 +33,7 @@ import {
   DateField,
   DateTimeField,
   Dialog,
+  Field,
   Form,
   FormCancelButton,
   FormGrid,
@@ -52,9 +52,11 @@ import {
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import useDispensingUnit from '../api/queries/useDispensingUnit';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
+import { BodyText, CheckField, CheckInput, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { DispensingQuantityAutocalculator } from '../components/Medication/DispensingQuantityAutocalculator';
+import { prescriptionClinicalValidation } from '../components/Medication/prescriptionValidation';
 import PatientAllergiesWarning from '../components/PatientAllergiesWarning';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
@@ -69,51 +71,17 @@ import {
 import { foreignKey } from '../utils/validation';
 
 const validationSchema = yup.object().shape({
-  medicationId: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
+  // medicationId, doseAmount, frequency, route, durationValue, durationUnit
+  ...prescriptionClinicalValidation,
   isOngoing: yup.boolean().optional(),
   isPrn: yup.boolean().optional(),
-  doseAmount: yup
-    .number()
-    .positive()
-    .translatedLabel(
-      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
-    )
-    .when('isVariableDose', {
-      is: true,
-      then: schema => schema.optional(),
-      otherwise: schema =>
-        schema.required(
-          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-        ),
-    }),
   repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
-  frequency: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
-  route: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ).oneOf(DRUG_ROUTE_VALUES),
   date: yup
     .date()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   startDate: yup
     .date()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-  durationValue: yup
-    .number()
-    .positive()
-    .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
-  durationUnit: yup
-    .string()
-    .when('durationValue', (durationValue, schema) =>
-      durationValue
-        ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
-        : schema.optional(),
-    ),
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -620,6 +588,9 @@ export const MedicationForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
+  const isDispensingQuantityAutocalculationEnabled = getSetting(
+    'medications.dispensing.dispensingQuantityAutocalculation',
+  );
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
@@ -846,6 +817,7 @@ export const MedicationForm = ({
                         setFieldValue('route', referenceDrug?.route?.toLowerCase() || '');
                         setFieldValue('dosingUnit', referenceDrug?.dosingUnit || '');
                         setFieldValue('dispensingUnit', referenceDrug?.dispensingUnit || '');
+                        setFieldValue('unitConversion', referenceDrug?.unitConversion ?? 1);
                         setFieldValue('notes', referenceDrug?.notes || '');
                         handleChangeMedication(e);
                       }}
@@ -1140,6 +1112,9 @@ export const MedicationForm = ({
                 }
                 data-testid="medication-field-quantity-6j9m"
               />
+              {isDispensingQuantityAutocalculationEnabled && (
+                <DispensingQuantityAutocalculator enabled />
+              )}
               <Field
                 name="repeats"
                 label={

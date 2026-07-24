@@ -1,11 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { AutocompleteField, Field, TranslatedText, useSuggester } from '@tamanu/ui-components';
+import {
+  AutocompleteField,
+  Field,
+  ThemedTooltip,
+  TranslatedText,
+  useSuggester,
+} from '@tamanu/ui-components';
 import { NoteModalActionBlocker } from '../../../../components';
 
 const StyledField = styled(Field)`
   max-width: 500px;
+`;
+
+const ClampedText = styled.div`
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Note = styled.div`
@@ -48,7 +63,9 @@ export const DetailsCell = ({
           />
         </NoteModalActionBlocker>
       ) : (
-        detailsText
+        <ThemedTooltip title={detailsText}>
+          <ClampedText>{detailsText}</ClampedText>
+        </ThemedTooltip>
       )}
       {!isEditing && isSaved && item.note && (
         <Note>
