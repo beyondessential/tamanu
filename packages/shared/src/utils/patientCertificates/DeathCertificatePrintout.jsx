@@ -185,8 +185,14 @@ const AuthorisedAndSignSection = () => {
   );
 };
 
-const placeOfDeathAccessor = ({ facility }) => {
-  return facility?.name;
+const placeOfDeathAccessor = ({ facility, outsideHealthFacility }, { getTranslation }) => {
+  if (outsideHealthFacility) {
+    return getTranslation('death.outsideHealthFacility.label', 'Died outside health facility');
+  }
+  if (facility?.name) {
+    return facility.name;
+  }
+  return undefined;
 };
 
 const getCauseName = cause => cause?.condition?.name;
