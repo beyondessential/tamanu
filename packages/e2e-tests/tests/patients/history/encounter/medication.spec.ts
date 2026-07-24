@@ -76,6 +76,38 @@ test.describe('Medication - Encounter', () => {
     await expect(tableBody.getByRole('row').first()).toBeVisible();
   });
 
+  test('Auto-calculates dispensing quantity for a medication set member with a pack conversion', async ({
+    page,
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+
+    const medicationPane = await patientDetailsPage.navigateToMedicationTab();
+    await medicationPane.waitForPaneToLoad();
+
+    // Open the new-prescription flow and choose the medication-set path (the type modal appears
+    // because the seed data includes a medication set).
+    await page.getByRole('button', { name: 'New prescription' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByText('Medication set', { exact: true }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    // Select the seeded "Post-surgical set"; its members' dispensing quantities are calculated on
+    // selection and shown in the medications list on the right.
+    await dialog.getByText('Post-surgical set', { exact: true }).click();
+
+    // The set's Amoxicillin member dispenses in Blister Packs of 10 (unitConversion 10). A course of
+    // 1 capsule x Three times daily (3 doses/day) x 7 days = 21 capsules / 10 = ceil(2.1) = 3 packs.
+    // This exercises the medication set suggester carrying referenceDrug.unitConversion through to the
+    // client: a regression that drops it (the four-deep alias exceeding PostgreSQL's 63-byte limit and
+    // being silently truncated) falls back to a conversion of 1 and would show "21 Blister Packs".
+    await expect(dialog.getByText('Dispensing quantity: 3 Blister Packs')).toBeVisible();
+  });
+
   test('Send prescription to pharmacy', async ({ page, api, newPatient, patientDetailsPage }) => {
     test.setTimeout(60000);
 
