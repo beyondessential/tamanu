@@ -21,6 +21,22 @@ const useLocationSuggestion = locationId => {
   });
 };
 
+const locationSuggesterFormatterWithStatus = ({ name, id, locationGroup, availability }) => ({
+  value: id,
+  label: name,
+  locationGroup,
+  availability,
+  tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+});
+
+const locationSuggesterFormatterWithoutStatus = ({ name, id, locationGroup }) => ({
+  value: id,
+  label: name,
+  locationGroup,
+  availability: null,
+  tag: null,
+});
+
 export const LocationInput = React.memo(
   ({
     locationGroupLabel,
@@ -54,15 +70,9 @@ export const LocationInput = React.memo(
     const [groupId, setGroupId] = useState(groupValue);
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
-      formatter: ({ name, id, locationGroup, availability }) => {
-        return {
-          value: id,
-          label: name,
-          locationGroup,
-          availability: enableLocationStatus ? availability : null,
-          tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
-        };
-      },
+      formatter: enableLocationStatus
+        ? locationSuggesterFormatterWithStatus
+        : locationSuggesterFormatterWithoutStatus,
       baseQueryParameters: { facilityId, filterByFacility: true, locationGroupId: groupId },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
