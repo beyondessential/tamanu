@@ -1,23 +1,22 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
+/**
+ * Use raw `ALTER … DROP/SET NOT NULL` instead of `changeColumn`.; Sequelize's changeColumn re-emits
+ * full column definition including `ALTER COLUMN … TYPE VARCHAR(255)`. Even when the type is
+ * unchanged, Postgres rebuilds dependents and fails if a reporting view references the column.
+ */
 export async function up(queryInterface: QueryInterface): Promise<void> {
-  await queryInterface.changeColumn('prescriptions', 'dosing_unit', {
-    type: DataTypes.STRING,
-    allowNull: true,
-  });
-  await queryInterface.changeColumn('prescriptions', 'dispensing_unit', {
-    type: DataTypes.STRING,
-    allowNull: true,
-  });
+  await queryInterface.sequelize.query(`
+    ALTER TABLE prescriptions
+      ALTER COLUMN dosing_unit DROP NOT NULL,
+      ALTER COLUMN dispensing_unit DROP NOT NULL;
+  `);
 }
 
 export async function down(queryInterface: QueryInterface): Promise<void> {
-  await queryInterface.changeColumn('prescriptions', 'dosing_unit', {
-    type: DataTypes.STRING,
-    allowNull: false,
-  });
-  await queryInterface.changeColumn('prescriptions', 'dispensing_unit', {
-    type: DataTypes.STRING,
-    allowNull: false,
-  });
+  await queryInterface.sequelize.query(`
+    ALTER TABLE prescriptions
+      ALTER COLUMN dosing_unit SET NOT NULL,
+      ALTER COLUMN dispensing_unit SET NOT NULL;
+  `);
 }
