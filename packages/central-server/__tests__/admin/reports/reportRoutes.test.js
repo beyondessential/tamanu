@@ -57,6 +57,7 @@ describe('reportRoutes', () => {
     },
     status: 'draft',
     notes: 'test',
+    advancedConfig: null,
     userId: user.id,
   });
 
@@ -98,7 +99,7 @@ describe('reportRoutes', () => {
       const res = await adminApp.get(`/api/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(2);
-      expect(res.body.map((x) => x.id)).toEqual(expect.arrayContaining([v1.id, v2.id]));
+      expect(res.body.map(x => x.id)).toEqual(expect.arrayContaining([v1.id, v2.id]));
     });
     it('shouldnt return unnecessary metadata', async () => {
       const { ReportDefinitionVersion } = models;
@@ -117,7 +118,7 @@ describe('reportRoutes', () => {
         'active',
         'createdBy',
       ];
-      const additionalKeys = Object.keys(res.body[0]).filter((k) => !allowedKeys.includes(k));
+      const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
       expect(additionalKeys).toHaveLength(0);
     });
   });
@@ -172,6 +173,23 @@ describe('reportRoutes', () => {
           'queryOptions',
         ]),
       );
+    });
+
+    it('should persist a non-null advancedConfig', async () => {
+      const name = 'Test Report advancedConfig';
+      const { ReportDefinition, ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...definition } = getMockReportVersion(1, 'select 1');
+      const res = await adminApp
+        .post('/api/admin/reports')
+        .send({ name, dbSchema, ...definition, advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
+      expect(res).toHaveSucceeded();
+      const [report] = await ReportDefinition.findAll({ where: { name } });
+      const versions = await ReportDefinitionVersion.findAll({
+        where: { reportDefinitionId: report.id },
+      });
+      expect(versions).toHaveLength(1);
+      expect(versions[0].advancedConfig).toEqual({ dhis2DataSet: 'test-dataset-id' });
     });
   });
 
@@ -237,6 +255,7 @@ describe('reportRoutes', () => {
         dbSchema: 'raw',
         updatedAt: v1.updatedAt.toISOString(),
         deletedAt: null,
+        advancedConfig: null,
       });
     });
     it('should export a report as sql', async () => {
