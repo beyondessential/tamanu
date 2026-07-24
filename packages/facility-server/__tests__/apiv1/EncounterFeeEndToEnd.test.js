@@ -1,5 +1,5 @@
 import config from 'config';
-import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { createDummyPatient, createDummyTriage } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
@@ -98,6 +98,20 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
     return result.body;
   };
 
+  const createTriage = async (overrides) => {
+    const result = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        facilityId: facility.id,
+        departmentId: department.id,
+        locationId: edLocation.id,
+        practitionerId: user.id,
+        ...overrides,
+      }),
+    );
+    expect(result).toHaveSucceeded();
+    return result.body;
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
@@ -164,6 +178,19 @@ describe('Encounter & bed fees end-to-end (encounter routes)', () => {
       startDate: '2024-06-18 10:00:00',
     });
     const items = await invoiceItemsFor(encounter.id);
+    expect(items).toHaveLength(1);
+    expect(items[0].productId).toBe(edProduct.id);
+  });
+
+  it('adds the ED fee to a triage encounter created via the /api/triage route', async () => {
+    // The real ED path is POST /api/triage, which wires up the invoice + encounter fee separately
+    // from the generic encounter route. Exercise that wiring end-to-end.
+    const patient = await freshPatient();
+    const triageRecord = await createTriage({
+      patientId: patient.id,
+      triageTime: '2024-06-18 10:00:00', // Tue in-hours → ED standard fee
+    });
+    const items = await invoiceItemsFor(triageRecord.encounterId);
     expect(items).toHaveLength(1);
     expect(items[0].productId).toBe(edProduct.id);
   });
