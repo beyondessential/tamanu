@@ -7,6 +7,7 @@ import { facilityDefaults } from '@tamanu/settings';
 
 import { getServerFacilityIds } from '../serverConfig';
 
+import { BedFeeCharger } from './BedFeeCharger';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
@@ -21,6 +22,7 @@ const DEFAULT_TASK_CLASSES = [
   FhirMissingResources,
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
+  BedFeeCharger,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.

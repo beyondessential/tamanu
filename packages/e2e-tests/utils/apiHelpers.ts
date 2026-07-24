@@ -113,6 +113,7 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     departmentId: string;
     encounterType: string;
     examinerId: string;
+    facilityId: string;
     locationId: string;
     patientBillingTypeId: string;
     startDate: string;
@@ -144,6 +145,24 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     throw new Error(
       `Failed to create hospital admission encounter: ${response.status()} ${errorText}`,
     );
+  }
+
+  return response.json();
+};
+
+// Discharge = give the encounter an end date. An invoice can only be finalised once its encounter
+// has been discharged, so this is the arrange step for the finalisation journey.
+export const dischargeEncounterViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  endDate: string = new Date().toISOString().replace('T', ' ').substring(0, 19),
+) => {
+  const encounterUrl = constructFacilityUrl(`/api/encounter/${encounterId}`);
+  const response = await api.put(encounterUrl, { data: { endDate } });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to discharge encounter: ${response.status()} ${errorText}`);
   }
 
   return response.json();
@@ -196,22 +215,26 @@ export const createTriageEncounterViaApi = async (
 // TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createClinicEncounterViaApi = async (
   api: APIRequestContext,
+  page: Page,
   patientId: string,
   overrides: Partial<{
     departmentId: string;
     encounterType: string;
     examinerId: string;
+    facilityId: string;
     locationId: string;
     startDate: string;
   }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
 
   const encounterData = {
     departmentId: testData.departmentId,
     encounterType: 'clinic',
     examinerId: user.id,
+    facilityId,
     locationId: testData.locationId,
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),

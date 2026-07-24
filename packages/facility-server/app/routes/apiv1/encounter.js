@@ -89,12 +89,34 @@ encounter.post(
     await req.db.transaction(async () => {
       encounterObject = await models.Encounter.create({ ...encounterData, actorId: user.id });
 
-      await models.Invoice.automaticallyCreateForEncounter(
+      const invoice = await models.Invoice.automaticallyCreateForEncounter(
         encounterObject.id,
         encounterObject.encounterType,
         encounterObject.startDate,
         req.settings[facilityId],
       );
+      if (invoice) {
+        await models.Invoice.addEncounterFee(
+          encounterObject,
+          req.settings[facilityId],
+          getPrimaryTimeZone(config),
+        );
+        // Charge the admission night immediately; the nightly BedFeeCharger accrues later nights.
+        // The bed fee belongs to the bed's facility (its timezone, overnight-check time and rate),
+        // which may differ from the encounter's — so resolve settings from the location, matching
+        // the charger and the PUT recompute below.
+        const location = await models.Location.findByPk(encounterObject.locationId, {
+          attributes: ['facilityId'],
+        });
+        const facilitySettings = location && req.settings[location.facilityId];
+        if (facilitySettings) {
+          await models.Invoice.recalculateBedFee(
+            encounterObject,
+            facilitySettings,
+            getPrimaryTimeZone(config),
+          );
+        }
+      }
 
       if (data.dietIds) {
         const dietIds = JSON.parse(data.dietIds);
@@ -204,6 +226,29 @@ encounter.put(
       if (req.body.dietIds) {
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
+      }
+
+      // An admission (encounterType change), discharge (endDate) or ward move (locationId) changes
+      // the bed fee — recompute now so the nights land on the invoice immediately, rather than
+      // waiting for the next nightly BedFeeCharger run (which would miss them entirely if the
+      // invoice is finalised first).
+      if (
+        req.body.discharge ||
+        req.body.endDate != null ||
+        req.body.locationId != null ||
+        req.body.encounterType != null
+      ) {
+        const location = await models.Location.findByPk(encounterObject.locationId, {
+          attributes: ['facilityId'],
+        });
+        const facilitySettings = location && req.settings[location.facilityId];
+        if (facilitySettings) {
+          await models.Invoice.recalculateBedFee(
+            encounterObject,
+            facilitySettings,
+            getPrimaryTimeZone(config),
+          );
+        }
       }
     });
     res.send(encounterObject);
@@ -497,9 +542,33 @@ encounterRelations.get(
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
+      // The most recent pharmacy-modified fill per prescription, so the MAR can show the
+      // modification's pharmacy note and a "View change" link. The original prescription is
+      // never altered by dispensing modifications; the modified details live on the dispense.
+      const [latestModifiedDispenseRows] = await db.query(
+        `
+        SELECT DISTINCT ON (pop.prescription_id)
+          pop.prescription_id,
+          md.id,
+          md.pharmacy_notes AS "pharmacyNotes",
+          md.display_pharmacy_notes_in_mar AS "displayPharmacyNotesInMar",
+          md.modified_at AS "modifiedAt"
+        FROM medication_dispenses md
+        INNER JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND md.modified_at IS NOT NULL
+          AND md.deleted_at IS NULL
+          AND pop.deleted_at IS NULL
+        ORDER BY pop.prescription_id, md.dispensed_at DESC
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const latestModifiedDispenses = keyBy(latestModifiedDispenseRows, 'prescription_id');
+
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
+        latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
 

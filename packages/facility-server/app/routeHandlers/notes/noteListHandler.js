@@ -1,16 +1,42 @@
 import Sequelize, { Op, QueryTypes } from 'sequelize';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getDayBoundaries } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { order = 'ASC', orderBy, noteTypeId, rowsPerPage, page } = query;
+    const { order = 'ASC', orderBy, noteTypeId, search, authorId, fromDate, toDate, rowsPerPage, page } = query;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
+
+    // Convert the date-only filter boundaries into stored datetime strings in the
+    // primary timezone so they can be compared against the notes' stored dates.
+    // Use the authenticated session's facility (never a client-supplied id) to
+    // resolve the facility timezone.
+    let fromDateTime;
+    let toDateTime;
+    if (fromDate || toDate) {
+      const { facilityId } = req;
+      const facilityTimeZone = facilityId
+        ? await req.settings[facilityId]?.get('facilityTimeZone')
+        : undefined;
+      const primaryTimeZone = getPrimaryTimeZone(config);
+      if (fromDate) {
+        fromDateTime =
+          getDayBoundaries(fromDate, primaryTimeZone, facilityTimeZone)?.start ??
+          `${fromDate} 00:00:00`;
+      }
+      if (toDate) {
+        toDateTime =
+          getDayBoundaries(toDate, primaryTimeZone, facilityTimeZone)?.end ?? `${toDate} 23:59:59`;
+      }
+    }
 
     const include = [
       {
@@ -43,6 +69,42 @@ export const noteListHandler = recordType =>
       },
     ];
 
+    // Filtering happens after the edit chains have been resolved so that we never
+    // include an earlier revision of a note that was excluded on its latest one.
+    // The exception is the author filter, which intentionally matches against any
+    // revision in the chain (original author or anyone who edited it).
+    const filterClauses = [];
+    const replacements = { recordType, recordId };
+
+    if (noteTypeId) {
+      filterClauses.push('latest.note_type_id = :noteTypeId');
+      replacements.noteTypeId = noteTypeId;
+    }
+    if (search) {
+      // Escape ILIKE wildcards (\ % _) so the user's input is matched literally
+      // rather than treated as a pattern (backslash is Postgres' default LIKE escape).
+      const escapedSearch = search.replace(/[\\%_]/g, '\\$&');
+      filterClauses.push('latest.content ILIKE :search');
+      replacements.search = `%${escapedSearch}%`;
+    }
+    if (authorId) {
+      // Match if the selected user authored or edited any revision in the chain,
+      // whether as the author or on behalf of another user.
+      filterClauses.push(`latest.edit_chain IN (
+        SELECT edit_chain FROM this_record_notes
+        WHERE author_id = :authorId OR on_behalf_of_id = :authorId
+      )`);
+      replacements.authorId = authorId;
+    }
+    if (fromDateTime) {
+      filterClauses.push('roots.root_date >= :fromDateTime');
+      replacements.fromDateTime = fromDateTime;
+    }
+    if (toDateTime) {
+      filterClauses.push('roots.root_date <= :toDateTime');
+      replacements.toDateTime = toDateTime;
+    }
+
     const idRows = await models.Note.sequelize.query(
       `
       WITH
@@ -57,32 +119,39 @@ export const noteListHandler = recordType =>
         WHERE record_type = :recordType
           AND record_id = :recordId
           AND deleted_at IS NULL
+      ),
+
+      -- keep only the latest revision for each note (the currently visible content)
+      latest AS (
+        SELECT DISTINCT ON (edit_chain)
+          id, edit_chain, content, note_type_id
+        FROM this_record_notes
+        ORDER BY edit_chain, date DESC
+      ),
+
+      -- the root (original) note of each chain, used for chronological date filtering
+      roots AS (
+        SELECT edit_chain, date AS root_date
+        FROM this_record_notes
+        WHERE revised_by_id IS NULL
       )
 
-      -- now filter out anything except the latest revision for each note
-      SELECT DISTINCT ON (edit_chain)
-        id
-      FROM this_record_notes n
-      ORDER BY edit_chain, date DESC
+      SELECT latest.id
+      FROM latest
+      LEFT JOIN roots ON roots.edit_chain = latest.edit_chain
+      ${filterClauses.length ? `WHERE ${filterClauses.join('\n        AND ')}` : ''}
     `,
       {
         type: QueryTypes.SELECT,
-        replacements: {
-          recordType,
-          recordId,
-        },
+        replacements,
       },
     );
 
-    // any other filtering should happen after the edits have been determined
-    // (if we do it all in the same step, we risk including earlier versions of
-    // a record that was excluded later, which we absolutely do not want)
     const where = {
       id: {
         [Op.in]: idRows.map(x => x.id),
       },
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      ...(noteTypeId ? { noteTypeId } : {}),
     };
 
     const queryOrder = orderBy

@@ -4321,6 +4321,42 @@
     {
       "invoiceProductId": "invoiceProduct-xRayImagingArea-FacialBones",
       "invoicePriceList-1": 98
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeStandard",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeAfterHours",
+      "invoicePriceList-1": 80
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeWeekend",
+      "invoicePriceList-1": 120
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeEmergencyStandard",
+      "invoicePriceList-1": 150
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeEmergencyAfterHours",
+      "invoicePriceList-1": 200
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeeEmergencyWeekend",
+      "invoicePriceList-1": 250
+    },
+    {
+      "invoiceProductId": "invoiceProduct-encounterFeePharmacy",
+      "invoicePriceList-1": 25
+    },
+    {
+      "invoiceProductId": "invoiceProduct-bedFeeWard1Bed1",
+      "invoicePriceList-1": 200
+    },
+    {
+      "invoiceProductId": "invoiceProduct-bedFeeWard2Bed1",
+      "invoicePriceList-1": 300
     }
   ]
 }

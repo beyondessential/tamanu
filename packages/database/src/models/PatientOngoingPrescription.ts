@@ -78,6 +78,12 @@ export class PatientOngoingPrescription extends Model {
   ) {
     const { models } = this.sequelize;
 
+    /*
+     * Empty string and NULL both mean unitless — legacy rows may still store ''. (Motivation was
+     * to avoid migrating legacy data from '' to NULL when the attribute was made nullable.)
+     */
+    const dosingUnit = prescription.dosingUnit ? prescription.dosingUnit : { [Op.or]: [null, ''] };
+
     return this.findOne({
       where: {
         patientId: patientId,
@@ -89,7 +95,7 @@ export class PatientOngoingPrescription extends Model {
           where: {
             medicationId: prescription.medicationId,
             doseAmount: prescription.doseAmount,
-            dosingUnit: prescription.dosingUnit,
+            dosingUnit,
             route: prescription.route,
             frequency: prescription.frequency,
             discontinued: {

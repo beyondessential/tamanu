@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@mui/icons-material/Edit';
+
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { TranslatedText } from '@tamanu/ui-components';
+import { getMedicationDoseDisplay, getTranslatedFrequency, getDrugUnitLabel } from '@tamanu/shared/utils/medication';
+
 import { Colors } from '../../constants/styles';
 import { BodyText, Heading4, SmallBodyText } from '..';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -153,7 +155,10 @@ export const MedicationSetMedicationsList = ({
           durationValue,
           isPrn,
           isOngoing,
+          quantity,
+          dispensingUnit,
         } = medication;
+        const hasQuantity = quantity !== null && quantity !== undefined && quantity !== '';
         return (
           <div key={medicationRef.id}>
             <MedicationListItem>
@@ -186,6 +191,20 @@ export const MedicationSetMedicationsList = ({
                   .filter(Boolean)
                   .join(', ')}
               </BodyText>
+              {hasQuantity && (
+                <BodyText color={Colors.midText}>
+                  <TranslatedText
+                    stringId="medication.dispensingQuantity.summary"
+                    fallback="Dispensing quantity: :quantity :unit"
+                    replacements={{
+                      quantity,
+                      unit: dispensingUnit
+                        ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                        : '',
+                    }}
+                  />
+                </BodyText>
+              )}
               {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
               {editable && (
                 <>

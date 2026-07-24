@@ -21,6 +21,7 @@ import {
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
+  NOTIFICATION_TYPES,
   REFERENCE_TYPES,
   DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
@@ -134,8 +135,8 @@ medication.post(
       const prescription = await Prescription.create(
         {
           ...data,
-          dosingUnit: referenceDrug?.dosingUnit ?? '',
-          dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+          dosingUnit: referenceDrug?.dosingUnit || null,
+          dispensingUnit: referenceDrug?.dispensingUnit || null,
           unitConversion: referenceDrug?.unitConversion ?? 1,
         },
         { transaction },
@@ -163,8 +164,8 @@ const createEncounterPrescription = async ({ encounter, data, models, settings }
   const prescription = await Prescription.create({
     ...data,
     id: undefined,
-    dosingUnit: referenceDrug?.dosingUnit ?? '',
-    dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+    dosingUnit: referenceDrug?.dosingUnit || null,
+    dispensingUnit: referenceDrug?.dispensingUnit || null,
     unitConversion: referenceDrug?.unitConversion ?? 1,
   });
   await EncounterPrescription.create({
@@ -567,13 +568,20 @@ medication.post(
       );
 
       // Automatically add an invoice
-      await models.Invoice.automaticallyCreateForEncounter(
+      const invoice = await models.Invoice.automaticallyCreateForEncounter(
         encounter.id,
         encounter.encounterType,
         encounter.startDate,
         facilitySettings,
         { transaction },
       );
+      if (invoice) {
+        await models.Invoice.addEncounterFee(
+          encounter,
+          facilitySettings,
+          getPrimaryTimeZone(config),
+        );
+      }
 
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];
@@ -2076,11 +2084,6 @@ medication.get(
       required: true,
     };
 
-    // Prescription filters
-    const prescriptionFilters = mapQueryFilters(filterParams, [
-      { key: 'medicationId', operator: Op.eq },
-    ]);
-
     const pharmacyOrderPrescriptionFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestNumber',
@@ -2102,6 +2105,8 @@ medication.get(
         },
       },
       { key: 'dispensedByUserId', operator: Op.eq },
+      // The dispensed medication (may differ from the prescription's when modified by pharmacy)
+      { key: 'medicationId', operator: Op.eq },
     ]);
 
     // Query MedicationDispense with all associations
@@ -2128,7 +2133,6 @@ medication.get(
             },
             {
               association: 'prescription',
-              where: prescriptionFilters,
               attributes: [
                 'id',
                 'date',
@@ -2174,6 +2178,28 @@ medication.get(
           attributes: ['id', 'code', 'name'],
           required: false,
         },
+        // The dispensed medication for this fill (differs from the prescription's when modified)
+        {
+          association: 'medication',
+          attributes: ['id', 'name', 'type'],
+          required: false,
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['id', 'isSensitive'],
+            required: false,
+          },
+        },
+        {
+          association: 'modifiedBy',
+          attributes: ['id', 'displayName'],
+          required: false,
+        },
+        {
+          association: 'modifiedReason',
+          attributes: ['id', 'name'],
+          required: false,
+        },
       ],
       attributes: [
         'id',
@@ -2182,14 +2208,36 @@ medication.get(
         'dispensedByUserId',
         'instructions',
         'medicationPresetLabelId',
+        'medicationId',
+        'isVariableDose',
+        'doseAmount',
+        'dosingUnit',
+        'dispensingUnit',
+        'frequency',
+        'route',
+        'durationValue',
+        'durationUnit',
+        'pharmacyNotes',
+        'displayPharmacyNotesInMar',
+        'modifiedById',
+        'modifiedReasonId',
+        'modifiedAt',
       ],
       where: {
         [Op.and]: [
           ...(rootFilter[Op.and] || []),
           ...(!canViewSensitiveMedications
             ? [
+                // Both the originally prescribed and the actually dispensed medication must be
+                // non-sensitive, so a substitution to a sensitive drug stays hidden too.
                 {
                   '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+                {
+                  [Op.or]: [
+                    { '$medication.referenceDrug.is_sensitive$': false },
+                    { medicationId: null },
+                  ],
                 },
               ]
             : []),
@@ -2221,7 +2269,13 @@ medication.get(
 
     // Temporary fix to get reference drug data due limit of column characters in postgres
     const medicationIds = [
-      ...new Set(data.map(item => item.pharmacyOrderPrescription.prescription.medication.id)),
+      ...new Set(
+        data.flatMap(item =>
+          [item.medicationId, item.pharmacyOrderPrescription.prescription.medication.id].filter(
+            Boolean,
+          ),
+        ),
+      ),
     ];
 
     const referenceDrugs = await models.ReferenceDrug.findAll({
@@ -2263,6 +2317,9 @@ medication.get(
       const referenceDrug = referenceDrugs.find(
         r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
       );
+      const dispensedReferenceDrug = item.medicationId
+        ? referenceDrugs.find(r => r.referenceDataId === item.medicationId)
+        : null;
 
       // Manually set medicationDispenses for getRemainingRepeats calculation
       // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
@@ -2272,6 +2329,15 @@ medication.get(
 
       return {
         ...item.toJSON(),
+        ...(item.medication
+          ? {
+              medication: {
+                ...item.medication.toJSON(),
+                referenceDrug: dispensedReferenceDrug,
+              },
+            }
+          : {}),
+        isModified: Boolean(item.modifiedAt),
         pharmacyOrderPrescription: {
           ...item.pharmacyOrderPrescription.toJSON(),
           prescription: {
@@ -2332,6 +2398,87 @@ medication.delete(
   }),
 );
 
+// Returns the original prescription details alongside what this fill was actually dispensed with,
+// for the modify-history modal. Original = the (untouched) prescription + the requested quantity
+// on the pharmacy order prescription; current = the dispense row's own dispensed details.
+medication.get(
+  '/medication-dispenses/:id/modify-history',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationDispense } = models;
+
+    req.checkPermission('read', 'MedicationDispense');
+
+    const dispense = await MedicationDispense.findByPk(params.id, {
+      include: [
+        { association: 'medication', attributes: ['id', 'name', 'type'] },
+        { association: 'modifiedBy', attributes: ['id', 'displayName'] },
+        { association: 'modifiedReason', attributes: ['id', 'name'] },
+        {
+          association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'quantity'],
+          include: [
+            {
+              association: 'prescription',
+              include: [
+                { association: 'medication', attributes: ['id', 'name', 'type'] },
+                { association: 'prescriber', attributes: ['id', 'displayName'] },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    if (!dispense) {
+      throw new NotFoundError(`Medication dispense with id ${params.id} not found`);
+    }
+
+    const prescription = dispense.pharmacyOrderPrescription?.prescription;
+    await checkSensitiveMedicationPermission(
+      [prescription?.medicationId, dispense.medicationId].filter(Boolean),
+      req,
+      'read',
+    );
+
+    res.send({
+      original: prescription
+        ? {
+            medication: prescription.medication,
+            isVariableDose: prescription.isVariableDose,
+            doseAmount: prescription.doseAmount,
+            dosingUnit: prescription.dosingUnit,
+            dispensingUnit: prescription.dispensingUnit,
+            frequency: prescription.frequency,
+            route: prescription.route,
+            durationValue: prescription.durationValue,
+            durationUnit: prescription.durationUnit,
+            notes: prescription.notes,
+            pharmacyNotes: prescription.pharmacyNotes,
+            quantity: dispense.pharmacyOrderPrescription.quantity,
+            prescriber: prescription.prescriber,
+          }
+        : null,
+      current: {
+        medication: dispense.medication,
+        isVariableDose: dispense.isVariableDose,
+        doseAmount: dispense.doseAmount,
+        dosingUnit: dispense.dosingUnit,
+        dispensingUnit: dispense.dispensingUnit,
+        frequency: dispense.frequency,
+        route: dispense.route,
+        durationValue: dispense.durationValue,
+        durationUnit: dispense.durationUnit,
+        notes: dispense.instructions,
+        pharmacyNotes: dispense.pharmacyNotes,
+        quantity: dispense.quantity,
+        modifiedBy: dispense.modifiedBy,
+        modifiedReason: dispense.modifiedReason,
+        modifiedAt: dispense.modifiedAt,
+      },
+    });
+  }),
+);
+
 const dispensableMedicationsQuerySchema = z
   .object({
     patientId: z.string().min(1),
@@ -2377,16 +2524,20 @@ medication.get(
           association: 'prescription',
           attributes: [
             'id',
+            'medicationId',
             'doseAmount',
             'dosingUnit',
             'dispensingUnit',
+            'unitConversion',
             'frequency',
             'route',
             'durationValue',
             'durationUnit',
             'indication',
             'notes',
+            'pharmacyNotes',
             'isVariableDose',
+            'isOngoing',
             'date',
           ],
           required: true,
@@ -2477,17 +2628,52 @@ medication.get(
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
+        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication?.id],
       })),
     });
   }),
 );
+
+// Pharmacy's modification of the prescription for this fill. When present, these values are
+// dispensed (and recorded on the medication_dispense) instead of the prescription's; the original
+// prescription itself is never altered.
+const dispenseModificationSchema = z
+  .object({
+    medicationId: z.string(),
+    isVariableDose: z.boolean().optional().nullable(),
+    doseAmount: z.coerce.number().positive().optional().nullable(),
+    // Dosing/dispensing units are not client-supplied — they resolve from the (possibly
+    // substituted) drug's reference data, same as prescription creation.
+    frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
+    route: z.enum(Object.values(DRUG_ROUTES)),
+    durationValue: z.coerce.number().positive().optional().nullable(),
+    durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
+    pharmacyNotes: z.string().optional().nullable(),
+    modifiedReasonId: z.string(),
+    modifiedById: z.string(),
+  })
+  .strip()
+  .superRefine((val, ctx) => {
+    if (!val.isVariableDose && !val.doseAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Dose amount is required unless the dose is variable',
+      });
+    }
+    if (Boolean(val.durationValue) !== Boolean(val.durationUnit)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration value and unit must be provided together',
+      });
+    }
+  });
 
 const dispenseItemSchema = z.object({
   pharmacyOrderPrescriptionId: z.uuid(),
   quantity: z.coerce.number().int().positive(),
   instructions: z.string().min(1),
   medicationPresetLabelId: z.string().min(1).nullish(),
+  modification: dispenseModificationSchema.nullish(),
 });
 
 const dispenseInputSchema = z
@@ -2498,6 +2684,66 @@ const dispenseInputSchema = z
   })
   .strip();
 
+// Builds the details a single fill is dispensed with: the prescription's values by default, or
+// pharmacy's modification when one was made. The original prescription is never altered. When a
+// modification substitutes the drug, its dosing/dispensing units come from the substituted drug's
+// reference data (via unitsByMedicationId), not from the client — same as prescription creation.
+const buildDispensedDetails = (item, prescription, unitsByMedicationId, dispensedAt) => {
+  const { modification } = item;
+  if (!modification) {
+    return {
+      medicationId: prescription.medicationId,
+      isVariableDose: prescription.isVariableDose ?? false,
+      doseAmount: prescription.doseAmount,
+      dosingUnit: prescription.dosingUnit,
+      dispensingUnit: prescription.dispensingUnit,
+      frequency: prescription.frequency,
+      route: prescription.route,
+      durationValue: prescription.durationValue,
+      durationUnit: prescription.durationUnit,
+      pharmacyNotes: prescription.pharmacyNotes ?? null,
+      displayPharmacyNotesInMar: prescription.displayPharmacyNotesInMar ?? false,
+    };
+  }
+
+  const substitutedUnits =
+    modification.medicationId !== prescription.medicationId
+      ? unitsByMedicationId.get(modification.medicationId)
+      : null;
+  return {
+    medicationId: modification.medicationId,
+    isVariableDose: modification.isVariableDose ?? false,
+    doseAmount: modification.isVariableDose ? null : modification.doseAmount,
+    dosingUnit: substitutedUnits?.dosingUnit ?? prescription.dosingUnit,
+    dispensingUnit: substitutedUnits?.dispensingUnit ?? prescription.dispensingUnit,
+    frequency: modification.frequency,
+    route: modification.route,
+    durationValue: modification.durationValue ?? null,
+    durationUnit: modification.durationUnit ?? null,
+    pharmacyNotes: modification.pharmacyNotes ?? null,
+    // Pharmacy notes for a modified fill always display on the MAR
+    displayPharmacyNotesInMar: true,
+    modifiedById: modification.modifiedById,
+    modifiedReasonId: modification.modifiedReasonId,
+    modifiedAt: dispensedAt,
+  };
+};
+
+// Notifies the original prescriber about modified fills (the pharmacy note hint in the modal
+// promises this). With the prescription untouched, the Prescription.afterUpdate pharmacy-note hook
+// never fires, so push the notification explicitly.
+const notifyPrescriberOfModifications = async (items, prescriptionsByPopId, models, transaction) => {
+  for (const item of items) {
+    if (!item.modification) continue;
+    const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
+    await models.Notification.pushNotification(
+      NOTIFICATION_TYPES.PHARMACY_NOTE,
+      { ...prescription.dataValues, pharmacyNotes: item.modification.pharmacyNotes },
+      { transaction },
+    );
+  }
+};
+
 medication.post(
   '/dispense',
   asyncHandler(async (req, res) => {
@@ -2506,6 +2752,12 @@ medication.post(
     req.checkPermission('create', 'MedicationDispense');
 
     const { dispensedByUserId, facilityId, items } = await dispenseInputSchema.parseAsync(req.body);
+
+    // Modifying the prescription details for a fill is a write on the dispense record,
+    // over and above the permission to dispense as prescribed.
+    if (items.some(item => item.modification)) {
+      req.checkPermission('write', 'MedicationDispense');
+    }
 
     const { User, MedicationDispense, PharmacyOrderPrescription } = models;
 
@@ -2527,7 +2779,22 @@ medication.post(
         include: [
           {
             association: 'prescription',
-            attributes: ['id', 'medicationId'],
+            attributes: [
+              'id',
+              'medicationId',
+              'isVariableDose',
+              'doseAmount',
+              'dosingUnit',
+              'dispensingUnit',
+              'frequency',
+              'route',
+              'durationValue',
+              'durationUnit',
+              'pharmacyNotes',
+              'displayPharmacyNotesInMar',
+              // Needed by the pharmacy-note notification to resolve the recipient prescriber
+              'prescriberId',
+            ],
             required: true,
           },
           {
@@ -2554,8 +2821,15 @@ medication.post(
         },
       });
 
+      // Includes any substituted medications from modifications, so dispensing a sensitive drug
+      // via modification is permission-checked the same as dispensing it directly.
       await checkSensitiveMedicationPermission(
-        prescriptionRecords.map(r => r.prescription.medicationId),
+        [
+          ...new Set([
+            ...prescriptionRecords.map(r => r.prescription.medicationId),
+            ...items.map(item => item.modification?.medicationId).filter(Boolean),
+          ]),
+        ],
         req,
         'read',
       );
@@ -2576,7 +2850,13 @@ medication.post(
         throw new InvalidOperationError(`All prescriptions must be part of the same patient`);
       }
 
-      const medicationIds = prescriptionRecords.map(r => r.prescription.medicationId);
+      // Substituted medications from modifications are stock-checked too.
+      const medicationIds = [
+        ...new Set([
+          ...prescriptionRecords.map(r => r.prescription.medicationId),
+          ...items.map(item => item.modification?.medicationId).filter(Boolean),
+        ]),
+      ];
 
       const unavailableMedications = await models.ReferenceDrugFacility.findAll({
         attributes: ['referenceDrugId'],
@@ -2620,18 +2900,52 @@ medication.post(
         );
       }
 
-      // Create dispense records
+      // Create dispense records. Each fill records the details it was actually dispensed with:
+      // the prescription's values by default, or pharmacy's modification when one was made.
+      // The original prescription is never altered.
+      const prescriptionsByPopId = new Map(prescriptionRecords.map(r => [r.id, r.prescription]));
+
+      // When a modification substitutes the drug, its dosing/dispensing units come from the
+      // substituted drug's reference data (same as prescription creation) — not from the client.
+      const substitutedMedicationIds = [
+        ...new Set(
+          items
+            .filter(item => {
+              const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
+              return (
+                item.modification && item.modification.medicationId !== prescription?.medicationId
+              );
+            })
+            .map(item => item.modification.medicationId),
+        ),
+      ];
+      const substitutedReferenceDrugs = substitutedMedicationIds.length
+        ? await models.ReferenceDrug.findAll({
+            where: { referenceDataId: { [Op.in]: substitutedMedicationIds } },
+            attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit'],
+          })
+        : [];
+      const unitsByMedicationId = new Map(
+        substitutedReferenceDrugs.map(drug => [drug.referenceDataId, drug]),
+      );
+
       const dispenseRecords = await MedicationDispense.bulkCreate(
-        items.map(item => ({
-          pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
-          quantity: item.quantity,
-          instructions: item.instructions,
-          medicationPresetLabelId: item.medicationPresetLabelId ?? null,
-          dispensedByUserId,
-          dispensedAt,
-        })),
+        items.map(item => {
+          const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
+          return {
+            pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
+            quantity: item.quantity,
+            instructions: item.instructions,
+            medicationPresetLabelId: item.medicationPresetLabelId ?? null,
+            dispensedByUserId,
+            dispensedAt,
+            ...buildDispensedDetails(item, prescription, unitsByMedicationId, dispensedAt),
+          };
+        }),
         { transaction },
       );
+
+      await notifyPrescriberOfModifications(items, prescriptionsByPopId, models, transaction);
 
       // After dispensing, mark all dispensed prescriptions as completed so they disappear from the medication requests list.
       if (prescriptionRecords.length > 0) {

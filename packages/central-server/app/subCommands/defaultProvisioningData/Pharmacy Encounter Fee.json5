@@ -1,0 +1,17 @@
+{
+  "sheetName": "Pharmacy Encounter Fee",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "pharmacyEncounterFee-standard",
+      "code": "encounterFeePharmacy",
+      "name": "Pharmacy encounter fee",
+      "visibilityStatus": "current"
+    }
+  ]
+}

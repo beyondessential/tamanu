@@ -99,6 +99,13 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "bedFeeCharger": {
+      // hourly; recompute is idempotent so a new night lands within an hour of each
+      // facility's local overnight-check time
+      "schedule": "0 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "fhirMissingResources": {
       "enabled": false,
       "schedule": "48 1 * * *" // once a day (better in off hours)

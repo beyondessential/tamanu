@@ -310,12 +310,59 @@ export const facilitySettings = {
       name: 'Invoicing',
       description: 'Settings for automatically adding fees to invoices',
       properties: {
+        encounterFee: {
+          name: 'Automatic encounter fee',
+          description: 'Automatic encounter fee for outpatient and emergency encounters',
+          properties: {
+            standardHoursStart: {
+              name: 'Outpatient standard hours start',
+              description:
+                'Start of standard (in-hours) time on weekdays for outpatient encounters. 24-hour time, e.g. 08:00. Weekday encounters starting outside standard hours get the after-hours fee; weekend encounters get the weekend fee.',
+              type: datelessTimeStringSchema,
+              defaultValue: '08:00',
+            },
+            standardHoursEnd: {
+              name: 'Outpatient standard hours end',
+              description:
+                'End of standard (in-hours) time on weekdays for outpatient encounters. 24-hour time, e.g. 17:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+            emergencyStandardHoursStart: {
+              name: 'Emergency standard hours start',
+              description:
+                'Start of standard (in-hours) time on weekdays for emergency (ED) encounters. 24-hour time, e.g. 08:00. Weekday ED encounters starting outside standard hours get the after-hours ED fee; weekend ED encounters get the weekend ED fee.',
+              type: datelessTimeStringSchema,
+              defaultValue: '08:00',
+            },
+            emergencyStandardHoursEnd: {
+              name: 'Emergency standard hours end',
+              description:
+                'End of standard (in-hours) time on weekdays for emergency (ED) encounters. 24-hour time, e.g. 17:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+          },
+        },
         inpatientAutoInvoicingExclusions: {
           name: 'Inpatient auto-invoicing exclusions',
           description:
             'Item categories excluded from automatic invoicing for admission encounters (covered by the admission fee), so they are not auto-added to an admission invoice. Still auto-added for outpatient/ER; discharge medications are always invoiced. Allowed values: imaging, lab, medication.',
           type: yup.array().of(yup.string().oneOf(INPATIENT_BUNDLED_CATEGORY_VALUES)),
           defaultValue: [],
+        },
+        bedFee: {
+          name: 'Bed fee',
+          description: 'Per-night inpatient bed fee',
+          properties: {
+            overnightChargeTime: {
+              name: 'Overnight charge time',
+              description:
+                'Facility-local time each night when a bed fee is charged for still-admitted patients. 24-hour time, e.g. 02:00.',
+              type: datelessTimeStringSchema,
+              defaultValue: '02:00',
+            },
+          },
         },
       },
     },

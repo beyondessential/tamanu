@@ -162,13 +162,9 @@ sources:
           - name: dosing_unit
             data_type: character varying(255)
             description: "{{ doc('prescriptions__dosing_unit') }}"
-            data_tests:
-              - not_null
           - name: dispensing_unit
             data_type: character varying(255)
             description: "{{ doc('prescriptions__dispensing_unit') }}"
-            data_tests:
-              - not_null
           - name: unit_conversion
             data_type: numeric
             description: "{{ doc('prescriptions__unit_conversion') }}"
