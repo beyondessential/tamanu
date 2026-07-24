@@ -307,18 +307,23 @@ user.get(
               ...(hasMedicationPermission ? [{ 
                 [Op.and]: [
                   { taskType: TASK_TYPES.MEDICATION_DUE_TASK },
-                  // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused
+                  // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused.
+                  // Driven from encounter_prescriptions filtered by encounter_id (few rows for this
+                  // encounter) rather than from medication_administration_records by due_at (every MAR at
+                  // that time across all patients), so the MAR probe uses its
+                  // (prescription_id, due_at, status) index instead of a global scan. prescriptions is only
+                  // a bridge between mar.prescription_id and ep.prescription_id, so it is joined directly.
                   Sequelize.literal(`
                     EXISTS (
                       SELECT 1
-                      FROM medication_administration_records mar
-                      INNER JOIN prescriptions p ON p.id = mar.prescription_id
-                      INNER JOIN encounter_prescriptions ep ON ep.prescription_id = p.id
-                      CROSS JOIN LATERAL get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot
-                      WHERE ep.encounter_id = "Task"."encounter_id"
+                      FROM encounter_prescriptions ep
+                      INNER JOIN medication_administration_records mar
+                        ON mar.prescription_id = ep.prescription_id
                         AND mar.due_at = "Task"."due_time"
                         AND mar.status IS NULL
                         AND mar.deleted_at IS NULL
+                      CROSS JOIN LATERAL get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot
+                      WHERE ep.encounter_id = "Task"."encounter_id"
 
                         -- Check if MAR is not currently paused
                         AND NOT EXISTS (
