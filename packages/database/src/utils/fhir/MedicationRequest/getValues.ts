@@ -206,6 +206,10 @@ function getFrequencyPeriodUnit(prescription: Prescription) {
       return { periodUnit: 'h', frequency: 1, period: 6 };
     case ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS:
       return { periodUnit: 'h', frequency: 1, period: 8 };
+    case ADMINISTRATION_FREQUENCIES.HOURLY:
+      return { periodUnit: 'h', frequency: 1, period: 1 };
+    case ADMINISTRATION_FREQUENCIES.HALF_HOURLY:
+      return { periodUnit: 'min', frequency: 1, period: 30 };
     case ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY:
       return { periodUnit: 'd', frequency: 1, period: 2 };
     case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
