@@ -33,6 +33,7 @@ import {
   DateField,
   DateTimeField,
   Dialog,
+  Field,
   Form,
   FormCancelButton,
   FormGrid,
@@ -51,7 +52,7 @@ import {
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import useDispensingUnit from '../api/queries/useDispensingUnit';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { BodyText, CheckField, CheckInput, Field, SmallBodyText } from '../components';
+import { BodyText, CheckField, CheckInput, SmallBodyText } from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
 import { prescriptionClinicalValidation } from '../components/Medication/prescriptionValidation';

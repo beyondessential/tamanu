@@ -1669,6 +1669,85 @@ describe('Medication', () => {
     });
   });
 
+describe('findPatientOngoingPrescriptionWithSameDetails', () => {
+    const createUnitlessOngoing = async dosingUnit => {
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const ongoingPrescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          doseAmount: 5,
+          dosingUnit,
+          dispensingUnit: dosingUnit,
+          route: 'oral',
+          frequency: 'daily',
+          isOngoing: true,
+          discontinued: false,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.PatientOngoingPrescription.create({
+        patientId: patient.id,
+        prescriptionId: ongoingPrescription.id,
+      });
+      return { medication, ongoingPrescription };
+    };
+
+    it('should match a legacy empty-string unitless ongoing prescription with a null unitless one', async () => {
+      const { medication, ongoingPrescription } = await createUnitlessOngoing('');
+
+      const match = await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+        patient.id,
+        {
+          medicationId: medication.id,
+          doseAmount: ongoingPrescription.doseAmount,
+          dosingUnit: null,
+          route: ongoingPrescription.route,
+          frequency: ongoingPrescription.frequency,
+        },
+      );
+
+      expect(match).toBeTruthy();
+      expect(match.prescriptionId).toBe(ongoingPrescription.id);
+    });
+
+    it('should match a null unitless ongoing prescription with an empty-string unitless one', async () => {
+      const { medication, ongoingPrescription } = await createUnitlessOngoing(null);
+
+      const match = await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+        patient.id,
+        {
+          medicationId: medication.id,
+          doseAmount: ongoingPrescription.doseAmount,
+          dosingUnit: '',
+          route: ongoingPrescription.route,
+          frequency: ongoingPrescription.frequency,
+        },
+      );
+
+      expect(match).toBeTruthy();
+      expect(match.prescriptionId).toBe(ongoingPrescription.id);
+    });
+
+    it('should not match a unitless prescription against one with a dosing unit', async () => {
+      const { medication, ongoingPrescription } = await createUnitlessOngoing('');
+
+      const match = await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+        patient.id,
+        {
+          medicationId: medication.id,
+          doseAmount: ongoingPrescription.doseAmount,
+          dosingUnit: 'mg',
+          route: ongoingPrescription.route,
+          frequency: ongoingPrescription.frequency,
+        },
+      );
+
+      expect(match).toBeNull();
+    });
+  });
+
   describe('PUT /api/medication/medication-administration-record/:id', () => {
     const createMar = async () => {
       const medication = await models.ReferenceData.create(
