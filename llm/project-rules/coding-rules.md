@@ -45,7 +45,7 @@ Readability is the highest priority. Every line of code is read many times over 
 ### Frontend
 
 - **Never put interaction event handlers on static elements.** For navigation, prefer `<a>` with an `href` attribute (or abstractions of it like `<Link>`). In other cases, use a semantic `<button>`. e.g. A `<div>` or `<span>` should never have an `onClick` handler.
-- **Huge modules.** React function components should be small and composable. If a component’s function body reaches 400 lines, consider how it can be decomposed into smaller components.
+- **Huge modules.** React function components should be small and composable. There is no hard threshold; but if a component reaches 400 lines it is too big, and likely has at least a few opportunities to be split into manageable parts.
 - **Effects.** Unless syncing React state with an external store, an Effect is almost certainly the wrong tool. If simply exploiting that Effects run when a dependency changes, consider how it can be achieved within the React render lifecycle. e.g. `const [prev, setPrev] = useState(); if (curr !== prev) respondToPropChange();`. Effects are a last resort.
 - **Avoid props that mirror ARIA roles.** e.g. Prefer `aria-expanded` over a custom `isExpanded` prop.
 - **Be judicious with transient props.** For ad-hoc styling, prefer providing an inline `style` over a custom transient prop whose sole purpose is to apply one or two CSS properties.
