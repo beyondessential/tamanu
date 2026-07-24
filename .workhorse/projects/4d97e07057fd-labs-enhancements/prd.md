@@ -16,7 +16,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
 | 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
 | 6 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
-| 7 | TAM-6734 | Lab request label format with auto-print prompt | High | _TBC_ |
+| 7 | TAM-6734 | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
 | 8 | TAM-6827 | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
 | 9 | TAM-3086 | Default "Collected by" to the current user | Medium | _TBC_ |
 | 10 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
@@ -151,13 +151,23 @@ _To be detailed._
 
 **Context.** The label (`LabRequestPrintLabel`) is an SVG with fixed fields — Patient Name, Patient ID, DOB, Test ID, Date collected, Lab category, Specimen type — plus a Test ID barcode; field labels are hardcoded English and the width is a setting. Printing is fully manual: after finalising a request, the "Request finalised" summary pane lists requests with checkboxes and "Print label" / "Print request" buttons, with no prompt.
 
+**Desired behaviour.** The lab request label follows a standard format, and lab staff are automatically prompted to print labels rather than having to remember to do so manually.
+
+**Design updates — standard label.**
+- **Size:** 40 × 28 mm.
+- **Fields:**
+  - Patient name
+  - Patient date of birth
+  - MRN / Tamanu patient ID
+  - Lab request ID, with a barcode encoding it
+  - Collection date & time
+  - Collector's name or initials
+
 **Open questions (to resolve before design):**
-- **What "standardise the format" means:** the specific gripe Nauru raised, and the target standard — fields/layout on the label, a fixed physical size, translating the field labels, or consistency across deployments.
+- **Dropped fields:** the standard field set above omits Lab category and Specimen type, which the label carries today — confirm these are intentionally removed.
 - **Auto-print trigger:** when the prompt fires — on finalising a new request, on recording a sample, or both.
 - **Prompt behaviour:** a confirmation prompt ("Print labels now?") the user accepts, or straight to the print dialog automatically.
 - **Configurability:** whether the auto-prompt is a per-facility setting (opt-in) or always on for everyone using the lab module.
-
-_To be detailed._
 
 ---
 
