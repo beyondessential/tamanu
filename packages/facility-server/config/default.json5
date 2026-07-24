@@ -132,6 +132,11 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "cleanupIdempotencyKeys": {
+      "enabled": true,
+      // every hour
+      "schedule": "0 * * * *",
+    },
   },
   "rateLimit": {
     // Set `enabled: false` to disable express-rate-limit entirely.
