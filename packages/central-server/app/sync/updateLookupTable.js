@@ -9,7 +9,7 @@ const updateLookupTableForModel = async (
   since,
   sessionConfig,
   syncLookupTick,
-  shouldFullyRebuild,
+  rebuild = false,
 ) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
@@ -21,6 +21,20 @@ const updateLookupTableForModel = async (
   const attributes = model.getAttributes();
   const { select, joins, where } = (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
+  // A rebuild re-materialises every row: `:since` widens to -1 so the base predicate (and the custom
+  // joins, e.g. computing is_lab_request from all labs) match all rows, and the custom `where` — only
+  // an incremental top-up — is dropped in favour of the base predicate below.
+  const rowSelectionSince = rebuild ? -1 : since;
+
+  // If it is a rebuild, it's including all the rows, no need for custom where
+  // Any custom where logic should have already run by the incremental pass
+  const selectionWhere = rebuild ? undefined : where;
+
+  // On a rebuild, existing rows keep their tick (the ON CONFLICT update below omits it); rows not yet
+  // in the lookup are inserted with the base table's own tick (null -> COALESCE falls back to it), so
+  // historic rows aren't bumped and clients don't re-pull them.
+  const updatedAtSyncTick = rebuild ? null : syncLookupTick;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -74,19 +88,16 @@ const updateLookupTableForModel = async (
           }
           ${joins || ''}
           WHERE
-          -- on a full rebuild, reselect every row; the custom where is only an incremental filter
-          (${
-            shouldFullyRebuild
-              ? `${table}.updated_at_sync_tick > -1`
-              : where || `${table}.updated_at_sync_tick > :since`
-          })
+          (${selectionWhere || `${table}.updated_at_sync_tick > :since`})
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit
           ON CONFLICT (record_id, record_type)
           DO UPDATE SET
             data = EXCLUDED.data,
-            updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
+            -- a rebuild only refreshes data; it leaves updated_at_sync_tick alone so clients aren't
+            -- forced to re-pull records they already have (the incremental pass bumps real changes)
+            ${rebuild ? '' : 'updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,'}
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
@@ -102,11 +113,11 @@ const updateLookupTableForModel = async (
       `,
       {
         replacements: {
-          since,
+          since: rowSelectionSince,
           limit: CHUNK_SIZE,
           fromId,
           perModelUpdateTimeoutMs,
-          updatedAtSyncTick: syncLookupTick,
+          updatedAtSyncTick,
         },
       },
     );
@@ -124,57 +135,69 @@ const updateLookupTableForModel = async (
   return totalCount;
 };
 
+const assertLookupModels = outgoingModels => {
+  const invalidModelNames = Object.values(outgoingModels)
+    .filter(
+      m =>
+        ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+          m.syncDirection,
+        ),
+    )
+    .map(m => m.tableName);
+
+  if (invalidModelNames.length) {
+    throw new Error(
+      `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
+    );
+  }
+};
+
 export const updateLookupTable = withConfig(
   async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
-    const invalidModelNames = Object.values(outgoingModels)
-      .filter(
-        (m) =>
-          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
-            m.syncDirection,
-          ),
-      )
-      .map((m) => m.tableName);
-
-    if (invalidModelNames.length) {
-      throw new Error(
-        `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
-      );
-    }
+    assertLookupModels(outgoingModels);
 
     const sessionConfig = {};
 
-    let changesCount = 0;
-
-    for (const model of Object.values(outgoingModels)) {
+    const runForModel = async (model, rebuild) => {
       try {
-        const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
-          model.tableName,
-        );
-        const modelChangesCount = await updateLookupTableForModel(
+        return await updateLookupTableForModel(
           model,
           config,
           since,
           sessionConfig,
           syncLookupTick,
-          shouldRebuildModel,
+          rebuild,
         );
-
-        if (shouldRebuildModel) {
-          await models.LocalSystemFact.markLookupModelRebuilt(model.tableName);
-        }
-
-        changesCount += modelChangesCount || 0;
       } catch (e) {
         log.error(`Failed to update ${model.name} for lookup table`);
         log.debug(e);
         throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
       }
+    };
+
+    // Pass 1: incremental refresh for every model.
+    let incrementalCount = 0;
+    for (const model of Object.values(outgoingModels)) {
+      incrementalCount += (await runForModel(model, false)) || 0;
     }
 
-    await debugObject.addInfo({ changesCount });
-    log.info('updateLookupTable.countedAll', { count: changesCount, since });
+    // Pass 2: fully rebuild any models flagged via flag_lookup_model_to_rebuild. This re-materialises
+    // every row's data but leaves updated_at_sync_tick untouched, so clients aren't forced to re-pull
+    // records they already have — pass 1 has already bumped any genuinely changed rows.
+    const modelsToRebuild = await models.LocalSystemFact.getLookupModelsToRebuild();
+    let rebuildCount = 0;
+    for (const model of Object.values(outgoingModels)) {
+      if (!modelsToRebuild.includes(model.tableName)) {
+        continue;
+      }
+      rebuildCount += (await runForModel(model, true)) || 0;
+      await models.LocalSystemFact.markLookupModelRebuilt(model.tableName);
+    }
 
-    return changesCount;
+    await debugObject.addInfo({ incrementalCount, rebuildCount });
+    log.info('updateLookupTable.countedAll', { incrementalCount, rebuildCount, since });
+
+    return { incrementalCount, rebuildCount };
   },
 );
 
