@@ -6,8 +6,10 @@ import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
 import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
+import { ensureValidToken } from './auth';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
+  await ensureValidToken(page);
   const token = await getItemFromLocalStorage(page, 'apiToken');
 
   return request.newContext({
