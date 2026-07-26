@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
@@ -39,8 +37,12 @@ export class InvalidConfigError extends Error {}
 
 export async function startScheduledTasks(context) {
   // Resolved once at startup: schedule changes apply on server restart.
-  // eslint-disable-next-line require-atomic-updates
+  /* eslint-disable require-atomic-updates */
   context.schedules = await context.settings.get('schedules');
+  // Not `context.integrations` — that namespace holds the integrations' runtime objects
+  // (see fiji-vrs initAppContext).
+  context.integrationSettings = await context.settings.get('integrations');
+  /* eslint-enable require-atomic-updates */
 
   const taskClasses = [
     OutpatientDischarger,
@@ -72,7 +74,7 @@ export async function startScheduledTasks(context) {
     SendStatusToMetaServer,
   ];
 
-  if (config.integrations.fijiVrs.enabled) {
+  if (context.integrationSettings.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
 

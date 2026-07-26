@@ -1,4 +1,3 @@
-import config from 'config';
 import { pick } from 'es-toolkit/compat';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
@@ -208,8 +207,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
-    const { enabled } = config.integrations?.dhis2 || {};
+    const { enabled, reportIds, host } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = await this.getDHIS2Credentials();
 
     if (!enabled || !host || !username || !password || reportIds.length === 0) {

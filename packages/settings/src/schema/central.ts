@@ -4,6 +4,7 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   batchingProperties,
+  cronExpressionSchema,
   durationStringSchema,
   dhis2IdSchemeSchema,
   emailSchema,
@@ -18,6 +19,23 @@ import {
   msDurationSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
+
+// Integrations are wired up at startup, so both flags only take effect on restart.
+const integrationEnabled = () => ({
+  name: 'Enabled',
+  description: 'Initialise this integration and serve its routes',
+  type: yup.boolean(),
+  defaultValue: false,
+  requiresRestart: true,
+});
+
+const requireClientHeaders = () => ({
+  name: 'Require client headers',
+  description: 'Reject requests that do not identify their client (X-Tamanu-Client / -Version)',
+  type: yup.boolean(),
+  defaultValue: true,
+  requiresRestart: true,
+});
 
 export const centralSettings = {
   name: 'Central server settings',
@@ -170,7 +188,8 @@ export const centralSettings = {
       },
     },
     mail: {
-      description: 'Outgoing email settings (the legacy `mailgun` config is still used as a fallback)',
+      description:
+        'Outgoing email settings (the legacy `mailgun` config is still used as a fallback)',
       highRisk: true,
       // The mail transport is built once at startup (EmailService in ApplicationContext)
       requiresRestart: true,
@@ -405,9 +424,99 @@ export const centralSettings = {
       },
     },
     formBuilder: formBuilderProperties,
+    // The rest of the FHIR settings are global; these two flags are per server type, since a
+    // facility server serving FHIR says nothing about whether this central server should.
+    fhir: {
+      name: 'FHIR',
+      description: 'FHIR integration settings',
+      highRisk: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Serve the FHIR integration routes on this central server',
+          type: yup.boolean(),
+          defaultValue: false,
+          requiresRestart: true,
+        },
+        worker: {
+          name: 'FHIR worker',
+          description: 'FHIR worker settings',
+          properties: {
+            enabled: {
+              name: 'Enabled',
+              description: 'Run the materialisation worker on this central server',
+              type: yup.boolean(),
+              defaultValue: true,
+              requiresRestart: true,
+            },
+          },
+        },
+      },
+    },
     integrations: {
       description: 'Integrations with external services',
       properties: {
+        // Fiji VRS connection details (host, username, password) stay in config: they are
+        // deployment wiring, not operator-tunable behaviour.
+        fijiVrs: {
+          name: 'Fiji VRS',
+          description: 'Fiji Vital Registration System integration',
+          properties: {
+            enabled: integrationEnabled(),
+            requireClientHeaders: requireClientHeaders(),
+            retrySchedule: {
+              name: 'Retry schedule',
+              description: 'Cron expression for when pending VRS actions are retried',
+              type: cronExpressionSchema,
+              defaultValue: '*/30 * * * * *',
+              editor: SETTING_EDITORS.CRON,
+              requiresRestart: true,
+            },
+            retryMinAgeMs: {
+              name: 'Retry minimum age',
+              description: 'Leave a failed action alone for at least this long before retrying it',
+              type: yup.number().integer().positive(),
+              defaultValue: 60000,
+              unit: 'ms',
+            },
+            flagInsteadOfDeleting: {
+              name: 'Flag instead of deleting',
+              description: 'On a VRS delete action, flag the patient for review rather than delete',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            tokenExpiryMarginMs: {
+              name: 'Token expiry margin',
+              description: 'Refresh the VRS access token this long before it expires',
+              type: yup.number().integer().positive(),
+              defaultValue: 60000,
+              unit: 'ms',
+            },
+          },
+        },
+        fijiVps: {
+          name: 'Fiji VPS',
+          description: 'Fiji Vaccine Passport System integration',
+          properties: {
+            enabled: integrationEnabled(),
+            requireClientHeaders: requireClientHeaders(),
+          },
+        },
+        fijiAspenMediciReport: {
+          name: 'Fiji Aspen Medici report',
+          description: 'Fiji Aspen Medici report integration',
+          properties: {
+            enabled: integrationEnabled(),
+          },
+        },
+        mSupply: {
+          name: 'mSupply',
+          description: 'mSupply FHIR integration',
+          properties: {
+            enabled: integrationEnabled(),
+            requireClientHeaders: requireClientHeaders(),
+          },
+        },
         telegram: {
           description: 'Telegram bot integration settings',
           properties: {
@@ -417,7 +526,8 @@ export const centralSettings = {
               secret: true,
             },
             webhook: {
-              description: 'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
+              description:
+                'Webhook settings; when a URL is set the bot uses webhooks instead of polling',
               properties: {
                 url: {
                   description:
@@ -426,7 +536,8 @@ export const centralSettings = {
                   defaultValue: '',
                 },
                 secret: {
-                  description: 'Secret token Telegram includes on webhook requests, used to verify them',
+                  description:
+                    'Secret token Telegram includes on webhook requests, used to verify them',
                   type: yup.string(),
                   secret: true,
                 },
@@ -469,6 +580,7 @@ export const centralSettings = {
         dhis2: {
           description: 'DHIS2 settings',
           properties: {
+            enabled: integrationEnabled(),
             host: {
               description: 'The host of the DHIS2 instance',
               type: yup

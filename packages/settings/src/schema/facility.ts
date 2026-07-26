@@ -421,10 +421,26 @@ export const facilitySettings = {
       description: 'FHIR integration settings (facility-level overrides)',
       highRisk: true,
       properties: {
+        // Enable flags are per server type (not global): a central server serving FHIR
+        // says nothing about whether this facility server should.
+        enabled: {
+          name: 'Enabled',
+          description: 'Serve the FHIR integration routes on this facility server',
+          type: yup.boolean(),
+          defaultValue: false,
+          requiresRestart: true,
+        },
         worker: {
           name: 'FHIR worker',
           description: 'FHIR worker settings',
           properties: {
+            enabled: {
+              name: 'Enabled',
+              description: 'Run the materialisation worker on this facility server',
+              type: yup.boolean(),
+              defaultValue: false,
+              requiresRestart: true,
+            },
             resourceMaterialisationEnabled: {
               ...fhirResourceMaterialisationSchema,
               infoBanner:

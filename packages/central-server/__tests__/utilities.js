@@ -24,6 +24,7 @@ class MockApplicationContext {
     await seedSettings(this.store.models);
     // Mirrors startScheduledTasks, so tests can construct tasks directly
     this.schedules = await this.settings.get('schedules');
+    this.integrationSettings = await this.settings.get('integrations');
     if (initFhir) {
       resetFhirSettings();
       await initFhirSettingsFromDb(this.settings);

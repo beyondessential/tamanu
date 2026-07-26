@@ -66,10 +66,13 @@ export class ApplicationContext {
     }, {});
     this.settings.global = ReadSettings.forGlobal(this.models);
 
-    const fhirWorkerEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
-
     const facilityReaders = facilityIds.map(id => this.settings[id]);
+
+    // The FHIR flags are facility-scoped; on a multi-facility server the first facility's
+    // values apply, the same rule the scheduled tasks use.
+    const [primaryFacilityReader] = facilityReaders;
+    const fhir = await (primaryFacilityReader ?? this.settings.global).get('fhir');
+    const fhirWorkerEnabled = Boolean(fhir.enabled && fhir.worker.enabled);
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
 

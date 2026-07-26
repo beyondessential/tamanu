@@ -2,6 +2,7 @@ import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
 
+import { facilityDefaults } from '@tamanu/settings';
 import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
@@ -109,7 +110,13 @@ export async function createApiApp({
   const routes = createRoutes(limiters);
   express.use('/', routes);
 
-  if (config.integrations?.fhir?.enabled) {
+  // `fhir.enabled` is facility-scoped (a central server serving FHIR says nothing about this
+  // one), and tasks/index.js resolves server-wide settings the same way: first facility wins.
+  const [primaryFacilityId] = getServerFacilityIds() ?? [];
+  const fhirEnabled = primaryFacilityId
+    ? await settings[primaryFacilityId].get('fhir.enabled')
+    : facilityDefaults.fhir.enabled;
+  if (fhirEnabled) {
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');

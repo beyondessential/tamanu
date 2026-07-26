@@ -82,8 +82,8 @@ export class ApplicationContext {
       return this;
     }
 
-    const fhirWorkerEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    const fhir = await this.settings.get('fhir');
+    const fhirWorkerEnabled = Boolean(fhir.enabled && fhir.worker.enabled);
     await initFhirSettingsFromDb(this.settings);
     await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled });
 

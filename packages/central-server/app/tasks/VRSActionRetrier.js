@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 
@@ -9,7 +7,7 @@ export class VRSActionRetrier extends ScheduledTask {
   }
 
   constructor(context) {
-    const { retrySchedule, jitterTime, enabled } = config.integrations.fijiVrs;
+    const { retrySchedule, jitterTime, enabled } = context.integrationSettings.fijiVrs;
     super(retrySchedule, log, jitterTime, enabled);
     this.context = context;
   }

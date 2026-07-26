@@ -26,6 +26,11 @@ const NOT_SETTINGS = [
   'auth.secret', // AUTH_SECRET
   'auth.refreshToken.secret', // AUTH_REFRESH_TOKEN_SECRET
   'auth.saltRounds', // SALT_ROUNDS
+  // Fiji VRS connection details: deployment wiring, not operator-tunable behaviour. Its
+  // flags and timings are settings (see the integrations.fijiVrs row).
+  'integrations.fijiVrs.host',
+  'integrations.fijiVrs.username',
+  'integrations.fijiVrs.password',
 ];
 
 const loadConfig = file => JSON5.parse(fs.readFileSync(new URL(file, import.meta.url), 'utf8'));

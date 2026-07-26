@@ -44,6 +44,27 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'mail.transport', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'integrations.ips', scope: SETTINGS_SCOPES.CENTRAL },
   { config: 'integrations.dhis2.username', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.dhis2.enabled', scope: SETTINGS_SCOPES.CENTRAL },
+  // Integration enable/behaviour flags. Subtree rows: the walk only lifts leaves that exist
+  // in the schema, so the Fiji VRS connection details (host, username, password) stay config.
+  { config: 'integrations.fijiVrs', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.fijiVps', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.fijiAspenMediciReport', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'integrations.mSupply', scope: SETTINGS_SCOPES.CENTRAL },
+  // The FHIR enable flags live beside the rest of the FHIR settings (`fhir.*`), not under
+  // `integrations`, and are per server type — hence one row per scope.
+  { config: 'integrations.fhir.enabled', setting: 'fhir.enabled', scope: SETTINGS_SCOPES.CENTRAL },
+  {
+    config: 'integrations.fhir.worker.enabled',
+    setting: 'fhir.worker.enabled',
+    scope: SETTINGS_SCOPES.CENTRAL,
+  },
+  { config: 'integrations.fhir.enabled', setting: 'fhir.enabled', scope: SETTINGS_SCOPES.FACILITY },
+  {
+    config: 'integrations.fhir.worker.enabled',
+    setting: 'fhir.worker.enabled',
+    scope: SETTINGS_SCOPES.FACILITY,
+  },
   { config: 'telegramBot', setting: 'integrations.telegram', scope: SETTINGS_SCOPES.CENTRAL },
   {
     config: 'scheduledReports',
@@ -56,7 +77,10 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   // servers' schema (and scope) differ while sharing the `schedules` config path.
   { config: 'schedules', scope: SETTINGS_SCOPES.FACILITY },
   { config: 'notifications.certificates.labTestCategoryIds', scope: SETTINGS_SCOPES.CENTRAL },
-  { config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame', scope: SETTINGS_SCOPES.GLOBAL },
+  {
+    config: 'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    scope: SETTINGS_SCOPES.GLOBAL,
+  },
   { config: 'tasking.upcomingTasksShouldBeGeneratedTimeFrame', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'tasking.upcomingTasksTimeFrame', scope: SETTINGS_SCOPES.FACILITY },
   { config: 'integrations.mSupplyMed', scope: SETTINGS_SCOPES.FACILITY },
