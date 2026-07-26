@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { getReferenceRange } from '@tamanu/utils/labTests';
+import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
 
 import { DataFetchingTable } from '../../../components';
+import { RangeValidatedCell } from '../../../components/FormattedTableCell';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
@@ -67,33 +68,54 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'result',
-        accessor: ({ labTestType, result, secondaryResult }) => {
-          const { options, id: labTestTypeId, supportsSecondaryResults } = labTestType;
+        accessor: row => {
+          const { labTestType, result, secondaryResult } = row;
+          const { options, id: labTestTypeId, supportsSecondaryResults, unit } = labTestType;
+          const hasSecondaryResult = Boolean(supportsSecondaryResults && secondaryResult);
+          const secondaryResultTooltip = getTranslation(
+            'lab.results.tooltip.secondaryResult',
+            'Secondary result: :secondaryResult',
+            { replacements: { secondaryResult } },
+          );
 
-          const resultText =
-            options && options.length > 0 ? (
-              <TranslatedOption
-                value={result}
-                referenceDataId={labTestTypeId}
-                referenceDataCategory="labTestType"
-              />
-            ) : (
-              result
+          // Option-based results are qualitative and never flagged, matching the patient results table
+          if (options && options.length > 0) {
+            return (
+              <ResultCell>
+                <ConditionalTooltip visible={hasSecondaryResult} title={secondaryResultTooltip}>
+                  <TranslatedOption
+                    value={result}
+                    referenceDataId={labTestTypeId}
+                    referenceDataCategory="labTestType"
+                  />
+                </ConditionalTooltip>
+              </ResultCell>
             );
+          }
 
-          return (
-            <ResultCell>
-              <ConditionalTooltip
-                visible={supportsSecondaryResults && !!secondaryResult}
-                title={getTranslation(
-                  'lab.results.tooltip.secondaryResult',
-                  'Secondary result: :secondaryResult',
-                  { replacements: { secondaryResult } },
-                )}
-              >
-                {resultText || '–'}
-              </ConditionalTooltip>
-            </ResultCell>
+          // Where a result also carries a secondary result, its tooltip takes over from the
+          // out-of-range tooltip; the highlight still shows either way.
+          const resultCell = (
+            <RangeValidatedCell
+              value={result}
+              config={{ unit, rounding: null }}
+              validationCriteria={getLabTestValidationCriteria({
+                labTestType,
+                labTest: row,
+                sex: patient.sex,
+              })}
+              hideUnitSuffix
+              disableTooltip={hasSecondaryResult}
+              data-testid="rangevalidatedcell-labrequest"
+            />
+          );
+
+          return hasSecondaryResult ? (
+            <ConditionalTooltip visible title={secondaryResultTooltip}>
+              {resultCell}
+            </ConditionalTooltip>
+          ) : (
+            resultCell
           );
         },
         sortable: false,

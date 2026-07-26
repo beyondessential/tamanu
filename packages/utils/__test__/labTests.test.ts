@@ -1,6 +1,10 @@
 import { SEX_VALUES } from '@tamanu/constants';
 import { describe, expect, it } from 'vitest';
-import { getReferenceRange, getReferenceRangeWithUnit } from '../src/labTests';
+import {
+  getLabTestValidationCriteria,
+  getReferenceRange,
+  getReferenceRangeWithUnit,
+} from '../src/labTests';
 
 const getTranslation = (
   _stringId: string,
@@ -123,6 +127,91 @@ describe('getReferenceRange', () => {
         getTranslation,
       }),
     ).toBe('8–20');
+  });
+});
+
+describe('getLabTestValidationCriteria', () => {
+  it('builds a numeric range from sex-specific type bounds', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMin: 5, maleMax: 20, femaleMin: 4, femaleMax: 18 },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: 5, max: 20 }, rangeText: null });
+  });
+
+  it('merges a partial numeric override with the type default bound', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMin: 1, maleMax: 20 },
+        labTest: { referenceRangeMin: 5, referenceRangeMax: null },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: 5, max: 20 }, rangeText: null });
+  });
+
+  it('keeps a one-sided range when only one bound exists', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMin: 5 },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: 5, max: undefined }, rangeText: null });
+
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMax: 11 },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: undefined, max: 11 }, rangeText: null });
+  });
+
+  it('keeps zero-valued bounds', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMin: 0, maleMax: 10 },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: 0, max: 10 }, rangeText: null });
+  });
+
+  it('returns a qualitative rangeText when there are no numeric bounds', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { rangeText: 'Negative' },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: null, rangeText: 'Negative' });
+  });
+
+  it('prefers a per-test text override over type ranges', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { femaleMin: 3, femaleMax: 15 },
+        labTest: { referenceRangeText: 'Negative' },
+        sex: SEX_VALUES.FEMALE,
+      }),
+    ).toEqual({ normalRange: null, rangeText: 'Negative' });
+  });
+
+  it('has no criteria when no range is defined', () => {
+    expect(getLabTestValidationCriteria({ labTestType: {}, sex: SEX_VALUES.MALE })).toEqual({
+      normalRange: null,
+      rangeText: null,
+    });
+    expect(getLabTestValidationCriteria({ sex: SEX_VALUES.MALE })).toEqual({
+      normalRange: null,
+      rangeText: null,
+    });
+  });
+
+  it('has no numeric range for a sex without configured bounds', () => {
+    expect(
+      getLabTestValidationCriteria({
+        labTestType: { maleMin: 5, maleMax: 20, rangeText: 'See notes' },
+        sex: SEX_VALUES.OTHER,
+      }),
+    ).toEqual({ normalRange: null, rangeText: 'See notes' });
   });
 });
 
