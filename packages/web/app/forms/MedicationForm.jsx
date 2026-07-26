@@ -572,6 +572,8 @@ const Hr = styled.hr`
   grid-column: 1 / -1;
 `;
 
+const drugSuggesterFormatter = ({ name, id, ...rest }) => ({ ...rest, label: name, value: id });
+
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -629,7 +631,7 @@ export const MedicationForm = ({
 
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
-    formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
+    formatter: drugSuggesterFormatter,
     baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
