@@ -297,4 +297,17 @@ export class LabRequestDetailsPage {
     await fillMuiDateTimeField(this.enterResultsModal.completedDateFirstRow, dateToUse);
     await this.enterResultsModal.confirmButton.click();
   }
+
+  /**
+   * Enter a numeric (or free-text) result for the first row, whose result field is a plain
+   * input rather than a dropdown. Method and verification are optional for these tests.
+   */
+  async enterNumericResultForFirstRow(result: string, completedDate?: string): Promise<void> {
+    await this.enterResultsButton.click();
+    await this.enterResultsModal.waitForModalToLoad();
+    await this.enterResultsModal.fillResultForFirstRow(result);
+    const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");
+    await fillMuiDateTimeField(this.enterResultsModal.completedDateFirstRow, dateToUse);
+    await this.enterResultsModal.confirmButton.click();
+  }
 }
