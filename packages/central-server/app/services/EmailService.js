@@ -1,4 +1,3 @@
-import config from 'config';
 import nodemailer from 'nodemailer';
 import { createReadStream } from 'fs';
 import { basename } from 'path';
@@ -21,9 +20,10 @@ function createTransporter(transport, transportPassword, mailgun) {
   }
 
   // Mailgun HTTP API routed through nodemailer too, so there is a single send
-  // path regardless of which backend is configured. Settings first; the raw
-  // config block is transitional and goes away with the config file.
-  const { apiKey, domain, url } = [mailgun, config.mailgun].find(m => m?.apiKey && m?.domain) ?? {};
+  // path regardless of which backend is configured. The legacy `mailgun` config block
+  // reaches us through settings (CONFIG_TO_SETTINGS for domain/url, the secret map for
+  // apiKey), so there is nothing extra to read here.
+  const { apiKey, domain, url } = mailgun ?? {};
   if (apiKey && domain) {
     return nodemailer.createTransport(mailgunTransport({ apiKey, domain, url }));
   }

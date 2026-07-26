@@ -44,12 +44,12 @@ const DEFAULT_AUTH = { windowMs: 15 * 60 * 1000, max: 30 };
  *    requests are not counted, so only failed/abusive traffic accumulates
  *    toward the limit.
  *
- * Both limiters are no-ops when `NODE_ENV === 'test'` or when
- * `config.rateLimit.enabled === false`.
+ * Both limiters are no-ops when `NODE_ENV === 'test'` or when the passed-in
+ * `rateLimit.enabled === false`.
  *
- * Reads limits from `config.rateLimit.{global,auth}.{windowMs,max}`.
+ * Limits come from the caller's `rateLimit.{global,auth}.{windowMs,max}` settings.
  * `skipSuccessfulRequests` for the auth limiter is always true and cannot be
- * overridden by config (spread order below).
+ * overridden (spread order below).
  */
 export const buildRateLimiters = (rateLimitConfig = {}) => {
   if (rateLimitingDisabled()) {
