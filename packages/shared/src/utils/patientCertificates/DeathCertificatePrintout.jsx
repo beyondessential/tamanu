@@ -217,7 +217,7 @@ const getDateAndTimeOfDeath = (patientData, { getTranslation, formatShortExplici
   return `${date} ${time}`.trim();
 };
 
-const PATIENT_DETAIL_FIELDS = {
+const PATIENT_DETAIL_FIELDS = /** @type {const} */ ({
   leftCol: [
     { key: 'firstName', label: 'First name' },
     { key: 'lastName', label: 'Last name' },
@@ -230,9 +230,9 @@ const PATIENT_DETAIL_FIELDS = {
     { key: 'ethnicityId', label: 'Ethnicity', accessor: getEthnicity },
     { key: 'villageId', label: 'Village', accessor: getVillage },
   ],
-};
+});
 
-const PATIENT_DEATH_DETAILS = {
+const PATIENT_DEATH_DETAILS = /** @type {const} */ ({
   leftCol: [
     { key: 'deathDateAndTime', label: 'Date & time of death', accessor: getDateAndTimeOfDeath },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
@@ -241,7 +241,7 @@ const PATIENT_DEATH_DETAILS = {
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
     { key: 'attendingClinician', label: 'Attending clinician', accessor: getClinician },
   ],
-};
+});
 
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
