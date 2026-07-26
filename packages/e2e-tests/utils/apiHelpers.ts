@@ -1,6 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+
 import { constructFacilityUrl } from './navigation';
 import { getAuthTokenFromLocalStorage, getItemFromLocalStorage } from './localStorage';
 import type { Patient, User } from '@tamanu/database';
@@ -301,6 +303,51 @@ export const createPharmacyOrderViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create pharmacy order: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+// Creates one vitals survey response (a "reading") at a given recorded date/time, so tests can
+// seed a spread of readings across several days to exercise the vitals chart's time-range filter.
+export const createVitalsReadingViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  encounterId: string,
+  patientId: string,
+  recordedDate: string,
+  overrides: Partial<{
+    temperature: number;
+  }> = {},
+) => {
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+
+  const surveyUrl = constructFacilityUrl('/api/survey/vitals');
+  const surveyResponse = await api.get(surveyUrl);
+  if (!surveyResponse.ok()) {
+    throw new Error(`Failed to fetch vitals survey: ${surveyResponse.status()}`);
+  }
+  const { id: surveyId } = await surveyResponse.json();
+
+  const surveyResponseUrl = constructFacilityUrl('/api/surveyResponse');
+  const response = await api.post(surveyResponseUrl, {
+    data: {
+      surveyId,
+      encounterId,
+      patientId,
+      facilityId,
+      startTime: recordedDate,
+      endTime: recordedDate,
+      answers: {
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: recordedDate,
+        [VITALS_DATA_ELEMENT_IDS.temperature]: overrides.temperature ?? 36.8,
+      },
+    },
+  });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create vitals reading: ${response.status()} ${errorText}`);
   }
 
   return response.json();
