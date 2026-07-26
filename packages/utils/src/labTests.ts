@@ -136,6 +136,38 @@ export const getLabTestValidationCriteria = ({
   return { normalRange: null, rangeText };
 };
 
+// Sex-keyed range shape returned by the patient lab-results endpoint, where the type range
+// is already resolved per sex rather than exposed as flat maleMin/femaleMin fields.
+export type NormalRangesBySex = {
+  male?: { min?: number | null; max?: number | null } | null;
+  female?: { min?: number | null; max?: number | null } | null;
+};
+
+// Adapter for that endpoint shape: keeps the mapping to LabTestTypeLike in one place so the
+// patient results table doesn't hand-assemble a synthetic labTestType at the call site.
+export const getLabTestValidationCriteriaFromNormalRanges = ({
+  normalRanges,
+  rangeText,
+  labTest,
+  sex,
+}: {
+  normalRanges?: NormalRangesBySex | null;
+  rangeText?: string | null;
+  labTest?: LabTestReferenceRangeOverride | null;
+  sex?: SexValue | null;
+}): LabTestValidationCriteria =>
+  getLabTestValidationCriteria({
+    labTestType: {
+      maleMin: normalRanges?.male?.min,
+      maleMax: normalRanges?.male?.max,
+      femaleMin: normalRanges?.female?.min,
+      femaleMax: normalRanges?.female?.max,
+      rangeText,
+    },
+    labTest,
+    sex,
+  });
+
 export const getReferenceRangeWithUnit = ({
   labTestType,
   labTest,

@@ -2,6 +2,7 @@ import { SEX_VALUES } from '@tamanu/constants';
 import { describe, expect, it } from 'vitest';
 import {
   getLabTestValidationCriteria,
+  getLabTestValidationCriteriaFromNormalRanges,
   getReferenceRange,
   getReferenceRangeWithUnit,
 } from '../src/labTests';
@@ -212,6 +213,37 @@ describe('getLabTestValidationCriteria', () => {
         sex: SEX_VALUES.OTHER,
       }),
     ).toEqual({ normalRange: null, rangeText: 'See notes' });
+  });
+});
+
+describe('getLabTestValidationCriteriaFromNormalRanges', () => {
+  it('maps the sex-keyed range shape onto the sex-specific bounds', () => {
+    expect(
+      getLabTestValidationCriteriaFromNormalRanges({
+        normalRanges: { male: { min: 5, max: 20 }, female: { min: 4, max: 18 } },
+        sex: SEX_VALUES.FEMALE,
+      }),
+    ).toEqual({ normalRange: { min: 4, max: 18 }, rangeText: null });
+  });
+
+  it('applies a per-test override over the resolved range', () => {
+    expect(
+      getLabTestValidationCriteriaFromNormalRanges({
+        normalRanges: { male: { min: 5, max: 20 } },
+        labTest: { referenceRangeMin: 8, referenceRangeMax: null },
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: { min: 8, max: 20 }, rangeText: null });
+  });
+
+  it('falls back to rangeText when no numeric bounds exist for the sex', () => {
+    expect(
+      getLabTestValidationCriteriaFromNormalRanges({
+        normalRanges: { male: { min: null, max: null } },
+        rangeText: 'Negative',
+        sex: SEX_VALUES.MALE,
+      }),
+    ).toEqual({ normalRange: null, rangeText: 'Negative' });
   });
 });
 

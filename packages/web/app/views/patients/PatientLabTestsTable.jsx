@@ -9,7 +9,7 @@ import {
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { getLabTestValidationCriteria } from '@tamanu/utils/labTests';
+import { getLabTestValidationCriteriaFromNormalRanges } from '@tamanu/utils/labTests';
 import { BodyText } from '../../components';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
@@ -225,14 +225,9 @@ export const PatientLabTestsTable = React.memo(
                     <RangeValidatedCell
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
-                      validationCriteria={getLabTestValidationCriteria({
-                        labTestType: {
-                          maleMin: row.normalRanges?.male?.min,
-                          maleMax: row.normalRanges?.male?.max,
-                          femaleMin: row.normalRanges?.female?.min,
-                          femaleMax: row.normalRanges?.female?.max,
-                          rangeText: row.rangeText,
-                        },
+                      validationCriteria={getLabTestValidationCriteriaFromNormalRanges({
+                        normalRanges: row.normalRanges,
+                        rangeText: row.rangeText,
                         labTest: {
                           referenceRangeMin: cellData.referenceRangeMin,
                           referenceRangeMax: cellData.referenceRangeMax,
