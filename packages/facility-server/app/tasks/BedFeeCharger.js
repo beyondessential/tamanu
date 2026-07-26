@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { sub } from 'date-fns';
 
@@ -24,7 +23,7 @@ export class BedFeeCharger extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.bedFeeCharger;
+    const conf = context.schedules.bedFeeCharger;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;

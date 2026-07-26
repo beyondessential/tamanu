@@ -207,6 +207,12 @@ export const facilitySettings = {
             upcomingVaccinations: scheduledTaskSchema({ schedule: '*/10 * * * *' }),
           },
         },
+        bedFeeCharger: scheduledTaskSchema(
+          // hourly; recompute is idempotent so a new night lands within an hour of each
+          // facility's local overnight-check time
+          { schedule: '0 * * * *' },
+          batchingProperties(100, 50),
+        ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
         sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),

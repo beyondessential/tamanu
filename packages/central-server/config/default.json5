@@ -260,10 +260,6 @@
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 100
     },
-    "processSyncQueue": {
-      "enabled": true,
-      "schedule": "* * * * *"
-    },
     "syncLookupRefresher": {
       "enabled": true,
       "schedule": "*/20 * * * * *"
