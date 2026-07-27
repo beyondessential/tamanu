@@ -1,9 +1,9 @@
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
-// The facility settings-PSK migration (provisionFacilitySettingsPsk) does NOT use an
-// admin session — it logs in with its stored *sync* credentials and calls the admin
-// endpoint with that token. syncCredentials.test.js only exercises GET /settingsPsk via
+// A facility pulling the settings PSK does NOT use an admin session — it logs in with
+// its stored *sync* credentials and calls the admin endpoint with that token.
+// syncCredentials.test.js only exercises GET /settingsPsk via
 // baseApp.asRole('admin'), which fabricates an admin session and never touches /api/login
 // nor a kind:'sync' user. This proves the real production path: a provisioned sync user
 // (role admin, kind sync) authenticating through the real login and pulling the PSK.

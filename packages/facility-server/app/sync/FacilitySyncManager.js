@@ -25,6 +25,7 @@ import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChange
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { pullSettingsPsk } from './pullSettingsPsk';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -179,6 +180,13 @@ export class FacilitySyncManager {
     } finally {
       // clear temp data stored for persist
       await dropSnapshotTable(this.sequelize, sessionId);
+    }
+
+    // Must not fail the sync it rode in on: it retries on the next one.
+    try {
+      await pullSettingsPsk({ models: this.models, centralServer: this.centralServer });
+    } catch (error) {
+      log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;
