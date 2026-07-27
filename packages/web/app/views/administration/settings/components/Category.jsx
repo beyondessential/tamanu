@@ -8,7 +8,9 @@ import styled from 'styled-components';
 import { escapeRegExp } from 'es-toolkit/compat';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
-import { isSetting } from '@tamanu/settings';
+// Not the package root: it re-exports configToSettings, which imports node's `config` at
+// module scope and so never finishes evaluating in a browser bundle.
+import { isSetting } from '@tamanu/settings/schema';
 import { Alert, ThemedTooltip, TranslatedText } from '@tamanu/ui-components';
 import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
@@ -194,110 +196,113 @@ const SettingName = memo(
     alignTop,
     searchQuery,
   }) => (
-  <SettingNameLabel
-    $indent={depth}
-    $alignTop={alignTop}
-    color={disabled && 'textTertiary'}
-    data-testid="settingnamelabel-xr19"
-  >
-    <ThemedTooltip
-      disableHoverListener={!description && !disabled && !isSecret}
-      title={
-        disabled ? (
-          <TranslatedText
-            stringId="admin.settings.highRiskSettingTooltip"
-            fallback="User does not required permissions to update this setting"
-          />
-        ) : isSecret ? (
-          <TranslatedText
-            stringId="admin.settings.secretSettingTooltip"
-            fallback="This is a secret setting. The current value is hidden."
-          />
-        ) : (
-          description
-        )
-      }
-      data-testid="themedtooltip-2qoa"
+    <SettingNameLabel
+      $indent={depth}
+      $alignTop={alignTop}
+      color={disabled && 'textTertiary'}
+      data-testid="settingnamelabel-xr19"
     >
-      <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-        {/* one span: the label is inline-flex with a gap, so bare fragments would gap apart */}
-        <span>
-          {searchQuery
-            ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
-            : formatSettingName(name, path.split('.').pop())}
-        </span>
-        {disabled ? (
-          <StyledLockIcon data-testid="styledlockicon-x3w0" />
-        ) : (
-          isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
-        )}
-      </SettingNameLabel>
-    </ThemedTooltip>
-    {requiresRestart && (
       <ThemedTooltip
+        disableHoverListener={!description && !disabled && !isSecret}
         title={
-          <TranslatedText
-            stringId="admin.settings.requiresRestartTooltip"
-            fallback="Requires server restart to take effect"
-          />
+          disabled ? (
+            <TranslatedText
+              stringId="admin.settings.highRiskSettingTooltip"
+              fallback="User does not required permissions to update this setting"
+            />
+          ) : isSecret ? (
+            <TranslatedText
+              stringId="admin.settings.secretSettingTooltip"
+              fallback="This is a secret setting. The current value is hidden."
+            />
+          ) : (
+            description
+          )
         }
-        data-testid="themedtooltip-rr01"
+        data-testid="themedtooltip-2qoa"
       >
-        <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+        <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+          {/* one span: the label is inline-flex with a gap, so bare fragments would gap apart */}
+          <span>
+            {searchQuery
+              ? highlightMatches(formatSettingName(name, path.split('.').pop()), searchQuery)
+              : formatSettingName(name, path.split('.').pop())}
+          </span>
+          {disabled ? (
+            <StyledLockIcon data-testid="styledlockicon-x3w0" />
+          ) : (
+            isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
+          )}
+        </SettingNameLabel>
       </ThemedTooltip>
-    )}
-    {highRisk && !disabled && (
-      <ThemedTooltip
-        title={
-          <TranslatedText
-            stringId="admin.settings.highRiskWarningTooltip"
-            fallback="High-risk setting, changes can have significant effects"
-            data-testid="translatedtext-hr01"
-          />
-        }
-        data-testid="themedtooltip-hr01"
-      >
-        <StyledHighRiskIcon data-testid="styledhighriskicon-hr01" />
-      </ThemedTooltip>
-    )}
-    {deprecated && (
-      <ThemedTooltip
-        title={
-          <TranslatedText
-            stringId="admin.settings.deprecatedTooltip"
-            fallback="Deprecated — will be removed in a future version"
-            data-testid="translatedtext-dp01"
-          />
-        }
-        data-testid="themedtooltip-dp01"
-      >
-        <StyledDeprecatedIcon data-testid="styleddeprecatedicon-dp01" />
-      </ThemedTooltip>
-    )}
-  </SettingNameLabel>
-));
+      {requiresRestart && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="admin.settings.requiresRestartTooltip"
+              fallback="Requires server restart to take effect"
+            />
+          }
+          data-testid="themedtooltip-rr01"
+        >
+          <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+        </ThemedTooltip>
+      )}
+      {highRisk && !disabled && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="admin.settings.highRiskWarningTooltip"
+              fallback="High-risk setting, changes can have significant effects"
+              data-testid="translatedtext-hr01"
+            />
+          }
+          data-testid="themedtooltip-hr01"
+        >
+          <StyledHighRiskIcon data-testid="styledhighriskicon-hr01" />
+        </ThemedTooltip>
+      )}
+      {deprecated && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="admin.settings.deprecatedTooltip"
+              fallback="Deprecated — will be removed in a future version"
+              data-testid="translatedtext-dp01"
+            />
+          }
+          data-testid="themedtooltip-dp01"
+        >
+          <StyledDeprecatedIcon data-testid="styleddeprecatedicon-dp01" />
+        </ThemedTooltip>
+      )}
+    </SettingNameLabel>
+  ),
+);
 
 // search ordering from the filter's metadata (absent outside search):
 // exact hits first, then match tier
-const sortProperties = searchMeta => ([a0, a1], [b0, b1]) => {
-  const aMeta = searchMeta?.get(a1);
-  const bMeta = searchMeta?.get(b1);
-  const aExact = Boolean(aMeta?.exact || aMeta?.hasExact);
-  const bExact = Boolean(bMeta?.exact || bMeta?.hasExact);
-  if (aExact !== bExact) return aExact ? -1 : 1;
-  const aTier = aMeta?.tier ?? Infinity;
-  const bTier = bMeta?.tier ?? Infinity;
-  if (aTier !== bTier) return aTier - bTier;
-  const aName = a1.name || a0;
-  const bName = b1.name || b0;
-  const isTopLevelA = isSetting(a1);
-  const isTopLevelB = isSetting(b1);
-  // Sort top level settings first
-  if (isTopLevelA && !isTopLevelB) return -1;
-  if (!isTopLevelA && isTopLevelB) return 1;
-  // Alphabetical sort
-  return aName.localeCompare(bName);
-};
+const sortProperties =
+  searchMeta =>
+  ([a0, a1], [b0, b1]) => {
+    const aMeta = searchMeta?.get(a1);
+    const bMeta = searchMeta?.get(b1);
+    const aExact = Boolean(aMeta?.exact || aMeta?.hasExact);
+    const bExact = Boolean(bMeta?.exact || bMeta?.hasExact);
+    if (aExact !== bExact) return aExact ? -1 : 1;
+    const aTier = aMeta?.tier ?? Infinity;
+    const bTier = bMeta?.tier ?? Infinity;
+    if (aTier !== bTier) return aTier - bTier;
+    const aName = a1.name || a0;
+    const bName = b1.name || b0;
+    const isTopLevelA = isSetting(a1);
+    const isTopLevelB = isSetting(b1);
+    // Sort top level settings first
+    if (isTopLevelA && !isTopLevelB) return -1;
+    if (!isTopLevelA && isTopLevelB) return 1;
+    // Alphabetical sort
+    return aName.localeCompare(bName);
+  };
 
 export const Category = ({
   schema,
