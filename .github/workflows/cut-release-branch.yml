@@ -89,7 +89,21 @@ jobs:
         set -ex
         version=$(jq -r .version package.json)
         git commit -am "release: Bump version to $version"
-        git push
+
+        # The release branch is already pushed by now, so bailing here leaves
+        # main un-bumped and the next run trips the "already exists" guard.
+        # A fair bit of time has passed since checkout, so rebase and retry
+        # rather than give up on the first reject.
+        for attempt in $(seq 1 5); do
+          if git push; then
+            exit 0
+          fi
+          echo "Push rejected (attempt $attempt/5), rebasing onto main and retrying"
+          git pull --rebase origin main
+        done
+
+        echo "::error::Could not push the version bump after 5 attempts. The release branch is already cut, so main needs bumping manually before this can run again."
+        exit 1
 
     - name: Trigger tamanu-source-dbt upgrade workflow
       env:
