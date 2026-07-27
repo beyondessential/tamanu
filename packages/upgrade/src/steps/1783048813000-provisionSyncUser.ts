@@ -35,20 +35,45 @@ const postJson = async (url: string, body: unknown, token?: string) => {
 export const STEPS: Steps = [
   {
     at: END,
-    // Existing facility servers hold sync credentials in config; new ones get a
-    // dedicated per-device sync user from the setup wizard. This converges the
-    // existing servers: use the legacy credentials (their sync user is role
-    // admin, so it may mint sync users) to provision a dedicated user on
-    // central and record it in facts, so the deprecated config keys can be
-    // dropped next version. Failure-tolerant: if central is unreachable or
-    // refuses, the server stays on the config fallback and the step retries on
-    // the next upgrade (it's gated on the email fact, not recorded as done).
+    // Copy the legacy config credentials into facts verbatim. Local writes only,
+    // so it can't fail — the config fallback can only go once every server is
+    // guaranteed to have these. Swapping them for a dedicated user is the step below.
     async check({ serverType, models: { LocalSystemFact } }: StepArgs) {
       if (serverType !== 'facility') return false;
       const { host, email, password } = legacySyncConfig();
       // nothing to migrate — fresh installs are configured by the wizard
       if (!host || !email || !password) return false;
       return !(await LocalSystemFact.get(FACT_SYNC_EMAIL));
+    },
+    async run({ sequelize, models: { LocalSystemFact, LocalSystemSecret }, log }: StepArgs) {
+      const { host: legacyHost, email, password } = legacySyncConfig();
+      const host = new URL(legacyHost!.trim()).origin;
+
+      await sequelize.transaction(async () => {
+        await LocalSystemFact.set(FACT_CENTRAL_HOST, host);
+        await LocalSystemFact.set(FACT_SYNC_EMAIL, email!);
+        // Encrypted at rest, out of local_system_facts and the raw reporting role.
+        await LocalSystemSecret.set(FACT_SYNC_PASSWORD, password!);
+      });
+      log.info('provisionSyncUser: legacy sync credentials recorded to facts');
+    },
+  },
+  {
+    at: END,
+    // Existing facility servers hold sync credentials in config; new ones get a
+    // dedicated per-device sync user from the setup wizard. This converges the
+    // existing servers: use the legacy credentials (their sync user is role
+    // admin, so it may mint sync users) to provision a dedicated user on
+    // central and record it in facts. Failure-tolerant: if central is unreachable
+    // or refuses, the server keeps syncing on the credentials recorded above and
+    // this retries on the next upgrade.
+    async check({ serverType, models: { LocalSystemFact } }: StepArgs) {
+      if (serverType !== 'facility') return false;
+      const { host, email, password } = legacySyncConfig();
+      // nothing to migrate — fresh installs are configured by the wizard
+      if (!host || !email || !password) return false;
+      // still the legacy email means the swap hasn't happened yet
+      return (await LocalSystemFact.get(FACT_SYNC_EMAIL)) === email;
     },
     async run({ sequelize, models: { LocalSystemFact, LocalSystemSecret }, log }: StepArgs) {
       const { host: legacyHost, email, password } = legacySyncConfig();

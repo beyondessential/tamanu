@@ -22,7 +22,9 @@ vi.mock('config', () => ({
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-const [step] = STEPS;
+const [recordStep, provisionStep] = STEPS;
+
+const LEGACY_EMAIL = 'legacy@sync.tamanu';
 
 const makeArgs = (facts: Record<string, string> = {}) => {
   const factStore = new Map(Object.entries(facts));
@@ -58,12 +60,31 @@ describe('1783048813000-provisionSyncUser', () => {
     mockFetch.mockReset();
   });
 
-  it('checks in only on facility servers with legacy config and no email fact', async () => {
+  it('records legacy credentials only on facility servers that have none yet', async () => {
     const { args } = makeArgs();
-    await expect(step.check(args)).resolves.toBe(true);
-    await expect(step.check({ ...args, serverType: 'central' })).resolves.toBe(false);
+    await expect(recordStep.check(args)).resolves.toBe(true);
+    await expect(recordStep.check({ ...args, serverType: 'central' })).resolves.toBe(false);
     const { args: configured } = makeArgs({ [FACT_SYNC_EMAIL]: 'sync.abc@sync.tamanu' });
-    await expect(step.check(configured)).resolves.toBe(false);
+    await expect(recordStep.check(configured)).resolves.toBe(false);
+  });
+
+  it('records the legacy credentials without touching the network', async () => {
+    const { args, factStore, secretStore } = makeArgs();
+
+    await recordStep.run(args);
+
+    // the whole point: no central round-trip, so this cannot fail
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(factStore.get(FACT_CENTRAL_HOST)).toBe('https://central.example.com');
+    expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
+    expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+  });
+
+  it('provisions a dedicated user only while the recorded email is still the legacy one', async () => {
+    const { args: legacy } = makeArgs({ [FACT_SYNC_EMAIL]: LEGACY_EMAIL });
+    await expect(provisionStep.check(legacy)).resolves.toBe(true);
+    const { args: dedicated } = makeArgs({ [FACT_SYNC_EMAIL]: 'sync.abc@sync.tamanu' });
+    await expect(provisionStep.check(dedicated)).resolves.toBe(false);
   });
 
   it('provisions a dedicated sync user and records it in facts', async () => {
@@ -75,7 +96,7 @@ describe('1783048813000-provisionSyncUser', () => {
       .mockResolvedValueOnce(jsonResponse({ token: 'a-token' }))
       .mockResolvedValueOnce(jsonResponse({ email: 'sync.abc@sync.tamanu', password: 'minted' }));
 
-    await step.run(args);
+    await provisionStep.run(args);
 
     // login with legacy creds, then provision with the token
     expect(mockFetch).toHaveBeenNthCalledWith(
@@ -108,27 +129,30 @@ describe('1783048813000-provisionSyncUser', () => {
         jsonResponse({ email: 'sync.abc@sync.tamanu', password: 'minted', settingsPsk: psk }),
       );
 
-    await step.run(args);
+    await provisionStep.run(args);
 
     expect(secretStore.get(FACT_SETTINGS_PSK)).toBe(psk);
   });
 
-  it('leaves the server on config fallback when central refuses', async () => {
+  it('leaves the recorded legacy credentials in place when central refuses', async () => {
     const { args, factStore } = makeArgs({
       [FACT_DEVICE_ID]: 'device-1',
       [FACT_FACILITY_IDS]: JSON.stringify(['facility-a']),
+      [FACT_SYNC_EMAIL]: LEGACY_EMAIL, // as the record step left it
     });
     mockFetch.mockResolvedValue({ ok: false, status: 403 });
 
-    await expect(step.run(args)).resolves.toBeUndefined(); // must not throw — it would fail the upgrade
-    expect(factStore.has(FACT_SYNC_EMAIL)).toBe(false);
+    await expect(provisionStep.run(args)).resolves.toBeUndefined(); // must not throw — it would fail the upgrade
+    // still on the legacy credentials the record step wrote, so sync keeps working
+    expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
     expect(args.log.warn).toHaveBeenCalled();
   });
 
-  it('skips servers that never registered with central', async () => {
-    const { args, factStore } = makeArgs();
-    await step.run(args);
+  it('skips provisioning on servers that never registered with central', async () => {
+    const { args } = makeArgs({ [FACT_SYNC_EMAIL]: LEGACY_EMAIL });
+    await provisionStep.run(args);
     expect(mockFetch).not.toHaveBeenCalled();
-    expect(factStore.has(FACT_SYNC_EMAIL)).toBe(false);
+    // untouched: no dedicated user, but the legacy credentials still sync
+    expect(args.log.warn).toHaveBeenCalled();
   });
 });
