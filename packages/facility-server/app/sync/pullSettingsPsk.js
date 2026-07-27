@@ -10,6 +10,9 @@ export async function pullSettingsPsk({ models: { LocalSystemSecret }, centralSe
   if (await LocalSystemSecret.get(FACT_SETTINGS_PSK)) return;
 
   const { settingsPsk } = await centralServer.fetch('admin/settingsPsk');
+  // Falsy rather than == null, unlike the read path in crypto.js: this one writes, and
+  // setIfAbsent would make an empty value permanent and break every secret read until
+  // someone clears the row. Refuse it and pick it up on the next sync.
   if (!settingsPsk) {
     log.warn('pullSettingsPsk: central returned no settings PSK');
     return;
