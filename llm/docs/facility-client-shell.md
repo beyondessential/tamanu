@@ -7,11 +7,17 @@ design artifact to be reviewed before any package is scaffolded.
 
 ## Background
 
-Tamanu's web frontend is a static bundle (`packages/web`, built with Vite,
-served by Caddy) that talks to a facility server API. On normal networks staff
-reach it over a public name with a publicly-trusted certificate — DNS resolves,
-TLS is trusted, secure-context APIs work, and the site can be installed as a
-PWA. All a client needs is an up-to-date Chromium.
+In production, Tamanu is **just a website**: a single HTTPS origin that serves
+the facility web app. On normal networks staff reach it over a public name with
+a publicly-trusted certificate — DNS resolves, TLS is trusted, secure-context
+APIs work, and the site can be installed as a PWA. All a client needs is an
+up-to-date Chromium.
+
+The shell treats that website as **opaque**: a URL that serves a website over
+HTTPS. It must not depend on how the site is built, bundled, or served (Vite,
+Caddy, static vs. dynamic, and so on are all irrelevant to it). From the shell's
+perspective there is one thing — an origin — and its job is to reach that origin
+and point a browser at it.
 
 Some facilities cannot obtain publicly-trusted certificates and run on ad-hoc
 LANs with no static addressing. On those networks:
@@ -28,27 +34,29 @@ against Canopy while the server has intermittent internet, served by Caddy) is
 **out of scope for this document and already in progress**. What remains, and
 what this document covers, is the **client**: a distributable native shell that
 discovers the facility server, connects to it over a certificate that chains to
-the BES CA, and loads the existing web frontend against a stable, trusted,
-secure origin.
+the BES CA, and loads the facility website against a stable, trusted, secure
+origin.
 
 ## Goals
 
 - Reach a facility server whose address is unknown and changing, with **no
   reliance on public DNS or publicly-trusted certificates**.
-- Present the connection as a **secure context** so the unchanged web frontend
-  behaves exactly as it does on a normal deployment.
+- Present the connection as a **secure context** so the website behaves exactly
+  as it does on a normal deployment, with no change to Tamanu itself.
 - Keep the address churn **invisible** to the user, and preserve web storage
   and session across it.
 - Be **installable fully offline** — a single file copied over a LAN or a USB
   stick, no internet required to stand up a new client.
-- Stay a **thin, near-static shell**: all product logic remains in the web
-  frontend, so the "one website everywhere" model is preserved and the shell
-  rarely needs updating.
+- Stay a **thin, near-static shell**: all product logic remains in the website,
+  so the "one website everywhere" model is preserved and the shell rarely needs
+  updating.
 
 ## Non-goals
 
 - No product UI in the shell. It discovers, establishes a trusted origin, and
-  loads the SPA. Nothing else.
+  loads the website. Nothing else.
+- No coupling to how Tamanu is built or served. The shell targets an origin, not
+  a bundle; it works unchanged whatever Tamanu's build looks like.
 - No server-side work (CA, ACME-style renewal, Caddy config, Canopy
   registration). Those are separate and already underway.
 - iOS is **deferred**. Android tablets are the primary mobile target; desktop
@@ -89,7 +97,7 @@ Consequences the shell relies on:
                          │        cache               │             │
                          │                            ▼             │
                          │              stable synthetic origin ────┼──► webview
-                         │              (name → current IP)         │    loads SPA
+                         │              (name → current IP)         │    loads site
                          └──────────────────────────────────────────┘
 ```
 
@@ -110,7 +118,7 @@ TypeScript core so the two shells differ only at the platform boundary
 
 ## Launch → loaded flow
 
-The shell is a small state machine. From cold launch to a loaded SPA:
+The shell is a small state machine. From cold launch to a loaded website:
 
 1. **Resolve target facility.**
    - If the shell is bound to a single facility (typical single-site install),
@@ -133,15 +141,15 @@ The shell is a small state machine. From cold launch to a loaded SPA:
 
 4. **Bind the stable synthetic origin.** Map the facility's stable name (e.g.
    `abc123.facility.internal`) to the winning IP for this session, so the
-   webview always loads `https://abc123.facility.internal/…`. The SPA sees one
+   webview always loads `https://abc123.facility.internal/…`. The site sees one
    constant, trusted, secure origin regardless of the underlying IP.
 
-5. **Load the SPA** in the webview against that origin and hand off. The shell
-   now only supervises the connection.
+5. **Load the website** in the webview against that origin and hand off. The
+   shell now only supervises the connection.
 
 6. **On connection loss / IP change**, re-run steps 2–4 in the background while
    keeping the origin identity constant. Because the origin does not change,
-   the SPA's `localStorage` / `IndexedDB` / session survive the reconnect —
+   the site's `localStorage` / `IndexedDB` / session survive the reconnect —
    the user is not logged out and the cache is not dropped. Surface a small
    "reconnecting" state only if it takes long enough to matter.
 
@@ -185,7 +193,7 @@ Design implications:
 The requirement is **per-origin** pinning: the facility origin must chain to the
 BES CA (and reject a publicly-trusted certificate presented for that origin),
 while **every other origin keeps using the normal system trust store** so the
-frontend can still reach external resources.
+website can still reach external resources.
 
 There is no web-platform API for this (HPKP was removed years ago, no
 replacement). It is a **native-shell capability** — which is itself an argument
@@ -236,7 +244,7 @@ upload versioned artifacts to S3) rather than a new mechanism.
   core but not the desktop build path — plan it as its own CI job.
 - The shell is thin and near-static; **shell updates are themselves an online
   operation**, so keeping product logic out of it minimises how often the
-  offline machines must be updated at all. The web frontend continues to update
+  offline machines must be updated at all. The website continues to update
   server-side, independent of the shell.
 
 ## Open questions / decisions before scaffolding
