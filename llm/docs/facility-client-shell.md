@@ -322,6 +322,56 @@ Defence-in-depth: putting the facility identity under a reserved namespace
 misconfigured global store cannot be satisfied by a public certificate for it.
 Treat this as a backstop, not the primary control.
 
+## Web storage, sessions, and login persistence
+
+Ordinary web storage (localStorage, sessionStorage, IndexedDB, cookies) must
+work and persist exactly as on a normal deployment. The site already builds
+"remember me", last-route restore, and offline caching on top of it; the shell
+must not get in the way. Because storage is partitioned by **origin**
+(scheme + host + port), getting the origin right is the whole of this problem.
+
+Two properties are required:
+
+1. **Stable origin → persistent storage.** The browser-facing origin must be
+   deterministic and constant across launches (and across IP churn), and the
+   storage must live in a **persistent** profile / data dir — never an ephemeral
+   one recreated per launch. Given that, the site's existing behaviour carries
+   through with no new shell logic:
+   - "Remember me" on → token in localStorage → survives a shell restart (wanted
+     for a kiosk / triage board).
+   - "Remember me" off → token in sessionStorage → cleared when the shell window
+     closes → logged out on restart (wanted on a shared workstation).
+   - Return-to-page after login is the site restoring its last route from
+     storage; the shell only has to keep the origin stable (and may launch at a
+     configured deep link for a kiosk board).
+
+2. **Per-facility isolation.** Encode the facility identity in the origin's
+   **host** — `http://<facility-identity>.localhost:PORT` — so each facility is a
+   distinct origin with its own isolated storage. Never one shared storage area
+   across facilities, and never a random or rotating origin (which would silently
+   orphan storage and log users out).
+
+Notes and gotchas:
+
+- **`.localhost`, not `.local`.** `*.localhost` is reserved, resolves to
+  loopback, and is a secure context — exactly what the loopback proxy needs.
+  `.local` is the mDNS/Bonjour LAN namespace: it names other hosts on the
+  network, is not loopback, and would not be a secure context. Do not conflate
+  them; `.local` belongs only to the discovery side, if anywhere.
+- **Persist the port per facility** as well as the host — the port is part of the
+  origin, so a changing port would orphan storage just like a changing host.
+- **Validate `*.localhost` subdomain resolution** in each renderer (Chrome
+  resolves it to loopback; confirm Android WebView). If a renderer only resolves
+  bare `localhost`, fall back to `127.0.0.1` with a **stable per-facility port** —
+  partitioning then rides on the port, which still gives each facility its own
+  storage.
+- **Android WebView disables DOM storage by default** — it must be explicitly
+  enabled and cookies set to persist, or the site's storage silently fails.
+- **Desktop `--app` Chrome:** decide between the user's default profile (shares
+  storage with their normal browsing) and a dedicated persistent
+  `--user-data-dir` (isolated and predictable). Either persists storage; a
+  dedicated dir is the cleaner isolation.
+
 ## Android kiosk / TV display mode
 
 The Android shell must support an **unattended, always-on display**
@@ -385,8 +435,10 @@ alongside Tamanu is a convenience, not a coupling.
    host-header/CORS fidelity so the site behaves as at its real origin)? Does
    `chrome --app=http://<uuid>.localhost:PORT` give the address-bar-less window
    we want, and is launching the *installed* Chrome specifically (not the default
-   browser) reliable across OSes? If any of this fails, fall back to a
-   system-webview wrapper (not bundled Chromium).
+   browser) reliable across OSes? Do `*.localhost` subdomains resolve to loopback
+   and does web storage persist across launches in each renderer? If any of this
+   fails, fall back to a system-webview wrapper (not bundled Chromium), or to
+   `127.0.0.1` + stable per-facility port for the origin.
 3. **Android renderer path.** Confirm whether the loopback-proxy + Chrome Custom
    Tab pattern works (keeps patching with Google), or whether system WebView is
    the pragmatic path. Note the kiosk / TV display mode already requires the
