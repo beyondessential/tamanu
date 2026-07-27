@@ -47,6 +47,8 @@ origin.
   and session across it.
 - Be **installable fully offline** — a single file copied over a LAN or a USB
   stick, no internet required to stand up a new client.
+- Support an **unattended kiosk / TV display** configuration on Android (e.g. an
+  ED triage board), running hands-off and always-on.
 - Stay a **thin, near-static shell**: all product logic remains in the website,
   so the "one website everywhere" model is preserved and the shell rarely needs
   updating.
@@ -159,7 +161,10 @@ regardless: Android System WebView is Chromium updated by Google via Play, and
 **Chrome Custom Tabs** are the user's Chrome (engine and updates). The
 loopback-proxy + Custom-Tab-at-`localhost` pattern may port to Android and keep
 patching delegated; that needs validation (Custom Tabs lifecycle, loading
-localhost, back-button UX), with system WebView as the safe fallback.
+localhost, back-button UX), with system WebView as the safe fallback. Note the
+**kiosk / TV display** configuration below pushes toward the embedded WebView
+regardless — the WebView is still Google-patched, so delegated patching is
+preserved either way.
 
 ## Architecture overview
 
@@ -317,6 +322,36 @@ Defence-in-depth: putting the facility identity under a reserved namespace
 misconfigured global store cannot be satisfied by a public certificate for it.
 Treat this as a backstop, not the primary control.
 
+## Android kiosk / TV display mode
+
+The Android shell must support an **unattended, always-on display**
+configuration — e.g. an ED triage board mounted in the department. This is a
+supported use case, not an afterthought; the design must not break it.
+
+The connection core is unchanged (discovery, BES-cert trust, and the loopback
+`http://<uuid>.localhost` secure context all work inside a WebView). What the
+kiosk configuration adds:
+
+- **Embedded WebView, not Custom Tabs.** A permanent display needs no browser UI
+  and must not be navigable away from the board. Custom Tabs aren't built for
+  this, and Android TV devices often don't ship Chrome at all — so the kiosk path
+  loads the site into the app's own fullscreen system WebView (immersive mode,
+  lock-task/kiosk pinning). The WebView is still vendor-patched, so this doesn't
+  re-insource renderer security.
+- **Hands-off operation.** There is no operator at the display, so nothing may
+  depend on runtime user entry. "Which facility + where to start" is provisioned
+  **once at setup** (a QR scan or config is fine there) and **persisted**;
+  runtime discovery relies only on cache + mDNS/multicast + Canopy. Auto-reconnect
+  on IP churn (already in the launch flow) is what keeps the board live.
+- **Survives the environment.** Auto-start on boot (`BOOT_COMPLETED`),
+  keep-screen-awake, and auto-relaunch on crash, so a power blip or reboot brings
+  the board back with no human present.
+- **Android TV caveat.** Confirm the target hardware — a wall-mounted tablet/box
+  vs. an actual Android TV (leanback, D-pad, no touch, frequently no Chrome).
+  A display-only board needs little input, but WebView availability and the
+  launcher/auto-start story differ between the two and should be validated on the
+  real device.
+
 ## Packaging and release
 
 Follows the existing `cd-package-*` pattern (build in CI, attach to the release,
@@ -354,7 +389,9 @@ alongside Tamanu is a convenience, not a coupling.
    system-webview wrapper (not bundled Chromium).
 3. **Android renderer path.** Confirm whether the loopback-proxy + Chrome Custom
    Tab pattern works (keeps patching with Google), or whether system WebView is
-   the pragmatic path.
+   the pragmatic path. Note the kiosk / TV display mode already requires the
+   embedded WebView, so the WebView path is needed regardless; the question is
+   whether Custom Tabs is also worth supporting for the interactive case.
 4. **Facility binding.** Single-facility installs (identity baked at package
    time / first run) vs a multi-facility picker. Affects step 1 of the launch
    flow and how the artifact is distributed.
