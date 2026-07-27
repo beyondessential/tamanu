@@ -255,13 +255,19 @@ into one pool and tried best-first:
 | Custom UDP multicast | Multicast (v4+v6) | LANs where mDNS specifically is filtered | **IPv6 has no broadcast — multicast is the portable mechanism.** Own group/port; a modernised version of Tamanu's old broadcast ping. |
 | Canopy candidate list | HTTPS (cached) | Cross-subnet, multicast-blocked | Server reports its own interface addresses to Canopy while online; client caches the list and tries them all. Only available if fetched during a prior online moment. |
 | User entry | — | Zero-infrastructure backstop | Typed address, or **QR scan** (facility console / Canopy shows a QR of identity + candidate addresses) — the ergonomic form on tablets. Once it works, it seeds the last-known-good cache, so entry is once-per-network, not per-session. |
-| Bounded subnet sweep | TCP connect | Absolute last resort | Noisy; safe only because the cert filters it. Bound tightly. |
+
+**No active scanning.** The shell deliberately does not sweep or port-scan the
+subnet to find the server. Unsolicited connection attempts across a LAN are the
+behaviour of malware and are rightly flagged by sysadmins and endpoint security;
+we will not ship it. The user-entry backstop (typed or QR-scanned) covers the
+case where every passive/announced source fails, without the shell ever probing
+hosts it was not told about.
 
 Design implications:
 
 - The discovery core exposes candidates as a **stream** so the connect loop can
   start trying fast sources (cache, entry) immediately while slower sources
-  (multicast responses, sweep) trickle in.
+  (multicast responses) trickle in.
 - A candidate is just `{ address, port, source }`. Sources are pluggable so the
   two shells can supply platform-native transports (Android NSD vs a desktop
   mDNS library) behind one interface.
