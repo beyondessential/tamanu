@@ -26,6 +26,11 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 
   const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
 
+  // A configured dataSet marks the sets complete as of today (in the primary timezone).
+  const completion = dataSet
+    ? { dataSet, completeDate: getCurrentDateStringInTimezone(getPrimaryTimeZone(config)) }
+    : {};
+
   // Transform each group of rows into a DHIS2 data value set object
   return groupedRows.map(group => {
     const { period, orgunit: orgUnit, attributeoptioncombo: attributeOptionCombo } = group[0];
@@ -39,7 +44,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 
     // Construct the DHIS2 data value set object
     return {
-      ...(dataSet && { dataSet, completeDate: getCurrentDateStringInTimezone(getPrimaryTimeZone(config)) }),
+      ...completion,
       period,
       orgUnit,
       attributeOptionCombo,
@@ -270,11 +275,19 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           dataValueCount: dataValueSet.dataValues?.length,
           error: error.message,
         });
-        await this.logDHIS2Push({
-          reportId,
-          status: AUDIT_STATUSES.FAILURE,
-          message: error.message,
-        });
+        // A failed audit write must not abort the remaining data value sets in the batch.
+        try {
+          await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.FAILURE,
+            message: error.message,
+          });
+        } catch (logError) {
+          log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
+            reportId,
+            error: `failed to write push log: ${logError.message}`,
+          });
+        }
       }
     }
   }

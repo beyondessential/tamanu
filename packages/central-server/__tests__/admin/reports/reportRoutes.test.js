@@ -214,6 +214,21 @@ describe('reportRoutes', () => {
       expect(versions).toHaveLength(1);
     });
 
+    it('should persist a non-null advancedConfig', async () => {
+      const { ReportDefinitionVersion } = models;
+      // eslint-disable-next-line no-unused-vars
+      const { versionNumber, ...newVersion } = getMockReportVersion(1, 'select 1');
+      const res = await adminApp
+        .post(`/api/admin/reports/${testReport.id}/versions`)
+        .send({ ...newVersion, advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
+      expect(res).toHaveSucceeded();
+      const versions = await ReportDefinitionVersion.findAll({
+        where: { reportDefinitionId: testReport.id },
+      });
+      expect(versions).toHaveLength(1);
+      expect(versions[0].advancedConfig).toEqual({ dhis2DataSet: 'test-dataset-id' });
+    });
+
     it('should not return unnecessary metadata', async () => {
       const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
       delete newVersion.versionNumber;
