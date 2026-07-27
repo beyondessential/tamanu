@@ -189,17 +189,19 @@ export async function getSettingsPskKeyBuffer() {
       // Local secrets store is the source of truth. Fall back to the legacy
       // crypto.settingsPsk config value while deployments converge; this
       // fallback is removed once the local store is guaranteed populated.
-      // ?? not ||: only a genuinely unset source (null/undefined = not yet
+      // == null, not falsy: only a genuinely unset source (null/undefined = not yet
       // provisioned) falls back. A falsy-but-present value (e.g. '' from a
       // corrupted row) passes through and fails loudly rather than silently
       // decrypting with the wrong key.
-      const fromStore = settingsPskSource && (await settingsPskSource());
-      if (fromStore == null) {
-        // TAM-6962: the config value is doing the work here, and that fallback goes
-        // away next release. Cached promise, so this is once per process.
+      let psk = settingsPskSource && (await settingsPskSource());
+      if (psk == null) {
+        psk = await getConfigSecret('crypto.settingsPsk');
+        // Logged after the read rather than before it: getConfigSecret throws when
+        // the key is unset, so reaching this line means config really is the source.
+        // An empty local store on its own says nothing. Cached promise, so this is
+        // once per process.
         log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
       }
-      const psk = fromStore ?? (await getConfigSecret('crypto.settingsPsk'));
       // Validate before use. Buffer.from(x, 'hex') silently drops invalid/odd
       // characters, so a corrupt or empty PSK would otherwise yield a wrong-length
       // key whose only symptom is an opaque "Decryption failed" far from the cause.
