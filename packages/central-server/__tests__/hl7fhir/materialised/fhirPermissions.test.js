@@ -18,7 +18,9 @@ describe('FHIR Permissions', () => {
   let resources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    // initFhir: the FHIR route handlers are registered per materialisable resource, which is
+    // read from settings rather than config now
+    ctx = await createTestContext({ initFhir: true });
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
   });
   afterAll(() => ctx.close());
