@@ -29,6 +29,20 @@ export async function initServerConfig({ context }) {
 
   resolved = { sync: { host, email, password }, facilityIds };
 
+  // TAM-6962: the config leg goes away next release. Name the keys still coming from
+  // it so we can find these servers first. This is a normal resting state, not an
+  // error — provisionSyncUser is failure-tolerant and leaves a server on config when
+  // central was unreachable during an upgrade.
+  const fromConfig = ['host', 'email', 'password'].filter(
+    key => env[key] == null && facts[key] == null && resolved.sync[key] != null,
+  );
+  if (env.facilityIds == null && facts.facilityIds == null && facilityIds != null) {
+    fromConfig.push('facilityIds');
+  }
+  if (fromConfig.length > 0) {
+    log.warn('serverConfig: sync settings resolved from legacy config', { keys: fromConfig });
+  }
+
   /* eslint-disable-next-line require-atomic-updates -- awaits above are settled */
   context.serverConfig = resolved;
 
