@@ -13,7 +13,7 @@ import { getSyncConfig } from '../../app/serverConfig';
 const LEGACY_EMAIL = 'legacy@sync.tamanu';
 const DEDICATED_EMAIL = 'sync.abc@sync.tamanu';
 
-const makeArgs = ({ kind = USER_KINDS.USER, facts = {} } = {}) => {
+const makeArgs = ({ kind = USER_KINDS.USER, authenticatedAs = LEGACY_EMAIL, facts = {} } = {}) => {
   const factStore = new Map(
     Object.entries({
       [FACT_DEVICE_ID]: 'device-1',
@@ -41,7 +41,11 @@ const makeArgs = ({ kind = USER_KINDS.USER, facts = {} } = {}) => {
           }),
         },
       },
-      centralServer: { user: kind === null ? null : { kind }, fetch, setToken },
+      centralServer: {
+        user: kind === null ? null : { kind, email: authenticatedAs },
+        fetch,
+        setToken,
+      },
     },
     factStore,
     secretStore,
@@ -109,6 +113,30 @@ describe('convergeSyncUser', () => {
     await convergeSyncUser(args);
 
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  // A process whose cached credential holder is behind re-authenticates as the old
+  // account, so kind alone would have it provision again on every sync, rotating the
+  // password each time for nothing.
+  it('does not provision again once facts hold a different account', async () => {
+    const { args, secretStore, fetch } = makeArgs({
+      facts: { [FACT_SYNC_EMAIL]: DEDICATED_EMAIL },
+      authenticatedAs: LEGACY_EMAIL,
+    });
+
+    await convergeSyncUser(args);
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+  });
+
+  it('writes nothing when central returns an unusable response', async () => {
+    const { args, factStore, secretStore, fetch } = makeArgs();
+    fetch.mockResolvedValue({ email: DEDICATED_EMAIL }); // no password
+
+    await expect(convergeSyncUser(args)).rejects.toThrow('no email or password');
+    expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
+    expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
   });
 
   it('propagates a failed provision for the caller to swallow', async () => {

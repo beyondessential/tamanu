@@ -17,10 +17,17 @@ import { initServerConfig } from '../serverConfig';
 export async function convergeSyncUser({ sequelize, models, centralServer }) {
   // Provisioning rotates the password, so only act on a positive answer: an
   // unknown kind means try again next sync, not rotate now.
-  const kind = centralServer.user?.kind;
+  const { kind, email: authenticatedAs } = centralServer.user ?? {};
   if (!kind || kind === USER_KINDS.SYNC) return;
 
   const { LocalSystemFact, LocalSystemSecret } = models;
+
+  // Facts holding a different account means the swap already happened and this
+  // process is just behind (a restart picks it up). Provisioning again would
+  // rotate the password for nothing, once per sync.
+  const recordedEmail = await LocalSystemFact.get(FACT_SYNC_EMAIL);
+  if (recordedEmail && recordedEmail !== authenticatedAs) return;
+
   const deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   const storedFacilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);
   const facilityIds = storedFacilityIds ? JSON.parse(storedFacilityIds) : [];
@@ -33,6 +40,9 @@ export async function convergeSyncUser({ sequelize, models, centralServer }) {
     method: 'POST',
     body: { deviceId, facilityIds },
   });
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error('admin/syncCredentials returned no email or password');
+  }
 
   // The response also carries the settings PSK, and storing it here would leave a
   // running process on whatever key it had already cached. pullSettingsPsk owns that
