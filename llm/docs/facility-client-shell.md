@@ -63,6 +63,8 @@ origin.
   registration). Those are separate and already underway.
 - iOS is **deferred**. Android tablets are the primary mobile target; desktop
   (Windows/macOS/Linux) is the primary workstation target.
+- **No clock-skew handling.** By design the shell does nothing about device
+  clocks (see Trust model for why it cannot affect us).
 
 ## Trust model (assumed from server-side work)
 
@@ -73,8 +75,9 @@ The shell is built around these properties, which the server side provides:
 - Each facility server holds a **BES-signed leaf certificate** whose SAN is a
   **stable identity** (e.g. the facility/server UUID as a name under a reserved
   namespace such as `.internal`), **not** an IP. The server keeps that leaf
-  comfortably long-lived (target ≥90 days of remaining validity at all times,
-  renewed against Canopy while online).
+  comfortably long-lived (six-month validity, renewed against Canopy at 90 days
+  of remaining life), with the `notBefore` date **backdated ~48 hours** at
+  issuance.
 
 Consequences the shell relies on:
 
@@ -85,6 +88,13 @@ Consequences the shell relies on:
 - Verifying "chains to BES CA" **and** "SAN == the facility I asked for" answers
   both *authentic server* and *correct server* cryptographically. This is what
   makes broad, promiscuous discovery safe (below).
+- **Clock skew cannot affect trust**, so the shell handles none. Within the
+  six-month / renew-at-90-day window the only exposure is at the very edges:
+  the `notBefore` backdate covers a device clock that runs behind just after a
+  renewal, and the far edge only bites a facility that has been offline for
+  ~two months, which is a "fix the facility or drop to plain HTTP" situation,
+  not a case to engineer around. Application-level skew remains Tamanu's own
+  concern.
 
 ## Versioning and compatibility
 
@@ -106,6 +116,13 @@ The shell knows nothing of Tamanu's application-level APIs or versions. Keep the
 discovery record and any negotiation **add-only** (versioned, with new fields
 optional and ignored by older shells), so the protocol never breaks
 backwards-compatibility and the server side can evolve freely.
+
+Fixing the **exact** minimum contract that gets frozen is a *closing* step of
+the build, not an upfront decision: once discovery, trust, origin scheme, and
+the picker are actually implemented, one of the last tasks is to write down the
+minimal, add-only surface those settled on and commit to never breaking it. It
+is called out here so it is not forgotten, but it is deliberately deferred to
+the end.
 
 ## Renderer and security ownership
 
@@ -156,15 +173,15 @@ The runtime options, ranked by how well they preserve delegated patching:
    that forces Tamanu to own renderer security and so defeats ship-once; avoid
    unless the above cannot be made to work.
 
-**Mobile** is less fraught because the system components are vendor-patched
-regardless: Android System WebView is Chromium updated by Google via Play, and
-**Chrome Custom Tabs** are the user's Chrome (engine and updates). The
-loopback-proxy + Custom-Tab-at-`localhost` pattern may port to Android and keep
-patching delegated; that needs validation (Custom Tabs lifecycle, loading
-localhost, back-button UX), with system WebView as the safe fallback. Note the
-**kiosk / TV display** configuration below pushes toward the embedded WebView
-regardless — the WebView is still Google-patched, so delegated patching is
-preserved either way.
+**Android uses the embedded system WebView — one path, no Chrome Custom Tabs.**
+The WebView is Chromium, patched by Google via Play, so delegated patching is
+preserved without an external browser. Custom Tabs were the alternative for the
+interactive case, but the kiosk / TV display configuration needs the embedded
+WebView anyway, so supporting Custom Tabs as well would mean two rendering paths
+for no benefit. The shell loads the site into its own WebView (with the loopback
+origin providing the secure context, as on desktop); the only Android-specific
+work is enabling DOM storage and configuring the WebView (see Web storage and
+the kiosk section).
 
 ## Architecture overview
 
@@ -201,15 +218,24 @@ surfaced to a browser).
 
 The shell is a small state machine. From cold launch to a loaded website:
 
-1. **Resolve target facility.**
-   - If the shell is bound to a single facility (typical single-site install),
-     use it.
-   - Otherwise pick from cached known facilities, or prompt (offline-capable
-     picker). "Which facility" is a stable identity, never an address.
+1. **Resolve target facility (multi-facility picker).** Several facilities
+   (e.g. different departments) can share one LAN, and discovery — the Canopy
+   pathway especially — may surface more than one without knowing which the user
+   wants, so a picker is a **core feature**, not a single-vs-multi install
+   toggle:
+   - If a facility is already chosen for this context — remembered from last time,
+     or pinned at kiosk setup — use it and skip the picker.
+   - Otherwise enumerate the facilities the shell knows about (cached known
+     facilities plus any surfaced by discovery/Canopy) and present a picker.
+     Each is a **stable identity**, never an address; the picker works offline
+     from the cache. Remember the choice so it is not asked again.
 
-2. **Generate candidates** for that facility (see the candidate stack). This is
-   a *broad* set of `(address, port)` guesses from every available source,
-   deduplicated, ordered best-first (last-known-good on this network first).
+2. **Generate candidates** for the chosen facility (see the candidate stack).
+   This is a *broad* set of `(address, port)` guesses from every available
+   source, deduplicated, ordered best-first (last-known-good on this network
+   first). Discovery may surface addresses for several facilities at once;
+   candidates are filtered to the chosen identity (and confirmed by the SAN check
+   at step 3), so co-located facilities never cross over.
 
 3. **Connect + verify loop.** For each candidate, in order and with bounded
    concurrency, attempt a TLS connection and **verify** it (in the agent's own
@@ -276,11 +302,6 @@ Design implications:
 - A candidate is just `{ address, port, source }`. Sources are pluggable so the
   two shells can supply platform-native transports (Android NSD vs a desktop
   mDNS library) behind one interface.
-- **Clock skew** is a real field failure for offline certificate validation
-  (a device with no NTP and a wrong clock rejects a valid cert or accepts an
-  expired one). The shell should, on connect, sanity-check the device clock
-  against the server's and surface "your clock looks wrong" rather than a bare
-  TLS error. Decide whether it nudges the clock or only warns.
 
 ## Trust enforcement
 
@@ -424,32 +445,43 @@ alongside Tamanu is a convenience, not a coupling.
   both update independently of the shell (the browser via its vendor, the
   website server-side).
 
-## Open questions / decisions before scaffolding
+## Decisions
 
-1. **Discovery protocol scope for the first cut.** Wire together mDNS + Canopy
-   candidate list + user entry (existing pieces) and defer the custom multicast
-   protocol to a later fallback? Or design the wire protocol now? This decides
-   whether the first package is "integration" or "protocol design".
-2. **Validate the headless-helper + real-Chrome model.** Does the loopback
-   reverse proxy carry everything the site needs (WebSockets, streaming,
-   host-header/CORS fidelity so the site behaves as at its real origin)? Does
-   `chrome --app=http://<uuid>.localhost:PORT` give the address-bar-less window
-   we want, and is launching the *installed* Chrome specifically (not the default
-   browser) reliable across OSes? Do `*.localhost` subdomains resolve to loopback
-   and does web storage persist across launches in each renderer? If any of this
-   fails, fall back to a system-webview wrapper (not bundled Chromium), or to
-   `127.0.0.1` + stable per-facility port for the origin.
-3. **Android renderer path.** Confirm whether the loopback-proxy + Chrome Custom
-   Tab pattern works (keeps patching with Google), or whether system WebView is
-   the pragmatic path. Note the kiosk / TV display mode already requires the
-   embedded WebView, so the WebView path is needed regardless; the question is
-   whether Custom Tabs is also worth supporting for the interactive case.
-4. **Facility binding.** Single-facility installs (identity baked at package
-   time / first run) vs a multi-facility picker. Affects step 1 of the launch
-   flow and how the artifact is distributed.
-5. **Clock-skew handling.** Warn only, or actively nudge the device clock from
-   the server on connect?
-6. **Protocol-stability commitment.** What exactly is frozen as the add-only,
-   never-breaking shell↔server contract (discovery record shape, SAN/identity
-   convention, localhost origin scheme), so an old shell keeps working against
-   all future Tamanu versions?
+- **Ship every discovery mechanism in v1.** Cache, mDNS, custom multicast,
+  Canopy candidate list, and user entry (typed + QR) all land in the first
+  release. Shipping the full set up front is precisely what lets an old shell
+  stay compatible with everything — we must not ship v1 and later need a v2 that
+  adds a discovery method older clients lack.
+- **Android renderer: embedded system WebView only, no Custom Tabs.** One
+  rendering path. The kiosk / TV mode needs the embedded WebView regardless, and
+  it is Google-patched, so a second Custom-Tab path would add surface for no
+  benefit.
+- **Multi-facility picker is a core feature** (see the launch flow). Co-located
+  facilities on one LAN and the possibly-ambiguous Canopy pathway make this
+  necessary, not a single-vs-multi install toggle.
+- **No clock-skew handling in the shell.** Six-month certificates renewed at 90
+  days, plus a ~48-hour backdated `notBefore`, make skew structurally unable to
+  affect trust within any supported offline window (see Trust model). App-level
+  skew stays Tamanu's own concern.
+
+## Validation while building
+
+- **Desktop headless-helper model.** Confirm the loopback reverse proxy carries
+  everything the site needs (WebSockets, streaming, host-header/CORS fidelity so
+  the site behaves as at its real origin); that `chrome --app=http://<uuid>.
+  localhost:PORT` gives the address-bar-less window and launches the *installed*
+  Chrome specifically (not the default browser) reliably across OSes; and that
+  `*.localhost` resolves to loopback and web storage persists across launches. If
+  any of this fails, fall back to a system-webview wrapper (not bundled
+  Chromium), or to `127.0.0.1` + a stable per-facility port for the origin.
+- **Android hardware.** Confirm WebView availability, storage (DOM storage is off
+  by default), and the auto-start / kiosk story on the real target — a
+  wall-mounted tablet/box vs. an actual Android TV.
+
+## Closing deliverable
+
+- **Freeze the minimum protocol contract.** As one of the *last* steps, once
+  discovery, trust, the origin scheme, and the picker are implemented, write down
+  the minimal add-only shell↔server surface they settled on (discovery record
+  shape, SAN/identity convention, localhost origin scheme) and commit to never
+  breaking it. Deferred to the end by design — see Versioning and compatibility.
