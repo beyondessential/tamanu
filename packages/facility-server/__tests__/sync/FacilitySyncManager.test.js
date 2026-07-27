@@ -2,6 +2,7 @@ import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+  FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -104,6 +105,57 @@ describe('FacilitySyncManager', () => {
       expect(dropSchema).toBeCalledWith('sync_snapshots');
       expect(createSchema).toBeCalledTimes(1);
       expect(createSchema).toBeCalledWith('sync_snapshots', {});
+    });
+
+    describe('settings PSK', () => {
+      const makeSyncManager = centralServerOverrides => {
+        const secretStore = new Map();
+        const syncManager = new FacilitySyncManager({
+          models: {
+            LocalSystemFact: { get: async () => null, set: async () => {} },
+            LocalSystemSecret: {
+              get: async key => secretStore.get(key) ?? null,
+              setIfAbsent: async (key, value) => {
+                if (!secretStore.has(key)) secretStore.set(key, value);
+              },
+            },
+          },
+          sequelize: {
+            getQueryInterface: () => ({ dropSchema: jest.fn(), createSchema: jest.fn() }),
+            query: () => true,
+          },
+          centralServer: {
+            streaming: () => false,
+            startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+            endSyncSession: jest.fn(),
+            ...centralServerOverrides,
+          },
+        });
+        jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+        jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+        return { syncManager, secretStore };
+      };
+
+      it('pulls the PSK once the session has completed', async () => {
+        const psk = 'ab'.repeat(32);
+        const fetch = jest.fn(async () => ({ settingsPsk: psk }));
+        const { syncManager, secretStore } = makeSyncManager({ fetch });
+
+        await syncManager.runSync();
+
+        expect(fetch).toHaveBeenCalledWith('admin/settingsPsk');
+        expect(secretStore.get(FACT_SETTINGS_PSK)).toBe(psk);
+      });
+
+      it('completes the sync even when the pull fails', async () => {
+        const fetch = jest.fn(async () => {
+          throw new Error('central unreachable');
+        });
+        const { syncManager, secretStore } = makeSyncManager({ fetch });
+
+        await expect(syncManager.runSync()).resolves.toEqual({ queued: false, ran: true });
+        expect(secretStore.has(FACT_SETTINGS_PSK)).toBe(false);
+      });
     });
   });
 
