@@ -7,6 +7,8 @@ import readSync from 'read';
 
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 
+import { log } from '../services/logging';
+
 const read = promisify(readSync);
 
 const SECRET_VERSION = 'S1';
@@ -191,15 +193,22 @@ export async function getSettingsPskKeyBuffer() {
       // provisioned) falls back. A falsy-but-present value (e.g. '' from a
       // corrupted row) passes through and fails loudly rather than silently
       // decrypting with the wrong key.
-      const psk =
-        (settingsPskSource && (await settingsPskSource())) ??
-        (await getConfigSecret('crypto.settingsPsk'));
+      const fromStore = settingsPskSource && (await settingsPskSource());
+      if (fromStore == null) {
+        // TAM-6962: the config value is doing the work here, and that fallback goes
+        // away next release. Cached promise, so this is once per process.
+        log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
+      }
+      const psk = fromStore ?? (await getConfigSecret('crypto.settingsPsk'));
       // Validate before use. Buffer.from(x, 'hex') silently drops invalid/odd
       // characters, so a corrupt or empty PSK would otherwise yield a wrong-length
       // key whose only symptom is an opaque "Decryption failed" far from the cause.
       // Fail here, at the source, with a message that names the problem.
       const expectedHexLength = KEY_LENGTH_BYTES * 2;
-      if (typeof psk !== 'string' || !new RegExp(`^[0-9a-f]{${expectedHexLength}}$`, 'i').test(psk)) {
+      if (
+        typeof psk !== 'string' ||
+        !new RegExp(`^[0-9a-f]{${expectedHexLength}}$`, 'i').test(psk)
+      ) {
         throw new Error(
           `Settings PSK must be exactly ${expectedHexLength} hex characters ` +
             `(${KEY_LENGTH_BYTES} bytes for AES-${KEY_LENGTH}); the local secrets store ` +
