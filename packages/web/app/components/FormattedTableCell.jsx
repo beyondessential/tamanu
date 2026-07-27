@@ -228,16 +228,25 @@ export const RangeValidatedCell = React.memo(
     validationCriteria,
     onClick,
     isEdited,
+    isFreeText,
     ValueWrapper = DefaultWrapper,
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(value, config);
-    const isEditedSuffix = isEdited ? '*' : '';
-    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
+    const displayValue = isFreeText
+      ? value?.trim() || <>&mdash;</>
+      : formatValue(value, config);
+    const formattedValue = (
+      <>
+        {displayValue}
+        {isEdited && '*'}
+      </>
+    );
     const { tooltip, severity } = useMemo(
-      () => getValidationState(float, config, validationCriteria),
-      [float, config, validationCriteria],
+      () =>
+        isFreeText ? { severity: INFO } : getValidationState(float, config, validationCriteria),
+      [isFreeText, float, config, validationCriteria],
     );
 
     const cell = (
