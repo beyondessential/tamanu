@@ -84,37 +84,113 @@ Consequences the shell relies on:
   both *authentic server* and *correct server* cryptographically. This is what
   makes broad, promiscuous discovery safe (below).
 
+## Versioning and compatibility
+
+The shell has its **own version line**, independent of Tamanu's. It may be
+released *alongside* Tamanu's artifacts for convenience, but must never be named
+or numbered to match a Tamanu version — that would train clients to believe the
+shell must be kept in lockstep with the server, when in fact there is broad
+compatibility. The aim is that **an old shell keeps working against all Tamanu
+versions**, so that we ship the shell approximately once and rarely again.
+
+That guarantee holds only if the shell's contract with the server stays tiny and
+stable. The shell's **entire protocol surface** is:
+
+- an HTTPS **origin** that serves a website (opaque — see Background),
+- a **BES-signed certificate** whose SAN is the facility identity, and
+- a **discovery record** describing where that origin currently lives.
+
+The shell knows nothing of Tamanu's application-level APIs or versions. Keep the
+discovery record and any negotiation **add-only** (versioned, with new fields
+optional and ignored by older shells), so the protocol never breaks
+backwards-compatibility and the server side can evolve freely.
+
+## Renderer and security ownership
+
+The single biggest risk to "ship once, never again" is the **web renderer**.
+Chromium ships security fixes every few weeks, often for actively-exploited
+zero-days. Whoever bundles the renderer owns that patch treadmill.
+
+A core advantage of the plain-website model is that **browser security is the
+vendor's problem, not Tamanu's** — the user's auto-updating Chrome is patched by
+Google. The shell must not casually give that up. If it bundled its own Chromium
+(e.g. Electron), Tamanu would own renderer security, which on these offline
+networks means either running auto-update infrastructure that cannot reliably
+reach the clients, or a **frozen, unpatched browser handling patient data**. That
+is the worst outcome and it defeats the ship-once goal.
+
+Therefore the design principle is: **the shell should host no renderer of its
+own, and keep renderer security delegated to the platform/browser vendor.** This
+also keeps the shell tiny and its attack surface small, which is what makes the
+"rarely shipped, never on a security clock" goal realistic. Because the primary
+path is the plain website and this is a fallback, we should not materially
+compromise security to build it.
+
+The runtime options, ranked by how well they preserve delegated patching:
+
+1. **Headless helper + the user's real Chrome (preferred for desktop).** The
+   shell is a small headless agent with **no renderer**. It does discovery,
+   holds the BES anchor, and runs a **loopback reverse proxy**: its own TLS
+   client verifies the facility certificate against the BES CA (pinning as
+   ordinary code — no browser trust hook needed), then exposes the connection to
+   the browser as `http://<facility-uuid>.localhost:PORT` and launches the
+   already-installed Chrome at that URL.
+   - `http://*.localhost` is a **secure context** by spec, so every gated web API
+     works with no certificate juggling in the browser.
+   - The renderer is the user's **real, Google-patched Chrome** — security stays
+     delegated.
+   - On-the-wire encryption is intact (agent→facility is BES-TLS); only the
+     loopback hop is plaintext and never leaves the machine.
+   - Chrome's `--app=http://…` flag opens a standalone, address-bar-less window,
+     recreating the seamless PWA-like experience.
+   - A stable `<uuid>.localhost` origin on a persisted port preserves session and
+     web storage across IP churn.
+2. **System-webview wrapper (fallback).** A Tauri-style shell over the system
+   webview — WebView2 (Chromium, Microsoft-patched) on Windows, WKWebView on
+   macOS, WebKitGTK on Linux. Vendor-patched, so ship-once survives, but on
+   macOS/Linux the WebKit engine reintroduces the cross-engine drift Tamanu
+   escaped by standardising on Chrome. Acceptable fallback, not first choice.
+3. **Bundled Chromium (last resort).** Electron and similar. The only option
+   that forces Tamanu to own renderer security and so defeats ship-once; avoid
+   unless the above cannot be made to work.
+
+**Mobile** is less fraught because the system components are vendor-patched
+regardless: Android System WebView is Chromium updated by Google via Play, and
+**Chrome Custom Tabs** are the user's Chrome (engine and updates). The
+loopback-proxy + Custom-Tab-at-`localhost` pattern may port to Android and keep
+patching delegated; that needs validation (Custom Tabs lifecycle, loading
+localhost, back-button UX), with system WebView as the safe fallback.
+
 ## Architecture overview
 
+The preferred desktop shape — a headless agent that proxies to the user's real
+Chrome over loopback (see Renderer and security ownership):
+
 ```
-                         ┌─────────────────────────────────────────┐
-                         │              client shell                │
-                         │                                          │
-  discovery sources ───► │  candidate pool ──► connect+verify loop  │
-  (see stack below)      │        ▲                    │            │
-                         │        │             pin hook (BES CA +   │
-                         │   last-known-good          SAN check)     │
-                         │        cache               │             │
-                         │                            ▼             │
-                         │              stable synthetic origin ────┼──► webview
-                         │              (name → current IP)         │    loads site
-                         └──────────────────────────────────────────┘
+                   ┌────────────────────────────────────────┐
+                   │          headless agent (shell)         │
+                   │                                         │        real Chrome
+ discovery ──────► │ candidate pool ─► connect+verify loop   │        (--app, no
+ sources           │      ▲                    │             │         address bar)
+                   │      │      TLS client: BES CA + SAN     │            ▲
+                   │ last-known-good           │             │            │
+                   │      cache          verified tunnel     │   http://<uuid>.localhost:PORT
+                   │                           │             │   (secure context)
+                   │              loopback reverse proxy ─────┼────────────┘
+                   └────────────────────────────────────────┘
+              on-the-wire: agent→facility is BES-TLS; loopback hop is local-only
 ```
 
-Two runtimes, same design, shared where practical:
-
-- **Desktop** — Electron. Chosen for a **consistent bundled Chromium** (the
-  reason Tamanu standardised on Chrome in the first place) and, decisively, for
-  `session.setCertificateVerifyProc`, which gives per-origin trust scoping (see
-  Trust below). Emits per-OS artifacts.
-- **Android** — a thin native WebView app (Gradle toolchain, separate from the
-  React Native app in `packages/mobile`). Per-domain trust scoping is
-  declarative via a Network Security Config. Emits a sideloadable `.apk`.
+The trust decision is made by the agent's own TLS client in ordinary code, so no
+browser certificate hook is required. On a system-webview or Custom-Tab variant
+the same core is reused; only the final hop (loopback origin vs. an in-process
+webview) differs.
 
 Shared, runtime-agnostic logic (candidate modelling, the connect/verify state
-machine, cache format, the name→IP mapping contract) should live in a small
-TypeScript core so the two shells differ only at the platform boundary
-(discovery transports, the certificate-verification hook, and the webview host).
+machine, cache format, the TLS-verification and origin-mapping contract) should
+live in a small TypeScript core, so desktop and mobile differ only at the
+platform boundary (discovery transports and how the verified connection is
+surfaced to a browser).
 
 ## Launch → loaded flow
 
@@ -131,7 +207,8 @@ The shell is a small state machine. From cold launch to a loaded website:
    deduplicated, ordered best-first (last-known-good on this network first).
 
 3. **Connect + verify loop.** For each candidate, in order and with bounded
-   concurrency, attempt a TLS connection and apply the **pin hook**:
+   concurrency, attempt a TLS connection and **verify** it (in the agent's own
+   TLS client — no browser hook needed):
    - certificate must chain to the baked-in BES CA, **and**
    - the SAN must equal the target facility identity.
    The first candidate that passes is the server. Everything else — wrong IP,
@@ -139,19 +216,25 @@ The shell is a small state machine. From cold launch to a loaded website:
    discarded. No candidate source needs to be trusted; the certificate is the
    filter.
 
-4. **Bind the stable synthetic origin.** Map the facility's stable name (e.g.
-   `abc123.facility.internal`) to the winning IP for this session, so the
-   webview always loads `https://abc123.facility.internal/…`. The site sees one
-   constant, trusted, secure origin regardless of the underlying IP.
+4. **Bind the stable local origin.** In the preferred model the agent exposes
+   the verified tunnel as a stable loopback origin — `http://<facility-uuid>.
+   localhost:PORT` (a secure context; persisted port so the origin is constant
+   across launches). The winning IP for this session lives only inside the
+   agent's upstream TLS client; the browser only ever sees the constant
+   localhost origin, regardless of the underlying IP. (A system-webview variant
+   binds an equivalent stable origin in-process.)
 
-5. **Load the website** in the webview against that origin and hand off. The
-   shell now only supervises the connection.
+5. **Launch the browser** at that origin and hand off — real Chrome via
+   `--app=http://…` for an address-bar-less window in the preferred model, or an
+   in-process webview in the fallback. The shell now only supervises the
+   connection.
 
-6. **On connection loss / IP change**, re-run steps 2–4 in the background while
-   keeping the origin identity constant. Because the origin does not change,
-   the site's `localStorage` / `IndexedDB` / session survive the reconnect —
-   the user is not logged out and the cache is not dropped. Surface a small
-   "reconnecting" state only if it takes long enough to matter.
+6. **On connection loss / IP change**, re-run steps 2–3 in the background and
+   re-point the tunnel's upstream, keeping the local origin constant. Because
+   the browser-facing origin does not change, the site's `localStorage` /
+   `IndexedDB` / session survive the reconnect — the user is not logged out and
+   the cache is not dropped. Surface a small "reconnecting" state only if it
+   takes long enough to matter.
 
 7. **On successful connect**, write the winning `(network fingerprint → address)`
    to the last-known-good cache so the next launch on this network starts there.
@@ -188,64 +271,67 @@ Design implications:
   against the server's and surface "your clock looks wrong" rather than a bare
   TLS error. Decide whether it nudges the clock or only warns.
 
-## Trust and the pin hook
+## Trust enforcement
 
-The requirement is **per-origin** pinning: the facility origin must chain to the
-BES CA (and reject a publicly-trusted certificate presented for that origin),
-while **every other origin keeps using the normal system trust store** so the
-website can still reach external resources.
+The requirement: the facility connection must chain to the BES CA (and reject a
+publicly-trusted certificate presented for it), while everything else the site
+loads keeps using the normal system trust store so external resources still
+work. Crucially, this must **not** be done by adding the BES CA to a global
+trust store — that would let a public certificate satisfy the facility
+connection.
 
-There is no web-platform API for this (HPKP was removed years ago, no
-replacement). It is a **native-shell capability** — which is itself an argument
-for the shell over the service-worker approach, which would be stuck with the
-global store.
+**Preferred model (headless helper): trust is enforced in the agent's own TLS
+client, in ordinary code.** The agent is the only thing that speaks TLS to the
+facility; it verifies "chains to baked-in BES CA **and** SAN == target facility
+identity" itself, with a trust store scoped to *just* the BES anchor for that
+connection. The browser never participates in this trust decision — it only ever
+talks to `http://<uuid>.localhost`, a secure context needing no certificate at
+all. External resources the site loads go straight from the browser over its
+normal trust store, untouched. This is cleaner than any browser hook: pinning is
+plain client code, and there is no global-store pollution because the BES anchor
+never enters the browser's store.
 
-**Desktop (Electron):**
+**In-process-webview variants** (system webview / Electron fallbacks) don't have
+a separate TLS client, so they need a **per-origin** browser trust hook instead:
 
-```js
-session.setCertificateVerifyProc((request, callback) => {
-  const { hostname, certificate } = request;
-  if (isFacilityOrigin(hostname)) {
-    // hard pin: must chain to baked-in BES CA AND SAN must match the
-    // target facility identity. Public CAs are NOT acceptable here.
-    return callback(chainsToBesCa(certificate) && sanMatches(certificate, hostname) ? 0 : -2);
-  }
-  return callback(-3); // everything else: Chromium's default verification
-});
-```
+- **Electron:** `session.setCertificateVerifyProc` — for the facility origin,
+  require chain-to-BES-CA and SAN match, else reject; for every other origin,
+  return the "use Chromium default" code so public CAs still work.
+- **Android WebView:** declarative via `network_security_config.xml` — a
+  `<domain-config>` for the facility host whose `<trust-anchors>` are the bundled
+  BES CA, the rest inheriting system trust; enforce the SAN check in code.
+- **iOS (deferred):** the `WKNavigationDelegate` `didReceive challenge` delegate
+  does per-host custom trust evaluation.
 
-**Android (WebView):** declarative, no code — a `network_security_config.xml`
-with a `<domain-config>` for the facility host whose `<trust-anchors>` point at
-the bundled BES CA, while the rest of the app inherits system trust. Enforce the
-SAN==identity check in the connect loop before binding the origin.
+Either way, the property to hold is the same: BES-CA-only for the facility,
+system trust for everything else.
 
-**iOS (deferred):** the `WKNavigationDelegate` `didReceive challenge` delegate
-does per-host custom server-trust evaluation — same idea when the time comes.
-
-Defence-in-depth: putting the facility origin under a reserved namespace
+Defence-in-depth: putting the facility identity under a reserved namespace
 (`.internal`) means no public CA can issue for that name at all, so even a
 misconfigured global store cannot be satisfied by a public certificate for it.
-Treat this as a backstop, not the primary control — the hard native pin is the
-primary control.
+Treat this as a backstop, not the primary control.
 
 ## Packaging and release
 
 Follows the existing `cd-package-*` pattern (build in CI, attach to the release,
-upload versioned artifacts to S3) rather than a new mechanism.
+upload artifacts to S3) rather than a new mechanism — but the shell carries its
+**own version**, not Tamanu's (see Versioning and compatibility). Releasing
+alongside Tamanu is a convenience, not a coupling.
 
 - **Desktop:** a monorepo package (working name `packages/desktop-shell`,
-  `@tamanu/desktop-shell`) built with Electron + an installer/packager
-  (electron-builder or similar), producing signed per-OS artifacts
-  (`.exe`/`.msi`, `.dmg`, `.AppImage`/`.deb`). Code-signing and macOS
-  notarisation are required for a smooth install and need their own secrets,
-  mirroring how `cd-package-frontend.yml` handles signing certs.
+  `@tamanu/desktop-shell`) building the headless agent as a small native binary
+  per OS, that launches the user's installed Chrome. It produces signed per-OS
+  artifacts; code-signing and macOS notarisation need their own secrets,
+  mirroring how `cd-package-frontend.yml` handles signing certs. (A bundled
+  Chromium is deliberately avoided — see Renderer and security ownership.)
 - **Android:** a sibling shell built with Gradle producing a sideloadable
-  `.apk`, mirroring `cd-package-android.yml`. It shares the TypeScript discovery
-  core but not the desktop build path — plan it as its own CI job.
-- The shell is thin and near-static; **shell updates are themselves an online
-  operation**, so keeping product logic out of it minimises how often the
-  offline machines must be updated at all. The website continues to update
-  server-side, independent of the shell.
+  `.apk`, mirroring `cd-package-android.yml`. It shares the TypeScript core but
+  not the desktop build path — plan it as its own CI job.
+- Because the shell hosts no renderer, its updates are rare and never on a
+  browser-security clock; keeping product logic out of it keeps the offline
+  machines from needing updates at all. Renderer security and the website itself
+  both update independently of the shell (the browser via its vendor, the
+  website server-side).
 
 ## Open questions / decisions before scaffolding
 
@@ -253,16 +339,22 @@ upload versioned artifacts to S3) rather than a new mechanism.
    candidate list + user entry (existing pieces) and defer the custom multicast
    protocol to a later fallback? Or design the wire protocol now? This decides
    whether the first package is "integration" or "protocol design".
-2. **Desktop runtime confirmation.** Electron (consistent bundled Chromium + the
-   `setCertificateVerifyProc` hook) vs Tauri (small binary, but system webview
-   reintroduces the cross-engine drift Tamanu deliberately escaped). This design
-   assumes Electron.
-3. **Facility binding.** Single-facility installs (identity baked at package
+2. **Validate the headless-helper + real-Chrome model.** Does the loopback
+   reverse proxy carry everything the site needs (WebSockets, streaming,
+   host-header/CORS fidelity so the site behaves as at its real origin)? Does
+   `chrome --app=http://<uuid>.localhost:PORT` give the address-bar-less window
+   we want, and is launching the *installed* Chrome specifically (not the default
+   browser) reliable across OSes? If any of this fails, fall back to a
+   system-webview wrapper (not bundled Chromium).
+3. **Android renderer path.** Confirm whether the loopback-proxy + Chrome Custom
+   Tab pattern works (keeps patching with Google), or whether system WebView is
+   the pragmatic path.
+4. **Facility binding.** Single-facility installs (identity baked at package
    time / first run) vs a multi-facility picker. Affects step 1 of the launch
    flow and how the artifact is distributed.
-4. **Clock-skew handling.** Warn only, or actively nudge the device clock from
+5. **Clock-skew handling.** Warn only, or actively nudge the device clock from
    the server on connect?
-5. **How much shared core is worth it** between the desktop and Android shells
-   before the platform boundary (discovery transports, verify hook, webview
-   host) — i.e. where exactly to draw the TypeScript-core / native-shim line.
-```
+6. **Protocol-stability commitment.** What exactly is frozen as the add-only,
+   never-breaking shell↔server contract (discovery record shape, SAN/identity
+   convention, localhost origin scheme), so an old shell keeps working against
+   all future Tamanu versions?
