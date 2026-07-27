@@ -251,15 +251,18 @@ export const RangeValidatedCell = React.memo(
     validationCriteria,
     onClick,
     isEdited,
+    isFreeText,
     ValueWrapper = DefaultWrapper,
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(value, config);
     const { tooltip, severity } = useMemo(
-      () => getValidationState(float, config, validationCriteria),
-      [float, config, validationCriteria],
+      () =>
+        isFreeText ? { severity: INFO } : getValidationState(float, config, validationCriteria),
+      [isFreeText, float, config, validationCriteria],
     );
+    const displayValue = isFreeText ? value?.trim() || <>&mdash;</> : formatValue(value, config);
 
     const cell = (
       <CellContainer
@@ -271,7 +274,7 @@ export const RangeValidatedCell = React.memo(
         <ValueWrapper
           value={
             <>
-              {formatValue(value, config)}
+              {displayValue}
               {isEdited && <EditedOrnament />}
             </>
           }
