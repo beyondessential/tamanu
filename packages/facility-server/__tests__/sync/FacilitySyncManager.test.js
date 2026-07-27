@@ -54,7 +54,7 @@ describe('FacilitySyncManager', () => {
 
       // set up promise so that sync cannot be finished until promise is resolved
       syncManager.runSync = jest.fn().mockImplementation(async () => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           resolveSyncPromise = async () => resolve(true);
         });
       });
@@ -168,12 +168,15 @@ describe('FacilitySyncManager', () => {
       });
 
       // Central serves the PSK to a dedicated sync user only, so a facility still on
-      // config credentials has to swap first or the read is refused.
-      it('swaps the sync user before reading the PSK', async () => {
+      // config credentials has to swap first or the read is refused. Provisioning also
+      // returns the PSK, and taking it there would skip the read, and with it the key
+      // buffer drop that gets a running process off a stale key.
+      it('swaps the sync user and still reads the PSK', async () => {
+        const psk = 'ab'.repeat(32);
         const fetch = jest.fn(async endpoint =>
           endpoint === 'admin/syncCredentials'
-            ? { email: 'sync.abc@sync.tamanu', password: 'minted' }
-            : { settingsPsk: 'ab'.repeat(32) },
+            ? { email: 'sync.abc@sync.tamanu', password: 'minted', settingsPsk: psk }
+            : { settingsPsk: psk },
         );
         const { syncManager } = makeSyncManager(
           { fetch, user: { kind: USER_KINDS.USER } },

@@ -69,14 +69,19 @@ describe('convergeSyncUser', () => {
     expect(setToken).toHaveBeenCalledWith('');
   });
 
-  it('stores the settings PSK when central returns one', async () => {
-    const psk = 'ab'.repeat(32);
+  // Storing it here would satisfy pullSettingsPsk's absence check, so it would skip,
+  // and with it the cache drop a running process needs to stop using a stale key.
+  it('leaves the settings PSK in the response alone', async () => {
     const { args, secretStore, fetch } = makeArgs();
-    fetch.mockResolvedValue({ email: DEDICATED_EMAIL, password: 'minted', settingsPsk: psk });
+    fetch.mockResolvedValue({
+      email: DEDICATED_EMAIL,
+      password: 'minted',
+      settingsPsk: 'ab'.repeat(32),
+    });
 
     await convergeSyncUser(args);
 
-    expect(secretStore.get(FACT_SETTINGS_PSK)).toBe(psk);
+    expect(secretStore.has(FACT_SETTINGS_PSK)).toBe(false);
   });
 
   it('does nothing once the sync user is dedicated', async () => {

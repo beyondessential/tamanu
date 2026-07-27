@@ -1,7 +1,6 @@
 import {
   FACT_DEVICE_ID,
   FACT_FACILITY_IDS,
-  FACT_SETTINGS_PSK,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
   USER_KINDS,
@@ -35,12 +34,12 @@ export async function convergeSyncUser({ sequelize, models, centralServer }) {
     body: { deviceId, facilityIds },
   });
 
+  // The response also carries the settings PSK, and storing it here would leave a
+  // running process on whatever key it had already cached. pullSettingsPsk owns that
+  // write and the cache invalidation that has to go with it, and runs straight after.
   await sequelize.transaction(async () => {
     await LocalSystemFact.set(FACT_SYNC_EMAIL, credentials.email);
     await LocalSystemSecret.set(FACT_SYNC_PASSWORD, credentials.password);
-    if (credentials.settingsPsk) {
-      await LocalSystemSecret.setIfAbsent(FACT_SETTINGS_PSK, credentials.settingsPsk);
-    }
   });
 
   await initServerConfig({ context: { models } });
