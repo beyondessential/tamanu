@@ -1,16 +1,17 @@
+import { styled, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { styled, Typography, Box } from '@mui/material';
-import { Alert } from '@material-ui/lab';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getAnswersFromData, AuthContext } from '@tamanu/ui-components';
-import { useCurrentUser } from '@routes/PrivateRoute';
-import { useSurveyQuery } from '@api/queries/useSurveyQuery';
+
 import { useSubmitSurveyResponse } from '@api/mutations';
-import { SurveyForm } from '../features/survey/SurveyForm';
+import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
+import { useCurrentUser } from '@routes/PrivateRoute';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { Alert, AuthContext, getAnswersFromData } from '@tamanu/ui-components';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SettingsProvider } from '../contexts';
+import { SurveyForm } from '../features/survey/SurveyForm';
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,

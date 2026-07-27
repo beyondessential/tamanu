@@ -1,14 +1,13 @@
+import { Typography } from '@material-ui/core';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { Typography } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+
+import { Alert, FormSubmitCancelRow, TranslatedText } from '@tamanu/ui-components';
+import { useRegisterPatientPortal } from '../../../api/mutations';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
-import { useRegisterPatientPortal } from '../../../api/mutations';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -19,13 +18,6 @@ const SubText = styled(Typography)`
   font-weight: 500;
   margin: 10px 0 20px;
   font-size: 14px;
-`;
-
-const StyledAlert = styled(Alert)`
-  background-color: ${({ theme }) => theme.palette.background.paper};
-  border: 1px solid ${Colors.outline};
-  font-size: 14px;
-  color: ${props => props.theme.palette.text.primary};
 `;
 
 export const SendToPatientModal = ({ patient }) => {
@@ -59,7 +51,6 @@ export const SendToPatientModal = ({ patient }) => {
         <TranslatedText
           stringId="patientDetails.resources.patientPortalRegistration.modal.title"
           fallback="Patient Portal registration"
-          data-testid="translatedtext-patient-portal-title"
         />
       }
       open={open}
@@ -67,9 +58,7 @@ export const SendToPatientModal = ({ patient }) => {
     >
       {isRegistered ? (
         <>
-          <StyledAlert variant="outlined" severity="success">
-            Patient has successfully registered for the patient portal
-          </StyledAlert>
+          <Alert>Patient has successfully registered for the patient portal</Alert>
           <Text>
             <TranslatedText
               stringId="patientDetails.resources.patientPortalRegistration.modal.registeredText"

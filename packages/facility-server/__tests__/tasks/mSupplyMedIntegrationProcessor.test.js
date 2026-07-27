@@ -66,7 +66,19 @@ function mockPostResponse(success = true, message = 'ok', items = undefined) {
 
 async function createMedicationDispenses(
   models,
-  { facilityId, encounterId, orderingClinicianId, dispensedByUserId, medicationId, count = 1 },
+  {
+    facilityId,
+    encounterId,
+    orderingClinicianId,
+    dispensedByUserId,
+    medicationId,
+    // When set, simulates a pharmacy substitution: the fill is dispensed with this medication
+    // rather than the prescribed one (as the dispense route records via medication_dispenses).
+    dispensedMedicationId,
+    // Quantity recorded on the dispense (what mSupply is sent as numberOfUnits).
+    dispensedQuantity = 1,
+    count = 1,
+  },
 ) {
   const { PharmacyOrder, Prescription, PharmacyOrderPrescription, MedicationDispense } = models;
   const order = await PharmacyOrder.create({
@@ -95,12 +107,35 @@ async function createMedicationDispenses(
     });
     const dispense = await MedicationDispense.create({
       pharmacyOrderPrescriptionId: pop.id,
-      quantity: 1,
+      quantity: dispensedQuantity,
       dispensedByUserId,
+      ...(dispensedMedicationId && {
+        medicationId: dispensedMedicationId,
+        modifiedAt: getCurrentDateTimeString(),
+        modifiedById: dispensedByUserId,
+      }),
     });
     dispenses.push(dispense);
   }
   return dispenses;
+}
+
+// Every pushed line item across all GraphQL push calls made in a run (auth calls are skipped).
+function pushedItems() {
+  return fetchWithRetryBackoff.mock.calls
+    .map(call => {
+      try {
+        return JSON.parse(call[1].body);
+      } catch {
+        return null;
+      }
+    })
+    .flatMap(body => body?.variables?.input?.items ?? []);
+}
+
+// Every itemCode across all pushed line items.
+function pushedItemCodes() {
+  return pushedItems().map(item => item.itemCode);
 }
 
 describe('mSupplyMedIntegrationProcessor', () => {
@@ -346,6 +381,51 @@ describe('mSupplyMedIntegrationProcessor', () => {
       expect(successLog).not.toBeNull();
       expect(successLog.message).toBe('Batch received');
       expect(sleepAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when a fill was dispensed with a substituted medication', () => {
+    it('sends the dispensed medication code, not the prescribed one', async () => {
+      const prescribed = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-PRESCRIBED',
+        name: 'Prescribed medication (sub test)',
+      });
+      const substitute = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-SUBSTITUTE',
+        name: 'Substitute medication (sub test)',
+      });
+
+      await createMedicationDispenses(models, {
+        facilityId,
+        encounterId,
+        orderingClinicianId: clinicianId,
+        dispensedByUserId,
+        medicationId: prescribed.id,
+        dispensedMedicationId: substitute.id,
+        // Distinctive value so the assertion proves the dispensed quantity is sent, not a default.
+        dispensedQuantity: 7,
+        count: 1,
+      });
+
+      // One dispense → one batch → one push. Queue exactly that: mockResolvedValueOnce responses
+      // are not drained by clearAllMocks between tests, so over-queuing here would leak leftover
+      // POST responses into later tests and break their auth call.
+      mockAuthResponse();
+      mockPostResponse(true, 'ok');
+
+      const task = new mSupplyMedIntegrationProcessor(context);
+      await task.run();
+
+      // mSupply must receive the actually-dispensed drug and its dispensed quantity — not the
+      // prescribed drug.
+      expect(pushedItems()).toContainEqual(
+        expect.objectContaining({ itemCode: 'MED-SUBTEST-SUBSTITUTE', numberOfUnits: 7 }),
+      );
+      expect(pushedItemCodes()).not.toContain('MED-SUBTEST-PRESCRIBED');
     });
   });
 

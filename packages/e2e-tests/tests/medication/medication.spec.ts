@@ -34,6 +34,124 @@ test.describe('Medication requests', () => {
     await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
   });
 
+  test('Modify prescription then dispense', async ({
+    page,
+    api,
+    newPatient,
+    medicationRequestsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
+
+    await medicationRequestsPage.goto();
+
+    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
+    await dispenseModal.waitForModalToLoad();
+
+    // Modify the fill's prescription details (dose, route + mandatory reason) before dispensing.
+    await dispenseModal.modifyPrescription(0);
+
+    // Dispensing then proceeds, recording the modification on the dispense record.
+    await dispenseModal.dispenseWithoutLabelsButton.click();
+
+    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
+  });
+
+  test('View modify history after dispensing with a modification', async ({
+    page,
+    api,
+    newPatient,
+    medicationRequestsPage,
+    medicationDispensesPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
+
+    await medicationRequestsPage.goto();
+
+    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
+    await dispenseModal.waitForModalToLoad();
+    await dispenseModal.modifyPrescription(0);
+    await dispenseModal.dispenseWithoutLabelsButton.click();
+    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
+
+    // The modified fill appears in the dispensed medications listing; its row menu exposes
+    // "View modify history", which opens the change history modal.
+    await medicationDispensesPage.goto();
+    await medicationDispensesPage.openModifyHistoryForPatient(newPatient.displayId);
+
+    // The modal contrasts the current (pharmacy-modified) details against the original prescription.
+    await expect(page.getByRole('dialog')).toContainText('Modify prescription history');
+    await expect(medicationDispensesPage.historyModalCurrentCard).toBeVisible();
+    await expect(medicationDispensesPage.historyModalOriginalCard).toBeVisible();
+    await expect(medicationDispensesPage.historyModalCurrentCard).toContainText(
+      'Reason for modification',
+    );
+    await expect(medicationDispensesPage.historyModalOriginalCard).toContainText(
+      'Original prescriber',
+    );
+  });
+
+  test('Modify prescription to a variable dose then dispense', async ({
+    page,
+    api,
+    newPatient,
+    medicationRequestsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
+
+    await medicationRequestsPage.goto();
+
+    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
+    await dispenseModal.waitForModalToLoad();
+
+    // Ticking variable dose clears + disables the dose field; dispensing still succeeds.
+    await dispenseModal.modifyToVariableDose(0);
+    await dispenseModal.dispenseWithoutLabelsButton.click();
+
+    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
+  });
+
+  test('Dispensed medications table marks a modified fill with an asterisk and footnote', async ({
+    page,
+    api,
+    newPatient,
+    medicationRequestsPage,
+    medicationDispensesPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+    await createPharmacyOrderViaApi(api, page, encounter.id, prescription.id);
+
+    await medicationRequestsPage.goto();
+
+    const dispenseModal = await medicationRequestsPage.clickRowForPatient(newPatient.displayId);
+    await dispenseModal.waitForModalToLoad();
+    await dispenseModal.modifyPrescription(0);
+    await dispenseModal.dispenseWithoutLabelsButton.click();
+    await expect(page.getByText('Medication successfully dispensed')).toBeVisible();
+
+    await medicationDispensesPage.goto();
+
+    // The modified fill's row is flagged with an asterisk, and the table shows the footnote.
+    const row = medicationDispensesPage.rowForPatient(newPatient.displayId);
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('*');
+    await expect(medicationDispensesPage.modifiedFootnote).toBeVisible();
+  });
+
   test('Review and print labels flow', async ({
     page,
     api,

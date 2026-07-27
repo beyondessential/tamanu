@@ -1768,6 +1768,13 @@ export const globalSettings = {
         dispensing: {
           description: 'Medication dispensing settings',
           properties: {
+            dispensingQuantityAutocalculation: {
+              name: 'Dispensing quantity autocalculation',
+              description:
+                'Automatically calculate the dispensing quantity from the dose, frequency and duration when prescribing and dispensing medications. Automatically calculated quantities can still be edited manually.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
             prescriptionLabelSize: {
               description: 'Prescription label size.',
               properties: {

@@ -8604,6 +8604,78 @@
       "sourceRecordId": "xRayImagingArea-FacialBones",
       "discountable": "FALSE",
       "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeStandard",
+      "name": "Standard hours encounter fee",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-standard",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeAfterHours",
+      "name": "After hours encounter fee",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-afterhours",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeWeekend",
+      "name": "Weekend encounter fee",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-weekend",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeEmergencyStandard",
+      "name": "Emergency department fee (standard hours)",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-emergency-standard",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeEmergencyAfterHours",
+      "name": "Emergency department fee (after hours)",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-emergency-afterhours",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeeEmergencyWeekend",
+      "name": "Emergency department fee (weekend)",
+      "category": "EncounterFee",
+      "sourceRecordId": "encounterFee-emergency-weekend",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-encounterFeePharmacy",
+      "name": "Pharmacy encounter fee",
+      "category": "PharmacyEncounterFee",
+      "sourceRecordId": "pharmacyEncounterFee-standard",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-bedFeeWard1Bed1",
+      "name": "Bed fee - Ward 1 Bed 1",
+      "category": "BedFee",
+      "sourceRecordId": "location-Ward1Bed1-tamanu",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "invoiceProduct-bedFeeWard2Bed1",
+      "name": "Bed fee - Ward 2 Bed 1",
+      "category": "BedFee",
+      "sourceRecordId": "location-Ward2Bed1-tamanu",
+      "discountable": "FALSE",
+      "visibilityStatus": "current"
     }
   ]
 }

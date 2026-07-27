@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:26-alpine AS build
 RUN apk add --no-cache bash g++ gcc git jq make python3 py3-setuptools && \
     npm install -g node-gyp
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN npm ci && \
     rm -rf packages/web packages/patient-portal packages/mobile \
            packages/*/__tests__ packages/*/coverage
 
-FROM node:20-alpine
+FROM node:26-alpine
 RUN apk add --no-cache bash
 WORKDIR /app
 ARG GIT_SHA=unknown

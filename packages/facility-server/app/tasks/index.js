@@ -4,6 +4,7 @@ import {
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
 
+import { BedFeeCharger } from './BedFeeCharger';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
@@ -18,6 +19,7 @@ const DEFAULT_TASK_CLASSES = [
   FhirMissingResources,
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
+  BedFeeCharger,
 ];
 
 export function startScheduledTasks(context, taskClasses) {

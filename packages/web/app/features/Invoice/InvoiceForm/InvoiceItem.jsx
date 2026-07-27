@@ -140,7 +140,7 @@ export const InvoiceItemRow = ({
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
-      product: null,
+      product: value.sourceRecordId ? { sourceRecordId: value.sourceRecordId } : null,
       dispensingUnit: value.dispensingUnit,
     });
   };

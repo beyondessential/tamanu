@@ -787,6 +787,12 @@ patientRoute.get(
       medicationFilter[
         '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$'
       ] = false;
+      // The actually dispensed medication may differ from the prescription's when modified by
+      // pharmacy — a substitution to a sensitive drug must stay hidden too.
+      medicationFilter[Op.or] = [
+        { '$medication.referenceDrug.is_sensitive$': false },
+        { medicationId: null },
+      ];
     }
 
     const response = await MedicationDispense.findAndCountAll({
@@ -867,6 +873,28 @@ patientRoute.get(
           attributes: ['id', 'code', 'name'],
           required: false,
         },
+        // The dispensed medication for this fill (differs from the prescription's when modified)
+        {
+          association: 'medication',
+          attributes: ['id', 'name', 'type'],
+          required: false,
+          include: {
+            model: ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
+            required: false,
+          },
+        },
+        {
+          association: 'modifiedBy',
+          attributes: ['id', 'displayName'],
+          required: false,
+        },
+        {
+          association: 'modifiedReason',
+          attributes: ['id', 'name'],
+          required: false,
+        },
       ],
       attributes: [
         'id',
@@ -875,6 +903,20 @@ patientRoute.get(
         'dispensedAt',
         'dispensedByUserId',
         'medicationPresetLabelId',
+        'medicationId',
+        'isVariableDose',
+        'doseAmount',
+        'dosingUnit',
+        'dispensingUnit',
+        'frequency',
+        'route',
+        'durationValue',
+        'durationUnit',
+        'pharmacyNotes',
+        'displayPharmacyNotesInMar',
+        'modifiedById',
+        'modifiedReasonId',
+        'modifiedAt',
       ],
       where: medicationFilter,
       order: [
@@ -933,6 +975,7 @@ patientRoute.get(
 
       return {
         ...item.toJSON(),
+        isModified: Boolean(item.modifiedAt),
         pharmacyOrderPrescription: {
           ...item.pharmacyOrderPrescription.toJSON(),
           prescription: {

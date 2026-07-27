@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
@@ -41,28 +41,38 @@ import {
 } from '../../utils/medications';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { CheckInput } from '../Field';
+import { MenuButton } from '../MenuButton';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import { TableFormFields } from '../Table/TableFormFields';
 import { BodyText } from '../Typography';
+import { ModifyPrescriptionModal } from './ModifyPrescriptionModal';
 
-const MODAL_STEPS = {
+const MODAL_STEPS = /** @type {const} */ ({
   DISPENSE: 'dispense',
   REVIEW: 'review',
-};
+});
 
-const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
+// The details this fill will be dispensed with: the pharmacy modification when one has been made
+// in this workflow, otherwise the prescription as written.
+const getEffectivePrescription = ({ prescription, modification }) =>
+  modification
+    ? {
+        ...prescription,
+        ...modification,
+        medication: modification.medication ?? prescription?.medication,
+      }
+    : prescription;
 
-const StyledModal = styled(BaseModal)`
-  .MuiPaper-root {
-    max-width: ${({ $step }) => ($step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px')};
-  }
-
+const StyledModal = styled(BaseModal).attrs(props => ({
+  width: props.$step === MODAL_STEPS.REVIEW ? 'sm' : 'xl',
+}))`
   .MuiDialogActions-root {
+    background-color: ${p => p.theme.palette.background.default};
+    border-block-start: 1px solid ${p => p.theme.palette.divider};
+    inset-block-end: 0;
+    padding-block: 20px;
+    padding-inline: 40px;
     position: sticky;
-    bottom: 0;
-    background-color: ${Colors.background};
-    border-top: 1px solid ${Colors.outline};
-    padding: 10px 40px 20px 40px;
   }
 `;
 
@@ -98,7 +108,7 @@ const DispensedByField = styled(Box)`
 
 const StyledTableFormFields = styled(TableFormFields)`
   .MuiTableCell-root {
-    padding: 4px 10px;
+    padding: 10px;
     vertical-align: middle;
     text-align: left;
     font-size: 14px;
@@ -194,7 +204,10 @@ export const DispenseMedicationWorkflowModal = memo(
   ({ open, onClose, patient, onDispenseSuccess }) => {
     const api = useApi();
     const queryClient = useQueryClient();
-    const { facilityId, currentUser } = useAuth();
+    const { ability, facilityId, currentUser } = useAuth();
+    // Modifying prescription details for a fill is a write on the dispense record, over and
+    // above the create permission needed to dispense as prescribed.
+    const canModifyPrescription = ability.can('write', 'MedicationDispense');
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
     const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
@@ -210,6 +223,13 @@ export const DispenseMedicationWorkflowModal = memo(
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
     const [isDispensing, setIsDispensing] = useState(false);
+    const [modifyRowIndex, setModifyRowIndex] = useState(null);
+    // The dispensable list is built into local `items` once per open. In-progress edits
+    // (modification, quantity, instructions) live only in local state, so the list must not be
+    // rebuilt from a later query refetch or a translation-load re-render — opening the modify
+    // modal loads new strings/reference data, which changes the translation fn identities and
+    // would otherwise re-run the build effect and wipe the just-entered modification.
+    const itemsInitialisedRef = useRef(false);
 
     const patientId = patient?.id;
 
@@ -241,6 +261,8 @@ export const DispenseMedicationWorkflowModal = memo(
       setShowValidationErrors(false);
       setLabelsForPrint([]);
       setIsDispensing(false);
+      setModifyRowIndex(null);
+      itemsInitialisedRef.current = false;
     }, [open]);
 
     useEffect(() => {
@@ -249,6 +271,9 @@ export const DispenseMedicationWorkflowModal = memo(
 
     useEffect(() => {
       if (!open) return;
+      // Only build the working list once per open, so a refetch or translation-load re-render
+      // does not discard in-progress modifications / quantity / label edits.
+      if (itemsInitialisedRef.current) return;
       const { data: dispensableData } = dispensableResponse || {};
       if (!dispensableData) return;
 
@@ -264,6 +289,7 @@ export const DispenseMedicationWorkflowModal = memo(
               instructions ||
               '',
             medicationPresetLabelId: null,
+            modification: null,
           };
         })
         .sort((a, b) => {
@@ -274,6 +300,7 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
+      itemsInitialisedRef.current = true;
     }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
@@ -372,6 +399,34 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
+    const handleModifyConfirm = values => {
+      const { labelNotes, quantity, ...modification } = values;
+      setItems(prev => {
+        const next = [...prev];
+        const current = next[modifyRowIndex];
+        if (!current) return prev;
+
+        const nextInstructions = labelNotes || current.instructions;
+        next[modifyRowIndex] = {
+          ...current,
+          modification,
+          quantity: quantity ?? current.quantity,
+          instructions: nextInstructions,
+        };
+
+        setItemErrors(prevErrors => ({
+          ...prevErrors,
+          [current.id]: {
+            hasQuantityError:
+              current.selected && (!(quantity ?? current.quantity) || (quantity ?? current.quantity) <= 0),
+            hasInstructionsError: current.selected && !String(nextInstructions || '').trim(),
+          },
+        }));
+
+        return next;
+      });
+    };
+
     const validateDispenseStep = (currentItems, currentSelectedItems, currentDispensedByUserId) => {
       let isValid = true;
 
@@ -404,7 +459,7 @@ export const DispenseMedicationWorkflowModal = memo(
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
       const labelItems = selectedItems.map(item => {
-        const medication = item.prescription?.medication;
+        const medication = getEffectivePrescription(item)?.medication;
         return {
           id: item.id,
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
@@ -441,12 +496,28 @@ export const DispenseMedicationWorkflowModal = memo(
         await api.post('medication/dispense', {
           dispensedByUserId,
           facilityId,
-          items: selectedItems.map(({ id, quantity, instructions, medicationPresetLabelId }) => ({
-            pharmacyOrderPrescriptionId: id,
-            quantity,
-            instructions,
-            medicationPresetLabelId: medicationPresetLabelId || null,
-          })),
+          items: selectedItems.map(
+            ({ id, quantity, instructions, medicationPresetLabelId, modification }) => ({
+              pharmacyOrderPrescriptionId: id,
+              quantity,
+              instructions,
+              medicationPresetLabelId: medicationPresetLabelId || null,
+              modification: modification
+                ? {
+                    medicationId: modification.medicationId,
+                    isVariableDose: modification.isVariableDose,
+                    doseAmount: modification.doseAmount,
+                    frequency: modification.frequency,
+                    route: modification.route,
+                    durationValue: modification.durationValue,
+                    durationUnit: modification.durationUnit,
+                    pharmacyNotes: modification.pharmacyNotes,
+                    modifiedReasonId: modification.modifiedReasonId,
+                    modifiedById: modification.modifiedById,
+                  }
+                : null,
+            }),
+          ),
         });
 
         await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
@@ -524,13 +595,16 @@ export const DispenseMedicationWorkflowModal = memo(
           key: 'medication',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           style: { minInlineSize: '16em' },
-          accessor: ({ prescription }) => (
-            <TranslatedReferenceData
-              fallback={prescription?.medication?.name}
-              value={prescription?.medication?.id}
-              category={prescription?.medication?.type}
-            />
-          ),
+          accessor: item => {
+            const medication = getEffectivePrescription(item)?.medication;
+            return (
+              <TranslatedReferenceData
+                fallback={medication?.name}
+                value={medication?.id}
+                category={medication?.type ?? 'drug'}
+              />
+            );
+          },
         },
         {
           key: 'quantity',
@@ -586,7 +660,11 @@ export const DispenseMedicationWorkflowModal = memo(
           style: { minInlineSize: '16em' },
           accessor: item => (
             <InstructionsInput
-              value={buildInstructionText(item.prescription, getTranslation, getEnumTranslation)}
+              value={buildInstructionText(
+                getEffectivePrescription(item),
+                getTranslation,
+                getEnumTranslation,
+              )}
               disabled
               testId="dispense-instructions-readonly"
             />
@@ -675,6 +753,36 @@ export const DispenseMedicationWorkflowModal = memo(
             />
           ),
           accessor: row => getStockStatus(row, false),
+        });
+      }
+
+      if (canModifyPrescription) {
+        base.push({
+          key: 'actions',
+          width: '48px',
+          title: '',
+          accessor: (item, rowIndex) => (
+            <MenuButton
+              a11yLabel={
+                <TranslatedText
+                  stringId="medication.dispense.rowActions"
+                  fallback="Dispense row actions"
+                />
+              }
+              actions={[
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="medication.modify.action"
+                      fallback="Modify prescription"
+                    />
+                  ),
+                  action: () => setModifyRowIndex(rowIndex),
+                },
+              ]}
+              buttonTestId={`dispense-row-actions-${rowIndex}`}
+            />
+          ),
         });
       }
 
@@ -852,6 +960,18 @@ export const DispenseMedicationWorkflowModal = memo(
         )}
 
         {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+
+        {modifyRowIndex !== null && (
+          <ModifyPrescriptionModal
+            open
+            prescription={items[modifyRowIndex]?.prescription}
+            modification={items[modifyRowIndex]?.modification}
+            quantity={items[modifyRowIndex]?.quantity}
+            labelNotes={items[modifyRowIndex]?.instructions}
+            onClose={() => setModifyRowIndex(null)}
+            onConfirm={handleModifyConfirm}
+          />
+        )}
       </StyledModal>
     );
   },

@@ -1,4 +1,28 @@
-import { differenceInMilliseconds as dateFnsDifferenceInMilliseconds, format as dateFnsFormat, differenceInMonths, differenceInWeeks, differenceInYears, endOfDay, formatISO9075, isBefore, isMatch, isSameDay, isValid, isWithinInterval, max, min, parseISO, startOfDay, startOfWeek, sub, eachDayOfInterval, startOfMonth, endOfMonth, type DurationUnit, type Interval } from 'date-fns';
+import {
+  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
+  format as dateFnsFormat,
+  differenceInMonths,
+  differenceInWeeks,
+  differenceInYears,
+  endOfDay,
+  formatISO9075,
+  isBefore,
+  isMatch,
+  isSameDay,
+  isValid,
+  isWithinInterval,
+  max,
+  min,
+  parseISO,
+  startOfDay,
+  startOfWeek,
+  sub,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
+  type DurationUnit,
+  type Interval,
+} from 'date-fns';
 import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
@@ -329,6 +353,18 @@ export const intlFormatDate = (
 /** Get current datetime string in a specific timezone (ISO 9075 — space-separated, for storage) */
 export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
   toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
+
+/**
+ * Format an absolute instant (a timestamptz column, read back as a JS Date) as an ISO 9075
+ * datetime string in `timezone`. Unlike toDateTimeString — which renders in the Node process's
+ * local timezone — this lets an instant be compared against stored primary-timezone strings.
+ */
+export const instantToDateTimeStringInTimezone = (date: Date, timezone: string) =>
+  toISO9075DateTime(
+    Temporal.Instant.fromEpochMilliseconds(date.getTime()).toZonedDateTimeISO(
+      timezone ?? Temporal.Now.timeZoneId(),
+    ),
+  );
 
 /** Get current date string in a specific timezone */
 export const getCurrentDateStringInTimezone = (timezone: string) =>

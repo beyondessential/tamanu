@@ -1,3 +1,4 @@
+export { default as Alert } from './Alert';
 export * from './BaseModal';
 export * from './Button';
 export { ContentUnavailableView } from './ContentUnavailableView';

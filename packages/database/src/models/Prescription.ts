@@ -1,5 +1,6 @@
 import { DataTypes, Op } from 'sequelize';
 import {
+  type DrugUnit,
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   ADMINISTRATION_STATUS,
@@ -36,8 +37,8 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare dosingUnit: DrugUnit;
-  declare dispensingUnit: DrugUnit;
+  declare dosingUnit?: DrugUnit | null;
+  declare dispensingUnit?: DrugUnit | null;
   declare unitConversion: number;
   declare frequency: string;
   declare idealTimes?: `${number}:${number}`[];
@@ -73,11 +74,11 @@ export class Prescription extends Model {
         doseAmount: DataTypes.DECIMAL,
         dosingUnit: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         dispensingUnit: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         unitConversion: {
           type: DataTypes.DECIMAL,

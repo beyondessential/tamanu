@@ -6,6 +6,7 @@ export { useAdminSettingsQuery } from './useAdminSettingsQuery';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceDataQuery';
+export { default as useDispensingUnit } from './useDispensingUnit';
 export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterDataQuery';
 export * from './useLabRequestNotesQuery';

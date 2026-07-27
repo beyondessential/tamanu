@@ -17,6 +17,25 @@ export class MedicationDispense extends Model {
   declare medicationPresetLabelId?: string;
   declare dispensedByUserId: string;
   declare dispensedAt: string;
+  // Dispensed details: what was actually dispensed for this fill. Copied from the prescription at
+  // dispense time, or set to pharmacy's modified values when the prescription is modified for
+  // dispensing. The original prescription is never altered.
+  declare medicationId?: string;
+  declare isVariableDose?: boolean;
+  declare doseAmount?: string;
+  declare dosingUnit?: string;
+  declare dispensingUnit?: string;
+  declare frequency?: string;
+  declare route?: string;
+  declare durationValue?: string | null;
+  declare durationUnit?: string | null;
+  declare pharmacyNotes?: string;
+  declare displayPharmacyNotesInMar?: boolean;
+  // Modification metadata: only set when pharmacy modified the prescription for this fill.
+  // A non-null modifiedAt marks the dispense as modified.
+  declare modifiedById?: string | null;
+  declare modifiedReasonId?: string | null;
+  declare modifiedAt?: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -34,6 +53,17 @@ export class MedicationDispense extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
+        isVariableDose: DataTypes.BOOLEAN,
+        doseAmount: DataTypes.DECIMAL,
+        dosingUnit: DataTypes.STRING,
+        dispensingUnit: DataTypes.STRING,
+        frequency: DataTypes.STRING,
+        route: DataTypes.STRING,
+        durationValue: DataTypes.DECIMAL,
+        durationUnit: DataTypes.STRING,
+        pharmacyNotes: DataTypes.STRING,
+        displayPharmacyNotesInMar: DataTypes.BOOLEAN,
+        modifiedAt: dateTimeType('modifiedAt'),
       },
       {
         ...options,
@@ -56,6 +86,21 @@ export class MedicationDispense extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationPresetLabelId',
       as: 'medicationPresetLabel',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'medicationId',
+      as: 'medication',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'modifiedById',
+      as: 'modifiedBy',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'modifiedReasonId',
+      as: 'modifiedReason',
     });
   }
 

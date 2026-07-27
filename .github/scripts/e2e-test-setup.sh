@@ -104,12 +104,20 @@ EOF
                         enabled: true,
                     },
                     enableTasking: true,
+                    invoicing: {
+                        enabled: true,
+                    },
                 },
                 patientSummary: {
                     enabled: true,
                 },
                 encounterSummary: {
                     enabled: true,
+                },
+                medications: {
+                    dispensing: {
+                        dispensingQuantityAutocalculation: true,
+                    },
                 },
             },
         },

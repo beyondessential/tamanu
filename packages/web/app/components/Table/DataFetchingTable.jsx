@@ -58,9 +58,6 @@ export const DataFetchingTable = memo(
     const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
     const tableRef = useRef(null);
-    // Incremented on every fetch so out-of-order responses (e.g. a slow search resolving after a
-    // newer one) can be discarded instead of overwriting the current results.
-    const latestFetchId = useRef(0);
     const api = useApi();
 
     const { getSetting } = useSettings();
@@ -218,13 +215,16 @@ export const DataFetchingTable = memo(
     useEffect(() => {
       if (!hasPermission) return;
 
+      // Guards against a slower earlier request resolving after a newer one (eg
+      // when filters change while a fetch is still in flight) and clobbering the
+      // table with stale data. Flipped by this effect's cleanup once a newer fetch
+      // supersedes it.
+      let isSuperseded = false;
+
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
 
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
       const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
-
-      latestFetchId.current += 1;
-      const thisFetchId = latestFetchId.current;
 
       (async () => {
         try {
@@ -234,18 +234,15 @@ export const DataFetchingTable = memo(
           setErrorMessage('');
           const { data, count, ...rest } = await fetchData();
 
-          if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
+          if (isSuperseded) return; // a newer fetch has superseded this one, or the table unmounted
 
-          // A newer fetch has started since this one; ignore this stale response so it can't
-          // overwrite the current page/sort/filter results.
-          if (thisFetchId !== latestFetchId.current) return;
+          if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count, rest); // Set the data for table rows and update the previous fetch state
         } catch (error) {
+          if (isSuperseded) return; // stale request / unmounted; don't surface its error
           clearTimeout(loadingDelay);
-          // Don't surface an error from a stale request over the current results.
-          if (thisFetchId !== latestFetchId.current) return;
           clearLoadingIndicators();
           // eslint-disable-next-line no-console
           console.error(error);
@@ -258,9 +255,14 @@ export const DataFetchingTable = memo(
           () => refreshTable(),
           autoRefreshConfig.interval * 1000,
         );
-        return () => clearInterval(tableAutorefresh);
+        return () => {
+          isSuperseded = true;
+          clearInterval(tableAutorefresh);
+        };
       }
-      return () => {}; // Needed to add return due to the conditional return above
+      return () => {
+        isSuperseded = true;
+      };
 
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps
