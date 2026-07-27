@@ -5,6 +5,7 @@ import {
   FACT_FACILITY_IDS,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
+  FACT_SETTINGS_PSK,
 } from '@tamanu/constants';
 import { END, type Steps, type StepArgs } from '../step.js';
 
@@ -63,7 +64,7 @@ export const STEPS: Steps = [
         return;
       }
 
-      let credentials: { email: string; password: string };
+      let credentials: { email: string; password: string; settingsPsk?: string };
       try {
         const { token } = await postJson(`${host}/api/login`, { email, password, deviceId });
         credentials = await postJson(
@@ -86,6 +87,10 @@ export const STEPS: Steps = [
         await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(facilityIds));
         // Password encrypted at rest, out of local_system_facts and the raw reporting role.
         await LocalSystemSecret.set(FACT_SYNC_PASSWORD, credentials.password);
+        // Deployment-wide settings PSK from central (absent on older central).
+        if (credentials.settingsPsk) {
+          await LocalSystemSecret.setIfAbsent(FACT_SETTINGS_PSK, credentials.settingsPsk);
+        }
       });
       log.info('provisionSyncUser: dedicated sync user provisioned', {
         email: credentials.email,

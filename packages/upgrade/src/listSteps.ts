@@ -59,7 +59,14 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
   // the result but doesn't make it absolute. when there are no before/after deps,
   // then START steps will always be before migrations, and the END steps will
   // always be after migrations.
-  const edges: Edge[] = edgeFilter(migrations.map((mig, i) => [migrations[i - 1], mig]))
+  //
+  // Dedupe first: the same migration may be referenced by several steps (e.g.
+  // multiple steps that all run after a table is created). A repeated entry would
+  // produce contradictory chain edges (X→Y and Y→X) and make toposort throw
+  // "Cyclic dependency". Set preserves first-seen order.
+  const uniqueMigrations = [...new Set(migrations)];
+
+  const edges: Edge[] = edgeFilter(uniqueMigrations.map((mig, i) => [uniqueMigrations[i - 1], mig]))
     .concat(
       steps.flatMap(({ id, step }) => {
         const topo: Edge[] = [];
@@ -91,8 +98,8 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
       edgeFilter([
         [START, END],
         [START, MIGRATIONS_START],
-        [MIGRATIONS_START, migrations[0]],
-        [migrations[migrations.length - 1], MIGRATIONS_END],
+        [MIGRATIONS_START, uniqueMigrations[0]],
+        [uniqueMigrations[uniqueMigrations.length - 1], MIGRATIONS_END],
         [MIGRATIONS_END, END],
       ]),
     );

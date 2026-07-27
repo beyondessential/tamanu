@@ -9,6 +9,7 @@ import { DEVICE_TYPES } from '@tamanu/constants';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
+import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
 import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
@@ -61,12 +62,10 @@ const startApp =
         ctx.timesync = await initTimesync({
           models: ctx.models,
           url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
+          enabled: (await resolveSchedules(ctx)).timeSync.enabled,
         });
         // No central connection on the API server, so no remote timezone to check.
-        await performTimeZoneChecks({
-          sequelize: ctx.sequelize,
-          config,
-        });
+        await performTimeZoneChecks({ sequelize: ctx.sequelize });
       };
       if (isServerConfigured()) {
         await setupApiRuntime(context);

@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -12,7 +11,7 @@ export class FormBuilderChatCleaner extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, jitterTime, enabled } = config.schedules.formBuilderChatCleaner;
+    const { schedule, jitterTime, enabled } = context.schedules.formBuilderChatCleaner;
     super(schedule, log, jitterTime, enabled);
     this.store = context.store;
   }

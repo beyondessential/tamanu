@@ -53,6 +53,8 @@ describe('Admin sync credentials', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.email).toEqual(expect.any(String));
     expect(result.body.password).toEqual(expect.any(String));
+    // deployment-wide settings PSK: a 32-byte (64 hex char) key
+    expect(result.body.settingsPsk).toMatch(/^[0-9a-f]{64}$/);
 
     const user = await models.User.scope('withPassword').findOne({
       where: { email: result.body.email },
@@ -78,6 +80,8 @@ describe('Admin sync credentials', () => {
     expect(second).toHaveSucceeded();
     expect(second.body.email).toBe(first.body.email);
     expect(second.body.password).not.toBe(first.body.password);
+    // the settings PSK is deployment-wide and stable — not rotated like the password
+    expect(second.body.settingsPsk).toBe(first.body.settingsPsk);
 
     const users = await models.User.findAll({ where: { email: first.body.email } });
     expect(users).toHaveLength(1);
@@ -124,5 +128,27 @@ describe('Admin sync credentials', () => {
       confirmPassword: 'hunter2hunter2',
     });
     expect(result).toHaveRequestError();
+  });
+
+  describe('GET /admin/settingsPsk', () => {
+    const PSK_ENDPOINT = '/api/admin/settingsPsk';
+
+    it('rejects unauthenticated requests', async () => {
+      const result = await baseApp.get(PSK_ENDPOINT);
+      expect(result).toHaveRequestError();
+    });
+
+    it('forbids non-admin users', async () => {
+      const app = await baseApp.asRole('practitioner');
+      const result = await app.get(PSK_ENDPOINT);
+      expect(result).toBeForbidden();
+    });
+
+    it('returns the settings PSK to an admin', async () => {
+      const app = await baseApp.asRole('admin');
+      const result = await app.get(PSK_ENDPOINT);
+      expect(result).toHaveSucceeded();
+      expect(result.body.settingsPsk).toMatch(/^[0-9a-f]{64}$/);
+    });
   });
 });

@@ -96,6 +96,7 @@ export * from './Setting';
 export * from './PatientCommunication';
 
 export * from './Facility';
+export * from './FacilitySettingMigration';
 export * from './Department';
 export * from './Location';
 export * from './LocationGroup';

@@ -5,6 +5,7 @@ import {
   FACT_FACILITY_IDS,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
+  FACT_SETTINGS_PSK,
 } from '@tamanu/constants';
 import { STEPS } from '../../src/steps/1783048813000-provisionSyncUser.js';
 
@@ -36,7 +37,11 @@ const makeArgs = (facts: Record<string, string> = {}) => {
           set: vi.fn(async (key: string, value: string) => void factStore.set(key, value)),
         },
         LocalSystemSecret: {
+          get: vi.fn(async (key: string) => secretStore.get(key) ?? null),
           set: vi.fn(async (key: string, value: string) => void secretStore.set(key, value)),
+          setIfAbsent: vi.fn(async (key: string, value: string) => {
+            if (!secretStore.has(key)) secretStore.set(key, value);
+          }),
         },
       },
       log: { info: vi.fn(), warn: vi.fn() },
@@ -89,6 +94,23 @@ describe('1783048813000-provisionSyncUser', () => {
     expect(factStore.get(FACT_SYNC_EMAIL)).toBe('sync.abc@sync.tamanu');
     expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['facility-a']));
     expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('minted');
+  });
+
+  it('stores the settings PSK when central returns one', async () => {
+    const { args, secretStore } = makeArgs({
+      [FACT_DEVICE_ID]: 'device-1',
+      [FACT_FACILITY_IDS]: JSON.stringify(['facility-a']),
+    });
+    const psk = 'ab'.repeat(32); // 64 hex chars
+    mockFetch
+      .mockResolvedValueOnce(jsonResponse({ token: 'a-token' }))
+      .mockResolvedValueOnce(
+        jsonResponse({ email: 'sync.abc@sync.tamanu', password: 'minted', settingsPsk: psk }),
+      );
+
+    await step.run(args);
+
+    expect(secretStore.get(FACT_SETTINGS_PSK)).toBe(psk);
   });
 
   it('leaves the server on config fallback when central refuses', async () => {

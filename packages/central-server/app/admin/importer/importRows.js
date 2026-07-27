@@ -1,7 +1,7 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'es-toolkit/compat';
 import { AggregateError, DataTypes, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
 import { statkey, updateStat } from '../stats';
@@ -128,6 +128,9 @@ export async function importRows(
   validationContext = {},
 ) {
   const stats = { ...previousStats };
+  const validateQuestionConfigs = await new ReadSettings(models).get(
+    'validateQuestionConfigs.enabled',
+  );
 
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
@@ -243,10 +246,12 @@ export async function importRows(
         const { type } = values;
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
-        if (config.validateQuestionConfigs.enabled && specificSchemaExists) {
+        if (validateQuestionConfigs && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
-          schemaName = 'SurveyScreenComponent';
+          schemaName = validateQuestionConfigs
+            ? 'SurveyScreenComponent'
+            : 'SurveyScreenComponentUnvalidated';
         }
       } else {
         const specificSchemaExists = !!schemas[model];

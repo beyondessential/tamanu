@@ -24,15 +24,12 @@ jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
 jest.mock('@tamanu/utils/sleepAsync', () => ({ sleepAsync: jest.fn(() => Promise.resolve()) }));
 
 const INTEGRATION_SETTINGS = {
-  host: 'https://msupply.example.com',
-  storeId: 'store-1',
-  customerCode: 'CUST01',
-};
-
-const INTEGRATION_CONFIG = {
   enabled: true,
+  host: 'https://msupply.example.com',
   username: 'test-user',
   password: 'test-pass',
+  storeId: 'store-1',
+  customerCode: 'CUST01',
 };
 
 const SCHEDULE_CONFIG = {
@@ -153,7 +150,6 @@ describe('mSupplyMedIntegrationProcessor', () => {
     context = await createTestContext();
     models = context.models;
 
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
     getServerFacilityIds.mockReturnValue([facilityId]);
 
@@ -205,8 +201,10 @@ describe('mSupplyMedIntegrationProcessor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     getServerFacilityIds.mockReturnValue([facilityId]);
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
+    // Tasks read the schedule from the context snapshot (createTestContext resolves it
+    // once at setup); refresh it so the config set above is what the task sees.
+    context.schedules = { ...context.schedules, mSupplyMedIntegrationProcessor: SCHEDULE_CONFIG };
   });
 
   describe('when server is an omni server', () => {
@@ -224,17 +222,18 @@ describe('mSupplyMedIntegrationProcessor', () => {
   });
 
   describe('when schedule config is invalid', () => {
-    afterAll(() => {
-      config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
-    });
-
     it('throws when batchSize or batchSleepAsyncDurationInMilliseconds is missing', async () => {
       const missingField = chance.pickone(['batchSize', 'batchSleepAsyncDurationInMilliseconds']);
-      config.schedules.mSupplyMedIntegrationProcessor = {
-        ...SCHEDULE_CONFIG,
-        [missingField]: undefined,
-      };
-      const task = new mSupplyMedIntegrationProcessor(context);
+      // A private context override: settings reads inside run() rebuild the shared
+      // context's settings tree (refilled from config), so mutating it can't hold
+      // the invalid value in place.
+      const task = new mSupplyMedIntegrationProcessor({
+        ...context,
+        schedules: {
+          ...context.schedules,
+          mSupplyMedIntegrationProcessor: { ...SCHEDULE_CONFIG, [missingField]: undefined },
+        },
+      });
       await expect(task.run()).rejects.toThrow(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
       );
@@ -243,7 +242,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
   describe('when integration config is invalid', () => {
     afterAll(async () => {
-      config.integrations.mSupplyMed = INTEGRATION_CONFIG;
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        INTEGRATION_SETTINGS,
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
       await models.LocalSystemFact.set(
         FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
         new Date(Date.now()).toISOString(),
@@ -251,7 +256,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
     });
 
     it('skips run when enabled is false and removes enabled-at fact', async () => {
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, enabled: false };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, enabled: false },
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
@@ -263,7 +274,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
     it('skips run when username or password is missing', async () => {
       const missingField = chance.pickone(['username', 'password']);
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, [missingField]: '' };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, [missingField]: '' },
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();

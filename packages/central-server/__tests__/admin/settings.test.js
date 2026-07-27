@@ -281,4 +281,90 @@ describe('Settings Admin', () => {
       expect(res).toHaveSucceeded();
     });
   });
+
+  describe('highRisk settings enforcement', () => {
+    // mail.* is a group-level highRisk subtree in the central schema, so mail.from
+    // exercises the inherited flag; `language` is an ordinary central setting.
+    let writeOnlyApp;
+
+    beforeAll(async () => {
+      writeOnlyApp = await baseApp.asNewRole([
+        ['read', 'Setting'],
+        ['write', 'Setting'],
+      ]);
+    });
+
+    beforeEach(async () => {
+      await models.Setting.destroy({ where: {}, force: true });
+      settingsCache.reset();
+    });
+
+    it('forbids changing a highRisk setting without manage-all', async () => {
+      const response = await writeOnlyApp.put('/v1/admin/settings').send({
+        settings: { mail: { from: 'attacker@example.com' } },
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(response).toBeForbidden();
+
+      // and nothing was persisted
+      const persisted = await getSettings(SETTINGS_SCOPES.CENTRAL);
+      expect(persisted.body?.mail?.from).toBeUndefined();
+    });
+
+    it('forbids removing a stored highRisk setting without manage-all', async () => {
+      await models.Setting.set('mail.from', 'noreply@tamanu.io', SETTINGS_SCOPES.CENTRAL);
+      settingsCache.reset();
+
+      // omitting a stored key from the payload soft-deletes it, which is a change too
+      const response = await writeOnlyApp.put('/v1/admin/settings').send({
+        settings: {},
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(response).toBeForbidden();
+
+      const persisted = await getSettings(SETTINGS_SCOPES.CENTRAL);
+      expect(persisted.body?.mail?.from).toBe('noreply@tamanu.io');
+    });
+
+    it('allows saving unrelated settings while unchanged highRisk values ride along', async () => {
+      await models.Setting.set('mail.from', 'noreply@tamanu.io', SETTINGS_SCOPES.CENTRAL);
+      settingsCache.reset();
+
+      // the editor always PUTs the whole scope object, so replicate that flow
+      const current = await getSettings(SETTINGS_SCOPES.CENTRAL);
+      const response = await writeOnlyApp.put('/v1/admin/settings').send({
+        settings: { ...current.body, language: 'fr' },
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(response).toHaveSucceeded();
+
+      const persisted = await getSettings(SETTINGS_SCOPES.CENTRAL);
+      expect(persisted.body?.language).toBe('fr');
+      expect(persisted.body?.mail?.from).toBe('noreply@tamanu.io');
+    });
+
+    it('allows a manage-all user to change a highRisk setting', async () => {
+      const response = await saveSettings(
+        { mail: { from: 'admin@tamanu.io' } },
+        SETTINGS_SCOPES.CENTRAL,
+      );
+      expect(response).toHaveSucceeded();
+
+      const persisted = await getSettings(SETTINGS_SCOPES.CENTRAL);
+      expect(persisted.body?.mail?.from).toBe('admin@tamanu.io');
+    });
+
+    it('forbids read and write entirely without Setting permissions', async () => {
+      const noSettingApp = await baseApp.asNewRole([]);
+
+      const read = await noSettingApp.get('/v1/admin/settings').query({ scope: SETTINGS_SCOPES.CENTRAL });
+      expect(read).toBeForbidden();
+
+      const write = await noSettingApp.put('/v1/admin/settings').send({
+        settings: { language: 'fr' },
+        scope: SETTINGS_SCOPES.CENTRAL,
+      });
+      expect(write).toBeForbidden();
+    });
+  });
 });

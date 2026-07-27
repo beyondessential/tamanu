@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -168,7 +167,7 @@ labRequest.get(
       ...filterParams
     } = query;
 
-    const primaryTimeZone = getPrimaryTimeZone(config);
+    const primaryTimeZone = getPrimaryTimeZone();
     const { facilityId } = filterParams;
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 

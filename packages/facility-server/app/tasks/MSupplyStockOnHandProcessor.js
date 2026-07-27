@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -42,7 +40,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.mSupplyStockOnHandProcessor;
+    const conf = context.schedules.mSupplyStockOnHandProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
@@ -129,13 +127,6 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { enabled, username, password } = config.integrations.mSupplyMed;
-
-    if (!enabled) {
-      log.warn('MSupplyStockOnHandProcessor: mSupply integration is disabled, skipping');
-      return;
-    }
-
     // Read at run time, not construction — tasks may start before first-run
     // setup has configured the facility ids.
     const serverFacilityIds = getServerFacilityIds() ?? [];
@@ -149,7 +140,14 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     }
     const [facilityId] = serverFacilityIds;
 
-    const { host, storeId, backoff } = await this.client.getSettings(facilityId);
+    const { enabled, username, password, host, storeId, backoff } =
+      await this.client.getSettings(facilityId);
+
+    if (!enabled) {
+      log.warn('MSupplyStockOnHandProcessor: mSupply integration is disabled, skipping');
+      return;
+    }
+
     if (!host || !username || !password || !storeId) {
       log.warn('MSupplyStockOnHandProcessor: integration not fully configured, skipping');
       return;

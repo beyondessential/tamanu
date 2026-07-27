@@ -42,10 +42,6 @@ const EditorContainer = styled.div`
 const StyledMarkdownEditor = styled(AceEditor)`
   border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
-
-  .ace_scroller {
-    padding: 12px 10px;
-  }
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
@@ -70,6 +66,17 @@ const EDITOR_OPTIONS = {
 };
 
 const EDITOR_PROPS = { $blockScrolling: true };
+
+// Ace's scroll bounds ignore CSS padding on .ace_scroller (bottom lines become
+// unreachable), so pad via the renderer; resize with the container since the
+// modal is still animating open at mount.
+const handleEditorLoad = editor => {
+  editor.renderer.setPadding(10);
+  editor.renderer.setScrollMargin(12, 12);
+  const observer = new ResizeObserver(() => editor.resize());
+  observer.observe(editor.container);
+  editor.on('destroy', () => observer.disconnect());
+};
 
 const getStringValue = value => (value == null ? '' : String(value));
 
@@ -148,7 +155,7 @@ export const MarkdownEditorModal = ({
             fontSize={13}
             setOptions={EDITOR_OPTIONS}
             editorProps={EDITOR_PROPS}
-            onLoad={editor => editor.resize()}
+            onLoad={handleEditorLoad}
             data-testid="markdowneditormodal-textarea"
           />
         </EditorContainer>

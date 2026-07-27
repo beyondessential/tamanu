@@ -1,11 +1,10 @@
 import { Timesimp } from 'timesimp';
-import config from 'config';
 import { FACT_TIME_OFFSET } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-export const initTimesync = async ({ models, url }) => {
+export const initTimesync = async ({ models, url, enabled }) => {
   log.info('Initializing timesync', { server: url });
-  if (!config.schedules.timeSync.enabled) {
+  if (!enabled) {
     await models.LocalSystemFact.set(FACT_TIME_OFFSET, '0');
   }
   return new Timesimp(

@@ -1,7 +1,6 @@
 import { addMinutes } from 'date-fns';
 import { randomInt, randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
-import config from 'config';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 
@@ -26,11 +25,11 @@ export class PortalOneTimeTokenService {
     this.models = models;
   }
 
-  async createLoginToken(portalUserId) {
+  async createLoginToken(portalUserId, loginTokenDurationMinutes = 20) {
     const { PortalOneTimeToken } = this.models;
     const token = randomSixDigitCode();
     const hashedToken = await hashPortalToken(token);
-    const expiresAt = addMinutes(new Date(), config.patientPortal.loginTokenDurationMinutes);
+    const expiresAt = addMinutes(new Date(), loginTokenDurationMinutes);
 
     // Overwrite existing login tokens for this user
     await PortalOneTimeToken.destroy({
@@ -50,11 +49,11 @@ export class PortalOneTimeTokenService {
     };
   }
 
-  async createRegisterToken(portalUserId) {
+  async createRegisterToken(portalUserId, registerTokenDurationMinutes = 43800) {
     const { PortalOneTimeToken } = this.models;
     const token = randomRegisterCode();
     const hashedToken = await hashPortalToken(token);
-    const expiresAt = addMinutes(new Date(), config.patientPortal.registerTokenDurationMinutes);
+    const expiresAt = addMinutes(new Date(), registerTokenDurationMinutes);
 
     // Overwrite existing register tokens for this user
     await PortalOneTimeToken.destroy({

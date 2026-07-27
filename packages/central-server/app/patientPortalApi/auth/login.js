@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { z } from 'zod';
 
 import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
@@ -11,6 +10,7 @@ import { buildToken } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { getDefaultFromAddress } from '../../services/mailConfig';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const template = await settings.get('templates.patientPortalLoginEmail');
@@ -23,7 +23,7 @@ const getOneTimeTokenEmail = async ({ email, token, settings }) => {
 
   return {
     to: email,
-    from: getDefaultFromAddress(),
+    from: await getDefaultFromAddress(settings),
     subject,
     text: content,
   };
@@ -72,7 +72,10 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
   }
 
   const oneTimeTokenService = new PortalOneTimeTokenService(models);
-  const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
+  const { token } = await oneTimeTokenService.createLoginToken(
+    portalUser.id,
+    await settings.get('patientPortal.loginTokenDurationMinutes'),
+  );
 
   // Send email with the 6-digit code
   const oneTimeTokenEmail = await getOneTimeTokenEmail({ email, token, settings });
@@ -89,8 +92,8 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
 
 export const login = ({ secret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
-    const { canonicalHostName } = config;
+    const { store, body, settings } = req;
+    const canonicalHostName = getCanonicalHostName();
     const { models } = store;
     const { loginToken, email } = body;
 
@@ -120,7 +123,7 @@ export const login = ({ secret }) =>
       portalUserId: portalUserIdParam,
     });
 
-    const patientPortalTokenDuration = config.patientPortal.tokenDuration;
+    const patientPortalTokenDuration = await settings.get('patientPortal.tokenDuration');
 
     const token = await buildToken({ portalUserId: portalUser.id }, secret, {
       expiresIn: patientPortalTokenDuration,

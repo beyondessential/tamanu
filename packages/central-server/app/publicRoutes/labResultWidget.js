@@ -1,4 +1,3 @@
-import config from 'config';
 
 import express from 'express';
 import asyncHandler from 'express-async-handler';
@@ -51,9 +50,7 @@ labResultWidgetRoutes.get(
     const { params } = req;
     const { displayId } = params;
     const { models } = req.store;
-    // TODO: don't load localisation from config like this
-    // either use the getLocalisation helper and put values under the data key, or put them somewhere else in the config
-    const { testTypeWhitelist, categoryWhitelist } = config.localisation.labResultWidget;
+    const { testTypeWhitelist, categoryWhitelist } = await req.settings.get('labResultWidget');
     const labRequests = await models.LabRequest.findAll({
       where: {
         display_id: displayId,
