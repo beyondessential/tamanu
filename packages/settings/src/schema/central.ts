@@ -444,7 +444,8 @@ export const centralSettings = {
           properties: {
             enabled: {
               name: 'Enabled',
-              description: 'Run the materialisation worker on this central server',
+              description:
+                'Run the materialisation worker on this central server, and install the database triggers that queue a refresh when an upstream record changes. Turning it off drops those triggers, so materialised resources stop tracking their upstreams.',
               type: yup.boolean(),
               defaultValue: true,
               requiresRestart: true,

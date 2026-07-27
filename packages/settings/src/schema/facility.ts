@@ -436,7 +436,8 @@ export const facilitySettings = {
           properties: {
             enabled: {
               name: 'Enabled',
-              description: 'Run the materialisation worker on this facility server',
+              description:
+                'Run the materialisation worker on this facility server, and install the database triggers that queue a refresh when an upstream record changes. Turning it off drops those triggers, so materialised resources stop tracking their upstreams.',
               type: yup.boolean(),
               defaultValue: false,
               requiresRestart: true,
