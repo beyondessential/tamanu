@@ -1203,6 +1203,191 @@ describe('Encounter', () => {
         expect(body.data).toHaveLength(1);
         expect(body.data[0].lastOrderedAt).toEqual(lastOrderedAt);
       });
+
+      it('should report no dispensed state for a medication never sent to pharmacy', async () => {
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].lastOrderedAt).toBeFalsy();
+        expect(result.body.data[0].isLastOrderDispensed).toBeNull();
+      });
+
+      it('should report whether the most recent pharmacy request has been dispensed', async () => {
+        const order = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(order).toHaveSucceeded();
+
+        const active = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(active).toHaveSucceeded();
+        expect(active.body.data[0].isLastOrderDispensed).toBe(false);
+
+        await models.PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { pharmacyOrderId: order.body.id } },
+        );
+
+        const dispensed = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(dispensed).toHaveSucceeded();
+        expect(dispensed.body.data[0].isLastOrderDispensed).toBe(true);
+      });
+
+      it('should report the dispensed state of the newest request, not an older one', async () => {
+        const firstOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-01 09:00:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(firstOrder).toHaveSucceeded();
+        await models.PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { pharmacyOrderId: firstOrder.body.id } },
+        );
+
+        const secondOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-15 14:30:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 2, repeats: 1 },
+            ],
+          });
+        expect(secondOrder).toHaveSucceeded();
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        // The older request was dispensed, the newer one is still active.
+        expect(result.body.data[0].lastOrderedAt).toEqual('2020-01-15 14:30:00');
+        expect(result.body.data[0].isLastOrderDispensed).toBe(false);
+      });
+    });
+
+    describe('discharge pharmacy orders', () => {
+      let dischargeMedication = null;
+
+      const createEncounterToDischarge = async () => {
+        const encounterToDischarge = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          endDate: null,
+          reasonForEncounter: 'discharge pharmacy order test',
+        });
+        const prescription = await models.Prescription.create(
+          fake(models.Prescription, {
+            patientId: patient.id,
+            prescriberId: app.user.id,
+            medicationId: dischargeMedication.id,
+          }),
+        );
+        await models.EncounterPrescription.create({
+          encounterId: encounterToDischarge.id,
+          prescriptionId: prescription.id,
+        });
+        return { encounterToDischarge, prescription };
+      };
+
+      beforeAll(async () => {
+        dischargeMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'Dischargizol',
+          code: 'dischargizol',
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
+      });
+
+      it('places a pharmacy order for the medications selected on the discharge', async () => {
+        const { encounterToDischarge, prescription } = await createEncounterToDischarge();
+
+        const result = await app.put(`/api/encounter/${encounterToDischarge.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: encounterToDischarge.id, dischargerId: app.user.id },
+          medications: {
+            [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: true },
+          },
+          pharmacyOrder: { orderingClinicianId: app.user.id, facilityId },
+        });
+        expect(result).toHaveSucceeded();
+
+        const orders = await models.PharmacyOrder.findAll({
+          where: { encounterId: encounterToDischarge.id },
+        });
+        expect(orders).toHaveLength(1);
+        expect(orders[0].orderingClinicianId).toEqual(app.user.id);
+        // Anything ordered from a discharge is an outpatient/discharge prescription.
+        expect(orders[0].isDischargePrescription).toBe(true);
+
+        const lines = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: orders[0].id },
+        });
+        expect(lines).toHaveLength(1);
+        expect(lines[0]).toMatchObject({
+          prescriptionId: prescription.id,
+          quantity: 12,
+          repeats: 2,
+        });
+      });
+
+      it('places no pharmacy order when nothing is selected to send', async () => {
+        const { encounterToDischarge, prescription } = await createEncounterToDischarge();
+
+        const result = await app.put(`/api/encounter/${encounterToDischarge.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: encounterToDischarge.id, dischargerId: app.user.id },
+          medications: {
+            [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: false },
+          },
+          pharmacyOrder: { orderingClinicianId: app.user.id, facilityId },
+        });
+        expect(result).toHaveSucceeded();
+
+        const orders = await models.PharmacyOrder.findAll({
+          where: { encounterId: encounterToDischarge.id },
+        });
+        expect(orders).toHaveLength(0);
+      });
+
+      it('rolls the discharge back when the pharmacy order cannot be placed', async () => {
+        const { encounterToDischarge, prescription } = await createEncounterToDischarge();
+
+        const result = await app.put(`/api/encounter/${encounterToDischarge.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: encounterToDischarge.id, dischargerId: app.user.id },
+          medications: {
+            [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: true },
+          },
+          pharmacyOrder: { facilityId },
+        });
+        expect(result).toHaveRequestError();
+
+        const orders = await models.PharmacyOrder.findAll({
+          where: { encounterId: encounterToDischarge.id },
+        });
+        expect(orders).toHaveLength(0);
+
+        // The patient must not be left discharged with no order.
+        const notDischarged = await models.Encounter.findByPk(encounterToDischarge.id);
+        expect(notDischarged.endDate).toBeFalsy();
+        const discharges = await models.Discharge.findAll({
+          where: { encounterId: encounterToDischarge.id },
+        });
+        expect(discharges).toHaveLength(0);
+      });
     });
 
     describe('vitals', () => {
