@@ -477,6 +477,9 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewAllergyAddButton.click();
     await this.allergyNameField.fill(allergyName);
     await this.page.getByRole('menuitem', { name: allergyName, exact: true }).click();
+    // The suggester re-renders as its fetch resolves, so the click can select nothing.
+    await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
