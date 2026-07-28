@@ -144,11 +144,14 @@ describe('Admin sync credentials', () => {
       expect(result).toBeForbidden();
     });
 
-    it('returns the settings PSK to an admin', async () => {
+    // A person's admin session is not a facility server. Mobile and facility servers
+    // share the sync_client device scope and the isMobile flag is client-supplied, so
+    // kind is the only trustworthy signal. settingsPskSyncUserPull.test.js covers the
+    // sync user that is allowed through.
+    it('forbids an admin who is not a sync user', async () => {
       const app = await baseApp.asRole('admin');
       const result = await app.get(PSK_ENDPOINT);
-      expect(result).toHaveSucceeded();
-      expect(result.body.settingsPsk).toMatch(/^[0-9a-f]{64}$/);
+      expect(result).toBeForbidden();
     });
   });
 });
