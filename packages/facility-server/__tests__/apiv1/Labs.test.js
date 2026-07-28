@@ -431,7 +431,7 @@ describe('Labs', () => {
       expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
     });
 
-    it('should reject updating priority once status is no longer reception pending', async () => {
+    it('should allow updating priority after status changes when priorityEditable flag is true (default)', async () => {
       const { id: requestId } = await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
           patientId,
@@ -442,19 +442,19 @@ describe('Labs', () => {
       const response = await app
         .put(`/api/labRequest/${requestId}`)
         .send({ labTestPriorityId: priorityB.id });
-      expect(response).toHaveRequestError();
+      expect(response).toHaveSucceeded();
 
       const labRequest = await models.LabRequest.findByPk(requestId);
-      expect(labRequest).toHaveProperty('labTestPriorityId', priorityA.id);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
     });
 
-    it('should reject updating priority when the priorityEditable feature flag is disabled', async () => {
+    it('should reject updating priority after status changes when priorityEditable flag is false', async () => {
       await models.Setting.set('features.labRequest.priorityEditable', false);
 
       const { id: requestId } = await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
           patientId,
-          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
           labTestPriorityId: priorityA.id,
         }),
       );

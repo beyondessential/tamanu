@@ -242,8 +242,10 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
+  // isPriorityEditingEnabled: when true (default), priority can be edited at any time.
+  // When false, priority can only be edited while status is reception_pending.
   const isPriorityLocked =
-    isPriorityEditingEnabled && labRequest.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING;
+    !isPriorityEditingEnabled && labRequest.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING;
   const isPriorityReadOnly = areLabRequestsReadOnly || isPriorityLocked;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);

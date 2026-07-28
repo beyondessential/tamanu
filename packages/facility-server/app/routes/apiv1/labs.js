@@ -74,21 +74,20 @@ labRequest.put(
       req.checkPermission('write', 'LabRequestStatus');
     }
 
+    // priorityEditable: when true (default), priority can be edited at any time.
+    // When false, priority can only be edited while status is reception_pending.
     const priorityEditable =
       (await settings[facilityId]?.get('features.labRequest.priorityEditable')) ?? true;
 
     if (
       labRequestData.labTestPriorityId !== undefined &&
-      labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId
+      labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId &&
+      !priorityEditable &&
+      labRequestRecord.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING
     ) {
-      if (!priorityEditable) {
-        throw new InvalidOperationError('Lab request priority cannot be edited.');
-      }
-      if (labRequestRecord.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING) {
-        throw new InvalidOperationError(
-          'Lab request priority cannot be changed once the request is no longer reception pending.',
-        );
-      }
+      throw new InvalidOperationError(
+        'Lab request priority cannot be changed once the request is no longer reception pending.',
+      );
     }
 
     const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
