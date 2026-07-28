@@ -442,25 +442,138 @@ kiosk configuration adds:
 
 ## Packaging and release
 
-Follows the existing `cd-package-*` pattern (build in CI, attach to the release,
-upload artifacts to S3) rather than a new mechanism — but the shell carries its
-**own version**, not Tamanu's (see Versioning and compatibility). Releasing
-alongside Tamanu is a convenience, not a coupling.
+Builds follow the existing `cd-package-*` pattern (build in CI, attach to the
+release, upload artifacts to S3), but the Tamanu Iti Browser carries its **own
+version**, not Tamanu's (see Versioning and compatibility) — releasing alongside
+Tamanu is a convenience, not a coupling. The monorepo package working name is
+`packages/tamanu-iti-browser` (`@tamanu/iti-browser`), with the Android app as a
+sibling build (Gradle) sharing the TypeScript core but not the desktop build
+path — plan it as its own CI job.
 
-- **Desktop:** a monorepo package (working name `packages/tamanu-iti-browser`,
-  `@tamanu/iti-browser`) building the headless agent as a small native binary per
-  OS, that launches the user's installed Chrome. It produces signed per-OS
-  artifacts; code-signing and macOS notarisation need their own secrets,
-  mirroring how `cd-package-frontend.yml` handles signing certs. (A bundled
-  Chromium is deliberately avoided — see Renderer and security ownership.)
-- **Android:** the Tamanu Iti Browser Android app, built with Gradle producing a
-  sideloadable `.apk`, mirroring `cd-package-android.yml`. It shares the
-  TypeScript core but not the desktop build path — plan it as its own CI job.
-- Because the shell hosts no renderer, its updates are rare and never on a
-  browser-security clock; keeping product logic out of it keeps the offline
-  machines from needing updates at all. Renderer security and the website itself
-  both update independently of the shell (the browser via its vendor, the
-  website server-side).
+### Cross-cutting principles
+
+These shape every per-platform choice below:
+
+- **The headless-agent model makes desktop packaging light.** Because desktop
+  bundles no Chromium (it launches the user's installed Chrome — see Renderer and
+  security ownership), the artifact is a **small native binary**, not a
+  hundreds-of-MB Electron installer. Packaging is closer to shipping a CLI tool
+  than a browser.
+- **Offline-installable channel is mandatory on every platform.** A core goal is
+  standing up a client with no internet, so each platform must have at least one
+  channel that needs **no store and no network** — a copyable file (direct APK,
+  AppImage, portable `.exe`, `.dmg`) or a raw installer hosted on the release.
+  Stores and package managers are **additive conveniences layered on top**, never
+  the only way in.
+- **Code signing is a hard prerequisite, not a polish step.** Unsigned artifacts
+  are actively hostile to install: Windows SmartScreen "unknown publisher"
+  warnings, macOS Gatekeeper refusal, Android's signing requirement. Each brings
+  its own cost and CI secrets (mirroring how `cd-package-frontend.yml` handles
+  signing certs): an Authenticode cert (Windows; EV to bypass SmartScreen
+  immediately), Apple Developer ID + notarisation (macOS; ~$99/yr program), and a
+  stable Android signing key.
+- **Sandboxed/store formats fight our model.** The agent must bind a **loopback
+  port** and **launch the user's real Chrome**. Confined formats — Snap, Flatpak,
+  macOS App Store, Windows MSIX/Store — all constrain exactly those two things
+  and need extra entitlements/portals or simply can't. This is the recurring
+  reason store formats are optional-at-best rather than primary.
+- **Decoupled versioning frees us from store latency.** Because the client's
+  version is independent of Tamanu's, store review time never blocks a Tamanu
+  release, and stores (which don't care about the Tamanu version) are happy with
+  our own cadence and signing keys.
+
+### Android
+
+- **Direct APK (primary, required).** Sideloadable, copyable over LAN/USB, no
+  Google dependency — the only channel that satisfies offline install. Hosted on
+  the release / S3 like other artifacts. Needs "install unknown apps" allowed, or
+  push via MDM.
+- **Managed Play / MDM (fleet & kiosk).** For Android Enterprise fleets, push the
+  APK (or a Managed Google Play private app) to devices; this is also the clean
+  way to provision kiosk lock-task and auto-start. The right path where an
+  MDM exists.
+- **Google Play Store (optional convenience).** Trade-off: eases install and
+  gives auto-update and store trust, but requires internet + Play Services (often
+  absent on AOSP tablets, kiosk boxes, and many Android TV devices), adds policy
+  overhead (target-API, privacy declarations, review latency), and **cannot serve
+  the offline case** — so it is strictly additive, never the sole channel. Our
+  decoupled versioning is fine for Play (it doesn't care about the Tamanu
+  version).
+
+### Windows (primary target)
+
+First, correct a common assumption: in the preferred model the Windows
+dependency is **"Chrome is installed"** (already the deployment premise), *not*
+WebView2. WebView2 (the Microsoft-patched, evergreen system webview, present by
+default on Windows 11) only matters if we fall back to the system-webview
+wrapper.
+
+- **Signed portable `.exe` (primary, offline).** A single self-contained agent
+  binary that runs with no install — copyable to a workstation, matches the
+  offline ethos, no admin rights needed. Great for quick and ad-hoc use.
+- **Signed MSI (primary, fleet).** For managed workstations: silent install
+  (`msiexec /qn`), deployable via Intune / SCCM / GPO, proper install/uninstall
+  and autostart registration. This is the "install on every workstation through
+  fleet management" path. Cost: MSI authoring is fiddly (WiX or similar), and it
+  must be Authenticode-signed or SmartScreen scares users off.
+- **Winget (optional, later).** Now built into Windows and no longer purely
+  developer-facing; a manifest pointing at the signed installer gives
+  `winget install`. Additive convenience for semi-managed setups; large fleets
+  still use MSI + Intune/SCCM.
+- **Skip Microsoft Store (MSIX) and Chocolatey.** MSIX's containerisation fights
+  the loopback + launch-Chrome model and adds Store policy/review for little gain
+  on a fallback utility; Chocolatey is developer-audience. Neither earns its keep
+  here.
+
+### macOS
+
+macOS is likely rare on these low-IT sites but matters for roaming clinician
+laptops.
+
+- **Notarised `.dmg` (primary).** The standard "drag to Applications" bundle.
+  **Signing with an Apple Developer ID and notarising is mandatory** — without it
+  Gatekeeper refuses to open the app on modern macOS, and the bypass is
+  increasingly hard. This is a hard prerequisite (Developer Program membership +
+  CI notarisation), not optional polish.
+- **Signed `.pkg` (fleet).** A notarised installer package installs silently and
+  is pushable via MDM (Jamf, Intune) — the macOS equivalent of the MSI path.
+- **Homebrew cask (optional).** `brew install --cask` from a BES tap: convenient
+  and scriptable for Mac-comfortable admins, but a developer-leaning audience and
+  needs Homebrew + internet. Nice-to-have, not primary.
+- **Skip the Mac App Store.** Its mandatory sandbox fights launching the user's
+  Chrome and the loopback listener; entitlements are unlikely to clear review for
+  a utility whose whole job is to drive another browser.
+
+### Linux
+
+The small-binary agent packages much more easily than a typical Linux desktop
+app, but there is no single universal format:
+
+- **AppImage (primary).** One self-contained file, no install, runs across
+  distros — a near-perfect fit for the offline, copyable ethos. Trade-offs: no
+  system integration (autostart for a Linux display needs a hand-added `.desktop`
+  / user systemd unit), a FUSE dependency on minimal systems, and no built-in
+  auto-update (fine, given ship-once).
+- **`.deb` (Ubuntu/Debian fleets).** Native install that can drop in a systemd
+  unit for autostart (useful for Linux-based displays) and deploy via apt /
+  Ansible. Trade-off: glibc/version-specific, so it targets the Ubuntu LTS we
+  support rather than being universal.
+- **Snap / Flatpak (optional, watch the sandbox).** Both offer auto-update and
+  cross-distro reach, but their confinement is exactly the sandbox tension above:
+  binding a loopback port and launching the host's Chrome need specific interfaces
+  / portals and are fiddly to get right. Not free, so treat them as later
+  additions if there's demand, not part of the first cut.
+- Recommendation: **AppImage + `.deb`** covers offline single-file use and
+  managed-fleet/display use; defer Snap/Flatpak.
+
+### Ship-once, restated
+
+Because the client hosts no renderer of its own, its updates are rare and never
+on a browser-security clock — so the packaging effort above is mostly a one-time
+build-out, not an ongoing treadmill. Renderer security and the website both
+update independently of the client (the browser via its vendor, the website
+server-side), which is what keeps even the offline machines from needing client
+updates.
 
 ## Decisions
 
