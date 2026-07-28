@@ -205,19 +205,22 @@ the kiosk section).
 The preferred desktop shape — a headless agent that proxies to the user's real
 Chrome over loopback (see Renderer and security ownership):
 
-```
-                   ┌────────────────────────────────────────┐
-                   │          headless agent (shell)         │
-                   │                                         │        real Chrome
- discovery ──────► │ candidate pool ─► connect+verify loop   │        (--app, no
- sources           │      ▲                    │             │         address bar)
-                   │      │      TLS client: BES CA + SAN     │            ▲
-                   │ last-known-good           │             │            │
-                   │      cache          verified tunnel     │   http://<uuid>.localhost:PORT
-                   │                           │             │   (secure context)
-                   │              loopback reverse proxy ─────┼────────────┘
-                   └────────────────────────────────────────┘
-              on-the-wire: agent→facility is BES-TLS; loopback hop is local-only
+```mermaid
+flowchart LR
+    subgraph agent["Tamanu Iti Browser — headless agent"]
+        direction TB
+        disco["Discovery sources<br/>cache · mDNS · multicast · Canopy · user entry"]
+        pool["Candidate pool"]
+        verify["Connect + verify loop<br/>TLS client — BES CA + SAN check"]
+        proxy["Loopback reverse proxy"]
+        disco --> pool --> verify --> proxy
+    end
+
+    facility["Facility server"]
+    chrome["Real Chrome<br/>--app · no address bar"]
+
+    verify <==>|"BES-TLS · encrypted on the wire"| facility
+    proxy -->|"http://&lt;uuid&gt;.localhost:PORT<br/>secure context · loopback only"| chrome
 ```
 
 The trust decision is made by the agent's own TLS client in ordinary code, so no
