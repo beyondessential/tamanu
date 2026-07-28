@@ -6,7 +6,9 @@ import path from 'node:path';
 // Playwright/puppeteer dependency. Enough to launch headless Chrome, attach to
 // the page target, and evaluate expressions.
 
-export const sleep = ms => new Promise(r => setTimeout(r, ms));
+export const sleep = ms => new Promise(r => {
+  setTimeout(r, ms);
+});
 
 const ABSOLUTE_CANDIDATES = [
   '/usr/bin/google-chrome',
@@ -162,7 +164,9 @@ export class CDP {
   send(method, params = {}) {
     const id = (this.id += 1);
     this.ws.send(JSON.stringify({ id, method, params }));
-    return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+    });
   }
 
   async evaluate(expression) {

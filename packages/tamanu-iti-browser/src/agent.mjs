@@ -60,6 +60,8 @@ export async function connectFacility({ facilityId, host, caPem, candidates, lis
     origin: facilityOrigin(facilityId, port),
     proxyPort: port,
     upstream: winner,
-    close: () => new Promise(res => server.close(res)),
+    close: () => new Promise(res => {
+      server.close(res);
+    }),
   };
 }

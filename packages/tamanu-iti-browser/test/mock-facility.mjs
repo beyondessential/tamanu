@@ -114,7 +114,9 @@ export function startMockFacility({ key, cert }) {
     server.listen(0, '127.0.0.1', () =>
       resolve({
         port: server.address().port,
-        close: () => new Promise(r => server.close(r)),
+        close: () => new Promise(r => {
+          server.close(r);
+        }),
       }),
     );
   });
