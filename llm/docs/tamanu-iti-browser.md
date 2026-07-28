@@ -1,20 +1,22 @@
-# Tamanu Iti — design
+# Tamanu Iti Browser — design
 
-Status: **design / not yet built**. This document describes the shape of
-**Tamanu Iti**, a thin native client (the shell) that lets clinical staff reach
-a facility server on networks where public DNS and publicly-trusted HTTPS are
-not available. It is a design artifact to be reviewed before any package is
-scaffolded.
+Status: **design / not yet built**. This document describes the shape of the
+**Tamanu Iti Browser**, a thin native client (the shell) that lets clinical
+staff reach a facility server on networks where public DNS and publicly-trusted
+HTTPS are not available. It is a design artifact to be reviewed before any
+package is scaffolded.
 
 ## Name
 
-*Iti* means "little". Most facilities using this model run on a **Tamanu Iti** —
-BES's own small hardware appliance built for exactly this purpose — so the shell
-takes the same name: the appliance and the browser that talks to it are both
-"Tamanu Iti". For facilities not on the appliance, the name still disambiguates
-the client from a plain browser: "use the **Tamanu Iti** browser instead of
-Chrome". Throughout this document "Tamanu Iti" and "the shell" are used
-interchangeably.
+**Tamanu Iti** (*iti* = "little") is an existing BES product: a small Tamanu
+facility-server appliance built for low-IT settings — exactly the environments
+this client targets. The client is a **separate** thing and is named the
+**Tamanu Iti Browser** to keep it distinct from the appliance: the appliance is
+the server hardware, the Tamanu Iti Browser is the client that talks to it (and
+to other facility servers in the same low-IT model). The name also disambiguates
+the client from a plain browser: "use the **Tamanu Iti Browser** instead of
+Chrome". Throughout this document "Tamanu Iti Browser" and "the shell" are used
+interchangeably; "Tamanu Iti" on its own refers to the appliance.
 
 ## Background
 
@@ -445,13 +447,13 @@ upload artifacts to S3) rather than a new mechanism — but the shell carries it
 **own version**, not Tamanu's (see Versioning and compatibility). Releasing
 alongside Tamanu is a convenience, not a coupling.
 
-- **Desktop:** a monorepo package (working name `packages/tamanu-iti`,
-  `@tamanu/iti`) building the headless agent as a small native binary per OS,
-  that launches the user's installed Chrome. It produces signed per-OS
+- **Desktop:** a monorepo package (working name `packages/tamanu-iti-browser`,
+  `@tamanu/iti-browser`) building the headless agent as a small native binary per
+  OS, that launches the user's installed Chrome. It produces signed per-OS
   artifacts; code-signing and macOS notarisation need their own secrets,
   mirroring how `cd-package-frontend.yml` handles signing certs. (A bundled
   Chromium is deliberately avoided — see Renderer and security ownership.)
-- **Android:** the Tamanu Iti Android app, built with Gradle producing a
+- **Android:** the Tamanu Iti Browser Android app, built with Gradle producing a
   sideloadable `.apk`, mirroring `cd-package-android.yml`. It shares the
   TypeScript core but not the desktop build path — plan it as its own CI job.
 - Because the shell hosts no renderer, its updates are rare and never on a
