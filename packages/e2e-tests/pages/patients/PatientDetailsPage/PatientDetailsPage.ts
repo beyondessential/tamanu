@@ -477,6 +477,12 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewAllergyAddButton.click();
     await this.allergyNameField.fill(allergyName);
     await this.page.getByRole('menuitem', { name: allergyName, exact: true }).click();
+    // The suggester re-renders as its debounced fetch resolves, so the click above can
+    // land on a list that is replaced before it selects anything. Submitting then posts
+    // an empty name and the form just sits there failing validation, which surfaces much
+    // later as a timeout waiting for the saved row. Confirm the value landed first.
+    await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
