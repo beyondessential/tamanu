@@ -65,6 +65,10 @@ origin.
   (Windows/macOS/Linux) is the primary workstation target.
 - **No clock-skew handling.** By design the shell does nothing about device
   clocks (see Trust model for why it cannot affect us).
+- **Not a universal client.** The shell targets the local / no-PKI case; a
+  normally publicly-trusted deployment is served by the plain website / PWA as
+  today. The facility record is kept extensible so a public-URL facility *could*
+  be added later, but that pathway is not built in v1 (see Decisions).
 
 ## Trust model (assumed from server-side work)
 
@@ -463,6 +467,19 @@ alongside Tamanu is a convenience, not a coupling.
   days, plus a ~48-hour backdated `notBefore`, make skew structurally unable to
   affect trust within any supported offline window (see Trust model). App-level
   skew stays Tamanu's own concern.
+- **Scope the shell to the local / no-PKI fallback — not a universal client.**
+  Supporting normally publicly-trusted facilities in the shell is technically the
+  *degenerate* case of the same picker/record flow (reachability and trust both
+  trivial → just open the public URL), so it is not a second architecture. But it
+  is deliberately not built in v1: in that mode the shell adds nothing over the
+  plain website / PWA (which is already the primary path and auto-updates); the
+  one-app / roaming benefit is undercut because the same facility reached locally
+  vs. publicly lives on different origins and so has *separate* storage and login
+  state; and making the shell everyone's access path re-imports the ship-once /
+  maintenance burden that keeping it a fallback avoids. The **facility record is
+  kept able to express a public-URL / publicly-trusted facility** (add-only), so
+  if one-app-everywhere ever becomes a real requirement it slots into the
+  existing picker as a small additive feature — no breaking change.
 
 ## Validation while building
 
