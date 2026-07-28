@@ -15,8 +15,11 @@ with real code before committing to it:
   (`src/launch.mjs`), so no Chromium is bundled and renderer security stays with
   the browser vendor.
 
-It is deliberately **dependency-free** (Node built-ins only), so it runs anywhere
-Node ≥ 18 and a Chromium/Chrome are present, with no `npm install`.
+It is deliberately **dependency-free** (Node built-ins only), so it runs with no
+`npm install`. It needs **Node ≥ 22** (it uses the global `WebSocket` client,
+stable from Node 22). The trust and proxy checks run anywhere; the browser
+checks additionally need a Chrome/Chromium and are **skipped** if none is found
+(set `CHROME_PATH` to point at one).
 
 ## What it validates
 
@@ -47,9 +50,9 @@ the preferred rendering model depends on.
 ## Running
 
 ```bash
-node test/run-all.mjs          # from packages/tamanu-iti-browser
+npm run validate               # from packages/tamanu-iti-browser (= node test/run-all.mjs)
 # or, against a specific browser binary:
-CHROME_PATH=/path/to/chrome node test/run-all.mjs
+CHROME_PATH=/path/to/chrome npm run validate
 ```
 
 Real end-to-end launch on a desktop (opens an actual Chrome window):

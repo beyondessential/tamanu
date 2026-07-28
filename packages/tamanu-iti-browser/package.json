@@ -10,7 +10,6 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "node src/cli.mjs",
-    "validate": "node test/run-all.mjs",
-    "test": "node test/run-all.mjs"
+    "validate": "node test/run-all.mjs"
   }
 }

@@ -40,14 +40,25 @@ async function findFreePort() {
   });
 }
 
+function isPortFree(port) {
+  return new Promise(resolve => {
+    const srv = net.createServer();
+    srv.once('error', () => resolve(false));
+    srv.listen(port, '127.0.0.1', () => srv.close(() => resolve(true)));
+  });
+}
+
 /**
- * Return a port that is stable for this facility across launches. Persisted in
+ * Return a port that is stable for this facility across launches, persisted in
  * a small JSON state file so the origin — and therefore the storage partition —
- * stays constant.
+ * stays constant. If the stored port has since been taken by another process,
+ * fall back to allocating and persisting a new one (the origin changes and
+ * storage is orphaned, but that beats failing to start).
  */
 export async function stablePort(facilityId, stateFile) {
   const state = readState(stateFile);
-  if (state[facilityId]) return state[facilityId];
+  const stored = state[facilityId];
+  if (stored && (await isPortFree(stored))) return stored;
   const port = await findFreePort();
   state[facilityId] = port;
   fs.mkdirSync(path.dirname(stateFile), { recursive: true });

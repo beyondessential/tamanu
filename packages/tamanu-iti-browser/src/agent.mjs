@@ -14,8 +14,12 @@ export function verifyCandidate({ address, port, host, agent, timeoutMs = 3000 }
     const req = https.request(
       { host: address, port, method: 'GET', path: '/health', headers: { host }, agent, timeout: timeoutMs },
       res => {
+        // Trust already passed (TLS handshake through the pinned agent). Also
+        // require a non-error status so we don't select a port that has the
+        // right cert but isn't actually serving the facility (404/5xx).
+        const served = res.statusCode >= 200 && res.statusCode < 400;
         res.resume();
-        resolve(true);
+        resolve(served);
       },
     );
     req.on('error', () => resolve(false));

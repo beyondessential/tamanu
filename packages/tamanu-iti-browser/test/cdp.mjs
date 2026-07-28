@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -6,11 +6,60 @@ import path from 'node:path';
 // Playwright/puppeteer dependency. Enough to launch headless Chrome, attach to
 // the page target, and evaluate expressions.
 
-const CHROME =
-  process.env.CHROME_PATH ||
-  '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const ABSOLUTE_CANDIDATES = [
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/snap/bin/chromium',
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+];
+
+function fromPlaywright() {
+  const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+  try {
+    for (const dir of fs.readdirSync(base)) {
+      if (!dir.startsWith('chromium-')) continue;
+      for (const rel of ['chrome-linux/chrome', 'chrome-mac/Chromium.app/Contents/MacOS/Chromium', 'chrome-win/chrome.exe']) {
+        const candidate = path.join(base, dir, rel);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch {
+    /* no playwright browsers dir */
+  }
+  return null;
+}
+
+function fromPath() {
+  if (process.platform === 'win32') return null;
+  for (const name of ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser', 'chrome']) {
+    try {
+      const found = execFileSync('command', ['-v', name], { shell: '/bin/sh', encoding: 'utf8' }).trim();
+      if (found) return found;
+    } catch {
+      /* not on PATH */
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolve a Chrome/Chromium binary, or null if none is available.
+ * Order: CHROME_PATH, well-known install paths, PATH, Playwright's managed copy.
+ */
+export function findBrowser() {
+  if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
+  for (const candidate of ABSOLUTE_CANDIDATES) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return fromPath() || fromPlaywright();
+}
 
 async function waitForFile(file, timeoutMs = 10000) {
   const deadline = Date.now() + timeoutMs;
@@ -27,6 +76,8 @@ async function waitForFile(file, timeoutMs = 10000) {
 }
 
 export async function launchChrome({ url, userDataDir }) {
+  const browser = findBrowser();
+  if (!browser) throw new Error('no Chrome/Chromium found — set CHROME_PATH');
   fs.mkdirSync(userDataDir, { recursive: true });
   // Reusing a profile dir (restart test) leaves stale control files behind; a
   // SIGKILLed Chrome does not clean them up. Remove them so we wait for the new
@@ -39,7 +90,7 @@ export async function launchChrome({ url, userDataDir }) {
     }
   }
   const proc = spawn(
-    CHROME,
+    browser,
     [
       '--headless=new',
       '--no-sandbox',
@@ -74,7 +125,7 @@ export async function pageTargetWs(cdpPort, timeoutMs = 10000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const list = await (await fetch(`http://127.0.0.1:${cdpPort}/json/list`)).json();
+      const list = await (await globalThis.fetch(`http://127.0.0.1:${cdpPort}/json/list`)).json();
       const page = list.find(t => t.type === 'page' && t.webSocketDebuggerUrl);
       if (page) return page.webSocketDebuggerUrl;
     } catch {
@@ -87,7 +138,7 @@ export async function pageTargetWs(cdpPort, timeoutMs = 10000) {
 
 export class CDP {
   constructor(wsUrl) {
-    this.ws = new WebSocket(wsUrl);
+    this.ws = new globalThis.WebSocket(wsUrl);
     this.id = 0;
     this.pending = new Map();
     this.ws.addEventListener('message', ev => {
@@ -131,16 +182,4 @@ export class CDP {
       /* ignore */
     }
   }
-}
-
-/** Poll an expression until it returns a non-null/undefined value or times out. */
-export async function pollEvaluate(cdp, expression, timeoutMs = 8000) {
-  const deadline = Date.now() + timeoutMs;
-  let last;
-  while (Date.now() < deadline) {
-    last = await cdp.evaluate(expression);
-    if (last !== null && last !== undefined) return last;
-    await sleep(150);
-  }
-  return last;
 }

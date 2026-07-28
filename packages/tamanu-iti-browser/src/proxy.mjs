@@ -52,7 +52,11 @@ export function startLoopbackProxy({ listenPort, facility, caPem }) {
       () => {
         const headers = { ...req.headers, host: facility.host };
         let raw = `${req.method} ${req.url} HTTP/1.1\r\n`;
-        for (const [k, v] of Object.entries(headers)) raw += `${k}: ${v}\r\n`;
+        for (const [k, v] of Object.entries(headers)) {
+          if (v === undefined) continue;
+          // A header value may be an array (repeated headers); emit each.
+          for (const value of Array.isArray(v) ? v : [v]) raw += `${k}: ${value}\r\n`;
+        }
         raw += '\r\n';
         upstream.write(raw);
         if (head && head.length) upstream.write(head);
@@ -64,9 +68,13 @@ export function startLoopbackProxy({ listenPort, facility, caPem }) {
     clientSocket.on('error', () => upstream.destroy());
   });
 
-  return new Promise(resolve => {
-    server.listen(listenPort, '127.0.0.1', () =>
-      resolve({ server, port: server.address().port }),
-    );
+  return new Promise((resolve, reject) => {
+    // Reject (rather than hang) if the bind fails, e.g. the persisted
+    // per-facility port is already in use by another process.
+    server.once('error', reject);
+    server.listen(listenPort, '127.0.0.1', () => {
+      server.removeListener('error', reject);
+      resolve({ server, port: server.address().port });
+    });
   });
 }
