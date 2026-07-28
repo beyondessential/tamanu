@@ -6,6 +6,7 @@ const NOTES_DERIVED_SIDE_EFFECT_TRIGGERS = [
   'notify_notes_changed',
   'record_notes_changelog',
   'fhir_refresh',
+  'fhir_refresh_notes',
 ];
 
 const NOTE_TYPE_REFERENCE_DATA = [
