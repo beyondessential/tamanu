@@ -34,12 +34,20 @@ if (!args.facility || !args.host || !args.ca || args.candidate.length === 0) {
   process.exit(2);
 }
 
+// Parse "<host>:<port>", supporting bracketed IPv6 ("[::1]:8443") — a plain
+// split(':') would mangle IPv6 addresses.
+function parseCandidate(value) {
+  if (value.startsWith('[')) {
+    const end = value.indexOf(']');
+    return { address: value.slice(1, end), port: Number(value.slice(end + 2)) };
+  }
+  const colon = value.lastIndexOf(':');
+  return { address: value.slice(0, colon), port: Number(value.slice(colon + 1)) };
+}
+
 const stateDir = path.join(os.homedir(), '.tamanu-iti-browser');
 const caPem = fs.readFileSync(args.ca);
-const explicit = args.candidate.map(c => {
-  const [address, port] = c.split(':');
-  return { address, port: Number(port) };
-});
+const explicit = args.candidate.map(parseCandidate);
 
 const listenPort = await stablePort(args.facility, path.join(stateDir, 'ports.json'));
 const { origin } = await connectFacility({
