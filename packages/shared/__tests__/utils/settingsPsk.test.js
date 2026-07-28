@@ -6,6 +6,7 @@ jest.mock('config', () => ({
 }));
 
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
+import { log } from '../../src/services/logging';
 import {
   setSettingsPskSource,
   getSettingsPskKeyBuffer,
@@ -32,6 +33,19 @@ describe('getSettingsPskKeyBuffer', () => {
     const other = 'cd'.repeat(32);
     setSettingsPskSource(async () => other);
     expect(await getSettingsPskKeyBuffer()).toEqual(Buffer.from(other, 'hex'));
+  });
+
+  // An unprovisioned store is not the same thing as a server running on config. A
+  // central before its PSK is generated hits this, and reporting it as a legacy
+  // config fallback would read as a deployment about to break when it isn't.
+  it('does not report a config fallback when there is no config PSK', async () => {
+    const warn = jest.spyOn(log, 'warn').mockImplementation(() => {});
+    setSettingsPskSource(async () => null);
+
+    await expect(getSettingsPskKeyBuffer()).rejects.toThrow();
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   // Buffer.from(x, 'hex') silently drops bad chars, so a corrupt/empty PSK must be

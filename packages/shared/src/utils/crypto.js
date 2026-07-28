@@ -7,6 +7,8 @@ import readSync from 'read';
 
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 
+import { log } from '../services/logging';
+
 const read = promisify(readSync);
 
 const SECRET_VERSION = 'S1';
@@ -176,6 +178,25 @@ export function clearSettingsPskCache() {
   settingsPskKeyBufferPromise = null;
 }
 
+// Local secrets store is the source of truth. The legacy crypto.settingsPsk config
+// value covers deployments that haven't converged yet, and goes away once the store
+// is guaranteed populated.
+async function resolveSettingsPsk() {
+  // == null, not falsy: only a genuinely unset source (not yet provisioned) falls
+  // back. A falsy-but-present value (e.g. '' from a corrupted row) passes through
+  // and fails validation loudly rather than silently decrypting with the wrong key.
+  const fromStore = settingsPskSource && (await settingsPskSource());
+  if (fromStore != null) return fromStore;
+
+  const fromConfig = await getConfigSecret('crypto.settingsPsk');
+  // Warned after the read rather than before it: getConfigSecret throws when the key
+  // is unset, so reaching this line means config really is the source. An empty local
+  // store on its own says nothing. Callers cache the result, so this is once per
+  // process.
+  log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
+  return fromConfig;
+}
+
 // The settings PSK key never changes at runtime so we decrypt it once and
 // reuse the buffer. A failed first read clears the cache so the next call
 // retries instead of permanently breaking secret access.
@@ -184,22 +205,16 @@ let settingsPskKeyBufferPromise = null;
 export async function getSettingsPskKeyBuffer() {
   if (!settingsPskKeyBufferPromise) {
     settingsPskKeyBufferPromise = (async () => {
-      // Local secrets store is the source of truth. Fall back to the legacy
-      // crypto.settingsPsk config value while deployments converge; this
-      // fallback is removed once the local store is guaranteed populated.
-      // ?? not ||: only a genuinely unset source (null/undefined = not yet
-      // provisioned) falls back. A falsy-but-present value (e.g. '' from a
-      // corrupted row) passes through and fails loudly rather than silently
-      // decrypting with the wrong key.
-      const psk =
-        (settingsPskSource && (await settingsPskSource())) ??
-        (await getConfigSecret('crypto.settingsPsk'));
+      const psk = await resolveSettingsPsk();
       // Validate before use. Buffer.from(x, 'hex') silently drops invalid/odd
       // characters, so a corrupt or empty PSK would otherwise yield a wrong-length
       // key whose only symptom is an opaque "Decryption failed" far from the cause.
       // Fail here, at the source, with a message that names the problem.
       const expectedHexLength = KEY_LENGTH_BYTES * 2;
-      if (typeof psk !== 'string' || !new RegExp(`^[0-9a-f]{${expectedHexLength}}$`, 'i').test(psk)) {
+      if (
+        typeof psk !== 'string' ||
+        !new RegExp(`^[0-9a-f]{${expectedHexLength}}$`, 'i').test(psk)
+      ) {
         throw new Error(
           `Settings PSK must be exactly ${expectedHexLength} hex characters ` +
             `(${KEY_LENGTH_BYTES} bytes for AES-${KEY_LENGTH}); the local secrets store ` +
