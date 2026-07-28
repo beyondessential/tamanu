@@ -75,18 +75,23 @@ labRequest.put(
     }
 
     // priorityEditable: when true (default), priority can be edited at any time.
-    // When false, priority can only be edited while status is reception_pending.
+    // When false, priority can only be edited in early stages (sample_not_collected, reception_pending).
     const priorityEditable =
       (await settings[facilityId]?.get('features.labRequest.priorityEditable')) ?? true;
+
+    const earlyStages = [
+      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+    ];
 
     if (
       labRequestData.labTestPriorityId !== undefined &&
       labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId &&
       !priorityEditable &&
-      labRequestRecord.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING
+      !earlyStages.includes(labRequestRecord.status)
     ) {
       throw new InvalidOperationError(
-        'Lab request priority cannot be changed once the request is no longer reception pending.',
+        'Lab request priority cannot be changed once the request has moved beyond the initial stages.',
       );
     }
 
