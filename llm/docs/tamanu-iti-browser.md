@@ -470,13 +470,13 @@ These shape every per-platform choice below:
   first; they install fine through the warnings (Windows SmartScreen "more info →
   run anyway", macOS Gatekeeper right-click-open, Android "install unknown app"),
   which is perfectly acceptable while validating that the approach solves the
-  problem. (Android is the one nuance: an APK must be signed with *some* key to
-  install at all, but a throwaway debug/self-signed key suffices for
-  validation — the stable production key is still a distribution-time concern.)
-  Only when standing up *real* distribution, where per-install warnings are
-  unacceptable at scale, add the signing: an Authenticode cert (Windows; EV to
-  bypass SmartScreen immediately), an Apple Developer ID + notarisation (macOS;
-  ~$99/yr program), and a stable Android signing key, wired into CI like
+  problem. (Android needs no procurement at all — an APK must be signed with
+  *some* key to install, and we **already have an Android signing key** from the
+  existing mobile pipeline, so validation and production builds can both use it.)
+  Only when standing up *real* distribution on desktop, where per-install
+  warnings are unacceptable at scale, add the desktop signing: an Authenticode
+  cert (Windows; EV to bypass SmartScreen immediately) and an Apple Developer ID
+  + notarisation (macOS; ~$99/yr program), wired into CI like
   `cd-package-frontend.yml` handles signing certs. Keeping it a later step means
   cert procurement never blocks proving the design.
 - **Sandboxed/store formats fight our model.** The agent must bind a **loopback
