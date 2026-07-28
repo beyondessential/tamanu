@@ -78,14 +78,17 @@ labRequest.put(
       (await settings[facilityId]?.get('features.labRequest.priorityEditable')) ?? true;
 
     if (
-      priorityEditable &&
       labRequestData.labTestPriorityId !== undefined &&
-      labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId &&
-      labRequestRecord.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING
+      labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId
     ) {
-      throw new InvalidOperationError(
-        'Lab request priority cannot be changed once the request is no longer reception pending.',
-      );
+      if (!priorityEditable) {
+        throw new InvalidOperationError('Lab request priority cannot be edited.');
+      }
+      if (labRequestRecord.status !== LAB_REQUEST_STATUSES.RECEPTION_PENDING) {
+        throw new InvalidOperationError(
+          'Lab request priority cannot be changed once the request is no longer reception pending.',
+        );
+      }
     }
 
     const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
