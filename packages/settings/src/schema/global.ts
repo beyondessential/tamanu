@@ -260,7 +260,7 @@ export const globalSettings = {
     imagingTypes: {
       name: 'Imaging types',
       description:
-        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-ray" } })',
       type: yup
         .object()
         .test(
