@@ -32,6 +32,9 @@ const PAGE = `<!doctype html>
 
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
+// Decode one frame from the front of `buf`, or null if not enough bytes yet
+// (TCP can split a frame across reads). Returns how many bytes were consumed
+// so the caller can advance its buffer.
 function decodeFrame(buf) {
   if (buf.length < 2) return null;
   const opcode = buf[0] & 0x0f;
@@ -39,20 +42,26 @@ function decodeFrame(buf) {
   let len = buf[1] & 0x7f;
   let offset = 2;
   if (len === 126) {
+    if (buf.length < 4) return null;
     len = buf.readUInt16BE(2);
     offset = 4;
   } else if (len === 127) {
+    if (buf.length < 10) return null;
     len = Number(buf.readBigUInt64BE(2));
     offset = 10;
   }
   let mask;
   if (masked) {
-    mask = buf.slice(offset, offset + 4);
+    if (buf.length < offset + 4) return null;
+    mask = buf.subarray(offset, offset + 4);
     offset += 4;
   }
-  const payload = buf.slice(offset, offset + len);
+  if (buf.length < offset + len) return null;
+  // Copy out of the shared buffer before unmasking so we don't mutate bytes
+  // belonging to a later frame.
+  const payload = Buffer.from(buf.subarray(offset, offset + len));
   if (masked) for (let i = 0; i < payload.length; i += 1) payload[i] ^= mask[i % 4];
-  return { opcode, payload };
+  return { opcode, payload, consumed: offset + len };
 }
 
 function encodeText(str) {
@@ -76,6 +85,10 @@ function encodeText(str) {
 
 function handleWebSocket(req, socket) {
   const key = req.headers['sec-websocket-key'];
+  if (!key) {
+    socket.destroy();
+    return;
+  }
   const accept = crypto.createHash('sha1').update(key + WS_GUID).digest('base64');
   socket.write(
     'HTTP/1.1 101 Switching Protocols\r\n' +
@@ -83,14 +96,20 @@ function handleWebSocket(req, socket) {
       'Connection: Upgrade\r\n' +
       `Sec-WebSocket-Accept: ${accept}\r\n\r\n`,
   );
-  socket.on('data', buf => {
-    const frame = decodeFrame(buf);
-    if (!frame) return;
-    if (frame.opcode === 0x8) {
-      socket.end();
-      return;
+  // Buffer across reads and consume whole frames as they complete.
+  let buffer = Buffer.alloc(0);
+  socket.on('data', chunk => {
+    buffer = Buffer.concat([buffer, chunk]);
+    let frame = decodeFrame(buffer);
+    while (frame) {
+      buffer = buffer.subarray(frame.consumed);
+      if (frame.opcode === 0x8) {
+        socket.end();
+        return;
+      }
+      if (frame.opcode === 0x1) socket.write(encodeText(frame.payload.toString('utf8')));
+      frame = decodeFrame(buffer);
     }
-    if (frame.opcode === 0x1) socket.write(encodeText(frame.payload.toString('utf8')));
   });
 }
 

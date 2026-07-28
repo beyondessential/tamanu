@@ -16,10 +16,14 @@ with real code before committing to it:
   the browser vendor.
 
 It is deliberately **dependency-free** (Node built-ins only), so it runs with no
-`npm install`. It needs **Node ≥ 22** (it uses the global `WebSocket` client,
-stable from Node 22). The trust and proxy checks run anywhere; the browser
-checks additionally need a Chrome/Chromium and are **skipped** if none is found
-(set `CHROME_PATH` to point at one).
+`npm install`. Node version:
+
+- The **trust** and **HTTP proxy** checks run on any modern Node.
+- The **WebSocket** and **browser** checks use the global `WebSocket` client
+  (stable from **Node ≥ 22**) and are **skipped** on older Node.
+- The **browser** checks additionally need a Chrome/Chromium (plain binary or
+  **Flatpak**; set `CHROME_PATH` to force a specific one) and are skipped if
+  none is found.
 
 ## What it validates
 

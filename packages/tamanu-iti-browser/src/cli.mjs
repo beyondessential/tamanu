@@ -18,12 +18,11 @@ import { launchApp } from './launch.mjs';
  */
 function parseArgs(argv) {
   const args = { candidate: [] };
-  for (let i = 0; i < argv.length; i += 1) {
+  for (let i = 0; i + 1 < argv.length; i += 2) {
     const key = argv[i].replace(/^--/, '');
     const value = argv[i + 1];
     if (key === 'candidate') args.candidate.push(value);
     else args[key] = value;
-    i += 1;
   }
   return args;
 }

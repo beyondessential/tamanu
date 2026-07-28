@@ -36,7 +36,7 @@ function makeLeaf(dir, name, san, ca) {
     dir,
   );
   openssl(
-    ['x509', '-req', '-in', csr, '-CA', ca.crt, '-CAkey', ca.key, '-days', '180',
+    ['x509', '-req', '-in', csr, '-CA', ca.crt, '-CAkey', ca.key, '-CAcreateserial', '-days', '180',
       '-copy_extensions', 'copy', '-out', crt],
     dir,
   );

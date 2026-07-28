@@ -13,7 +13,9 @@
  */
 export async function* candidates({ explicit = [] } = {}) {
   for (const c of explicit) {
-    yield { source: 'user-entry', ...c };
+    // `source` is authoritative metadata — set it last so a caller-provided
+    // field can't override it.
+    yield { ...c, source: 'user-entry' };
   }
   // Future sources (each an async generator merged into this stream):
   //   yield* fromCache(...)

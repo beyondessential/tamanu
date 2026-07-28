@@ -65,21 +65,28 @@ try {
   record('proxy: HTTP request forwarded to facility', health === 'ok', `/health -> "${health}"`);
 
   // ---- WebSocket proxy pass-through (Node client) -----------------------
-  const wsEcho = await new Promise(resolve => {
-    const ws = new globalThis.WebSocket(`ws://127.0.0.1:${goodConn.proxyPort}/ws`);
-    const timer = setTimeout(() => resolve('timeout'), 5000);
-    ws.addEventListener('open', () => ws.send('ping'));
-    ws.addEventListener('message', ev => {
-      clearTimeout(timer);
-      resolve(ev.data);
-      ws.close();
+  // The global WebSocket client is Node 22+; skip WS + browser checks (not the
+  // trust/HTTP ones) on older Node rather than crashing.
+  const hasWebSocket = typeof globalThis.WebSocket === 'function';
+  if (!hasWebSocket) {
+    console.log('SKIP  WebSocket proxy check — global WebSocket needs Node >= 22');
+  } else {
+    const wsEcho = await new Promise(resolve => {
+      const ws = new globalThis.WebSocket(`ws://127.0.0.1:${goodConn.proxyPort}/ws`);
+      const timer = setTimeout(() => resolve('timeout'), 5000);
+      ws.addEventListener('open', () => ws.send('ping'));
+      ws.addEventListener('message', ev => {
+        clearTimeout(timer);
+        resolve(ev.data);
+        ws.close();
+      });
+      ws.addEventListener('error', () => {
+        clearTimeout(timer);
+        resolve('error');
+      });
     });
-    ws.addEventListener('error', () => {
-      clearTimeout(timer);
-      resolve('error');
-    });
-  });
-  record('proxy: WebSocket upgrade forwarded and echoed', wsEcho === 'ping', `echo -> "${wsEcho}"`);
+    record('proxy: WebSocket upgrade forwarded and echoed', wsEcho === 'ping', `echo -> "${wsEcho}"`);
+  }
 
   // ---- Trust: reject wrong issuer and wrong SAN --------------------------
   const badCa = await startMockFacility(certs.badCa);
@@ -111,8 +118,8 @@ try {
   // ---- Browser checks: secure context, storage, *.localhost, in-page WS --
   // These need a local Chrome/Chromium; skip cleanly where none is installed
   // (e.g. CI). The trust + proxy checks above have no such requirement.
-  if (!findBrowser()) {
-    console.log('SKIP  browser checks — no Chrome/Chromium found (set CHROME_PATH to run them)');
+  if (!findBrowser() || !hasWebSocket) {
+    console.log('SKIP  browser checks — no Chrome/Chromium found (set CHROME_PATH) or no global WebSocket (Node < 22)');
   } else {
     const profile = path.join(tmp, 'profile');
     const origin = facilityOrigin(certs.facilityId, goodConn.proxyPort); // http://<uuid>.localhost:PORT
