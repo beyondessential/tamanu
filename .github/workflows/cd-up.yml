@@ -121,10 +121,15 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
       - name: Comment Pulumi report on PR
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
+        env:
+          PULUMI_OUTPUT: ${{ steps.up.outputs.output }}
         with:
           script: |
-            const fullOutput = `${{ steps.up.outputs.output }}`;
+            if (!context.issue.number) return;
+
+            const fullOutput = process.env.PULUMI_OUTPUT ?? '';
             const HEAD_TAIL_LENGTH = 500;
             const marker = '<!-- pulumi-up-report:${{ inputs.deploy-name }} -->';
 
