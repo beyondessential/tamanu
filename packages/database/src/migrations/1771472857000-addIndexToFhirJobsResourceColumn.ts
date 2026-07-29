@@ -3,7 +3,7 @@ import { QueryInterface } from 'sequelize';
 /**
  * Migration to add an index on the 'resource' field within the JSONB payload column
  * of the fhir.jobs table.
- * 
+ *
  * Context:
  * - The fhir.jobs table has a JSONB 'payload' column that contains a 'resource' field
  * - The resource field identifies the FHIR resource type (Patient, Encounter, etc.)
@@ -14,7 +14,7 @@ import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    CREATE INDEX job_payload_resource_idx ON fhir.jobs
+    CREATE INDEX IF NOT EXISTS job_payload_resource_idx ON fhir.jobs
     USING btree ((payload->>'resource'))
   `);
 }
