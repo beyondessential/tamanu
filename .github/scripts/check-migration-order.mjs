@@ -34,8 +34,6 @@ const FUTURE_SLACK_MS = 60_000;
 
 const FIX_HINT = 'npm run check-migration-order -- --fix';
 
-const ERROR_PREFIX = process.env.GITHUB_ACTIONS ? '::error::' : '❌';
-
 const EXEMPTION_MARKER = /MIGRATION-ORDER-EXEMPT:?[ \t]*(.*)/;
 
 function git(args) {
@@ -205,16 +203,15 @@ function violationFor(name, { base, last, latestAllowed }) {
   return null;
 }
 
-function annotate(level, file, message) {
-  // Annotations are single-line; %0A is how Actions encodes a newline in one.
-  const encoded = message.replace(/\r?\n\s*/g, '%0A');
-  console.log(`::${level} file=${file},line=1,title=Migration order::${encoded}`);
-}
-
 function report(violations, base) {
   for (const { file, message } of violations) {
-    console.error(`\n${ERROR_PREFIX} ${message}`);
-    if (process.env.CI) annotate('error', file, message);
+    // Annotations are single-line; %0A is how Actions encodes a newline in one.
+    const encoded = message.replace(/\r?\n\s*/g, '%0A');
+    console.error(
+      process.env.GITHUB_ACTIONS
+        ? `::error file=${file},title=Migration order::${encoded}`
+        : `\n❌ ${message}`,
+    );
   }
   console.error(
     `\n${violations.length} new migration${violations.length === 1 ? '' : 's'} to rename, ` +
@@ -365,6 +362,6 @@ function main(argv) {
 try {
   process.exitCode = main(process.argv);
 } catch (err) {
-  console.error(`${ERROR_PREFIX} ${err.message}`);
+  console.error(process.env.GITHUB_ACTIONS ? `::error::${err.message}` : `❌ ${err.message}`);
   process.exitCode = 1;
 }
