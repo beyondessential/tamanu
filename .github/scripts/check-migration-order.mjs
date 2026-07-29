@@ -1,15 +1,17 @@
 #!/usr/bin/env node
-// Fail when a branch adds a server migration that doesn't sort last, or that is dated in the
-// future.
-//
-// Umzug reads the migrations directory with `pattern: /^\d+[\w-]+\.(js|ts)$/` and runs the matching
-// files in lexical order (see packages/database/src/services/migrations/migrations.js), so lexical
-// order is the canonical order and this check compares filenames as strings. A migration that
-// sorts below one already on the target branch runs before its neighbours on a fresh database and
-// after them on a database that has already upgraded, so the two diverge.
-//
-// Only the files a branch adds are checked; the order of the migrations already on the target
-// branch is taken as given.
+/*
+ * Fail when a branch adds a server migration that doesn't sort last, or that is dated in the
+ * future.
+ *
+ * Umzug reads the migrations directory with `pattern: /^\d+[\w-]+\.(js|ts)$/` and runs the matching
+ * files in lexical order (see packages/database/src/services/migrations/migrations.js), so lexical
+ * order is the canonical order and this check compares filenames as strings. A migration that
+ * sorts below one already on the target branch runs before its neighbours on a fresh database and
+ * after them on a database that has already upgraded, so the two diverge.
+ *
+ * Only the files a branch adds are checked; the order of the migrations already on the target
+ * branch is taken as given.
+ */
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, renameSync } from 'node:fs';
@@ -24,8 +26,10 @@ import {
   prefixOf,
 } from '../../scripts/migration-names.mjs';
 
-// A new migration may be dated this far past the later of now and the last existing migration:
-// enough for a DDL/DML/DDL set spaced a second apart, without letting a mistyped prefix through.
+/**
+ * A new migration may be dated this far past the later of now and the last existing migration:
+ * enough for a DDL/DML/DDL set spaced a second apart, without letting a mistyped prefix through.
+ */
 const FUTURE_SLACK_MS = 60_000;
 
 const FIX_HINT = 'npm run check-migration-order -- --fix';
@@ -60,8 +64,10 @@ function readEventPayload() {
   }
 }
 
-// The base is never hardcoded: a hotfix PR targets a release branch, and must be measured against
-// that branch rather than main.
+/**
+ * The base is never hardcoded: a hotfix PR targets a release branch, and must be measured against
+ * that branch rather than main.
+ */
 function resolveBase(explicit) {
   if (explicit) {
     if (!refExists(explicit)) throw new Error(`--base ${explicit} is not a commit`);
@@ -121,12 +127,14 @@ function addedMigrations(base) {
     .sort();
 }
 
-// A migration authored on a release branch keeps its filename when it's propagated to main: it is
-// recorded under that name in SequelizeMeta on every deployment running the release, and renaming
-// it here would make the same migration run a second time when they upgrade.
-//
-// Built on first use (ie only when something is already failing) and cached: one tree read per
-// release branch, rather than one lookup per branch per failing migration.
+/**
+ * A migration authored on a release branch keeps its filename when it's propagated to main: it is
+ * recorded under that name in SequelizeMeta on every deployment running the release, and renaming
+ * it here would make the same migration run a second time when they upgrade.
+ *
+ * Built on first use (ie only when something is already failing) and cached: one tree read per
+ * release branch, rather than one lookup per branch per failing migration.
+ */
 let releasedNamesCache;
 function releasedNames() {
   if (releasedNamesCache) return releasedNamesCache;
