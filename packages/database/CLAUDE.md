@@ -4,6 +4,26 @@ This file contains patterns and conventions for the database package that should
 
 ## Migration Patterns
 
+### New Migrations Go At The End
+
+Umzug runs migrations in the lexical order of their filenames, so a new migration must sort after
+every migration already on the branch you're merging into, and must not be dated in the future. A
+migration that sorts below an existing one runs before its neighbours on a fresh database and after
+them on a database that has already upgraded, so the two end up in different states.
+
+Timestamps are minted when you run `npm run create-migration`, so a branch that sits for a couple of
+weeks while other migrations land will fall out of order. Rebase, then:
+
+```bash
+npm run check-migration-order          # what the CI check reports
+npm run check-migration-order -- --fix # rename the offenders to sort last
+```
+
+The exception is a migration cherry-picked from a release branch: it keeps its name, because
+deployments running that release have already recorded it in `SequelizeMeta` and a rename would run
+it a second time. The check skips those automatically. For anything else that genuinely has to sort
+early, put `// MIGRATION-ORDER-EXEMPT: <reason>` in the migration.
+
 ### Never Mix DDL and DML in the Same Migration
 
 **Problem:** PostgreSQL uses deferred constraint triggers for audit logging. When you INSERT, UPDATE or DELETE rows in a table, trigger events are queued to fire at transaction commit. If you then try to ALTER TABLE (add/remove columns) in the same transaction, PostgreSQL throws:

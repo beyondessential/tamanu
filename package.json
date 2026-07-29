@@ -12,6 +12,7 @@
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-migration": "node scripts/create-server-migration.mjs",
+    "check-migration-order": "node .github/scripts/check-migration-order.mjs",
     "build": "npm run build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
     "clean-build": "npm run clean-build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
     "test": "npm run build && vitest run && node scripts/test-all.mjs",
