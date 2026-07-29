@@ -45,10 +45,29 @@ outputs:
 runs:
   using: composite
   steps:
+    # Counted separately from the pack so the pack can be checked for
+    # completeness: a silently dropped file is the failure mode this whole step
+    # exists to catch.
+    - name: Count the staged files
+      id: staged
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $files = Join-Path '${{ inputs.layer-dir }}' 'Files'
+        if (-not (Test-Path -PathType Container $files)) {
+          throw "'${{ inputs.layer-dir }}' does not contain a Files/ directory"
+        }
+        # +1 for Files itself, which the archive carries as an entry too
+        $count = (Get-ChildItem -LiteralPath $files -Recurse -Force | Measure-Object).Count + 1
+        "count=$count" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        Write-Host "staged entries: $count"
+
     - name: Tar and check the layer
+      id: layer
       shell: bash
       env:
         LAYER_DIR: ${{ inputs.layer-dir }}
+        STAGED: ${{ steps.staged.outputs.count }}
       run: |
         set -euo pipefail
 
@@ -62,51 +81,53 @@ runs:
         [ -x "$tar" ] || { echo "Windows bsdtar not found at $tar" >&2; exit 1; }
         [ -d "$LAYER_DIR/Files" ] || { echo "'$LAYER_DIR' has no Files/ directory" >&2; exit 1; }
 
-        # libarchive skips any source file whose (device, inode) matches the
-        # output archive's, so an archive can't archive itself — and on Windows
-        # that comparison gets false positives: it has dropped a node_modules
-        # file with "Can't add archive to itself" while still exiting 0, i.e.
-        # silently truncating the layer, naming a different file each run.
+        # Piped into gzip rather than written to a tar file, deliberately.
+        # libarchive won't archive its own output, and decides that by comparing
+        # each source file's (device, inode) against the archive's — but
+        # archive_entry_ino() truncates NTFS's 64-bit file index to 32 bits, so a
+        # node_modules file eventually collides with the archive and is dropped
+        # with "Can't add archive to itself", while bsdtar still exits 0. It is
+        # deterministic within a run (a recreated archive reuses its MFT record,
+        # so retrying picks the same victim) and moves between runs. Given a pipe
+        # there is no archive file to collide with.
         #
-        # So: no --dereference, since resolving reparse points is what asks
-        # libarchive for identities it can't always establish, and the staging
-        # copy has already materialised npm's workspace junctions into real
-        # directories — if it ever stops doing that, the no-links check below
-        # fails loudly instead. Any diagnostic at all is fatal here, and because
-        # the misfire moves around, one retry before giving up.
-        pack_layer() {
-          rm -f layer.tar tar.err
-          "$tar" --format pax -cf layer.tar -C "$LAYER_DIR" Files 2>tar.err
-        }
-        for attempt in 1 2 3; do
-          if pack_layer && [ ! -s tar.err ]; then break; fi
+        # No --dereference either: the staging copy already materialises npm's
+        # workspace junctions into real directories, and without the flag the
+        # no-links check below actually proves that rather than masking it.
+        "$tar" --format pax -cf - -C "$LAYER_DIR" Files 2>tar.err | gzip -n -6 > layer.tar.gz
+        if [ -s tar.err ]; then
           cat tar.err >&2
-          if [ "$attempt" -eq 3 ]; then
-            echo "bsdtar kept reporting problems packing the layer; it may be incomplete" >&2
-            exit 1
-          fi
-          echo "retrying the layer pack (attempt $((attempt + 1)) of 3)" >&2
-        done
-        echo "layer.tar is $(( $(stat -c%s layer.tar) / 1048576 )) MiB"
+          echo "bsdtar reported problems packing the layer; it may be incomplete" >&2
+          exit 1
+        fi
+        echo "layer.tar.gz is $(( $(stat -c%s layer.tar.gz) / 1048576 )) MiB"
+
+        # diff_id is the digest of the *uncompressed* layer
+        echo "diff-id=sha256:$(gzip -dc layer.tar.gz | sha256sum | cut -d' ' -f1)" \
+          >> "$GITHUB_OUTPUT"
 
         # Nothing consumes this format yet, so assert its shape here rather than
-        # discover a broken image on a host: every entry under Files/ (the
-        # container's C:\), and no links. A link surviving --dereference would
-        # point at a build-agent path — npm's workspace junctions are supposed to
-        # be materialised into real directories by the staging copy.
-        "$tar" -tf layer.tar > names.txt
+        # discover a broken image on a host: as many entries as were staged (the
+        # check that catches a silent drop), every one under Files/ (the
+        # container's C:\), and no links, which would point at a build-agent path.
+        "$tar" -tf layer.tar.gz > names.txt
+        entries="$(wc -l < names.txt)"
+        if [ "$entries" -ne "$STAGED" ]; then
+          echo "layer has $entries entries but $STAGED were staged" >&2
+          exit 1
+        fi
         outside="$(grep -cv '^Files\(/\|$\)' names.txt || true)"
         if [ "$outside" -ne 0 ]; then
           grep -v '^Files\(/\|$\)' names.txt | head -5 >&2
           echo "$outside layer entries are outside Files/" >&2
           exit 1
         fi
-        links="$("$tar" -tvf layer.tar | grep -c '^l' || true)"
+        links="$("$tar" -tvf layer.tar.gz | grep -c '^l' || true)"
         if [ "$links" -ne 0 ]; then
           echo "$links layer entries are links" >&2
           exit 1
         fi
-        echo "layer: $(wc -l < names.txt) entries, all under Files/, no links"
+        echo "layer: $entries entries, all staged files present, all under Files/, no links"
         rm -f names.txt tar.err
 
     - name: Install oras
@@ -129,6 +150,7 @@ runs:
         SHA: ${{ inputs.sha }}
         KIND: ${{ inputs.kind }}
         PKG_PATH: ${{ inputs.package-path }}
+        DIFF_ID: ${{ steps.layer.outputs.diff-id }}
         MANIFEST_TYPE: application/vnd.oci.image.manifest.v1+json
         CONFIG_TYPE: application/vnd.oci.image.config.v1+json
         LAYER_TYPE: application/vnd.oci.image.layer.v1.tar+gzip
@@ -136,10 +158,6 @@ runs:
         set -euxo pipefail
         image="ghcr.io/beyondessential/tamanu-$PKG"
         tag="sha-$SHA.windows-amd64"
-
-        # diff_id is the digest of the *uncompressed* layer, so hash before gzip.
-        diff_id="sha256:$(sha256sum layer.tar | cut -d' ' -f1)"
-        gzip -n -6 layer.tar
 
         # The PATH a Windows base image sets, prefixed with the bundle's own
         # runtime dir: the config's Env replaces the environment wholesale, and
@@ -182,7 +200,7 @@ runs:
         # matching its host beneath it.
         jq -n \
           --arg created "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-          --arg diff_id "$diff_id" \
+          --arg diff_id "$DIFF_ID" \
           --arg version "$VERSION" \
           --argjson config "$runcfg" \
           '{created: $created, architecture: "amd64", os: "windows",
