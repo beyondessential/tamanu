@@ -43,17 +43,35 @@ runs:
     # Windows layer wants — MSWINDOWS.fileattr, MSWINDOWS.rawsd, and
     # LIBARCHIVE.creationtime, the same set Microsoft's own base-image layers
     # carry. --dereference so nothing is left pointing outside the layer.
-    - name: Tar the layer
+    - name: Tar and check the layer
       shell: pwsh
       run: |
         $ErrorActionPreference = 'Stop'
+        $tar = "$env:SystemRoot\System32\tar.exe"
         $layerDir = '${{ inputs.layer-dir }}'
         if (-not (Test-Path -PathType Container (Join-Path $layerDir 'Files'))) {
           throw "'$layerDir' does not contain a Files/ directory"
         }
-        & "$env:SystemRoot\System32\tar.exe" --format pax --dereference -cf layer.tar -C $layerDir Files
+        & $tar --format pax --dereference -cf layer.tar -C $layerDir Files
         if ($LASTEXITCODE -ne 0) { throw "tar failed ($LASTEXITCODE)" }
         Write-Host "layer.tar is $([math]::Round((Get-Item layer.tar).Length / 1MB, 1)) MiB"
+
+        # Nothing consumes this format yet, so assert its shape here rather than
+        # discover a broken image on a host: every entry under Files/ (the
+        # container's C:\), and no links. A link surviving --dereference would
+        # point at a build-agent path — npm's workspace junctions are supposed to
+        # be materialised into real directories by the staging copy.
+        $names = & $tar -tf layer.tar
+        if ($LASTEXITCODE -ne 0) { throw "tar listing failed ($LASTEXITCODE)" }
+        $outside = @($names | Where-Object { $_ -notmatch '^Files(/|$)' })
+        if ($outside.Count) {
+          throw "$($outside.Count) layer entries are outside Files/, e.g. '$($outside[0])'"
+        }
+        $links = @(& $tar -tvf layer.tar | Where-Object { $_ -match '^l' })
+        if ($links.Count) {
+          throw "$($links.Count) layer entries are links, e.g. '$($links[0])'"
+        }
+        Write-Host "layer: $($names.Count) entries, all under Files/, no links"
 
     - name: Install oras
       shell: pwsh
