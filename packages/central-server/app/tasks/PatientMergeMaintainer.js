@@ -1,6 +1,5 @@
 /* eslint camelcase: ["error", { allow: ["^specificUpdate_"] }] */
 
-import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -28,7 +27,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const conf = {
-      ...config.schedules.patientMergeMaintainer,
+      ...context.schedules.patientMergeMaintainer,
       ...overrideConfig,
     };
     const { schedule, jitterTime, enabled } = conf;

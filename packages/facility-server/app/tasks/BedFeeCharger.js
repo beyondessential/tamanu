@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { sub } from 'date-fns';
 
@@ -24,7 +23,7 @@ export class BedFeeCharger extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.bedFeeCharger;
+    const conf = context.schedules.bedFeeCharger;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
@@ -71,7 +70,7 @@ export class BedFeeCharger extends ScheduledTask {
     const toProcess = await Encounter.count({ ...query, distinct: true, col: 'id' });
     if (toProcess === 0) return;
 
-    const primaryTimeZone = getPrimaryTimeZone(config);
+    const primaryTimeZone = getPrimaryTimeZone();
     const settingsByFacility = new Map();
     const getSettings = facilityId => {
       if (!settingsByFacility.has(facilityId)) {

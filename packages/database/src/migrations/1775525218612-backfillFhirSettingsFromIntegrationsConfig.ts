@@ -4,8 +4,9 @@
  * settings row exists yet, INSERT it. Skips paths with no config value. Facility servers
  * do not run this migration.
  *
- * Note: `integrations.fhir.enabled` and `integrations.fhir.worker.enabled` are not in the
- * fhir settings schema and are therefore not migrated here (they remain config-only).
+ * Note: `integrations.fhir.enabled` and `integrations.fhir.worker.enabled` are per server
+ * type, so they live in the central and facility schemas rather than the global one this
+ * migration walks. They are served from config by the settings config reader instead.
  */
 import { QueryTypes, QueryInterface } from 'sequelize';
 import config from 'config';

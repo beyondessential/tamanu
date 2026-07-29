@@ -1,5 +1,4 @@
 import { timingSafeEqual } from 'node:crypto';
-import config from 'config';
 import { BaseError as SequelizeError } from 'sequelize';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { log } from '../services/logging';
@@ -9,13 +8,15 @@ export function errorHandlerProblem(error, req, { convertDatabaseError }) {
     error = convertDatabaseError(error);
   }
 
+  // set a `tamanu-debug` header matching API_ERRORS_TOKEN to get stack traces in responses
+  const apiErrorsToken = process.env.API_ERRORS_TOKEN;
   const exposeSensitive =
     process.env.NODE_ENV !== 'production' ||
-    (typeof config.debugging.apiErrorsToken === 'string' &&
-      config.debugging.apiErrorsToken.length > 0 &&
+    (typeof apiErrorsToken === 'string' &&
+      apiErrorsToken.length > 0 &&
       timingSafeEqual(
         Buffer.from(req.get('tamanu-debug') ?? ''),
-        Buffer.from(config.debugging.apiErrorsToken ?? ''),
+        Buffer.from(apiErrorsToken ?? ''),
       ));
   const problem = (
     error instanceof Problem ? error : Problem.fromError(error)

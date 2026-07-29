@@ -16,7 +16,6 @@ import {
 import { NotFoundError, EditConflictError, InvalidOperationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   getCurrentPrimaryTimeZoneDateString,
@@ -668,7 +667,7 @@ appointments.get(
           facilityId,
           cancelledStatus: APPOINTMENT_STATUSES.CANCELLED,
           typeColumn: type === 'outpatient' ? 'location_group_id' : 'location_id',
-          primaryTimeZone: getPrimaryTimeZone(config),
+          primaryTimeZone: getPrimaryTimeZone(),
         },
         type: QueryTypes.SELECT,
       },

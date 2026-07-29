@@ -1,13 +1,15 @@
+import React, { useEffect, useRef, useState } from 'react';
 import { Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import Print from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
-import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
-import { ConfirmCancelBackRow, Modal, TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { ConfirmCancelBackRow, Modal, TranslatedText, useDateTime, useSettings } from '@tamanu/ui-components';
+import { getAutocalculatedDispensingQuantity } from '@tamanu/shared/utils/medication';
+
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Colors } from '../../constants/styles';
@@ -18,6 +20,43 @@ import PatientAllergiesWarning from '../PatientAllergiesWarning';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { BodyText, Heading5 } from '../Typography';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
+
+/**
+ * Turns a medication set's template into a prescription for the review/edit screen.
+ *
+ * Snapshots the drug's dispensing unit and conversion factor from its reference drug (falling back
+ * to a blank unit and a conversion of 1 when the reference drug data is missing), and, when
+ * autocalculation is enabled, seeds the dispensing quantity from the dose/frequency/duration.
+ */
+export const buildMedicationSetPrescription = (
+  medicationTemplate,
+  { startDate, date, prescriberId, isDispensingQuantityAutocalculationEnabled },
+) => {
+  const child = {
+    ...medicationTemplate,
+    idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
+    startDate,
+    date,
+    prescriberId,
+    ...(medicationTemplate.doseAmount && {
+      doseAmount: Number(medicationTemplate.doseAmount),
+    }),
+    ...(medicationTemplate.durationValue && {
+      durationValue: Number(medicationTemplate.durationValue),
+    }),
+  };
+
+  const referenceDrug = medicationTemplate.medication?.referenceDrug;
+  child.dispensingUnit = referenceDrug?.dispensingUnit ?? '';
+  child.unitConversion = referenceDrug?.unitConversion ?? 1;
+
+  if (isDispensingQuantityAutocalculationEnabled) {
+    const quantity = getAutocalculatedDispensingQuantity(child);
+    if (quantity !== null) child.quantity = quantity;
+  }
+
+  return child;
+};
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -177,6 +216,10 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
+  const { getSetting } = useSettings();
+  const isDispensingQuantityAutocalculationEnabled = getSetting(
+    'medications.dispensing.dispensingQuantityAutocalculation',
+  );
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
@@ -195,19 +238,14 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     const date = getCurrentDate();
     const newMedicationSetChildren = medicationSet.children
       .filter(child => child.medicationTemplate)
-      .map(({ medicationTemplate }) => ({
-        ...medicationTemplate,
-        idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
-        startDate,
-        date,
-        prescriberId: currentUser.id,
-        ...(medicationTemplate.doseAmount && {
-          doseAmount: Number(medicationTemplate.doseAmount),
+      .map(({ medicationTemplate }) =>
+        buildMedicationSetPrescription(medicationTemplate, {
+          startDate,
+          date,
+          prescriberId: currentUser.id,
+          isDispensingQuantityAutocalculationEnabled,
         }),
-        ...(medicationTemplate.durationValue && {
-          durationValue: Number(medicationTemplate.durationValue),
-        }),
-      }))
+      )
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
       ...medicationSet,

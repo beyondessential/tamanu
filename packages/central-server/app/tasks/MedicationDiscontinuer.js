@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
@@ -11,7 +10,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const { schedule, jitterTime, enabled } = config.schedules.medicationDiscontinuer;
+    const { schedule, jitterTime, enabled } = context.schedules.medicationDiscontinuer;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
   }

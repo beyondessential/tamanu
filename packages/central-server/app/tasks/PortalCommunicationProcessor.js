@@ -34,7 +34,10 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
       });
     }
 
-    const { token } = await portalOneTimeTokenService.createRegisterToken(portalUserId);
+    const { token } = await portalOneTimeTokenService.createRegisterToken(
+      portalUserId,
+      await settings.get('patientPortal.registerTokenDurationMinutes'),
+    );
     const registrationLink = `${baseUrl}/register/${portalUserId}.${token}`;
     return replaceInTemplate(content, {
       registrationLink,

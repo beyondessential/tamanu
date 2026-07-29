@@ -5,8 +5,11 @@ import {
   DRUG_ROUTES,
   ADMINISTRATION_STATUS,
   DRUG_STOCK_STATUSES,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
   NOTIFICATION_TYPES,
+  PHARMACY_ENCOUNTER_FEE_CODE,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SETTINGS_SCOPES,
@@ -15,6 +18,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { settingsCache } from '@tamanu/settings';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
@@ -410,6 +414,75 @@ describe('Medication', () => {
 
         expect(secondResult).toHaveRequestError();
       });
+    });
+  });
+
+  describe('pharmacy walk-in encounter fee', () => {
+    let pharmacyProduct;
+
+    beforeAll(async () => {
+      const referenceData = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE,
+          code: PHARMACY_ENCOUNTER_FEE_CODE,
+        }),
+      );
+      pharmacyProduct = await models.InvoiceProduct.create(
+        fake(models.InvoiceProduct, {
+          category: INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE,
+          sourceRecordType:
+            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE],
+          sourceRecordId: referenceData.id,
+        }),
+      );
+      const priceList = await models.InvoicePriceList.create(
+        fake(models.InvoicePriceList, {
+          name: 'Pharmacy fee facility list',
+          code: 'PHARMACY-FEE-PL',
+          rules: { facilityId },
+        }),
+      );
+      await models.InvoicePriceListItem.create(
+        fake(models.InvoicePriceListItem, {
+          invoiceProductId: pharmacyProduct.id,
+          invoicePriceListId: priceList.id,
+          price: 5,
+          isHidden: false,
+        }),
+      );
+
+      await models.Setting.set('features.invoicing.enabled', true);
+      settingsCache.reset();
+    });
+
+    afterAll(async () => {
+      await models.Setting.set('features.invoicing.enabled', false);
+      settingsCache.reset();
+    });
+
+    it('charges the pharmacy fee on the walk-in encounter created via the route', async () => {
+      // The pharmacy walk-in route (send-ongoing-to-pharmacy) creates a discharged encounter in the
+      // configured pharmacy department and adds the pharmacy fee — exercise that wiring over HTTP.
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+
+      const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
+        patientId: patient.id,
+        orderingClinicianId: app.user.id,
+        facilityId,
+        prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+      });
+      expect(result).toHaveSucceeded();
+
+      const invoice = await models.Invoice.findOne({
+        where: { encounterId: result.body.encounterId },
+      });
+      expect(invoice).toBeTruthy();
+      const items = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
+      expect(items).toHaveLength(1);
+      expect(items[0].productId).toBe(pharmacyProduct.id);
     });
   });
 
@@ -1399,6 +1472,79 @@ describe('Medication', () => {
         expect(row.isModified).toBe(true);
         expect(row.medicationId).toBe(sensitiveDrugId);
       });
+    });
+  });
+
+  describe('GET /api/medication/dispensable-medications', () => {
+    // Builds an outstanding (not-yet-dispensed) pharmacy order prescription for the patient, with
+    // the prescription fields the dispensing autocalculation relies on set to known values.
+    const createDispensablePrescription = async ({
+      patientId,
+      unitConversion = 250,
+      isOngoing = true,
+    }) => {
+      const { medication } = await createDrug();
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+          unitConversion,
+          isOngoing,
+        }),
+      );
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        fake(models.PharmacyOrder, {
+          orderingClinicianId: app.user.id,
+          encounterId: encounter.id,
+          date: getCurrentDateTimeString(),
+          facilityId,
+        }),
+      );
+      const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
+        ...fake(models.PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.id,
+          quantity: 10,
+          repeats: 1,
+          // fake() randomises this boolean; the endpoint only returns outstanding (not completed)
+          // items, so pin it or the row is intermittently filtered out.
+          isCompleted: false,
+        }),
+        id: crypto.randomUUID(),
+      });
+      return { pharmacyOrderPrescription, prescription, medication };
+    };
+
+    it('should return unitConversion and isOngoing on the dispensable prescriptions', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, prescription } = await createDispensablePrescription({
+        patientId: localPatient.id,
+        unitConversion: 250,
+        isOngoing: true,
+      });
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      expect(row).toBeDefined();
+      expect(row.prescription).toMatchObject({
+        id: prescription.id,
+        isOngoing: true,
+      });
+      // unitConversion is a DECIMAL, serialised as a string.
+      expect(Number(row.prescription.unitConversion)).toBe(250);
     });
   });
 

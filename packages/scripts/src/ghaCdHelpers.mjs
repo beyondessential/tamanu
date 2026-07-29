@@ -100,7 +100,7 @@ const OPTIONS = [
 
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
-  // Build the full image set (linux amd64 + arm64 + Windows VHDX). Autodeploys
+  // Build the full image set (linux amd64 + arm64 + Windows). Autodeploys
   // otherwise build linux/arm64 only; releases always build everything.
   { key: 'allimages', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },

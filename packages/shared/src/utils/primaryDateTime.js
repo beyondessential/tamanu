@@ -3,14 +3,13 @@
 import { formatISO9075 } from 'date-fns';
 import __cjs_date_fns_tz from 'date-fns-tz';
 const { formatInTimeZone } = __cjs_date_fns_tz;
-import config from 'config';
 import {
   ISO9075_DATE_FORMAT,
   ISO9075_DATETIME_FORMAT,
 } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from './timeZoneCheck';
 
-const primaryTimeZone = getPrimaryTimeZone(config);
+const primaryTimeZone = getPrimaryTimeZone();
 
 export function toPrimaryDateTimeString(date) {
   if (date === null || date === undefined) {

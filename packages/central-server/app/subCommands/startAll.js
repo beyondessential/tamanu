@@ -1,4 +1,3 @@
-import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
@@ -20,7 +19,7 @@ export const serveAll = async ({ skipMigrationCheck }) => {
   // separate processes, so this only applies here.
   process.setMaxListeners(20);
 
-  if (config.db.migrateOnStartup) {
+  if (process.env.MIGRATE_ON_STARTUP === 'true') {
     const { store } = await new ApplicationContext().init({
       appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,
     });

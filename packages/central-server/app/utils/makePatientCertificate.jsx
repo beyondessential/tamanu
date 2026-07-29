@@ -1,5 +1,4 @@
 import React from 'react';
-import config from 'config';
 import path from 'path';
 import { get } from 'es-toolkit/compat';
 import ReactPDF from '@react-pdf/renderer';
@@ -77,7 +76,7 @@ export const makeCovidVaccineCertificate = async ({
   printedBy,
   printedDate,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(settings), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
@@ -99,7 +98,7 @@ export const makeCovidVaccineCertificate = async ({
       logoSrc={logo}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
       language={language}
     />,
     fileName,
@@ -116,7 +115,7 @@ export const makeVaccineCertificate = async ({
   printedDate,
   translations,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(settings), settings.getAll()]);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -145,7 +144,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
     />,
     fileName,
   );
@@ -212,7 +211,7 @@ export const makeCovidCertificate = async ({
       logoSrc={logo}
       printedBy={printedBy}
       getSetting={getSettingData}
-      primaryTimeZone={getPrimaryTimeZone(config)}
+      primaryTimeZone={getPrimaryTimeZone()}
       certType={certType}
       language={language}
     />,

@@ -1,20 +1,26 @@
+import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { log } from '../services/logging';
 
 /**
- * Resolve the canonical primary timezone from config.
- * Accepts either `primaryTimeZone` or `countryTimeZone`, with `primaryTimeZone` taking precedence.
+ * The server's primary timezone (IANA) for all stored datetimes, from the standard
+ * TZ env var (which deployments already set). The config keys are transitional —
+ * deployments that set primaryTimeZone/countryTimeZone in local config keep their
+ * timezone until TZ is set. Falls back to the system timezone — the same thing
+ * Node's Date uses when TZ is unset — so the process clock and the app-level
+ * primary timezone always agree.
  */
-export function getPrimaryTimeZone(cfg) {
-  return cfg?.primaryTimeZone ?? cfg?.countryTimeZone ?? null;
+export function getPrimaryTimeZone() {
+  return (
+    process.env.TZ ??
+    config.primaryTimeZone ??
+    config.countryTimeZone ??
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 }
 
 function getSystemTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-function getConfigTimeZone(config) {
-  return getPrimaryTimeZone(config);
 }
 
 async function getDatabaseTimeZone(sequelize) {
@@ -27,56 +33,20 @@ async function getDatabaseTimeZone(sequelize) {
   return rows[0].setting;
 }
 
-// Try to grab current remote time zone
-// otherwise ignore that one
-async function getRemoteTimeZone(remote) {
-  try {
-    const health = await remote.fetch('health',
-      {
-        timeout: 2000,
-        backoff: { maxAttempts: 1 },
-        preserveBackoffForAuthAttempt: true,
-      },
-    );
-    return getPrimaryTimeZone(health.config);
-  } catch (error) {
-    log.warn('Unable to grab primaryTimeZone from central server.');
-  }
-
-  return null;
-}
-
-export async function performTimeZoneChecks({ config, sequelize, remote }) {
+export async function performTimeZoneChecks({ sequelize }) {
   const zones = {
     system: getSystemTimeZone(),
-    config: getConfigTimeZone(config),
+    primary: getPrimaryTimeZone(),
     database: await getDatabaseTimeZone(sequelize),
   };
 
-  if (remote) {
-    zones.remoteConfig = await getRemoteTimeZone(remote);
-  }
-
   /*
-  TODO: 
-  When Sequelize connects to Postgres without an explicit timezone parameter, it causes 
+  TODO:
+  When Sequelize connects to Postgres without an explicit timezone parameter, it causes
   it to report its timezone slightly weirdly (as '<+00>-00' rather than a named TZ).
-  But providing the timezone explicitly breaks some of our reports...! 
+  But providing the timezone explicitly breaks some of our reports...!
   So just log the timezones for now and we perform the more rigid check once
   we've sorted those issues out.
   */
   log.info('Checking timezone consistency', zones);
-  /*
-  const unique = new Set(Object.values(zones));
-  if (unique.size > 1) {
-    const errorText = `Detected mismatched time zones. Details: ${JSON.stringify(zones)}.`;
-    if (config.allowMismatchedTimeZones) {
-      log.warn(errorText);
-    } else {
-      throw new InvalidConfigError(
-        `${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`,
-      );
-    }
-  }
-  */
 }

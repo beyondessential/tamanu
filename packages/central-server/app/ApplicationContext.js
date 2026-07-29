@@ -6,7 +6,10 @@ import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
-import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import {
+  getFhirWorkerSettings,
+  initFhirSettingsFromDb,
+} from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { EmailService } from './services/EmailService';
@@ -82,14 +85,19 @@ export class ApplicationContext {
       return this;
     }
 
-    const fhirWorkerEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
     await initFhirSettingsFromDb(this.settings);
-    await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled });
+    // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and
+    // running the materialisation worker switch independently, and the trigger is the only
+    // thing that enqueues a refresh on an upstream update or delete. Gating it on the routes
+    // too left the documented reporting-only deployment (routes off, worker on) materialising
+    // new records but never refreshing changed ones.
+    await setFhirRefreshTriggers(this.store.sequelize, {
+      fhirWorkerEnabled: getFhirWorkerSettings().enabled,
+    });
 
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
-    this.emailService = new EmailService();
+    this.emailService = await EmailService.fromSettings(this.settings);
 
     try {
       this.reportSchemaStores = await initReporting(this.store);
@@ -112,8 +120,8 @@ export class ApplicationContext {
     }
 
     this.telegramBotService = await defineSingletonTelegramBotService({
-      config,
       models: this.store.models,
+      settings: this.settings,
     });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {

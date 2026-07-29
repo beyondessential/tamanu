@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 
@@ -30,8 +29,12 @@ const isExpressRouter = routeCandidate =>
   Array.isArray(routeCandidate.stack);
 
 export const initIntegrations = async ctx => {
+  // FHIR's flag sits with the rest of the FHIR settings rather than under `integrations`.
+  const integrationSettings = await ctx.settings.get('integrations');
+  const enabledFlags = { ...integrationSettings, fhir: await ctx.settings.get('fhir') };
+
   for (const [key, integration] of Object.entries(integrations)) {
-    if (config.integrations[key].enabled) {
+    if (enabledFlags[key]?.enabled) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {
@@ -39,7 +42,7 @@ export const initIntegrations = async ctx => {
       }
       if (routes) {
         const isRouter = isExpressRouter(routes);
-        const actualRoutes = isRouter ? routes : routes(ctx);
+        const actualRoutes = isRouter ? routes : await routes(ctx);
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {

@@ -2,6 +2,7 @@ import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
 
+import { facilityDefaults } from '@tamanu/settings';
 import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
@@ -31,6 +32,7 @@ export async function createApiApp({
   models,
   syncConnection,
   deviceId,
+  settings,
 }) {
   const express = defineExpress();
   // Match Express 4 query parsing (qs) — Express 5 defaults to "simple" and does
@@ -82,7 +84,7 @@ export async function createApiApp({
     next();
   });
 
-  express.use(versionCompatibility);
+  express.use(versionCompatibility(await settings.global.get('metaServer.updateUrls')));
 
   // Resolved facility ids (facts/env/config), not raw config — so a
   // facts-configured server gets its per-facility settings readers.
@@ -98,7 +100,7 @@ export async function createApiApp({
   // Reject non-HTTPS requests when the security.requireHttps setting is enabled
   express.use(requireHttps);
 
-  const limiters = buildRateLimiters();
+  const limiters = buildRateLimiters(await settings.global.get('rateLimit'));
   // Apply a permissive global rate limit to every API request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
   // endpoints are applied inside routes/apiv1 (via createRoutes) so they cover
@@ -108,7 +110,13 @@ export async function createApiApp({
   const routes = createRoutes(limiters);
   express.use('/', routes);
 
-  if (config.integrations?.fhir?.enabled) {
+  // `fhir.enabled` is facility-scoped (a central server serving FHIR says nothing about this
+  // one), and tasks/index.js resolves server-wide settings the same way: first facility wins.
+  const [primaryFacilityId] = getServerFacilityIds() ?? [];
+  const fhirEnabled = primaryFacilityId
+    ? await settings[primaryFacilityId].get('fhir.enabled')
+    : facilityDefaults.fhir.enabled;
+  if (fhirEnabled) {
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');

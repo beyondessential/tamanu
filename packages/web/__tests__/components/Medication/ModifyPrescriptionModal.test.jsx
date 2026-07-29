@@ -96,6 +96,10 @@ vi.mock('../../../app/contexts/Auth', () => ({
   useAuth: () => ({ currentUser: { id: 'user-1' } }),
 }));
 
+vi.mock('../../../app/contexts/Settings', () => ({
+  useSettings: () => ({ getSetting: () => false }),
+}));
+
 const translationContext = {
   getTranslation: (_stringId, fallback) => fallback,
   getEnumTranslation: (enumValues, value) => enumValues?.[value] ?? value,
