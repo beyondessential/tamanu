@@ -399,8 +399,10 @@ jobs:
           cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
 
           # authenticated: unauthenticated api.github.com is rate-limited per
-          # runner IP, which is shared
+          # runner IP, which is shared. No xtrace around the token.
+          set +x
           caddy_version="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          set -x
           curl -fsSL -o caddy.zip \
             "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
           unzip -o caddy.zip caddy.exe -d layer/Files/caddy

@@ -139,7 +139,10 @@ runs:
           > imageconfig.json
         cat imageconfig.json
 
+        # no xtrace around the token
+        set +x
         echo "$GH_TOKEN" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
+        set -x
 
         # Assemble the image manifest by hand rather than with `oras push`, which
         # decorates layers with artifact annotations: this is a plain OCI image
