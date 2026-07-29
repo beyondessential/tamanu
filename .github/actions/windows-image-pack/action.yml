@@ -45,40 +45,57 @@ outputs:
 runs:
   using: composite
   steps:
-    # Windows' bundled bsdtar rather than Git Bash's tar: libarchive handles long
-    # paths (which node_modules produces plenty of) and writes the pax records a
-    # Windows layer wants — MSWINDOWS.fileattr, MSWINDOWS.rawsd, and
-    # LIBARCHIVE.creationtime, the same set Microsoft's own base-image layers
-    # carry. --dereference so nothing is left pointing outside the layer.
     - name: Tar and check the layer
-      shell: pwsh
+      shell: bash
+      env:
+        LAYER_DIR: ${{ inputs.layer-dir }}
       run: |
-        $ErrorActionPreference = 'Stop'
-        $tar = "$env:SystemRoot\System32\tar.exe"
-        $layerDir = '${{ inputs.layer-dir }}'
-        if (-not (Test-Path -PathType Container (Join-Path $layerDir 'Files'))) {
-          throw "'$layerDir' does not contain a Files/ directory"
-        }
-        & $tar --format pax --dereference -cf layer.tar -C $layerDir Files
-        if ($LASTEXITCODE -ne 0) { throw "tar failed ($LASTEXITCODE)" }
-        Write-Host "layer.tar is $([math]::Round((Get-Item layer.tar).Length / 1MB, 1)) MiB"
+        set -euo pipefail
+
+        # Windows' bundled bsdtar rather than Git Bash's tar: libarchive handles
+        # long paths (which node_modules produces plenty of) and writes the pax
+        # records a Windows layer wants — MSWINDOWS.fileattr, MSWINDOWS.rawsd,
+        # and LIBARCHIVE.creationtime, the same set Microsoft's own base-image
+        # layers carry.
+        # $SYSTEMROOT is a Windows path, so cygpath to use it from bash
+        tar="$(cygpath -u "$SYSTEMROOT")/System32/tar.exe"
+        [ -x "$tar" ] || { echo "Windows bsdtar not found at $tar" >&2; exit 1; }
+        [ -d "$LAYER_DIR/Files" ] || { echo "'$LAYER_DIR' has no Files/ directory" >&2; exit 1; }
+
+        # Written to stdout, not to `-cf layer.tar`, deliberately: given an output
+        # file libarchive checks each source file against it so an archive can't
+        # archive itself, and on Windows that check gets false positives — it
+        # dropped an unrelated node_modules directory ("Can't add archive to
+        # itself") while still exiting 0, silently truncating the layer. A pipe
+        # leaves no output file to mistake anything for.
+        # --dereference so nothing is left pointing outside the layer.
+        "$tar" --format pax --dereference -cf - -C "$LAYER_DIR" Files 2>tar.err >layer.tar
+        if [ -s tar.err ]; then
+          cat tar.err >&2
+          echo "bsdtar reported problems packing the layer; it may be incomplete" >&2
+          exit 1
+        fi
+        echo "layer.tar is $(( $(stat -c%s layer.tar) / 1048576 )) MiB"
 
         # Nothing consumes this format yet, so assert its shape here rather than
         # discover a broken image on a host: every entry under Files/ (the
         # container's C:\), and no links. A link surviving --dereference would
         # point at a build-agent path — npm's workspace junctions are supposed to
         # be materialised into real directories by the staging copy.
-        $names = & $tar -tf layer.tar
-        if ($LASTEXITCODE -ne 0) { throw "tar listing failed ($LASTEXITCODE)" }
-        $outside = @($names | Where-Object { $_ -notmatch '^Files(/|$)' })
-        if ($outside.Count) {
-          throw "$($outside.Count) layer entries are outside Files/, e.g. '$($outside[0])'"
-        }
-        $links = @(& $tar -tvf layer.tar | Where-Object { $_ -match '^l' })
-        if ($links.Count) {
-          throw "$($links.Count) layer entries are links, e.g. '$($links[0])'"
-        }
-        Write-Host "layer: $($names.Count) entries, all under Files/, no links"
+        "$tar" -tf layer.tar > names.txt
+        outside="$(grep -cv '^Files\(/\|$\)' names.txt || true)"
+        if [ "$outside" -ne 0 ]; then
+          grep -v '^Files\(/\|$\)' names.txt | head -5 >&2
+          echo "$outside layer entries are outside Files/" >&2
+          exit 1
+        fi
+        links="$("$tar" -tvf layer.tar | grep -c '^l' || true)"
+        if [ "$links" -ne 0 ]; then
+          echo "$links layer entries are links" >&2
+          exit 1
+        fi
+        echo "layer: $(wc -l < names.txt) entries, all under Files/, no links"
+        rm -f names.txt tar.err
 
     - name: Install oras
       shell: pwsh
