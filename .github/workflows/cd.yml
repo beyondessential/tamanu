@@ -308,14 +308,25 @@ jobs:
         shell: bash
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
+      # Stage what the linux image's /app is built from (see /Dockerfile) rather
+      # than the whole worktree, so the bundle — and the release tarball made
+      # from it — carries the same files the linux image ships, and no internal
+      # docs, specs, or CI config.
       - name: Stage source (workspace)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           if (Test-Path release) { Remove-Item -Recurse -Force release }
           New-Item -ItemType Directory -Force -Path release | Out-Null
-          robocopy . release /E /XD .git node_modules release layer oras-bin /XF *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
-          if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
+          # .npmrc (npm's fetch retries, and npm only reads the one in its cwd),
+          # common.*, and scripts/ are build-time only — the image doesn't ship
+          # them either, so they're dropped again below.
+          robocopy . release package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL .npmrc common.* /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { throw "robocopy root files failed ($LASTEXITCODE)" }
+          foreach ($dir in 'patches', 'scripts', 'packages') {
+            robocopy $dir "release\$dir" /E /XD node_modules /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { throw "robocopy $dir failed ($LASTEXITCODE)" }
+          }
           $global:LASTEXITCODE = 0
 
       - name: Build reduced source (Windows-native)
@@ -328,6 +339,10 @@ jobs:
       - name: Embed Windows Node runtime
         shell: bash
         run: scripts/embed-node-runtime.sh win-x64 release
+
+      - name: Drop build-only files
+        shell: bash
+        run: rm -rf release/scripts release/common.* release/.npmrc
 
       # Copy rather than build in place: robocopy follows the junctions npm makes
       # for workspace links (node_modules/@tamanu/*), so the layer gets real
@@ -344,6 +359,7 @@ jobs:
           $global:LASTEXITCODE = 0
 
       - name: Pack Windows image
+        id: pack
         uses: ./.github/actions/windows-image-pack
         with:
           package: ${{ matrix.package.name }}
@@ -352,6 +368,18 @@ jobs:
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # The layer tarball is the release bundle, so the legacy Windows artifact
+      # is a repack of it (cd-package-servers.yml) rather than a second
+      # Windows-native build of the same tree.
+      - name: Upload bundle for the release packer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-bundle-${{ matrix.package.name }}
+          path: ${{ steps.pack.outputs.layer }}
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
 
   # Frontend Windows images (web / patient-portal): built dist plus the Windows
   # Caddy binary and Caddyfile, self-contained like the linux frontend container.
@@ -608,8 +636,13 @@ jobs:
       META_KEY: ${{ secrets.META_KEY }}
 
   package-servers:
-    needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - images
+      - windows-image
+    # windows-image supplies the bundle the Windows artifact is repacked from.
+    # always() so that if it fails the linux artifacts are still published (the
+    # Windows job then fails on its own, on the missing bundle).
+    if: always() && needs.images.result == 'success' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
     secrets:

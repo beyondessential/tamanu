@@ -35,6 +35,13 @@ inputs:
   github-token:
     required: true
     description: token for ghcr.io login
+outputs:
+  layer:
+    description: >
+      Path of the gzipped layer tarball, left in the workspace so a caller can
+      reuse the bundle (the release packer repacks it into the legacy Windows
+      artifact).
+    value: ${{ steps.push.outputs.layer }}
 runs:
   using: composite
   steps:
@@ -84,6 +91,7 @@ runs:
         & "$PWD\oras-bin\oras.exe" version
 
     - name: Push image
+      id: push
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
@@ -191,3 +199,5 @@ runs:
             }}' \
           | tee manifest.json \
           | oras manifest push --media-type "$MANIFEST_TYPE" "$image:$tag" -
+
+        echo 'layer=layer.tar.gz' >> "$GITHUB_OUTPUT"
