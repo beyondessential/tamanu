@@ -323,6 +323,52 @@ Design implications:
   two shells can supply platform-native transports (Android NSD vs a desktop
   mDNS library) behind one interface.
 
+## Where the advertisement runs (host side)
+
+The candidate stack above is the *client's* view. On the facility side, the
+announcement (mDNS/multicast responder, host-interface enumeration, Canopy
+candidate reporting) runs in a **host-level component, not the Tamanu server
+process** — specifically bestool's **`alertd` daemon, which is already installed
+on every Tamanu host**, so this is a new capability on an existing daemon rather
+than a new thing to deploy.
+
+**Why host-level, not in the server.** Answering LAN multicast and enumerating
+the host's real LAN addresses are host-networking concerns. An in-process
+responder works on today's bare-metal Windows servers but breaks on the
+container topologies — Linux/Kubernetes now, Windows containers on the roadmap:
+a bridged container doesn't emit/receive LAN multicast without host networking, a
+K8s pod effectively can't, and the addresses visible inside a container are
+NAT/pod IPs, not the LAN IP a client needs. A host daemon is topology-invariant:
+it binds the node's LAN interface and reaches the (possibly containerised) server
+over its published port like any other local client.
+
+**What `alertd` does:** runs the mDNS/DNS-SD and custom UDP multicast responders,
+enumerates the host's real LAN addresses, reports the candidate address list to
+Canopy (the only vantage point that sees the true host IPs), and advertises only
+while the server is healthy and advertising is enabled.
+
+**What Tamanu exposes — one tiny loopback endpoint.** Tamanu (behind Caddy)
+serves a read-only `GET /_discovery` on loopback:
+
+```json
+{ "facilityId": "<uuid>", "displayName": "...", "port": 443,
+  "healthy": true, "advertise": true, "protocolVersion": 1 }
+```
+
+`alertd` queries `127.0.0.1:<published-port>/_discovery` to learn what to
+advertise and whether to. It is deliberately minimal and **non-sensitive**
+(identity + reachability + health — no PHI, no secret), so it needs no auth on
+loopback; it survives containerisation unchanged (host → published port →
+container, the same path any client takes); and it decouples `alertd` from
+Tamanu's config format.
+
+**Enable toggle.** Whether to advertise on the LAN is a **facility setting**
+(admin-panel controlled, per the settings-not-config principle), surfaced through
+`/_discovery` as `advertise`. Normal cloud deployments leave it off; Iti /
+low-IT deployments turn it on. `alertd` advertises only when `healthy &&
+advertise`. The advertised wire payload (facility id + port + protocol version)
+is the same frozen, add-only contract the browser consumes (see Versioning).
+
 ## Trust enforcement
 
 The requirement: the facility connection must chain to the BES CA (and reject a
@@ -596,6 +642,11 @@ updates.
   rendering path. The kiosk / TV mode needs the embedded WebView regardless, and
   it is Google-patched, so a second Custom-Tab path would add surface for no
   benefit.
+- **Advertisement runs host-side in bestool's `alertd`** (already on every
+  Tamanu host), not in the server process — it's a host-networking concern that
+  survives the container transition. Tamanu exposes only a tiny loopback
+  `/_discovery` endpoint, gated by an `advertise` facility setting. See "Where
+  the advertisement runs".
 - **Multi-facility picker is a core feature** (see the launch flow). Co-located
   facilities on one LAN and the possibly-ambiguous Canopy pathway make this
   necessary, not a single-vs-multi install toggle.
