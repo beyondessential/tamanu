@@ -1,6 +1,13 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
+import {
+  MIGRATIONS_DIR,
+  lastMigrationOnDisk,
+  nextPrefix,
+  prefixOf,
+} from './migration-names.mjs';
+
 function toFilestem(str) {
   if (!/\s/.test(str)) return str;
 
@@ -15,16 +22,13 @@ if (migrationName.trim().length === 0) {
   process.exit(1);
 }
 
-const timestamp = new Date().getTime();
+// Migrations run in the lexical order of their filenames, so a new one has to sort after every
+// existing one. That isn't automatic: hand-rounded timestamps are sometimes ahead of real time.
+const last = lastMigrationOnDisk();
+const timestamp = nextPrefix(last ? prefixOf(last) : 0);
 
 const templateFile = join('scripts', 'resources', 'serverMigrationTemplate.ts');
-const migrationFile = join(
-  'packages',
-  'database',
-  'src',
-  'migrations',
-  `${timestamp}-${toFilestem(migrationName)}.ts`,
-);
+const migrationFile = join(MIGRATIONS_DIR, `${timestamp}-${toFilestem(migrationName)}.ts`);
 
 await fs.copyFile(templateFile, migrationFile);
 console.log(`Created ${migrationFile}`);
