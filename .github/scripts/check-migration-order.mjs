@@ -88,7 +88,7 @@ function resolveBase(explicit) {
     if (refExists(fallback)) return fallback;
   }
 
-  throw new Error('could not work out the base branch to compare against; pass --base <ref>');
+  throw new Error('Couldn’t work out the base branch to compare against; pass --base <ref>');
 }
 
 function migrationNamesOn(ref) {
@@ -167,15 +167,15 @@ function markedExempt(file) {
   }
   const marker = contents.match(EXEMPTION_MARKER);
   if (!marker) return null;
-  return marker[1].trim() || 'no reason given';
+  return marker[1].trim() || 'No reason given';
 }
 
 function exemptionFor(file, name) {
   const reason = markedExempt(file);
-  if (reason) return `marked exempt: ${reason}`;
+  if (reason) return `Marked exempt: ${reason}`;
 
   const ref = releasedNames().get(name);
-  if (ref) return `already on ${ref}, so it must keep its name`;
+  if (ref) return `Already on ${ref}, so it must keep its name`;
 
   return null;
 }
