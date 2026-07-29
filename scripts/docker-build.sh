@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### This expects to be run in the production docker build in /Dockerfile, and on
-### the Windows VHDX runner. Docker-only steps are gated behind DOCKER_BUILD.
+### the Windows image runner. Docker-only steps are gated behind DOCKER_BUILD.
 
 set -euxo pipefail
 shopt -s extglob

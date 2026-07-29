@@ -1,0 +1,250 @@
+name: Pack a Windows bundle as a base-less OCI image
+description: >
+  Tar a staged Windows bundle as a single OCI layer and push it to ghcr.io as an
+  ordinary, but base-less, windows/amd64 OCI image: the layer carries only the
+  workload's own files and the image config declares how to run them, with no OS
+  base baked in. The Seedling Windows runtime completes the image for execution
+  by stacking its own OS base beneath these layers — see
+  beyondessential/seedling docs/spec/runtime-windows-containers.md,
+  wcr[artifact.format] and wcr[compose.chain].
+
+  The calling job stages the bundle at <layer-dir>/Files/..., which is the
+  Windows container layer format: Files/ is the container's C:\ drive, so
+  Files/app/... lands at C:\app\... and paths in the config are real absolute
+  paths (no root-directory indirection).
+inputs:
+  package:
+    required: true
+    description: central | facility | frontend | patient-portal
+  package-path:
+    required: true
+    description: workspace path of the package, e.g. central-server | web
+  kind:
+    required: true
+    description: server | frontend (shapes the image config)
+  layer-dir:
+    required: false
+    default: layer
+    description: directory holding the staged layer root (must contain Files/)
+  version:
+    required: true
+    description: app version string
+  sha:
+    required: true
+    description: commit sha driving the image tags
+  github-token:
+    required: true
+    description: token for ghcr.io login
+outputs:
+  layer:
+    description: >
+      Path of the gzipped layer tarball, left in the workspace so a caller can
+      reuse the bundle (the release packer repacks it into the legacy Windows
+      artifact).
+    value: ${{ steps.push.outputs.layer }}
+runs:
+  using: composite
+  steps:
+    # Counted separately from the pack so the pack can be checked for
+    # completeness: a silently dropped file is the failure mode this whole step
+    # exists to catch.
+    - name: Count the staged files
+      id: staged
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $files = Join-Path '${{ inputs.layer-dir }}' 'Files'
+        if (-not (Test-Path -PathType Container $files)) {
+          throw "'${{ inputs.layer-dir }}' does not contain a Files/ directory"
+        }
+        # +1 for Files itself, which the archive carries as an entry too
+        $count = (Get-ChildItem -LiteralPath $files -Recurse -Force | Measure-Object).Count + 1
+        "count=$count" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        Write-Host "staged entries: $count"
+
+    - name: Tar and check the layer
+      id: layer
+      shell: bash
+      env:
+        LAYER_DIR: ${{ inputs.layer-dir }}
+        STAGED: ${{ steps.staged.outputs.count }}
+      run: |
+        set -euo pipefail
+
+        # Windows' bundled bsdtar rather than Git Bash's tar: libarchive handles
+        # long paths (which node_modules produces plenty of) and writes the pax
+        # records a Windows layer wants — MSWINDOWS.fileattr, MSWINDOWS.rawsd,
+        # and LIBARCHIVE.creationtime, the same set Microsoft's own base-image
+        # layers carry.
+        # $SYSTEMROOT is a Windows path, so cygpath to use it from bash
+        tar="$(cygpath -u "$SYSTEMROOT")/System32/tar.exe"
+        [ -x "$tar" ] || { echo "Windows bsdtar not found at $tar" >&2; exit 1; }
+        [ -d "$LAYER_DIR/Files" ] || { echo "'$LAYER_DIR' has no Files/ directory" >&2; exit 1; }
+
+        # Piped into gzip rather than written to a tar file, deliberately.
+        # libarchive won't archive its own output, and decides that by comparing
+        # each source file's (device, inode) against the archive's — but
+        # archive_entry_ino() truncates NTFS's 64-bit file index to 32 bits, so a
+        # node_modules file eventually collides with the archive and is dropped
+        # with "Can't add archive to itself", while bsdtar still exits 0. It is
+        # deterministic within a run (a recreated archive reuses its MFT record,
+        # so retrying picks the same victim) and moves between runs. Given a pipe
+        # there is no archive file to collide with.
+        #
+        # No --dereference either: the staging copy already materialises npm's
+        # workspace junctions into real directories, and without the flag the
+        # no-links check below actually proves that rather than masking it.
+        "$tar" --format pax -cf - -C "$LAYER_DIR" Files 2>tar.err | gzip -n -6 > layer.tar.gz
+        if [ -s tar.err ]; then
+          cat tar.err >&2
+          echo "bsdtar reported problems packing the layer; it may be incomplete" >&2
+          exit 1
+        fi
+        echo "layer.tar.gz is $(( $(stat -c%s layer.tar.gz) / 1048576 )) MiB"
+
+        # diff_id is the digest of the *uncompressed* layer
+        echo "diff-id=sha256:$(gzip -dc layer.tar.gz | sha256sum | cut -d' ' -f1)" \
+          >> "$GITHUB_OUTPUT"
+
+        # Nothing consumes this format yet, so assert its shape here rather than
+        # discover a broken image on a host: as many entries as were staged (the
+        # check that catches a silent drop), every one under Files/ (the
+        # container's C:\), and no links, which would point at a build-agent path.
+        "$tar" -tf layer.tar.gz > names.txt
+        entries="$(wc -l < names.txt)"
+        if [ "$entries" -ne "$STAGED" ]; then
+          echo "layer has $entries entries but $STAGED were staged" >&2
+          exit 1
+        fi
+        outside="$(grep -cv '^Files\(/\|$\)' names.txt || true)"
+        if [ "$outside" -ne 0 ]; then
+          grep -v '^Files\(/\|$\)' names.txt | head -5 >&2
+          echo "$outside layer entries are outside Files/" >&2
+          exit 1
+        fi
+        links="$("$tar" -tvf layer.tar.gz | grep -c '^l' || true)"
+        if [ "$links" -ne 0 ]; then
+          echo "$links layer entries are links" >&2
+          exit 1
+        fi
+        echo "layer: $entries entries, all staged files present, all under Files/, no links"
+        rm -f names.txt tar.err
+
+    - name: Install oras
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $ver = '1.2.0'
+        Invoke-WebRequest -Uri "https://github.com/oras-project/oras/releases/download/v$ver/oras_${ver}_windows_amd64.zip" -OutFile oras.zip
+        Expand-Archive -Path oras.zip -DestinationPath oras-bin -Force
+        "$PWD\oras-bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+        & "$PWD\oras-bin\oras.exe" version
+
+    - name: Push image
+      id: push
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PKG: ${{ inputs.package }}
+        VERSION: ${{ inputs.version }}
+        SHA: ${{ inputs.sha }}
+        KIND: ${{ inputs.kind }}
+        PKG_PATH: ${{ inputs.package-path }}
+        DIFF_ID: ${{ steps.layer.outputs.diff-id }}
+        MANIFEST_TYPE: application/vnd.oci.image.manifest.v1+json
+        CONFIG_TYPE: application/vnd.oci.image.config.v1+json
+        LAYER_TYPE: application/vnd.oci.image.layer.v1.tar+gzip
+      run: |
+        set -euxo pipefail
+        image="ghcr.io/beyondessential/tamanu-$PKG"
+        tag="sha-$SHA.windows-amd64"
+
+        # The PATH a Windows base image sets, prefixed with the bundle's own
+        # runtime dir: the config's Env replaces the environment wholesale, and
+        # since the base is stacked in later there is nothing to inherit it from.
+        system_path='C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0'
+
+        # Mirrors the linux image config (see /Dockerfile), at Windows paths:
+        # servers run docker-entrypoint.sh's effective `node --import tsx app serve`
+        # from the package directory, frontends run caddy over the built dist.
+        # Labels carry the process profile the Windows runtime reads
+        # (wcr[artifact.profile]): node and caddy both shut down cleanly on a
+        # console control event, and neither takes a reload event.
+        if [ "$KIND" = 'frontend' ]; then
+          runcfg="$(jq -n --arg path "C:\\caddy;$system_path" '{
+            WorkingDir: "C:\\app",
+            Env: ["NODE_ENV=production", ("PATH=" + $path)],
+            Entrypoint: ["caddy"],
+            Cmd: ["run","--config","C:/caddy/Caddyfile","--adapter","caddyfile"],
+            ExposedPorts: {"3000/tcp": {}},
+            Labels: {"au.bes.seedling.stop-method": "ctrl_break"}
+          }')"
+        else
+          runcfg="$(jq -n --arg pp "$PKG_PATH" --arg path "C:\\app\\runtime;$system_path" '{
+            WorkingDir: ("C:\\app\\packages\\" + $pp),
+            Env: [
+              "NODE_ENV=production",
+              "PORT=3000",
+              ("NODE_CONFIG_DIR=C:\\config;C:\\app\\packages\\" + $pp + "\\config"),
+              ("PATH=" + $path)
+            ],
+            Entrypoint: ["node","--import","tsx","app"],
+            Cmd: ["serve"],
+            ExposedPorts: {"3000/tcp": {}},
+            Labels: {"au.bes.seedling.stop-method": "ctrl_break"}
+          }')"
+        fi
+
+        # A standard OCI image config. No os.version: the artifact carries no OS
+        # base, so it is not tied to one Windows build — the runtime stacks a base
+        # matching its host beneath it.
+        jq -n \
+          --arg created "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          --arg diff_id "$DIFF_ID" \
+          --arg version "$VERSION" \
+          --argjson config "$runcfg" \
+          '{created: $created, architecture: "amd64", os: "windows",
+            config: $config,
+            rootfs: {type: "layers", diff_ids: [$diff_id]},
+            history: [{created: $created,
+                       created_by: ("tamanu " + $version + " windows bundle"),
+                       comment: "base-less: completed with the runtime OS base"}]}' \
+          > imageconfig.json
+        cat imageconfig.json
+
+        # no xtrace around the token
+        set +x
+        echo "$GH_TOKEN" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
+        set -x
+
+        # Assemble the image manifest by hand rather than with `oras push`, which
+        # decorates layers with artifact annotations: this is a plain OCI image
+        # manifest, so its descriptors should carry nothing but the media types.
+        config_desc="$(oras blob push --descriptor "$image" imageconfig.json)"
+        layer_desc="$(oras blob push --descriptor "$image" layer.tar.gz)"
+        jq -n \
+          --argjson config "$config_desc" \
+          --argjson layer "$layer_desc" \
+          --arg manifest_type "$MANIFEST_TYPE" \
+          --arg config_type "$CONFIG_TYPE" \
+          --arg layer_type "$LAYER_TYPE" \
+          --arg pkg "$PKG" \
+          --arg version "$VERSION" \
+          '{schemaVersion: 2,
+            mediaType: $manifest_type,
+            config: {mediaType: $config_type, digest: $config.digest, size: $config.size},
+            layers: [{mediaType: $layer_type, digest: $layer.digest, size: $layer.size}],
+            annotations: {
+              "org.opencontainers.image.title": ("Tamanu " + $pkg + " (Windows)"),
+              "org.opencontainers.image.version": $version,
+              "org.opencontainers.image.source": "https://github.com/beyondessential/tamanu/",
+              "org.opencontainers.image.vendor": "BES International",
+              "org.opencontainers.image.licenses": "GPL-3.0-or-later",
+              "au.bes.tamanu.package": $pkg,
+              "au.bes.tamanu.os": "windows",
+              "au.bes.tamanu.arch": "amd64"
+            }}' \
+          | tee manifest.json \
+          | oras manifest push --media-type "$MANIFEST_TYPE" "$image:$tag" -
+
+        echo 'layer=layer.tar.gz' >> "$GITHUB_OUTPUT"
