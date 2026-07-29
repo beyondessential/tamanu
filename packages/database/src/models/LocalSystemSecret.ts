@@ -64,7 +64,6 @@ export class LocalSystemSecret extends Model {
     // Legacy plaintext value (moved out of local_system_facts before encryption
     // was mandatory). Encrypt it in place on first read so nothing lingers in
     // the clear, then return the plaintext to the caller.
-    // ponytail: self-heal on read keeps the move migration a plain SQL move
     await this.set(key, value);
     return value;
   }
