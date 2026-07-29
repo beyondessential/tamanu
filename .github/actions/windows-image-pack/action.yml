@@ -62,19 +62,31 @@ runs:
         [ -x "$tar" ] || { echo "Windows bsdtar not found at $tar" >&2; exit 1; }
         [ -d "$LAYER_DIR/Files" ] || { echo "'$LAYER_DIR' has no Files/ directory" >&2; exit 1; }
 
-        # Written to stdout, not to `-cf layer.tar`, deliberately: given an output
-        # file libarchive checks each source file against it so an archive can't
-        # archive itself, and on Windows that check gets false positives — it
-        # dropped an unrelated node_modules directory ("Can't add archive to
-        # itself") while still exiting 0, silently truncating the layer. A pipe
-        # leaves no output file to mistake anything for.
-        # --dereference so nothing is left pointing outside the layer.
-        "$tar" --format pax --dereference -cf - -C "$LAYER_DIR" Files 2>tar.err >layer.tar
-        if [ -s tar.err ]; then
+        # libarchive skips any source file whose (device, inode) matches the
+        # output archive's, so an archive can't archive itself — and on Windows
+        # that comparison gets false positives: it has dropped a node_modules
+        # file with "Can't add archive to itself" while still exiting 0, i.e.
+        # silently truncating the layer, naming a different file each run.
+        #
+        # So: no --dereference, since resolving reparse points is what asks
+        # libarchive for identities it can't always establish, and the staging
+        # copy has already materialised npm's workspace junctions into real
+        # directories — if it ever stops doing that, the no-links check below
+        # fails loudly instead. Any diagnostic at all is fatal here, and because
+        # the misfire moves around, one retry before giving up.
+        pack_layer() {
+          rm -f layer.tar tar.err
+          "$tar" --format pax -cf layer.tar -C "$LAYER_DIR" Files 2>tar.err
+        }
+        for attempt in 1 2 3; do
+          if pack_layer && [ ! -s tar.err ]; then break; fi
           cat tar.err >&2
-          echo "bsdtar reported problems packing the layer; it may be incomplete" >&2
-          exit 1
-        fi
+          if [ "$attempt" -eq 3 ]; then
+            echo "bsdtar kept reporting problems packing the layer; it may be incomplete" >&2
+            exit 1
+          fi
+          echo "retrying the layer pack (attempt $((attempt + 1)) of 3)" >&2
+        done
         echo "layer.tar is $(( $(stat -c%s layer.tar) / 1048576 )) MiB"
 
         # Nothing consumes this format yet, so assert its shape here rather than
