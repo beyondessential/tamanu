@@ -390,13 +390,17 @@ jobs:
 
       - name: Assemble layer (dist + Windows Caddy)
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euxo pipefail
           rm -rf layer
           mkdir -p layer/Files/app layer/Files/caddy
           cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
 
-          caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          # authenticated: unauthenticated api.github.com is rate-limited per
+          # runner IP, which is shared
+          caddy_version="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
           curl -fsSL -o caddy.zip \
             "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
           unzip -o caddy.zip caddy.exe -d layer/Files/caddy
