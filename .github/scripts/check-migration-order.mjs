@@ -34,6 +34,8 @@ const FUTURE_SLACK_MS = 60_000;
 
 const FIX_HINT = 'npm run check-migration-order -- --fix';
 
+const ERROR_PREFIX = process.env.GITHUB_ACTIONS ? '::error::' : '❌';
+
 const EXEMPTION_MARKER = /MIGRATION-ORDER-EXEMPT:?[ \t]*(.*)/;
 
 function git(args) {
@@ -211,7 +213,7 @@ function annotate(level, file, message) {
 
 function report(violations, base) {
   for (const { file, message } of violations) {
-    console.error(`\n❌ ${message}`);
+    console.error(`\n${ERROR_PREFIX} ${message}`);
     if (process.env.CI) annotate('error', file, message);
   }
   console.error(
@@ -363,6 +365,6 @@ function main(argv) {
 try {
   process.exitCode = main(process.argv);
 } catch (err) {
-  console.error(`❌ ${err.message}`);
+  console.error(`${ERROR_PREFIX} ${err.message}`);
   process.exitCode = 1;
 }
