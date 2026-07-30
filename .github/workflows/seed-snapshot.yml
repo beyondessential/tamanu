@@ -47,7 +47,9 @@ jobs:
   create-snapshot:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
-    timeout-minutes: 25
+    # Must exceed the watch step's own budget: a job-level timeout is a hard failure that
+    # continue-on-error can't absorb, so it would fail the release cut over a watchdog.
+    timeout-minutes: 30
     steps:
       - name: Validate version format
         env:
@@ -162,7 +164,9 @@ jobs:
         env:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
           VERSION: ${{ inputs.version }}
-          START_TIMEOUT_SECONDS: '600'
+          # The Job stays suspended until the operator has a CNPG cluster accepting
+          # connections, which measured ~10 minutes on the 2.61.0 snapshot.
+          START_TIMEOUT_SECONDS: '1200'
           SETTLE_SECONDS: '60'
         run: |
           follow="kubectl logs -f -n $SEED_NAMESPACE job/$JOB_NAME"
