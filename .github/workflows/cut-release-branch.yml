@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     outputs:
       branch: ${{ steps.release.outputs.branch }}
       version: ${{ steps.release.outputs.version }}
@@ -60,6 +61,48 @@ jobs:
           const cwd = '${{ github.workspace }}';
           const { checkBranchDoesNotExist } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           await checkBranchDoesNotExist(github, context, process.env.NEW_BRANCH_NAME);
+
+    # Before the branch push: CD's push run is what looks this issue up, and
+    # GITHUB_TOKEN (not the PAT) suppresses the issues-opened trigger, which
+    # would otherwise fire for a branch that doesn't exist yet. %seed-snapshot
+    # restores the previous minor's snapshot at provisioning, so the release's
+    # migrations run against real data.
+    - name: Create the auto-deploy control issue
+      uses: actions/github-script@v9
+      env:
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
+      with:
+        script: |
+          const branch = process.env.NEW_BRANCH_NAME;
+          const title = `Auto-deploy: ${branch}`;
+
+          // Paginated: old control issues stay open (2.42's still is), so the
+          // fleet outgrows the default page size.
+          const issues = await github.paginate(github.rest.issues.listForRepo, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'auto-deploy',
+          });
+          if (issues.some(issue => issue.title === title)) {
+            console.log('Control issue already exists; leaving it alone');
+            return;
+          }
+
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title,
+            labels: ['auto-deploy'],
+            body: [
+              '_This is a control issue for an Auto-Deploy. See [auto-deploy docs](https://beyond-essential.slab.com/posts/tamanu-auto-deploys-kubernetes-kkovoquc#h9fd9-non-pr-branches) for more._',
+              '',
+              `### Deploy <!-- #branch=${branch} -->`,
+              '',
+              '- [x] **Deploy to Tamanu Internal** <!-- #deploy --> %config=rc %ttlhours=0 %seed-snapshot',
+            ].join('\n'),
+          });
+          console.log('Created control issue', title);
 
     - name: Create new release branch
       env:
@@ -146,3 +189,4 @@ jobs:
       version: ${{ needs.run.outputs.version }}
       image: ${{ needs.build-seed-image.outputs.image }}
       git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
+
