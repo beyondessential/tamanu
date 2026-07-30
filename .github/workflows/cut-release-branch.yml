@@ -120,42 +120,20 @@ jobs:
 
   build-seed-image:
     needs: [run]
-    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
-    outputs:
-      git_sha: ${{ steps.sha.outputs.sha }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.run.outputs.branch }}
-
-      - name: Get branch HEAD SHA
-        id: sha
-        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Log in to ghcr.io
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - uses: docker/setup-buildx-action@v3
-
-      - name: Build and push seed image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.seed
-          push: true
-          platforms: linux/arm64
-          tags: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
-          build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
+    uses: ./.github/workflows/seed-image.yml
+    with:
+      ref: ${{ needs.run.outputs.branch }}
+      version: ${{ needs.run.outputs.version }}
 
   # Snapshot creation is best-effort: seed-snapshot.yml marks its infra-touching
   # steps continue-on-error, so a degraded snapshotter doesn't fail this run.
   # (continue-on-error isn't valid on a reusable-workflow call, so the tolerance
   # lives in the called workflow's steps instead.) The release branch is also
   # already cut by the `run` job above, so a failure here can never undo it.
-  # Re-run via workflow_dispatch on seed-snapshot.yml to retry.
+  # To retry afterwards, dispatch seed-image.yml and/or seed-snapshot.yml directly.
   seed-snapshot:
     needs: [run, build-seed-image]
     permissions:
@@ -166,5 +144,5 @@ jobs:
     with:
       branch: ${{ needs.run.outputs.branch }}
       version: ${{ needs.run.outputs.version }}
-      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
+      image: ${{ needs.build-seed-image.outputs.image }}
       git_sha: ${{ needs.build-seed-image.outputs.git_sha }}

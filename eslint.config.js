@@ -6,8 +6,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import typescriptParser from '@typescript-eslint/parser';
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 
-const JS_EXTS = '{js,jsx,mjs,cjs,ts,tsx}';
-const TS_EXTS = '{ts,tsx}';
+const JS_EXTS = '{js,jsx,mjs,cjs,ts,mts,tsx}';
+const TS_EXTS = '{ts,mts,tsx}';
 const EXTS = `{${JS_EXTS},${TS_EXTS}}`;
 const BROWSER_PACKAGES = '{web,ui-components,patient-portal}';
 
