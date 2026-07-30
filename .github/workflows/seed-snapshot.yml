@@ -147,30 +147,43 @@ jobs:
                         ephemeral-storage: 2Gi
           EOF
 
-      # Seeding runs for far longer than a release cut should wait, so we don't
-      # wait for the snapshot itself — but we do wait for the pod to get past
-      # image pull and start the seed, because `backoffLimit: 0` means a pod that
-      # can't start just sits there until activeDeadlineSeconds two hours later,
-      # with nothing to report it. Whatever happens, the cut is already done.
+      # Seeding runs for far longer than a release cut should wait, so we don't wait for
+      # the snapshot itself. We do wait for the container to start and then stay up for
+      # SETTLE_SECONDS, because the failures worth catching here all land within seconds
+      # of starting: a bad image ref, a missing DB_* key (the seed runs under `bash -u`),
+      # an unreadable config. Left unwatched, `backoffLimit: 0` means such a pod sits
+      # until activeDeadlineSeconds two hours later with nothing reporting it. The cut
+      # itself is already done either way, hence continue-on-error.
       - name: Wait for the seed to start
         continue-on-error: true
         env:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
+          VERSION: ${{ inputs.version }}
+          START_TIMEOUT_SECONDS: '600'
+          SETTLE_SECONDS: '60'
         run: |
           set -uo pipefail
+          follow="kubectl logs -f -n $SEED_NAMESPACE job/$JOB_NAME"
+
           if ! kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" >/dev/null 2>&1; then
-            echo "::warning::Seed job $JOB_NAME was not created; snapshot for ${{ inputs.version }} skipped."
+            echo "::warning::Seed job $JOB_NAME was not created; no snapshot for $VERSION."
             exit 1
           fi
 
-          follow="kubectl logs -f -n $SEED_NAMESPACE job/$JOB_NAME"
-          deadline=$((SECONDS + 600))
-          while (( SECONDS < deadline )); do
+          fail() {
+            [[ -n "${1:-}" ]] && kubectl logs "$1" -n "$SEED_NAMESPACE" --tail=50
+            [[ -n "${1:-}" ]] && kubectl describe pod "$1" -n "$SEED_NAMESPACE"
+            echo "::error::$2"
+            exit 1
+          }
+
+          settle_deadline=
+          hard_deadline=$((SECONDS + START_TIMEOUT_SECONDS + SETTLE_SECONDS))
+          while (( SECONDS < hard_deadline )); do
             if [[ "$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" \
                   -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')" == "True" ]]; then
               kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
-              echo "::error::Seed job $JOB_NAME failed; no snapshot for ${{ inputs.version }}."
-              exit 1
+              fail "" "Seed job $JOB_NAME failed; no snapshot for $VERSION."
             fi
 
             pod=$(kubectl get pods -n "$SEED_NAMESPACE" \
@@ -189,25 +202,42 @@ jobs:
             if [[ -n "$status" ]]; then
               read -r started exited waiting <<<"$status"
 
-              if [[ "$started" != - || "$exited" != - ]]; then
-                echo "::notice::Seed job $JOB_NAME started. Follow it with: $follow"
-                exit 0
+              # Terminated first: a container that already exited has no running state.
+              if [[ "$exited" != - ]]; then
+                if [[ "$exited" == 0 ]]; then
+                  echo "::notice::Seed job $JOB_NAME completed; the operator snapshots it from here."
+                  exit 0
+                fi
+                fail "$pod" "Seed pod $pod exited with code $exited; no snapshot for $VERSION."
               fi
 
               case "$waiting" in
                 ErrImagePull | ImagePullBackOff | InvalidImageName | CrashLoopBackOff | \
                 CreateContainerError | CreateContainerConfigError)
-                  kubectl describe pod "$pod" -n "$SEED_NAMESPACE"
-                  echo "::error::Seed pod $pod cannot start ($waiting); no snapshot for ${{ inputs.version }}."
-                  exit 1
+                  fail "$pod" "Seed pod $pod cannot start ($waiting); no snapshot for $VERSION."
                   ;;
               esac
+
+              if [[ "$started" != - ]]; then
+                if [[ -z "$settle_deadline" ]]; then
+                  echo "Seed container started at $started; watching ${SETTLE_SECONDS}s for an early exit."
+                  settle_deadline=$((SECONDS + SETTLE_SECONDS))
+                elif (( SECONDS >= settle_deadline )); then
+                  echo "::notice::Seed job $JOB_NAME is running. Follow it with: $follow"
+                  exit 0
+                fi
+              fi
             fi
 
-            sleep 15
+            sleep 10
           done
 
+          if [[ -n "$settle_deadline" ]]; then
+            echo "::notice::Seed job $JOB_NAME is running. Follow it with: $follow"
+            exit 0
+          fi
+
           kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
-          echo "::warning::Seed job $JOB_NAME had not started after 10 minutes. Check it with: $follow"
+          echo "::warning::Seed job $JOB_NAME had not started in time. Check it with: $follow"
           exit 1
 
