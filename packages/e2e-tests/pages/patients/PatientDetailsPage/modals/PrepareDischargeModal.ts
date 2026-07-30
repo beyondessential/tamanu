@@ -34,4 +34,29 @@ export class PrepareDischargeModal {
   async waitForModalToClose() {
     await this.dischargeNoteTextarea.waitFor({ state: 'detached' });
   }
+
+  // Every medication row reuses the same test IDs for its inputs, so a row is addressed by its
+  // Formik field name, which is keyed by prescription id.
+  dispensingQuantityInput(prescriptionId: string): Locator {
+    return this.page.locator(`input[name="medications.${prescriptionId}.quantity"]`);
+  }
+
+  sendToPharmacyCheckbox(prescriptionId: string): Locator {
+    return this.page.locator(`input[name="medications.${prescriptionId}.sendToPharmacy"]`);
+  }
+
+  async setDispensingQuantity(prescriptionId: string, quantity: number) {
+    const input = this.dispensingQuantityInput(prescriptionId);
+    await input.waitFor({ state: 'visible' });
+    await input.fill(String(quantity));
+  }
+
+  /** Finalises the discharge, including the confirmation step the form shows before submitting. */
+  async finaliseDischarge() {
+    await this.confirmButton.click();
+    const confirmDischargeButton = this.page.getByRole('button', { name: 'Confirm' });
+    await confirmDischargeButton.waitFor({ state: 'visible' });
+    await confirmDischargeButton.click();
+    await this.waitForModalToClose();
+  }
 }

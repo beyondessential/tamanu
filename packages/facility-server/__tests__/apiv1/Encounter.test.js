@@ -1277,7 +1277,7 @@ describe('Encounter', () => {
     describe('discharge pharmacy orders', () => {
       let dischargeMedication = null;
 
-      const createEncounterToDischarge = async () => {
+      const createEncounterToDischarge = async ({ medicationId } = {}) => {
         const encounterToDischarge = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
@@ -1288,7 +1288,7 @@ describe('Encounter', () => {
           fake(models.Prescription, {
             patientId: patient.id,
             prescriberId: app.user.id,
-            medicationId: dischargeMedication.id,
+            medicationId: medicationId ?? dischargeMedication.id,
           }),
         );
         await models.EncounterPrescription.create({
@@ -1320,7 +1320,7 @@ describe('Encounter', () => {
           medications: {
             [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: true },
           },
-          pharmacyOrder: { orderingClinicianId: app.user.id, facilityId },
+          pharmacyOrder: { orderingClinicianId: app.user.id },
         });
         expect(result).toHaveSucceeded();
 
@@ -1329,6 +1329,8 @@ describe('Encounter', () => {
         });
         expect(orders).toHaveLength(1);
         expect(orders[0].orderingClinicianId).toEqual(app.user.id);
+        // Taken from the discharging user's token rather than the request body.
+        expect(orders[0].facilityId).toEqual(facilityId);
         // Anything ordered from a discharge is an outpatient/discharge prescription.
         expect(orders[0].isDischargePrescription).toBe(true);
 
@@ -1352,7 +1354,7 @@ describe('Encounter', () => {
           medications: {
             [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: false },
           },
-          pharmacyOrder: { orderingClinicianId: app.user.id, facilityId },
+          pharmacyOrder: { orderingClinicianId: app.user.id },
         });
         expect(result).toHaveSucceeded();
 
@@ -1371,7 +1373,7 @@ describe('Encounter', () => {
           medications: {
             [prescription.id]: { quantity: 12, repeats: 2, sendToPharmacy: true },
           },
-          pharmacyOrder: { facilityId },
+          pharmacyOrder: {},
         });
         expect(result).toHaveRequestError();
 
@@ -1387,6 +1389,142 @@ describe('Encounter', () => {
           where: { encounterId: encounterToDischarge.id },
         });
         expect(discharges).toHaveLength(0);
+      });
+
+      describe('permissions', () => {
+        disableHardcodedPermissionsForSuite();
+
+        // Enough to discharge a patient, but not to place a pharmacy order.
+        const DISCHARGE_PERMISSIONS = [
+          ['read', 'Encounter'],
+          ['write', 'Encounter'],
+          ['write', 'Discharge'],
+        ];
+        const ORDERING_PERMISSIONS = [
+          ...DISCHARGE_PERMISSIONS,
+          ['create', 'MedicationRequest'],
+          ['read', 'Medication'],
+        ];
+
+        let sensitiveMedication = null;
+
+        const dischargeWith = (permittedApp, { encounterToDischarge, prescription }, medications) =>
+          permittedApp.put(`/api/encounter/${encounterToDischarge.id}`).send({
+            endDate: getCurrentDateTimeString(),
+            discharge: {
+              encounterId: encounterToDischarge.id,
+              dischargerId: permittedApp.user.id,
+            },
+            medications: { [prescription.id]: medications },
+            pharmacyOrder: { orderingClinicianId: permittedApp.user.id },
+          });
+
+        const expectNothingHappened = async encounterToDischarge => {
+          const orders = await models.PharmacyOrder.findAll({
+            where: { encounterId: encounterToDischarge.id },
+          });
+          expect(orders).toHaveLength(0);
+          // A rejected order must not leave the patient discharged.
+          const reloaded = await models.Encounter.findByPk(encounterToDischarge.id);
+          expect(reloaded.endDate).toBeFalsy();
+        };
+
+        beforeAll(async () => {
+          sensitiveMedication = await models.ReferenceData.create({
+            type: 'drug',
+            name: 'Sensitivizol',
+            code: 'sensitivizol',
+          });
+          await models.ReferenceDrug.create(
+            fake(models.ReferenceDrug, {
+              referenceDataId: sensitiveMedication.id,
+              isSensitive: true,
+            }),
+          );
+        });
+
+        it('rejects a user with no permissions', async () => {
+          const arranged = await createEncounterToDischarge();
+          const noPermsApp = await baseApp.asRole('base');
+
+          const result = await dischargeWith(noPermsApp, arranged, {
+            quantity: 12,
+            repeats: 2,
+            sendToPharmacy: true,
+          });
+
+          expect(result).toBeForbidden();
+          await expectNothingHappened(arranged.encounterToDischarge);
+        });
+
+        it('rejects a user who can discharge but cannot create medication requests', async () => {
+          const arranged = await createEncounterToDischarge();
+          const dischargeOnlyApp = await baseApp.asNewRole(DISCHARGE_PERMISSIONS);
+
+          const result = await dischargeWith(dischargeOnlyApp, arranged, {
+            quantity: 12,
+            repeats: 2,
+            sendToPharmacy: true,
+          });
+
+          expect(result).toBeForbidden();
+          await expectNothingHappened(arranged.encounterToDischarge);
+        });
+
+        it('lets a user who cannot create medication requests discharge without ordering', async () => {
+          const arranged = await createEncounterToDischarge();
+          const dischargeOnlyApp = await baseApp.asNewRole(DISCHARGE_PERMISSIONS);
+
+          const result = await dischargeWith(dischargeOnlyApp, arranged, {
+            quantity: 12,
+            repeats: 2,
+            sendToPharmacy: false,
+          });
+
+          expect(result).toHaveSucceeded();
+          const orders = await models.PharmacyOrder.findAll({
+            where: { encounterId: arranged.encounterToDischarge.id },
+          });
+          expect(orders).toHaveLength(0);
+        });
+
+        it('rejects ordering a sensitive medication without read SensitiveMedication', async () => {
+          const arranged = await createEncounterToDischarge({
+            medicationId: sensitiveMedication.id,
+          });
+          const orderingApp = await baseApp.asNewRole(ORDERING_PERMISSIONS);
+
+          const result = await dischargeWith(orderingApp, arranged, {
+            quantity: 12,
+            repeats: 2,
+            sendToPharmacy: true,
+          });
+
+          expect(result).toBeForbidden();
+          await expectNothingHappened(arranged.encounterToDischarge);
+        });
+
+        it('lets a user with read SensitiveMedication order a sensitive medication', async () => {
+          const arranged = await createEncounterToDischarge({
+            medicationId: sensitiveMedication.id,
+          });
+          const sensitiveApp = await baseApp.asNewRole([
+            ...ORDERING_PERMISSIONS,
+            ['read', 'SensitiveMedication'],
+          ]);
+
+          const result = await dischargeWith(sensitiveApp, arranged, {
+            quantity: 12,
+            repeats: 2,
+            sendToPharmacy: true,
+          });
+
+          expect(result).toHaveSucceeded();
+          const orders = await models.PharmacyOrder.findAll({
+            where: { encounterId: arranged.encounterToDischarge.id },
+          });
+          expect(orders).toHaveLength(1);
+        });
       });
     });
 

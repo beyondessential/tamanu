@@ -276,16 +276,16 @@ export const DischargeForm = ({
 
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
-      const submitData = isPharmacyOrderEnabled
-        ? { ...data, pharmacyOrder: { ...data.pharmacyOrder, facilityId } }
-        : { ...data, pharmacyOrder: undefined };
+      // The server takes the order's facility from the discharging user's token, so only the
+      // ordering prescriber travels with the request.
+      const submitData = isPharmacyOrderEnabled ? data : { ...data, pharmacyOrder: undefined };
       if (isDischarged) {
         await onSubmit(submitData);
         return;
       }
       await onSubmit({ dischargeDraft: submitData });
     },
-    [onSubmit, isPharmacyOrderEnabled, facilityId],
+    [onSubmit, isPharmacyOrderEnabled],
   );
 
   useEffect(() => {

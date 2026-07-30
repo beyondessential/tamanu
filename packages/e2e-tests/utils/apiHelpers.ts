@@ -254,6 +254,28 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
+/**
+ * Drugs from reference data, for tests that need a known medication name or several distinct
+ * medications (e.g. one sent to pharmacy on discharge and one left behind).
+ */
+export const getDrugSuggestions = async (
+  api: APIRequestContext,
+  count = 1,
+): Promise<{ id: string; name: string }[]> => {
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=${count}`);
+  const suggestResponse = await api.get(suggestUrl);
+  if (!suggestResponse.ok()) {
+    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
+  }
+  const drugs = await suggestResponse.json();
+  if (drugs.length < count) {
+    throw new Error(
+      `Expected ${count} drugs in reference data, found ${drugs.length}. Check provisioning.`,
+    );
+  }
+  return drugs;
+};
+
 export const createEncounterPrescriptionViaApi = async (
   api: APIRequestContext,
   encounterId: string,
@@ -266,14 +288,7 @@ export const createEncounterPrescriptionViaApi = async (
 ) => {
   const user = await getUser(api);
 
-  const suggestUrl = constructFacilityUrl('/api/suggestions/drug?count=1');
-  const suggestResponse = await api.get(suggestUrl);
-  if (!suggestResponse.ok()) {
-    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
-  }
-  const medications = await suggestResponse.json();
-  const medicationId = medications[0]?.id;
-  if (!medicationId) throw new Error('No medications found in drug reference data');
+  const medicationId = overrides.medicationId ?? (await getDrugSuggestions(api))[0].id;
 
   const now = new Date();
   const dateString = now.toISOString().substring(0, 10);

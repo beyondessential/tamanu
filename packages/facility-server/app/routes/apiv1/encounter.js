@@ -242,7 +242,7 @@ encounter.put(
             req.checkPermission('read', 'SensitiveMedication');
           }
 
-          const { orderingClinicianId, facilityId } = req.body.pharmacyOrder ?? {};
+          const { orderingClinicianId } = req.body.pharmacyOrder ?? {};
           if (!orderingClinicianId) {
             throw new InvalidParameterError(
               'A pharmacy order placed from a discharge must have an ordering prescriber.',
@@ -256,7 +256,7 @@ encounter.put(
             // whatever the facility's default prescription type is.
             isDischargePrescription: true,
             date: getCurrentDateTimeString(),
-            facilityId,
+            facilityId: req.facilityId,
           });
 
           await models.PharmacyOrderPrescription.bulkCreate(

@@ -1475,6 +1475,131 @@ describe('Medication', () => {
     });
   });
 
+  // Last-sent state on this listing is resolved through
+  // pharmacy_order_prescriptions.ongoing_prescription_id (getLastOrderedAtForOngoingPrescriptions),
+  // which is a separate query to the one the encounter medication listing uses.
+  describe('GET /api/patient/:id/ongoing-prescriptions', () => {
+    const arrangeOngoingPrescription = async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: localPatient.id,
+        prescriberId: app.user.id,
+      });
+      // The listing hides sensitive drugs from users without `list SensitiveMedication`, and its
+      // filter needs a reference drug row to match against — so give the drug an explicit
+      // non-sensitive one rather than leaning on the test role's permissions.
+      await models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, {
+          referenceDataId: ongoingPrescription.medicationId,
+          isSensitive: false,
+        }),
+      );
+      return { localPatient, ongoingPrescription };
+    };
+
+    const fetchOngoingPrescription = async ({ localPatient, ongoingPrescription }) => {
+      const result = await app.get(`/api/patient/${localPatient.id}/ongoing-prescriptions`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(p => p.id === ongoingPrescription.id);
+      expect(row).toBeDefined();
+      return row;
+    };
+
+    const sendToPharmacy = async ({ localPatient, ongoingPrescription }) => {
+      const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
+        patientId: localPatient.id,
+        orderingClinicianId: app.user.id,
+        facilityId,
+        prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+      });
+      expect(result).toHaveSucceeded();
+
+      const orderPrescriptions = await models.PharmacyOrderPrescription.findAll({
+        where: { pharmacyOrderId: result.body.pharmacyOrderId },
+      });
+      expect(orderPrescriptions).toHaveLength(1);
+      return orderPrescriptions[0];
+    };
+
+    it('reports no last-sent state for a prescription that has never been sent to pharmacy', async () => {
+      const arranged = await arrangeOngoingPrescription();
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeFalsy();
+      expect(row.isLastOrderDispensed).toBeNull();
+    });
+
+    it('reports an active request once the prescription has been sent to pharmacy', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      await sendToPharmacy(arranged);
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeTruthy();
+      expect(row.isLastOrderDispensed).toBe(false);
+    });
+
+    it('reports dispensed once the request has been dispensed', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const orderPrescription = await sendToPharmacy(arranged);
+
+      // Completed directly rather than through /api/medication/dispense: this asserts how the
+      // listing reads is_completed, and dispensing already has its own coverage above.
+      await orderPrescription.update({ isCompleted: true });
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeTruthy();
+      expect(row.isLastOrderDispensed).toBe(true);
+    });
+
+    it('follows the most recent order when the prescription has been sent more than once', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const { localPatient, ongoingPrescription } = arranged;
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: localPatient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
+      // Built directly so the order dates are explicit and distinct — two sends through the endpoint
+      // would land in the same second and leave which one is "most recent" up to a tiebreak.
+      const orderOn = async (date, isCompleted) => {
+        const pharmacyOrder = await models.PharmacyOrder.create(
+          fake(models.PharmacyOrder, {
+            orderingClinicianId: app.user.id,
+            encounterId: encounter.id,
+            date,
+            facilityId,
+          }),
+        );
+        await models.PharmacyOrderPrescription.create({
+          ...fake(models.PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: ongoingPrescription.id,
+            ongoingPrescriptionId: ongoingPrescription.id,
+            quantity: 10,
+            isCompleted,
+          }),
+          id: crypto.randomUUID(),
+        });
+      };
+      await orderOn('2024-10-20 09:00:00', true);
+      await orderOn('2024-10-22 09:00:00', false);
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      // The newest order is still outstanding, so an earlier dispensed one must not win.
+      expect(row.lastOrderedAt).toBe('2024-10-22 09:00:00');
+      expect(row.isLastOrderDispensed).toBe(false);
+    });
+  });
+
   describe('GET /api/medication/dispensable-medications', () => {
     // Builds an outstanding (not-yet-dispensed) pharmacy order prescription for the patient, with
     // the prescription fields the dispensing autocalculation relies on set to known values.
