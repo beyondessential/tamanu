@@ -140,15 +140,18 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      # Built from the same Dockerfile and docker-build.sh as the server images,
+      # so the install can't drift out from under this workflow: it shares
+      # `base`/`build-base` with them, hence reading main's central image cache.
       - name: Build and push seed image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile.seed
+          target: seed
           push: true
           platforms: linux/arm64
+          cache-from: type=gha,scope=arm64-main-central
           tags: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
-          build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
 
   # Snapshot creation is best-effort: seed-snapshot.yml marks its infra-touching
   # steps continue-on-error, so a degraded snapshotter doesn't fail this run.
