@@ -97,12 +97,14 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
   });
 
 // Calculates the patient's remaining balance after applying the payment amount
-const calculateDisplayedBalance = ({
+export const calculateDisplayedBalance = ({
   patientPaymentRemainingBalance,
   amount,
   paymentRecord = {},
 }) => {
-  if (!amount) return patientPaymentRemainingBalance;
+  if (amount === '' || amount === null || amount === undefined) {
+    return patientPaymentRemainingBalance;
+  }
 
   const decimalRemaining = new Decimal(patientPaymentRemainingBalance);
   const isEditMode = !!paymentRecord.id;
