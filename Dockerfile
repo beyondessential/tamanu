@@ -64,6 +64,35 @@ EXPOSE 3000
 ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
+## Build the seed image: the central server, to run the migrations, plus the
+## scripts package, which holds the fake-data generator
+FROM build-base AS build-seed
+COPY packages/ packages/
+RUN DOCKER_BUILD=1 scripts/docker-build.sh central-server scripts
+
+
+## Seeds a fresh database for the pgsnap operator to snapshot, then exits
+FROM run-base AS seed
+COPY --from=build-seed /app/packages/ packages/
+COPY --from=build-seed /app/node_modules/ node_modules/
+WORKDIR /app/packages/central-server
+ENV NODE_CONFIG_DIR=/app/packages/central-server/config \
+    ROUNDS=50
+ENTRYPOINT ["bash", "-euc"]
+# DB_* come from the connection Secret the pgsnap operator injects via envFrom.
+# ROUNDS sets the fake-data volume; override it to scale the snapshot's size.
+CMD ["\
+export CONFIG_SYNC_DB_HOST=\"$DB_HOST\" CONFIG_SYNC_DB_PORT=\"$DB_PORT\" \
+       CONFIG_SYNC_DB_NAME=\"$DB_NAME\" CONFIG_SYNC_DB_USERNAME=\"$DB_USERNAME\" \
+       CONFIG_SYNC_DB_PASSWORD=\"$DB_PASSWORD\"\n\
+node --import tsx app migrate\n\
+node --import tsx ../scripts/src/fake.mts \
+  --database \"$DB_NAME\" \
+  --rounds \"$ROUNDS\" \
+  --from-tally ../fake-data/src/populateDb/parseTally/standard.json\
+"]
+
+
 ## Build the frontend packages (web or patient-portal)
 FROM build-base AS build-frontend-base
 ARG PACKAGE_PATH
