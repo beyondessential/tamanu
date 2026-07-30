@@ -156,13 +156,15 @@ jobs:
       # itself is already done either way, hence continue-on-error.
       - name: Wait for the seed to start
         continue-on-error: true
+        # Not the default `bash -e`: this step polls for a pod that does not exist yet, so
+        # a non-zero kubectl is expected and errexit would abort the watch before it starts.
+        shell: bash --noprofile --norc -uo pipefail {0}
         env:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
           VERSION: ${{ inputs.version }}
           START_TIMEOUT_SECONDS: '600'
           SETTLE_SECONDS: '60'
         run: |
-          set -uo pipefail
           follow="kubectl logs -f -n $SEED_NAMESPACE job/$JOB_NAME"
 
           if ! kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" >/dev/null 2>&1; then
@@ -186,9 +188,11 @@ jobs:
               fail "" "Seed job $JOB_NAME failed; no snapshot for $VERSION."
             fi
 
+            # `items[*]` rather than `items[0]`: the latter errors while the Job is still
+            # suspended and no pod exists.
             pod=$(kubectl get pods -n "$SEED_NAMESPACE" \
               -l "batch.kubernetes.io/job-name=$JOB_NAME" \
-              -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+              -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | awk '{print $1}')
 
             status=
             if [[ -n "$pod" ]]; then
