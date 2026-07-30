@@ -1,6 +1,7 @@
 import {
   SendStatusToMetaServer,
   FhirMissingResources,
+  ReportingGrantsRefresher,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
 import { facilityDefaults } from '@tamanu/settings';
@@ -23,6 +24,7 @@ const DEFAULT_TASK_CLASSES = [
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
   BedFeeCharger,
+  ReportingGrantsRefresher,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.

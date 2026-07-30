@@ -1,6 +1,12 @@
 import { QueryTypes } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_ROLES } from '@tamanu/constants';
+import {
+  countMissingReportingGrants,
+  refreshReportingGrants,
+} from '@tamanu/database/services/reporting';
+import { ReportingGrantsRefresher } from '@tamanu/shared/tasks';
+import { facilityDefaults } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 
 // Each reporting connection logs in as its own unprivileged, read-only role,
@@ -219,5 +225,61 @@ describe('ReportSchemaRoles', () => {
       { type: QueryTypes.SELECT },
     );
     expect(count).toBe(0);
+  });
+
+  describe('grant refresh', () => {
+    const reportingRole = REPORT_DB_CONNECTION_ROLES.reporting;
+
+    afterEach(async () => {
+      await refreshReportingGrants(ctx.store);
+    });
+
+    it('has nothing to do while the grants are intact', async () => {
+      const task = new ReportingGrantsRefresher({
+        store: ctx.store,
+        schedules: facilityDefaults.schedules,
+      });
+      expect(task.schedule).toBeTruthy();
+      expect(await task.countQueue()).toBe(0);
+    });
+
+    it('restores select on an object the role has lost', async () => {
+      await ctx.sequelize.query(
+        `REVOKE SELECT ON reporting.reporting_test_table FROM ${reportingRole};`,
+      );
+      expect(await countMissingReportingGrants(ctx.store)).toBeGreaterThan(0);
+
+      await refreshReportingGrants(ctx.store);
+
+      expect(await countMissingReportingGrants(ctx.store)).toBe(0);
+      const rows = await reporting.query(
+        'SELECT * FROM reporting.reporting_test_table WHERE id = 1;',
+        { type: QueryTypes.SELECT },
+      );
+      expect(rows).toEqual([{ id: 1, name: 'A' }]);
+    });
+
+    // The state a dropped and recreated schema leaves behind: both the usage grant
+    // and the default privileges go with it, so objects built afterwards are unreadable.
+    it('restores schema usage and default privileges, covering later objects', async () => {
+      await ctx.sequelize.query(`
+        REVOKE USAGE ON SCHEMA reporting FROM ${reportingRole};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA reporting REVOKE SELECT ON TABLES FROM ${reportingRole};
+      `);
+      expect(await countMissingReportingGrants(ctx.store)).toBeGreaterThan(0);
+
+      await refreshReportingGrants(ctx.store);
+      await ctx.sequelize.query(`
+        CREATE TABLE reporting.rebuilt_test_table ("id" integer PRIMARY KEY);
+        INSERT INTO reporting.rebuilt_test_table ("id") VALUES (1);
+      `);
+
+      const rows = await reporting.query('SELECT * FROM reporting.rebuilt_test_table;', {
+        type: QueryTypes.SELECT,
+      });
+      expect(rows).toEqual([{ id: 1 }]);
+
+      await ctx.sequelize.query('DROP TABLE reporting.rebuilt_test_table;');
+    });
   });
 });

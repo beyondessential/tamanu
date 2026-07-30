@@ -1,5 +1,6 @@
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
+import { ReportingGrantsRefresher } from '@tamanu/shared/tasks/ReportingGrantsRefresher';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
@@ -72,6 +73,7 @@ export async function startScheduledTasks(context) {
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
     SendStatusToMetaServer,
+    ReportingGrantsRefresher,
   ];
 
   if (context.integrationSettings.fijiVrs.enabled) {

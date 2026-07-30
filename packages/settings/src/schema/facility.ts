@@ -214,6 +214,7 @@ export const facilitySettings = {
           batchingProperties(100, 50),
         ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
+        reportingGrantsRefresher: scheduledTaskSchema({ schedule: '* * * * *' }),
         sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(

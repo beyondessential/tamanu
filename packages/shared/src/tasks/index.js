@@ -1,6 +1,7 @@
 export { ScheduledTask } from './ScheduledTask';
 export { FhirQueueManager } from './fhir/FhirQueueManager';
 export { SendStatusToMetaServer } from './SendStatusToMetaServer';
+export { ReportingGrantsRefresher } from './ReportingGrantsRefresher';
 export { startFhirWorkerTasks, runStartFhirWorker } from './fhir';
 export { createFhirCommand } from './fhir/fhirCommand';
 export { prepareQuery } from './fhir/prepareQuery';
