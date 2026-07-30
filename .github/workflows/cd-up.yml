@@ -130,16 +130,25 @@ jobs:
             if (!context.issue.number) return;
 
             const fullOutput = process.env.PULUMI_OUTPUT ?? '';
-            const HEAD_TAIL_LENGTH = 500;
             const marker = '<!-- pulumi-up-report:${{ inputs.deploy-name }} -->';
 
+            const liveLinkMatch = fullOutput.match(/^View Live:\s*(\S+)/m);
+            // "Outputs:" header, then indented "key: value" lines until a blank
+            // line or a line back at column 0 (see pulumi/pulumi printOutputs()).
+            const outputsMatch = fullOutput.match(/^Outputs:\n((?:[ \t]+\S.*\n?)+)/m);
+
             let body;
-            if (fullOutput.length <= HEAD_TAIL_LENGTH * 2) {
-              body = fullOutput;
+            if (liveLinkMatch || outputsMatch) {
+              const parts = [];
+              if (liveLinkMatch) parts.push(`**View Live:** ${liveLinkMatch[1]}`);
+              if (outputsMatch) parts.push(`**Outputs:**\n${outputsMatch[1].trimEnd()}`);
+              body = parts.join('\n\n');
             } else {
-              const head = fullOutput.slice(0, HEAD_TAIL_LENGTH);
-              const tail = fullOutput.slice(-HEAD_TAIL_LENGTH);
-              body = `${head}\n\n...\n\n${tail}`;
+              // Fallback if the expected markers aren't found: head + tail of the raw output.
+              const HEAD_TAIL_LENGTH = 500;
+              body = fullOutput.length <= HEAD_TAIL_LENGTH * 2
+                ? fullOutput
+                : `${fullOutput.slice(0, HEAD_TAIL_LENGTH)}\n\n...\n\n${fullOutput.slice(-HEAD_TAIL_LENGTH)}`;
             }
             body = `${marker}\n${body}`;
 
