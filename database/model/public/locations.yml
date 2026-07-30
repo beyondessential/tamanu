@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_locations_from_sync_lookup
               - notify_locations_changed
               - record_locations_changelog
               - set_locations_updated_at

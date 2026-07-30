@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_invoice_items_from_sync_lookup
               - notify_invoice_items_changed
               - record_invoice_items_changelog
               - set_invoice_items_updated_at

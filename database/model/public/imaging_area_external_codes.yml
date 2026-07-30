@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_imaging_area_external_codes_from_sync_lookup
               - notify_imaging_area_external_codes_changed
               - record_imaging_area_external_codes_changelog
               - set_imaging_area_external_codes_updated_at

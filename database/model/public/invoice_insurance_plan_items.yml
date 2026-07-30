@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_invoice_insurance_plan_items_from_sync_lookup
               - notify_invoice_insurance_plan_items_changed
               - record_invoice_insurance_plan_items_changelog
               - set_invoice_insurance_plan_items_updated_at
