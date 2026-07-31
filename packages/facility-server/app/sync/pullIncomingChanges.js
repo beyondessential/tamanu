@@ -1,8 +1,9 @@
 import config from 'config';
-import { chunk } from 'es-toolkit/compat';
+import { chunk, omit } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {
+  encodeSnapshotCursor,
   insertSnapshotRecords,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
@@ -12,6 +13,15 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { calculatePageLimit } from './calculatePageLimit';
 
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
+
+// sortOrder comes from the dependency ordering central pages by; it belongs to the cursor, not to
+// the snapshot table, which has no such column
+const toSnapshotRecord = record => ({
+  ...omit(record, ['sortOrder']),
+  // mark as never updated, so we don't push it back to the central server until the next local update
+  data: { ...record.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
+  direction: SYNC_SESSION_DIRECTION.INCOMING,
+});
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
@@ -42,21 +52,13 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       break;
     }
 
-    const { id, sortOrder } = records[records.length - 1];
-    fromId = btoa(JSON.stringify({ sortOrder, id }));
+    fromId = encodeSnapshotCursor(records[records.length - 1]);
     totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => {
-      delete r.sortOrder;
-      return {
-      ...r,
-      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    };
-  });
+    const recordsToSave = records.map(toSnapshotRecord);
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -87,16 +89,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
   const writeBatch = async records => {
     if (records.length === 0) return;
-    await insertSnapshotRecords(
-      sequelize,
-      sessionId,
-      records.map(r => ({
-        ...r,
-        // mark as never updated, so we don't push it back to the central server until the next local update
-        data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
-        direction: SYNC_SESSION_DIRECTION.INCOMING,
-      })),
-    );
+    await insertSnapshotRecords(sequelize, sessionId, records.map(toSnapshotRecord));
   };
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
@@ -123,7 +116,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(message);
         totalPulled += 1;
-        fromId = message.id;
+        fromId = encodeSnapshotCursor(message);
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);

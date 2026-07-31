@@ -1,6 +1,7 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { encodeSnapshotCursor } from '@tamanu/database/sync';
 
 import {
   createTestContext,
@@ -85,6 +86,41 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
       limit: 10,
     });
     expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
+  });
+
+  it('pages through the outgoing changes with the cursor of the previous page', async () => {
+    // records across several tables, so paging has to cross a record type boundary: snapshot ids
+    // ascend within a table, but a table later in dependency order can hold lower ids
+    const facility = await models.Facility.create(fake(models.Facility));
+    await models.Program.create(fake(models.Program));
+    await models.ReferenceData.create(fake(models.ReferenceData));
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    await centralSyncManager.setupSnapshotForPull(
+      sessionId,
+      {
+        since: 1,
+        facilityIds: [facility.id],
+      },
+      () => true,
+    );
+
+    const allChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+    expect(allChanges.length).toBeGreaterThan(2);
+
+    const pagedRecordIds = [];
+    let fromId;
+    // bounded, so a cursor that fails to advance fails the test instead of looping forever
+    for (let request = 0; request <= allChanges.length; request++) {
+      const page = await centralSyncManager.getOutgoingChanges(sessionId, { fromId, limit: 1 });
+      if (page.length === 0) break;
+      pagedRecordIds.push(page[0].recordId);
+      fromId = encodeSnapshotCursor(page[0]);
+    }
+
+    expect(pagedRecordIds).toEqual(allChanges.map(({ recordId }) => recordId));
   });
 
   it('includes audit changes in outgoing changes', async () => {
