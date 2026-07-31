@@ -218,4 +218,53 @@ describe('Changelogs', () => {
       );
     });
   });
+
+  describe('Hard deletes', () => {
+    const changesFor = recordId =>
+      sequelize.query('SELECT * FROM logs.changes WHERE record_id = :recordId ORDER BY logged_at', {
+        type: QueryTypes.SELECT,
+        replacements: { recordId },
+      });
+
+    it('records the deleted row', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await program.destroy({ force: true });
+
+      const changes = await changesFor(program.id);
+      expect(changes).toHaveLength(2);
+      const [, deletion] = changes;
+      expect(deletion).toMatchObject({
+        table_name: 'programs',
+        record_id: program.id,
+        is_hard_delete: true,
+      });
+      expect(deletion.record_data).toMatchObject({ id: program.id, name: program.name });
+    });
+
+    it('distinguishes a hard delete from a soft delete', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await program.destroy();
+
+      const changes = await changesFor(program.id);
+      expect(changes).toHaveLength(2);
+      const [, softDeletion] = changes;
+      expect(softDeletion.is_hard_delete).toBe(false);
+      expect(softDeletion.record_deleted_at).not.toBeNull();
+    });
+
+    it('records nothing when the deleting transaction rolls back', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await sequelize.query('DELETE FROM logs.changes');
+
+      await expect(
+        sequelize.transaction(async transaction => {
+          await program.destroy({ force: true, transaction });
+          throw new Error('Intentional rollback');
+        }),
+      ).rejects.toThrow('Intentional rollback');
+
+      expect(await changesFor(program.id)).toEqual([]);
+      expect(await models.Program.findByPk(program.id)).not.toBeNull();
+    });
+  });
 });

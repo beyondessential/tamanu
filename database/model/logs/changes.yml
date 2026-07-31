@@ -101,3 +101,8 @@ sources:
           - name: migration_context
             data_type: text
             description: "{{ doc('logs__changes__migration_context') }}"
+          - name: is_hard_delete
+            data_type: boolean
+            description: "{{ doc('logs__changes__is_hard_delete') }}"
+            data_tests:
+              - not_null
