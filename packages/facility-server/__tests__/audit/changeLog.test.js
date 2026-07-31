@@ -257,8 +257,8 @@ describe('Changelogs', () => {
       await sequelize.query('DELETE FROM logs.changes');
 
       await expect(
-        sequelize.transaction(async transaction => {
-          await program.destroy({ force: true, transaction });
+        sequelize.transaction(async () => {
+          await program.destroy({ force: true });
           throw new Error('Intentional rollback');
         }),
       ).rejects.toThrow('Intentional rollback');
