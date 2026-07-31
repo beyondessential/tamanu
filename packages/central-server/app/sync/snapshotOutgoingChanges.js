@@ -343,6 +343,12 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
+    // a session may ask for a set of tables that leaves a pass with no models of its own: a first
+    // sync phase carrying no patient-linked tables has nothing for the full-changes pass to do
+    if (Object.keys(outgoingModels).length === 0) {
+      return 0;
+    }
+
     return config.sync.lookupTable.enabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,

@@ -1,7 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { SYNC_PHASE_LABELS } from '@tamanu/constants';
 import {
+  FACT_INITIAL_SYNC_PHASE,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/constants/facts';
@@ -54,6 +56,10 @@ sync.get(
     const isSyncRunning = syncManager.isSyncRunning();
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
+    // null once the first sync has completed all its phases
+    const phase = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE);
+    const initialSyncPhase = phase === null ? null : SYNC_PHASE_LABELS[parseInt(phase, 10)];
+
     res.send({
       lastCompletedPull,
       lastCompletedPush,
@@ -62,6 +68,7 @@ sync.get(
       lastCompletedDurationMs,
       currentDuration,
       isSyncRunning,
+      initialSyncPhase,
     });
   }),
 );

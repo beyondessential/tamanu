@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -42,6 +42,7 @@ export class ReferenceDataRelation extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

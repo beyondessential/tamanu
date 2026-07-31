@@ -9,7 +9,7 @@ import {
   Utils,
 } from 'sequelize';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES } from '@tamanu/constants';
 import type { InitOptions, Models } from '../types/model';
 import type {
   ModelSanitizeArgs,
@@ -32,6 +32,7 @@ export class Model<
   declare sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   declare static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   declare static syncDirection: InitOptions['syncDirection'];
+  declare static initialSyncPhase: NonNullable<InitOptions['initialSyncPhase']>;
   declare static defaultIdValue?: string | number;
   declare static usesPublicSchema: boolean;
   declare static buildSyncFilter: () => string | null;
@@ -47,7 +48,13 @@ export class Model<
 
   static init(
     modelAttributes: ModelAttributes,
-    { syncDirection, timestamps = true, schema, ...options }: Omit<InitOptions, 'primaryKey'>,
+    {
+      syncDirection,
+      initialSyncPhase = SYNC_PHASES.RECORDS,
+      timestamps = true,
+      schema,
+      ...options
+    }: Omit<InitOptions, 'primaryKey'>,
   ) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
@@ -85,6 +92,9 @@ export class Model<
       );
     }
     this.syncDirection = syncDirection;
+    // a model that doesn't nominate a phase arrives in the last one, so a model added without
+    // thinking about phases holds up nothing that comes before it
+    this.initialSyncPhase = initialSyncPhase;
     this.validateSync(timestamps);
     this.usesPublicSchema = usesPublicSchema;
 

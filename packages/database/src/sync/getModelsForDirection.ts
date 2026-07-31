@@ -1,5 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import type { SyncSessionDirectionValues } from '../types/sync';
+import type { SyncPhaseValues, SyncSessionDirectionValues } from '../types/sync';
 import type { Model } from 'models/Model';
 
 export const getModelsForDirections = (
@@ -16,6 +16,17 @@ export const getModelsForPull = (models: Record<string, typeof Model>) =>
     SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
     SYNC_DIRECTIONS.BIDIRECTIONAL,
   ]);
+
+// the models a facility pulls in one phase of its first sync
+export const getModelsForPullPhase = (
+  models: Record<string, typeof Model>,
+  phase: SyncPhaseValues,
+) =>
+  Object.fromEntries(
+    Object.entries(getModelsForPull(models)).filter(
+      ([, model]) => model.initialSyncPhase === phase,
+    ),
+  );
 
 export const getModelsForPush = (models: Record<string, typeof Model>) =>
   getModelsForDirections(models, [

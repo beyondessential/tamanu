@@ -23,13 +23,23 @@ const toSnapshotRecord = record => ({
   direction: SYNC_SESSION_DIRECTION.INCOMING,
 });
 
-export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+export const pullIncomingChanges = async (
+  centralServer,
+  sequelize,
+  sessionId,
+  since,
+  tablesToInclude,
+) => {
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'polling' });
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
+  const { totalToPull, pullUntil } = await centralServer.initiatePull(
+    sessionId,
+    since,
+    tablesToInclude,
+  );
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
@@ -78,13 +88,23 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
   return { totalPulled: totalToPull, pullUntil };
 };
 
-export const streamIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+export const streamIncomingChanges = async (
+  centralServer,
+  sequelize,
+  sessionId,
+  since,
+  tablesToInclude,
+) => {
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'streaming' });
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
+  const { totalToPull, pullUntil } = await centralServer.initiatePull(
+    sessionId,
+    since,
+    tablesToInclude,
+  );
   const WRITE_BATCH_SIZE = Math.min(persistedCacheBatchSize, totalToPull);
 
   const writeBatch = async records => {

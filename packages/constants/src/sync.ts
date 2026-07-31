@@ -8,6 +8,26 @@ export const SYNC_DIRECTIONS = {
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
+// A facility's first sync runs in phases, so each capability of the server becomes available as
+// soon as the data it needs has arrived. The values are ordered: phases run in ascending order, and
+// a model's phase must be no earlier than the phase of every model it references.
+export const SYNC_PHASES = {
+  // enough to authenticate a user and start serving requests
+  BOOT: 1,
+  // the rest of the data that isn't scoped to a patient, plus the patient records themselves
+  CATALOGUE: 2,
+  // data recorded against a patient or an encounter
+  RECORDS: 3,
+};
+
+export const SYNC_PHASES_VALUES = Object.values(SYNC_PHASES);
+
+export const SYNC_PHASE_LABELS = {
+  [SYNC_PHASES.BOOT]: 'boot',
+  [SYNC_PHASES.CATALOGUE]: 'catalogue',
+  [SYNC_PHASES.RECORDS]: 'records',
+};
+
 // 16-bit uint
 //
 // When adding message kinds here, also add them to the Wireshark dissector at:

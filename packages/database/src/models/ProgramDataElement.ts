@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { type DataElementType, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { type DataElementType, SYNC_DIRECTIONS, SYNC_PHASES } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -33,6 +33,7 @@ export class ProgramDataElement extends Model {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

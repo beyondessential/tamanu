@@ -1,7 +1,13 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'es-toolkit/compat';
+import {
+  isPlainObject,
+  get as getAtPath,
+  set as setAtPath,
+  isEqual,
+  keyBy,
+} from 'es-toolkit/compat';
 import { settingsCache } from '@tamanu/settings/cache';
-import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
@@ -57,6 +63,7 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         // Synchronous in-process invalidation; raw SQL / cross-process is covered
         // by the NOTIFY listener (see `registerSettingsCacheInvalidator`).
         hooks: {

@@ -164,11 +164,11 @@ export class CentralServerConnection extends TamanuApi {
     return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
-  async initiatePull(sessionId, since) {
+  async initiatePull(sessionId, since, tablesToInclude) {
     // first, set the pull filter on the central server,
     // which will kick off a snapshot of changes to pull
     const facilityIds = getServerFacilityIds();
-    const body = { since, facilityIds, deviceId: this.deviceId };
+    const body = { since, facilityIds, deviceId: this.deviceId, tablesToInclude };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, wait for the pull/ready endpoint until we get a valid response;

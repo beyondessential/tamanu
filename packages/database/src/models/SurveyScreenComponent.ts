@@ -1,5 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -39,6 +39,7 @@ export class SurveyScreenComponent extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

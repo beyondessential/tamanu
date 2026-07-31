@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import {
   LOCATION_AVAILABILITY_STATUS,
   SYNC_DIRECTIONS,
+  SYNC_PHASES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
@@ -64,6 +65,7 @@ export class Location extends Model {
           },
         },
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );
