@@ -323,6 +323,11 @@ export async function migrateUpTo({
 
   const preSnapshot = await tryGatherPreMigrationDbSnapshot(log, sequelize);
 
+  // An upgrade drives several of these calls through one interface and can pass a `pending`
+  // list gathered before the earlier ones ran, so only what was already executed when this
+  // batch started distinguishes the migrations it applies from theirs.
+  const executedBefore = new Set((await migrations.executed()).map(({ file }) => file));
+
   const auditBatch = async (batch, failedMigration = undefined) => {
     const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
     await createMigrationAuditLog(sequelize, batch, 'up', {
@@ -338,7 +343,7 @@ export async function migrateUpTo({
   };
 
   const applied = await migrations.up(upOpts).catch(async (error) => {
-    await auditFailedBatch({ log, migrations, pending, auditBatch });
+    await auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch });
     throw error;
   });
 
@@ -358,16 +363,17 @@ export async function migrateUpTo({
 
 /**
  * Record a batch that stopped partway, so a failed upgrade leaves the same audit trail a
- * successful one does. Migrations apply in order and each commits on its own, so the pending
- * entries now recorded as executed are the ones that survived, and the first that isn't is
- * where the batch stopped. Timings for the migrations that did apply are only in memory, so
- * this is the one chance to record them.
+ * successful one does. Migrations apply in order and each commits on its own, so whatever
+ * became executed while this batch ran is what it applied, and the first pending migration
+ * still not executed is where it stopped. Timings for the migrations that did apply are only
+ * in memory, so this is the one chance to record them.
  */
-async function auditFailedBatch({ log, migrations, pending, auditBatch }) {
+async function auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch }) {
   try {
-    const executed = new Set((await migrations.executed()).map(({ file }) => file));
-    const applied = pending.filter(({ file }) => executed.has(file));
-    const failedMigration = pending.find(({ file }) => !executed.has(file))?.file;
+    const executedAfter = await migrations.executed();
+    const executedAfterFiles = new Set(executedAfter.map(({ file }) => file));
+    const applied = executedAfter.filter(({ file }) => !executedBefore.has(file));
+    const failedMigration = pending.find(({ file }) => !executedAfterFiles.has(file))?.file;
     await auditBatch(applied, failedMigration);
     log.info(`Recorded failed migration batch, stopped at ${failedMigration}`);
   } catch (error) {

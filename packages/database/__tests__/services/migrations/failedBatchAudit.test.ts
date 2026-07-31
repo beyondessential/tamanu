@@ -29,12 +29,14 @@ describe('migration batch auditing', () => {
   });
 
   it('records what applied and where it stopped when a migration throws', async () => {
+    const executed: { file: string }[] = [];
     const migrations = {
       up: async () => {
+        // a committed on its own before b threw
+        executed.push({ file: 'a.ts' });
         throw new Error('migration blew up');
       },
-      // a committed on its own before b threw
-      executed: async () => [{ file: 'a.ts' }],
+      executed: async () => [...executed],
     };
 
     await expect(
@@ -51,6 +53,34 @@ describe('migration batch auditing', () => {
     expect(batch.migrations).toEqual(['a.ts']);
     expect(batch.stats.failedMigration).toBe('b.ts');
     expect(batch.stats.durationMsPerMigration).toEqual({ 'a.ts': 4000 });
+  });
+
+  it('credits only this batch when the caller passes a stale pending list', async () => {
+    // An upgrade runs several batches through one interface without regathering `pending`,
+    // so a and b here were applied by an earlier batch and already audited under it.
+    const executed = [{ file: 'a.ts' }, { file: 'b.ts' }];
+    const migrations = {
+      up: async () => {
+        executed.push({ file: 'c.ts' });
+        throw new Error('migration blew up');
+      },
+      executed: async () => [...executed],
+    };
+
+    await expect(
+      migrateUpTo({
+        log,
+        sequelize,
+        pending: [...pending, { file: 'd.ts' }],
+        migrations,
+        getDurationStats: () => ({ 'a.ts': 1000, 'b.ts': 2000, 'c.ts': 3000 }),
+      }),
+    ).rejects.toThrow('migration blew up');
+
+    const batch = await latestBatch();
+    expect(batch.migrations).toEqual(['c.ts']);
+    expect(batch.stats.failedMigration).toBe('d.ts');
+    expect(batch.stats.durationMsPerMigration).toEqual({ 'c.ts': 3000 });
   });
 
   it('records no failure on a batch that completes', async () => {
@@ -73,12 +103,16 @@ describe('migration batch auditing', () => {
   });
 
   it('throws the migration error even when the batch cannot be recorded', async () => {
+    let hasRun = false;
     const migrations = {
       up: async () => {
+        hasRun = true;
         throw new Error('migration blew up');
       },
+      // fine when the batch starts, gone by the time the failure is recorded
       executed: async () => {
-        throw new Error('connection gone');
+        if (hasRun) throw new Error('connection gone');
+        return [];
       },
     };
 
