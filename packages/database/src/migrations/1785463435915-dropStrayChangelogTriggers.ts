@@ -1,7 +1,6 @@
 import { QueryInterface } from 'sequelize';
 
-// Listed per trigger rather than per table: two of these carry a pre-rename name, which is
-// why the post-migration hook's name-based check never matched them.
+// Two of these carry a pre-rename name, so the trigger name doesn't follow from the table.
 const STRAY_TRIGGERS = [
   { name: 'record_portal_one_time_tokens_changelog', table: 'portal_one_time_tokens' },
   { name: 'record_encounter_medications_changelog', table: 'prescriptions' },
