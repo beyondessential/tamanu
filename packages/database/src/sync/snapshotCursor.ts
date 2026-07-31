@@ -1,3 +1,5 @@
+import { InvalidParameterError } from '@tamanu/errors';
+
 /**
  * Outgoing pull pages are ordered by (dependency sort order, snapshot id), so a resume cursor has
  * to carry both parts: snapshot ids ascend within a table, but a later table's ids can be lower
@@ -14,5 +16,16 @@ export type SnapshotCursor = {
 export const encodeSnapshotCursor = ({ sortOrder, id }: SnapshotCursor): string =>
   btoa(JSON.stringify({ sortOrder, id }));
 
-export const decodeSnapshotCursor = (cursor?: string | null): Partial<SnapshotCursor> =>
-  cursor ? JSON.parse(atob(cursor)) : {};
+export const decodeSnapshotCursor = (cursor?: string | null): Partial<SnapshotCursor> => {
+  if (!cursor) return {};
+
+  // the cursor arrives as a query parameter, so a malformed one is a bad request rather than a
+  // server fault, and it says which parameter to look at
+  try {
+    return JSON.parse(atob(cursor));
+  } catch (error) {
+    throw new InvalidParameterError(
+      `fromId is not a valid pull cursor: ${(error as Error).message}`,
+    );
+  }
+};

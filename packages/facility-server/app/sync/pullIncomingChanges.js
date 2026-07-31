@@ -97,12 +97,13 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   let records = []; // for batching writes
   let writes = []; // ongoing write promises
 
-  // keep track of the ID we're on so we can resume the stream
-  // on disconnect from where we left off rather than the start
-  let fromId;
+  // keep track of the record we're on so we can resume the stream on disconnect from where we left
+  // off rather than the start. Only the last one is ever encoded, on the reconnect that needs it,
+  // rather than once per record streamed
+  let lastRecord;
   const endpointFn = () => ({
     endpoint: `sync/${sessionId}/pull/stream`,
-    query: { fromId },
+    query: { fromId: lastRecord && encodeSnapshotCursor(lastRecord) },
   });
 
   stream: for await (const { kind, message } of centralServer.stream(endpointFn)) {
@@ -116,7 +117,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(message);
         totalPulled += 1;
-        fromId = encodeSnapshotCursor(message);
+        lastRecord = message;
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);
