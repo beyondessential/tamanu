@@ -13,14 +13,21 @@ import { log } from '@tamanu/shared/services/logging/log';
 
 import { DataImportError, DryRun } from '../errors';
 import { coalesceStats } from '../stats';
+import { SHORTENED_TAB_NAMES } from '../shortenedTabNames';
+
+const toCamelCaseSingular = name =>
+  camelCase(
+    lowerCase(name)
+      .split(/\s+/)
+      .map(word => singularize(word))
+      .join(' '),
+  );
 
 const normMapping = {
   // singularize transforms 'reference data' to 'reference datum', which is not what we want
   referenceDatumRelation: 'referenceDataRelation',
   vaccineSchedule: OTHER_REFERENCE_TYPES.SCHEDULED_VACCINE,
   procedure: 'procedureType',
-  // This is needed to handle the way we are exporting that data
-  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFINITION_CATEGORY,
   invoiceInsuranceItem: OTHER_REFERENCE_TYPES.INVOICE_INSURANCE_PLAN_ITEM,
   // We need mapping for program registry imports because program registry data is imported in the
   // worksheet sheets called registry and registryCondition but the full model names
@@ -29,15 +36,18 @@ const normMapping = {
   registry: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY,
   registryCondition: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
   registryConditionCategory: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
+  // The exporter shortens these tab names to fit Excel's 31 character sheet name limit;
+  // derived from the same table it uses, so the two sides can't drift out of sync.
+  ...Object.fromEntries(
+    Object.entries(SHORTENED_TAB_NAMES).map(([dataType, tabName]) => [
+      toCamelCaseSingular(tabName),
+      dataType,
+    ]),
+  ),
 };
 
 export function normaliseSheetName(name, modelName) {
-  const norm = camelCase(
-    lowerCase(name)
-      .split(/\s+/)
-      .map(word => singularize(word))
-      .join(' '),
-  );
+  const norm = toCamelCaseSingular(name);
 
   // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
