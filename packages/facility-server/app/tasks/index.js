@@ -1,5 +1,7 @@
 import {
   SendStatusToMetaServer,
+  FhirErroredJobCleaner,
+  FhirJobWorkerCleaner,
   FhirMissingResources,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
@@ -20,6 +22,8 @@ const DEFAULT_TASK_CLASSES = [
   SendStatusToMetaServer,
   TimeSyncTask,
   FhirMissingResources,
+  FhirJobWorkerCleaner,
+  FhirErroredJobCleaner,
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
   BedFeeCharger,

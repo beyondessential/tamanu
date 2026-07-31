@@ -885,6 +885,20 @@ export const centralSettings = {
           enabled: false,
         }),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *' }),
+        fhirJobWorkerCleaner: scheduledTaskSchema({ schedule: '37 2 * * *' }),
+        fhirErroredJobCleaner: scheduledTaskSchema(
+          { schedule: '52 2 * * *' },
+          {
+            retentionDays: {
+              name: 'Retention',
+              description: 'Delete FHIR jobs that errored longer ago than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 7,
+              unit: 'days',
+            },
+            ...batchingProperties(1000, 100),
+          },
+        ),
         plannedMoveTimeout: scheduledTaskSchema(
           { schedule: '0 * * * *' },
           {

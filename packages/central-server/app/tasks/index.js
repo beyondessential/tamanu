@@ -17,7 +17,11 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
-import { FhirMissingResources } from '@tamanu/shared/tasks';
+import {
+  FhirErroredJobCleaner,
+  FhirJobWorkerCleaner,
+  FhirMissingResources,
+} from '@tamanu/shared/tasks';
 import { FormBuilderChatCleaner } from './FormBuilderChatCleaner';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
@@ -62,6 +66,8 @@ export async function startScheduledTasks(context) {
     FormBuilderChatCleaner,
     PlannedMoveTimeout,
     FhirMissingResources,
+    FhirJobWorkerCleaner,
+    FhirErroredJobCleaner,
     SurveyCompletionNotifierProcessor,
     SyncLookupRefresher,
     GenerateRepeatingTasks,
