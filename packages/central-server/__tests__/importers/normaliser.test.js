@@ -62,4 +62,11 @@ describe('Sheet name normaliser', () => {
     const name = normaliseSheetName('Registry', 'ProgramRegistryClinicalStatus');
     expect(name).toEqual('programRegistryClinicalStatus');
   });
+
+  it('should normalise the shortened export tab name for medicationDispenseModifyReason', () => {
+    // The exported tab name is shortened to fit Excel's 31 character sheet name limit
+    // (see DefaultDataExporter's CUSTOM_TAB_NAMES) so this mapping must be kept in sync with it.
+    const name = normaliseSheetName('Medication Dispense Mod Reason');
+    expect(name).toEqual('medicationDispenseModifyReason');
+  });
 });
