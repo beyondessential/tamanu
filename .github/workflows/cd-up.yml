@@ -125,6 +125,7 @@ jobs:
         uses: actions/github-script@v9
         env:
           PULUMI_OUTPUT: ${{ steps.up.outputs.output }}
+          STACK_URLS: ${{ steps.up.outputs.urls }}
         with:
           script: |
             if (!context.issue.number) return;
@@ -137,20 +138,36 @@ jobs:
             // line or a line back at column 0 (see pulumi/pulumi printOutputs()).
             const outputsMatch = fullOutput.match(/^Outputs:\n((?:[ \t]+\S.*\n?)+)/m);
 
-            let body;
-            if (liveLinkMatch || outputsMatch) {
-              const parts = [];
-              if (liveLinkMatch) parts.push(`**View Live:** ${liveLinkMatch[1]}`);
-              if (outputsMatch) parts.push(`**Outputs:**\n${outputsMatch[1].trimEnd()}`);
-              body = parts.join('\n\n');
-            } else {
+            // pulumi/actions exposes each stack output as a step output, so the
+            // deploy URLs can be linked directly; the Outputs block covers stacks
+            // that don't export `urls`.
+            const deployLinks = (() => {
+              try {
+                return Object.values(JSON.parse(process.env.STACK_URLS || '{}'))
+                  .filter(url => typeof url === 'string')
+                  .map(url => `- [${new URL(url).hostname.split('.')[0]}](${url})`);
+              } catch {
+                return [];
+              }
+            })();
+
+            const parts = [];
+            if (liveLinkMatch) parts.push(`**View Live:** ${liveLinkMatch[1]}`);
+            if (deployLinks.length) {
+              parts.push(`**Deployed:**\n${deployLinks.join('\n')}`);
+            } else if (outputsMatch) {
+              parts.push(`**Outputs:**\n\`\`\`\n${outputsMatch[1].trimEnd()}\n\`\`\``);
+            }
+
+            if (!parts.length) {
               // Fallback if the expected markers aren't found: head + tail of the raw output.
               const HEAD_TAIL_LENGTH = 500;
-              body = fullOutput.length <= HEAD_TAIL_LENGTH * 2
+              parts.push(fullOutput.length <= HEAD_TAIL_LENGTH * 2
                 ? fullOutput
-                : `${fullOutput.slice(0, HEAD_TAIL_LENGTH)}\n\n...\n\n${fullOutput.slice(-HEAD_TAIL_LENGTH)}`;
+                : `${fullOutput.slice(0, HEAD_TAIL_LENGTH)}\n\n...\n\n${fullOutput.slice(-HEAD_TAIL_LENGTH)}`);
             }
-            body = `${marker}\n${body}`;
+
+            const body = `${marker}\n${parts.join('\n\n')}`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
