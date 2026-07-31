@@ -23,7 +23,7 @@ Changelog entries do not synchronise as records of their own. Each entry travels
 - [ ] A soft delete is an update, so its entry carries the record's deletion timestamp.
 - [ ] An entry carries the provenance of the change: the user credited with it, the device, the Tamanu version, an optional reason, and, for a change made by a migration, the migration context (direction, migration name, and server type).
 - [ ] Each entry is stamped with the sync tick current when it was written, which is how outgoing sync batches select the entries to attach.
-- [ ] Entries serve product behaviour as well as audit: an entry made by a migration stays distinguishable from one made in the course of care. Invoicing's encounter ward-move history (see `specs/invoicing/encounter-fees.md`) and a patient's program registration history are both reconstructed from entries, with migration-made ones excluded.
+- [ ] Entries serve product behaviour as well as audit: an entry made by a migration stays distinguishable from one made in the course of care. For example, invoicing's encounter ward-move history (see `specs/invoicing/encounter-fees.md`) and a patient's program registration history are both reconstructed from entries, with migration-made ones excluded.
 
 ## When entries are written
 
