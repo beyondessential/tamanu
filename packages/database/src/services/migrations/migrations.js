@@ -323,10 +323,24 @@ export async function migrateUpTo({
 
   const preSnapshot = await tryGatherPreMigrationDbSnapshot(log, sequelize);
 
-  const applied = await migrations.up(upOpts);
-  const durationStats = getDurationStats();
-  const durationMsPerMigration = migrationDurationsForBatch(durationStats, applied);
-  const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
+  const auditBatch = async (batch, failedMigration = undefined) => {
+    const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
+    await createMigrationAuditLog(sequelize, batch, 'up', {
+      batchDurationMs: Date.now() - batchStart,
+      upgradeRunId,
+      stats: {
+        durationMsPerMigration,
+        totalMigrationsDurationMs: totalMigrationsDurationMsFromMap(durationMsPerMigration),
+        ...(preSnapshot ? { preSnapshot } : {}),
+        ...(failedMigration ? { failedMigration } : {}),
+      },
+    });
+  };
+
+  const applied = await migrations.up(upOpts).catch(async (error) => {
+    await auditFailedBatch({ log, migrations, pending, auditBatch });
+    throw error;
+  });
 
   log.info('Applied migrations successfully');
 
@@ -339,17 +353,27 @@ export async function migrateUpTo({
   await runPostMigration(log, sequelize);
   log.info(`Applied post-migration steps successfully.`);
 
-  const batchDurationMs = Date.now() - batchStart;
+  await auditBatch(applied);
+}
 
-  await createMigrationAuditLog(sequelize, applied, 'up', {
-    batchDurationMs,
-    upgradeRunId,
-    stats: {
-      durationMsPerMigration,
-      totalMigrationsDurationMs,
-      ...(preSnapshot ? { preSnapshot } : {}),
-    },
-  });
+/**
+ * Record a batch that stopped partway, so a failed upgrade leaves the same audit trail a
+ * successful one does. Migrations apply in order and each commits on its own, so the pending
+ * entries now recorded as executed are the ones that survived, and the first that isn't is
+ * where the batch stopped. Timings for the migrations that did apply are only in memory, so
+ * this is the one chance to record them.
+ */
+async function auditFailedBatch({ log, migrations, pending, auditBatch }) {
+  try {
+    const executed = new Set((await migrations.executed()).map(({ file }) => file));
+    const applied = pending.filter(({ file }) => executed.has(file));
+    const failedMigration = pending.find(({ file }) => !executed.has(file))?.file;
+    await auditBatch(applied, failedMigration);
+    log.info(`Recorded failed migration batch, stopped at ${failedMigration}`);
+  } catch (error) {
+    // Must not replace the migration failure the caller is about to throw.
+    log.warn('Could not record the failed migration batch', { error });
+  }
 }
 
 async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
