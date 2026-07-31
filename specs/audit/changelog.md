@@ -10,8 +10,8 @@ Changelog entries do not synchronise as records of their own. Each entry travels
 
 ## What is logged
 
-- [ ] Tables in the `public` schema carry a changelog trigger. The `logs` schema is unlogged, so changelog entries produce no entries about themselves.
-- [ ] The tables outside the logged set are internal authentication tables, internal sync tables, caches, ephemeral AI form-builder chat state, retained historical signer records, server-local configuration and secrets, and the migration bookkeeping table.
+- [ ] Tables in the `public` schema carry a changelog trigger, except the excluded set below. Tables in the `logs` schema carry no changelog triggers, so changelog entries produce no entries about themselves.
+- [ ] The excluded tables are internal authentication tables, internal sync tables, caches, ephemeral AI form-builder chat state, retained historical signer records, server-local configuration and secrets, and the migration bookkeeping table.
 - [ ] Each logged table carries exactly one changelog trigger, so one change to one row produces one entry.
 - [ ] Installing the trigger is part of every upgrade, so a table introduced by a migration is logged from the upgrade that adds it.
 
