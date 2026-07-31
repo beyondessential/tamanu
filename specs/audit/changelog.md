@@ -18,16 +18,16 @@ Changelog entries do not synchronise as records of their own. Each entry travels
 ## What an entry contains
 
 - [ ] An entry identifies its target by table (schema, name, and the table's object identifier) and by record id.
-- [ ] An entry holds the record's whole row as JSON: the new row for an insert or an update, and the row as it stood immediately before removal for a hard delete.
+- [ ] An entry holds the record's whole row as JSON, as it stands after the change.
 - [ ] An entry carries the record's own created, updated and soft-deleted timestamps, and the time the entry itself was logged, taken from the server clock with its timesync offset applied.
-- [ ] An entry is marked as a hard delete when the row was removed from its table. A soft delete is an update, so its entry carries the record's deletion timestamp and is not marked as a hard delete.
+- [ ] A soft delete is an update, so its entry carries the record's deletion timestamp.
 - [ ] An entry carries the provenance of the change: the user credited with it, the device, the Tamanu version, an optional reason, and, for a change made by a migration, the migration context (direction, migration name, and server type).
 - [ ] Each entry is stamped with the sync tick current when it was written. That tick is what bounds the queries which attach entries to outgoing sync batches.
 - [ ] Entries serve product behaviour as well as audit: invoicing reconstructs an encounter's ward-move history from its entries and excludes those made by a migration, so an entry's migration context stays distinguishable from a change made in the course of care (see `specs/invoicing/encounter-fees.md`).
 
 ## When entries are written
 
-- [ ] The changelog trigger fires on insert, update and delete.
+- [ ] The changelog trigger fires on insert and update.
 - [ ] Entries materialise at commit, because the trigger is a deferred constraint trigger. A transaction that rolls back leaves no entries behind, and a query made inside the writing transaction does not yet see the entries for its own writes.
 - [ ] A transaction that has written to a logged table has changelog trigger events pending against it, so it cannot go on to alter that table's schema. Migrations keep schema changes and data changes in separate migrations, each with its own transaction, so the pending events are processed in between.
 
@@ -45,4 +45,3 @@ Changelog entries do not synchronise as records of their own. Each entry travels
 - [ ] A receiving server separates the entries from the incoming records and inserts only those whose ids it does not already hold, so re-delivering a batch adds nothing.
 - [ ] A receiving server pauses auditing while it applies incoming changes, so an entry is copied verbatim to its peer and the peer's own triggers author nothing for it.
 - [ ] Mobile devices keep no changelog. Central leaves auditing on while it applies a push from mobile, and its own triggers author the entries for mobile-originated changes. Pulls destined for mobile carry no attached entries.
-- [ ] A hard delete's entry stays on the server that performed the delete. The deleted record produces no snapshot row on either side (a facility push snapshots live source rows by sync tick, and a central pull snapshots from the sync lookup table, whose row is removed once the source record is gone, see `specs/sync/lookup-table.md`), so the entry has nothing to travel with.
