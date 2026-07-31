@@ -12,7 +12,8 @@ Every sync after the first is a single unphased session pulling the changes sinc
 
 - [ ] The first sync runs in three phases, in order: boot, catalogue, then records.
 - [ ] The boot phase carries the data a facility server needs to authenticate a user and start serving requests: facilities, users, roles and their permissions, settings, departments, locations and location groups, and translated strings.
-- [ ] The catalogue phase carries the rest of the data that is not scoped to a patient: reference data and its relations, programs and surveys, scheduled vaccines, and templates.
+- [ ] The boot phase also carries reference data, because a facility record names its catchment as a reference data record and so cannot arrive before it.
+- [ ] The catalogue phase carries the rest of the data that is not scoped to a patient: reference data relations, programs and surveys, scheduled vaccines, and templates.
 - [ ] The catalogue phase also carries patient records themselves, without the data recorded against them, together with the records marking which patients are synced to this facility.
 - [ ] The records phase carries the data scoped to a patient or an encounter: encounters, notes, vitals, lab requests and tests, imaging, invoices, documents, appointments, and program responses.
 - [ ] A user can log in once the boot phase has completed, search for and open patients once the catalogue phase has completed, and see a patient's clinical history once the records phase has completed.
