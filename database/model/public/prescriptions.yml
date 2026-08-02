@@ -13,7 +13,6 @@ sources:
               - delete_prescriptions_from_sync_lookup
               - notify_encounter_medications_changed
               - notify_prescriptions_changed
-              - record_encounter_medications_changelog
               - record_prescriptions_changelog
               - set_encounter_medications_updated_at_sync_tick
               - set_prescriptions_updated_at

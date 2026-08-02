@@ -214,6 +214,22 @@ export const facilitySettings = {
           batchingProperties(100, 50),
         ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
+        // Enabled even where the FHIR worker is not: a facility that once ran one
+        // has rows to prune, and where none ever ran there is nothing to match.
+        fhirJobWorkerCleaner: scheduledTaskSchema({ schedule: '37 2 * * *' }),
+        fhirErroredJobCleaner: scheduledTaskSchema(
+          { schedule: '52 2 * * *' },
+          {
+            retentionDays: {
+              name: 'Retention',
+              description: 'Delete FHIR jobs that errored longer ago than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 7,
+              unit: 'days',
+            },
+            ...batchingProperties(1000, 100),
+          },
+        ),
         sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(

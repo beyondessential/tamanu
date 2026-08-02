@@ -9,6 +9,12 @@ export type MigrationLogStats = {
   totalMigrationsDurationMs: number;
   /** Snapshot of the database before the migration batch was applied. */
   preSnapshot?: PreMigrationDbSnapshot;
+  /**
+   * The migration that threw, when the batch stopped partway. Its presence is what
+   * distinguishes a failed batch from one that ran to completion; `migrations` lists only
+   * those that applied before it.
+   */
+  failedMigration?: string;
 };
 
 export type CreateMigrationAuditLogOptions = {
