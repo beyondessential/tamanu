@@ -229,7 +229,7 @@ describe('Changelogs', () => {
 
       const changes = await changesFor(program.id);
       expect(changes).toHaveLength(2);
-      const [, deletion] = changes;
+      const deletion = changes.find(change => change.is_hard_delete);
       expect(deletion).toMatchObject({
         table_name: 'programs',
         record_id: program.id,
@@ -244,9 +244,9 @@ describe('Changelogs', () => {
 
       const changes = await changesFor(program.id);
       expect(changes).toHaveLength(2);
-      const [, softDeletion] = changes;
-      expect(softDeletion.is_hard_delete).toBe(false);
-      expect(softDeletion.record_deleted_at).not.toBeNull();
+      expect(changes.every(change => change.is_hard_delete === false)).toBe(true);
+      const softDeletion = changes.find(change => change.record_deleted_at !== null);
+      expect(softDeletion).toBeDefined();
     });
 
     it('records nothing when the deleting transaction rolls back', async () => {
