@@ -1,12 +1,14 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LOOKUP_UP_TO_TICK,
   FACT_LOOKUP_MODELS_TO_REBUILD,
+  FACT_SYNC_TRIGGER_CONTROL,
 } from '@tamanu/constants/facts';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
+import { updateLookupTable as runLookupTableBuild } from '../../app/sync/updateLookupTable';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -786,6 +788,297 @@ describe('CentralSyncManager.updateLookupTable', () => {
         startedAt: expect.anything(),
         completedAt: expect.anything(),
       },
+    });
+  });
+
+  // Self-heal (pass 2): rebuilds rows still flagged needs_rebuild after the incremental build.
+  // See specs/sync/lookup-table.md (LOOKUP) and .workhorse/test-cases/p1/overview.md.
+  describe('self-heal (needs_rebuild)', () => {
+    const disableSyncTrigger = () =>
+      models.LocalSystemFact.set(FACT_SYNC_TRIGGER_CONTROL, 'disabled');
+    const enableSyncTrigger = () => models.LocalSystemFact.set(FACT_SYNC_TRIGGER_CONTROL, 'enabled');
+
+    it('heals a drifted existing row while disabled, correcting data without moving its tick', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      await centralSyncManager.updateLookupTable();
+
+      const original = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(original.needsRebuild).toBe(false);
+
+      await disableSyncTrigger();
+      await patient1.update({ firstName: 'Drifted' });
+      await enableSyncTrigger();
+
+      const flagged = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(flagged.needsRebuild).toBe(true);
+      expect(flagged.data.firstName).not.toEqual('Drifted');
+
+      await centralSyncManager.updateLookupTable();
+
+      const healed = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(healed.needsRebuild).toBe(false);
+      expect(healed.data.firstName).toEqual('Drifted');
+      expect(healed.updatedAtSyncTick).toEqual(original.updatedAtSyncTick);
+    });
+
+    it('produces a byte-identical row whether built normally or healed', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      await centralSyncManager.updateLookupTable();
+      const normallyBuilt = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+
+      // Flag the row directly (as a migration-time drift would), without changing the source.
+      await models.SyncLookup.update(
+        { needsRebuild: true },
+        { where: { recordId: patient1.id, recordType: 'patients' } },
+      );
+      await centralSyncManager.updateLookupTable();
+      const healed = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+
+      expect(healed.data).toEqual(normallyBuilt.data);
+      expect(healed.updatedAtSyncTick).toEqual(normallyBuilt.updatedAtSyncTick);
+      expect(healed.isDeleted).toEqual(normallyBuilt.isDeleted);
+      expect(healed.isLabRequest).toEqual(normallyBuilt.isLabRequest);
+      expect(healed.patientId).toEqual(normallyBuilt.patientId);
+    });
+
+    it('heals a flagged row without moving its tick, even though the source tick has since advanced', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      await centralSyncManager.updateLookupTable();
+
+      const original = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(original.needsRebuild).toBe(false);
+
+      // Push the build cursor far ahead so the next real write to patient1 still counts as
+      // "historic" to pass 1's tick cursor, forcing this row through self-heal instead.
+      await models.LocalSystemFact.set(
+        FACT_LOOKUP_UP_TO_TICK,
+        parseInt(original.updatedAtSyncTick, 10) + 10000,
+      );
+
+      // A normal write (trigger enabled) genuinely advances the source's own tick.
+      await patient1.update({ firstName: 'Advanced source tick' });
+      await patient1.reload();
+      expect(parseInt(patient1.updatedAtSyncTick, 10)).toBeGreaterThan(
+        parseInt(original.updatedAtSyncTick, 10),
+      );
+
+      // Flag it directly, as a migration-time drift or a hard-delete-triggered rebuild of a
+      // related record would.
+      await models.SyncLookup.update(
+        { needsRebuild: true },
+        { where: { recordId: patient1.id, recordType: 'patients' } },
+      );
+
+      // A brand-new record created while the sync tick trigger is disabled (a migration) has no
+      // lookup row yet, so it is stubbed with a placeholder tick instead.
+      await disableSyncTrigger();
+      const patient2 = await models.Patient.create(fake(models.Patient));
+      await enableSyncTrigger();
+      const stub = await models.SyncLookup.findOne({
+        where: { recordId: patient2.id, recordType: 'patients' },
+      });
+      expect(stub.data).toBeNull();
+      expect(parseInt(stub.updatedAtSyncTick, 10)).toEqual(0);
+
+      await centralSyncManager.updateLookupTable();
+
+      const healed1 = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(healed1.needsRebuild).toBe(false);
+      expect(healed1.data.firstName).toEqual('Advanced source tick');
+      // The row was already visible to facilities at the original tick — self-heal must not move
+      // it forward to the source's now-later tick, even though the source itself did advance.
+      expect(healed1.updatedAtSyncTick).toEqual(original.updatedAtSyncTick);
+
+      const healed2 = await models.SyncLookup.findOne({
+        where: { recordId: patient2.id, recordType: 'patients' },
+      });
+      expect(healed2.needsRebuild).toBe(false);
+      expect(healed2.data).toEqual(expect.objectContaining({ id: patient2.id }));
+      // Same placeholder tick it was stubbed with — patient2 was only ever touched by a
+      // migration-disabled write, so there is nothing here an incremental sync needs to push.
+      expect(parseInt(healed2.updatedAtSyncTick, 10)).toEqual(0);
+    });
+
+    it('deletes a flagged lookup row whose source no longer exists (delete-trigger backstop)', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      const orphanRecordId = 'nonexistent-patient-id';
+      await models.SyncLookup.create({
+        id: 900001,
+        recordId: orphanRecordId,
+        recordType: 'patients',
+        data: null,
+        needsRebuild: true,
+        isLabRequest: false,
+        isDeleted: false,
+        updatedAtSyncTick: 1,
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const row = await models.SyncLookup.findOne({
+        where: { recordId: orphanRecordId, recordType: 'patients' },
+      });
+      expect(row).toBeNull();
+    });
+
+    it('rebuilds via pass 1 and clears the flag when the tick has since advanced past the cursor', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      await models.LocalSystemFact.set(
+        FACT_LOOKUP_UP_TO_TICK,
+        parseInt(patient1.updatedAtSyncTick, 10) + 1,
+      );
+
+      // Flag while disabled (stub, since no lookup row exists yet and it's historic per the cursor).
+      await disableSyncTrigger();
+      await patient1.update({ firstName: 'Flagged first' });
+      await enableSyncTrigger();
+
+      // A normal write afterwards advances the tick past the build cursor.
+      await patient1.update({ firstName: 'Advanced past cursor' });
+
+      await centralSyncManager.updateLookupTable();
+
+      const row = await models.SyncLookup.findOne({
+        where: { recordId: patient1.id, recordType: 'patients' },
+      });
+      expect(row.needsRebuild).toBe(false);
+      expect(row.data.firstName).toEqual('Advanced past cursor');
+    });
+  });
+
+  // A hard delete concurrent with an in-progress build can race the build's own upsert for that
+  // record: under REPEATABLE READ, the build's SELECT of the source table can still see a row as
+  // "there" via its pinned snapshot even after a concurrent transaction has hard-deleted (and
+  // committed) it for real. Without protection, the build would then resurrect a sync_lookup row
+  // from stale, pre-delete data. FOR KEY SHARE OF <table> on the source SELECT (see
+  // buildLookupUpsertQuery) turns this into a serialization failure instead — the build aborts and
+  // the next scheduled cycle (fresh snapshot) retries cleanly. See specs/sync/lookup-table.md.
+  describe('concurrent hard delete during an in-progress build', () => {
+    it('aborts instead of resurrecting a row hard-deleted after the build snapshot was taken', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      // Establish a baseline lookup row and settle the build cursor.
+      await centralSyncManager.updateLookupTable();
+      expect(
+        await models.SyncLookup.findOne({
+          where: { recordId: patient.id, recordType: 'patients' },
+        }),
+      ).not.toBeNull();
+
+      // Make the record eligible for the next incremental pass.
+      await patient.update({ firstName: 'Updated before rebuild' });
+      const previouslyUpToTick = await models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+
+      let raceError = null;
+      try {
+        await sequelize.transaction(
+          { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+          async buildTransaction => {
+            // Pin the build's snapshot before the concurrent delete happens.
+            await sequelize.query('SELECT 1', { transaction: buildTransaction });
+
+            // Concurrently (a separate, already-committed transaction), hard-delete the source
+            // row — simulating a delete that lands after the build's snapshot was taken but
+            // before the build reaches this record.
+            await sequelize.transaction(async deleteTransaction => {
+              await models.Patient.destroy({
+                where: { id: patient.id },
+                force: true,
+                transaction: deleteTransaction,
+              });
+            });
+
+            // The build now tries to read/lock a row that, from its own snapshot, still exists.
+            await runLookupTableBuild(
+              models,
+              { Patient: models.Patient },
+              previouslyUpToTick,
+              centralSyncManager.constructor.config,
+              SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE,
+              { addInfo: async () => {} },
+            );
+          },
+        );
+      } catch (e) {
+        raceError = e;
+      }
+
+      expect(raceError).not.toBeNull();
+      expect(raceError.message).toMatch(
+        /an underlying record was hard deleted during this build. This will self heal in the next build/i,
+      );
+      expect(raceError.cause?.original?.code ?? raceError.cause?.parent?.code).toEqual('40001');
+
+      // The failed build attempt rolled back entirely, so the only lasting effect is the delete
+      // trigger's own (successfully committed) flag — not yet removed, since removal only happens
+      // via a build's self-heal backstop.
+      const flaggedRow = await models.SyncLookup.findOne({
+        where: { recordId: patient.id, recordType: 'patients' },
+      });
+      expect(flaggedRow).not.toBeNull();
+      expect(flaggedRow.needsRebuild).toBe(true);
+
+      // A subsequent build (fresh snapshot, no concurrent race) succeeds and cleans it up.
+      await centralSyncManager.updateLookupTable();
+      expect(
+        await models.SyncLookup.findOne({
+          where: { recordId: patient.id, recordType: 'patients' },
+        }),
+      ).toBeNull();
     });
   });
 });

@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
@@ -19,7 +17,11 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
-import { FhirMissingResources } from '@tamanu/shared/tasks';
+import {
+  FhirErroredJobCleaner,
+  FhirJobWorkerCleaner,
+  FhirMissingResources,
+} from '@tamanu/shared/tasks';
 import { FormBuilderChatCleaner } from './FormBuilderChatCleaner';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
@@ -38,6 +40,14 @@ export { startFhirWorkerTasks } from '@tamanu/shared/tasks';
 export class InvalidConfigError extends Error {}
 
 export async function startScheduledTasks(context) {
+  // Resolved once at startup: schedule changes apply on server restart.
+  /* eslint-disable require-atomic-updates */
+  context.schedules = await context.settings.get('schedules');
+  // Not `context.integrations` — that namespace holds the integrations' runtime objects
+  // (see fiji-vrs initAppContext).
+  context.integrationSettings = await context.settings.get('integrations');
+  /* eslint-enable require-atomic-updates */
+
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,
@@ -56,6 +66,8 @@ export async function startScheduledTasks(context) {
     FormBuilderChatCleaner,
     PlannedMoveTimeout,
     FhirMissingResources,
+    FhirJobWorkerCleaner,
+    FhirErroredJobCleaner,
     SurveyCompletionNotifierProcessor,
     SyncLookupRefresher,
     GenerateRepeatingTasks,
@@ -68,7 +80,7 @@ export async function startScheduledTasks(context) {
     SendStatusToMetaServer,
   ];
 
-  if (config.integrations.fijiVrs.enabled) {
+  if (context.integrationSettings.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
 
@@ -93,7 +105,7 @@ async function getReportSchedulers(context) {
   const systemUser = await context.store.models.User.getSystemUser();
 
   const schedulers = [];
-  for (const options of config.scheduledReports) {
+  for (const options of await context.settings.get('reporting.scheduledReports')) {
     schedulers.push(
       new ReportRequestScheduler(context, { ...options, requestedByUserId: systemUser.id }),
     );

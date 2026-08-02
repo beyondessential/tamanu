@@ -91,7 +91,11 @@ export async function importSurvey(context, workbook, surveyInfo) {
     .sort();
 
   const records = readSurveyInfo(workbook, surveyInfo);
-  const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
+  const stats = await validateProgramDataElementRecords(records, {
+    context,
+    sheetName,
+    surveyType,
+  });
 
   const customPatientFieldIds = (
     await context.models.PatientFieldDefinition.findAll({

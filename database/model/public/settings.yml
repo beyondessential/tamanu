@@ -11,6 +11,7 @@ sources:
             - system
           meta:
             triggers:
+              - delete_settings_from_sync_lookup
               - notify_settings_changed
               - record_settings_changelog
               - set_settings_updated_at

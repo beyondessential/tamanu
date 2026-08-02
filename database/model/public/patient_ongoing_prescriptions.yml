@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_patient_ongoing_prescriptions_from_sync_lookup
               - notify_patient_ongoing_prescriptions_changed
               - record_patient_ongoing_prescriptions_changelog
               - set_patient_ongoing_prescriptions_updated_at

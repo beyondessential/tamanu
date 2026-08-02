@@ -1,4 +1,4 @@
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import { statkey, updateStat } from '../stats';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -68,12 +68,15 @@ function validateChartingFirstQuestion(programDataElementRecords, sheetName, sta
   }
 }
 
-export function validateProgramDataElementRecords(
+export async function validateProgramDataElementRecords(
   records,
   { context, sheetName, stats: previousStats = {}, surveyType },
 ) {
   const { errors } = context;
   const stats = { ...previousStats };
+  const validateQuestionConfigs = await new ReadSettings(context.models).get(
+    'validateQuestionConfigs.enabled',
+  );
 
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
 
@@ -101,7 +104,7 @@ export function validateProgramDataElementRecords(
       ) {
         throw new Error('Visualisation config is not allowed for complex charts');
       }
-      if (config.validateQuestionConfigs.enabled) {
+      if (validateQuestionConfigs) {
         validateVisualisationConfig(visualisationConfig, validationCriteria);
       }
       if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {

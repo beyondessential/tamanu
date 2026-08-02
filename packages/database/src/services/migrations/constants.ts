@@ -35,6 +35,7 @@ export const NON_LOGGED_TABLES = [
   // internal authentication tables
   'public.one_time_logins',
   'public.refresh_tokens',
+  'public.portal_one_time_tokens',
 
   // internal sync tables
   'public.sync_sessions',

@@ -1,10 +1,9 @@
 import winston from 'winston'; // actual log output
-import config from 'config';
 
 import { localTransport } from './console';
 
-// defensive destructure to allow for testing shared directly
-const { path } = config?.log || {};
+// Directory for error.log / combined.log file transports; unset = no file logging.
+const path = process.env.LOG_PATH;
 
 export const log = winston.createLogger({
   level: 'info',

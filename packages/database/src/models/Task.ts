@@ -7,7 +7,6 @@ import {
   TASK_DURATION_UNIT,
   TASK_TYPES,
 } from '@tamanu/constants';
-import config from 'config';
 import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -268,7 +267,10 @@ export class Task extends Model {
     ];
   }
 
-  static async generateRepeatingTasks(tasks: Task[]) {
+  static async generateRepeatingTasks(
+    tasks: Task[],
+    upcomingTasksShouldBeGeneratedTimeFrame: number = 72,
+  ) {
     const allGeneratedTasks = [];
     const allClonedDesignations = [];
 
@@ -286,8 +288,6 @@ export class Task extends Model {
         lastGeneratedTask = task;
       }
 
-      const upcomingTasksShouldBeGeneratedTimeFrame =
-        config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
       const { frequencyValue, frequencyUnit, durationValue, durationUnit } = task;
       const frequencyString = `${frequencyValue} ${frequencyUnit}`;
       const frequency = ms(frequencyString as any) as unknown as number;

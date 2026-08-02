@@ -144,6 +144,13 @@ EOF
 
     npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
+
+    # Rebuild sync_lookup now that provisioning has created data (facilities, reference data,
+    # users, programs). Without this, a facility syncing immediately after central starts can pass
+    # the "has the lookup table been built at all" guard (satisfied by the earlier upgrade's build,
+    # before provisioning ran) while sync_lookup still predates provisioning's data — including
+    # the facility's own row — with no error to signal the gap.
+    npm run --workspace @tamanu/central-server start rebuildSyncLookup
 }
 
 e2e_test_setup_setup_facility() {

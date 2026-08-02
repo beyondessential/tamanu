@@ -150,14 +150,25 @@ const MultiValue = props => {
   } = props;
   const selected = getValue();
   const [label, setLabel] = useState(data?.label);
+  const { individualChips } = selectProps;
 
   useEffect(() => {
-    if (index === 0 && data?.value && !data.label) {
+    if ((index === 0 || individualChips) && data?.value && !data.label) {
       selectProps.fetchCurrentOption(data.value).then(option => {
         setLabel(option.label);
       });
     }
   }, [data?.value, index]);
+
+  // One removable chip per selection, wrapping over lines, instead of the
+  // single "n selected" summary chip
+  if (individualChips) {
+    return (
+      <components.MultiValue {...props} data-testid={`multivalue-chip-${index}`}>
+        {label ?? data?.value}
+      </components.MultiValue>
+    );
+  }
 
   if (index !== 0) return null;
 

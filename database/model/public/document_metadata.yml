@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_document_metadata_from_sync_lookup
               - notify_document_metadata_changed
               - record_document_metadata_changelog
               - set_document_metadata_updated_at

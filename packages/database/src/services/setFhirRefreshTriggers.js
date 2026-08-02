@@ -1,5 +1,5 @@
 import { tablesWithoutTrigger, tablesWithTrigger } from '../utils';
-import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { getFhirWorkerSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 
@@ -9,9 +9,13 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
  * @param {{ fhirWorkerEnabled: boolean }} options - fhirWorkerEnabled: when true, add triggers; when false, remove them
  */
 export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) => {
-  const materialisableResources = resourcesThatCanDo(
-    Object.values(sequelize.models),
-    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  // Not resourcesThatCanDo(): that also gates on the process-wide worker flag, which is only
+  // populated once a server has read settings from the DB. The caller passes fhirWorkerEnabled.
+  const { resourceMaterialisationEnabled } = getFhirWorkerSettings();
+  const materialisableResources = Object.values(sequelize.models).filter(
+    Resource =>
+      Resource.CAN_DO?.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE) &&
+      resourceMaterialisationEnabled[Resource.fhirName],
   );
   const allUpstreams = Array.from(
     new Set(

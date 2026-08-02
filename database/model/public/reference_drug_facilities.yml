@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_reference_drug_facilities_from_sync_lookup
               - notify_reference_drug_facilities_changed
               - record_reference_drug_facilities_changelog
               - set_reference_drug_facilities_updated_at

@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_program_data_elements_from_sync_lookup
               - notify_program_data_elements_changed
               - record_program_data_elements_changelog
               - set_program_data_elements_updated_at

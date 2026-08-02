@@ -1,17 +1,23 @@
 import { COMMUNICATION_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getOptionalSettingSecret } from '@tamanu/shared/utils/crypto';
 import TelegramBot from 'node-telegram-bot-api';
 
 /**
  *
- * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
+ * @param {{ settings: import('@tamanu/settings').ReadSettings, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineTelegramBotService = async (injector) => {
+  const telegramBot = await injector.settings.get('integrations.telegram');
+  const apiToken = await getOptionalSettingSecret(
+    injector.settings,
+    'integrations.telegram.apiToken',
+  );
   //fallback to polling if webhook url is not set
-  const bot = !injector.config.telegramBot?.apiToken
+  const bot = !apiToken
     ? null
-    : new TelegramBot(injector.config.telegramBot.apiToken, {
-        polling: !injector.config.telegramBot?.webhook?.url,
+    : new TelegramBot(apiToken, {
+        polling: !telegramBot?.webhook?.url,
         request: {
           agentOptions: {
             keepAlive: true,
@@ -95,7 +101,7 @@ export const defineTelegramBotService = async (injector) => {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
-      injector.config.language,
+      await injector.settings.get('language'),
       ['telegramRegistration'],
     );
 
@@ -141,7 +147,7 @@ export const defineTelegramBotService = async (injector) => {
     const chatId = message.chat.id;
 
     const getTranslation = await injector.models?.TranslatedString.getTranslationFunction(
-      injector.config.language,
+      await injector.settings.get('language'),
       ['telegramDeregistration'],
     );
 
@@ -220,7 +226,7 @@ export const defineTelegramBotService = async (injector) => {
   };
 
   if (bot) {
-    await setWebhook(injector.config.telegramBot.webhook);
+    await setWebhook(telegramBot.webhook);
     setCommand('start', subscribeCommandHandler);
     setCommand('unsubscribe', unsubscribeCommandHandler);
 
@@ -252,7 +258,7 @@ export const defineTelegramBotService = async (injector) => {
 let singletonService = null;
 /**
  *
- * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
+ * @param {{ settings: import('@tamanu/settings').ReadSettings, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineSingletonTelegramBotService = (injector) => {
   if (!singletonService) singletonService = defineTelegramBotService(injector);

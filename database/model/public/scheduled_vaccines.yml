@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_scheduled_vaccines_from_sync_lookup
               - notify_scheduled_vaccines_changed
               - record_scheduled_vaccines_changelog
               - set_scheduled_vaccines_updated_at

@@ -1,7 +1,10 @@
 import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
-import { USER_KINDS } from '@tamanu/constants';
+import { USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
+import { ForbiddenError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { ensureSettingsPsk } from '@tamanu/shared/utils/crypto';
 
 const bodySchema = z.object({
   deviceId: z.string().trim().min(1),
@@ -24,7 +27,7 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const { deviceId, facilityIds } = bodySchema.parse(req.body);
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))].sort();
 
-  const { User } = req.store.models;
+  const { User, LocalSystemSecret } = req.store.models;
 
   const email = syncUserEmail(deviceId);
   // Summarise rather than listing every id so the display name stays short for
@@ -44,6 +47,38 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
     await User.create({ email, displayName, role: 'admin', kind: USER_KINDS.SYNC, password });
   }
 
+  // Hand the facility the deployment-wide settings PSK so secrets central
+  // encrypts into synced settings are decryptable there. Generated here if this
+  // is the first server to need it; facilities never mint their own.
+  await ensureSettingsPsk(LocalSystemSecret);
+  const settingsPsk = await LocalSystemSecret.get(FACT_SETTINGS_PSK);
+
   // Plaintext credential in the body — keep it out of any intermediary cache.
-  res.set('Cache-Control', 'no-store').send({ email, password });
+  res.set('Cache-Control', 'no-store').send({ email, password, settingsPsk });
+});
+
+// Returns the deployment-wide settings PSK to a facility server that already has
+// sync credentials but no PSK yet (provisioned before the PSK existed). Read-only:
+// central mints the PSK on its own upgrade and when provisioning sync credentials,
+// so a GET only reads it. If it's somehow absent this returns null and the facility
+// retries on its next sync — the GET never writes. Unlike provisionSyncCredentials
+// it doesn't rotate the sync password, so a facility can call it repeatedly.
+export const getSettingsPsk = asyncHandler(async (req, res) => {
+  req.checkPermission('manage', 'all');
+
+  // manage:all alone isn't enough: mobile and facility servers share the sync_client
+  // device scope, and the isMobile flag is client-supplied, so a person's admin
+  // credentials on any client would otherwise read the deployment key. kind is set by
+  // central when it mints the account, which is the only part a caller can't choose.
+  if (req.user?.kind !== USER_KINDS.SYNC) {
+    throw new ForbiddenError('Only a sync user may read the settings PSK');
+  }
+
+  // Raw key material leaves the server here — keep a trace of who took it.
+  log.info('Settings PSK read via admin API', { userId: req.user?.id });
+
+  const { LocalSystemSecret } = req.store.models;
+  const settingsPsk = await LocalSystemSecret.get(FACT_SETTINGS_PSK);
+
+  res.set('Cache-Control', 'no-store').send({ settingsPsk });
 });

@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   dateCustomValidation,
@@ -153,7 +152,7 @@ medication.post(
   }),
 );
 
-const createEncounterPrescription = async ({ encounter, data, models }) => {
+const createEncounterPrescription = async ({ encounter, data, models, settings }) => {
   const { Prescription, EncounterPrescription, MedicationAdministrationRecord, ReferenceDrug } =
     models;
 
@@ -173,7 +172,12 @@ const createEncounterPrescription = async ({ encounter, data, models }) => {
     encounterId: encounter.id,
     prescriptionId: prescription.id,
   });
-  await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+  await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+    prescription,
+    await settings.global.get(
+      'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    ),
+  );
   return prescription;
 };
 
@@ -202,7 +206,12 @@ medication.post(
     }
 
     const result = await db.transaction(async () => {
-      const prescription = await createEncounterPrescription({ encounter, data, models });
+      const prescription = await createEncounterPrescription({
+        encounter,
+        data,
+        models,
+        settings: req.settings,
+      });
       return prescription;
     });
 
@@ -247,6 +256,7 @@ medication.post(
           encounter,
           data,
           models,
+          settings: req.settings,
         });
         prescriptions.push(prescription);
       }
@@ -337,6 +347,7 @@ medication.post(
         const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
 
         const newPrescription = await createEncounterPrescription({
+          settings: req.settings,
           encounter,
           data: {
             ...prescription.toJSON(),
@@ -568,7 +579,7 @@ medication.post(
         await models.Invoice.addEncounterFee(
           encounter,
           facilitySettings,
-          getPrimaryTimeZone(config),
+          getPrimaryTimeZone(),
         );
       }
 
@@ -1833,7 +1844,7 @@ medication.get(
       required: true,
     };
 
-    const primaryTimeZone = getPrimaryTimeZone(config);
+    const primaryTimeZone = getPrimaryTimeZone();
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     // PharmacyOrder filters
@@ -2080,7 +2091,7 @@ medication.get(
       },
     ]);
 
-    const dispenseTz = getPrimaryTimeZone(config);
+    const dispenseTz = getPrimaryTimeZone();
     const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const rootFilter = mapQueryFilters(filterParams, [

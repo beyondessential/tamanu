@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
@@ -12,12 +11,13 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.generateMedicationAdministrationRecords;
+    const conf = context.schedules.generateMedicationAdministrationRecords;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
     this.config = conf;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   getName() {
@@ -76,6 +76,10 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
+    const upcomingRecordsShouldBeGeneratedTimeFrame = await this.settings.get(
+      'medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame',
+    );
+
     log.info('Running batched generating medication administration records', {
       recordCount: toProcess,
       batchCount,
@@ -94,6 +98,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
         try {
           await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
             prescription,
+            upcomingRecordsShouldBeGeneratedTimeFrame,
           );
         } catch (error) {
           log.error('Failed to generate medication administration records', {

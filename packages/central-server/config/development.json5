@@ -1,11 +1,7 @@
 {
   "db": {
     "name": "tamanu-central-generate",
-    "migrateOnStartup": true,
     "verbose": false
-  },
-  "log": {
-    "consoleLevel": "info"
   },
   "localisation": {
     "data": {
@@ -24,6 +20,5 @@
         "enabled": true
       }
     }
-  },
-  "primaryTimeZone": "Pacific/Auckland"
+  }
 }
