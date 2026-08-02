@@ -8,18 +8,6 @@ export const insertChangelogRecords = async (models: Models, changelogRecords: C
     return;
   }
 
-  const existingRecords = await ChangeLog.findAll({
-    where: {
-      id: changelogRecords.map(({ id }) => id),
-    },
-  });
-
-  const existingIds = existingRecords.map(({ id }) => id);
-  const recordsToInsert = changelogRecords
-    .filter(({ id }) => !existingIds.includes(id))
-    .map((changelogRecord) => ({
-      ...changelogRecord,
-    }));
-
-  await ChangeLog.bulkCreate(recordsToInsert);
+  // Entries are immutable, so a re-delivered batch is skipped rather than merged.
+  await ChangeLog.bulkCreate(changelogRecords, { ignoreDuplicates: true });
 };
