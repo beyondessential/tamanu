@@ -141,7 +141,6 @@ _To be detailed._
 - Keep responsive behaviour of all tiles when additional lines of data are added to a tile - the titles should all be aligned.
 - Please adjust the width of the 5 tiles so that date and time of sample collected fit on one line for 13inch screens. Currently it's flowing onto two lines but theres enough room for it to sit on the one.
 
-**Rationale / current cost.** Because the specimen type isn't visible up front, wrong assignments slip through to SENAITE. The workaround is for the lab to phone the doctor to cancel and re-order the request so the correct specimen type can be assigned.
 
 ---
 
