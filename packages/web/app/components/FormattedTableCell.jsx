@@ -267,6 +267,8 @@ export const RangeValidatedCell = React.memo(
     isEdited,
     component,
     ValueWrapper = DefaultWrapper,
+    hideUnitSuffix = false,
+    disableTooltip = false,
     ...props
   }) => {
     const type = component?.dataElement?.type;
@@ -291,7 +293,7 @@ export const RangeValidatedCell = React.memo(
 
     const displayValue = isFreeText
       ? value?.trim() || <>&mdash;</>
-      : formatValue(normalizedValue, config);
+      : formatValue(normalizedValue, hideUnitSuffix ? { ...config, unit: '' } : config);
 
     const cell = (
       <CellContainer
@@ -313,7 +315,7 @@ export const RangeValidatedCell = React.memo(
       </CellContainer>
     );
 
-    return tooltip ? (
+    return tooltip && !disableTooltip ? (
       <TableTooltip title={tooltip} data-testid="tabletooltip-vgtq">
         {cell}
       </TableTooltip>
