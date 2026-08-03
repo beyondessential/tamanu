@@ -76,9 +76,7 @@ Applied per surface:
 - **Results entry modal.** Uses the printout layout.
 - **Active requests table and Published request table.** Remove the Panel column, add the tooltip on hover of the test category to display the tests within it. Update column and search from 'Test category' to 'Category' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=37455-2394&t=tyhjuqgTUSzOAZGg-1
 
-**Relationship to requirement 1.** The combined ordering interaction — one search across panels and tests, seeing a panel's contents, and preventing duplicates — is specified in requirement 1. This requirement covers how the resulting panels and individual tests are grouped under one request and sample, and how they are displayed.
 
-**Rationale.** Fewer requests and samples per patient reduces load on the integration and the manual tracking burden, and lets the lab label one tube with one SENAITE sample ID rather than reconciling several printed requests.
 
 **Open questions (to resolve before design):**
 - **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 13.
