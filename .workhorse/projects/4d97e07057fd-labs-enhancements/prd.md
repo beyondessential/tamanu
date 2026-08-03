@@ -48,7 +48,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - If you search an individual test, display the test first followed by any panels that contain that test alphebetically.
 - Default all panel dropdowns as closed
 - One selected, tests and panels should be displayed in the selected section and grouped by category. categories should be displayed in alphabetical order and within the category panels and tests should be displayed in alphabetical order
-- Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instea
+- Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disab
 ---
 
 ### 2. Merge multiple lab requests into a single request
