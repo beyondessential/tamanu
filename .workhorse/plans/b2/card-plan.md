@@ -32,20 +32,24 @@ cache that refetches on demand. Replaces delete-after-push, adds the background
 pusher, disk-full backpressure, and a local-only cache index (no sync, no changelog).
 Depends on the primitive and the transfer subprotocol.
 
-## Migrate attachments to blob storage
+## Route attachments through the blob store
 
-Moves the attachments table and every attachment read/write path onto the blob
-store: user uploads, patient letters, survey photos, FHIR lab PDFs, profile
-pictures, and web download. Adds local hash-based id assignment for offline-tolerant
-upload and streaming/range serving. Depends on the foundation cards; does not cover
-the bulk backfill of existing data.
+Rewires the attachments table and every attachment read/write path onto the blob
+store so new attachments are stored on disk going forward: user uploads, patient
+letters, survey photos, FHIR lab PDFs, profile pictures, and web download. Adds the
+`hash` column, local hash-based id assignment for offline-tolerant upload, and
+streaming/range serving, with readers tolerating both new (hash) and legacy
+(in-database) rows during transition. Depends on the foundation cards; the bulk move
+of existing data is the backfill card's job.
 
-## Migrate assets to blob storage
+## Route assets through the blob store
 
-Moves the assets table (letterhead logos, certificate images) onto the blob store
-and adds fetch-on-miss to the facility-side asset readers that today assume the
-bytes are local. Covers certificate and patient-letter rendering paths. Depends on
-the foundation cards.
+Rewires the assets table (letterhead logos, certificate images) onto the blob store
+so new assets are stored on disk, and adds fetch-on-miss to the facility-side asset
+readers that today assume the bytes are local. Covers certificate and patient-letter
+rendering paths, with readers tolerating both new (hash) and legacy (in-database)
+rows during transition. Depends on the foundation cards; the bulk move of existing
+data is the backfill card's job.
 
 ## Mobile blob storage and lazy fetch
 
