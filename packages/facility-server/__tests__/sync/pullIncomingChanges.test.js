@@ -108,4 +108,28 @@ describe('streamIncomingChanges', () => {
     expect(insertedRows[0]).not.toHaveProperty('sort_order');
     expect(insertedRows[0]).toHaveProperty('record_id', 'record-7');
   });
+
+  it('leaves the streamed records intact, so a write cannot blank the resume cursor', async () => {
+    // the streamed records are the cursor: writing a batch must not take sortOrder off them, or a
+    // reconnect after that write resumes from a cursor missing half its key and restarts the pull
+    // from the beginning of the snapshot. totalToPull of 1 caps the write batch at one record, so
+    // the first record is written while the second is still streaming.
+    const changes = [
+      fakeChange({ id: '7', sortOrder: 2, recordType: 'users' }),
+      fakeChange({ id: '8', sortOrder: 2, recordType: 'users' }),
+    ];
+    const bulkInsert = jest.fn();
+    const centralServer = {
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 1, pullUntil: 42 }),
+      stream: streamOf(changes, () => {}),
+    };
+
+    await streamIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+
+    expect(bulkInsert).toHaveBeenCalled();
+    expect(changes).toEqual([
+      expect.objectContaining({ id: '7', sortOrder: 2 }),
+      expect.objectContaining({ id: '8', sortOrder: 2 }),
+    ]);
+  });
 });

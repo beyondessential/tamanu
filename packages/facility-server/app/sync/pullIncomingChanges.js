@@ -1,5 +1,5 @@
 import config from 'config';
-import { chunk, omit } from 'es-toolkit/compat';
+import { chunk } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {
@@ -15,9 +15,16 @@ import { calculatePageLimit } from './calculatePageLimit';
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
 // sortOrder comes from the dependency ordering central pages by; it belongs to the cursor, not to
-// the snapshot table, which has no such column
-const toSnapshotRecord = record => ({
-  ...omit(record, ['sortOrder']),
+// the snapshot table, which has no such column.
+//
+// Must not mutate the record it is given: the streaming path holds the same objects in both its
+// write batch and its resume cursor, so dropping sortOrder in place would blank the cursor and
+// restart the stream from the beginning of the snapshot. Removing the key by destructuring rather
+// than `delete` also keeps the object out of dictionary mode, so the spread below stays cheap —
+// this runs once per pulled record.
+// eslint-disable-next-line no-unused-vars
+const toSnapshotRecord = ({ sortOrder, ...record }) => ({
+  ...record,
   // mark as never updated, so we don't push it back to the central server until the next local update
   data: { ...record.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
   direction: SYNC_SESSION_DIRECTION.INCOMING,
@@ -99,7 +106,11 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
   // keep track of the record we're on so we can resume the stream on disconnect from where we left
   // off rather than the start. Only the last one is ever encoded, on the reconnect that needs it,
-  // rather than once per record streamed
+  // rather than once per record streamed.
+  //
+  // This is the same object that goes into the write batch below, and its sortOrder is half of the
+  // cursor, so whatever the batch does to a record on its way to the snapshot table has to leave the
+  // record itself alone — see toSnapshotRecord
   let lastRecord;
   const endpointFn = () => ({
     endpoint: `sync/${sessionId}/pull/stream`,
