@@ -3,8 +3,10 @@
 Slices the epic into spawned cards. Attachments are stored on the filesystem as
 content-addressed storage (SHA-256, lowercase hex, `ab/cd/<rest>` fan-out) with
 the DB row holding only the hash, built as a general blob-store primitive that
-attachments and assets consume. This removes ~400 GB from the database and ends
-the changelog duplication of write-once blobs. Entries are ordered by dependency;
+attachments and assets consume. This moves attachment and asset bloat out of the
+database — a volume that varies widely across deployments, reaching hundreds of
+gigabytes at the largest sites — and ends the changelog duplication of write-once
+blobs, which applies regardless of deployment size. Entries are ordered by dependency;
 the foundation cards come first, the resilience cards are optional and can follow.
 
 ## Content-addressed blob store primitive
@@ -65,9 +67,10 @@ cache suited to constrained device storage. Depends on the foundation cards.
 
 ## Backfill and rolling-upgrade migration
 
-Moves the existing ~400 GB of in-database blobs onto the filesystem as a batched,
-throttled background job, and purges the historical blob copies duplicated into the
-changelog. Handles version skew across a rolling upgrade, dual-read behind a flag,
+Moves the existing in-database blobs onto the filesystem as a batched, throttled
+background job — a volume ranging from modest to hundreds of gigabytes across
+deployments, so it must be resumable and bounded at any scale — and purges the
+historical blob copies duplicated into the changelog. Handles version skew across a rolling upgrade, dual-read behind a flag,
 and rollback. The gating operational risk; its version-skew constraints feed back
 into the subprotocol design, so it should be specced early even though it lands late.
 
