@@ -63,9 +63,6 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 **Design updates.**
 
-Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
-
-
 Two display patterns recur across the surfaces below:
 - **Category grouping** — Samples are collected per category. Items grouped by category, each category listing all the tests and panels it contains.
 - **Printout layout** — the layout used for the lab results printout: individual tests listed alphabetically first, then each panel under a subheading, with the panel's constituent tests listed in reference-data order.
