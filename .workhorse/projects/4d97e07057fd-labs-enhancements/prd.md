@@ -168,8 +168,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 - **Configurable, off by default.** Enabled per facility and disabled by default. When disabled, the current workflows apply unchanged.
 - **Finalise screen when not all samples have been recorded:**
   - If no sample is recorded or only partial samples are recorded, the default standard finalise screen displays. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
-  - 
-- 
+    
 
 ---
 
