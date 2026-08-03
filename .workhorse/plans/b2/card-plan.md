@@ -17,7 +17,10 @@ can follow.
 The core on-disk store and its interface: a `BlobStore` with `has`/`get`/`put`/`delete`,
 the algorithm-namespaced two-level lowercase-hex fan-out layout, atomic
 temp-write-then-rename with Windows/NTFS handling, and a persistent configurable
-store root. Content is hashed with BLAKE3 and stored algorithm-tagged; the card
+store root that can sit on a separate volume to avoid contention. Enforces a system
+free-disk floor so the store never starves the host database or system — evicting
+cache, then refusing new blobs — on any server it runs, central included. Content is
+hashed with BLAKE3 and stored algorithm-tagged; the card
 carries a research spike to confirm a maintained BLAKE3 implementation for both
 Node and React Native and to benchmark it against hardware-accelerated SHA-256,
 and is empowered to fall back to SHA-256 with evidence if the React Native story or
