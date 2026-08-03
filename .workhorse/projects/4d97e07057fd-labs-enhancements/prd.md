@@ -235,7 +235,7 @@ _To be detailed._
 
 ### 14. Update the Sample taken modal when recording a sample from the lab request screen
 
-**Summary.** Update the current modal so it is the same modal that appears during a new lab request. Please keep header as  https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
+**Summary.** Update the current modal so it is the same modal that appears during a new lab request. Please keep header as is https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
 **Problem.** At the point of entering sample details, the test category and test types aren't visible alongside the entry fields, so staff can't easily confirm which request they're recording against before choosing the specimen type.
 
