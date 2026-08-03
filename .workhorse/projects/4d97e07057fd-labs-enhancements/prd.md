@@ -45,8 +45,6 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 - **Preventing duplicates.** If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover. If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
 
-**Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
-
 ---
 
 ### 2. Merge multiple lab requests into a single request
