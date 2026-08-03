@@ -45,7 +45,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 - **Preventing duplicates.** If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover. If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
 - Tests within a panel shuld be listed in the same order as they appear in the reference data
-- If you search an indi
+- If you search an individual test, 
 ---
 
 ### 2. Merge multiple lab requests into a single request
