@@ -53,7 +53,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 ---
 
-Figma link
+Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
 ### 2. Merge multiple lab requests into a single request
 
