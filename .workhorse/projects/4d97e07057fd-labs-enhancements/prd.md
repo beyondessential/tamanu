@@ -237,11 +237,6 @@ _To be detailed._
 
 **Summary.** Update the current modal so it is the same modal that appears during a new lab request. Please keep header as is ' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
-**Problem.** At the point of entering sample details, the test category and test types aren't visible alongside the entry fields, so staff can't easily confirm which request they're recording against before choosing the specimen type.
 
-**Desired behaviour.** The request's test category and test types are visible while entering sample details, so staff can confirm the request and select the correct specimen type. This complements requirement 6, which surfaces the recorded specimen type on the read-only tile; this one keeps the test context visible at the point of entry.
-
-**Open questions (to resolve before design):**
-- **Surface:** which entry point does this target — the "Record sample details" modal (which today shows no test information), the Sample details step of the new request workflow, or the lab request view layout? The change differs by surface.
 
 _To be detailed._
