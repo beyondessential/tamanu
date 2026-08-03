@@ -32,7 +32,11 @@ blob.
 
 ## Backpressure signals
 
-- [ ] An outbox that grows beyond a threshold, or that holds content unacknowledged
-  for too long, is surfaced as a health signal visible to central-side monitoring,
-  since it indicates the central server has been unreachable and the store is
-  filling with content it cannot offload.
+- [ ] Outbox health is measured relative to sync progress, not wall-clock time
+  alone. A blob that stays unacknowledged while the facility cannot reach the central
+  server is expected accumulation; a blob that survives several successful sync
+  cycles without being pushed is a severe dysfunction, because the connection is
+  working but the push path is not.
+- [ ] Outbox backpressure is surfaced as a health signal visible to central-side
+  monitoring, escalating with both the number of successful sync cycles a blob has
+  gone unpushed and the space the outbox is consuming.
