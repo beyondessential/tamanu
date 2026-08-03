@@ -31,7 +31,9 @@ scope until an algorithm migration is actually planned.
 
 The symmetric primitive that moves bytes between servers independently of record
 sync direction: offer/fetch a blob by hash, verify content on receipt, and stream
-resumably so large files survive poor links. Generalises the existing
+resumably so large files survive poor links. Records always sync carrying only the
+hash, so this card also defines the content-pending availability state a server
+reports when it holds a reference but not yet its bytes. Generalises the existing
 try-local-then-central attachment GET into a reusable channel. Depends on the blob
 store primitive; does not change any consumer table yet.
 
