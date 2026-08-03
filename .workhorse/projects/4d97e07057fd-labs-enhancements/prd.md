@@ -41,7 +41,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 **Design updates.**
 Can you see my changes. 
-Test typing at the same type as 
+Test typing at the same type as Flic.
 - **Single ordering workflow.** The up-front "individual vs panel" request-type step is removed — both are requested in one workflow.
 - **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place. Results list matching individual tests first, followed by the panels that contain those tests.
 - **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
