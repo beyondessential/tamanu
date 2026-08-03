@@ -69,7 +69,7 @@ Two display patterns recur across the surfaces below:
 
 Applied per surface:
 
-- **New lab request workflow — Sample details step.** Samples are grouped by category, each category's sample listing all the tests and panels it contains (category grouping).
+- **New lab request workflow — Sample details step.** Samples are grouped by category, each category's sample listing all the tests and panels it contains (category grouping). https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 - **New lab request workflow — Finalise modal.** Lists tests and panels the same way, grouped within each category (category grouping).
 - **Encounter-level labs table.** No panels column. Hovering over the **Test category** column reveals the tests and panels ordered on the request.
 - **Lab request view (encounter level).** Uses the printout layout.
