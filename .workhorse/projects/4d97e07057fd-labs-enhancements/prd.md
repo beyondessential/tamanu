@@ -44,7 +44,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
 - **Preventing duplicates.** If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover. If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
-- Tests within a panel shuld be listed in the same order as they appear in the reference data
+- Tests within a panel should be listed in the same order as they appear in the reference data
 - If you search an individual test, display the test first followed by any panels that contain that test alphebetically.
 - Default all panel dropdowns as closed
 - One selected, tests and panels should be displayed in the selected section and grouped by category. categories should be displayed in alphabetical order and within the category panels and tests should be displayed in reference data order
