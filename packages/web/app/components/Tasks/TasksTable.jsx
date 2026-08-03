@@ -5,7 +5,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { addMilliseconds, subMilliseconds } from 'date-fns';
 
 import {
@@ -21,6 +20,7 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
+import { StyledPriorityHighIcon, TaskNameContainer, PriorityIconSlot } from './TaskPriorityIcon';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
@@ -28,12 +28,10 @@ import { useDateTime } from '@tamanu/ui-components';
 
 const OVERDUE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
 
-const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
-  font-size: 16px;
-  position: absolute;
-  left: -8px;
-`;
+// Fixed (not just max) width so the column doesn't visibly resize as task
+// statuses change between the differently-sized icons (TODO's dashed circle vs
+// the completed/not-completed icons).
+const STATUS_COLUMN_WIDTH = 22;
 
 const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
@@ -61,6 +59,14 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
       ${p => (p.$canDoAction ? `width: 15px;` : '')}
     }
+    // Keeps the "Task" header aligned with the task names in the body below, which have
+    // this same column's left padding zeroed (see .MuiTableCell-body :nth-child(3) below).
+    &:nth-child(3) {
+      ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
+    }
+    &:nth-child(2) {
+      ${p => (!p.$canDoAction ? `padding-left: 0px;` : '')}
+    }
   }
   .MuiTableCell-body {
     padding-top: 6px !important;
@@ -74,6 +80,11 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
     }
     &:nth-child(2) {
+      ${p => (p.$canDoAction ? `padding-inline: 0px;` : `padding-left: 0px;`)}
+    }
+    // Task name column: sit flush against the status icon column instead of leaving
+    // extra space (the status icon column is nth-child(2) when canDoAction, so task is 3rd).
+    &:nth-child(3) {
       ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
     }
   }
@@ -122,6 +133,13 @@ const StatusTodo = styled.div`
   height: 15px;
   border: 1px dashed ${Colors.blue};
   border-radius: 50%;
+`;
+
+const StatusIconContainer = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: ${STATUS_COLUMN_WIDTH}px;
 `;
 
 const StyledActionsRow = styled.div`
@@ -273,21 +291,25 @@ const getStatus = row => {
   switch (status) {
     case TASK_STATUSES.TODO:
       return (
-        <Box marginLeft="1.5px" data-testid="box-6w7t">
+        <StatusIconContainer data-testid="box-6w7t">
           <StatusTodo data-testid="statustodo-yit3" />
-        </Box>
+        </StatusIconContainer>
       );
     case TASK_STATUSES.COMPLETED:
       return (
-        <TableTooltip title={getCompletedTooltipText(row)} data-testid="tabletooltip-8kog">
-          <StyledCheckCircleIcon data-testid="styledcheckcircleicon-aayi" />
-        </TableTooltip>
+        <StatusIconContainer>
+          <TableTooltip title={getCompletedTooltipText(row)} data-testid="tabletooltip-8kog">
+            <StyledCheckCircleIcon data-testid="styledcheckcircleicon-aayi" />
+          </TableTooltip>
+        </StatusIconContainer>
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
-        <TableTooltip title={getNotCompletedTooltipText(row)} data-testid="tabletooltip-15ji">
-          <StyledCancelIcon data-testid="styledcancelicon-z0lw" />
-        </TableTooltip>
+        <StatusIconContainer>
+          <TableTooltip title={getNotCompletedTooltipText(row)} data-testid="tabletooltip-15ji">
+            <StyledCancelIcon data-testid="styledcancelicon-z0lw" />
+          </TableTooltip>
+        </StatusIconContainer>
       );
     default:
       break;
@@ -530,17 +552,18 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          <DateDisplay date={requestTime} format="shortest" />{' '}
-          <TimeDisplay date={requestTime} />
+          <DateDisplay date={requestTime} format="shortest" /> <TimeDisplay date={requestTime} />
         </Box>
       </TooltipContainer>
     }
     data-testid="tabletooltip-xlct"
   >
-    <span>
-      {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-7slu" />}
+    <TaskNameContainer>
+      <PriorityIconSlot>
+        {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-7slu" />}
+      </PriorityIconSlot>
       {name}
-    </span>
+    </TaskNameContainer>
   </TableTooltip>
 );
 
@@ -606,17 +629,20 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     {
       key: '',
       accessor: getStatus,
-      maxWidth: 20,
+      maxWidth: STATUS_COLUMN_WIDTH,
       sortable: false,
     },
     {
       key: 'name',
       title: (
-        <TranslatedText
-          stringId="encounter.tasks.table.column.task"
-          fallback="Task"
-          data-testid="translatedtext-dw5r"
-        />
+        <TaskNameContainer>
+          <PriorityIconSlot />
+          <TranslatedText
+            stringId="encounter.tasks.table.column.task"
+            fallback="Task"
+            data-testid="translatedtext-dw5r"
+          />
+        </TaskNameContainer>
       ),
       maxWidth: 160,
       accessor: getTask,
