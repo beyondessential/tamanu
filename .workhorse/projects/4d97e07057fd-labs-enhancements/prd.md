@@ -40,8 +40,6 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 **Desired behaviour.** The ordering workflow lets clinicians request panels and individual tests together, shows a panel's constituent tests while ordering, and prevents duplicate entries where an individual test and a panel that covers it are both selected in the same request.
 
 **Design updates.**
-Can you see my changes. 
-Test typing 
 - **Single ordering workflow.** The up-front "individual vs panel" request-type step is removed — both are requested in one workflow.
 - **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place. Results list matching individual tests first, followed by the panels that contain those tests.
 - **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
@@ -54,6 +52,8 @@ Test typing
 **Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
 
 ---
+
+Figma link
 
 ### 2. Merge multiple lab requests into a single request
 
