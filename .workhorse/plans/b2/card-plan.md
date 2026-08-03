@@ -10,11 +10,17 @@ the foundation cards come first, the resilience cards are optional and can follo
 ## Content-addressed blob store primitive
 
 The core on-disk store and its interface: a `BlobStore` with `has`/`get`/`put`/`delete`,
-the two-level lowercase-hex fan-out layout, atomic temp-write-then-rename (with
-Windows/NTFS handling), and a local `blobs` metadata table holding hash → size,
-refcount, and cache/scrub/scan state. Hashes are algorithm-tagged for future
-agility, and the store root is a persistent, configurable location. Foundation for
-everything else; owns no consumer wiring or transfer logic.
+the algorithm-namespaced two-level lowercase-hex fan-out layout, atomic
+temp-write-then-rename with Windows/NTFS handling, and a persistent configurable
+store root. Content is hashed with BLAKE3 and stored algorithm-tagged; the card
+carries a research spike to confirm a maintained BLAKE3 implementation for both
+Node and React Native and to benchmark it against hardware-accelerated SHA-256,
+and is empowered to fall back to SHA-256 with evidence if the React Native story or
+performance is inadequate. Owns the single local `blobs` registry — authoritative
+content record on central, cache/state index on facility and mobile, never synced
+and never in the change log. Foundation for everything else; holds no consumer
+wiring or transfer logic. Cross-algorithm byte deduplication is deliberately out of
+scope until an algorithm migration is actually planned.
 
 ## Fetch-by-hash blob transfer subprotocol
 
