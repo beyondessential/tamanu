@@ -2,9 +2,14 @@ import { log } from '@tamanu/shared/services/logging';
 
 // loaded on first use so TAMANU_DISABLE_FAITH_FETCH also covers the binding failing to load
 let faith;
+const loadFaith = () =>
+  (faith ??= import('@passcod/faith').catch(error => {
+    faith = undefined; // don't cache the failure: the next request retries the load
+    throw error;
+  }));
 
 export const faithFetch = async (url, options) => {
-  const { fetch, ERROR_CODES } = await (faith ??= import('@passcod/faith'));
+  const { fetch, ERROR_CODES } = await loadFaith();
   try {
     return await fetch(url, options);
   } catch (error) {
