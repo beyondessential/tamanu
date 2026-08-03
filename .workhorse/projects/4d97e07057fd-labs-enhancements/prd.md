@@ -138,6 +138,7 @@ _To be detailed._
 **Design updates.**
 - On the "Sample collected" tile, the recorded specimen type appears as a secondary line beneath the sample collected date & time — a bare value with no label, since the tile is already labelled "Sample collected".
 - When no sample has been collected, the tile keeps its existing appearance (the date placeholder only); no specimen type line is added.
+- 
 
 **Rationale / current cost.** Because the specimen type isn't visible up front, wrong assignments slip through to SENAITE. The workaround is for the lab to phone the doctor to cancel and re-order the request so the correct specimen type can be assigned.
 
