@@ -136,7 +136,7 @@ _To be detailed._
 **Desired behaviour.** The specimen type is shown next to the sample collected date & time on the lab request view, so lab staff can check it at a glance before transitioning the request — without opening the sample details modal.
 
 **Design updates.**
-- On the "Sample collected" tile, the recorded specimen type appears as a secondary line beneath the sample collected date & time — a bare value with no label, since the tile is already labelled "Sample collected".
+- On the "Sample collected" tile, the recorded specimen type appears as a secondary line beneath the sample collected date & time — a bare value with no label, since the tile is already labelled "Sample collected". https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41709-33336&t=tyhjuqgTUSzOAZGg-1
 - When no sample has been collected, the tile keeps its existing appearance (the date placeholder only); no specimen type line is added.
 - Keep responsive behaviour of all tiles when additional lines of data are added to a tile - the titles should all be aligned.
 - Please adjust the width of the 5 tiles so that date and time of sample collected fit on one line for 13inch screens. Currently it's flowing onto two lines but theres enough room for it to sit on the one.
