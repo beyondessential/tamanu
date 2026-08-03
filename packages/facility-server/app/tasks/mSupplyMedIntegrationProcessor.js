@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 
 import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts';
@@ -30,7 +29,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.mSupplyMedIntegrationProcessor;
+    const conf = context.schedules.mSupplyMedIntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.scheduleConfig = conf;
@@ -221,19 +220,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { enabled, username, password } = config.integrations.mSupplyMed;
-
-    // If the integration is disabled, delete the enabled-at fact and skip
-    if (!enabled) {
-      await this.models.LocalSystemFact.set(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT, null);
-      log.warn('mSupplyMedIntegrationProcessor is disabled, skipping');
-      return;
-    }
-
-    // Get the enabled-at timestamp from the database or
-    // set it to the current date if it doesn't exist
-    const enabledAt = await this.getEnabledAt();
-
     // Read at run time, not construction — tasks may start before first-run
     // setup has configured the facility ids.
     const serverFacilityIds = getServerFacilityIds() ?? [];
@@ -248,7 +234,20 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
     const [facilityId] = serverFacilityIds;
 
-    const { host, storeId, customerCode } = await this.client.getSettings(facilityId);
+    const { enabled, username, password, host, storeId, customerCode } =
+      await this.client.getSettings(facilityId);
+
+    // If the integration is disabled, delete the enabled-at fact and skip
+    if (!enabled) {
+      await this.models.LocalSystemFact.set(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT, null);
+      log.warn('mSupplyMedIntegrationProcessor is disabled, skipping');
+      return;
+    }
+
+    // Get the enabled-at timestamp from the database or
+    // set it to the current date if it doesn't exist
+    const enabledAt = await this.getEnabledAt();
+
     if (!host || !username || !password || !storeId || !customerCode) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;

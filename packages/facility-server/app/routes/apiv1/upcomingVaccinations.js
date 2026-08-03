@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
@@ -77,7 +76,9 @@ upcomingVaccinations.get(
       );
 
     // Use the materialized version of the view if the regular refresh task is enabled, otherwise use the regular live view (not recommended for performance reasons)
-    const { enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const { enabled } = await req.settings[req.facilityId].get(
+      'schedules.refreshMaterializedView.upcomingVaccinations',
+    );
     const tableName =
       enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
 
@@ -155,7 +156,9 @@ upcomingVaccinations.get(
     const { models } = req;
     const { LocalSystemFact } = models;
     req.checkPermission('read', 'PatientVaccine');
-    const { schedule, enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const { schedule, enabled } = await req.settings[req.facilityId].get(
+      'schedules.refreshMaterializedView.upcomingVaccinations',
+    );
     if (enabled === false) {
       // If the task is disabled, stats are not needed
       return res.send({});

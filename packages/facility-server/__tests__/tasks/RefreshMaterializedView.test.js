@@ -1,4 +1,4 @@
-import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createTestContext } from '../utilities';
 import { RefreshUpcomingVaccinations } from '../../app/tasks/RefreshMaterializedView';
 import { fake } from '@tamanu/fake-data/fake';
@@ -62,7 +62,7 @@ describe('RefreshMaterializedView', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          serverTimezone: config.primaryTimeZone,
+          serverTimezone: getPrimaryTimeZone(),
           sequelizeTimezone: sequelizeTimezone['TimeZone'],
         },
       },
@@ -82,7 +82,7 @@ describe('RefreshMaterializedView', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          serverTimezone: config.primaryTimeZone,
+          serverTimezone: getPrimaryTimeZone(),
           sequelizeTimezone: sequelizeTimezone['TimeZone'],
         },
       },

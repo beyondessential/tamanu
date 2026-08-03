@@ -17,14 +17,11 @@ jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
 const FACILITY_ID = 'balwyn';
 
 const INTEGRATION_SETTINGS = {
-  host: 'https://msupply.example.com',
-  storeId: 'store-1',
-};
-
-const INTEGRATION_CONFIG = {
   enabled: true,
+  host: 'https://msupply.example.com',
   username: 'test-user',
   password: 'test-pass',
+  storeId: 'store-1',
 };
 
 const SCHEDULE_CONFIG = {
@@ -80,7 +77,6 @@ describe('MSupplyStockOnHandProcessor', () => {
     context = await createTestContext();
     models = context.models;
 
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
     getServerFacilityIds.mockReturnValue([FACILITY_ID]);
 
@@ -98,7 +94,6 @@ describe('MSupplyStockOnHandProcessor', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     getServerFacilityIds.mockReturnValue([FACILITY_ID]);
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
 
     await models.Setting.set(
@@ -112,7 +107,13 @@ describe('MSupplyStockOnHandProcessor', () => {
 
   describe('skips when not configured', () => {
     it('skips when integration is disabled', async () => {
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, enabled: false };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, enabled: false },
+        SETTINGS_SCOPES.FACILITY,
+        FACILITY_ID,
+      );
+      settingsCache.reset();
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();
@@ -160,7 +161,13 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips when username is missing', async () => {
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, username: '' };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, username: '' },
+        SETTINGS_SCOPES.FACILITY,
+        FACILITY_ID,
+      );
+      settingsCache.reset();
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();
@@ -169,7 +176,13 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips when password is missing', async () => {
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, password: '' };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, password: '' },
+        SETTINGS_SCOPES.FACILITY,
+        FACILITY_ID,
+      );
+      settingsCache.reset();
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();

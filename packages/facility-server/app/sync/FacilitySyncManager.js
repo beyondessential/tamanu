@@ -25,6 +25,8 @@ import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChange
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { pullSettingsPsk } from './pullSettingsPsk';
+import { convergeSyncUser } from './convergeSyncUser';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -179,6 +181,25 @@ export class FacilitySyncManager {
     } finally {
       // clear temp data stored for persist
       await dropSnapshotTable(this.sequelize, sessionId);
+    }
+
+    // Provisioning that needs a live central, ordered: the PSK read is served to a
+    // dedicated sync user only, so the swap has to land first. Neither may fail the
+    // sync it rode in on, and both retry on the next one.
+    try {
+      await convergeSyncUser({
+        sequelize: this.sequelize,
+        models: this.models,
+        centralServer: this.centralServer,
+      });
+    } catch (error) {
+      log.warn('FacilitySyncManager.convergeSyncUserFailed', { error: error.message });
+    }
+
+    try {
+      await pullSettingsPsk({ models: this.models, centralServer: this.centralServer });
+    } catch (error) {
+      log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;

@@ -1,8 +1,8 @@
-import config from 'config';
+import { getCanonicalHostName } from '../../../utils/canonicalHostName';
 
 export function getBaseUrl(req, includePath = true) {
   return new URL(
     `${req.baseUrl}${includePath ? req.path : ''}`,
-    config.canonicalHostName,
+    getCanonicalHostName(),
   ).toString();
 }

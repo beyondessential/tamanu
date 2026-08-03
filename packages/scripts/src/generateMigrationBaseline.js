@@ -16,8 +16,12 @@ const OUTPUT_PATH = path.resolve(
   '../../database/src/migrations/000_baseline.sql',
 );
 
+// Umzug names migrations by their on-disk filename, and migrations that predate the
+// baseline tag were `.js` sources then and are `.ts` now, so match on basename.
+const stripMigrationExtension = name => name.replace(/\.(js|ts)$/, '');
+
 function getPostBaselineMigrations() {
-  const baselineFiles = new Set(
+  const baselineNames = new Set(
     execSync(
       `git ls-tree --name-only ${BASELINE_TAG} -- packages/database/src/migrations/`,
     )
@@ -25,19 +29,15 @@ function getPostBaselineMigrations() {
       .trim()
       .split('\n')
       .map(p => p.replace('packages/database/src/migrations/', ''))
-      .filter(f => f && f !== '000_initial'),
+      .filter(f => f && f !== '000_initial')
+      .map(stripMigrationExtension),
   );
 
-  const distDir = path.resolve(__dirname, '../../database/dist/cjs/migrations');
-  const currentFiles = fs
-    .readdirSync(distDir)
-    .filter(f => f.endsWith('.js'));
-
-  const baselineJsNames = new Set(
-    [...baselineFiles].map(f => f.replace(/\.ts$/, '.js')),
-  );
-
-  return currentFiles.filter(f => !baselineJsNames.has(f) && !f.startsWith('000_baseline'));
+  const migrationsDir = path.resolve(__dirname, '../../database/src/migrations');
+  return fs
+    .readdirSync(migrationsDir)
+    .filter(f => f.endsWith('.ts') && !f.startsWith('000_baseline'))
+    .filter(f => !baselineNames.has(stripMigrationExtension(f)));
 }
 
 async function run() {
@@ -46,11 +46,10 @@ async function run() {
     path.join('packages', 'central-server', 'config'),
   );
   // Dynamic import (not require): tsx's CJS hook does not complete the extensionless
-  // export for connectionConfig, but ESM import() does.
+  // @tamanu/* exports, but ESM import() does.
   const { resolveDbConfig } = await import('@tamanu/database/services/connectionConfig');
+  const { initDatabase } = await import('@tamanu/database/services/database');
   const dbConfig = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db));
-
-  const { initDatabase } = require('@tamanu/database/services/database');
 
   console.log('Creating fresh database:', DB_NAME);
   const db = await initDatabase({

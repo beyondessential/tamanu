@@ -1,11 +1,11 @@
 import { log } from '@tamanu/shared/services/logging';
-import config from 'config';
 import { utils } from 'xlsx';
 
 import { ImporterMetadataError, ValidationError } from '../errors';
 
 import { idify } from './idify';
 import { SURVEY_TYPES } from '@tamanu/constants';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 function checkHomeServer(homeServer) {
   log.debug('Check where we are importing');
@@ -13,7 +13,7 @@ function checkHomeServer(homeServer) {
   if (!homeServer) return true;
 
   // detect if we're importing to home server
-  const { canonicalHostName: host } = config;
+  const host = getCanonicalHostName();
 
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
   const importingToHome = homeServer.replace('/', '') === host.replace('/', '');

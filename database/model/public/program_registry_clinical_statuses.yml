@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_program_registry_clinical_statuses_from_sync_lookup
               - notify_program_registry_clinical_statuses_changed
               - record_program_registry_clinical_statuses_changelog
               - set_program_registry_clinical_statuses_updated_at

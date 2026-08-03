@@ -124,7 +124,7 @@ jobs:
             core.setOutput('allimages', allDeploys.some(deploy => !deploy.options.pause && (deploy.options.allimages || deploy.options.arch === 'amd64')));
 
       # Autodeploys build linux/arm64 only; %allimages, %arch=amd64, or a release
-      # builds the full set — linux amd64 + arm64, and the Windows VHDX jobs.
+      # builds the full set — linux amd64 + arm64, and the Windows image jobs.
       - name: Decide build scope
         id: scope
         run: |
@@ -166,7 +166,7 @@ jobs:
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
       go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
-      # whether to build the full image set (amd64 + Windows VHDX), vs arm64 only
+      # whether to build the full image set (amd64 + Windows), vs arm64 only
       all-images: ${{ steps.scope.outputs.all }}
       # platform matrix for the images job
       platforms: ${{ steps.scope.outputs.platforms }}
@@ -275,9 +275,11 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
 
-  # Windows-native release VHDXs, packed as OCI artifacts in ghcr.io and folded
-  # into the multi-arch manifest, built in parallel with the linux images.
-  windows-vhdx:
+  # Windows-native release bundles, pushed as base-less windows/amd64 OCI images
+  # in ghcr.io and folded into the multi-arch manifest, built in parallel with
+  # the linux images. The bundle is staged under the layer's Files/, which is the
+  # container's C:\ drive, so Files/app becomes C:\app.
+  windows-image:
     needs:
       - config
     if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
@@ -289,7 +291,7 @@ jobs:
             path: central-server
           - name: facility
             path: facility-server
-    name: Windows VHDX for ${{ matrix.package.name }}
+    name: Windows image for ${{ matrix.package.name }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
@@ -306,16 +308,25 @@ jobs:
         shell: bash
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
-      # Build off the VHDX: a dynamic VHDX keeps blocks the reduction deletes
-      # allocated and unzeroed, which inflates the image.
+      # Stage what the linux image's /app is built from (see /Dockerfile) rather
+      # than the whole worktree, so the bundle — and the release tarball made
+      # from it — carries the same files the linux image ships, and no internal
+      # docs, specs, or CI config.
       - name: Stage source (workspace)
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           if (Test-Path release) { Remove-Item -Recurse -Force release }
           New-Item -ItemType Directory -Force -Path release | Out-Null
-          robocopy . release /E /XD .git node_modules release oras-bin /XF *.vhdx *.zip /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
-          if ($LASTEXITCODE -ge 8) { throw "robocopy staging failed ($LASTEXITCODE)" }
+          # .npmrc (npm's fetch retries, and npm only reads the one in its cwd),
+          # common.*, and scripts/ are build-time only — the image doesn't ship
+          # them either, so they're dropped again below.
+          robocopy . release package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL .npmrc common.* /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { throw "robocopy root files failed ($LASTEXITCODE)" }
+          foreach ($dir in 'patches', 'scripts', 'packages') {
+            robocopy $dir "release\$dir" /E /XD node_modules /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { throw "robocopy $dir failed ($LASTEXITCODE)" }
+          }
           $global:LASTEXITCODE = 0
 
       - name: Build reduced source (Windows-native)
@@ -329,28 +340,50 @@ jobs:
         shell: bash
         run: scripts/embed-node-runtime.sh win-x64 release
 
-      - name: Build VHDX (format + copy)
+      - name: Drop build-only files
+        shell: bash
+        run: rm -rf release/scripts release/common.* release/.npmrc
+
+      # Copy rather than build in place: robocopy follows the junctions npm makes
+      # for workspace links (node_modules/@tamanu/*), so the layer gets real
+      # directories instead of links to build-agent paths that don't exist in a
+      # container.
+      - name: Stage layer root
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          scripts\build-windows-vhdx.ps1 -ReleaseDir release -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
+          if (Test-Path layer) { Remove-Item -Recurse -Force layer }
+          New-Item -ItemType Directory -Force -Path layer\Files\app | Out-Null
+          robocopy release layer\Files\app /E /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { throw "robocopy layer staging failed ($LASTEXITCODE)" }
+          $global:LASTEXITCODE = 0
 
-      - name: Pack VHDX artifact
-        uses: ./.github/actions/vhdx-pack
+      - name: Pack Windows image
+        id: pack
+        uses: ./.github/actions/windows-image-pack
         with:
           package: ${{ matrix.package.name }}
           package-path: ${{ matrix.package.path }}
           kind: server
-          root-dir: release
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Frontend VHDXs (web / patient-portal): built dist plus the Windows Caddy
-  # binary and Caddyfile, self-contained like the linux frontend container.
-  windows-vhdx-frontend:
+      # The layer tarball is the release bundle, so the legacy Windows artifact
+      # is a repack of it (cd-package-servers.yml) rather than a second
+      # Windows-native build of the same tree.
+      - name: Upload bundle for the release packer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-bundle-${{ matrix.package.name }}
+          path: ${{ steps.pack.outputs.layer }}
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+
+  # Frontend Windows images (web / patient-portal): built dist plus the Windows
+  # Caddy binary and Caddyfile, self-contained like the linux frontend container.
+  windows-image-frontend:
     needs:
       - config
     if: needs.config.outputs.build-images == 'true' && needs.config.outputs.all-images == 'true'
@@ -362,7 +395,7 @@ jobs:
             path: web
           - name: patient-portal
             path: patient-portal
-    name: Frontend VHDX for ${{ matrix.package.name }}
+    name: Frontend Windows image for ${{ matrix.package.name }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
@@ -383,39 +416,36 @@ jobs:
         shell: bash
         run: bash scripts/docker-build.sh '${{ matrix.package.path }}'
 
-      - name: Assemble bundle (dist + Windows Caddy)
+      - name: Assemble layer (dist + Windows Caddy)
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euxo pipefail
-          stage='tamanu-${{ matrix.package.name }}'
-          mkdir -p "$stage/app"
-          cp -r "packages/${{ matrix.package.path }}/dist/." "$stage/app"
+          rm -rf layer
+          mkdir -p layer/Files/app layer/Files/caddy
+          cp -r "packages/${{ matrix.package.path }}/dist/." layer/Files/app
 
-          caddy_version="$(curl -fsSL https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          # authenticated: unauthenticated api.github.com is rate-limited per
+          # runner IP, which is shared. No xtrace around the token.
+          set +x
+          caddy_version="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name | sed 's/^v//')"
+          set -x
           curl -fsSL -o caddy.zip \
             "https://github.com/caddyserver/caddy/releases/download/v${caddy_version}/caddy_${caddy_version}_windows_amd64.zip"
-          unzip -o caddy.zip caddy.exe -d "$stage"
+          unzip -o caddy.zip caddy.exe -d layer/Files/caddy
           rm caddy.zip
 
-          # serve from the bundle-relative ./app rather than the container's /app
-          sed -E 's|root \* /app|root * app|' \
-            "packages/${{ matrix.package.path }}/Caddyfile.docker" > "$stage/Caddyfile"
+          # same web root as the linux container, spelled as a Windows path
+          sed -E 's|root \* /app|root * C:/app|' \
+            "packages/${{ matrix.package.path }}/Caddyfile.docker" > layer/Files/caddy/Caddyfile
 
-      - name: Build VHDX (format + copy)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $vhdx = "tamanu-${{ matrix.package.name }}-$env:VERSION-windows-amd64.vhdx"
-          "VHDX_PATH=$vhdx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          scripts\build-windows-vhdx.ps1 -ReleaseDir 'tamanu-${{ matrix.package.name }}' -Output $vhdx -Label "Tamanu-${{ matrix.package.name }}"
-
-      - name: Pack VHDX artifact
-        uses: ./.github/actions/vhdx-pack
+      - name: Pack Windows image
+        uses: ./.github/actions/windows-image-pack
         with:
           package: ${{ matrix.package.name }}
           package-path: ${{ matrix.package.path }}
           kind: frontend
-          root-dir: tamanu-${{ matrix.package.name }}
           version: ${{ env.VERSION }}
           sha: ${{ needs.config.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -424,11 +454,11 @@ jobs:
     needs:
       - config
       - images
-      - windows-vhdx
-      - windows-vhdx-frontend
-    # always() so a failure/skip of the windows-vhdx jobs never blocks publishing
-    # the linux multi-arch manifest; the VHDX entry is added opportunistically
-    # below only when its artifact manifest exists.
+      - windows-image
+      - windows-image-frontend
+    # always() so a failure/skip of the windows-image jobs never blocks publishing
+    # the linux multi-arch manifest; the Windows entry is added opportunistically
+    # below only when its manifest exists.
     if: always() && needs.images.result == 'success'
     strategy:
       fail-fast: false
@@ -452,18 +482,17 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u '${{ github.actor }}' --password-stdin
           image="ghcr.io/beyondessential/tamanu-${{ matrix.repo }}"
           sha="sha-${{ needs.config.outputs.sha }}"
-          vhdx_type="application/vnd.au.bes.seedling.windows-vhdx.v1+zstd"
 
-          # The Windows VHDX artifact exists for the servers (windows-vhdx*) and
-          # the frontends (windows-vhdx-frontend), but only when that job
-          # succeeded. Detect it rather than assume it.
-          vhdx_ref=""
-          if oras manifest fetch --descriptor "$image:$sha.windows-vhdx" >/dev/null 2>&1; then
-            vhdx_ref="$image:$sha.windows-vhdx"
+          # The Windows image exists for the servers (windows-image) and the
+          # frontends (windows-image-frontend), but only when that job succeeded.
+          # Detect it rather than assume it.
+          windows_ref=""
+          if oras manifest fetch --descriptor "$image:$sha.windows-amd64" >/dev/null 2>&1; then
+            windows_ref="$image:$sha.windows-amd64"
           fi
 
           # Publish the linux multi-arch index. Fails the job if it can't (this is
-          # the essential product); the VHDX append below is best-effort.
+          # the essential product); the Windows append below is best-effort.
           retag() {
             manifest-tool push from-args \
               --platforms ${{ needs.config.outputs.all-images == 'true' && 'linux/amd64,linux/arm64' || 'linux/arm64' }} \
@@ -471,39 +500,38 @@ jobs:
               --target "$image:$1"
           }
 
-          # Append the VHDX as an extra index entry with an unknown/unknown
-          # platform (like buildkit attestations), so container runtimes never
-          # select it while a BES client can discover it by artifactType.
+          # Append the Windows image as an ordinary windows/amd64 index entry:
+          # since the base-less artifact is a standard OCI image, the Seedling
+          # runtime selects it by platform like any other. It carries no
+          # os.version, because it is not tied to one Windows build. manifest-tool
+          # only templates over ARCH, hence the manual append.
           index_type="application/vnd.oci.image.index.v1+json"
-          append_vhdx() {
+          append_windows() {
             target="$1"
-            [ -n "$vhdx_ref" ] || return 0
-            desc="$(oras manifest fetch --descriptor "$vhdx_ref")"
+            [ -n "$windows_ref" ] || return 0
+            desc="$(oras manifest fetch --descriptor "$windows_ref")"
             idx="$(oras manifest fetch "$image:$target")"
             aug="$(jq \
-              --arg at "$vhdx_type" \
               --arg pkg "${{ matrix.repo }}" \
               '{
                  mediaType: .mediaType,
                  digest: .digest,
                  size: .size,
-                 artifactType: $at,
-                 platform: { architecture: "unknown", os: "unknown" },
+                 platform: { architecture: "amd64", os: "windows" },
                  annotations: {
-                   "au.bes.tamanu.artifact": "windows-vhdx",
+                   "au.bes.tamanu.artifact": "windows-image",
                    "au.bes.tamanu.package": $pkg,
-                   "org.opencontainers.image.title": ("Tamanu " + $pkg + " (Windows VHDX)")
+                   "org.opencontainers.image.title": ("Tamanu " + $pkg + " (Windows)")
                  }
                }' <<<"$desc")"
-            # Normalise to an OCI image index so a BES artifact entry (with
-            # artifactType) is schema-valid, then re-push the tag.
+            # Normalise to an OCI image index, then re-push the tag.
             jq --argjson d "$aug" --arg mt "$index_type" \
               '.mediaType = $mt
                | .manifests |= (map(select(.digest != $d.digest)) + [$d])' <<<"$idx" \
               | oras manifest push --media-type "$index_type" "$image:$target" -
           }
 
-          process() { retag "$1"; append_vhdx "$1" || echo "VHDX append skipped for $1"; }
+          process() { retag "$1"; append_windows "$1" || echo "Windows append skipped for $1"; }
 
           process "$sha"
 
@@ -608,8 +636,13 @@ jobs:
       META_KEY: ${{ secrets.META_KEY }}
 
   package-servers:
-    needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - images
+      - windows-image
+    # windows-image supplies the bundle the Windows artifact is repacked from.
+    # always() so that if it fails the linux artifacts are still published (the
+    # Windows job then fails on its own, on the missing bundle).
+    if: always() && needs.images.result == 'success' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
     secrets:

@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_program_registry_conditions_from_sync_lookup
               - notify_program_registry_conditions_changed
               - record_program_registry_conditions_changelog
               - set_program_registry_conditions_updated_at

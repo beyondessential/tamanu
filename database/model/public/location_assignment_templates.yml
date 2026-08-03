@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_location_assignment_templates_from_sync_lookup
               - notify_location_assignment_templates_changed
               - record_location_assignment_templates_changelog
               - set_location_assignment_templates_updated_at

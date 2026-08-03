@@ -1,10 +1,11 @@
 import winston from 'winston'; // actual log output
-import config from 'config';
 
 import { COLORS } from './color';
 
-// defensive destructure to allow for testing shared directly
-const { consoleLevel, timeless = false } = config?.log || {};
+// Console level comes from LOG_CONSOLE_LEVEL; default to silent under test and `http` otherwise.
+const consoleLevel = process.env.LOG_CONSOLE_LEVEL ?? (process.env.NODE_ENV === 'test' ? '' : 'http');
+const timeless = process.env.LOG_TIMELESS === 'true';
+const useColour = !process.env.NO_COLOR;
 
 // detect whether we're running as a systemd service
 const isSystemd = (Boolean(process.env.JOURNAL_STREAM) && !process.stderr.isTTY) || Boolean(process.env.DEBUG_INVOCATION);
@@ -34,7 +35,11 @@ const logFormat = winston.format.printf(({ level, message, childLabel, timestamp
 });
 
 export const localTransport = new winston.transports.Console({
-  format: winston.format.combine(winston.format.colorize(), winston.format.timestamp(), logFormat),
+  format: winston.format.combine(
+    ...(useColour ? [winston.format.colorize()] : []),
+    winston.format.timestamp(),
+    logFormat,
+  ),
   level: consoleLevel || 'info',
   silent: !consoleLevel,
 });

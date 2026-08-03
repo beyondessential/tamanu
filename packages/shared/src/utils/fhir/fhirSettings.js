@@ -1,8 +1,10 @@
-import config from 'config';
 import { globalDefaults } from '@tamanu/settings';
 
 const fhirDefaults = globalDefaults.fhir;
 const DEFAULTS = {
+  // The enable flags are per server type (central/facility scope), so there is no global
+  // default to fall back on: off until loaded from the DB at startup.
+  workerEnabled: false,
   resourceMaterialisationEnabled: fhirDefaults.worker.resourceMaterialisationEnabled,
   extensions: fhirDefaults.extensions,
   nullLastNameValue: fhirDefaults.nullLastNameValue,
@@ -46,7 +48,13 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
     }
   }
 
+  // `fhir.worker.enabled` is scoped to the server type, so on a facility server it comes from
+  // a facility reader (which merges facility over global) rather than the global-only one.
+  const [primaryFacilitySettings] = facilitySettings;
+  const { worker } = primaryFacilitySettings ? await primaryFacilitySettings.get('fhir') : fhir;
+
   settings = {
+    workerEnabled: Boolean(worker.enabled),
     resourceMaterialisationEnabled: mergedMatEnabled,
     extensions: fhir.extensions,
     nullLastNameValue: fhir.nullLastNameValue,
@@ -59,7 +67,7 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
 
 export function getFhirWorkerSettings() {
   return {
-    enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
+    enabled: settings.workerEnabled,
     resourceMaterialisationEnabled: settings.resourceMaterialisationEnabled,
   };
 }

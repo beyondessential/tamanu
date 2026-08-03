@@ -40,9 +40,9 @@ async function startApiSyncAndTasks(context) {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
-  const cancelTasks = startScheduledTasks(context);
+  const cancelTasks = await startScheduledTasks(context);
   // SyncTask no-ops until the runtime is ready, so schedule it regardless.
-  const cancelSyncTask = startScheduledTasks(context, [SyncTask]);
+  const cancelSyncTask = await startScheduledTasks(context, [SyncTask]);
   const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
 
   process.once('SIGTERM', () => {

@@ -14,6 +14,7 @@ export * from './migrateNotePagesToNotes';
 export * from './migrateVitals';
 export * from './printRoutes';
 export * from './provision';
+export * from './rebuildSyncLookup';
 export * from './removeDuplicatedDischarges';
 export * from './report';
 export * from './shell';

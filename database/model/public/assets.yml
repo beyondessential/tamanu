@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_assets_from_sync_lookup
               - notify_assets_changed
               - record_assets_changelog
               - set_assets_updated_at

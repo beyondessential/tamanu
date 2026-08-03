@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_procedure_type_surveys_from_sync_lookup
               - notify_procedure_type_surveys_changed
               - record_procedure_type_surveys_changelog
               - set_procedure_type_surveys_updated_at

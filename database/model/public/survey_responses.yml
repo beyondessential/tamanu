@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_survey_responses_from_sync_lookup
               - notify_survey_responses_changed
               - record_survey_responses_changelog
               - set_survey_responses_updated_at
