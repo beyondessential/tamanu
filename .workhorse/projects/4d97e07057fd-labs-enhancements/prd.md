@@ -235,7 +235,7 @@ _To be detailed._
 
 ### 14. Update the Sample taken modal when recording a sample from the lab request screen
 
-**Summary.** Lab staff feedback on TAM-2045: when recording sample details they can't see which request they're working on, so they sometimes enter the wrong specimen type. They asked to move the sample details entry box higher so the request's test category and test types stay in view while they select the specimen type, making it clear which request it is.
+**Summary.** Update the current modal so it is the same modal that appears 
 
 **Problem.** At the point of entering sample details, the test category and test types aren't visible alongside the entry fields, so staff can't easily confirm which request they're recording against before choosing the specimen type.
 
