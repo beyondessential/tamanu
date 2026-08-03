@@ -169,6 +169,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 - **Finalise screen when recording a new lab request:**
   - If no sample is recorded, the finalise screen displays (as now).
   - If a sample is recorded, the finalise screen displays only when there are outstanding requests whose sample has not been collected.
+- 
 
 ---
 
