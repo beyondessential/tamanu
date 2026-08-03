@@ -65,7 +65,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
-Samples are collected per category.
+
 
 Two display patterns recur across the surfaces below:
 - **Category grouping** — items grouped by category, each category listing all the tests and panels it contains.
