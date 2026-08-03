@@ -136,6 +136,7 @@ test.describe('Admin settings editor — array (list) inputs', () => {
 
 test.describe('Admin settings editor — saving string settings', () => {
   let settingsPage: SettingsPage;
+  let seededName: string;
 
   // country.name is a plain yup.string() in the global scope, directly under the
   // Country category, so its value survives a save untouched by any structured
@@ -147,12 +148,17 @@ test.describe('Admin settings editor — saving string settings', () => {
     await settingsPage.goto();
     await expect(settingsPage.scopeSelect).toBeVisible();
     await settingsPage.selectCategory('Country');
+    seededName = await settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME)).inputValue();
   });
 
+  // restore rather than reset to default: reset deletes the environment's stored
+  // country name instead of putting it back
   test.afterEach(async () => {
-    const setting = settingsPage.settingLine(COUNTRY_NAME);
-    await settingsPage.resetToDefault(setting);
-    await settingsPage.save();
+    const input = settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME));
+    if ((await input.inputValue()) !== seededName) {
+      await input.fill(seededName);
+      await settingsPage.save();
+    }
   });
 
   // A string setting whose text happens to parse as JSON must come back as that
