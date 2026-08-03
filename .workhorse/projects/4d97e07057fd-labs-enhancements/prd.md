@@ -47,7 +47,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Tests within a panel shuld be listed in the same order as they appear in the reference data
 - If you search an individual test, display the test first followed by any panels that contain that test alphebetically.
 - Default all panel dropdowns as closed
-- One selected, tests and panels should be displayed in the selected section and grouped by category. categories should be displayed in alphabetical order and within the category panels and tests should be displayed in alphabetical order
+- One selected, tests and panels should be displayed in the selected section and grouped by category. categories should be displayed in alphabetical order and within the category panels and tests should be displayed in reference data order
 - Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disable the 'Next' button until one item has been selected
 ---
 
