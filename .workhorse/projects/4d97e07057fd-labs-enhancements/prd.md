@@ -43,14 +43,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
-- **Single ordering workflow.** The up-front "individual vs panel" request-type step is removed — both are requested in one workflow.
-- **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place. Results list matching individual tests first, followed by the panels that contain those tests.
-- **Show panel contents.** For a panel, the clinician can see which individual test types make it up while ordering.
-- **Prevent duplicates.** Duplicate detection runs in both directions while building a request:
-  - An individual test already covered by a selected panel cannot also be selected on its own.
-  - Selecting a panel that contains a test already selected individually is likewise detected and resolved.
-  - In both cases the workflow stops the double entry rather than just warning about it. This check is scoped to the request being built; it does not look at the patient's other active requests.
-- **No visual distinction.** Once selected, panels and individual tests do not need to be visually distinguished from one another. Detailed interaction and layout are for design.
+- **Preventing duplicates.** If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover. If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
 
 **Rationale.** Ordering panels and single tests in one workflow removes a decision the clinician shouldn't have to make up front, seeing a panel's constituent tests gives them oversight, and blocking overlapping individual tests eliminates the double entries the request was raised to solve.
 
