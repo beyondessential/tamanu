@@ -1,13 +1,16 @@
 # Content-addressed blob storage — card breakdown
 
 Slices the epic into spawned cards. Attachments are stored on the filesystem as
-content-addressed storage (SHA-256, lowercase hex, `ab/cd/<rest>` fan-out) with
-the DB row holding only the hash, built as a general blob-store primitive that
-attachments and assets consume. This moves attachment and asset bloat out of the
-database — a volume that varies widely across deployments, reaching hundreds of
-gigabytes at the largest sites — and ends the changelog duplication of write-once
-blobs, which applies regardless of deployment size. Entries are ordered by dependency;
-the foundation cards come first, the resilience cards are optional and can follow.
+content-addressed storage (BLAKE3, lowercase hex, algorithm-namespaced
+`ab/cd/<rest>` fan-out) with the DB row holding only the hash, built as a general
+blob-store primitive that attachments and assets consume. This moves attachment and
+asset bloat out of the database — a volume that varies widely across deployments,
+reaching hundreds of gigabytes at the largest sites — and ends the changelog
+duplication of write-once blobs, which applies regardless of deployment size.
+Blobs are retained indefinitely; retention policy and legal erasure are out of
+scope, deferred to a future Tamanu-wide obligations feature. Entries are ordered by
+dependency; the foundation cards come first, the resilience cards are optional and
+can follow.
 
 ## Content-addressed blob store primitive
 
@@ -69,9 +72,11 @@ cache suited to constrained device storage. Depends on the foundation cards.
 
 Moves the existing in-database blobs onto the filesystem as a batched, throttled
 background job — a volume ranging from modest to hundreds of gigabytes across
-deployments, so it must be resumable and bounded at any scale — and purges the
-historical blob copies duplicated into the changelog. Handles version skew across a rolling upgrade, dual-read behind a flag,
-and rollback. The gating operational risk; its version-skew constraints feed back
+deployments, so it must be resumable and bounded at any scale. Decides how to treat
+the historical blob copies already duplicated into the changelog — leave, purge, or
+relocate to the store — noting that new writes stop duplicating automatically once
+live rows carry only a hash. Handles version skew across a rolling upgrade,
+dual-read behind a flag, and rollback. The gating operational risk; its version-skew constraints feed back
 into the subprotocol design, so it should be specced early even though it lands late.
 
 ## Blob store backups and restore
