@@ -47,7 +47,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Tests within a panel shuld be listed in the same order as they appear in the reference data
 - If you search an individual test, display the test first followed by any panels that contain that test alphebetically.
 - Default all panel dropdowns as closed
-- One selected, tests and panels should be displayed in the selected ection and 
+- One selected, tests and panels should be displayed in the selected section and 
 ---
 
 ### 2. Merge multiple lab requests into a single request
