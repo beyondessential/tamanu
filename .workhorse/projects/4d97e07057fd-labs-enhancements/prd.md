@@ -70,7 +70,7 @@ Two display patterns recur across the surfaces below:
 Applied per surface:
 
 - **New lab request workflow — Sample details step.** Samples are grouped by category, each category's sample listing all the tests and panels it contains (category grouping). https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
-- **New lab request workflow - Finalised modal.** Lists tests and panels the same way, grouped within each category (category grouping). Please note the design updates to this modal. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
+- **New lab request workflow - Finalised modal.** Lists tests and panels the same way, grouped within each category (category grouping). Please auto-select checkboxes for categories that have had the samples recorded. Please note the design updates to this modal. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
 - **Encounter-level labs table.** No panels column. Hovering over the **Test category** column reveals the tests and panels ordered on the request.
 - **Lab request view (encounter level).** Update the table so that it can handle displaying results for both individual tests and panels. Display individual tests first alphabetically followed by panels, alphabetically and within each panel display tests in the same order as listed in reference data. Please also update the tile 'Test category' to 'Category'. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41639-15551&t=tyhjuqgTUSzOAZGg-1
 - **Results entry modal.** Uses the printout layout.
