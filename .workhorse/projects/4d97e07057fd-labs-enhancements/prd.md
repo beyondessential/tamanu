@@ -235,7 +235,7 @@ _To be detailed._
 
 ### 14. Update the Sample taken modal when recording a sample from the lab request screen
 
-**Summary.** Update the current modal so it is the same modal that appears during a new lab request. Please keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
+**Summary.** Update the current modal so it is the same modal that appears during a new lab request. However lease keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
 
 
