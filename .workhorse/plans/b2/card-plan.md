@@ -33,9 +33,12 @@ The symmetric primitive that moves bytes between servers independently of record
 sync direction: offer/fetch a blob by hash, verify content on receipt, and stream
 resumably so large files survive poor links. Records always sync carrying only the
 hash, so this card also defines the content-pending availability state a server
-reports when it holds a reference but not yet its bytes. Generalises the existing
-try-local-then-central attachment GET into a reusable channel. Depends on the blob
-store primitive; does not change any consumer table yet.
+reports when it holds a reference but not yet its bytes, evident in the response and
+distinguishing upload-pending from fetch-pending. Generalises the existing
+try-local-then-central attachment GET into a reusable channel, and can lean on
+Tamanu's multiplexing HTTP/2-3 facility–central client for efficient many-small-blob
+transfers rather than building its own batching. Depends on the blob store
+primitive; does not change any consumer table yet.
 
 ## Facility blob outbox and LRU cache
 
@@ -52,8 +55,11 @@ store so new attachments are stored on disk going forward: user uploads, patient
 letters, survey photos, FHIR lab PDFs, profile pictures, and web download. Adds the
 `hash` column, local hash-based id assignment for offline-tolerant upload, and
 streaming/range serving, with readers tolerating both new (hash) and legacy
-(in-database) rows during transition. Depends on the foundation cards; the bulk move
-of existing data is the backfill card's job.
+(in-database) rows during transition. Presents a single awaiting-content message for
+a content-pending file for now, though the response distinguishes upload-pending
+from fetch-pending so the presentation can be refined without a backend change.
+Depends on the foundation cards; the bulk move of existing data is the backfill
+card's job.
 
 ## Route assets through the blob store
 

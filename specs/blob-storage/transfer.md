@@ -46,8 +46,11 @@ session and never holds up the records around it.
 - [ ] Each server determines locally whether it holds the bytes for a referenced
   hash. A reference whose bytes are absent on the serving server is content-pending.
 - [ ] A content-pending reference is surfaced as an existing file awaiting its
-  bytes — whether an origin is still uploading it or a consumer is still fetching it
-  — rather than as a missing or absent record.
+  bytes, rather than as a missing or absent record.
+- [ ] The serving server's response makes the availability state evident and
+  distinguishes whether the content is awaiting upload from its origin or awaiting
+  fetch by the serving server, so a client can differentiate the cases without a
+  further request.
 - [ ] A content-pending reference resolves to available once the serving server
   holds the blob.
 
