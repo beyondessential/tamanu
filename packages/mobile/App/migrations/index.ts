@@ -89,9 +89,13 @@ import { addLabTestReferenceRangeColumns1778546880000 } from './1778546880000-ad
 import { addSurveyResponseEditMetadata1778560763154 } from './1778560763154-addSurveyResponseEditMetadata';
 import { addLabTestReferenceRangeText1779700000000 } from './1779700000000-addLabTestReferenceRangeText';
 import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
+<<<<<<< HEAD
 import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 
+=======
+import { addProgramFormQueryIndexes1785739800000 } from './1785739800000-addProgramFormQueryIndexes';
+>>>>>>> efc63e269e (perf(mobile): index the foreign keys on the program forms query path)
 export const migrationList = [
   databaseSetup1661160427226,
   updatePatientDateTimeColumns1661717539000,
@@ -183,6 +187,10 @@ export const migrationList = [
   addSurveyResponseEditMetadata1778560763154,
   addLabTestReferenceRangeText1779700000000,
   removeDietIdFromEncounter1781501076000,
+<<<<<<< HEAD
   addUserKind1783118255000,
   addDosingAndDispensingUnitColumns1779900000001,
+=======
+  addProgramFormQueryIndexes1785739800000,
+>>>>>>> efc63e269e (perf(mobile): index the foreign keys on the program forms query path)
 ];
