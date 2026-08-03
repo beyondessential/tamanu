@@ -233,7 +233,7 @@ _To be detailed._
 
 ---
 
-### 14. Update the 
+### 14. Update the Sample te
 
 **Summary.** Lab staff feedback on TAM-2045: when recording sample details they can't see which request they're working on, so they sometimes enter the wrong specimen type. They asked to move the sample details entry box higher so the request's test category and test types stay in view while they select the specimen type, making it clear which request it is.
 
