@@ -44,7 +44,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
 - **Preventing duplicates.** If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover. If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
-- Tests within a panel sh
+- Tests within a panel shuld be listed in the s
 ---
 
 ### 2. Merge multiple lab requests into a single request
