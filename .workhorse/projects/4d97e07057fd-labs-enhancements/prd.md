@@ -41,7 +41,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 **Design updates.**
 
-Figma linkhttps://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
+Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
 - **Single ordering workflow.** The up-front "individual vs panel" request-type step is removed — both are requested in one workflow.
 - **One combined search.** The test-selection search field returns both individual test types and panels, so the clinician finds and adds either from the same place. Results list matching individual tests first, followed by the panels that contain those tests.
