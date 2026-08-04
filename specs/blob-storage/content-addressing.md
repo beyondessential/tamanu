@@ -32,6 +32,20 @@ retrieved blob can be verified by re-hashing it.
 - [ ] The fan-out keeps the number of entries per directory manageable on all
   supported filesystems.
 
+## Store interface
+
+- [ ] The store exposes four operations keyed by hash: presence check, streamed
+  retrieval, admission, and removal.
+- [ ] Admission hashes content as it streams in, so a blob's recorded hash is
+  always computed from the bytes actually stored.
+- [ ] Admission is idempotent: content whose hash is already stored is not stored
+  again, and the existing blob is shared.
+- [ ] Admission records the blob in the local registry with its size and integrity
+  state.
+- [ ] Content is written to a temporary file within the store, flushed, and moved
+  into its fan-out path by an atomic rename, so a reader never observes a partial
+  blob. This holds on Windows/NTFS as well as POSIX filesystems.
+
 ## Blobs and references
 
 - [ ] A **blob** is content: its bytes and its size. Size is an intrinsic property

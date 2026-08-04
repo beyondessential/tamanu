@@ -59,10 +59,38 @@ Load-bearing durability detail, currently absent from CAS — worth **one CAS cr
 - [x] Research spike: BLAKE3 Node + RN availability and benchmark vs SHA-256; decision recorded above — SHA-256
 - [x] SHA-256 fallback taken: CAS updated (algorithm bullet, `sha256:` tag, path example)
 - [ ] Verify a native SHA-256 module builds against RN 0.85.3 and streams from a file path on a real ARM device (spike left this unmeasured) — do before the mobile `put`
-- [ ] `blobs` table migrations — server (Sequelize) + mobile (TypeORM), no sync, no changelog
-- [ ] `BlobStore` class: `has` / `get` / `put` / `delete` with hash-on-write and atomic temp-write-then-rename
-- [ ] Windows/NTFS rename and path handling, with coverage on the atomic-write path
-- [ ] Configurable store root (config) + free-disk reserve (setting)
-- [ ] Free-disk floor: measure volume free space, cache-eviction hook, refuse-new-blob path (central included)
-- [ ] Consider tightening CAS with an atomic-write criterion and (optionally) the interface contract
-- [ ] Unit tests: fan-out layout, empty blob, dedupe no-op, floor refusal, registry state
+- [x] Blob constants (`@tamanu/constants`): hash algorithms, current algorithm, integrity states
+- [x] Pure hash/path helpers (`@tamanu/utils/blobs`): tagged-hash format/parse, fan-out path segments — dependency-free so mobile can reuse them later
+- [x] `blobs` table migrations — server (Sequelize) + mobile (TypeORM), no sync, no changelog
+- [x] `Blob` model (server) + `Blob` entity (mobile), registered in model maps
+- [x] Exclude `public.blobs` from sync and changelog capture (`migrations/constants.ts`)
+- [x] dbt source model for `blobs` (hand-written; reconcile with `npm run dbt-generate-model` when a live DB is available)
+- [x] `BlobStore` class (`@tamanu/database/blobStore`): `has` / `get` / `put` / `delete` with hash-on-write and atomic temp-write-then-rename
+- [x] Windows/NTFS rename and path handling (retry on EEXIST/EPERM/EBUSY, dedupe on lost race); real-NTFS verification tracked in test cases
+- [x] Configurable store root (config `blobStorage.root` on central + facility) + free-disk reserve (global setting `blobStorage.freeDiskReserve`)
+- [x] Free-disk floor: measure volume free space (`fs.statfs`), cache-eviction hook, refuse-new-blob path (central included)
+- [x] Tighten CAS with the atomic-write criterion and the store interface contract
+- [x] Unit tests: fan-out layout, empty blob, dedupe no-op, floor refusal, registry state (see `.workhorse/test-cases/e2/overview.md`)
+
+Follow-ups for sibling cards:
+
+- Crash-orphaned files under `<root>/tmp` are not swept by the primitive; reclamation (D2's
+  area) should own a startup/scheduled sweep of stale temp files.
+- Server context wiring (constructing `BlobStore` from `config.blobStorage.root` and the
+  `blobStorage.freeDiskReserve` setting) lands with the first consumer (F2), as does the
+  eviction hook implementation (G2).
+
+Implementation notes:
+
+- `BlobStore` lives in `packages/database` because it owns the registry writes and shared/
+  must not import database models. It takes the store root, the `Blob` model, a reserve
+  getter (thread the settings value in; the store doesn't read settings itself), and an
+  optional `evictCache(bytesNeeded)` hook that G2's LRU cache will supply.
+- File placement happens before registry insert: a crash between the two leaves an orphan
+  file that a later `put` of the same content adopts, never a registry row pointing at
+  missing bytes.
+- Node >= 26 has `fs.promises.statfs`, so no `check-disk-space` dependency is needed
+  (central-server's existing `getFreeDiskSpace` predates it).
+- Server wiring (constructing the store in each server's application context) is left to
+  the consumer cards (F2/G2) — this card ships the primitive, the config key, and the
+  setting.
