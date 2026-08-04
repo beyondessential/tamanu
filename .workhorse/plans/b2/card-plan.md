@@ -94,10 +94,14 @@ minor-version sync skew, so all servers in a sync network share it. Includes rol
 
 ## Blob store backups and restore
 
-Defines how the blob store and the database stay mutually consistent across backup
-and restore, including the write-order rule, incremental append-only backup, and the
-restore procedure. Updates the facility-restored-from-backup runbook. Depends on the
-store being in place.
+Specifies how the blob store and database stay mutually consistent across backup and
+restore: the database-then-store ordering that guarantees no dangling references,
+incremental append-only store backup, and the restore procedure. Facility backups
+include the store, since they drive upgrade testing and must reproduce the true
+facility state rather than one part-reconstituted from central. Implemented by
+bestool on a separate board, not in the Tamanu codebase, but specified here as part
+of this epic. Updates the facility-restored-from-backup runbook. Depends on the store
+being in place.
 
 ## Blob integrity scrub and self-heal
 
