@@ -25,7 +25,7 @@ export class MedicationDiscontinueModal {
   }
 
   async getDiscontinuedByValue(): Promise<string> {
-    return (await this.discontinuedByInput.inputValue()).trim();
+    return this.discontinuedByInput.inputValue();
   }
 
   async changeDiscontinuedBy(currentUserDisplayName: string): Promise<void> {
