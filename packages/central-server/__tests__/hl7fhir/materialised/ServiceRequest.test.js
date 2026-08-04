@@ -1087,7 +1087,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             await ir.setAreas([resources.area1.id]);
             await ir.reload();
             const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-            mat.update({ lastUpdated: addDays(new Date(), 5) });
+            await mat.update({ lastUpdated: addDays(new Date(), 5) });
             return ir;
           })(),
           (async () => {
@@ -1105,7 +1105,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             await ir.setAreas([resources.area2.id]);
             await ir.reload();
             const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
-            mat.update({ lastUpdated: addDays(new Date(), 10) });
+            await mat.update({ lastUpdated: addDays(new Date(), 10) });
             return ir;
           })(),
         ]);
