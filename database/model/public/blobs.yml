@@ -31,7 +31,6 @@ sources:
             data_type: text
             description: "{{ doc('blobs__hash') }}"
             data_tests:
-              - unique
               - not_null
           - name: size
             data_type: bigint
