@@ -27,18 +27,24 @@ be found.
   that every blob is verified within a target cycle.
 - [ ] The scrub runs on every server that stores blobs, central and facilities
   alike.
-- [ ] The scrub also checks referential integrity: every hash referenced by a record
-  has a present blob. A referenced blob that is missing is reported the same way as a
-  corrupt one.
+- [ ] The scrub also checks referential integrity for content that must be durably
+  present on the server: every referenced, delivered blob on the central server, and
+  every outbox blob on a facility. A blob absent in these cases is reported the same
+  way as a corrupt one.
+- [ ] Legitimately absent bytes are not a fault, and are neither reported nor
+  proactively repaired: a blob still awaiting upload or fetch (content-pending, see
+  `transfer.md`), or a cache blob that has been evicted (durable on central and
+  refetched on demand, see `facility-cache.md`).
 
 ## Self-heal
 
-- [ ] A corrupt or missing blob that is a replica — a facility cache copy, durable
-  elsewhere — is repaired by re-fetching it, and is treated as a low-severity,
-  self-correcting event.
-- [ ] A corrupt or missing blob that is an authoritative copy — on central, or an
-  outbox blob that is the only copy — is quarantined, escalated for attention, and
-  repaired from the cheapest available source in order: local error correction where
-  present, a peer holding the hash, then a backup.
+- [ ] A corrupt replica — a facility cache copy whose bytes fail verification, the
+  content being durable elsewhere — is repaired by re-fetching it, a low-severity,
+  self-correcting event. A cache copy that is merely absent is not a fault and
+  refetches on demand.
+- [ ] A corrupt or missing blob that must be durably present — an authoritative copy
+  on central, or an outbox blob that is the only copy — is quarantined, escalated for
+  attention, and repaired from the cheapest available source in order: local error
+  correction where present, a peer holding the hash, then a backup.
 - [ ] A quarantined blob is retained rather than deleted, so it remains available for
   investigation and is never served.
