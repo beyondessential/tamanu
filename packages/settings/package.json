@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.60.7",
+  "version": "2.60.8",
   "private": true,
   "description": "BES - Settings",
   "main": "./src/index",
