@@ -98,7 +98,8 @@ const AdvancedConfigField = ({ field, form }) => {
       setFieldValue(name, parsed);
       setJsonError(null);
     } catch (err) {
-      // Store the raw string so yup's .object() check fails and blocks submission.
+      // Keep the unparseable string as the field value; the strict object schema
+      // rejects it, so the form can't be submitted with invalid JSON.
       setFieldValue(name, newValue);
       setJsonError(err);
     }
@@ -453,9 +454,12 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
               data-testid="translatedtext-gj6l"
             />,
           ),
+        // `.strict()` stops yup coercing a string into an object, so invalid JSON
+        // (kept as-is by AdvancedConfigField) fails validation instead of casting to null.
         advancedConfig: yup
           .object()
           .nullable()
+          .strict()
           .translatedLabel(
             <TranslatedText
               stringId="admin.report.advancedConfig.label"
