@@ -2,6 +2,7 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { runWithAuditUser } from '@tamanu/database/utils/audit';
 
 export class AutomaticLabTestResultPublisher extends ScheduledTask {
   getName() {
@@ -44,32 +45,28 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     for (const test of tests) {
       const { labRequest, labTestType } = test;
       try {
-        // transaction just exists on any model, nothing specific to LabTest happening on this line
-        await this.models.LabTest.sequelize.transaction(async () => {
-          // get the appropriate result info for this test
-          const resultData = this.results[labTestType.id];
+        // published automatically, but on the requester's behalf
+        await runWithAuditUser(labRequest.requestedById, () =>
+          // transaction just exists on any model, nothing specific to LabTest happening on this line
+          this.models.LabTest.sequelize.transaction(async () => {
+            // get the appropriate result info for this test
+            const resultData = this.results[labTestType.id];
 
-          // update test with result + method ID
-          await test.update({
-            labTestMethodId: resultData.labTestMethodId,
-            result: resultData.result,
-            completedDate: labRequest.requestedDate,
-          });
+            // update test with result + method ID
+            await test.update({
+              labTestMethodId: resultData.labTestMethodId,
+              result: resultData.result,
+              completedDate: labRequest.requestedDate,
+            });
 
-          // publish the lab request (where it will be picked up by certificate notification if relevant)
-          await labRequest.update({
-            status: LAB_REQUEST_STATUSES.PUBLISHED,
-          });
+            // publish the lab request (where it will be picked up by certificate notification if relevant)
+            await labRequest.update({
+              status: LAB_REQUEST_STATUSES.PUBLISHED,
+            });
 
-          // Create a log entry for the lab request status
-          await this.models.LabRequestLog.create({
-            status: labRequest.status,
-            labRequestId: labRequest.id,
-            updatedById: labRequest.requestedById,
-          });
-
-          log.info(`Auto-published lab request ${labRequest.id} (${labRequest.displayId})`);
-        });
+            log.info(`Auto-published lab request ${labRequest.id} (${labRequest.displayId})`);
+          }),
+        );
       } catch (e) {
         log.error(
           `Couldn't auto-publish lab request ${labRequest.id} (${labRequest.displayId})`,

@@ -44,7 +44,6 @@ describe('Sync Lookup data', () => {
   let labRequest1;
   let labTestPanel1;
   let labRequestAttachment1;
-  let labRequestLog1;
   let labTest1;
   let labTestPanelRequest1;
   let encounter1;
@@ -160,7 +159,6 @@ describe('Sync Lookup data', () => {
       InvoicePatientPayment,
       LabRequest,
       LabRequestAttachment,
-      LabRequestLog,
       LabTest,
       Note,
       Referral,
@@ -468,12 +466,6 @@ describe('Sync Lookup data', () => {
       fake(LabTestPanelRequest, {
         encounterId: encounter1.id,
         labTestPanelId: labTestPanel1.id,
-      }),
-    );
-    labRequestLog1 = await LabRequestLog.create(
-      fake(LabRequestLog, {
-        status: 'reception_pending',
-        labRequestId: labRequest1.id,
       }),
     );
     const labTestType = await LabTestType.create(
@@ -1190,7 +1182,6 @@ describe('Sync Lookup data', () => {
     let labRequest2;
     let labTestPanel2;
     let labRequestAttachment2;
-    let labRequestLog2;
     let labTest2;
     let labTestPanelRequest2;
     let encounter2;
@@ -1229,12 +1220,6 @@ describe('Sync Lookup data', () => {
           labTestPanelId: labTestPanel2.id,
         }),
       );
-      labRequestLog2 = await models.LabRequestLog.create(
-        fake(models.LabRequestLog, {
-          status: 'reception_pending',
-          labRequestId: labRequest2.id,
-        }),
-      );
       labRequestAttachment2 = await models.LabRequestAttachment.create(
         fake(models.LabRequestAttachment, {
           labRequestId: labRequest2.id,
@@ -1258,7 +1243,6 @@ describe('Sync Lookup data', () => {
         Encounter: models.Encounter,
         LabRequest: models.LabRequest,
         LabRequestAttachment: models.LabRequestAttachment,
-        LabRequestLog: models.LabRequestLog,
         LabTest: models.LabTest,
         LabTestPanelRequest: models.LabTestPanelRequest,
       };
@@ -1330,9 +1314,6 @@ describe('Sync Lookup data', () => {
       const labRequestAttachmentIds = outgoingSnapshotRecords
         .filter(r => r.recordType === 'lab_request_attachments')
         .map(r => r.recordId);
-      const labRequestLogIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_logs')
-        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
         .filter(r => r.recordType === 'lab_tests')
         .map(r => r.recordId);
@@ -1345,7 +1326,6 @@ describe('Sync Lookup data', () => {
       expect(labRequestAttachmentIds.sort()).toEqual(
         [labRequestAttachment1.id, labRequestAttachment2.id].sort(),
       );
-      expect(labRequestLogIds.sort()).toEqual([labRequestLog1.id, labRequestLog2.id].sort());
       expect(labTestIds.sort()).toEqual([labTest1.id, labTest2.id].sort());
       expect(labTestPanelRequests.sort()).toEqual(
         [labTestPanelRequest1.id, labTestPanelRequest2.id].sort(),
@@ -1357,7 +1337,6 @@ describe('Sync Lookup data', () => {
         Encounter: models.Encounter,
         LabRequest: models.LabRequest,
         LabRequestAttachment: models.LabRequestAttachment,
-        LabRequestLog: models.LabRequestLog,
         LabTest: models.LabTest,
         LabTestPanelRequest: models.LabTestPanelRequest,
       };
@@ -1416,9 +1395,6 @@ describe('Sync Lookup data', () => {
       const labRequestAttachmentIds = outgoingSnapshotRecords
         .filter(r => r.recordType === 'lab_request_attachments')
         .map(r => r.recordId);
-      const labRequestLogIds = outgoingSnapshotRecords
-        .filter(r => r.recordType === 'lab_request_logs')
-        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
         .filter(r => r.recordType === 'lab_tests')
         .map(r => r.recordId);
@@ -1429,7 +1405,6 @@ describe('Sync Lookup data', () => {
       expect(labEncounterIds).toEqual([encounter1.id]);
       expect(labRequestIds).toEqual([labRequest1.id]);
       expect(labRequestAttachmentIds).toEqual([labRequestAttachment1.id]);
-      expect(labRequestLogIds).toEqual([labRequestLog1.id]);
       expect(labTestIds).toEqual([labTest1.id]);
       expect(labTestPanelRequests).toEqual([labTestPanelRequest1.id]);
     });
