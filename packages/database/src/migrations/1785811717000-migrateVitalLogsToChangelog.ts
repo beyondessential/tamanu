@@ -17,8 +17,9 @@ import { QueryInterface } from 'sequelize';
 // operational. Their record_data is the answer's current row with body and updated_at
 // overlaid, not a point-in-time snapshot: only body is reconstructable from a vital log.
 //
-// Runs single statements over the whole table (~3M rows on the largest deployments);
-// plan the upgrade window accordingly.
+// Only answers that were actually edited get entries synthesised: a lone initial
+// recording carries no history, and the tables read a single entry the same as none.
+// That keeps this to thousands of inserts rather than one per vital ever recorded.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     UPDATE logs.changes lc
@@ -42,6 +43,13 @@ export async function up(query: QueryInterface): Promise<void> {
   `);
 
   await query.sequelize.query(`
+    WITH edited_answers AS (
+      SELECT answer_id
+      FROM vital_logs
+      WHERE deleted_at IS NULL
+      GROUP BY answer_id
+      HAVING count(*) > 1 OR count(previous_value) > 0
+    )
     INSERT INTO logs.changes (
       id,
       table_oid,
@@ -74,6 +82,7 @@ export async function up(query: QueryInterface): Promise<void> {
       'vital-log-migration',
       local_system_fact('currentVersion', 'unknown')
     FROM vital_logs vl
+    JOIN edited_answers ON edited_answers.answer_id = vl.answer_id
     JOIN survey_response_answers a ON a.id = vl.answer_id
     LEFT JOIN LATERAL (
       SELECT lc.created_at, lc.record_data->>'body' AS body
