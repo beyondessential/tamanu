@@ -1,10 +1,35 @@
 import { QueryInterface } from 'sequelize';
 
-// Each vital log becomes a changelog entry for its answer, carrying the original
-// change's provenance: entries reuse the vital log's id, so the copy a facility
-// authored and the copy central authored from the same synced row dedupe on sync.
-// migration_context stays null so history views read them as operational entries.
+// Vital edit history moves into the changelog. Edits made since the changelog trigger
+// went live already have an entry for the same change, written in the same transaction
+// as the vital log, so the pair share a created_at; those entries just lack the reason,
+// which the old edit path failed to record. Everything older has no entry at all.
+//
+// So: enrich the existing entries with the vital log's reason, and synthesise entries
+// only for vital logs older than their answer's first trigger-written entry. Synthesised
+// entries reuse the vital log's id, so the copy a facility authors and the copy central
+// authors from the same synced row dedupe on sync, and carry a sentinel device id (the
+// authoring device was never recorded), which also makes the down self-contained.
+// migration_context stays null on them so history views read them as operational.
+//
+// Their record_data is the answer's current row with body and updated_at overlaid, not
+// a true point-in-time snapshot: only body is reconstructable from a vital log.
+//
+// Runs one statement over the whole table (~1M rows on the largest deployments); plan
+// the upgrade window accordingly.
 export async function up(query: QueryInterface): Promise<void> {
+  await query.sequelize.query(`
+    UPDATE logs.changes lc
+    SET reason = vl.reason_for_change
+    FROM vital_logs vl
+    WHERE lc.table_name = 'survey_response_answers'
+      AND lc.record_id = vl.answer_id
+      AND lc.created_at = vl.created_at
+      AND lc.reason IS NULL
+      AND vl.reason_for_change IS NOT NULL
+      AND vl.deleted_at IS NULL;
+  `);
+
   await query.sequelize.query(`
     INSERT INTO logs.changes (
       id,
@@ -40,15 +65,21 @@ export async function up(query: QueryInterface): Promise<void> {
     FROM vital_logs vl
     JOIN survey_response_answers a ON a.id = vl.answer_id
     WHERE vl.deleted_at IS NULL
+      AND vl.created_at < COALESCE((
+        SELECT min(lc.created_at)
+        FROM logs.changes lc
+        WHERE lc.table_name = 'survey_response_answers'
+          AND lc.record_id = vl.answer_id
+          AND lc.device_id <> 'vital-log-migration'
+      ), 'infinity')
     ON CONFLICT (id) DO NOTHING;
   `);
 }
 
-// The device that authored a vital log was never recorded, so the sentinel device id
-// is honest about the provenance, and it makes this reversible without the source
-// table: by rollback time vital_logs has been recreated empty by the next migration
-// down, so a join against it would delete nothing.
 export async function down(query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: the reasons enriched onto trigger-written entries are kept; only the
+  // synthesised entries go, identified by their sentinel device id since by now the
+  // next migration's down has recreated vital_logs empty.
   await query.sequelize.query(`
     DELETE FROM logs.changes
     WHERE device_id = 'vital-log-migration';

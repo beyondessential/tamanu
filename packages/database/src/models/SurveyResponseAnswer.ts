@@ -212,6 +212,7 @@ export class SurveyResponseAnswer extends Model {
     return this;
   }
 
+  // as above: the reason is transaction-scoped, shared by every entry the transaction commits
   static async createWithReasonForChange(
     values: Partial<ModelProperties<SurveyResponseAnswer>>,
     reasonForChange?: string,
