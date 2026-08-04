@@ -50,6 +50,30 @@ describe('Edit reason in changelog entries', () => {
     expect(editEntry.reason).toBe('entered-in-error');
   });
 
+  it('records the reason on a created answer', async () => {
+    const { surveyResponse } = await setupSurvey({ models });
+    const dataElement = await models.ProgramDataElement.create(
+      fake(models.ProgramDataElement, { type: 'Number' }),
+    );
+    const answer = await sequelize.transaction(() =>
+      models.SurveyResponseAnswer.createWithReasonForChange(
+        { dataElementId: dataElement.id, responseId: surveyResponse.id, body: '80' },
+        'recorded-in-error',
+      ),
+    );
+
+    const [entry] = await entriesFor(answer.id);
+    expect(entry.body).toBe('80');
+    expect(entry.reason).toBe('recorded-in-error');
+  });
+
+  it('refuses to record a reason outside a transaction, where it would be lost', async () => {
+    const answer = await createAnswer();
+    await expect(answer.updateWithReasonForChange('92', 'entered-in-error')).rejects.toThrow(
+      'inside a transaction',
+    );
+  });
+
   it('leaves no reason on unrelated writes in later transactions', async () => {
     const answer = await createAnswer();
     await sequelize.transaction(() =>

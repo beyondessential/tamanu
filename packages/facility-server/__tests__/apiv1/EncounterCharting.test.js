@@ -248,6 +248,44 @@ describe('EncounterCharting', () => {
       );
     });
 
+    it('should show chart edit history with reason and local times', async () => {
+      await models.Setting.set('features.enableChartingEdit', true);
+      const surveyId = 'simple-chart-survey-0';
+      const submissionDate = getCurrentDateTimeString();
+      await app.post('/api/surveyResponse').send({
+        surveyId,
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneA': 321,
+        },
+        facilityId,
+      });
+      const answer = await models.SurveyResponseAnswer.findOne({
+        where: { dataElementId: 'pde-ChartQuestionOneA', body: '321' },
+      });
+
+      const editResult = await app.put(`/api/surveyResponseAnswer/chart/${answer.id}`).send({
+        reasonForChange: 'entered-in-error',
+        newValue: 654,
+        surveyId,
+        facilityId,
+      });
+      expect(editResult).toHaveSucceeded();
+
+      const { body } = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
+      const question = body.data.find(d => d.dataElementId === 'pde-ChartQuestionOneA');
+      const { logs } = question.records[submissionDate];
+      expect(logs).toEqual([
+        expect.objectContaining({ newValue: '321', reasonForChange: null }),
+        expect.objectContaining({ newValue: '654', reasonForChange: 'entered-in-error' }),
+      ]);
+      // rendered in the primary timezone like every other datestring, not the DB's UTC
+      expect(Math.abs(new Date(logs[0].date) - new Date(submissionDate))).toBeLessThan(120_000);
+    });
+
     it('should return a utility list about chart surveys with responses', async () => {
       const submissionDate = getCurrentDateTimeString();
       await app.post('/api/surveyResponse').send({

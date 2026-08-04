@@ -14,6 +14,17 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../sync/buildEncounterLinkedLookupFilter';
 
+// The changelog trigger reads the reason once, at commit, so it belongs to the whole
+// transaction rather than to one write: every entry the transaction commits carries the
+// last reason set, and outside a transaction it expires before the trigger ever sees it.
+const setReasonForChange = async (sequelize: any, reasonForChange?: string) => {
+  if (!reasonForChange) return;
+  if (!sequelize.isInsideTransaction()) {
+    throw new Error('a reason for change must be recorded inside a transaction');
+  }
+  await sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+};
+
 export class SurveyResponseAnswer extends Model {
   declare id: string;
   declare name?: string;
@@ -212,24 +223,16 @@ export class SurveyResponseAnswer extends Model {
     return this;
   }
 
-  // as above: the reason is transaction-scoped, shared by every entry the transaction commits
   static async createWithReasonForChange(
     values: Partial<ModelProperties<SurveyResponseAnswer>>,
     reasonForChange?: string,
   ) {
-    if (reasonForChange) {
-      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
-    }
+    await setReasonForChange(this.sequelize, reasonForChange);
     return this.create(values);
   }
 
-  // The changelog trigger reads the reason once, at commit, so it is transaction-scoped:
-  // every entry the transaction commits carries the last reason set. One reason per
-  // transaction; clearing it mid-transaction would wipe it for all of them.
   async updateWithReasonForChange(newValue: string, reasonForChange: string) {
-    if (reasonForChange) {
-      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
-    }
+    await setReasonForChange(this.sequelize, reasonForChange);
     await this.update({ body: newValue });
     return this;
   }
