@@ -30,6 +30,9 @@ session and never holds up the records around it.
 
 ## Push
 
+- [ ] A blob's referencing record synchronises to the central server before the
+  blob is pushed, so the central server already expects the blob when it arrives
+  (see `access-control.md`).
 - [ ] A server that originates a blob delivers its bytes to the central server over
   the transfer channel.
 - [ ] The origin retains the only copy durably in its outbox until the central

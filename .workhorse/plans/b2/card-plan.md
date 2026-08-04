@@ -125,8 +125,10 @@ detect-and-repair path.
 
 The security model for content-addressed storage: authorisation stays at the
 reference layer so the blob endpoint is never an unauthenticated CDN. Server-to-server
-fetch applies the same facility data scoping as record sync, and push admission
-control bounds how much unreferenced content a facility can send to central so the
-channel cannot be used to exhaust central storage. Encryption at rest is out of
+fetch applies the same facility data scoping as record sync, and push is sync-first:
+central accepts a blob only once its referencing record has synced, so it holds no
+unreferenced pushed content and the channel cannot be used to exhaust central
+storage. A bounded-slack variant accepting eager pushes ahead of their references
+can be layered on later if upload responsiveness needs it. Encryption at rest is out of
 scope — already provided by the required disk-level encryption. May be folded into
 the foundation cards rather than built separately.

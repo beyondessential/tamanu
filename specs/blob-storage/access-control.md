@@ -24,3 +24,11 @@ content-addressed endpoint that serves any hash to any caller.
   synchronisation, including sensitive-facility restrictions.
 - [ ] The blob transfer channel does not widen data access beyond what record
   synchronisation already grants.
+
+## Server-to-server push
+
+- [ ] The central server accepts a pushed blob only when it already holds a record,
+  synchronised from that facility, that references the blob's hash; a push for a hash
+  it does not expect is refused.
+- [ ] A blob is pushed only after its referencing record has synchronised, so the
+  central server never accumulates unreferenced pushed content.
