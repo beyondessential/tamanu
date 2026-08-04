@@ -35,7 +35,7 @@ export async function up(query: QueryInterface): Promise<void> {
       a.deleted_at,
       to_jsonb(a.*) || jsonb_build_object('body', vl.new_value, 'updated_at', vl.created_at),
       vl.reason_for_change,
-      local_system_fact('deviceId', 'unknown'),
+      'vital-log-migration',
       local_system_fact('currentVersion', 'unknown')
     FROM vital_logs vl
     JOIN survey_response_answers a ON a.id = vl.answer_id
@@ -44,10 +44,13 @@ export async function up(query: QueryInterface): Promise<void> {
   `);
 }
 
+// The device that authored a vital log was never recorded, so the sentinel device id
+// is honest about the provenance, and it makes this reversible without the source
+// table: by rollback time vital_logs has been recreated empty by the next migration
+// down, so a join against it would delete nothing.
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    DELETE FROM logs.changes lc
-    USING vital_logs vl
-    WHERE lc.id = vl.id::uuid;
+    DELETE FROM logs.changes
+    WHERE device_id = 'vital-log-migration';
   `);
 }

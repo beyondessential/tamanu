@@ -222,8 +222,9 @@ export class SurveyResponseAnswer extends Model {
     return this.create(values);
   }
 
-  // The changelog trigger is deferred to commit, so the reason must stay set for the
-  // rest of the transaction; being transaction-local it expires with it.
+  // The changelog trigger reads the reason once, at commit, so it is transaction-scoped:
+  // every entry the transaction commits carries the last reason set. One reason per
+  // transaction; clearing it mid-transaction would wipe it for all of them.
   async updateWithReasonForChange(newValue: string, reasonForChange: string) {
     if (reasonForChange) {
       await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
