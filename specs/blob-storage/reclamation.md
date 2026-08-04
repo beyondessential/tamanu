@@ -16,9 +16,12 @@ only ever removes blobs that nothing references.
 - [ ] Liveness is derived by comparing the stored blobs against the hashes
   referenced across the reference tables, not from a maintained reference count.
 - [ ] A blob is eligible for collection only when it is unreferenced and older than
-  a safety window, so a blob received before its reference has committed or synced
-  is not collected.
-- [ ] Orphans arise from interrupted uploads or abandoned transactions.
+  a safety window, so a blob whose reference is momentarily absent during an
+  operation is not collected.
+- [ ] Because the central server accepts a blob only once a record references it, and
+  records are retained rather than deleted, orphans are rare and arise only from
+  anomalies such as interrupted or abandoned operations; orphan collection is a
+  conservative safety net.
 
 ## Facility and mobile reclamation
 
