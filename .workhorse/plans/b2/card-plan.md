@@ -121,8 +121,10 @@ only if large-file range verification is later wanted.
 Optional malware scanning of user-uploaded blobs by actively invoking the host
 scanner (clamd, Defender, or ICAP) rather than building one, caching verdicts by
 hash and treating a quarantine as a first-class, content-addressed, propagating
-state that suppresses self-heal. Includes the serve policy for not-yet-scanned
-content. No-op when unconfigured.
+state that suppresses self-heal. The serve policy is an administrator setting
+following a hardening pathway — off, serve unless known-bad (the default once
+enabled), then serve only when known-good. A fast-follow the foundation accommodates
+rather than a prerequisite to land the feature; no-op when unconfigured.
 
 ## Optional error correction for blob storage
 
