@@ -83,11 +83,10 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   const {
     db,
     models,
-    user,
     params,
     body,
   } = req;
-  const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
+  const { SurveyResponseAnswer, SurveyResponse, Survey, ProgramDataElement } = models;
   const { id } = params;
   const surveyWhereClause = isVital
     ? { surveyType: SURVEY_TYPES.VITALS }
@@ -120,22 +119,9 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   }
 
   await db.transaction(async () => {
-    const { newValue = '', reasonForChange, date } = body;
-    if (isVital) {
-      const previousValue = answerObject.body;
-      await answerObject.update({ body: newValue });
-      await VitalLog.create({
-        date,
-        reasonForChange,
-        previousValue,
-        newValue,
-        recordedById: user.id,
-        answerId: id,
-      });
-    } else {
-      await answerObject.updateWithReasonForChange(newValue, reasonForChange);
-    }
-    await answerObject.upsertCalculatedQuestions({ date, reasonForChange, user, isVital });
+    const { newValue = '', reasonForChange } = body;
+    await answerObject.updateWithReasonForChange(newValue, reasonForChange);
+    await answerObject.upsertCalculatedQuestions({ reasonForChange });
   });
 
   return answerObject;
@@ -145,10 +131,9 @@ async function postSurveyResponseAnswer(req, isVital = false) {
   const {
     db,
     models,
-    user,
     body,
   } = req;
-  const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
+  const { SurveyResponseAnswer, SurveyResponse, Survey, ProgramDataElement } = models;
 
   // Ensure data element exists and it's not a calculated question
   const dataElement = await ProgramDataElement.findOne({ where: { id: body.dataElementId } });
@@ -192,22 +177,16 @@ async function postSurveyResponseAnswer(req, isVital = false) {
 
   let newAnswer;
   await db.transaction(async () => {
-    const { newValue = '', reasonForChange, date, dataElementId } = body;
-    newAnswer = await models.SurveyResponseAnswer.create({
-      dataElementId,
-      body: newValue,
-      responseId: responseObject[0].id,
-    });
-    if (isVital) {
-      await VitalLog.create({
-        date,
-        reasonForChange,
-        newValue,
-        recordedById: user.id,
-        answerId: newAnswer.id,
-      });
-    }
-    await newAnswer.upsertCalculatedQuestions({ date, reasonForChange, user, isVital });
+    const { newValue = '', reasonForChange, dataElementId } = body;
+    newAnswer = await models.SurveyResponseAnswer.createWithReasonForChange(
+      {
+        dataElementId,
+        body: newValue,
+        responseId: responseObject[0].id,
+      },
+      reasonForChange,
+    );
+    await newAnswer.upsertCalculatedQuestions({ reasonForChange });
   });
 
   return newAnswer;

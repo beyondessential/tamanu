@@ -1,5 +1,6 @@
 import Chance from 'chance';
 import config from 'config';
+import { QueryTypes } from 'sequelize';
 import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
 import {
@@ -375,7 +376,15 @@ describe('SurveyResponseAnswer', () => {
         expect(singleAnswer.body).toEqual(String(newValue));
       });
 
-      it('should create a log on modification', async () => {
+      const changelogEntriesFor = recordId =>
+        ctx.sequelize.query(
+          `SELECT reason, record_data->>'body' AS body FROM logs.changes
+           WHERE table_name = 'survey_response_answers' AND record_id = :recordId
+           ORDER BY created_at`,
+          { type: QueryTypes.SELECT, replacements: { recordId } },
+        );
+
+      it('should record the edit in the changelog', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
         const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
@@ -390,13 +399,12 @@ describe('SurveyResponseAnswer', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const log = await models.VitalLog.findOne({
-          where: { answerId: singleAnswer.id },
-          order: [['createdAt', 'DESC']],
-        });
-        expect(log.previousValue).toBe(previousValue);
-        expect(log.newValue).toBe(String(newValue));
-        expect(log.reasonForChange).toBe(reasonForChange);
+        const entries = await changelogEntriesFor(singleAnswer.id);
+        const editEntry = entries.at(-1);
+        expect(editEntry.body).toBe(String(newValue));
+        expect(editEntry.reason).toBe(reasonForChange);
+        // the prior entry carries the value the edit replaced
+        expect(entries.at(-2).body).toBe(previousValue);
       });
 
       it('should update calculated questions accordingly', async () => {
@@ -421,14 +429,12 @@ describe('SurveyResponseAnswer', () => {
         });
         expect(result).toHaveSucceeded();
         await calculatedAnswer.reload();
-        const log = await models.VitalLog.findOne({
-          where: { answerId: calculatedAnswer.id },
-          order: [['createdAt', 'DESC']],
-        });
+        const entries = await changelogEntriesFor(calculatedAnswer.id);
+        const editEntry = entries.at(-1);
         expect(calculatedAnswer.body).toBe(newCalculatedValue);
-        expect(log.previousValue).toBe(previousValue);
-        expect(log.newValue).toBe(newCalculatedValue);
-        expect(log.reasonForChange).toBe(reasonForChange);
+        expect(editEntry.body).toBe(newCalculatedValue);
+        expect(editEntry.reason).toBe(reasonForChange);
+        expect(entries.at(-2).body).toBe(previousValue);
       });
 
       it('should only modify answers from survey vitals', async () => {
@@ -568,7 +574,7 @@ describe('SurveyResponseAnswer', () => {
         expect(createdAnswer).toBeTruthy();
       });
 
-      it('should create a log', async () => {
+      it('should record the creation in the changelog', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
         const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
@@ -585,12 +591,13 @@ describe('SurveyResponseAnswer', () => {
           facilityId,
         });
         expect(result).toHaveSucceeded();
-        const log = await models.VitalLog.findOne({
-          where: { date },
-          order: [['createdAt', 'DESC']],
-        });
-        expect(log.newValue).toBe(String(newValue));
-        expect(log.reasonForChange).toBe(reasonForChange);
+        const [entry] = await ctx.sequelize.query(
+          `SELECT reason, record_data->>'body' AS body FROM logs.changes
+           WHERE table_name = 'survey_response_answers' AND record_id = :recordId`,
+          { type: QueryTypes.SELECT, replacements: { recordId: result.body.id } },
+        );
+        expect(entry.body).toBe(String(newValue));
+        expect(entry.reason).toBe(reasonForChange);
       });
 
       it('should return error if feature flag is off', async () => {

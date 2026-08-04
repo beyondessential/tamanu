@@ -7,7 +7,6 @@ import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
-import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
 import {
@@ -145,12 +144,7 @@ export class SurveyResponseAnswer extends Model {
 
   // To be called after creating/updating a vitals survey response answer. Checks if
   // said answer is used in calculated questions and updates them accordingly.
-  async upsertCalculatedQuestions(data: {
-    date: string;
-    reasonForChange: string;
-    user: ModelProperties<User>;
-    isVital: boolean;
-  }) {
+  async upsertCalculatedQuestions(data: { reasonForChange: string }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
     }
@@ -186,7 +180,7 @@ export class SurveyResponseAnswer extends Model {
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
 
-    const { date, reasonForChange, user, isVital } = data;
+    const { reasonForChange } = data;
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
@@ -204,42 +198,42 @@ export class SurveyResponseAnswer extends Model {
       const existingCalculatedAnswer = answers.find(
         answer => answer.dataElementId === component.dataElement.id,
       );
-      const previousCalculatedValue = existingCalculatedAnswer?.body;
-      let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
         await existingCalculatedAnswer.updateWithReasonForChange(
           newCalculatedValue,
           reasonForChange,
         );
       } else {
-        newCalculatedAnswer = await models.SurveyResponseAnswer.create({
-          dataElementId: component.dataElement.id,
-          body: newCalculatedValue,
-          responseId: surveyResponse.id,
-        });
-      }
-
-      if (isVital) {
-        await models.VitalLog.create({
-          date,
+        await models.SurveyResponseAnswer.createWithReasonForChange(
+          {
+            dataElementId: component.dataElement.id,
+            body: newCalculatedValue,
+            responseId: surveyResponse.id,
+          },
           reasonForChange,
-          previousValue: previousCalculatedValue || null,
-          newValue: newCalculatedValue,
-          recordedById: user.id,
-          answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
-        });
+        );
       }
     }
     return this;
   }
 
-  // This is to avoid affecting other audit logs that might be created in the same transaction
+  static async createWithReasonForChange(
+    values: Partial<ModelProperties<SurveyResponseAnswer>>,
+    reasonForChange?: string,
+  ) {
+    if (reasonForChange) {
+      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+    }
+    return this.create(values);
+  }
+
+  // The changelog trigger is deferred to commit, so the reason must stay set for the
+  // rest of the transaction; being transaction-local it expires with it.
   async updateWithReasonForChange(newValue: string, reasonForChange: string) {
     if (reasonForChange) {
       await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
     }
     await this.update({ body: newValue });
-    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, null);
     return this;
   }
 }
