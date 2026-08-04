@@ -9,8 +9,9 @@ reaching hundreds of gigabytes at the largest sites — and ends the changelog
 duplication of write-once blobs, which applies regardless of deployment size.
 Blobs are retained indefinitely; retention policy and legal erasure are out of
 scope, deferred to a future Tamanu-wide obligations feature. Entries are ordered by
-dependency; the foundation cards come first, the resilience cards are optional and
-can follow.
+dependency: the foundation and security cards first, then the consumer and
+operational cards, then the resilience cards — of which antivirus and error
+correction are optional, while integrity verification runs by default.
 
 ## Content-addressed blob store primitive
 
@@ -50,6 +51,18 @@ never evicted until central confirms them, pushed blobs demote to an LRU/size-bo
 cache that refetches on demand. Replaces delete-after-push, adds the background
 pusher, disk-full backpressure, and a local-only cache index (no sync, no changelog).
 Depends on the primitive and the transfer subprotocol.
+
+## Blob access control
+
+The security model for content-addressed storage: authorisation stays at the
+reference layer so the blob endpoint is never an unauthenticated CDN. Server-to-server
+fetch applies the same facility data scoping as record sync, and push is sync-first:
+central accepts a blob only once its referencing record has synced, so it holds no
+unreferenced pushed content and the channel cannot be used to exhaust central
+storage. A bounded-slack variant accepting eager pushes ahead of their references
+can be layered on later if upload responsiveness needs it. Encryption at rest is out of
+scope — already provided by the required disk-level encryption. May be folded into
+the foundation cards rather than built separately.
 
 ## Route attachments through the blob store
 
@@ -133,15 +146,3 @@ redundancy, chiefly NTFS bare metal, so a single isolated copy can self-repair
 limited corruption before falling through to peer or backup. Correction-rate
 telemetry doubles as an early warning of failing media. Shares the scrub's
 detect-and-repair path.
-
-## Blob access control
-
-The security model for content-addressed storage: authorisation stays at the
-reference layer so the blob endpoint is never an unauthenticated CDN. Server-to-server
-fetch applies the same facility data scoping as record sync, and push is sync-first:
-central accepts a blob only once its referencing record has synced, so it holds no
-unreferenced pushed content and the channel cannot be used to exhaust central
-storage. A bounded-slack variant accepting eager pushes ahead of their references
-can be layered on later if upload responsiveness needs it. Encryption at rest is out of
-scope — already provided by the required disk-level encryption. May be folded into
-the foundation cards rather than built separately.
