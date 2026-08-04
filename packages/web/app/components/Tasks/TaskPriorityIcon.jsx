@@ -17,6 +17,7 @@ export const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 export const TaskNameContainer = styled.span`
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
 `;
 
 export const PriorityIconSlot = styled.span`
@@ -25,4 +26,14 @@ export const PriorityIconSlot = styled.span`
   justify-content: center;
   width: 16px;
   flex-shrink: 0;
+`;
+
+// Truncates just the name text with an ellipsis once it hits its max-width, rather than the
+// whole icon+name row being hard-clipped with no "…" (an ancestor's overflow:hidden doesn't
+// produce an ellipsis for nested flex content, only for its own direct text).
+export const TaskNameText = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 `;
