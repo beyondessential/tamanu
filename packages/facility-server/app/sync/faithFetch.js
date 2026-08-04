@@ -8,10 +8,16 @@ const loadFaith = () =>
     throw error;
   }));
 
+let agent;
+
 export const faithFetch = async (url, options) => {
-  const { fetch, ERROR_CODES } = await loadFaith();
+  const { fetch, Agent, ERROR_CODES } = await loadFaith();
+
+  // a cancelled HTTP/3 attempt never falls back to TCP, and every request here carries an abort deadline
+  agent ??= new Agent({ http3: { upgradeEnabled: false } });
+
   try {
-    return await fetch(url, options);
+    return await fetch(url, { agent, ...options });
   } catch (error) {
     // body stream read failures arrive without a code
     if (!Object.hasOwn(ERROR_CODES, error.code ?? '')) throw error;

@@ -11,6 +11,11 @@ const fetch = jest.fn();
 
 jest.mock('@passcod/faith', () => ({
   fetch: (...args) => fetch(...args),
+  Agent: class Agent {
+    constructor(options) {
+      this.options = options;
+    }
+  },
   ERROR_CODES: { Network: 'Network', Timeout: 'Timeout', Aborted: 'Aborted' },
 }));
 
@@ -44,6 +49,18 @@ describe('faithFetch', () => {
     await expect(faithFetch('https://central.example.org/api/whoami', { method: 'GET' })).resolves.toBe(
       response,
     );
-    expect(fetch).toHaveBeenCalledWith('https://central.example.org/api/whoami', { method: 'GET' });
+    expect(fetch).toHaveBeenCalledWith(
+      'https://central.example.org/api/whoami',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('makes every request on one agent with the HTTP/3 upgrade disabled', async () => {
+    fetch.mockResolvedValue({ ok: true, status: 200 });
+    await faithFetch('https://central.example.org/api/whoami');
+    await faithFetch('https://central.example.org/api/whoami');
+    const agents = fetch.mock.calls.map(([, { agent }]) => agent);
+    expect(agents[0].options).toEqual({ http3: { upgradeEnabled: false } });
+    expect(agents[1]).toBe(agents[0]);
   });
 });
