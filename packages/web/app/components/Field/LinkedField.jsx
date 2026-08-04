@@ -8,10 +8,7 @@ const useLinkedFieldQuery = (endpoint, name, value) => {
   return useQuery(
     ['linkedField', name, value],
     () =>
-      api.get(
-        endpoint.includes(':id') ? endpoint.replace(':id', value) : `${endpoint}/${value}`,
-        {},
-      ),
+      api.get(endpoint.includes(':id') ? endpoint.replace(':id', value) : `${endpoint}/${value}`),
     {
       enabled: !!value,
     },
