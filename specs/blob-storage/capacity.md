@@ -19,8 +19,8 @@ blob.
   cache before any other measure (see `facility-cache.md`).
 - [ ] When evicting cache cannot keep free disk above the reserve — because
   un-evictable outbox content is consuming the space — the blob store refuses to
-  admit new blobs rather than cross into the reserve, so an upload is rejected before
-  the database can be starved.
+  admit new blobs rather than cross into the reserve, so a new upload or push is
+  rejected before the database can be starved.
 - [ ] The floor applies wherever the blob store runs, including the central server,
   whose store grows without deletion and must not starve the central database.
 

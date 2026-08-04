@@ -29,7 +29,7 @@ retrieved blob can be verified by re-hashing it.
   filename (e.g. `blake3/ab/cd/<rest>`).
 - [ ] Path components use lowercase hex so the layout is stable on case-insensitive
   filesystems.
-- [ ] The fan-out keeps the number of entries per directory bounded on all
+- [ ] The fan-out keeps the number of entries per directory manageable on all
   supported filesystems.
 
 ## Blobs and references

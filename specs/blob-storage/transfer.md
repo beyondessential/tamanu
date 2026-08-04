@@ -23,8 +23,8 @@ session and never holds up the records around it.
 
 - [ ] A server that holds a reference but not its bytes resolves them on demand and
   in the background from a server that holds them.
-- [ ] The central server holds every blob and is the default source for a fetch; a
-  facility may also serve a blob it currently holds.
+- [ ] The central server is the authoritative store and the default source for a
+  fetch; a facility may also serve a blob it currently holds.
 - [ ] A failed or interrupted fetch is retried, and never blocks the record that
   triggered it.
 

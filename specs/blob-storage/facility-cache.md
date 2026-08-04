@@ -2,7 +2,7 @@
 id: CACHE
 ---
 
-# Facility blob cache
+# Facility and mobile blob cache
 
 A facility or mobile server keeps its blobs in a single content-addressed store
 with two tiers, distinguished only by durability. The store is a local cache in
@@ -21,6 +21,9 @@ anything it has dropped.
   affecting record integrity, because references remain in the database and their
   bytes refetch on demand. Only the outbox carries durability, so only the outbox
   must survive.
+- [ ] Outbox content always has a local referencing record; a blob whose reference
+  is never created is not left in the outbox, where it could be neither pushed nor
+  evicted.
 
 ## Eviction
 
