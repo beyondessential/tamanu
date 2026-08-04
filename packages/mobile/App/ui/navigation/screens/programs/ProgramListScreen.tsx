@@ -13,28 +13,21 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
-import { In } from 'typeorm';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 const Screen = (): ReactElement => {
   const navigation = useNavigation();
 
   const [programs, programsError, programsIsLoading] = useBackendEffect(async ({ models }) => {
-    const surveys = await models.Survey.find({
-      where: {
-        surveyType: SurveyTypes.Programs,
+    return await models.Program.createQueryBuilder('program')
+      .innerJoin('program.surveys', 'survey')
+      .where('survey.surveyType = :surveyType', { surveyType: SurveyTypes.Programs })
+      .andWhere('survey.visibilityStatus = :visibilityStatus', {
         visibilityStatus: VisibilityStatus.Current,
-      },
-    });
-
-    return models.Program.find({
-      where: {
-        id: In(surveys.map((survey) => survey.programId)),
-      },
-      order: {
-        name: 'ASC',
-      },
-    });
+      })
+      .orderBy('program.name', 'ASC')
+      .distinct(true)
+      .getMany();
   });
 
   if (programsIsLoading) {
