@@ -489,6 +489,44 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         });
       });
 
+      it("won't attach changelog entries for sensitive survey response answers", async () => {
+        // entries only travel attached to their record, so filtering the record
+        // must filter its history with it
+        const insertEntry = answer =>
+          ctx.store.sequelize.query(
+            `
+              INSERT INTO logs.changes (
+                table_oid, table_schema, table_name, updated_by_user_id, record_id,
+                record_created_at, record_updated_at, record_data, device_id, version
+              ) VALUES (
+                'public.survey_response_answers'::regclass::oid, 'public', 'survey_response_answers',
+                uuid_nil()::text, :recordId, now(), now(), :recordData::jsonb, 'test', 'test'
+              )
+            `,
+            { replacements: { recordId: answer.id, recordData: JSON.stringify({ body: answer.body }) } },
+          );
+        await insertEntry(sensitiveSurveyResponseAnswer);
+        await insertEntry(nonSensitiveSurveyResponseAnswer);
+
+        const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+        await centralSyncManager.updateLookupTable();
+
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          { since: 1, facilityIds: [nonSensitiveFacility.id] },
+          () => true,
+        );
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const attachedRecordIds = outgoingChanges
+          .flatMap(change => change.changelogRecords ?? [])
+          .map(entry => entry.recordId);
+
+        expect(attachedRecordIds).toContain(nonSensitiveSurveyResponseAnswer.id);
+        expect(attachedRecordIds).not.toContain(sensitiveSurveyResponseAnswer.id);
+      });
+
       it("won't sync sensitive encounter referrals", async () => {
         const sensitiveReferral = await models.Referral.create(
           fake(models.Referral, {
