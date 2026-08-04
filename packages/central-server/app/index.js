@@ -31,7 +31,7 @@ import { closeDatabase } from './database';
 const hiddenCommands = ['migrateNotePagesToNotesCommand', 'removeDuplicatedDischargesCommand'];
 
 async function run() {
-  program.version(version).description('Tamanu Central server').name('node dist');
+  program.version(version).description('Tamanu Central server').name('node --import tsx app');
 
   for (const [key, command] of Object.entries(cmd).filter(([k]) => /^\w+Command$/.test(k))) {
     const hidden = hiddenCommands.includes(key);
