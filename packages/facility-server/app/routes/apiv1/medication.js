@@ -45,6 +45,29 @@ const checkSensitiveMedicationPermission = async (medicationIds, req, action) =>
   }
 };
 
+// Mirrors the discharge guard already used for prescription creation (see
+// POST /encounterPrescription/:encounterId etc.): once an encounter is discharged, its
+// medication administration record shouldn't be mutated (given/not-given) any further.
+const assertPrescriptionEncounterNotDischarged = async (models, prescriptionId) => {
+  const encounterPrescription = await models.EncounterPrescription.findOne({
+    where: { prescriptionId },
+    include: [{ model: models.Encounter, as: 'encounter', attributes: ['id', 'endDate'] }],
+  });
+  const encounter = encounterPrescription?.encounter;
+  if (encounter?.endDate) {
+    throw new InvalidOperationError(`Encounter with id ${encounter.id} is discharged`);
+  }
+};
+
+// Same guard as assertPrescriptionEncounterNotDischarged, for routes that only have a MAR id
+// (e.g. editing/removing an individual dose) rather than a prescriptionId directly.
+const assertMarEncounterNotDischarged = async (models, marId) => {
+  const mar = await models.MedicationAdministrationRecord.findByPk(marId, {
+    attributes: ['id', 'prescriptionId'],
+  });
+  await assertPrescriptionEncounterNotDischarged(models, mar.prescriptionId);
+};
+
 const medicationInputSchema = z
   .object({
     encounterId: z.string().optional().nullable(),
@@ -1152,6 +1175,8 @@ medication.put(
       throw new InvalidOperationError(`MAR with id ${params.id} is already given`);
     }
 
+    await assertPrescriptionEncounterNotDischarged(models, record.prescriptionId);
+
     if (recordedByUserId) {
       const recordedByUser = await User.findByPk(recordedByUserId);
       if (!recordedByUser) {
@@ -1227,6 +1252,8 @@ medication.post(
       throw new InvalidOperationError(`Dose amount must be greater than 0`);
     }
 
+    await assertPrescriptionEncounterNotDischarged(models, prescriptionId);
+
     const result = await db.transaction(async () => {
       //create MAR
       const record = await MedicationAdministrationRecord.create({
@@ -1275,6 +1302,8 @@ medication.put(
     if (!record) {
       throw new InvalidOperationError(`MAR with id ${params.id} not found`);
     }
+
+    await assertPrescriptionEncounterNotDischarged(models, record.prescriptionId);
 
     const recordedByUser = await User.findByPk(recordedByUserId);
     if (!recordedByUser) {
@@ -1339,6 +1368,8 @@ medication.put(
       throw new InvalidOperationError(`MAR with id ${params.id} is already not given`);
     }
 
+    await assertPrescriptionEncounterNotDischarged(models, record.prescriptionId);
+
     //validate recordedByUserId
     if (recordedByUserId) {
       const recordedByUser = await User.findByPk(recordedByUserId);
@@ -1397,6 +1428,8 @@ medication.post(
     if (!reasonNotGiven) {
       throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
     }
+
+    await assertPrescriptionEncounterNotDischarged(models, prescriptionId);
 
     //create MAR
     const record = await MedicationAdministrationRecord.create({
@@ -1459,6 +1492,7 @@ medication.put(
     if (!existingMar) {
       throw new InvalidOperationError(`MAR with id ${marId} not found`);
     }
+    await assertPrescriptionEncounterNotDischarged(models, existingMar.prescriptionId);
 
     if (existingMar.status !== ADMINISTRATION_STATUS.GIVEN && doses?.length) {
       throw new InvalidOperationError(`MAR with id ${marId} is not given and cannot have doses`);
@@ -1565,6 +1599,7 @@ medication.put(
     if (!doseObject) {
       throw new InvalidOperationError(`Dose with id ${doseId} not found`);
     }
+    await assertMarEncounterNotDischarged(models, doseObject.marId);
 
     const givenByUser = await User.findByPk(givenByUserId);
     if (!givenByUser) {
@@ -1631,6 +1666,7 @@ medication.delete(
     if (!existingDose) {
       throw new InvalidOperationError(`Dose with id ${doseId} not found`);
     }
+    await assertMarEncounterNotDischarged(models, existingDose.marId);
 
     if (existingDose.doseIndex === 0) {
       throw new InvalidOperationError(`Cannot delete primary dose`);
