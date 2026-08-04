@@ -28,6 +28,7 @@ import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
 const Table = styled.table`
   background-color: ${p => p.theme.palette.background.paper};
+  border: 1px solid ${Colors.outline};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   inline-size: 100%;
   font-size: 14px;
@@ -46,10 +47,16 @@ const Table = styled.table`
 
 const AddButton = styled(TextButton).attrs({ startIcon: <Plus /> })`
   font-size: inherit;
+  font-weight: 500;
+  color: ${Colors.primary};
   .MuiButton-startIcon {
     font-size: inherit;
     margin-inline-end: 4px;
     width: 18px;
+  }
+  &:hover {
+    color: ${Colors.primary};
+    text-decoration: underline;
   }
 `;
 
