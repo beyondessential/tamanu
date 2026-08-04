@@ -7,8 +7,9 @@ pill-order:
   specifying: 13
   implementing: 7
   reviewing: 7
+surface: both
 jockey-hint: "Always available but low-traffic — surface as an available pill, not a top suggestion. Most cards are implemented as one PR; only suggest prominently when the conversation has already revealed the card is too large to ship in one piece."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Plan cards
@@ -27,7 +28,7 @@ Once the user is ready, a bulk Create cards action turns each uncreated entry in
 
 ### How to run the workshop
 
-1. Read the card's specs in `specs/`, the card description, and any existing **card-plan** file at `.workhorse/plans/{card-id}/card-plan.md`. Ignore `plan.md` in the same folder — it is a different artifact and not what you are editing here
+1. Read the card's specs in `specs/`, the card description, and any existing **card-plan** file at `.workhorse/plans/{card-id}/card-plan.md`. Ignore `plan.md` in the same folder — it is a different artefact and not what you are editing here
 2. Skim the target repo where it helps you reason about boundaries between the children
 3. Talk through how to slice the work — natural seams, dependency order, what each child should own. Ask focused questions one or two at a time
 4. As entries become clear, write them into `card-plan.md` as `## ` headings with a short description paragraph beneath. Edit in place as the conversation refines them — adding, splitting, merging, reordering entries is normal
