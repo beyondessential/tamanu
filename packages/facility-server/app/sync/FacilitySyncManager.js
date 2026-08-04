@@ -13,6 +13,7 @@ import {
   getModelsForPush,
   getModelsForPull,
   getModelsForPullPhase,
+  getModelsForPullThroughPhase,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
@@ -29,7 +30,11 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
-import { completeInitialSyncPhase, getInitialSyncPhase } from './initialSyncPhase';
+import {
+  completeInitialSyncPhase,
+  getInitialSyncPhase,
+  getPhaseCatchUpSince,
+} from './initialSyncPhase';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -191,7 +196,7 @@ export class FacilitySyncManager {
     try {
       await this.pushChanges(sessionId, newSyncClockTime);
 
-      nextPhase = await this.pullChanges(sessionId, phase);
+      nextPhase = await this.pullChanges(sessionId, phase, pullSince);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
       if (!(error instanceof Problem && error.response)) {
@@ -294,20 +299,29 @@ export class FacilitySyncManager {
 
   // returns the phase of the initial sync to run next, or null if this was an ordinary sync or the
   // last phase of an initial one
-  async pullChanges(sessionId, phase) {
+  async pullChanges(sessionId, phase, pullSince) {
     // syncing incoming changes happens in two stages: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) ?? -1;
 
-    // a phase pulls only its own tables, so central snapshots only those and the phase's snapshot
-    // completes in proportion to its own data rather than the facility's whole share
+    // A phase pulls its own tables from the beginning of the sync timeline, and every earlier
+    // phase's tables from where the phase before it stopped. Without that catch-up, a record in this
+    // phase could reference one created on central after an earlier phase was snapshotted - a new
+    // clinician, location, or patient - and the save would fail on a foreign key to a row that was
+    // never pulled, permanently: every retry re-snapshots at a later tick and misses it again.
     const modelsForPull = phase
-      ? getModelsForPullPhase(this.models, phase)
+      ? getModelsForPullThroughPhase(this.models, phase)
       : getModelsForPull(this.models);
-    const tablesToInclude = phase
-      ? Object.values(modelsForPull).map(model => model.tableName)
-      : undefined;
+    const pullParams = phase
+      ? {
+          since: await getPhaseCatchUpSince(this.models),
+          tablesToInclude: Object.values(modelsForPull).map(model => model.tableName),
+          tablesForFullResync: Object.values(getModelsForPullPhase(this.models, phase)).map(
+            model => model.tableName,
+          ),
+          isInitialSync: true,
+        }
+      : { since: pullSince };
 
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
@@ -319,8 +333,7 @@ export class FacilitySyncManager {
       this.centralServer,
       this.sequelize,
       sessionId,
-      pullSince,
-      tablesToInclude,
+      pullParams,
     );
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {

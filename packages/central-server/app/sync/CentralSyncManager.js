@@ -441,12 +441,17 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, isInitialSync, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
+
+      // A client that doesn't say tells us by pulling from the start of the timeline, which is what an
+      // initial sync used to be before it ran in phases. A phase resumes the earlier phases from a
+      // later tick, so it has to say so explicitly.
+      const isInitialSyncSession = isInitialSync ?? since === -1;
 
       const session = await this.connectToSession(sessionId);
 
@@ -528,9 +533,14 @@ export class CentralSyncManager {
       );
 
       const sessionConfig = {
-        // for facilities with a lab, need ongoing lab requests
-        // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
+        // For facilities with a lab, need ongoing lab requests. This widens the snapshot past both
+        // the marked-for-sync patients and the facility itself, to every lab-bearing record in the
+        // deployment, so it stays off for the whole of an initial sync - however many sessions that
+        // takes - and off on mobile. The client says whether it is doing an initial sync: it can't be
+        // inferred from `since`, because a phased initial sync resumes each phase from the tick the
+        // one before it reached.
+        syncAllLabRequests:
+          syncAllLabRequests && !session.parameters.isMobile && !isInitialSyncSession,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -565,10 +575,19 @@ export class CentralSyncManager {
           where: { facilityId: facilityIds },
         });
 
-        // regular changes
+        // regular changes, leaving out the tables about to be snapshotted in full from the start of
+        // the timeline: a record in one of those changed since `since` would otherwise be snapshotted
+        // by both passes, and the persist creates a row per snapshot record, so the second copy is a
+        // duplicate primary key
+        const fullResyncTables = new Set(tablesForFullResync ?? []);
+        const modelsForIncrementalPull = Object.fromEntries(
+          Object.entries(getModelsForPull(modelsToInclude)).filter(
+            ([, model]) => !fullResyncTables.has(model.tableName),
+          ),
+        );
         await snapshotOutgoingChanges(
           this.store,
-          getModelsForPull(modelsToInclude),
+          modelsForIncrementalPull,
           since,
           patientFacilitiesCount,
           incrementalSyncPatientsTable,
@@ -578,8 +597,9 @@ export class CentralSyncManager {
           sessionConfig,
         );
 
-        // any tables for full resync from (used when mobile needs to wipe and resync tables as
-        // part of the upgrade process)
+        // any tables to pull from the beginning of the sync timeline rather than from `since`: mobile
+        // wiping and resyncing tables as part of an upgrade, and a phase of a facility's first sync
+        // pulling its own tables for the first time while catching the earlier phases' up from `since`
         if (tablesForFullResync) {
           const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
           await snapshotOutgoingChanges(

@@ -432,7 +432,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
-      
+
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
         [facility, program, survey].map(r => r.id).sort(),
@@ -775,6 +775,52 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           ]),
         );
         // Test that the outgoingChanges also contains the lab requests of the patients that are marked for sync
+        expect(outgoingChanges.map(r => r.recordId)).toEqual(
+          expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
+        );
+      });
+
+      it('does not sync all lab requests during an initial sync, even when enabled', async () => {
+        // The widened filter reaches every lab-bearing record in the deployment, so an initial sync
+        // would carry the whole lab history. A phase of an initial sync resumes from the tick the
+        // phase before it reached, so this cannot be inferred from `since` - the client says so.
+        await models.Setting.create({
+          facilityId: facility.id,
+          key: SETTING_KEYS.SYNC_ALL_LAB_REQUESTS,
+          value: true,
+          scope: SETTINGS_SCOPES.FACILITY,
+        });
+
+        const centralSyncManager = initializeCentralSyncManager();
+
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [facility.id],
+            isInitialSync: true,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+        // the lab requests of patients this facility hasn't marked for sync stay out
+        expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
+          expect.arrayContaining([
+            encounter1.id,
+            labTestPanelRequest1.id,
+            labRequest1.id,
+            ...labRequest1Tests.map(lt => lt.id),
+            encounter2.id,
+            labRequest2.id,
+            ...labRequest2Tests.map(lt => lt.id),
+          ]),
+        );
+        // while the marked-for-sync patient's own lab requests still come through
         expect(outgoingChanges.map(r => r.recordId)).toEqual(
           expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
         );

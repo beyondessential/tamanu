@@ -1,7 +1,7 @@
 import { SYNC_PHASES_VALUES } from '@tamanu/constants';
 import {
   FACT_INITIAL_SYNC_PHASE,
-  FACT_INITIAL_SYNC_PULL_FLOOR,
+  FACT_INITIAL_SYNC_PULLED_UP_TO,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
 } from '@tamanu/constants/facts';
 
@@ -28,32 +28,38 @@ export const getInitialSyncPhase = async models => {
 };
 
 /**
+ * The tick the phase before this one was snapshotted up to, which is where this phase resumes the
+ * earlier phases' tables from. The first phase has nothing before it, so it starts from the
+ * beginning of the sync timeline.
+ */
+export const getPhaseCatchUpSince = async models => {
+  const pulledUpTo = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PULLED_UP_TO);
+  return pulledUpTo === null ? -1 : parseInt(pulledUpTo, 10);
+};
+
+/**
  * Record that a phase has landed, and return the phase to run next, or null if that was the last.
  *
  * Runs inside the transaction that saves the phase's records, so a phase's data and its progress
  * through the phases land together.
  *
- * Each phase pulls from the beginning of the sync timeline but is snapshotted at a different tick,
- * so the only tick every phase's models have been pulled up to is the earliest of them. That
- * earliest tick becomes the pull cursor once the last phase lands: changes to an early phase's
- * models made while the later phases ran fall after it, and are picked up by the next sync.
+ * A phase pulls its own tables from the beginning of the sync timeline and every earlier phase's
+ * tables from where the phase before it stopped, so on completion everything up to and including
+ * this phase is current as of the tick it was snapshotted at. That tick is what the next phase
+ * resumes from, and the last phase's tick becomes the pull cursor.
  */
 export const completeInitialSyncPhase = async (models, phase, pullUntil) => {
-  const previousFloor = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PULL_FLOOR);
-  const pullFloor =
-    previousFloor === null ? pullUntil : Math.min(parseInt(previousFloor, 10), pullUntil);
-
   const nextPhase = phaseAfter(phase);
   if (nextPhase === null) {
-    await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, `${pullFloor}`);
+    await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, `${pullUntil}`);
     // cleared by value rather than removed: facts are soft-deleted, and a removed row still holds the
     // unique key, so a later write of the same fact would collide with it
     await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PHASE, null);
-    await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PULL_FLOOR, null);
+    await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PULLED_UP_TO, null);
     return null;
   }
 
-  await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PULL_FLOOR, `${pullFloor}`);
+  await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PULLED_UP_TO, `${pullUntil}`);
   await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PHASE, `${nextPhase}`);
   return nextPhase;
 };

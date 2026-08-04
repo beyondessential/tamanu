@@ -15,11 +15,12 @@ export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';
 export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
 
-// A facility's first sync runs in phases: the phase it is up to, and the earliest tick any completed
-// phase was snapshotted up to, which becomes the pull cursor once the last phase lands. Both are
-// cleared when the first sync completes, so their presence means an initial sync is in progress.
+// A facility's first sync runs in phases: the phase it is up to, and the tick the phase before it
+// was snapshotted up to, which is where the next phase resumes the earlier phases' tables from and
+// which becomes the pull cursor once the last phase lands. Both are cleared when the first sync
+// completes, so their presence means an initial sync is in progress.
 export const FACT_INITIAL_SYNC_PHASE = 'initialSyncPhase';
-export const FACT_INITIAL_SYNC_PULL_FLOOR = 'initialSyncPullFloor';
+export const FACT_INITIAL_SYNC_PULLED_UP_TO = 'initialSyncPulledUpTo';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';

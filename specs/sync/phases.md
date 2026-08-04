@@ -36,17 +36,25 @@ Every sync after the first is a single unphased session pulling the changes sinc
 - [ ] A phase for which central has no session capacity available leaves the facility at that phase, to be retried on the next scheduled sync.
 - [ ] While a facility's first sync is incomplete it reports its last synced tick to central as though it has never synced, so the sync queue continues to give it priority until all three phases have landed.
 
+## What a phase pulls
+
+- [ ] A phase pulls its own tables from the beginning of the sync timeline, since those tables have not been pulled before.
+- [ ] A phase also pulls every earlier phase's tables from the tick the phase before it was snapshotted up to, so that changes made on central while the earlier phases ran arrive with the phase that needs them.
+- [ ] Both parts are taken in one snapshot at one tick, and are saved in one transaction in dependency order, so a record never lands before something it references.
+- [ ] Without the catch-up a record in a later phase could reference a record created on central after an earlier phase was snapshotted — a clinician, a location, a patient — and the phase would fail on a reference to a row that was never pulled. That failure would not clear on retry, because each retry snapshots at a later tick and misses the same row again.
+
 ## The pull cursor across phases
 
-- [ ] Each phase pulls records from the beginning of the sync timeline, since a phase's tables have not been pulled before.
-- [ ] A phase records the tick central snapshotted it up to, and the facility keeps the earliest such tick across the phases completed so far.
-- [ ] Each phase's records and its progress through the phases are saved together, so a phase either lands whole or is retried whole.
-- [ ] Completing the records phase sets the facility's pull cursor to the earliest tick any of the three phases was snapshotted up to, which is a tick every model has been pulled up to, and the facility's record of its phase progress is then discarded.
-- [ ] Records changed between the completion of an early phase and the completion of the last one are pulled again by the first unphased sync, since that sync resumes from the earliest of the three ticks.
+- [ ] A phase records the tick central snapshotted it up to, which is where the next phase resumes the earlier phases' tables from.
+- [ ] A phase's records and its progress through the phases are saved together, so a phase either lands whole or is retried whole.
+- [ ] On completion of a phase, every table belonging to that phase and the phases before it is current as of the tick that phase was snapshotted up to.
+- [ ] Completing the records phase sets the facility's pull cursor to the tick that phase was snapshotted up to, and the facility's record of its phase progress is then discarded.
 
 ## Snapshotting a phase
 
-- [ ] Central snapshots for a session only the tables the session asks for, so a phase's snapshot holds only its own tables and completes in proportion to that phase's data rather than the facility's whole share.
+- [ ] Central snapshots for a session only the tables the session asks for, so a phase's snapshot holds its own tables and the earlier phases' catch-up, and completes in proportion to that rather than the facility's whole share.
+- [ ] A client tells central when it is performing an initial sync, rather than central inferring it from the session pulling from the beginning of the timeline, because a phase of an initial sync resumes the earlier phases from a later tick.
+- [ ] The setting that widens a facility's snapshot to every lab request in the deployment stays off for the whole of an initial sync, however many sessions it takes, so a facility's first sync never carries the deployment's lab history. It applies from the first sync after that.
 - [ ] A session may ask for a set of tables that excludes every patient-linked table, and a snapshot pass left with no tables of its own contributes no records to the snapshot.
 
 ## Reporting progress

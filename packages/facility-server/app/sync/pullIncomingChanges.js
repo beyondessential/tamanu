@@ -23,25 +23,15 @@ const toSnapshotRecord = record => ({
   direction: SYNC_SESSION_DIRECTION.INCOMING,
 });
 
-export const pullIncomingChanges = async (
-  centralServer,
-  sequelize,
-  sessionId,
-  since,
-  tablesToInclude,
-) => {
+export const pullIncomingChanges = async (centralServer, sequelize, sessionId, pullParams) => {
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'polling' });
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(
-    sessionId,
-    since,
-    tablesToInclude,
-  );
+  const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, pullParams);
 
-  log.info('FacilitySyncManager.pulling', { since, totalToPull });
+  log.info('FacilitySyncManager.pulling', { since: pullParams.since, totalToPull });
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;
@@ -88,23 +78,13 @@ export const pullIncomingChanges = async (
   return { totalPulled: totalToPull, pullUntil };
 };
 
-export const streamIncomingChanges = async (
-  centralServer,
-  sequelize,
-  sessionId,
-  since,
-  tablesToInclude,
-) => {
+export const streamIncomingChanges = async (centralServer, sequelize, sessionId, pullParams) => {
   const start = Date.now();
 
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'streaming' });
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(
-    sessionId,
-    since,
-    tablesToInclude,
-  );
+  const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, pullParams);
   const WRITE_BATCH_SIZE = Math.min(persistedCacheBatchSize, totalToPull);
 
   const writeBatch = async records => {
@@ -112,7 +92,7 @@ export const streamIncomingChanges = async (
     await insertSnapshotRecords(sequelize, sessionId, records.map(toSnapshotRecord));
   };
 
-  log.info('FacilitySyncManager.pulling', { since, totalToPull });
+  log.info('FacilitySyncManager.pulling', { since: pullParams.since, totalToPull });
   let totalPulled = 0; // statistics
   let records = []; // for batching writes
   let writes = []; // ongoing write promises
