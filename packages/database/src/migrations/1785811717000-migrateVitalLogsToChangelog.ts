@@ -19,8 +19,8 @@ import { QueryInterface } from 'sequelize';
 //
 // Only answers that were actually edited get entries synthesised: a lone initial
 // recording carries no history, and the tables read a single entry the same as none.
-// On the largest deployment that is 48k inserts rather than one per vital ever
-// recorded, which would have been 3M.
+// That keeps this to tens of thousands of inserts rather than one per vital ever
+// recorded, which runs into the millions.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     UPDATE logs.changes lc
