@@ -13,7 +13,7 @@ dependency: the foundation and security cards first, then the consumer and
 operational cards, then the resilience cards — of which antivirus and error
 correction are optional, while integrity verification runs by default.
 
-## Content-addressed blob store primitive
+## Content-addressed blob store primitive · E2
 
 The core on-disk store and its interface: a `BlobStore` with `has`/`get`/`put`/`delete`,
 the algorithm-namespaced two-level lowercase-hex fan-out layout, atomic
@@ -31,7 +31,7 @@ and never in the change log. Foundation for everything else; holds no consumer
 wiring or transfer logic. Cross-algorithm byte deduplication is deliberately out of
 scope until an algorithm migration is actually planned.
 
-## Fetch-by-hash blob transfer subprotocol
+## Fetch-by-hash blob transfer subprotocol · F2
 
 The symmetric primitive that moves bytes between servers independently of record
 sync direction: offer/fetch a blob by hash, verify content on receipt, and stream
@@ -44,7 +44,7 @@ Tamanu's multiplexing HTTP/2-3 facility–central client for efficient many-smal
 transfers rather than building its own batching. Depends on the blob store
 primitive; does not change any consumer table yet.
 
-## Facility blob outbox and LRU cache
+## Facility blob outbox and LRU cache · G2
 
 Turns the facility store into an outbox plus cache: un-pushed blobs are durable and
 never evicted until central confirms them, pushed blobs demote to an LRU/size-bounded
@@ -52,7 +52,7 @@ cache that refetches on demand. Replaces delete-after-push, adds the background
 pusher, disk-full backpressure, and a local-only cache index (no sync, no changelog).
 Depends on the primitive and the transfer subprotocol.
 
-## Blob access control
+## Blob access control · H2
 
 The security model for content-addressed storage: authorisation stays at the
 reference layer so the blob endpoint is never an unauthenticated CDN. Server-to-server
@@ -64,7 +64,7 @@ can be layered on later if upload responsiveness needs it. Encryption at rest is
 scope — already provided by the required disk-level encryption. May be folded into
 the foundation cards rather than built separately.
 
-## Route attachments through the blob store
+## Route attachments through the blob store · J2
 
 Rewires the attachments table and every attachment read/write path onto the blob
 store so new attachments are stored on disk going forward: user uploads, patient
@@ -77,7 +77,7 @@ from fetch-pending so the presentation can be refined without a backend change.
 Depends on the foundation cards; the bulk move of existing data is the backfill
 card's job.
 
-## Route assets through the blob store
+## Route assets through the blob store · K2
 
 Rewires the assets table (letterhead logos, certificate images) onto the blob store
 so new assets are stored on disk, and adds fetch-on-miss to the facility-side asset
@@ -86,13 +86,13 @@ rendering paths, with readers tolerating both new (hash) and legacy (in-database
 rows during transition. Depends on the foundation cards; the bulk move of existing
 data is the backfill card's job.
 
-## Mobile blob storage and lazy fetch
+## Mobile blob storage and lazy fetch · L2
 
 Aligns the mobile app's already file-backed attachment model with the blob transfer
 subprotocol, replacing inline-in-sync-record bytes with lazy fetch and a bounded
 cache suited to constrained device storage. Depends on the foundation cards.
 
-## Backfill migration
+## Backfill migration · M2
 
 Moves the existing in-database blobs onto the filesystem as a batched, throttled
 background job — a volume ranging from modest to hundreds of gigabytes across
@@ -105,7 +105,7 @@ duplicating automatically once live rows carry only a hash. No cross-version
 compatibility is needed: the feature lands on a breaking release and Tamanu rejects
 minor-version sync skew, so all servers in a sync network share it. Includes rollback.
 
-## Blob store backups and restore
+## Blob store backups and restore · N2
 
 Specifies how the blob store and database stay mutually consistent across backup and
 restore: the database-then-store ordering that guarantees no dangling references,
@@ -116,7 +116,7 @@ bestool on a separate board, not in the Tamanu codebase, but specified here as p
 of this epic. Updates the facility-restored-from-backup runbook. Depends on the store
 being in place.
 
-## Blob integrity scrub and self-heal
+## Blob integrity scrub and self-heal · P2
 
 Verification of stored blobs against their hash: on receipt, on read (whole-blob,
 inexpensive at typical sizes; ranged reads of large blobs rely on receipt and scrub
@@ -129,7 +129,7 @@ and NTFS deployments where the filesystem offers no checksum repair. Per-range
 verified streaming (Bao) is a deferred option, checked in the BLAKE3 research spike
 only if large-file range verification is later wanted.
 
-## Antivirus scanning for stored blobs
+## Antivirus scanning for stored blobs · Q2
 
 Optional malware scanning of user-uploaded blobs by actively invoking the host
 scanner (clamd, Defender, or ICAP) rather than building one, caching verdicts by
@@ -139,7 +139,7 @@ following a hardening pathway — off, serve unless known-bad (the default once
 enabled), then serve only when known-good. A fast-follow the foundation accommodates
 rather than a prerequisite to land the feature; no-op when unconfigured.
 
-## Optional error correction for blob storage
+## Optional error correction for blob storage · R2
 
 An off-by-default parity sidecar (Reed-Solomon) for substrates that lack their own
 redundancy, chiefly NTFS bare metal, so a single isolated copy can self-repair
