@@ -10,20 +10,20 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 
 | # | Original request | Feature | Priority | Design work |
 |---|------------------|---------|----------|-------------|
-| 1 | TAM-2053 | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
-| 2 | TAM-4022 | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
-| 3 | TAM-6851 | Receive numeric results outside the detection limit | High | _TBC_ |
-| 4 | TAM-1888 | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
-| 5 | TAM-6938 | Add a "Recollect" lab request status | High | _TBC_ |
-| 6 | TAM-2045 | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
-| 7 | TAM-6734 | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
-| 8 | TAM-6827 | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
-| 9 | TAM-3086 | Default "Collected by" to the current user | Medium | **None** — field default |
-| 10 | TAM-3090 | Support a default specimen type for lab tests | Medium | _TBC_ |
-| 11 | TAM-3091 | Support a default method for lab tests | Medium | _TBC_ |
-| 12 | TAM-6823 | Manage panelOnly lab test types on central | No priority | _TBC_ |
-| 13 | TAM-6925 | Add a "Reflex test" visibility status | No priority | _TBC_ |
-| 14 | TAM-2045 | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
+| 1 | [TAM-2053](https://linear.app/bes/issue/TAM-2053) | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
+| 2 | [TAM-4022](https://linear.app/bes/issue/TAM-4022) | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
+| 3 | [TAM-6851](https://linear.app/bes/issue/TAM-6851) | Receive numeric results outside the detection limit | High | _TBC_ |
+| 4 | [TAM-1888](https://linear.app/bes/issue/TAM-1888) | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
+| 5 | [TAM-6938](https://linear.app/bes/issue/TAM-6938) | Add a "Recollect" lab request status | High | _TBC_ |
+| 6 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
+| 7 | [TAM-6734](https://linear.app/bes/issue/TAM-6734) | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
+| 8 | [TAM-6827](https://linear.app/bes/issue/TAM-6827) | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
+| 9 | [TAM-3086](https://linear.app/bes/issue/TAM-3086) | Default "Collected by" to the current user | Medium | **None** — field default |
+| 10 | [TAM-3090](https://linear.app/bes/issue/TAM-3090) | Support a default specimen type for lab tests | Medium | _TBC_ |
+| 11 | [TAM-3091](https://linear.app/bes/issue/TAM-3091) | Support a default method for lab tests | Medium | _TBC_ |
+| 12 | [TAM-6823](https://linear.app/bes/issue/TAM-6823) | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 13 | [TAM-6925](https://linear.app/bes/issue/TAM-6925) | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 14 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
 
 ---
 
