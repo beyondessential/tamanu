@@ -2,6 +2,7 @@ import { Box } from '@material-ui/core';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import {
@@ -43,6 +44,43 @@ export const orderingPrescriberLabel = (
   <TranslatedText stringId="pharmacyOrder.orderingPrescriber.label" fallback="Ordering prescriber" />
 );
 
+/** A blank number input hands back '', which yup would otherwise cast to NaN and reject. */
+const emptyToNull = (value, originalValue) => (originalValue === '' ? null : value);
+
+/**
+ * A dispensing quantity is only needed for the medications actually being sent to pharmacy. The
+ * rest are carried onto the discharge for reference and are routinely prescribed without one, so
+ * requiring a quantity for them would block the discharge over a field the clinician never used.
+ */
+export const getMedicationsValidationSchema = requiredInlineMessage =>
+  yup.lazy(medications =>
+    yup.object(
+      Object.keys(medications ?? {}).reduce((schemas, key) => {
+        schemas[key] = yup.object().shape({
+          quantity: yup
+            .number()
+            .transform(emptyToNull)
+            .integer()
+            .min(0)
+            .nullable()
+            .translatedLabel(dispensingQuantityLabel)
+            .test('requiredWhenSendingToPharmacy', requiredInlineMessage, function (quantity) {
+              return !this.parent?.sendToPharmacy || quantity >= 1;
+            }),
+          repeats: yup
+            .number()
+            .transform(emptyToNull)
+            .integer()
+            .min(0)
+            .max(MAX_REPEATS)
+            .nullable()
+            .optional(),
+        });
+        return schemas;
+      }, {}),
+    ),
+  );
+
 /**
  * The prescriber placing the pharmacy order. Sits in the encounter medication header rather than
  * the form grid, because it belongs to the medications being sent rather than to the discharge.
@@ -82,11 +120,29 @@ const NumberFieldWithoutLabel = ({ field, unitKey, ...props }) => {
   return (
     <NumberInput
       name={field.name}
-      value={field.value || 0}
+      value={field.value ?? ''}
       onChange={field.onChange}
       unit={unit}
       {...props}
       data-testid="styledtextfield-4ea9"
+    />
+  );
+};
+
+/** Mirrors getMedicationsValidationSchema: the floor lifts to 1 only once the row is being sent. */
+const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => {
+  const { values } = useFormikContext();
+  const isSentToPharmacy = Boolean(values.medications?.[medicationId]?.sendToPharmacy);
+
+  return (
+    <Field
+      name={`medications.${medicationId}.quantity`}
+      component={NumberFieldWithoutLabel}
+      unitKey={dispensingUnit ?? undefined}
+      min={isSentToPharmacy ? 1 : 0}
+      required={isSentToPharmacy}
+      disabled={disabled}
+      data-testid="field-ksmf"
     />
   );
 };
@@ -198,20 +254,17 @@ export const MEDICATION_COLUMNS = ({
   },
   {
     key: 'quantity',
+    // Nothing can be sent to pharmacy without the feature, so the column is never required there.
     title: (
       <>
         {dispensingQuantityLabel}
-        <RequiredOrnament />
+        {isPharmacyOrderEnabled && <RequiredOrnament />}
       </>
     ),
     accessor: ({ id, medication, dispensingUnit }) => (
-      <Field
-        name={`medications.${id}.quantity`}
-        component={NumberFieldWithoutLabel}
-        unitKey={dispensingUnit ?? undefined}
-        min={1}
-        required
-        data-testid="field-ksmf"
+      <DispensingQuantityField
+        medicationId={id}
+        dispensingUnit={dispensingUnit}
         disabled={
           !canUpdateMedication ||
           (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)

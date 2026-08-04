@@ -3,7 +3,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it, expect, vi } from 'vitest';
 
-import { MEDICATION_COLUMNS } from '../../app/forms/DischargeMedicationColumns';
+// Registers yup's translatedLabel method, which the medication schema uses.
+import '../../app/utils/errorMessages';
+import {
+  getMedicationsValidationSchema,
+  MEDICATION_COLUMNS,
+} from '../../app/forms/DischargeMedicationColumns';
 
 const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = () => '';
@@ -153,20 +158,83 @@ describe('MEDICATION_COLUMNS last sent', () => {
 });
 
 describe('MEDICATION_COLUMNS dispensing quantity', () => {
-  it('requires a dispensing quantity of at least one', () => {
-    const quantityField = accessorFor(buildColumns({ canWriteSensitiveMedication: true }), 'quantity')(
-      { id: 'medication-1', dispensingUnit: 'mg', medication: {} },
-    );
-
-    expect(quantityField.props.required).toBe(true);
-    expect(quantityField.props.min).toBe(1);
-  });
-
   it('labels the column Dispensing qty', () => {
     const quantityColumn = buildColumns({}).find(column => column.key === 'quantity');
 
     expect(collectStringIds(quantityColumn.title)).toContain(
       'discharge.table.column.dispensingQuantity',
     );
+  });
+
+  it('marks the column required only when medications can be sent to pharmacy', () => {
+    const titleOf = isPharmacyOrderEnabled =>
+      buildColumns({ isPharmacyOrderEnabled }).find(column => column.key === 'quantity').title;
+
+    expect(collectStringIds(titleOf(true))).toContain('general.label.required');
+    expect(collectStringIds(titleOf(false))).not.toContain('general.label.required');
+  });
+});
+
+// A dispensing quantity is only meaningful for the medications actually being sent to pharmacy.
+// Prescriptions are routinely recorded without one, and every active encounter medication plus
+// every other ongoing medication appears on the discharge, so requiring a quantity across the board
+// would block the discharge over rows the clinician never intended to dispense.
+describe('getMedicationsValidationSchema', () => {
+  const validate = medications =>
+    getMedicationsValidationSchema('*Required')
+      .validate(medications)
+      .then(() => null)
+      .catch(error => error.message);
+
+  it('accepts a zero quantity when the medication is not being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 0, repeats: '0', sendToPharmacy: false } }),
+    ).resolves.toBeNull();
+  });
+
+  // Prescriptions without a quantity start the form blank, and clearing a number input leaves ''.
+  it.each([null, ''])(
+    'accepts a quantity of %p when the medication is not being sent to pharmacy',
+    async quantity => {
+      await expect(
+        validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: false } }),
+      ).resolves.toBeNull();
+    },
+  );
+
+  it.each([0, null, ''])(
+    'rejects a quantity of %p when the medication is being sent to pharmacy',
+    async quantity => {
+      await expect(
+        validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: true } }),
+      ).resolves.toBe('*Required');
+    },
+  );
+
+  it('accepts a cleared repeats field', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 1, repeats: '', sendToPharmacy: true } }),
+    ).resolves.toBeNull();
+  });
+
+  it('accepts a quantity of at least one when the medication is being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 1, repeats: '0', sendToPharmacy: true } }),
+    ).resolves.toBeNull();
+  });
+
+  it('rejects a negative quantity even when the medication is not being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: -1, repeats: '0', sendToPharmacy: false } }),
+    ).resolves.not.toBeNull();
+  });
+
+  it('only requires a quantity for the medications being sent', async () => {
+    await expect(
+      validate({
+        'medication-1': { quantity: 0, repeats: '0', sendToPharmacy: false },
+        'medication-2': { quantity: 2, repeats: '0', sendToPharmacy: true },
+      }),
+    ).resolves.toBeNull();
   });
 });

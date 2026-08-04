@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { FORM_TYPES, MAX_REPEATS, NOTE_TYPES } from '@tamanu/constants';
+import { FORM_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import {
   AutocompleteField,
   DateTimeField,
@@ -39,7 +39,7 @@ import {
   UnsavedChangesScreen,
 } from './DischargeFormScreens';
 import {
-  dispensingQuantityLabel,
+  getMedicationsValidationSchema,
   MEDICATION_COLUMNS,
   orderingPrescriberLabel,
   OrderingPrescriberField,
@@ -177,7 +177,9 @@ const getMedicationsInitialValues = ({
   const addMedication = (medication, isSentToPharmacyByDefault) => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? 0,
+      // Left blank rather than zeroed when the prescription has no quantity, so the clinician sees
+      // an empty field to fill in rather than a number nobody entered.
+      quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? null,
       repeats: medicationDraft?.[key]?.repeats ?? medication?.repeats?.toString() ?? '0',
       sendToPharmacy: medicationDraft?.[key]?.sendToPharmacy ?? isSentToPharmacyByDefault,
     };
@@ -399,22 +401,7 @@ export const DischargeForm = ({
             .translatedLabel(
               <TranslatedText stringId="discharge.dischargeDate.label" fallback="Discharge date" />,
             ),
-          medications: yup.lazy(obj =>
-            yup.object(
-              Object.keys(obj || {}).reduce((acc, key) => {
-                acc[key] = yup.object().shape({
-                  quantity: yup
-                    .number()
-                    .integer()
-                    .min(1, requiredInlineMessage)
-                    .required(requiredInlineMessage)
-                    .translatedLabel(dispensingQuantityLabel),
-                  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
-                });
-                return acc;
-              }, {}),
-            ),
-          ),
+          medications: getMedicationsValidationSchema(requiredInlineMessage),
           pharmacyOrder: yup.object().shape({
             orderingClinicianId: yup
               .string()
