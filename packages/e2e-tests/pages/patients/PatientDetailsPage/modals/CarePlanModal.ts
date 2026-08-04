@@ -62,7 +62,7 @@ export class CarePlanModal extends BasePatientModal {
     await this.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
     await this.mainCarePlanFieldDetails.fill(carePlanDetails);
     await this.getAddCarePlanButton().click();
-    await this.page.waitForLoadState('networkidle');
+    await this.completedMainCarePlan.waitFor({ state: 'visible' });
   }
 
   async addAdditionalCarePlanNote(carePlanNote: string, clinicianName: string) {
@@ -70,7 +70,7 @@ export class CarePlanModal extends BasePatientModal {
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
     await this.additionalCarePlanNoteField.fill(carePlanNote);
     await this.getAddNoteButton().click();
-    await this.page.waitForLoadState('networkidle');
+    await this.additionalNote(carePlanNote).waitFor({ state: 'visible' });
   }
 
   additionalNote(noteText: string) {

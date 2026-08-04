@@ -31,7 +31,6 @@ export class MarkAsCompletedModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.completedByInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: {

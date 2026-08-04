@@ -50,7 +50,6 @@ export class RecordSampleModal {
 
   async waitForModalToLoad() {
     await this.form.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
 
@@ -69,7 +68,6 @@ export class RecordSampleModal {
 }
 async waitForSampleCollectedModalToClose() {
   await this.form.waitFor({ state: 'detached' });
-  await this.page.waitForLoadState('networkidle', { timeout: 10000 });
 }
 }
 

@@ -63,7 +63,6 @@ export class NewImagingRequestModal {
   async waitForModalToLoad(): Promise<void> {
     await this.imagingRequestCodeInput.waitFor({ state: 'visible' });
     await this.supervisingClinicianInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: ImagingRequestFormValues) {

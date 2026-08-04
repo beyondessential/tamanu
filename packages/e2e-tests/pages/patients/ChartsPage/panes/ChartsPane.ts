@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { format, parse } from 'date-fns';
 import { STYLED_TABLE_CELL_PREFIX } from '@utils/testHelper';
 import { SimpleChartModal } from '../modals/SimpleChartModal';
@@ -21,7 +21,6 @@ export class ChartsPane {
 
   async waitForPageToLoad(): Promise<void> {
     await this.chartTypeSelect.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getSimpleChartModal(): SimpleChartModal {
@@ -34,7 +33,8 @@ export class ChartsPane {
   async selectChartType(chartType: string): Promise<void> {
     await this.chartTypeSelect.click();
     await this.page.getByTestId('styledtranslatedselectfield-vwze-optioncontainer').getByText(chartType).click();
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    // the option list closes before the field settles on the new value, so wait for the field itself
+    await expect(this.chartTypeSelect).toContainText(chartType);
   }
 
   /**

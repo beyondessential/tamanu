@@ -53,7 +53,6 @@ export class ImagingRequestPane {
 
   async waitForPageToLoad(): Promise<void> {
     await this.table.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getNewImagingRequestModal(): NewImagingRequestModal {

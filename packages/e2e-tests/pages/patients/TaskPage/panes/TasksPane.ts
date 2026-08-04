@@ -54,12 +54,10 @@ export class TasksPane {
 
   async waitForPageToLoad(): Promise<void> {
     await this.addTaskButton.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
 async waitForNoDataContainerToDisappear(): Promise<void> {
   await this.noDataContainer.waitFor({ state: 'detached' });
-  await this.page.waitForLoadState('networkidle', { timeout: 10000 });
 }
 
 

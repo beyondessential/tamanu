@@ -36,7 +36,6 @@ export class UnsavedChangesModal extends BasePage {
    */
   async waitForModalToLoad(): Promise<void> {
     await this.modalContent.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   /**
@@ -44,7 +43,6 @@ export class UnsavedChangesModal extends BasePage {
    */
   async waitForModalToClose(): Promise<void> {
     await this.modalContent.waitFor({ state: 'detached' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   /**

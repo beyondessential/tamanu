@@ -155,7 +155,7 @@ export class NewProcedureModal extends BasePage {
   }
 
   async waitForModalToLoad(): Promise<void> {
-   await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await this.modalTitle.waitFor({ state: 'visible' });
   }
 
   getLocatorInput(locator: Locator): Locator {

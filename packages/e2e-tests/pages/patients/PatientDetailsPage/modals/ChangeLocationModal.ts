@@ -28,7 +28,6 @@ export class ChangeLocationModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.areaInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async changeArea(area: string): Promise<void> {

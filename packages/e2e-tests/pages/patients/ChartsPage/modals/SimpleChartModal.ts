@@ -88,7 +88,6 @@ export class SimpleChartModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.dateTimeInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: SimpleChartFormValues): Promise<SimpleChartFormValues> {

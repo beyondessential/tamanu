@@ -13,7 +13,6 @@ export class ReferralPane extends BasePatientPane {
 
   async waitForPageToLoad(): Promise<void> {
     await this.addReferralButton.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getAddReferralModal(): AddReferralModal {

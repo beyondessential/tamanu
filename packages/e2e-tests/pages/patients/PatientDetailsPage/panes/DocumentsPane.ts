@@ -25,7 +25,6 @@ export class DocumentsPane {
 
   async waitForNoteDataContainerToDisappear(): Promise<void> {
     await this.noteDataContainer.waitFor({ state: 'detached' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getAddDocumentModal(): AddDocumentModal {

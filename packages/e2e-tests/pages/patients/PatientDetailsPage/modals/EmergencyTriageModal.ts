@@ -105,7 +105,6 @@ export class EmergencyTriageModal {
 
   async waitForModalToLoad() {
     await this.modalTitle.getByText('New emergency triage').waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async selectTriageScore(score: 1 | 2 | 3 | 4 | 5) {

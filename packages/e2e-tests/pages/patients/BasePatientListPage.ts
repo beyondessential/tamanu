@@ -97,7 +97,6 @@ export abstract class BasePatientListPage extends BasePage {
 
   async waitForPageToLoad() {
     await this.searchForm.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   /**

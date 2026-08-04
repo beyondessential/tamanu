@@ -385,7 +385,6 @@ export class PatientDetailsPage extends BasePatientPage {
   async waitForEncounterToBeReady(): Promise<void> {
     // Wait for URL to contain encounter ID
     await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 10000 });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async navigateToTasksTab(): Promise<TasksPane> {
@@ -565,12 +564,13 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   /**
-   * Helper method for clicking add button with waitForLoadStates on either side to avoid flakiness
+   * Click a form's add button and wait for the form to go away, so a caller doesn't read the list it
+   * just added to while the entry is still in flight. Playwright's own actionability checks cover
+   * waiting for the button before the click.
    */
   async clickAddButtonToConfirm(buttonLocator: Locator) {
-    await this.page.waitForLoadState('networkidle');
     await buttonLocator.click();
-    await this.page.waitForLoadState('networkidle');
+    await buttonLocator.waitFor({ state: 'hidden' });
   }
 
   generateNewAllergy(nhn: string) {
