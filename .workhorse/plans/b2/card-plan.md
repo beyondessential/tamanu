@@ -121,9 +121,12 @@ limited corruption before falling through to peer or backup. Correction-rate
 telemetry doubles as an early warning of failing media. Shares the scrub's
 detect-and-repair path.
 
-## Blob access control and encryption at rest
+## Blob access control
 
 The security model for content-addressed storage: authorisation stays at the
-reference layer so the blob endpoint is never an unauthenticated CDN, plus
-encryption at rest and its interaction with deduplication. May be folded into the
-primitive rather than built separately; captured here so the decision is explicit.
+reference layer so the blob endpoint is never an unauthenticated CDN. Server-to-server
+fetch applies the same facility data scoping as record sync, and push admission
+control bounds how much unreferenced content a facility can send to central so the
+channel cannot be used to exhaust central storage. Encryption at rest is out of
+scope — already provided by the required disk-level encryption. May be folded into
+the foundation cards rather than built separately.
