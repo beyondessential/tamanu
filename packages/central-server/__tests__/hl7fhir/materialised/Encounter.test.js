@@ -379,7 +379,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     describe('filters', () => {
       it('by lastUpdated=gt', async () => {
         const [newEncounter, newMat] = await makeEncounter({ encounterType: 'emergency' });
-        newMat.update({ lastUpdated: addDays(new Date(), 5) });
+        await newMat.update({ lastUpdated: addDays(new Date(), 5) });
         const response = await app.get(
           `/api/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
             formatFhirDate(addDays(new Date(), 4)),
