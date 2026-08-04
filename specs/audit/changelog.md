@@ -6,7 +6,7 @@ id: AUDIT
 
 The changelog (`logs.changes`) is a row-level history of writes to the tables Tamanu logs. A **changelog entry** is one row of that history: it records a single change to a single row of a logged table, holding the whole row as JSON along with who made the change, from which device, and on which version. A database trigger on each logged table writes the entries. The database writes them itself, so a change reaches the changelog whichever path produced it: an API request, a background task, a migration, or hand-run SQL.
 
-An entry for a change made by a migration is a **migration entry**, and carries the context of the migration that made it. An entry for a change made by any other path is an **operational entry**. The user an entry is credited to is its **audit user**.
+An entry for a change made by a migration is a **migration entry**, and carries the context of the migration that made it. An entry for a change made by any other path is an **operational entry**. The user an entry is credited to is its **audit user**. An entry imported from an earlier history store is an operational entry carrying the original change's provenance, because it describes the operational change, not the import.
 
 Changelog entries do not synchronise as records of their own. Each entry is **attached** to the record it describes and travels with it, so a record's history follows the record between a facility server and central, and each entry is authored exactly once, on the server where the change happened.
 
