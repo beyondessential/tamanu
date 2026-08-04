@@ -1322,6 +1322,12 @@ describe('Encounter', () => {
               ),
             ),
           );
+
+          // log dates render in the primary timezone like every other datestring,
+          // so the insert entry's date sits within moments of the submission
+          const heartRate = body.data.find(d => d.dataElementId === 'pde-PatientVitalsHeartRate');
+          const logDate = heartRate.records[submissionDate].logs[0].date;
+          expect(Math.abs(new Date(logDate) - new Date(submissionDate))).toBeLessThan(120_000);
         });
       });
 
