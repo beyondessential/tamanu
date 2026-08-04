@@ -1946,4 +1946,236 @@ describe('findPatientOngoingPrescriptionWithSameDetails', () => {
       expect(reloadedMar.errorNotes).toBe('Recorded against the wrong patient');
     });
   });
+
+  describe('Discharge guards on medication-administration-record given/not-given routes', () => {
+    let notGivenReason;
+
+    beforeAll(async () => {
+      notGivenReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON }),
+      );
+    });
+
+    const createEncounter = async ({ endDate = null } = {}) =>
+      models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate,
+        }),
+      );
+
+    const createPrescriptionForEncounter = async encounter => {
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+      return prescription;
+    };
+
+    it('rejects creating a GIVEN MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+
+      const result = await app.post('/api/medication/medication-administration-record/given').send({
+        dueAt: getCurrentDateTimeString(),
+        prescriptionId: prescription.id,
+        dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects marking an existing MAR as GIVEN once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/given`)
+        .send({
+          dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects creating a NOT_GIVEN MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+
+      const result = await app
+        .post('/api/medication/medication-administration-record/not-given')
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+          dueAt: getCurrentDateTimeString(),
+          prescriptionId: prescription.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects marking an existing MAR as NOT_GIVEN once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/not-given`)
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects editing not-given info on an existing MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+          reasonNotGivenId: notGivenReason.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/not-given-info`)
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+          recordedByUserId: app.user.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('still allows marking a MAR as GIVEN when the encounter is not discharged', async () => {
+      const encounter = await createEncounter();
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/given`)
+        .send({
+          dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+        });
+
+      expect(result).toHaveSucceeded();
+    });
+
+    it('rejects marking a MAR with error once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}`)
+        .send({ isError: true, errorNotes: 'Recorded against the wrong patient' });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects updating a dose once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+      const dose = await models.MedicationAdministrationRecordDose.create(
+        fake(models.MedicationAdministrationRecordDose, {
+          marId: mar.id,
+          doseIndex: 0,
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/doses/${dose.id}`)
+        .send({
+          doseAmount: 2,
+          givenTime: getCurrentDateTimeString(),
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects removing an additional dose once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+      const additionalDose = await models.MedicationAdministrationRecordDose.create(
+        fake(models.MedicationAdministrationRecordDose, {
+          marId: mar.id,
+          doseIndex: 1,
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app.delete(
+        `/api/medication/medication-administration-record/doses/${additionalDose.id}`,
+      );
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+  });
 });
