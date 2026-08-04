@@ -1,5 +1,6 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import Umzug from 'umzug';
 import { QueryTypes } from 'sequelize';
 import { runPostMigration, runPreMigration } from './hooks';
@@ -241,7 +242,9 @@ export async function createMigrationInterface(log, sequelize, options = {}) {
       },
 
       customResolver: async (sqlPath) => {
-        const migrationImport = await import(sqlPath);
+        // umzug hands us an absolute filesystem path, but ESM only imports file:// URLs: on
+        // Windows a bare `C:\…` is read as a URL with scheme `c:` and rejected outright.
+        const migrationImport = await import(pathToFileURL(sqlPath).href);
         const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
 
         if (!('up' in migration)) {
