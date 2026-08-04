@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.54.29",
+  "version": "2.54.30",
   "private": true,
   "description": "BES - Database",
   "main": "dist/cjs/index.js",
