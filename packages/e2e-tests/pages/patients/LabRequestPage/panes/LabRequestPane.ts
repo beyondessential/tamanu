@@ -114,9 +114,13 @@ export class LabRequestPane {
   }
 
   async waitForTableToLoad() {
-    // Wait for the lab request table to be visible and loaded
     await this.labRequestTable.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    // Until its rows arrive, the table renders one row in its body holding a status message -
+    // "Loading…", or the no-data message - and that row carries no click handler. The table being
+    // visible is therefore not enough: a caller that clicks the first row while the status row is
+    // still up clicks something inert, navigates nowhere, and then waits out its whole timeout on a
+    // page that never opens. Waiting for a cell that only a real data row has closes that window.
+    await expect(this.getTestIdCell(0)).not.toBeEmpty();
   }
 
   async getFirstRowTestDetails(): Promise<LabRequestTestDetails> {

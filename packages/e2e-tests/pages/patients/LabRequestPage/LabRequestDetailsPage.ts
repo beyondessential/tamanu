@@ -272,7 +272,11 @@ export class LabRequestDetailsPage {
   async waitForResultsTableToLoad() {
     await this.enterResultsModal.waitForModalToClose();
     await this.resultsTable.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    // the table body holds a single status row until the results arrive, so reading cells off the
+    // table as soon as it is visible reads the status message rather than a result
+    await expect(
+      this.resultsTableBody.locator('[data-test-class*="labTestType.name"]').first(),
+    ).not.toBeEmpty();
   }
 
   /**
