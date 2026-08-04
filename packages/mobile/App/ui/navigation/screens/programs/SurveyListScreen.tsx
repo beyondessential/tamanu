@@ -13,6 +13,7 @@ import { IPatient, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { Survey } from '~/models/Survey';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -38,7 +39,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
   const { programId, programName } = route.params;
   const { ability } = useAuth();
 
-  const [filteredSurveys, error] = useBackendEffect(
+  const [filteredSurveys, error, isLoading] = useBackendEffect(
     async ({ models }: { models: any }) => {
       const allSurveys = await models.Survey.find({
         relations: ['program'],
@@ -97,28 +98,32 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
             </StyledText>
           </StyledView>
           <Separator />
-          <FlatList
-            style={{
-              flex: 1,
-              width: '100%',
-              height: '100%',
-              backgroundColor: theme.colors.BACKGROUND_GREY,
-              paddingTop: 5,
-            }}
-            showsVerticalScrollIndicator={false}
-            data={filteredSurveys}
-            keyExtractor={(item): string => item.id}
-            renderItem={({ item }): ReactElement => (
-              <MenuOptionButton
-                key={item.id}
-                title={item.name}
-                onPress={(): void => onNavigateToSurvey(item)}
-                textProps={{ fontWeight: 400, color: theme.colors.TEXT_SUPER_DARK }}
-                arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
-              />
-            )}
-            ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
-          />
+          {isLoading || !filteredSurveys ? (
+            <LoadingScreen />
+          ) : (
+            <FlatList
+              style={{
+                flex: 1,
+                width: '100%',
+                height: '100%',
+                backgroundColor: theme.colors.BACKGROUND_GREY,
+                paddingTop: 5,
+              }}
+              showsVerticalScrollIndicator={false}
+              data={filteredSurveys}
+              keyExtractor={(item): string => item.id}
+              renderItem={({ item }): ReactElement => (
+                <MenuOptionButton
+                  key={item.id}
+                  title={item.name}
+                  onPress={(): void => onNavigateToSurvey(item)}
+                  textProps={{ fontWeight: 400, color: theme.colors.TEXT_SUPER_DARK }}
+                  arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
+                />
+              )}
+              ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
+            />
+          )}
         </FullView>
       )}
     </FullView>
