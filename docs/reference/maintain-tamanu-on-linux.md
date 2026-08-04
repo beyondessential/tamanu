@@ -48,10 +48,14 @@ Canopy's `get_check_documentation`.
 ## Read logs
 
 ```bash
-journalctl -fu tamanu-central-api        # a Tamanu service
-journalctl -fu caddy -o cat | jq -c '.ts = (.ts | todate)'   # Caddy (UTC)
+bestool tamanu logs caddy -f             # Caddy, preferred: both streams (UTC)
+bestool tamanu logs api -f               # a Tamanu service
 journalctl -u postgresql                 # Postgres
 ```
+
+Raw paths, for filtering or reading history: the Caddy access log is
+`/var/log/caddy/access.log*`, and Caddy's runtime events are in
+`journalctl -u caddy`.
 
 More detail and filtering in `../sops/read-logs.md`.
 
