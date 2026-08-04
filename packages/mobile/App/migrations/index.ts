@@ -87,6 +87,7 @@ import { addSurveyFormVisibilityCriteria1773618699809 } from './1773618699809-ad
 import { removePatientTitleColumn1778199200000 } from './1778199200000-removePatientTitleColumn';
 import { addLabTestReferenceRangeColumns1778546880000 } from './1778546880000-addLabTestReferenceRangeColumns';
 import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
+import { addProgramFormQueryIndexes1785739800000 } from './1785739800000-addProgramFormQueryIndexes';
 export const migrationList = [
   databaseSetup1661160427226,
   updatePatientDateTimeColumns1661717539000,
@@ -176,4 +177,5 @@ export const migrationList = [
   removePatientTitleColumn1778199200000,
   addLabTestReferenceRangeColumns1778546880000,
   removeDietIdFromEncounter1781501076000,
+  addProgramFormQueryIndexes1785739800000,
 ];
