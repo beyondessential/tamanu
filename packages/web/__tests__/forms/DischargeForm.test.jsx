@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it, expect, vi } from 'vitest';
+import { RequiredOrnament } from '@tamanu/ui-components';
 
 // Registers yup's translatedLabel method, which the medication schema uses.
 import '../../app/utils/errorMessages';
@@ -166,12 +167,18 @@ describe('MEDICATION_COLUMNS dispensing quantity', () => {
     );
   });
 
+  // RequiredOrnament supplies its "Required" copy through styled-components attrs, which are only
+  // applied when it renders — so the ornament is matched by element type rather than by stringId.
   it('marks the column required only when medications can be sent to pharmacy', () => {
-    const titleOf = isPharmacyOrderEnabled =>
-      buildColumns({ isPharmacyOrderEnabled }).find(column => column.key === 'quantity').title;
+    const hasRequiredOrnament = isPharmacyOrderEnabled => {
+      const { title } = buildColumns({ isPharmacyOrderEnabled }).find(
+        column => column.key === 'quantity',
+      );
+      return [title.props.children].flat().some(child => child?.type === RequiredOrnament);
+    };
 
-    expect(collectStringIds(titleOf(true))).toContain('general.label.required');
-    expect(collectStringIds(titleOf(false))).not.toContain('general.label.required');
+    expect(hasRequiredOrnament(true)).toBe(true);
+    expect(hasRequiredOrnament(false)).toBe(false);
   });
 });
 
