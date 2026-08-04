@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // SQLite doesn't index foreign keys automatically, so these joins were all driving off full table
 // scans of the largest tables on the device.
-const INDEXES: [string, string, string[]][] = [
+const INDEXES = [
   ['survey_responses', 'IDX_survey_responses_encounterId', ['encounterId']],
   ['survey_response_answers', 'IDX_survey_response_answers_responseId', ['responseId']],
   ['survey_response_answers', 'IDX_survey_response_answers_dataElementId', ['dataElementId']],
@@ -12,7 +12,7 @@ const INDEXES: [string, string, string[]][] = [
     'IDX_procedure_survey_responses_surveyResponseId',
     ['surveyResponseId'],
   ],
-];
+] as const;
 
 export class addProgramFormQueryIndexes1785739800000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
