@@ -20,7 +20,12 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
-import { StyledPriorityHighIcon, TaskNameContainer, PriorityIconSlot } from './TaskPriorityIcon';
+import {
+  StyledPriorityHighIcon,
+  TaskNameContainer,
+  PriorityIconSlot,
+  TaskNameText,
+} from './TaskPriorityIcon';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
@@ -113,6 +118,14 @@ const StyledTable = styled(DataFetchingTable)`
     &:nth-child(2),
     &:nth-child(3) {
       position: relative;
+    }
+    // Cap the task name column with a floor and ceiling around a viewport-scaled value (the
+    // status icon column is nth-child(2) when canDoAction, so task name is 3rd; otherwise
+    // it's 2nd). Scaling with the viewport means a larger monitor gets a larger cap, rather
+    // than a fixed px/% value that's either too cramped on a wide screen or, if left
+    // uncapped, lets one very long name push every other column off-screen.
+    ${p => (p.$canDoAction ? '&:nth-child(3)' : '&:nth-child(2)')} {
+      max-width: clamp(220px, 30vw, 640px);
     }
   }
   .MuiTableFooter-root {
@@ -562,7 +575,7 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
       <PriorityIconSlot>
         {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-7slu" />}
       </PriorityIconSlot>
-      {name}
+      <TaskNameText>{name}</TaskNameText>
     </TaskNameContainer>
   </TableTooltip>
 );
@@ -644,7 +657,9 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           />
         </TaskNameContainer>
       ),
-      maxWidth: 160,
+      // No maxWidth here (unlike the other columns): letting the browser's table layout size
+      // this column to the actual task names on the page, rather than always rendering at a
+      // fixed width.
       accessor: getTask,
     },
     {
