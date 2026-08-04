@@ -28,7 +28,8 @@ export async function initDatabase({ testMode = false, dbKey = 'main' }) {
   return await getOrCreateConnection(
     {
       testMode,
-      saltRounds: config.auth.saltRounds,
+      // bcrypt cost for password + refresh-token hashing; config key is transitional
+      saltRounds: +process.env.SALT_ROUNDS || config.auth.saltRounds,
     },
     dbKey,
   );

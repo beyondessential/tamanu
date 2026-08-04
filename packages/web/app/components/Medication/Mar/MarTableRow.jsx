@@ -19,7 +19,9 @@ import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescr
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
+import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
+import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarStatus } from './MarStatus';
 
 /**
@@ -54,6 +56,13 @@ const MarRowContainer = styled.div`
   }
 `;
 
+const ViewChangeLink = styled.span`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 export const MarTableRow = ({
   medication,
   selectedDate,
@@ -67,9 +76,8 @@ export const MarTableRow = ({
     notes,
     discontinued,
     medicationAdministrationRecords,
-    pharmacyNotes,
-    displayPharmacyNotesInMar,
     encounterPrescription,
+    latestModifiedDispense,
   } = medication;
   const { toFacilityDateTime } = useDateTime();
   const { ability } = useAuth();
@@ -83,6 +91,14 @@ export const MarTableRow = ({
   const isPausing = !!pauseData && !discontinued;
 
   const [openMedicationDetails, setOpenMedicationDetails] = useState(false);
+  const [openModifyHistory, setOpenModifyHistory] = useState(false);
+
+  const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
+
+  const handleViewChangeClick = event => {
+    event.stopPropagation();
+    setOpenModifyHistory(true);
+  };
 
   const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
     marDate: selectedDate,
@@ -132,14 +148,22 @@ export const MarTableRow = ({
         </Box>
         <Box color={!isPausing ? Colors.midText : undefined}>
           <span>{notes}</span>
-          {displayPharmacyNotesInMar && pharmacyNotes && (
+          {displayedPharmacyNote && (
             <span>
               {notes && ', '}
               <TranslatedText
                 stringId="medication.mar.pharmacyNotes"
                 fallback="Pharmacy note"
-              />: {pharmacyNotes}
+              />: {displayedPharmacyNote}
             </span>
+          )}
+          {modifiedPharmacyNote && (
+            <>
+              {' '}
+              <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
+                <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
+              </ViewChangeLink>
+            </>
           )}
         </Box>
       </MarRowContainer>
@@ -166,6 +190,11 @@ export const MarTableRow = ({
           onReloadTable={handleRefreshMar}
         />
       )}
+      <PrescriptionChangeHistoryModal
+        open={openModifyHistory}
+        dispenseId={latestModifiedDispense?.id}
+        onClose={() => setOpenModifyHistory(false)}
+      />
     </>
   );
 };

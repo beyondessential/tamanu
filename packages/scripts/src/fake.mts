@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-import type { Models, Sequelize } from '@tamanu/database';
+// .mts, not .ts: this package is CommonJS, and the CJS loader can't resolve the
+// extensionless export targets of the @tamanu/* packages below.
+import type { Models } from '@tamanu/database';
+import { initDatabase } from '@tamanu/database/services/database';
 import { generateEachDataType, populateDbFromTallyFile } from '@tamanu/fake-data/populateDb';
 
 /** Generate fake data to exercise the whole database */
 export async function generateFake(
-  sequelize: Sequelize,
   models: Models,
   rounds: number = 1,
   tallyFilePath?: string,
@@ -42,7 +44,6 @@ export async function generateFake(
 async function main() {
   const { program } = await import('commander');
   const { default: config } = await import('config');
-  const { initDatabase } = require('@tamanu/database/services/database');
 
   const opts = program
     .option('--rounds <number>', 'How much data to fill database with', '10')
@@ -63,7 +64,7 @@ async function main() {
 
   try {
     console.time('done');
-    await generateFake(db.sequelize, db.models, rounds, opts.fromTally);
+    await generateFake(db.models, rounds, opts.fromTally);
     console.timeEnd('done');
   } finally {
     await db.sequelize.close();

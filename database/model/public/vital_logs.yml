@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_vital_logs_from_sync_lookup
               - notify_vital_logs_changed
               - record_vital_logs_changelog
               - set_vital_logs_updated_at

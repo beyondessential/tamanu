@@ -9,7 +9,8 @@ const SCOPE_FACILITY = 'Facility (Single Facility)';
 // covidClearanceCertificate is the only sub-category under Certifications, so no
 // sub-category selector appears and its arrays render directly under the category
 const LAB_TEST_RESULTS = 'covidClearanceCertificate.labTestResults'; // default ["Positive"]
-const LAB_TEST_CATEGORIES = 'covidClearanceCertificate.labTestCategories'; // default []
+// covidClearanceCertificate.labTestCategories used to be the empty free-text array here, but
+// it has a suggesterEndpoint now and renders the reference-data autocomplete instead
 
 test.describe('Admin settings editor — select inputs', () => {
   let settingsPage: SettingsPage;
@@ -23,7 +24,9 @@ test.describe('Admin settings editor — select inputs', () => {
   });
 
   // Selects 1–3: default value shown, changing via the dropdown, reset to default.
-  test('[SET-0001] shows the current value, changes it, and resets to default', async ({ page }) => {
+  test('[SET-0001] shows the current value, changes it, and resets to default', async ({
+    page,
+  }) => {
     // integrations.dhis2.idSchemes.idScheme is yup.string().oneOf([...]) defaulting to 'uid'
     const setting = settingsPage.settingLine('dhis2.idSchemes.idScheme');
     const select = setting.getByTestId('selectinput-settings-string-enum-select');
@@ -81,10 +84,14 @@ test.describe('Admin settings editor — array (list) inputs', () => {
   // Arrays 2 + 3: add entries to an empty array, then remove one (leaving others).
   test('[SET-0003] adds entries to an empty array and removes one', async () => {
     await openCertifications();
-    const setting = settingsPage.settingLine(LAB_TEST_CATEGORIES);
+    const setting = settingsPage.settingLine(LAB_TEST_RESULTS);
     const rows = settingsPage.listRows(setting);
 
-    // (2) starts empty — "No entries" — then add two
+    // (1) clear the single default entry to get an empty list to add to
+    await setting.getByTestId('listsettinginput-remove-0').click();
+    await expect(rows).toHaveCount(0);
+
+    // (2) empty — "No entries" — then add two
     await expect(setting.getByTestId('listsettinginput-empty')).toBeVisible();
     await setting.getByTestId('listsettinginput-add').click();
     await setting.getByTestId('listsettinginput-add').click();

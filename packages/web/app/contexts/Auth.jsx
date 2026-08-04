@@ -6,14 +6,12 @@ import { AuthContext, useAuth as useAuthFromUi } from '@tamanu/ui-components';
 
 import { idleTimeout, logout } from '../store';
 import { useApi } from '../api';
-import { useEncounterNotesQuery } from './EncounterNotes';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
   const api = useApi();
   const queries = useQueryClient();
-  const { resetNoteContext } = useEncounterNotesQuery();
   const navigate = useNavigate();
 
   const { currentUser, ability, facilityId, currentRole, impersonatingRole, primaryTimeZone } =
@@ -29,9 +27,8 @@ export const AuthProvider = ({ children }) => {
   const cleanupSession = useCallback(() => {
     window?.localStorage?.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
     queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
-    resetNoteContext();
     navigate('/');
-  }, [queries, resetNoteContext, navigate]);
+  }, [queries, navigate]);
 
   const onLogout = useCallback(() => {
     dispatch(logout());

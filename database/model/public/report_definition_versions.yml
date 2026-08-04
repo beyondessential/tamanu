@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_report_definition_versions_from_sync_lookup
               - notify_report_definition_versions_changed
               - record_report_definition_versions_changelog
               - set_report_definition_versions_updated_at

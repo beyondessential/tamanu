@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_facilities_from_sync_lookup
               - notify_facilities_changed
               - record_facilities_changelog
               - set_facilities_updated_at

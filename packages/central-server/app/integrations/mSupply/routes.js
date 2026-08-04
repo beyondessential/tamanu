@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { fhirRoutes } from '../../hl7fhir';
 
-export const routes = ctx => fhirRoutes(ctx, config.integrations.mSupply);
+export const routes = async ctx => fhirRoutes(ctx, await ctx.settings.get('integrations.mSupply'));

@@ -412,7 +412,9 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
   [ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH]: {
     startTimes: ['06:00'],
-    dosesPerDay: 1 / 28,
+    // A month is treated as 30 days (matching MEDICATION_DURATION_UNITS), so a monthly
+    // dose over an N-month duration autocalculates to N administrations.
+    dosesPerDay: 1 / 30,
   },
   [ADMINISTRATION_FREQUENCIES.IMMEDIATELY]: {
     startTimes: null,

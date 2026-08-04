@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_discharges_from_sync_lookup
               - notify_discharges_changed
               - record_discharges_changelog
               - set_discharges_updated_at

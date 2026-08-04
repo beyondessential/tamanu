@@ -59,30 +59,11 @@ jobs:
       - name: Prepare artifact output
         run: |
           set -x
-
-          # for upload to S3
           tar -cf \
             '${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar' \
             'release-v${{ steps.version.outputs.version }}'
           zstd --rm --adapt -T0 -10 \
             '${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar'
-
-          # for the windows pack
-          pushd 'release-v${{ steps.version.outputs.version }}'
-          rm -rfv node_modules packages/*/node_modules
-          popd
-          zip -r \
-            'release-v${{ steps.version.outputs.version }}.zip' \
-            'release-v${{ steps.version.outputs.version }}'
-
-      - name: Upload artifact for next step
-        uses: actions/upload-artifact@v4
-        with:
-          name: winjob-${{ matrix.package }}-${{ steps.version.outputs.version }}
-          path: release-v${{ steps.version.outputs.version }}.zip
-          retention-days: 1
-          if-no-files-found: error
-          compression-level: 0
 
       - name: Upload final output
         uses: actions/upload-artifact@v4
@@ -126,18 +107,6 @@ jobs:
           api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/linux-amd64
           arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/${{ matrix.package }}-${{ steps.version.outputs.version }}-linux-amd64.tar.zst'
 
-      # the action doesn't work on windows because of ecdsa cryptography :(
-      - name: Post to meta (windows in advance)
-        if: startsWith(github.ref, 'refs/tags/v')
-        continue-on-error: true
-        uses: ./.github/actions/meta-api
-        with:
-          url: ${{ vars.META_URL }}
-          crt: ${{ secrets.META_CERT }}
-          key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/windows-amd64
-          arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/${{ matrix.package }}-${{ steps.version.outputs.version }}-windows.tar.zst'
-
     outputs:
       version: ${{ steps.version.outputs.version }}
 
@@ -150,41 +119,40 @@ jobs:
           - central
           - facility
 
+    # Repacks the bundle the windows-image job (cd.yml) already built natively on
+    # Windows — Node runtime embedded, dependencies installed for win32 — so no
+    # Windows runner is needed here, and the artifact is the same tree the
+    # Windows OCI image ships.
     name: Pack ${{ matrix.package }} for Windows
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
-
-      - name: Download artifact from build job
+      - name: Download the Windows bundle
         uses: actions/download-artifact@v4
         with:
-          name: winjob-${{ matrix.package }}-${{ needs.linux.outputs.version }}
+          name: windows-bundle-${{ matrix.package }}
 
-      - name: Unzip artifact for deployment
-        shell: bash
-        run: unzip release-v${{ needs.linux.outputs.version }}.zip
-
-      - name: Reinstall dependencies
-        working-directory: release-v${{ needs.linux.outputs.version }}
-        shell: bash
+      # The bundle is the OCI image layer: Files/ is the container's C:\ drive,
+      # so the release tree is Files/app. The layer carries Windows pax records
+      # (MSWINDOWS.rawsd and kin) that mean nothing here, hence the warning-off.
+      - name: Unpack the bundle
         run: |
-          export NODE_ENV=production
-          npm install --userconfig .npmrc.timeout --package-lock
+          set -x
+          tar --warning=no-unknown-keyword -xzf layer.tar.gz
+          rm layer.tar.gz
+          mv Files/app 'release-v${{ needs.linux.outputs.version }}'
+          rmdir Files
 
-      # Embed the official Windows Node runtime (pm2's interpreter); .node-version
-      # is read from the checked-out repo, the release bundle is the destination.
-      - name: Embed Node runtime (windows)
-        shell: bash
-        run: scripts/embed-node-runtime.sh win-x64 'release-v${{ needs.linux.outputs.version }}'
+      - name: Prepare production configuration
+        run: |
+          set -x
+          sed -E \
+            "s|const cwd =.+|const cwd = 'packages/${{ matrix.package }}-server';|" \
+            packages/${{ matrix.package }}-server/pm2.config.cjs \
+          > release-v${{ needs.linux.outputs.version }}/pm2.config.cjs
 
       - name: Prepare final output
-        shell: bash
         run: |
           set -x
           tar -cf \
@@ -223,3 +191,17 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: '*.tar.zst*'
+
+      # Posted from here now that this job runs on linux: the meta-api action
+      # can't run on Windows (ecdsa cryptography), which is why the linux job
+      # used to announce this artifact in advance of it existing.
+      - name: Post to meta
+        if: startsWith(github.ref, 'refs/tags/v')
+        continue-on-error: true
+        uses: ./.github/actions/meta-api
+        with:
+          url: ${{ vars.META_URL }}
+          crt: ${{ secrets.META_CERT }}
+          key: ${{ secrets.META_KEY }}
+          api: /artifacts/${{ needs.linux.outputs.version }}/${{ matrix.package }}/windows-amd64
+          arg: --data-binary 'https://servers.ops.tamanu.io/${{ needs.linux.outputs.version }}/${{ matrix.package }}-${{ needs.linux.outputs.version }}-windows.tar.zst'

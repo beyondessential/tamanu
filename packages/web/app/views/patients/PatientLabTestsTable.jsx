@@ -9,6 +9,7 @@ import {
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
+import { getLabTestValidationCriteriaFromNormalRanges } from '@tamanu/utils/labTests';
 import { BodyText } from '../../components';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
@@ -204,26 +205,6 @@ export const PatientLabTestsTable = React.memo(
           key: date,
           accessor: row => {
             const cellData = row.results[date];
-            const hasNumericPerTestOverride =
-              cellData?.referenceRangeMin != null || cellData?.referenceRangeMax != null;
-            let effectiveNormalRange = null;
-            let effectiveRangeText = null;
-            if (hasNumericPerTestOverride) {
-              const numericRange = {
-                min: cellData.referenceRangeMin,
-                max: cellData.referenceRangeMax,
-              };
-              effectiveNormalRange = numericRange.min != null ? numericRange : null;
-            } else if (cellData?.referenceRangeText) {
-              effectiveRangeText = cellData.referenceRangeText;
-            } else {
-              const typeRange = row.normalRanges[patient?.sex];
-              if (typeRange?.min != null) {
-                effectiveNormalRange = typeRange;
-              } else {
-                effectiveRangeText = row.rangeText ?? null;
-              }
-            }
             if (cellData) {
               const isEdited = cellData.isEdited === true;
               return (
@@ -244,10 +225,16 @@ export const PatientLabTestsTable = React.memo(
                     <RangeValidatedCell
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
-                      validationCriteria={{
-                        normalRange: effectiveNormalRange,
-                        rangeText: effectiveRangeText,
-                      }}
+                      validationCriteria={getLabTestValidationCriteriaFromNormalRanges({
+                        normalRanges: row.normalRanges,
+                        rangeText: row.rangeText,
+                        labTest: {
+                          referenceRangeMin: cellData.referenceRangeMin,
+                          referenceRangeMax: cellData.referenceRangeMax,
+                          referenceRangeText: cellData.referenceRangeText,
+                        },
+                        sex: patient?.sex,
+                      })}
                       isEdited={isEdited}
                       data-testid={`rangevalidatedcell-ebuf-${index}`}
                     />

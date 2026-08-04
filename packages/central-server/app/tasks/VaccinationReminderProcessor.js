@@ -1,4 +1,3 @@
-import config from 'config';
 import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
@@ -15,7 +14,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.vaccinationReminderProcessor;
+    const conf = context.schedules.vaccinationReminderProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
@@ -41,10 +40,11 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       });
 
       await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
-        replacements: { timezone: getPrimaryTimeZone(config) },
+        replacements: { timezone: getPrimaryTimeZone() },
         transaction,
       });
 
+      const language = await this.context.settings.get('language');
       await this.context.store.sequelize.query(
         `
     with
@@ -91,7 +91,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
             communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
             communicationStatus: COMMUNICATION_STATUSES.QUEUED,
             communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
-            language: config.language,
+            language,
             subjectStringId: 'vaccinationReminder.message.subject',
             subjectFallback: 'Vaccination Reminder for :patientName',
             contentStringId: 'vaccinationReminder.message.content',

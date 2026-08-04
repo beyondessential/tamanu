@@ -1,0 +1,79 @@
+name: Seed Image
+
+# Dispatchable on its own as well as called by the release cut, so a failed or missing
+# seed image can be rebuilt for any ref without cutting another release branch.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to build from (e.g. release/2.62)'
+        type: string
+        required: true
+      version:
+        description: 'Semver version to tag the image with (e.g. 2.62.0)'
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    outputs:
+      image:
+        value: ${{ jobs.build.outputs.image }}
+      git_sha:
+        value: ${{ jobs.build.outputs.git_sha }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Seed image for ${{ inputs.version }}
+    runs-on: ubuntu-24.04-arm
+    outputs:
+      image: ${{ steps.tag.outputs.image }}
+      git_sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - name: Validate version format
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '$INPUT_VERSION' — expected X.Y.Z"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Get HEAD SHA
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Derive image ref
+        id: tag
+        run: echo "image=ghcr.io/beyondessential/tamanu-seed:${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Built from the same Dockerfile and docker-build.sh as the server images, so the
+      # install can't drift out from under this workflow: it shares `base`/`build-base`
+      # with them, hence reading main's central image cache.
+      - name: Build and push seed image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: seed
+          push: true
+          platforms: linux/arm64
+          cache-from: type=gha,scope=arm64-main-central
+          tags: ${{ steps.tag.outputs.image }}

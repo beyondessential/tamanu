@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_encounter_pause_prescription_histories_from_sync_lookup
               - notify_encounter_pause_prescription_histories_changed
               - record_encounter_pause_prescription_histories_changelog
               - set_encounter_pause_prescription_histories_updated_at

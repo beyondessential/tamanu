@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_roles_from_sync_lookup
               - notify_roles_changed
               - record_roles_changelog
               - set_roles_updated_at

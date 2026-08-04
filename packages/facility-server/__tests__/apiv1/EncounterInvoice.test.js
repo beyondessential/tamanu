@@ -4,6 +4,7 @@ import { sub } from 'date-fns';
 import { createTestContext } from '../utilities';
 import {
   ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTES,
   ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
@@ -1623,6 +1624,98 @@ describe('Encounter invoice', () => {
           productId: drugProductWithConversion.id,
           quantity: 1, // Math.ceil(4 / 5) = 1, not 4
         });
+      });
+
+      it('is unaffected when pharmacy substitutes a different (priced) drug at dispensing', async () => {
+        // Invoicing keys off the prescription's medication, not the dispensed one, so a pharmacy
+        // substitution at dispense time must not switch the invoice to the substitute's product.
+        const { encounter, prescription } = await createEncounterPrescription();
+
+        // A priced substitute drug — its own product proves the invoice would move if it were used
+        const substitute = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Substitute drug',
+            code: 'substitute-drug',
+          }),
+        );
+        await models.ReferenceDrug.create(
+          fake(models.ReferenceDrug, { referenceDataId: substitute.id, isSensitive: false }),
+        );
+        const substituteProduct = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.DRUG,
+            sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+            sourceRecordId: substitute.id,
+          }),
+        );
+        const modifyReason = await models.ReferenceData.create(
+          fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+        );
+
+        // A discharge pharmacy order creates the invoice item for the prescribed drug. Created via
+        // models with a UUID id because the dispense endpoint requires a UUID pharmacy-order-
+        // prescription id (the pharmacyOrder API generates non-UUID display ids).
+        const pharmacyOrder = await models.PharmacyOrder.create(
+          fake(models.PharmacyOrder, {
+            orderingClinicianId: user.id,
+            encounterId: encounter.id,
+            isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: facility.id,
+          }),
+        );
+        const pop = await models.PharmacyOrderPrescription.create({
+          ...fake(models.PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription.id,
+            quantity: 10,
+          }),
+          id: crypto.randomUUID(),
+        });
+
+        const beforeDispense = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(beforeDispense.body.items).toHaveLength(1);
+        expect(beforeDispense.body.items[0]).toMatchObject({
+          productId: drugProduct.id,
+          quantity: 10,
+        });
+
+        // Dispense the request, substituting the different drug
+        const dispenseResult = await app.post('/api/medication/dispense').send({
+          dispensedByUserId: user.id,
+          facilityId: facility.id,
+          items: [
+            {
+              pharmacyOrderPrescriptionId: pop.id,
+              quantity: 10,
+              instructions: 'whatever',
+              modification: {
+                medicationId: substitute.id,
+                isVariableDose: false,
+                doseAmount: 1,
+                frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                route: DRUG_ROUTES.oral,
+                modifiedReasonId: modifyReason.id,
+                modifiedById: user.id,
+              },
+            },
+          ],
+        });
+        expect(dispenseResult).toHaveSucceeded();
+
+        // The invoice still reflects the prescribed drug — the substitute's product is not used
+        const afterDispense = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(afterDispense).toHaveSucceeded();
+        expect(afterDispense.body.items).toHaveLength(1);
+        expect(afterDispense.body.items[0]).toMatchObject({
+          sourceRecordId: prescription.id,
+          productId: drugProduct.id,
+          quantity: 10,
+        });
+        expect(afterDispense.body.items.some(item => item.productId === substituteProduct.id)).toBe(
+          false,
+        );
       });
     });
   });

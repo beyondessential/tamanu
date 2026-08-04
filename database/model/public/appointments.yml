@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_appointments_from_sync_lookup
               - notify_appointments_changed
               - record_appointments_changelog
               - set_appointments_updated_at

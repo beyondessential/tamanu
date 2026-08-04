@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_patient_invoice_insurance_plans_from_sync_lookup
               - notify_patient_invoice_insurance_plans_changed
               - record_patient_invoice_insurance_plans_changelog
               - set_patient_invoice_insurance_plans_updated_at

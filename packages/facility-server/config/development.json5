@@ -4,7 +4,6 @@
     "secret": "insecure"
   },
   "db": {
-    "migrateOnStartup": true,
     "name": "tamanu-facility"
   },
   "sync": {
@@ -12,8 +11,5 @@
     "email": "admin@tamanu.io",
     "password": "admin",
     "enabled": true
-  },
-  "log": {
-    "consoleLevel": "http"
   }
 }

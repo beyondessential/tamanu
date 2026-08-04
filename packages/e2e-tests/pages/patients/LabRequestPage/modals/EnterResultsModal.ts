@@ -15,6 +15,7 @@ export class EnterResultsModal {
   readonly labTestMethodFirstRowIcon!: Locator;
   readonly verificationFirstRow!: Locator;
   readonly completedDateFirstRow!: Locator;
+  readonly resultInputFirstRow!: Locator;
   readonly labTestTypeTitle!: Locator;
   
   // Dropdown option locators
@@ -47,6 +48,7 @@ export class EnterResultsModal {
     this.labTestMethodFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).getByTestId('selectinput-phtg-expandmoreicon-h115');
     this.verificationFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-verification`).locator('input');
     this.completedDateFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-completedDate`).locator('input');
+    this.resultInputFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).locator('input');
     
     // Dropdown option locators
     this.resultOptions = page.getByTestId('styledfield-h653-option');
@@ -66,6 +68,11 @@ export class EnterResultsModal {
   async selectResult(result: string) {
     await this.resultsFirstRowIcon.click();
     await this.resultOptions.getByText(result).click();
+  }
+
+  // For numeric/free-text result types, whose result field is a plain input rather than a dropdown.
+  async fillResultForFirstRow(value: string) {
+    await this.resultInputFirstRow.fill(value);
   }
 
   async selectLabTestMethod(method: string) {

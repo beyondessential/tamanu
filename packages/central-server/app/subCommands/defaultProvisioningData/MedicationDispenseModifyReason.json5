@@ -1,0 +1,38 @@
+{
+  // PascalCase (no spaces) keeps the Excel sheet name within the 31-char limit while still
+  // normalising to the `medicationDispenseModifyReason` reference type (the importer word-splits it).
+  "sheetName": "MedicationDispenseModifyReason",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "medicationdispensemodifyreason-outofstock",
+      "code": "outofstock",
+      "name": "Out of stock"
+    },
+    {
+      "id": "medicationdispensemodifyreason-substitution",
+      "code": "substitution",
+      "name": "Substitution"
+    },
+    {
+      "id": "medicationdispensemodifyreason-doseadjustment",
+      "code": "doseadjustment",
+      "name": "Dose adjustment"
+    },
+    {
+      "id": "medicationdispensemodifyreason-prescribererror",
+      "code": "prescribererror",
+      "name": "Prescriber error"
+    },
+    {
+      "id": "medicationdispensemodifyreason-other",
+      "code": "other",
+      "name": "Other"
+    }
+  ]
+}

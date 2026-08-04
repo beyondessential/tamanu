@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -16,7 +14,7 @@ export class OutpatientDischarger extends ScheduledTask {
 
   constructor(context, overrideConfig = null) {
     const conf = {
-      ...config.schedules.outpatientDischarger,
+      ...context.schedules.outpatientDischarger,
       ...overrideConfig,
     };
     const { schedule, jitterTime, enabled } = conf;
@@ -37,10 +35,7 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const {
-      batchSize,
-      batchSleepAsyncDurationInMilliseconds,
-    } = config.schedules.outpatientDischarger;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     await dischargeOutpatientEncounters(
       this.models,

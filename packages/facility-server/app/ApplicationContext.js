@@ -4,7 +4,10 @@ import { omit } from 'es-toolkit/compat';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import {
+  getFhirWorkerSettings,
+  initFhirSettingsFromDb,
+} from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { closeDatabase, initDatabase } from './database';
@@ -64,14 +67,18 @@ export class ApplicationContext {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
     }, {});
-    this.settings.global = new ReadSettings(this.models);
-
-    const fhirWorkerEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    this.settings.global = ReadSettings.forGlobal(this.models);
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
+
+    // The FHIR flags are facility-scoped; on a multi-facility server the first facility's
+    // values apply, the same rule the scheduled tasks use.
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
-    await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
+    // Triggers follow the worker flag alone, not `fhir.enabled`: see the central
+    // ApplicationContext for why.
+    await setFhirRefreshTriggers(this.sequelize, {
+      fhirWorkerEnabled: getFhirWorkerSettings().enabled,
+    });
 
     return this;
   }

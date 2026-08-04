@@ -1,8 +1,10 @@
 # Settings - Tamanu
 
-How runtime settings work, and how to read them. Settings are DB-backed and
-editable in the admin panel. A setting with no stored value resolves to its
-schema `defaultValue`.
+How to work with settings in code. Product behaviour — scopes, resolution,
+live-apply, exposure, config vs settings — is specified in
+`specs/administration/settings/`; this is the how-to-code companion. Settings are
+DB-backed, editable in the admin panel, and resolve to a schema `defaultValue`
+when unset.
 
 ## Schemas
 
@@ -18,25 +20,21 @@ with `extractDefaults()` (e.g. `facilityDefaults`). Useful leaf flags:
 `secret`, `highRisk`, `deprecated`, `unit`, `suggesterEndpoint`.
 
 A `secret: true` leaf must **not** declare a `defaultValue` (a schema test
-enforces this — a default would have to live in source control). When saved
-through the admin panel the value is **stored encrypted** (AES, using the
-`crypto.settingsPsk` key) and masked in the UI, so it's never read back to the
-client. Read it with `getSettingSecret(settings, 'dot.path')`, which decrypts;
-a plain `get()` returns the raw encrypted blob (see `ai.anthropicApiKey`,
+enforces this). Its value is stored encrypted and masked in the UI (see
+`specs/administration/settings/secret-encryption.md`); read it with
+`getSettingSecret(settings, 'dot.path')`, which decrypts — a plain `get()`
+returns the raw encrypted blob (see `ai.anthropicApiKey`,
 `integrations.dhis2.password`).
 
 **Scope a setting by where it is read:** only read on facility → put it in
 `facility.ts`; only on central → `central.ts`; both → `global.ts`. Don't put a
 facility-only setting in `global.ts`.
 
-**Facility overrides.** A subtree may be declared in *both* `global.ts` and
-`facility.ts`. `buildSettings` resolves values through a deep-merge cascade in
-descending priority — facility-scope DB → global DB → facility defaults → global
-defaults — so a facility value overrides the global one for that facility, while
-the central reader sees only the global value. Use this when a globally-meaningful
-value also needs a per-facility override (e.g. `fhir`, `appointments`,
-`integrations`, `medications`, `templates`). The merge is deep, so the same
-subtree can hold some keys defined globally and others per-facility.
+**Facility overrides.** To let a global value also take a per-facility override,
+declare the subtree in *both* `global.ts` and `facility.ts` — `buildSettings`
+deep-merges the scopes (resolution rule in `specs/administration/settings/`), so
+the same subtree can hold some keys globally and others per-facility (e.g.
+`fhir`, `appointments`, `integrations`, `medications`, `templates`).
 
 ## Reading settings
 
@@ -48,7 +46,8 @@ but the shape differs by server:
   ```js
   const value = await req.settings.get('export.maxFileSizeInMB');
   ```
-- **Facility** — `req.settings` is keyed by facility id, **with no `.global`**:
+- **Facility** — `req.settings` is keyed by facility id, plus a `.global` server-wide
+  reader (global scope only):
   ```js
   const { settings } = req;
   const value = await settings[facilityId].get('tasking.upcomingTasksTimeFrame');
@@ -60,12 +59,14 @@ but the shape differs by server:
 
 Outside a request (tasks, sub-commands) the reader lives on the app context:
 `context.settings` (central) or `context.settings[facilityId]` /
-`context.settings.global` (facility — note the context object *does* have
-`.global`, unlike `req.settings`).
+`context.settings.global` (facility) — the same shape as `req.settings`.
 
-Pre-auth/global reads with no facility construct one directly:
-`new ReadSettings(req.models)` — only when no facility id is available (e.g. the
-`browser-support` route). Prefer the request reader otherwise.
+Pre-auth/global reads with no facility construct one directly — only when no
+facility id is available (e.g. the `browser-support` route); prefer the request
+reader otherwise. On a central server use `new ReadSettings(models)` (the central
+cascade); on a facility server use `ReadSettings.forGlobal(models)` — a plain
+no-facility reader is the *central* cascade and would serve central defaults and
+central-mapped config values that don't apply there.
 
 **Prefer threading over constructing.** Pass what's needed down from a caller that
 already has a reader — either the reader itself, or the resolved value (model

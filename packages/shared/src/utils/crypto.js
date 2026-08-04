@@ -1,8 +1,13 @@
 import config from 'config';
 import { get as lodashGet } from 'es-toolkit/compat';
+import { CONFIG_TO_SECRET_SETTINGS } from '@tamanu/settings';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import readSync from 'read';
+
+import { FACT_SETTINGS_PSK } from '@tamanu/constants';
+
+import { log } from '../services/logging';
 
 const read = promisify(readSync);
 
@@ -42,9 +47,7 @@ export async function generateSecretKey() {
 
 async function importKey(keyBuffer) {
   if (keyBuffer.length !== KEY_LENGTH_BYTES) {
-    throw new Error(
-      `Key must be exactly ${KEY_LENGTH_BYTES} bytes (got ${keyBuffer.length})`,
-    );
+    throw new Error(`Key must be exactly ${KEY_LENGTH_BYTES} bytes (got ${keyBuffer.length})`);
   }
   return crypto.subtle.importKey('raw', keyBuffer, { name: ALGORITHM }, false, [
     'encrypt',
@@ -149,6 +152,51 @@ export async function getConfigSecret(name) {
   return decryptSecret(keyBuffer, encryptedValue);
 }
 
+// Resolves the deployment-wide settings PSK as a hex string. Registered once
+// per process where the database (and so the LocalSystemSecret model) is
+// available — see setSettingsPskSource, wired from initDatabase. Kept out of
+// this module directly because shared/ must not import database models.
+let settingsPskSource = null;
+
+/**
+ * Point the settings-PSK reader at the local secrets store. Called from
+ * initDatabase with the LocalSystemSecret model bound. Clears the cached buffer
+ * so a re-registration (e.g. in tests) takes effect.
+ */
+export function setSettingsPskSource(source) {
+  settingsPskSource = source;
+  settingsPskKeyBufferPromise = null;
+}
+
+/**
+ * Drop the cached key buffer so the next read re-resolves the PSK. Needed when
+ * the PSK lands in the local store on a *running* server (the setup wizard):
+ * an earlier read may have cached the legacy per-host config key, which would
+ * otherwise be used until restart.
+ */
+export function clearSettingsPskCache() {
+  settingsPskKeyBufferPromise = null;
+}
+
+// Local secrets store is the source of truth. The legacy crypto.settingsPsk config
+// value covers deployments that haven't converged yet, and goes away once the store
+// is guaranteed populated.
+async function resolveSettingsPsk() {
+  // == null, not falsy: only a genuinely unset source (not yet provisioned) falls
+  // back. A falsy-but-present value (e.g. '' from a corrupted row) passes through
+  // and fails validation loudly rather than silently decrypting with the wrong key.
+  const fromStore = settingsPskSource && (await settingsPskSource());
+  if (fromStore != null) return fromStore;
+
+  const fromConfig = await getConfigSecret('crypto.settingsPsk');
+  // Warned after the read rather than before it: getConfigSecret throws when the key
+  // is unset, so reaching this line means config really is the source. An empty local
+  // store on its own says nothing. Callers cache the result, so this is once per
+  // process.
+  log.warn('settings PSK resolved from legacy crypto.settingsPsk config');
+  return fromConfig;
+}
+
 // The settings PSK key never changes at runtime so we decrypt it once and
 // reuse the buffer. A failed first read clears the cache so the next call
 // retries instead of permanently breaking secret access.
@@ -157,7 +205,22 @@ let settingsPskKeyBufferPromise = null;
 export async function getSettingsPskKeyBuffer() {
   if (!settingsPskKeyBufferPromise) {
     settingsPskKeyBufferPromise = (async () => {
-      const psk = await getConfigSecret('crypto.settingsPsk');
+      const psk = await resolveSettingsPsk();
+      // Validate before use. Buffer.from(x, 'hex') silently drops invalid/odd
+      // characters, so a corrupt or empty PSK would otherwise yield a wrong-length
+      // key whose only symptom is an opaque "Decryption failed" far from the cause.
+      // Fail here, at the source, with a message that names the problem.
+      const expectedHexLength = KEY_LENGTH_BYTES * 2;
+      if (
+        typeof psk !== 'string' ||
+        !new RegExp(`^[0-9a-f]{${expectedHexLength}}$`, 'i').test(psk)
+      ) {
+        throw new Error(
+          `Settings PSK must be exactly ${expectedHexLength} hex characters ` +
+            `(${KEY_LENGTH_BYTES} bytes for AES-${KEY_LENGTH}); the local secrets store ` +
+            `may be unprovisioned or corrupt`,
+        );
+      }
       return Buffer.from(psk, 'hex');
     })().catch(err => {
       settingsPskKeyBufferPromise = null;
@@ -165,6 +228,28 @@ export async function getSettingsPskKeyBuffer() {
     });
   }
   return settingsPskKeyBufferPromise;
+}
+
+// Adopts the legacy crypto.settingsPsk config value if one is present, otherwise
+// generates a fresh key. Both branches yield a hex PSK string.
+async function resolveOrGeneratePsk() {
+  try {
+    return await getConfigSecret('crypto.settingsPsk');
+  } catch (err) {
+    if (!(err instanceof SecretNotConfiguredError)) throw err;
+    return (await generateSecretKey()).toString('hex');
+  }
+}
+
+/**
+ * Ensures a settings PSK exists in the local secrets store. Central only:
+ * facilities pull the PSK from central and must never mint their own (that was
+ * the per-host bug). Idempotent via setIfAbsent.
+ */
+export async function ensureSettingsPsk(localSystemSecret) {
+  if (await localSystemSecret.get(FACT_SETTINGS_PSK)) return;
+  const psk = await resolveOrGeneratePsk();
+  await localSystemSecret.setIfAbsent(FACT_SETTINGS_PSK, psk);
 }
 
 /** Reads and decrypts a secret stored in the settings table. */
@@ -181,6 +266,33 @@ export async function getSettingSecret(settings, name) {
 
   const keyBuffer = await getSettingsPskKeyBuffer();
   return decryptSecret(keyBuffer, encryptedValue);
+}
+
+/**
+ * Read a secret setting, returning undefined when it isn't set anywhere. While a
+ * deployment transitions off config files, an unset setting falls back to its legacy
+ * config source per CONFIG_TO_SECRET_SETTINGS (plaintext or config-encrypted); the
+ * fallback goes away with the config file. Decryption and other unexpected errors
+ * are rethrown, never swallowed into the fallback.
+ */
+export async function getOptionalSettingSecret(settings, name) {
+  try {
+    return await getSettingSecret(settings, name);
+  } catch (error) {
+    if (!(error instanceof SecretNotConfiguredError)) throw error;
+  }
+  const entry = CONFIG_TO_SECRET_SETTINGS.find(secret => secret.setting === name);
+  if (!entry) return undefined;
+  if (entry.encryptedInConfig) {
+    try {
+      return await getConfigSecret(entry.config);
+    } catch (error) {
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
+      // absent or plaintext at the config path — fall through to the raw read
+    }
+  }
+  const raw = lodashGet(config, entry.config);
+  return typeof raw === 'string' && raw.trim() ? raw : undefined;
 }
 
 /** Returns true if `value` looks like an encrypted secret produced by encryptSecret. */

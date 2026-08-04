@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_notes_from_sync_lookup
               - notify_notes_changed
               - record_notes_changelog
               - set_notes_updated_at

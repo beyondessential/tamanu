@@ -1,6 +1,5 @@
 import { context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { SERVER_TYPES } from '@tamanu/constants/servers';
@@ -11,12 +10,13 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../serverInfo';
 import { verifyToken } from '../../auth/utils';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
 
-    const { canonicalHostName } = config;
+    const canonicalHostName = getCanonicalHostName();
 
     const { authorization } = headers;
     if (!authorization) {

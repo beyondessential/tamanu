@@ -47,7 +47,9 @@ jobs:
   create-snapshot:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
-    timeout-minutes: 10
+    # Must exceed the watch step's own budget: a job-level timeout is a hard failure that
+    # continue-on-error can't absorb, so it would fail the release cut over a watchdog.
+    timeout-minutes: 30
     steps:
       - name: Validate version format
         env:
@@ -80,10 +82,9 @@ jobs:
           JOB_NAME="seed-migrate-${SAFE_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
           echo "job_name=${JOB_NAME}" >> "$GITHUB_OUTPUT"
 
-      # Fire-and-forget: we submit the Job suspended and the pgsnap operator
-      # owns the rest of the lifecycle (provisioning the PVC + DB secret,
-      # unsuspending, snapshotting on completion, GC). Job correctness is
-      # observed via the resulting VolumeSnapshot in `tamanu-seed`, not here.
+      # We submit the Job suspended and the pgsnap operator owns the rest of the
+      # lifecycle: provisioning the PVC + DB secret, unsuspending, snapshotting
+      # on completion, GC.
       - name: Create seed Job
         continue-on-error: true
         env:
@@ -147,4 +148,104 @@ jobs:
                         memory: 2Gi
                         ephemeral-storage: 2Gi
           EOF
+
+      # Seeding runs for far longer than a release cut should wait, so we don't wait for
+      # the snapshot itself. We do wait for the container to start and then stay up for
+      # SETTLE_SECONDS, because the failures worth catching here all land within seconds
+      # of starting: a bad image ref, a missing DB_* key (the seed runs under `bash -u`),
+      # an unreadable config. Left unwatched, `backoffLimit: 0` means such a pod sits
+      # until activeDeadlineSeconds two hours later with nothing reporting it. The cut
+      # itself is already done either way, hence continue-on-error.
+      - name: Wait for the seed to start
+        continue-on-error: true
+        # Not the default `bash -e`: this step polls for a pod that does not exist yet, so
+        # a non-zero kubectl is expected and errexit would abort the watch before it starts.
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          VERSION: ${{ inputs.version }}
+          # The Job stays suspended until the operator has a CNPG cluster accepting
+          # connections, which measured ~10 minutes on the 2.61.0 snapshot.
+          START_TIMEOUT_SECONDS: '1200'
+          SETTLE_SECONDS: '60'
+        run: |
+          follow="kubectl logs -f -n $SEED_NAMESPACE job/$JOB_NAME"
+
+          if ! kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" >/dev/null 2>&1; then
+            echo "::warning::Seed job $JOB_NAME was not created; no snapshot for $VERSION."
+            exit 1
+          fi
+
+          fail() {
+            [[ -n "${1:-}" ]] && kubectl logs "$1" -n "$SEED_NAMESPACE" --tail=50
+            [[ -n "${1:-}" ]] && kubectl describe pod "$1" -n "$SEED_NAMESPACE"
+            echo "::error::$2"
+            exit 1
+          }
+
+          settle_deadline=
+          hard_deadline=$((SECONDS + START_TIMEOUT_SECONDS + SETTLE_SECONDS))
+          while (( SECONDS < hard_deadline )); do
+            if [[ "$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" \
+                  -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')" == "True" ]]; then
+              kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
+              fail "" "Seed job $JOB_NAME failed; no snapshot for $VERSION."
+            fi
+
+            # `items[*]` rather than `items[0]`: the latter errors while the Job is still
+            # suspended and no pod exists.
+            pod=$(kubectl get pods -n "$SEED_NAMESPACE" \
+              -l "batch.kubernetes.io/job-name=$JOB_NAME" \
+              -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | awk '{print $1}')
+
+            status=
+            if [[ -n "$pod" ]]; then
+              status=$(kubectl get pod "$pod" -n "$SEED_NAMESPACE" -o json 2>/dev/null | jq -r '
+                .status.containerStatuses[0].state as $s
+                | [($s.running.startedAt // "-"),
+                   ($s.terminated.exitCode // "-" | tostring),
+                   ($s.waiting.reason // "-")] | @tsv')
+            fi
+
+            if [[ -n "$status" ]]; then
+              read -r started exited waiting <<<"$status"
+
+              # Terminated first: a container that already exited has no running state.
+              if [[ "$exited" != - ]]; then
+                if [[ "$exited" == 0 ]]; then
+                  echo "::notice::Seed job $JOB_NAME completed; the operator snapshots it from here."
+                  exit 0
+                fi
+                fail "$pod" "Seed pod $pod exited with code $exited; no snapshot for $VERSION."
+              fi
+
+              case "$waiting" in
+                ErrImagePull | ImagePullBackOff | InvalidImageName | CrashLoopBackOff | \
+                CreateContainerError | CreateContainerConfigError)
+                  fail "$pod" "Seed pod $pod cannot start ($waiting); no snapshot for $VERSION."
+                  ;;
+              esac
+
+              if [[ "$started" != - ]]; then
+                if [[ -z "$settle_deadline" ]]; then
+                  echo "Seed container started at $started; watching ${SETTLE_SECONDS}s for an early exit."
+                  settle_deadline=$((SECONDS + SETTLE_SECONDS))
+                elif (( SECONDS >= settle_deadline )); then
+                  echo "::notice::Seed job $JOB_NAME is running. Follow it with: $follow"
+                  exit 0
+                fi
+              fi
+            fi
+
+            sleep 10
+          done
+
+          if [[ -n "$settle_deadline" ]]; then
+            echo "::notice::Seed job $JOB_NAME is running. Follow it with: $follow"
+            exit 0
+          fi
+
+          kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
+          echo "::warning::Seed job $JOB_NAME had not started in time. Check it with: $follow"
+          exit 1
 
