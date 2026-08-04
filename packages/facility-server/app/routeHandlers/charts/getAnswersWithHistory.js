@@ -82,28 +82,7 @@ async function getAnswersWithHistory(req, options = {}) {
 
   const { page = 0, rowsPerPage = isVitals ? 10 : 50 } = query;
 
-  const vitalsHistorySelect = `
-    SELECT
-      vl.answer_id,
-      ARRAY_AGG((
-        JSONB_BUILD_OBJECT(
-          'newValue', vl.new_value,
-          'reasonForChange', vl.reason_for_change,
-          'date', vl.date,
-          'userDisplayName', u.display_name
-        )
-      )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
-      LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
-      LEFT JOIN users u ON u.id = vl.recorded_by_id
-    WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
-      AND sr.deleted_at IS NULL
-    GROUP BY vl.answer_id
-  `;
-
-  const chartHistorySelect = `
+  const historySelect = `
     SELECT
       lc.record_id as answer_id,
       ARRAY_AGG((
@@ -113,7 +92,7 @@ async function getAnswersWithHistory(req, options = {}) {
           'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
           'userDisplayName', u.display_name
         )
-      )) logs
+      ) ORDER BY lc.logged_at, lc.created_at) logs
     FROM survey_response_answers sra
       INNER JOIN survey_responses sr ON sr.id = sra.response_id
       ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
@@ -122,6 +101,7 @@ async function getAnswersWithHistory(req, options = {}) {
     WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
       AND sr.deleted_at IS NULL
       AND lc.table_name = 'survey_response_answers'
+      AND lc.migration_context IS NULL
     GROUP BY lc.record_id
   `;
 
@@ -142,7 +122,7 @@ async function getAnswersWithHistory(req, options = {}) {
         ORDER BY sra.body ${order} LIMIT :limit OFFSET :offset
       ),
       history AS (
-        ${isVitals ? vitalsHistorySelect : chartHistorySelect}
+        ${historySelect}
       )
 
       SELECT

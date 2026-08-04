@@ -1309,7 +1309,14 @@ describe('Encounter', () => {
                     [submissionDate]: expect.objectContaining({
                       id: expect.any(String),
                       body: value.toString(),
-                      logs: null,
+                      // the answer's changelog insert entry is the initial recording
+                      logs: [
+                        expect.objectContaining({
+                          newValue: value.toString(),
+                          reasonForChange: null,
+                          userDisplayName: expect.any(String),
+                        }),
+                      ],
                     }),
                   },
                 }),
