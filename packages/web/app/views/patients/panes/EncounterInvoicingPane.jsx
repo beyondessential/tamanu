@@ -232,7 +232,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   );
 };
 
-export const EncounterInvoicingPane = ({ encounter }) => {
+export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId }) => {
   const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [invoiceModalType, setInvoiceModalType] = useState(null);
@@ -248,7 +248,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   if (isLoading) {
     return (
-      <Box p={5} textAlign="center">
+      <Box p={5} textAlign="center" data-testid={dataTestId}>
         <CircularProgress />
       </Box>
     );
@@ -256,7 +256,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   if (!invoice) {
     return (
-      <EmptyPane data-testid="emptypane-cjxo">
+      <EmptyPane data-testid={dataTestId}>
         {ability.can('create', 'Invoice') && (
           <NoteModalActionBlocker>
             <Button
@@ -280,7 +280,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   return (
     <>
-      <TabPane style={{ overflow: 'auto' }}>
+      <TabPane style={{ overflow: 'auto' }} data-testid={dataTestId}>
         <InvoiceContainer>
           <InvoiceTopBar>
             <InvoiceHeading>

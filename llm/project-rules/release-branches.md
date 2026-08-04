@@ -8,5 +8,5 @@ The most recent release will be the highest version branch of that form.
 Example:
 
 ```bash
-git branch -r | grep 'release/2\.' | sort -V | tail -5
+git branch -r --list '*/release/2.*' --sort=version:refname | tail -5
 ```

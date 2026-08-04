@@ -1,5 +1,6 @@
 import { routes } from '@config/routes';
 import { Locator, Page, expect } from '@playwright/test';
+import { searchAndSelectAutocompleteOption } from '@utils/fieldHelpers';
 import { constructFacilityUrl } from '@utils/navigation';
 import { fillMuiDateField } from '@utils/testHelper';
 import { format } from 'date-fns';
@@ -19,6 +20,7 @@ import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
 import { CarePlanModal } from './modals/CarePlanModal';
 import { CreateEncounterModal } from './modals/CreateEncounterModal';
 import { EditEncounterModal } from './modals/EditEncounterModal';
+import { InvoicePane } from '../InvoicePage/panes/InvoicePane';
 import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
 import { DocumentsPane } from './panes/DocumentsPane';
@@ -32,8 +34,10 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
   readonly patientMedicationTab: Locator;
   readonly procedureTab: Locator;
+  readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
+  invoicePane?: InvoicePane;
   patientProcedurePane?: ProcedurePane;
   carePlanModal?: CarePlanModal;
   prepareDischargeModal?: PrepareDischargeModal;
@@ -93,7 +97,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly otherPatientIssueNote: Locator;
   readonly submitNewOtherPatientIssuesAddButton: Locator;
   readonly initiateNewCarePlanAddButton: Locator;
-  readonly dropdownMenuItem: Locator;
+  readonly allergySuggestionsList: Locator;
   readonly firstListItem: Locator;
   readonly patientNHN: Locator;
   readonly firstCarePlanListItem: Locator;
@@ -140,7 +144,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'Ongoing conditionsAdd' })
       .getByTestId('addbutton-b0ln');
-    this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input').locator('input');
+    this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input');
     this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775').locator('input');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
@@ -170,7 +174,8 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'AllergiesAdd' })
       .getByTestId('addbutton-b0ln');
-    this.allergyNameField = this.page.getByTestId('field-hwfk-input').locator('input');
+    this.allergyNameField = this.page.getByTestId('field-hwfk-input');
+    this.allergySuggestionsList = this.page.getByTestId('field-hwfk-suggestionslist');
     this.savedAllergyName = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-hwfk-input')
@@ -188,7 +193,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'Family historyAdd' })
       .getByTestId('addbutton-b0ln');
-    this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input').locator('input');
+    this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input');
     this.familyHistoryDateRecordedField = this.page.getByTestId('field-wrp3').locator('input');
     this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
@@ -234,7 +239,6 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'Care plansAdd' })
       .getByTestId('addbutton-b0ln');
-    this.dropdownMenuItem = this.page.getByTestId('typography-qxy3');
     this.firstListItem = this.page.getByTestId('listitem-adip-0');
     this.patientNHN = this.page.getByTestId('healthidtext-fqvn');
     this.firstCarePlanListItem = this.page.getByTestId('listitem-fx300');
@@ -268,6 +272,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
+    this.invoicingTab = this.page.getByTestId('styledtab-ccs8-invoicing');
     this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel = this.page
       .getByTestId('cardlabel-0v8z')
@@ -344,6 +349,19 @@ export class PatientDetailsPage extends BasePatientPage {
       this.labRequestPane = new LabRequestPane(this.page);
     }
     return this.labRequestPane;
+  }
+
+  // Opens the top encounter's Invoicing tab. The patient has a single fresh encounter in these
+  // specs, so the top row is that encounter.
+  async navigateToInvoicingTab(): Promise<InvoicePane> {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
+    await this.selectTab(this.invoicingTab);
+    if (!this.invoicePane) {
+      this.invoicePane = new InvoicePane(this.page);
+    }
+    await this.invoicePane.waitForLoad();
+    return this.invoicePane;
   }
   async navigateToNotesTab(): Promise<NotesPane> {
     // Navigate to the top encounter
@@ -448,8 +466,11 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
     await this.initiateNewOngoingConditionAddButton.click();
-    await this.ongoingConditionNameField.fill(conditionName);
-    await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
+    await searchAndSelectAutocompleteOption(
+      this.page,
+      this.ongoingConditionNameField,
+      conditionName,
+    );
     await this.clickAddButtonToConfirm(this.submitNewOngoingConditionAddButton);
   }
 
@@ -460,8 +481,11 @@ export class PatientDetailsPage extends BasePatientPage {
     notes: string,
   ) {
     await this.initiateNewOngoingConditionAddButton.click();
-    await this.ongoingConditionNameField.fill(conditionName);
-    await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
+    await searchAndSelectAutocompleteOption(
+      this.page,
+      this.ongoingConditionNameField,
+      conditionName,
+    );
     await fillMuiDateField(this.ongoingConditionDateRecordedField, dateRecorded);
     await this.ongoingConditionClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
@@ -471,27 +495,28 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async addNewAllergyWithJustRequiredFields(allergyName: string) {
     await this.initiateNewAllergyAddButton.click();
-    await this.allergyNameField.fill(allergyName);
-    await this.page.getByRole('menuitem', { name: allergyName, exact: true }).click();
+    await searchAndSelectAutocompleteOption(this.page, this.allergyNameField, allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
   async searchNewAllergyNotInDropdown(allergyName: string) {
     await this.initiateNewAllergyAddButton.click();
-    await this.allergyNameField.fill(allergyName);
+    await this.allergyNameField.locator('input').fill(allergyName);
   }
 
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
-    await this.dropdownMenuItem.waitFor({ state: 'hidden' });
-    await expect(this.allergyNameField).toHaveValue(allergyName);
+    await expect(this.allergySuggestionsList).not.toBeVisible();
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
   async addNewFamilyHistoryWithJustRequiredFields(familyHistoryCondition: string) {
     await this.initiateNewFamilyHistoryAddButton.click();
-    await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
-    await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
+    await searchAndSelectAutocompleteOption(
+      this.page,
+      this.familyHistoryDiagnosisField,
+      familyHistoryCondition,
+    );
     await this.clickAddButtonToConfirm(this.submitNewFamilyHistoryAddButton);
   }
 
@@ -503,8 +528,11 @@ export class PatientDetailsPage extends BasePatientPage {
     notes: string,
   ) {
     await this.initiateNewFamilyHistoryAddButton.click();
-    await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
-    await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
+    await searchAndSelectAutocompleteOption(
+      this.page,
+      this.familyHistoryDiagnosisField,
+      familyHistoryCondition,
+    );
     await fillMuiDateField(this.familyHistoryDateRecordedField, dateRecorded);
     await this.familyHistoryRelationshipField.fill(relationship);
     await this.familyHistoryClinicianField.click();

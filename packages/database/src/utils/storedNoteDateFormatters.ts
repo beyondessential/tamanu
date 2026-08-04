@@ -1,4 +1,3 @@
-import config from 'config';
 
 import { formatShort, formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -24,7 +23,7 @@ export function getStoredNoteDateFormatters(SettingModel: typeof Setting) {
     (localePromise ??= SettingModel.get('dateTimeLocale').then(
       value => value as string | undefined,
     ));
-  const primaryTimeZone = getPrimaryTimeZone(config);
+  const primaryTimeZone = getPrimaryTimeZone();
   return {
     formatShort: async (date: string) => formatShort(date, primaryTimeZone, null, await locale()),
     formatShortDateTime: async (date: string) =>

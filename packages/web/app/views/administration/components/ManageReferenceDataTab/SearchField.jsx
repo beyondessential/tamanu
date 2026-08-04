@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import styled from 'styled-components';
 import { useTranslation } from '@tamanu/ui-components';
@@ -13,11 +13,17 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../../api/suggesters';
-import { SUGGESTER_OPTIONS } from './constants';
+import { ID_SEARCH_SUGGESTER_OPTIONS, SUGGESTER_OPTIONS } from './constants';
 
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
 const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
 const NUMERIC_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL'];
+// string values so an explicit "No" survives the search bar's empty-value filtering
+// ('false' is truthy as a string); Postgres casts them back to booleans on the exact match
+const BOOLEAN_SEARCH_OPTIONS = [
+  { value: 'true', label: 'Yes' },
+  { value: 'false', label: 'No' },
+];
 
 const CentredCheckContainer = styled.div`
   display: flex;
@@ -40,13 +46,39 @@ const AvailableFacilitiesSearchField = () => {
 };
 
 const SuggesterSearchField = ({ col }) => {
-  const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
+  const suggester = useSuggester(col.suggesterEndpoint, ID_SEARCH_SUGGESTER_OPTIONS);
   return (
     <Field
       name={col.key}
       label={col.key}
       component={AutocompleteField}
       suggester={suggester}
+      data-testid={`searchfield-${col.key}`}
+    />
+  );
+};
+
+// Companion name column for an FK: a name-mode autocomplete over the same suggester.
+// The submitted value is the record's name (not id), matching the server's name filter.
+const NameSuggesterSearchField = ({ col }) => {
+  const suggester = useSuggester(col.suggesterEndpoint, {
+    formatter: ({ name }) => ({ label: name, value: name }),
+  });
+  // The field's value IS the name, so resolve "current option" locally — the autocomplete's
+  // default behaviour is a by-id lookup, which 404s when handed a name
+  const nameModeSuggester = useMemo(
+    () => ({
+      fetchSuggestions: search => suggester.fetchSuggestions(search),
+      fetchCurrentOption: async value => ({ label: value, value }),
+    }),
+    [suggester],
+  );
+  return (
+    <Field
+      name={col.key}
+      label={col.key}
+      component={AutocompleteField}
+      suggester={nameModeSuggester}
       data-testid={`searchfield-${col.key}`}
     />
   );
@@ -89,19 +121,25 @@ export const SearchField = ({ col }) => {
       />
     );
   }
+  if (col.isFkName) {
+    return <NameSuggesterSearchField col={col} />;
+  }
   if (col.suggesterEndpoint) {
     return <SuggesterSearchField col={col} />;
   }
   if (col.type === 'BOOLEAN') {
+    // a Yes/No dropdown over a bare checkbox: the raw column-name label isn't sentence
+    // English so a checkbox is hard to read, and a cleared dropdown (no filter) is
+    // distinct from an explicit "No"
     return (
-      <CentredCheckContainer>
-        <Field
-          component={CheckField}
-          name={col.key}
-          label={col.key}
-          data-testid={`searchfield-${col.key}`}
-        />
-      </CentredCheckContainer>
+      <Field
+        component={SelectField}
+        name={col.key}
+        label={col.key}
+        options={BOOLEAN_SEARCH_OPTIONS}
+        size="small"
+        data-testid={`searchfield-${col.key}`}
+      />
     );
   }
   const isNumeric = NUMERIC_TYPES.includes(col.type);
@@ -110,7 +148,8 @@ export const SearchField = ({ col }) => {
       component={isNumeric ? NumberField : SearchTextField}
       name={col.key}
       label={col.key}
-      placeholder={getTranslation('general.placeholder.search...', 'Search…')}
+      // a "Search…" hint reads oddly on numeric fields (e.g. price), so leave those empty
+      placeholder={isNumeric ? undefined : getTranslation('general.placeholder.search...', 'Search…')}
       data-testid={`searchfield-${col.key}`}
     />
   );

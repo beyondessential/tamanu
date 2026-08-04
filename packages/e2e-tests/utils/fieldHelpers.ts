@@ -161,6 +161,31 @@ export const selectAutocompleteFieldOption = async (
   }
 };
 
+/**
+ * Searches an AutocompleteField and selects the matching suggestion.
+ * @param page - The page object.
+ * @param field - The field locator.
+ * @param searchText - The text to type into the field.
+ * @param optionToSelect - The option to select, when it differs from searchText.
+ */
+export const searchAndSelectAutocompleteOption = async (
+  page: Page,
+  field: Locator,
+  searchText: string,
+  { optionToSelect = searchText }: { optionToSelect?: string } = {},
+) => {
+  const input = field.locator('input');
+  const testId = await getBaseTestId(field, '-input');
+  const suggestionsContainer = page.getByTestId(`${testId}-suggestionslist`);
+
+  // The input reads back the typed text either way, so only the list closing proves the
+  // form took the selection. Search again when a click lands on a list being replaced.
+  await expect(async () => {
+    await input.fill(searchText);
+    await selectOptionFromPopper(testId, suggestionsContainer, { optionToSelect });
+  }).toPass({ timeout: 20000, intervals: [500, 1000, 2000] });
+};
+
 export const editFieldOption = async (
   page: Page,
   field: Locator,

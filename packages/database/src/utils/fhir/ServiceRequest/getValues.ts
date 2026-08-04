@@ -1,4 +1,4 @@
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 
 import {
   FHIR_REQUEST_INTENT,
@@ -169,8 +169,8 @@ function resolveSpecimen(upstream: LabRequest, models: Models) {
 
 async function imagingCode(upstream: ImagingRequest, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const { ImagingTypeExternalCode } = models;
-  const { imagingTypes } = config.localisation.data;
-  if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
+  const imagingTypes = await new ReadSettings(models).get('imagingTypes');
+  if (!imagingTypes) throw new Exception('No imaging types specified in settings.');
 
   const { imagingType: baseImagingCode } = upstream;
   const typeExtCode = await ImagingTypeExternalCode.findOne({
@@ -180,7 +180,7 @@ async function imagingCode(upstream: ImagingRequest, models: Models, dataDicts: 
   const { label: baseLabel } = imagingTypes[baseImagingCode] || {};
   const label = typeExtCode?.description ?? baseLabel;
   if (!label)
-    throw new Exception(`No label matching imaging type ${baseImagingCode} in localisation.`);
+    throw new Exception(`No label matching imaging type ${baseImagingCode} in settings.`);
 
   return generateCodings(
     code,

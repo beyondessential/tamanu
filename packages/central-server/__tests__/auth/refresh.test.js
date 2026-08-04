@@ -4,6 +4,7 @@ import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext, withDateUnsafelyFaked } from '../utilities';
 
@@ -210,10 +211,14 @@ describe('Auth', () => {
       beforeAll(() => {
         originalAbsoluteExpiration = config.auth.refreshToken.absoluteExpiration;
         config.auth.refreshToken.absoluteExpiration = true;
+        // The handler reads this via settings (config-fallback layer), so a cache
+        // built by earlier tests would keep serving the unmutated value.
+        settingsCache.reset();
       });
 
       afterAll(() => {
         config.auth.refreshToken.absoluteExpiration = originalAbsoluteExpiration;
+        settingsCache.reset();
       });
 
       it('Should succeed and keep the original absolute expiry on the rotated refresh token', async () => {

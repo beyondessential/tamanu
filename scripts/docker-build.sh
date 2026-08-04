@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### This expects to be run in the production docker build in /Dockerfile, and on
-### the Windows VHDX runner. Docker-only steps are gated behind DOCKER_BUILD.
+### the Windows image runner. Docker-only steps are gated behind DOCKER_BUILD.
 
 set -euxo pipefail
 shopt -s extglob
@@ -28,9 +28,9 @@ remove_irrelevant_packages() {
   cp package.json{,.working}
   node scripts/list-packages.mjs -- --no-shared -- --paths \
     | tee debug.json \
-    | jq \
-      --arg wanted "$1" \
-      '(. - ["packages/\($wanted)"])' \
+    | jq --args \
+      '(. - ($ARGS.positional | map("packages/\(.)")))' \
+      "$@" \
     > /tmp/unwanted.json || true
     if [[ ! -s /tmp/unwanted.json ]]; then
       stat debug.json || true
@@ -64,7 +64,7 @@ build_server() {
   # every package is present (it scans the whole workspace for translatable strings).
   npm run package-default-translations --workspace @tamanu/upgrade
 
-  remove_irrelevant_packages "$package"
+  remove_irrelevant_packages "$@"
 
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
@@ -100,6 +100,8 @@ build_patient_portal() {
   bash scripts/precompress-assets.sh packages/patient-portal/dist
 }
 
+# The first argument is the target being built; any further arguments name extra
+# packages to keep in the image alongside it (the seed image needs `scripts`).
 package="${1:?Expected target or package path}"
 
 common
@@ -112,6 +114,6 @@ case "$package" in
     build_patient_portal
     ;;
   *)
-    build_server
+    build_server "$@"
     ;;
 esac

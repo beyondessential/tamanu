@@ -1,4 +1,3 @@
-import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
@@ -9,7 +8,7 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 
 export class BaseCommunicationProcessor extends ScheduledTask {
   constructor(context, configKey, channel) {
-    const conf = config.schedules[configKey];
+    const conf = context.schedules[configKey];
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
 
@@ -24,7 +23,8 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
   async countQueue() {
     const { PatientCommunication } = this.context.store.models;
-    return PatientCommunication.countPendingMessages(this.channel);
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    return PatientCommunication.countPendingMessages(this.channel, retryThreshold);
   }
 
   async transformContent(emailRecord) {
@@ -38,7 +38,8 @@ export class BaseCommunicationProcessor extends ScheduledTask {
   async processEmails() {
     const { Patient, PatientCommunication } = this.context.store.models;
 
-    const emailsToBeSent = await PatientCommunication.getPendingMessages(this.channel, {
+    const retryThreshold = await this.context.settings.get('patientCommunication.retryThreshold');
+    const emailsToBeSent = await PatientCommunication.getPendingMessages(this.channel, retryThreshold, {
       include: [{ model: Patient, as: 'patient' }],
       limit: this.config.limit,
     });
@@ -62,7 +63,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
     const result = await this.context.emailService.sendEmail({
       to: toAddress,
-      from: getDefaultFromAddress(),
+      from: await getDefaultFromAddress(this.context.settings),
       subject: emailPlain.subject,
       text: transformedContent,
       attachment: emailPlain.attachment,

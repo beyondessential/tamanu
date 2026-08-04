@@ -1,5 +1,12 @@
 import { addHours, endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
+import {
+  ENCOUNTER_FEE_CODES,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
+  INVOICE_STATUSES,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -110,5 +117,52 @@ describe('Outpatient discharger', () => {
     await runDischarger();
     await enc.reload();
     expectEndsOnSameDayBeforeMidnight(enc);
+  });
+
+  it('keeps an encounter-fee invoice line when auto-discharging the encounter', async () => {
+    // Auto-discharge only closes the encounter; it must not touch the invoice. Guards against a
+    // future discharge path that recomputes or clears fees on the way out.
+    const enc = await createEncounter({
+      startDate: toDateTimeString(sub(new Date(), { days: 2 })),
+    });
+    const orderedBy = await models.User.create(fakeUser());
+    const feeRefData = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.ENCOUNTER_FEE,
+        code: ENCOUNTER_FEE_CODES.STANDARD,
+      }),
+    );
+    const feeProduct = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE],
+        sourceRecordId: feeRefData.id,
+      }),
+    );
+    const invoice = await models.Invoice.create({
+      encounterId: enc.id,
+      displayId: `INV-${enc.id.slice(0, 8)}`,
+      date: enc.startDate,
+      status: INVOICE_STATUSES.IN_PROGRESS,
+    });
+    const feeLine = await models.InvoiceItem.create({
+      invoiceId: invoice.id,
+      sourceRecordType: enc.getModelName(),
+      sourceRecordId: enc.id,
+      productId: feeProduct.id,
+      orderedByUserId: orderedBy.id,
+      orderDate: toDateTimeString(new Date()),
+      quantity: 1,
+    });
+
+    await runDischarger();
+
+    await enc.reload();
+    expectEndsOnSameDayBeforeMidnight(enc); // auto-discharged
+    await feeLine.reload();
+    expect(feeLine.quantity).toBe(1);
+    expect(feeLine.deletedAt).toBeFalsy();
+    await invoice.reload();
+    expect(invoice.status).toBe(INVOICE_STATUSES.IN_PROGRESS);
   });
 });

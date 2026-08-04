@@ -16,24 +16,37 @@ const vrsErrorHandler = buildErrorHandler(error => ({
   },
 }));
 
-export const routes = express.Router();
-if (config.integrations.fijiVrs.requireClientHeaders) {
-  routes.use(requireClientHeaders);
-}
+// Built per boot (rather than at import time) so the header requirement can come from settings.
+export const routes = async ctx => {
+  const router = express.Router();
 
-routes.post(
-  '/hooks/patientCreated',
-  asyncHandler(async (req, res) => {
-    const { body, ctx } = req;
-    await ctx.integrations.fijiVrs.actionHandler.applyAction(body);
-    res.send({ response: true });
-  }),
-);
+  if ((await ctx.settings.get('integrations.fijiVrs')).requireClientHeaders) {
+    router.use(requireClientHeaders);
+  }
 
-routes.use(vrsErrorHandler);
+  router.post(
+    '/hooks/patientCreated',
+    asyncHandler(async (req, res) => {
+      const { body, ctx: requestCtx } = req;
+      await requestCtx.integrations.fijiVrs.actionHandler.applyAction(body);
+      res.send({ response: true });
+    }),
+  );
+
+  router.use(vrsErrorHandler);
+  return router;
+};
 
 export const initAppContext = async ctx => {
-  const vrsConfig = config.integrations.fijiVrs;
+  // Behaviour knobs are settings; the connection details (host, username, password) are
+  // deployment wiring and stay in config.
+  const { host, username, password } = config.integrations.fijiVrs;
+  const vrsConfig = {
+    host,
+    username,
+    password,
+    ...(await ctx.settings.get('integrations.fijiVrs')),
+  };
   const remote = new VRSRemote(ctx.store, vrsConfig);
   const actionHandler = new VRSActionHandler(ctx.store, remote, vrsConfig);
   set(ctx, 'integrations.fijiVrs.remote', remote); // added to context to help make testing easier

@@ -405,8 +405,19 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
+      // Bed-fee lines reconciled down to zero nights carry no charge — drop them so they
+      // don't appear on the finalised invoice. Finalisation is one-way, so unlike an
+      // in-progress recompute this delete can never need reviving.
+      await InvoiceItem.destroy({
+        where: { invoiceId, sourceRecordType: models.Location.name, quantity: 0 },
+        transaction,
+      });
+
       // Copy product details to the invoice item final fields
       for (const item of invoiceItems) {
+        if (item.sourceRecordType === models.Location.name && item.quantity === 0) {
+          continue; // removed above
+        }
         if (item.product) {
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();

@@ -124,6 +124,7 @@ function createSuggesterRoute(
       delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
+      const search = `%${searchQuery}%`;
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
@@ -131,13 +132,23 @@ function createSuggesterRoute(
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
       // either use the bind key in SQL or in the whereBuilder directly using sequelize
       const where = whereBuilder({
-        search: `%${searchQuery}%`,
+        search,
         query,
         req,
         endpoint,
         modelName,
         searchColumn,
       });
+
+      // searchById (admin reference-data screen only) matches the term against the record id
+      // instead of the name. Builders put term-matching in Op.or, or move it into Op.and next to
+      // structural filters (e.g. drug facility-availability) — dropping both and replacing with an
+      // id match avoids the name clause being AND-combined with the id and returning nothing. Scalar
+      // filters (visibilityStatus, sensitive-drug guard) are plain keys and survive.
+      if (query.searchById === 'true' && searchQuery) {
+        delete where[Op.and];
+        where[Op.or] = [{ id: { [Op.iLike]: search } }];
+      }
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -619,6 +630,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                   deleted_at: null,
                 },
               },
+              // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
+              // loaded here: nested four associations deep its column aliases would exceed
+              // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
+              // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
               include: {
                 model: ReferenceMedicationTemplate,
                 as: 'medicationTemplate',
@@ -645,7 +660,40 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       }),
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
-      mapper: item => item,
+      mapper: async item => {
+        if (typeName !== REFERENCE_TYPES.MEDICATION_SET) return item;
+        // Attach each set member's referenceDrug (dosing/dispensing units and conversion) that the
+        // dispensing quantity autocalculation relies on. It is loaded here rather than eager loaded
+        // in the suggestion query because nesting it four associations deep produces column aliases
+        // longer than PostgreSQL's 63-byte identifier limit, which get truncated and silently drop
+        // dispensingUnit/unitConversion from the response.
+        const suggestion = item.get({ plain: true });
+        const members = suggestion.children ?? [];
+        const medicationIds = [
+          ...new Set(
+            members.map(member => member.medicationTemplate?.medication?.id).filter(Boolean),
+          ),
+        ];
+        if (medicationIds.length === 0) return suggestion;
+
+        const referenceDrugs = await item.sequelize.models.ReferenceDrug.findAll({
+          where: { referenceDataId: medicationIds },
+          attributes: ['referenceDataId', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+        });
+        const referenceDrugByMedicationId = new Map(
+          referenceDrugs.map(referenceDrug => [
+            referenceDrug.referenceDataId,
+            referenceDrug.get({ plain: true }),
+          ]),
+        );
+        for (const member of members) {
+          const medication = member.medicationTemplate?.medication;
+          if (medication) {
+            medication.referenceDrug = referenceDrugByMedicationId.get(medication.id) ?? null;
+          }
+        }
+        return suggestion;
+      },
       orderBuilder: () => REFERENCE_DATA_ORDER_OVERRIDES[typeName],
     },
     true,
@@ -817,10 +865,11 @@ createSuggester(
 
       return includes;
     },
-    mapper: ({ name, code, id, sourceRefDataRecord }) => ({
+    mapper: ({ name, code, id, sourceRecordId, sourceRefDataRecord }) => ({
       name,
       code,
       id,
+      sourceRecordId,
       dispensingUnit: sourceRefDataRecord?.referenceDrug?.dispensingUnit,
     }),
     queryOptions: { subQuery: false },

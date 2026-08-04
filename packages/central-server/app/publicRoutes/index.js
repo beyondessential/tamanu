@@ -1,6 +1,5 @@
 import express from 'express';
-import config from 'config';
-import { log } from '@tamanu/shared/services/logging';
+import asyncHandler from 'express-async-handler';
 import { ReadSettings } from '@tamanu/settings';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
@@ -12,18 +11,17 @@ import { telegramWebhookRoutes } from './telegramWebhook';
 
 export const publicRoutes = express.Router();
 
-const { cors } = config;
-
-if (cors.allowedOrigin) {
-  publicRoutes.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', cors.allowedOrigin);
+// Without cors.allowedOrigin set, external widgets like the COVID test results
+// are unavailable to browsers on other domains.
+publicRoutes.use(
+  asyncHandler(async (req, res, next) => {
+    const allowedOrigin = await req.settings.get('security.cors.allowedOrigin');
+    if (allowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    }
     next();
-  });
-} else {
-  log.warn(
-    'publicRoutes: CORS has not been set up for this server; external widgets like the COVID test results will be unavailable until cors.allowedOrigin is set to the appropriate domain',
-  );
-}
+  }),
+);
 
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });

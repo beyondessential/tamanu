@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - delete_medication_administration_records_from_sync_lookup
               - notify_medication_administration_records_changed
               - record_medication_administration_records_changelog
               - set_medication_administration_records_updated_at

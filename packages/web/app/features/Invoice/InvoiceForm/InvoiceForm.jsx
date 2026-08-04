@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
+import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
 const Table = styled.table`
   background-color: ${p => p.theme.palette.background.paper};
@@ -177,22 +178,27 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                 <>
                   <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
                   <tbody>
-                    {values.invoiceItems?.map((item, index) => (
-                      <InvoiceItemRow
-                        cellWidths={cellWidths}
-                        encounterId={invoice.encounterId}
-                        formArrayMethods={formArrayMethods}
-                        index={index}
-                        isCancelled={isCancelled}
-                        isEditing={isAddForm || isEditForm}
-                        isFinalised={isFinalised}
-                        item={item}
-                        key={item.id}
-                        onUpdateApproval={updateItemApproval}
-                        onUpdateInvoice={handleUpdateItem}
-                        priceListId={invoice.priceList?.id}
-                      />
-                    ))}
+                    {values.invoiceItems?.map((item, index) => {
+                      // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                      // and the save payload are unchanged.
+                      if (isZeroedBedFeeItem(item)) return null;
+                      return (
+                        <InvoiceItemRow
+                          cellWidths={cellWidths}
+                          encounterId={invoice.encounterId}
+                          formArrayMethods={formArrayMethods}
+                          index={index}
+                          isCancelled={isCancelled}
+                          isEditing={isAddForm || isEditForm}
+                          isFinalised={isFinalised}
+                          item={item}
+                          key={item.id}
+                          onUpdateApproval={updateItemApproval}
+                          onUpdateInvoice={handleUpdateItem}
+                          priceListId={invoice.priceList?.id}
+                        />
+                      );
+                    })}
                   </tbody>
                   {editable && (isReadOnlyForm || isAddForm) && (
                     <FormFooter>

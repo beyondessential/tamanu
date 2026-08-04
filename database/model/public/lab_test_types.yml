@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_lab_test_types_from_sync_lookup
               - notify_lab_test_types_changed
               - record_lab_test_types_changelog
               - set_lab_test_types_updated_at

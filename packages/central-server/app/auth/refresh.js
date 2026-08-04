@@ -1,5 +1,5 @@
-import config from 'config';
 import asyncHandler from 'express-async-handler';
+import { getAuthSecret, getCanonicalHostName, getRefreshTokenSecret } from '@tamanu/shared/utils';
 import bcrypt from 'bcrypt';
 import * as jose from 'jose';
 
@@ -15,23 +15,20 @@ import {
 } from './utils';
 
 export const refresh = asyncHandler(async (req, res) => {
-  const { body, store } = req;
+  const { body, store, settings } = req;
   const { refreshToken, deviceId } = body;
 
-  const {
-    auth: {
-      saltRounds,
-      secret,
-      tokenDuration,
-      refreshToken: {
-        refreshIdLength,
-        tokenDuration: refreshTokenDuration,
-        absoluteExpiration,
-        secret: refreshSecret,
-      },
-    },
-    canonicalHostName,
-  } = config;
+  const secret = getAuthSecret();
+  const refreshSecret = getRefreshTokenSecret();
+  const canonicalHostName = getCanonicalHostName();
+  const saltRounds = store.models.User.SALT_ROUNDS;
+  const [tokenDuration, refreshIdLength, refreshTokenDuration, absoluteExpiration] =
+    await Promise.all([
+      settings.get('auth.tokenDuration'),
+      settings.get('auth.refreshToken.refreshIdLength'),
+      settings.get('auth.refreshToken.tokenDuration'),
+      settings.get('auth.refreshToken.absoluteExpiration'),
+    ]);
 
   if (!isInternalClient(req.header('X-Tamanu-Client'))) {
     throw new InvalidCredentialError('Refresh tokens are only available to internal clients');

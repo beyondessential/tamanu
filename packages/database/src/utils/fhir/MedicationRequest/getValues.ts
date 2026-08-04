@@ -1,5 +1,5 @@
-import config from 'config';
 import { isNaN } from 'es-toolkit/compat';
+import { ReadSettings } from '@tamanu/settings';
 
 import {
   FhirReference,
@@ -147,10 +147,9 @@ async function dosageInstruction(
     return null;
   }
 
-  const getTranslation = await models.TranslatedString.getTranslationFunction(config.language);
-  const getEnumTranslation = await models.TranslatedString.getEnumTranslationFunction(
-    config.language,
-  );
+  const language = await new ReadSettings(models).get('language');
+  const getTranslation = await models.TranslatedString.getTranslationFunction(language);
+  const getEnumTranslation = await models.TranslatedString.getEnumTranslationFunction(language);
 
   const doseAmount = isNaN(parseFloat(prescription.doseAmount))
     ? null

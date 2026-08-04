@@ -36,6 +36,8 @@ describe('1752105049000-importDefaultTranslations', () => {
   const mockStepArgs = {
     sequelize: {} as any,
     models: {
+      // Empty settings: metaServer resolves from the mocked config via the fallback map
+      Setting: { get: vi.fn().mockResolvedValue({}) },
       TranslatedString: {
         sequelize: {
           query: vi.fn(),

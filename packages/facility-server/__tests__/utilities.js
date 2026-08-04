@@ -17,7 +17,10 @@ import { chance } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { initReporting } from '@tamanu/database/services/reporting';
-import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import {
+  getFhirWorkerSettings,
+  initFhirSettingsFromDb,
+} from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { createApiApp } from '../app/createApiApp';
@@ -125,14 +128,16 @@ class MockApplicationContext extends ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
-
-    const fhirWorkerEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    // Mirrors resolveSchedules, so tests can construct tasks directly
+    this.schedules = await this.settings[facilityIds[0]].get('schedules');
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     if (initFhirTriggers) {
-      await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
+      // Mirrors ApplicationContext
+      await setFhirRefreshTriggers(this.sequelize, {
+        fhirWorkerEnabled: getFhirWorkerSettings().enabled,
+      });
     }
 
     // Reporting reads its per-server secret from local_system_facts, so init it

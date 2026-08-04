@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_reference_data_relations_from_sync_lookup
               - notify_reference_data_relations_changed
               - record_reference_data_relations_changelog
               - set_reference_data_relations_updated_at

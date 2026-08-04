@@ -11,6 +11,7 @@ sources:
             - reference
           meta:
             triggers:
+              - delete_location_groups_from_sync_lookup
               - notify_location_groups_changed
               - record_location_groups_changelog
               - set_location_groups_updated_at

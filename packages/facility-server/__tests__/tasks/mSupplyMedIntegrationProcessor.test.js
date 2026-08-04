@@ -24,15 +24,12 @@ jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
 jest.mock('@tamanu/utils/sleepAsync', () => ({ sleepAsync: jest.fn(() => Promise.resolve()) }));
 
 const INTEGRATION_SETTINGS = {
-  host: 'https://msupply.example.com',
-  storeId: 'store-1',
-  customerCode: 'CUST01',
-};
-
-const INTEGRATION_CONFIG = {
   enabled: true,
+  host: 'https://msupply.example.com',
   username: 'test-user',
   password: 'test-pass',
+  storeId: 'store-1',
+  customerCode: 'CUST01',
 };
 
 const SCHEDULE_CONFIG = {
@@ -66,7 +63,19 @@ function mockPostResponse(success = true, message = 'ok', items = undefined) {
 
 async function createMedicationDispenses(
   models,
-  { facilityId, encounterId, orderingClinicianId, dispensedByUserId, medicationId, count = 1 },
+  {
+    facilityId,
+    encounterId,
+    orderingClinicianId,
+    dispensedByUserId,
+    medicationId,
+    // When set, simulates a pharmacy substitution: the fill is dispensed with this medication
+    // rather than the prescribed one (as the dispense route records via medication_dispenses).
+    dispensedMedicationId,
+    // Quantity recorded on the dispense (what mSupply is sent as numberOfUnits).
+    dispensedQuantity = 1,
+    count = 1,
+  },
 ) {
   const { PharmacyOrder, Prescription, PharmacyOrderPrescription, MedicationDispense } = models;
   const order = await PharmacyOrder.create({
@@ -95,12 +104,35 @@ async function createMedicationDispenses(
     });
     const dispense = await MedicationDispense.create({
       pharmacyOrderPrescriptionId: pop.id,
-      quantity: 1,
+      quantity: dispensedQuantity,
       dispensedByUserId,
+      ...(dispensedMedicationId && {
+        medicationId: dispensedMedicationId,
+        modifiedAt: getCurrentDateTimeString(),
+        modifiedById: dispensedByUserId,
+      }),
     });
     dispenses.push(dispense);
   }
   return dispenses;
+}
+
+// Every pushed line item across all GraphQL push calls made in a run (auth calls are skipped).
+function pushedItems() {
+  return fetchWithRetryBackoff.mock.calls
+    .map(call => {
+      try {
+        return JSON.parse(call[1].body);
+      } catch {
+        return null;
+      }
+    })
+    .flatMap(body => body?.variables?.input?.items ?? []);
+}
+
+// Every itemCode across all pushed line items.
+function pushedItemCodes() {
+  return pushedItems().map(item => item.itemCode);
 }
 
 describe('mSupplyMedIntegrationProcessor', () => {
@@ -118,7 +150,6 @@ describe('mSupplyMedIntegrationProcessor', () => {
     context = await createTestContext();
     models = context.models;
 
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
     getServerFacilityIds.mockReturnValue([facilityId]);
 
@@ -170,8 +201,10 @@ describe('mSupplyMedIntegrationProcessor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     getServerFacilityIds.mockReturnValue([facilityId]);
-    config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
+    // Tasks read the schedule from the context snapshot (createTestContext resolves it
+    // once at setup); refresh it so the config set above is what the task sees.
+    context.schedules = { ...context.schedules, mSupplyMedIntegrationProcessor: SCHEDULE_CONFIG };
   });
 
   describe('when server is an omni server', () => {
@@ -189,17 +222,18 @@ describe('mSupplyMedIntegrationProcessor', () => {
   });
 
   describe('when schedule config is invalid', () => {
-    afterAll(() => {
-      config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
-    });
-
     it('throws when batchSize or batchSleepAsyncDurationInMilliseconds is missing', async () => {
       const missingField = chance.pickone(['batchSize', 'batchSleepAsyncDurationInMilliseconds']);
-      config.schedules.mSupplyMedIntegrationProcessor = {
-        ...SCHEDULE_CONFIG,
-        [missingField]: undefined,
-      };
-      const task = new mSupplyMedIntegrationProcessor(context);
+      // A private context override: settings reads inside run() rebuild the shared
+      // context's settings tree (refilled from config), so mutating it can't hold
+      // the invalid value in place.
+      const task = new mSupplyMedIntegrationProcessor({
+        ...context,
+        schedules: {
+          ...context.schedules,
+          mSupplyMedIntegrationProcessor: { ...SCHEDULE_CONFIG, [missingField]: undefined },
+        },
+      });
       await expect(task.run()).rejects.toThrow(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
       );
@@ -208,7 +242,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
   describe('when integration config is invalid', () => {
     afterAll(async () => {
-      config.integrations.mSupplyMed = INTEGRATION_CONFIG;
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        INTEGRATION_SETTINGS,
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
       await models.LocalSystemFact.set(
         FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
         new Date(Date.now()).toISOString(),
@@ -216,7 +256,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
     });
 
     it('skips run when enabled is false and removes enabled-at fact', async () => {
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, enabled: false };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, enabled: false },
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
@@ -228,7 +274,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
     it('skips run when username or password is missing', async () => {
       const missingField = chance.pickone(['username', 'password']);
-      config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, [missingField]: '' };
+      await models.Setting.set(
+        'integrations.mSupplyMed',
+        { ...INTEGRATION_SETTINGS, [missingField]: '' },
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
@@ -346,6 +398,51 @@ describe('mSupplyMedIntegrationProcessor', () => {
       expect(successLog).not.toBeNull();
       expect(successLog.message).toBe('Batch received');
       expect(sleepAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when a fill was dispensed with a substituted medication', () => {
+    it('sends the dispensed medication code, not the prescribed one', async () => {
+      const prescribed = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-PRESCRIBED',
+        name: 'Prescribed medication (sub test)',
+      });
+      const substitute = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'MED-SUBTEST-SUBSTITUTE',
+        name: 'Substitute medication (sub test)',
+      });
+
+      await createMedicationDispenses(models, {
+        facilityId,
+        encounterId,
+        orderingClinicianId: clinicianId,
+        dispensedByUserId,
+        medicationId: prescribed.id,
+        dispensedMedicationId: substitute.id,
+        // Distinctive value so the assertion proves the dispensed quantity is sent, not a default.
+        dispensedQuantity: 7,
+        count: 1,
+      });
+
+      // One dispense → one batch → one push. Queue exactly that: mockResolvedValueOnce responses
+      // are not drained by clearAllMocks between tests, so over-queuing here would leak leftover
+      // POST responses into later tests and break their auth call.
+      mockAuthResponse();
+      mockPostResponse(true, 'ok');
+
+      const task = new mSupplyMedIntegrationProcessor(context);
+      await task.run();
+
+      // mSupply must receive the actually-dispensed drug and its dispensed quantity — not the
+      // prescribed drug.
+      expect(pushedItems()).toContainEqual(
+        expect.objectContaining({ itemCode: 'MED-SUBTEST-SUBSTITUTE', numberOfUnits: 7 }),
+      );
+      expect(pushedItemCodes()).not.toContain('MED-SUBTEST-PRESCRIBED');
     });
   });
 

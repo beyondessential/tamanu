@@ -11,6 +11,7 @@ sources:
             - administration
           meta:
             triggers:
+              - delete_encounter_diets_from_sync_lookup
               - notify_encounter_diets_changed
               - record_encounter_diets_changelog
               - set_encounter_diets_updated_at

@@ -5,6 +5,7 @@ import type { InitOptions, Models } from '../../types/model';
 import { ReferenceData } from '../ReferenceData';
 import { LabTestType } from '../LabTestType';
 import { LabTestPanel } from '../LabTestPanel';
+import { Location } from '../Location';
 
 export class InvoiceProduct extends Model {
   declare id: string;
@@ -18,6 +19,7 @@ export class InvoiceProduct extends Model {
   declare sourceRefDataRecord?: ReferenceData;
   declare sourceLabTestTypeRecord?: LabTestType;
   declare sourceLabTestPanelRecord?: LabTestPanel;
+  declare sourceLocationRecord?: Location;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -67,6 +69,10 @@ export class InvoiceProduct extends Model {
       foreignKey: 'sourceRecordId',
       as: 'sourceLabTestTypeRecord',
     });
+    this.belongsTo(models.Location, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourceLocationRecord',
+    });
     // Has many in the context of importing and storing data
     this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
@@ -101,16 +107,21 @@ export class InvoiceProduct extends Model {
       case INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE:
       case INVOICE_ITEMS_CATEGORIES.IMAGING_AREA:
       case INVOICE_ITEMS_CATEGORIES.DRUG:
+      case INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE:
+      case INVOICE_ITEMS_CATEGORIES.PHARMACY_ENCOUNTER_FEE:
         return this.sourceRefDataRecord;
       case INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE:
         return this.sourceLabTestTypeRecord;
       case INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL:
         return this.sourceLabTestPanelRecord;
+      case INVOICE_ITEMS_CATEGORIES.BED_FEE:
+        return this.sourceLocationRecord;
       default:
         return (
           this.sourceRefDataRecord ||
           this.sourceLabTestTypeRecord ||
           this.sourceLabTestPanelRecord ||
+          this.sourceLocationRecord ||
           null
         );
     }

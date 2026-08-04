@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - notify_signers_changed
-              - record_signers_changelog
               - set_signers_updated_at
               - set_signers_updated_at_sync_tick
         columns:

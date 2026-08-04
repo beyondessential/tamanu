@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
@@ -139,23 +139,29 @@ export const NewVaccineTabComponent = ({
       });
       const department = await models.Department.findOne({ where: { id: departmentId } });
       if (values.administeredVaccine) {
-        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
-          vaccine: {
-            ...vaccine,
-            scheduledVaccine,
-            administeredVaccine: {
-              ...updatedVaccine,
-              encounter,
-              scheduledVaccine,
-              notGivenReason,
-              locationId,
-              departmentId,
-              location,
-              department,
+        navigation.dispatch(
+          StackActions.popTo(
+            Routes.HomeStack.VaccineStack.VaccineModalScreen,
+            {
+              vaccine: {
+                ...vaccine,
+                scheduledVaccine,
+                administeredVaccine: {
+                  ...updatedVaccine,
+                  encounter,
+                  scheduledVaccine,
+                  notGivenReason,
+                  locationId,
+                  departmentId,
+                  location,
+                  department,
+                },
+                status: updatedVaccine.status,
+              },
             },
-            status: updatedVaccine.status,
-          },
-        });
+            { merge: true },
+          ),
+        );
       } else {
         returnToVaccineTableWithRefresh(navigation, updatedVaccine.id);
       }

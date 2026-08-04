@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { START, END, MigrationStr } from '../src/step.js';
+import { START, END, MigrationStr, StepStr } from '../src/step.js';
 import { MIGRATIONS_END, MIGRATIONS_START, orderSteps } from '../src/listSteps.js';
 
 const PENDING_MIGRATIONS: MigrationStr[] = [
@@ -153,4 +153,26 @@ it('migration dependency', async () => {
     'upgrade/bar/0',
     END,
   ]);
+});
+
+it('handles the same migration referenced by multiple steps (no cycle)', async () => {
+  const MIG = 'migration/1744602896344-addLookupTicksTable' as MigrationStr;
+  const mkStep = (id: StepStr) => ({
+    id,
+    file: id,
+    step: {
+      at: END,
+      before: [] as MigrationStr[],
+      after: [MIG],
+      check: () => Promise.resolve(true),
+      run: () => Promise.resolve(),
+    },
+  });
+
+  // listSteps collects one ref per step, so two steps depending on MIG pass it
+  // through twice — this used to make toposort throw "Cyclic dependency".
+  const { order } = await orderSteps([mkStep('upgrade/a/0'), mkStep('upgrade/b/0')], [MIG, MIG]);
+
+  expect(order.indexOf('upgrade/a/0')).toBeGreaterThan(order.indexOf(MIG));
+  expect(order.indexOf('upgrade/b/0')).toBeGreaterThan(order.indexOf(MIG));
 });
