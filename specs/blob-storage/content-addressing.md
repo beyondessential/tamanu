@@ -12,8 +12,8 @@ retrieved blob can be verified by re-hashing it.
 
 ## Blob identity
 
-- [ ] Content is hashed with BLAKE3.
-- [ ] A hash is stored as an algorithm-tagged lowercase value: `blake3:` followed
+- [ ] Content is hashed with SHA-256.
+- [ ] A hash is stored as an algorithm-tagged lowercase value: `sha256:` followed
   by the lowercase-hex digest.
 - [ ] Equal hash means equal content: a hash uniquely denotes its bytes, and a
   collision is treated as impossible.
@@ -26,7 +26,7 @@ retrieved blob can be verified by re-hashing it.
 
 - [ ] A blob's on-disk path is derived from its hash: the algorithm name, then a
   two-level fan-out of the first two bytes of the digest, then the remainder as the
-  filename (e.g. `blake3/ab/cd/<rest>`).
+  filename (e.g. `sha256/ab/cd/<rest>`).
 - [ ] Path components use lowercase hex so the layout is stable on case-insensitive
   filesystems.
 - [ ] The fan-out keeps the number of entries per directory manageable on all
