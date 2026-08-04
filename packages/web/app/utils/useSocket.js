@@ -9,33 +9,47 @@ import { WS_PATH } from '@tamanu/constants';
 let sharedSocket = null;
 let consumerCount = 0;
 
-const openSharedSocket = () =>
-  (sharedSocket ??= io('', {
+// Counting the consumer here, as part of handing it the socket, rather than in its
+// effect, keeps the count from lagging behind reality: React runs an unmounting
+// consumer's cleanup before a mounting consumer's effects, so a consumer that has
+// rendered but not yet mounted has to count already — otherwise that cleanup can
+// disconnect the very socket the new consumer was handed to listen on.
+const acquireSharedSocket = () => {
+  consumerCount += 1;
+  return (sharedSocket ??= io('', {
     path: WS_PATH,
     transports: ['websocket'],
   }));
+};
 
 const releaseSharedSocket = () => {
-  consumerCount -= 1;
+  if (consumerCount === 0) {
+    // An unpaired release, which is a bug in this module or in a consumer: report
+    // it rather than absorb it, because a count that has drifted out of step with
+    // the consumers disconnects a socket they are still listening on.
+    console.error('useSocket: the shared socket was released more times than it was acquired');
+  }
+
+  consumerCount = Math.max(consumerCount - 1, 0);
   if (consumerCount > 0) return;
 
   sharedSocket?.disconnect();
   sharedSocket = null;
 };
 
+// The hook pairs its acquisition with exactly one release, so the unpaired release
+// above can't be reached through it; exported so the tests can cover that path.
+export const releaseSharedSocketForTestsOnly = releaseSharedSocket;
+
 export const useSocket = () => {
-  // Opened during render so consumers have a socket to attach listeners to in
-  // their own first effect, and reference-counted in the effect below so that it
-  // is only ever disconnected by the last consumer to unmount.
-  const [socket, setSocket] = useState(openSharedSocket);
+  // Acquired during render, so that consumers have a socket to attach listeners to
+  // in their own first effect, and so that this consumer counts before any other
+  // consumer's unmount cleanup runs.
+  const [socket] = useState(acquireSharedSocket);
 
   useEffect(() => {
-    consumerCount += 1;
-    // Reopen if the connection acquired during render was since closed by the
-    // last consumer unmounting (React may remount a component that keeps its
-    // state, e.g. under StrictMode or when an offscreen tree is revealed again).
-    // Handing back the same socket bails out of the re-render.
-    setSocket(openSharedSocket());
+    // Nothing to do on mount: the socket was acquired during render, and stays
+    // connected for as long as this consumer holds its count.
     return releaseSharedSocket;
   }, []);
 
