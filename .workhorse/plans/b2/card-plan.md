@@ -105,11 +105,16 @@ being in place.
 
 ## Blob integrity scrub and self-heal
 
-A scheduled content-and-referential integrity check that reads stored blobs, compares
-them to their hash, and repairs corruption via the self-heal ladder, with read-time
-verification on the hot path. Records scrub state in the local index, surfaces a
-Canopy health check and runbook, and grades response severity by whether the copy is
-authoritative. Optional and off-by-default; targets bare-metal and NTFS deployments.
+Verification of stored blobs against their hash: on receipt, on read (whole-blob,
+inexpensive at typical sizes; ranged reads of large blobs rely on receipt and scrub
+rather than per-range verification), and by a scheduled incremental scrub that covers
+cold blobs and checks referential integrity. Corruption is repaired via the self-heal
+ladder — error correction, peer, then backup — with severity graded by whether the
+copy is authoritative. Records scrub state in the local index and surfaces a Canopy
+health check and runbook. Runs on central and facilities; most valuable on bare-metal
+and NTFS deployments where the filesystem offers no checksum repair. Per-range
+verified streaming (Bao) is a deferred option, checked in the BLAKE3 research spike
+only if large-file range verification is later wanted.
 
 ## Antivirus scanning for stored blobs
 
