@@ -79,16 +79,18 @@ Aligns the mobile app's already file-backed attachment model with the blob trans
 subprotocol, replacing inline-in-sync-record bytes with lazy fetch and a bounded
 cache suited to constrained device storage. Depends on the foundation cards.
 
-## Backfill and rolling-upgrade migration
+## Backfill migration
 
 Moves the existing in-database blobs onto the filesystem as a batched, throttled
 background job — a volume ranging from modest to hundreds of gigabytes across
-deployments, so it must be resumable and bounded at any scale. Decides how to treat
-the historical blob copies already duplicated into the changelog — leave, purge, or
-relocate to the store — noting that new writes stop duplicating automatically once
-live rows carry only a hash. Handles version skew across a rolling upgrade,
-dual-read behind a flag, and rollback. The gating operational risk; its version-skew constraints feed back
-into the subprotocol design, so it should be specced early even though it lands late.
+deployments, so it must be resumable and bounded at any scale. Runs mostly on
+central, where the attachment and asset bytea live; while it runs, reads resolve from
+either the store (backfilled) or the database column (not yet), all within a single
+version. Decides how to treat the historical blob copies already duplicated into the
+changelog — leave, purge, or relocate to the store — noting that new writes stop
+duplicating automatically once live rows carry only a hash. No cross-version
+compatibility is needed: the feature lands on a breaking release and Tamanu rejects
+minor-version sync skew, so all servers in a sync network share it. Includes rollback.
 
 ## Blob store backups and restore
 
