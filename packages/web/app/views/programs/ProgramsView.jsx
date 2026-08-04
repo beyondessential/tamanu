@@ -20,7 +20,6 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
-import { isErrorUnknownAllow404s } from '../../api/index.js';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
 import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
@@ -160,10 +159,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     isLoading: isLoadingSurveyResponse,
     isError: isSurveyResponseError,
     error: surveyResponseError,
-  } = useSurveyResponseQuery(surveyResponseId, {
-    enabled: Boolean(surveyResponseId),
-    isErrorUnknown: isErrorUnknownAllow404s,
-  });
+  } = useSurveyResponseQuery(surveyResponseId, { enabled: Boolean(surveyResponseId) });
 
   const surveyForEdit = useMemo(() => {
     if (!existingSurveyResponse) return null;

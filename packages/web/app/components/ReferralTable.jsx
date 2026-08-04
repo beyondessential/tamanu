@@ -8,7 +8,7 @@ import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { isErrorUnknownAllow404s, useApi } from '../api';
+import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText, TranslatedEnum } from './Translation';
@@ -48,11 +48,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(
-          `user/${encodeURIComponent(referralByAnswer.body)}`,
-          {},
-          { isErrorUnknown: isErrorUnknownAllow404s },
-        );
+        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
         setName(user.displayName);
       } catch (e) {
         if (e.message === 'Facility server error response: 404') {
