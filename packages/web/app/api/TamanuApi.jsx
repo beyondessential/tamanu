@@ -10,6 +10,7 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ERROR_TYPE } from '@tamanu/errors';
+import { API_ERROR_TOAST, resolveApiErrorToast } from './classifyApiError';
 
 const {
   TOKEN,
@@ -112,21 +113,73 @@ function clearLocalStorage() {
   window?.localStorage?.removeItem(SETTINGS);
 }
 
-export function isErrorUnknownDefault(error) {
-  const status = error?.status;
-  if (!status || typeof status !== 'number') {
-    return true;
-  }
-  // we don't want to show toast for 403 (no permission) errors
-  return status >= 400 && status != 403;
-}
+// The heading and detail for each toast kind, together in one entry so a new
+// kind can't get a heading without a detail (or vice versa).
+const TOAST_COPY = {
+  [API_ERROR_TOAST.UNREACHABLE]: {
+    heading: {
+      stringId: 'general.api.notification.serverUnreachable.title',
+      fallback: "Couldn't reach the server",
+    },
+    detail: {
+      stringId: 'general.api.notification.serverUnreachable.detail',
+      fallback: 'Your last action may not have been saved. Please try again.',
+    },
+  },
+  [API_ERROR_TOAST.EDIT_CONFLICT]: {
+    heading: {
+      stringId: 'general.api.notification.editConflict.title',
+      fallback: 'This record was changed by someone else',
+    },
+    detail: {
+      stringId: 'general.api.notification.editConflict.detail',
+      fallback: 'Reload the page to see the latest version before saving again.',
+    },
+  },
+  [API_ERROR_TOAST.SERVER]: {
+    heading: {
+      stringId: 'general.api.notification.serverError.title',
+      fallback: 'Something went wrong on the server',
+    },
+    detail: {
+      stringId: 'general.api.notification.serverError.detail',
+      fallback: 'Please try again. If this keeps happening, contact your system administrator.',
+    },
+  },
+};
 
-export function isErrorUnknownAllow404s(error) {
-  const status = error?.status;
-  if (status === 404) {
-    return false;
-  }
-  return isErrorUnknownDefault(error);
+function buildErrorToast(toastKind, error, endpoint) {
+  const { heading, detail } = TOAST_COPY[toastKind];
+  const language = window?.localStorage?.getItem(LANGUAGE);
+
+  // The path and the raw server message only make sense for a server error, and
+  // only in English: they aren't translated, and a mixed-language toast is worse
+  // than none. Everything else gets the plain two-line message.
+  const isEnglish = !language || language === ENGLISH_LANGUAGE_CODE;
+  const showRequestDetail = toastKind === API_ERROR_TOAST.SERVER && isEnglish;
+
+  return [
+    <b key={heading.stringId}>
+      <TranslatedText stringId={heading.stringId} fallback={heading.fallback} />
+    </b>,
+    <TranslatedText key={detail.stringId} stringId={detail.stringId} fallback={detail.fallback} />,
+    ...(showRequestDetail
+      ? [
+          <TranslatedText
+            key="general.api.notification.path"
+            stringId="general.api.notification.path"
+            fallback="Path: :path"
+            replacements={{ path: error.path ?? endpoint }}
+          />,
+          <TranslatedText
+            key="general.api.notification.message"
+            stringId="general.api.notification.message"
+            fallback="Message: :message"
+            replacements={{ message: error?.title }}
+          />,
+        ]
+      : []),
+  ];
 }
 
 export class TamanuApi extends ApiClient {
@@ -295,44 +348,18 @@ export class TamanuApi extends ApiClient {
   }
 
   async fetch(endpoint, query, config) {
-    const {
-      isErrorUnknown = isErrorUnknownDefault,
-      showUnknownErrorToast = false,
-      ...otherConfig
-    } = config;
+    const { isErrorUnknown, showUnknownErrorToast = false, ...otherConfig } = config;
 
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      if (err.type.startsWith(ERROR_TYPE.AUTH)) {
+      if (err.type?.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
-      } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        const language = window?.localStorage?.getItem(LANGUAGE);
-        notifyError([
-          <b key="general.api.notification.requestFailed">
-            <TranslatedText
-              stringId="general.api.notification.requestFailed"
-              fallback="Network request failed"
-            />
-          </b>,
-          // Only show full server messages in English
-          ...(!language || language === ENGLISH_LANGUAGE_CODE
-            ? [
-                <TranslatedText
-                  key="general.api.notification.path"
-                  stringId="general.api.notification.path"
-                  fallback="Path: :path"
-                  replacements={{ path: err.path ?? endpoint }}
-                />,
-                <TranslatedText
-                  key="general.api.notification.message"
-                  stringId="general.api.notification.message"
-                  fallback="Message: :message"
-                  replacements={{ message: err?.title }}
-                />,
-              ]
-            : []),
-        ]);
+      } else if (showUnknownErrorToast) {
+        const toastKind = resolveApiErrorToast(err, isErrorUnknown);
+        if (toastKind) {
+          notifyError(buildErrorToast(toastKind, err, endpoint));
+        }
       }
 
       throw err;
