@@ -1,7 +1,10 @@
 import { DataTypes } from 'sequelize';
 
-import { BLOB_INTEGRITY_STATES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import type { BlobIntegrityState } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  SYNC_DIRECTIONS,
+  type BlobIntegrityState,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
