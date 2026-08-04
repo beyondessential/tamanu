@@ -5,7 +5,6 @@ import { IUser } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { Note } from './Note';
 import { LabRequest } from './LabRequest';
-import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
@@ -57,9 +56,6 @@ export class User extends BaseModel implements IUser {
 
   @OneToMany(() => Note, note => note.onBehalfOf)
   onBehalfOfNotes: Note[];
-
-  @OneToMany(() => VitalLog, vitalLog => vitalLog.recordedBy)
-  recordedVitalLogs: VitalLog[];
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;

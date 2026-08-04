@@ -1254,7 +1254,6 @@ describe('Encounter', () => {
 
       describe('basic vital features', () => {
         beforeEach(async () => {
-          await models.VitalLog.truncate({});
           await models.SurveyResponseAnswer.truncate({});
           await models.SurveyResponse.truncate({});
         });

@@ -151,7 +151,6 @@ describe('Sync Lookup data', () => {
       SurveyResponse,
       SurveyResponseAnswer,
       Triage,
-      VitalLog,
       Vitals,
       AdministeredVaccine,
       Discharge,
@@ -435,7 +434,7 @@ describe('Sync Lookup data', () => {
       }),
     );
 
-    const answer = await SurveyResponseAnswer.create({
+    await SurveyResponseAnswer.create({
       ...fake(SurveyResponseAnswer),
       dataElementId: programDataElement.id,
       responseId: surveyResponse.id,
@@ -602,12 +601,6 @@ describe('Sync Lookup data', () => {
       fake(ContributingDeathCause, {
         patientDeathDataId: pdd.id,
         conditionId: referenceData.id,
-      }),
-    );
-    await VitalLog.create(
-      fake(VitalLog, {
-        recordedById: examiner.id,
-        answerId: answer.id,
       }),
     );
     const scheduledVaccine = await models.ScheduledVaccine.create(

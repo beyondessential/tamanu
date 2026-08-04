@@ -30,7 +30,6 @@ describe('SurveyResponse.submit', () => {
   const clearSubmitTables = async () => {
     // SQLite deletes row-by-row, so drop FK enforcement while clearing children before parents.
     await Database.client.query('PRAGMA foreign_keys = OFF;');
-    await Database.models.VitalLog.clear();
     await Database.models.SurveyResponseAnswer.clear();
     await Database.models.SurveyResponse.clear();
     await Database.models.Encounter.clear();

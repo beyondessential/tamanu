@@ -24,7 +24,6 @@ export * from './ISurvey';
 export * from './ISurveyResponse';
 export * from './IReferenceData';
 export * from './IVitals';
-export * from './IVitalLog';
 export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';

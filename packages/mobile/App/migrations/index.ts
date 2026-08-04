@@ -90,6 +90,7 @@ import { addSurveyResponseEditMetadata1778560763154 } from './1778560763154-addS
 import { addLabTestReferenceRangeText1779700000000 } from './1779700000000-addLabTestReferenceRangeText';
 import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
 import { addUserKind1783118255000 } from './1783118255000-addUserKind';
+import { dropVitalLogs1785811717000 } from './1785811717000-dropVitalLogs';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 
 export const migrationList = [
@@ -185,4 +186,5 @@ export const migrationList = [
   removeDietIdFromEncounter1781501076000,
   addUserKind1783118255000,
   addDosingAndDispensingUnitColumns1779900000001,
+  dropVitalLogs1785811717000,
 ];

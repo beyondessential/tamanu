@@ -1,10 +1,9 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramDataElement } from './ProgramDataElement';
 import { SurveyResponse } from './SurveyResponse';
-import { VitalLog } from './VitalLog';
 
 import { ISurveyResponseAnswer } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
@@ -33,9 +32,6 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
-
-  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.answer)
-  vitalLogs: VitalLog[];
 
   static async getLatestAnswerForPatient(
     patientId: string,

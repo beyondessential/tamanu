@@ -3,7 +3,6 @@ export * from './configSecret';
 export * from './calculateSurveyResults';
 export * from './fhir';
 export * from './generate';
-export * from './generateInitialVitalLogs';
 export * from './generateVaccineCertificate';
 export * from './importReport';
 export * from './migrate';
