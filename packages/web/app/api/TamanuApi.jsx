@@ -10,7 +10,7 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ERROR_TYPE } from '@tamanu/errors';
-import { API_ERROR_TOAST, classifyApiError, isErrorUnknownDefault } from './classifyApiError';
+import { API_ERROR_TOAST, resolveApiErrorToast } from './classifyApiError';
 
 const {
   TOKEN,
@@ -113,39 +113,43 @@ function clearLocalStorage() {
   window?.localStorage?.removeItem(SETTINGS);
 }
 
-const TOAST_HEADINGS = {
+// The heading and detail for each toast kind, together in one entry so a new
+// kind can't get a heading without a detail (or vice versa).
+const TOAST_COPY = {
   [API_ERROR_TOAST.UNREACHABLE]: {
-    stringId: 'general.api.notification.serverUnreachable.title',
-    fallback: "Couldn't reach the server",
+    heading: {
+      stringId: 'general.api.notification.serverUnreachable.title',
+      fallback: "Couldn't reach the server",
+    },
+    detail: {
+      stringId: 'general.api.notification.serverUnreachable.detail',
+      fallback: 'Your last action may not have been saved. Please try again.',
+    },
   },
   [API_ERROR_TOAST.EDIT_CONFLICT]: {
-    stringId: 'general.api.notification.editConflict.title',
-    fallback: 'This record was changed by someone else',
+    heading: {
+      stringId: 'general.api.notification.editConflict.title',
+      fallback: 'This record was changed by someone else',
+    },
+    detail: {
+      stringId: 'general.api.notification.editConflict.detail',
+      fallback: 'Reload the page to see the latest version before saving again.',
+    },
   },
   [API_ERROR_TOAST.SERVER]: {
-    stringId: 'general.api.notification.serverError.title',
-    fallback: 'Something went wrong on the server',
-  },
-};
-
-const TOAST_DETAILS = {
-  [API_ERROR_TOAST.UNREACHABLE]: {
-    stringId: 'general.api.notification.serverUnreachable.detail',
-    fallback: 'Your last action may not have been saved. Please try again.',
-  },
-  [API_ERROR_TOAST.EDIT_CONFLICT]: {
-    stringId: 'general.api.notification.editConflict.detail',
-    fallback: 'Reload the page to see the latest version before saving again.',
-  },
-  [API_ERROR_TOAST.SERVER]: {
-    stringId: 'general.api.notification.serverError.detail',
-    fallback: 'Please try again. If this keeps happening, contact your IT support.',
+    heading: {
+      stringId: 'general.api.notification.serverError.title',
+      fallback: 'Something went wrong on the server',
+    },
+    detail: {
+      stringId: 'general.api.notification.serverError.detail',
+      fallback: 'Please try again. If this keeps happening, contact your system administrator.',
+    },
   },
 };
 
 function buildErrorToast(toastKind, error, endpoint) {
-  const heading = TOAST_HEADINGS[toastKind];
-  const detail = TOAST_DETAILS[toastKind];
+  const { heading, detail } = TOAST_COPY[toastKind];
   const language = window?.localStorage?.getItem(LANGUAGE);
 
   // The path and the raw server message only make sense for a server error, and
@@ -344,22 +348,18 @@ export class TamanuApi extends ApiClient {
   }
 
   async fetch(endpoint, query, config) {
-    const {
-      isErrorUnknown = isErrorUnknownDefault,
-      showUnknownErrorToast = false,
-      ...otherConfig
-    } = config;
+    const { isErrorUnknown, showUnknownErrorToast = false, ...otherConfig } = config;
 
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
       if (err.type?.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
-      } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        // A caller-supplied predicate can ask for a toast on an error the
-        // classifier stays quiet about; treat those as server errors.
-        const toastKind = classifyApiError(err) ?? API_ERROR_TOAST.SERVER;
-        notifyError(buildErrorToast(toastKind, err, endpoint));
+      } else if (showUnknownErrorToast) {
+        const toastKind = resolveApiErrorToast(err, isErrorUnknown);
+        if (toastKind) {
+          notifyError(buildErrorToast(toastKind, err, endpoint));
+        }
       }
 
       throw err;

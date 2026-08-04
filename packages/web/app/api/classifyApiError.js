@@ -70,8 +70,31 @@ export function classifyApiError(error) {
 }
 
 /**
- * The default `isErrorUnknown` predicate for `TamanuApi.fetch`. Callers can pass
- * their own to force or suppress a toast for a particular request.
+ * The toast an API error should raise, honouring a caller-supplied
+ * `isErrorUnknown` predicate.
+ *
+ * Without a predicate — the usual case — the classifier decides on its own. A
+ * predicate overrides it in both directions: it can force a toast for an error
+ * the classifier stays quiet about (shown as a server error), or suppress one
+ * the classifier would have raised.
+ *
+ * @returns {string | null} a value of `API_ERROR_TOAST`, or null for no toast.
+ */
+export function resolveApiErrorToast(error, isErrorUnknown) {
+  const toastKind = classifyApiError(error);
+
+  if (!isErrorUnknown) {
+    return toastKind;
+  }
+
+  return isErrorUnknown(error) ? (toastKind ?? API_ERROR_TOAST.SERVER) : null;
+}
+
+/**
+ * The predicate `resolveApiErrorToast` applies when a caller doesn't supply one.
+ * `TamanuApi.fetch` doesn't route the default path through it (the classifier
+ * result is enough), but it stays exported for callers that need to compose or
+ * wrap the default behaviour — it's re-exported from `web/app/api`.
  */
 export function isErrorUnknownDefault(error) {
   return classifyApiError(error) !== null;

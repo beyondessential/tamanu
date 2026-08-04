@@ -159,7 +159,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     isLoading: isLoadingSurveyResponse,
     isError: isSurveyResponseError,
     error: surveyResponseError,
-  } = useSurveyResponseQuery(surveyResponseId, { enabled: Boolean(surveyResponseId) });
+  } = useSurveyResponseQuery(surveyResponseId);
 
   const surveyForEdit = useMemo(() => {
     if (!existingSurveyResponse) return null;
