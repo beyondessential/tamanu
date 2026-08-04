@@ -99,7 +99,7 @@ test.describe('Medication - Encounter', () => {
     const detailsModal = await medicationPane.clickFirstMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
-    expect(await discontinueModal.getDiscontinuedByValue()).toBe(currentUser.displayName);
+    await expect(discontinueModal.discontinuedByInput).toHaveValue(currentUser.displayName);
   });
 
   test('Discontinue medication allows changing the discontinued by user', async ({

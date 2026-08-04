@@ -24,10 +24,6 @@ export class MedicationDiscontinueModal {
     await this.discontinuedByField.waitFor({ state: 'visible' });
   }
 
-  async getDiscontinuedByValue(): Promise<string> {
-    return this.discontinuedByInput.inputValue();
-  }
-
   async changeDiscontinuedBy(currentUserDisplayName: string): Promise<void> {
     await selectAutocompleteFieldOption(this.page, this.discontinuedByField, {
       optionToAvoid: currentUserDisplayName,

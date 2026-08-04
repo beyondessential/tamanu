@@ -27,7 +27,7 @@ test.describe('Medication - Patient', () => {
     const detailsModal = await medicationPane.clickFirstOngoingMedicationRow();
     const discontinueModal = await detailsModal.clickDiscontinue();
 
-    expect(await discontinueModal.getDiscontinuedByValue()).toBe(currentUser.displayName);
+    await expect(discontinueModal.discontinuedByInput).toHaveValue(currentUser.displayName);
   });
 
   test('Discontinue ongoing medication allows changing the discontinued by user', async ({
