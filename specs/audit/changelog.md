@@ -32,7 +32,7 @@ Changelog entries do not synchronise as records of their own. Each entry is **at
   - [ ] an optional reason, and
   - [ ] for a migration entry, the migration context (direction, migration name, and server type).
 - [ ] Each entry is stamped with the sync tick current when it was written, which is how outgoing sync batches select the entries to attach.
-- [ ] Entries serve product behaviour as well as audit: a migration entry stays distinguishable from an operational one. For example, invoicing's encounter ward-move history (see `specs/invoicing/encounter-fees.md`) and a patient's program registration history are both reconstructed from entries, with migration entries excluded.
+- [ ] Entries serve product behaviour as well as audit: a migration entry stays distinguishable from an operational one. For example, invoicing's encounter ward-move history (see `specs/invoicing/encounter-fees.md`), a patient's program registration history, and vitals edit history (see `specs/vitals/overview.md`) are all reconstructed from entries, with migration entries excluded.
 
 ## When entries are written
 
