@@ -82,7 +82,7 @@ const AdvancedConfigField = ({ field, form }) => {
     setJsonString(value ? JSON.stringify(value, null, 2) : '');
   }, [value]);
 
-  const handleChange = (newValue) => {
+  const handleChange = newValue => {
     setJsonString(newValue);
     // Always set — we call setFieldValue in every branch below.
     skipNextSync.current = true;
@@ -98,8 +98,6 @@ const AdvancedConfigField = ({ field, form }) => {
       setFieldValue(name, parsed);
       setJsonError(null);
     } catch (err) {
-      // Keep the unparseable string as the field value; the strict object schema
-      // rejects it, so the form can't be submitted with invalid JSON.
       setFieldValue(name, newValue);
       setJsonError(err);
     }
@@ -363,10 +361,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             },
           )
           .required(),
-        defaultDateRange: yup
-          .string()
-          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
-          .required(),
+        defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
         dbSchema: yup
           .string()
           .nullable()
