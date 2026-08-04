@@ -1,4 +1,10 @@
+import { fileURLToPath } from 'node:url';
+
 export const isCI = !!process.env.CI;
+
+// Teaches jest's resolver to accept file:// URLs, which production code must pass to
+// `import()` for absolute paths to work on Windows. See jest.resolver.cjs.
+const fileUrlAwareResolver = fileURLToPath(new URL('./jest.resolver.cjs', import.meta.url));
 
 // ESM-only dependencies that ship no CommonJS entry, so jest (which runs CJS)
 // must transform them rather than ignore them with the rest of node_modules.
@@ -29,6 +35,8 @@ export function config(importMeta, overrides = {}, { transformNodeModules = [] }
     setupFiles: ['<rootDir>/__tests__/setup.js'],
     testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
     collectCoverageFrom: ['src/**/*.[jt]sx?'],
+
+    resolver: fileUrlAwareResolver,
 
     maxWorkers: isCI ? '50%' : '25%',
 
