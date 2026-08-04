@@ -395,6 +395,117 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  describe('Priority', () => {
+    let priorityA;
+    let priorityB;
+
+    beforeAll(async () => {
+      priorityA = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestPriority',
+      });
+      priorityB = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestPriority',
+      });
+    });
+
+    afterEach(async () => {
+      await models.Setting.set('features.labRequest.priorityEditable', true);
+    });
+
+    it('should allow updating priority while status is reception pending', async () => {
+      const { id: requestId } = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          labTestPriorityId: priorityA.id,
+        }),
+      );
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ labTestPriorityId: priorityB.id });
+      expect(response).toHaveSucceeded();
+
+      const labRequest = await models.LabRequest.findByPk(requestId);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
+    });
+
+    it('should allow updating priority after status changes when priorityEditable flag is true (default)', async () => {
+      const { id: requestId } = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          labTestPriorityId: priorityA.id,
+        }),
+      );
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ labTestPriorityId: priorityB.id });
+      expect(response).toHaveSucceeded();
+
+      const labRequest = await models.LabRequest.findByPk(requestId);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
+    });
+
+    it('should allow updating priority at sample not collected stage when flag is false', async () => {
+      await models.Setting.set('features.labRequest.priorityEditable', false);
+
+      const { id: requestId } = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+          labTestPriorityId: priorityA.id,
+        }),
+      );
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ labTestPriorityId: priorityB.id });
+      expect(response).toHaveSucceeded();
+
+      const labRequest = await models.LabRequest.findByPk(requestId);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
+    });
+
+    it('should allow updating priority at reception pending stage even when priorityEditable flag is false', async () => {
+      await models.Setting.set('features.labRequest.priorityEditable', false);
+
+      const { id: requestId } = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          labTestPriorityId: priorityA.id,
+        }),
+      );
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ labTestPriorityId: priorityB.id });
+      expect(response).toHaveSucceeded();
+
+      const labRequest = await models.LabRequest.findByPk(requestId);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityB.id);
+    });
+
+    it('should reject updating priority after status changes when priorityEditable flag is false', async () => {
+      await models.Setting.set('features.labRequest.priorityEditable', false);
+
+      const { id: requestId } = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          labTestPriorityId: priorityA.id,
+        }),
+      );
+      const response = await app
+        .put(`/api/labRequest/${requestId}`)
+        .send({ labTestPriorityId: priorityB.id });
+      expect(response).toHaveRequestError();
+
+      const labRequest = await models.LabRequest.findByPk(requestId);
+      expect(labRequest).toHaveProperty('labTestPriorityId', priorityA.id);
+    });
+  });
+
   it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
     const makeLabTestType = async visibilityStatus => {
       const category = await models.ReferenceData.create({
