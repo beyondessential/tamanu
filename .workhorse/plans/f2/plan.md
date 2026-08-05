@@ -29,11 +29,14 @@ build delivers the channel itself.
 - The serving spec (SERVE) already requires streamed, ranged, hash-validated
   responses for client-facing serving; the transfer channel should share those
   properties server-to-server.
-- No HTTP/2-3 multiplexing facility–central client exists in the codebase yet
-  (searched packages for http2/http3 — nothing). The card description assumes
-  one can be leaned on for many-small-blob efficiency; whether that facility is
-  a separate card, part of F2, or deferred (falling back to keep-alive HTTP/1.1)
-  needs a decision.
+- The multiplexing facility–central client is PR #10656, cherry-picked onto this
+  branch (2026-08-05): `@passcod/faith` 0.3.0 becomes the fetch implementation
+  for the facility's `CentralServerConnection` (opt-out via
+  `TAMANU_DISABLE_FAITH_FETCH`), giving HTTP/2 connection multiplexing; the
+  HTTP/3 upgrade exists but is disabled for now. Many-small-blob efficiency
+  comes from riding this client rather than building custom batching. If the PR
+  merges to main independently, the duplicate commits fall out at the next
+  rebase.
 
 ## Design areas to nail down
 
@@ -46,17 +49,20 @@ build delivers the channel itself.
 3. **Content-pending response shape** — how a serving server reports "reference
    held, bytes absent", distinguishing upload-pending (origin hasn't delivered)
    from fetch-pending (this server hasn't fetched), in one response.
-4. **Direction and reachability** — central never dials into a facility, so
-   "central fetches from origin" must be realised as origin-initiated push;
-   confirm how the symmetric primitive maps onto the real connectivity topology.
-5. **Multiplexing dependency** — resolve the HTTP/2-3 client question above.
+4. **Direction and reachability** — decided (2026-08-05): the operations are
+   symmetric (offer, fetch, acknowledge, probe by hash) but transport
+   connections are always established facility→central, matching sync's
+   topology. Central acquiring a blob is realised as origin-initiated push
+   (offer + upload); facilities fetch on demand. No new inbound surface at
+   facilities, works through NAT/firewalls, and mobile reuses the same
+   semantics. Facility-to-facility movement relays via central, which is the
+   authoritative store anyway.
 
 ## Open questions
 
-- Is the HTTP/2-3 multiplexing client in scope for F2, a dependency card, or
-  deferred?
 - Does the transfer channel live on the existing sync-authenticated
   facility–central connection, or as its own authenticated surface? (H2 owns the
-  scoping rules, but F2 must pick the surface.)
+  scoping rules, but F2 must pick the surface. Riding `CentralServerConnection`
+  is the natural fit now that it carries the multiplexing client.)
 - What does "a facility may also serve a blob it currently holds" require of F2
   now — anything beyond the local-then-central read path that already exists?
