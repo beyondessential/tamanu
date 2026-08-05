@@ -12,6 +12,12 @@ import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
+// The sync-lookup listener refreshes child records after commit on any patient_id change,
+// which is a separate path from the in-transaction refresh these tests exercise.
+jest.mock('../../app/sync/registerSyncLookupUpdateListener', () => ({
+  registerSyncLookupUpdateListener: async () => {},
+}));
+
 jest.mock('config', () => ({
   ...jest.requireActual('config'),
   sync: {
