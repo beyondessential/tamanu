@@ -167,13 +167,13 @@ const getDbColumnInfo = async model => {
 // primary key, the referenceDataId link, and bookkeeping columns. Exported so the guardrail test
 // checks the same set of columns the Manage table is expected to surface.
 export const getSatelliteColumnKeys = satelliteModel =>
-  Object.keys(satelliteModel.rawAttributes ?? {}).filter(key => !SATELLITE_HIDDEN_COLUMNS.has(key));
+  Object.keys(satelliteModel.rawAttributes).filter(key => !SATELLITE_HIDDEN_COLUMNS.has(key));
 
 // Build the Manage columns for a satellite table. Satellite columns are plain data columns
 // (route, dosingUnit, unitConversion, …) edited/saved alongside the base row; they carry no FK
 // suggesters or name companions, and are flagged so the list/write path can join and persist them.
 const getSatelliteColumns = async satellite => {
-  const rawAttributes = satellite.model.rawAttributes ?? {};
+  const rawAttributes = satellite.model.rawAttributes;
   const dbColumns = await getDbColumnInfo(satellite.model);
   const satelliteKeys = new Set(getSatelliteColumnKeys(satellite.model));
 
@@ -191,7 +191,6 @@ const getSatelliteColumns = async satellite => {
         readOnly: false,
         readOnlyOnEdit: false,
         isSatellite: true,
-        satelliteAssociation: satellite.as,
       };
       if (typeName === 'ENUM' && attr.type?.values) {
         col.enumValues = attr.type.values;
@@ -277,17 +276,15 @@ export const splitSatelliteData = (columns, data) => {
   return { baseData, satelliteData };
 };
 
-// Upsert a satellite row keyed by its owning reference data id (the 1:1 link). Mirrors the
-// importer/loader, which keys ReferenceDrug on referenceDataId. Runs inside the caller's
-// managed transaction (CLS binds it), so no transaction object is threaded through.
+// Upsert a satellite row keyed by its owning reference data id (the 1:1 link). referenceDataId
+// carries a unique constraint, so this is a single atomic INSERT ... ON CONFLICT (no findOrCreate
+// + update race between concurrent saves for the same referenceDataId). Only the fields present in
+// satelliteData are written on conflict — Sequelize applies model defaults with { raw: true } so
+// they never enter the changed set and an unset column keeps its stored value (a partial update
+// merges, it doesn't wipe). Runs inside the caller's managed transaction (CLS binds it), so no
+// transaction object is threaded through.
 export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, satelliteData) => {
-  const [record, created] = await satelliteModel.findOrCreate({
-    where: { referenceDataId },
-    defaults: { referenceDataId, ...satelliteData },
-  });
-  if (!created && Object.keys(satelliteData).length > 0) {
-    await record.update(satelliteData);
-  }
+  const [record] = await satelliteModel.upsert({ referenceDataId, ...satelliteData });
   return record;
 };
 
