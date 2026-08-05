@@ -552,6 +552,10 @@ describe('Reference Data Manage', () => {
       expect(count).toBe(1);
       await satellite.reload();
       expect(satellite.route).toBe('oral');
+      // upsert merges: fields set by the earlier update are preserved when the later update omits
+      // them, rather than being reset to their column defaults
+      expect(satellite.dosingUnit).toBe('mL');
+      expect(satellite.isSensitive).toBe(true);
     });
 
     it('flattens satellite values onto the listed row and can filter on them', async () => {
@@ -581,6 +585,47 @@ describe('Reference Data Manage', () => {
       // the nested association object is flattened away, not returned raw
       expect(row).not.toHaveProperty('referenceDrug');
       expect(response.body.data.every(r => r.route === 'sublingual-unique')).toBe(true);
+      // count must reflect the satellite-column filter too (the count query only joins the
+      // satellite when a filter references it — see countInclude), not the unfiltered total
+      expect(response.body.count).toBe(1);
+    });
+
+    it('lists a drug with no satellite row, returning satellite columns as null', async () => {
+      // A pre-existing drug may have no reference_drugs row; the satellite is left-joined, so it
+      // must still list with its satellite columns null rather than erroring or being dropped.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'sat-none-code',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-none-code',
+      });
+      expect(response).toHaveSucceeded();
+
+      const row = response.body.data.find(r => r.id === record.id);
+      expect(row).toBeTruthy();
+      for (const key of SATELLITE_KEYS) {
+        expect(row[key]).toBeNull();
+      }
+      expect(row).not.toHaveProperty('referenceDrug');
+    });
+
+    it('does not create a satellite row when no satellite fields are provided on create', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-empty-create-code',
+        name: 'No Satellite Drug',
+      });
+      expect(response).toHaveSucceeded();
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(satellite).toBeNull();
     });
   });
 });
