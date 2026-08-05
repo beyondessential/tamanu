@@ -322,6 +322,35 @@ describe('BlobTransferChannel', () => {
         type: ERROR_TYPE.NOT_FOUND,
       });
     });
+
+    it('commits fully staged bytes without re-downloading, as after a crash before commit', async () => {
+      const content = Buffer.from('staged in full then interrupted');
+      const { hash } = await centralStore.put(Readable.from(content));
+      await localStore.stage(hash, Readable.from(content), { offset: 0 });
+      central.fetchCalls = 0;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect(central.fetchCalls).toBe(1); // the availability probe alone, no byte transfer
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('recovers on the next call when fully staged bytes fail verification', async () => {
+      const content = Buffer.from('central holds the true content');
+      const { hash } = await centralStore.put(Readable.from(content));
+      await localStore.stage(hash, Readable.from(Buffer.from('locally staged corrupt content')), {
+        offset: 0,
+      });
+
+      await expect(channel.fetchFromCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.BLOB_HASH_MISMATCH,
+      });
+
+      // the mismatch discarded the staging, so a retry downloads cleanly
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
   });
 
   describe('open', () => {

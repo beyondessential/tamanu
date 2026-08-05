@@ -40,6 +40,9 @@ and the facility channel tests
 
 - [x] Staged bytes survive a restart and the transfer resumes from them (verifies spec: XFER)
 - [x] A source failure partway through an append keeps the staged bytes as the resume point (verifies spec: XFER)
+- [x] Concurrent appends for one hash are serialised, never interleaved; the loser resumes from the new staged size (verifies spec: XFER)
+- [x] A fetch interrupted between the final append and commit resumes by verifying the staging, not by re-downloading (verifies spec: XFER)
+- [x] Fully staged bytes that fail verification are discarded and the next fetch starts clean (verifies spec: XFER)
 
 ## Manual / operational
 
@@ -47,3 +50,4 @@ and the facility channel tests
 - [ ] Confirm many small blobs push efficiently over the multiplexed (faith) facility-central connection
 - [ ] Confirm a facility server restart mid-push resumes rather than restarts the transfer
 - [ ] Confirm central acknowledges only after fsync (pull the plug testing is P2/N2 territory, a smoke check suffices here)
+- [ ] Confirm repeatedly aborted downloads do not accumulate open file handles on central (lsof over a soak run)

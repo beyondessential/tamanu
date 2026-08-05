@@ -76,6 +76,7 @@ export class BlobStore {
   readonly #getFreeDiskReserveBytes: () => Promise<number>;
   readonly #evictCache?: (bytesNeeded: number) => Promise<void>;
   readonly #statfs: (root: string) => Promise<VolumeStats>;
+  readonly #stagingLocks = new Map<string, Promise<unknown>>();
 
   constructor({ root, models, getFreeDiskReserveBytes, evictCache, statfs }: BlobStoreOptions) {
     this.root = root;
@@ -196,6 +197,14 @@ export class BlobStore {
     { offset }: { offset: number },
   ): Promise<{ stagedSize: number }> {
     parseBlobHash(hash);
+    return await this.#withStagingLock(hash, () => this.#stageLocked(hash, source, { offset }));
+  }
+
+  async #stageLocked(
+    hash: string,
+    source: Readable,
+    { offset }: { offset: number },
+  ): Promise<{ stagedSize: number }> {
     const stagingPath = this.#stagingPathFor(hash);
     await fs.mkdir(path.dirname(stagingPath), { recursive: true });
 
@@ -239,9 +248,14 @@ export class BlobStore {
    * already holds commits as a no-op and drops the staging.
    */
   async commitStaged(hash: string): Promise<PutResult> {
+    parseBlobHash(hash);
+    return await this.#withStagingLock(hash, () => this.#commitStagedLocked(hash));
+  }
+
+  async #commitStagedLocked(hash: string): Promise<PutResult> {
     const existing = await this.stat(hash);
     if (existing) {
-      await this.discardStaged(hash);
+      await this.#removeStagingFile(hash);
       return { hash, size: existing.size, existed: true };
     }
 
@@ -271,7 +285,7 @@ export class BlobStore {
 
     const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
     if (actualHash !== hash) {
-      await this.discardStaged(hash);
+      await this.#removeStagingFile(hash);
       throw new BlobHashMismatchError(
         `Staged content for ${hash} hashed to ${actualHash}; content discarded`,
       );
@@ -284,6 +298,10 @@ export class BlobStore {
 
   // spec: XFER
   async discardStaged(hash: string): Promise<void> {
+    await this.#withStagingLock(hash, () => this.#removeStagingFile(hash));
+  }
+
+  async #removeStagingFile(hash: string): Promise<void> {
     await fs.rm(this.#stagingPathFor(hash), { force: true });
   }
 
@@ -297,6 +315,27 @@ export class BlobStore {
 
   #pathFor(hash: string): string {
     return path.join(this.root, ...blobPathSegments(hash));
+  }
+
+  // spec: XFER
+  // Staging mutations for one hash are serialised within this process: the
+  // offset check and the append must be atomic against concurrent transfers
+  // of the same content, or interleaved appends corrupt the staging file. A
+  // waiter that loses the race fails the offset check cleanly and resumes
+  // from the new staged size. Writers in other processes are not covered;
+  // commit verification remains the backstop there.
+  async #withStagingLock<T>(hash: string, operation: () => Promise<T>): Promise<T> {
+    const previous = this.#stagingLocks.get(hash) ?? Promise.resolve();
+    const run = previous.catch(() => {}).then(operation);
+    const tail = run.catch(() => {});
+    this.#stagingLocks.set(hash, tail);
+    try {
+      return await run;
+    } finally {
+      if (this.#stagingLocks.get(hash) === tail) {
+        this.#stagingLocks.delete(hash);
+      }
+    }
   }
 
   #stagingPathFor(hash: string): string {

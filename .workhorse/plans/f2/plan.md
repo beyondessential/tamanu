@@ -98,6 +98,12 @@ commit, satisfying the resume-then-verify criterion.
 - [x] Facility channel tests against a fake central backed by a second real
       store, with dropped-stream and cut-chunk failure injection
 - [x] Test-cases file
+- [x] Post-review hardening (2026-08-05): per-hash staging lock in BlobStore so
+      concurrent transfers of one hash cannot interleave appends; central fetch
+      GET moved from pipe to stream pipeline so aborted downloads do not leak
+      file handles; fetch resume probes availability when staging exists and
+      commits directly once staged bytes cover the size, fixing the wedge when
+      a crash lands between the final append and commit
 - [ ] Lint and test runs — not runnable in this environment, verified by CI
 
 Out of scope, owned by siblings: background pusher and eviction (G2), data

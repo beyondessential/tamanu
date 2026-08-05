@@ -405,6 +405,31 @@ describe('BlobStore', () => {
       expect(await store.has(EMPTY_HASH)).toBe(true);
     });
 
+    it('serialises concurrent appends for one hash so they cannot interleave', async () => {
+      const store = makeStore();
+      async function* slowSource(text: string) {
+        for (const character of text) {
+          await new Promise(resolve => setTimeout(resolve, 1));
+          yield Buffer.from(character);
+        }
+      }
+
+      const [first, second] = await Promise.allSettled([
+        store.stage(HELLO_HASH, Readable.from(slowSource('hello ')), { offset: 0 }),
+        store.stage(HELLO_HASH, Readable.from(slowSource('world')), { offset: 0 }),
+      ]);
+
+      // the first append wins in full; the second fails its offset check
+      // cleanly instead of interleaving, and can resume from the new size
+      expect(first.status).toBe('fulfilled');
+      expect(second.status).toBe('rejected');
+      expect((second as PromiseRejectedResult).reason).toBeInstanceOf(InvalidParameterError);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(6);
+
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('world')), { offset: 6 });
+      expect(await store.commitStaged(HELLO_HASH)).toMatchObject({ hash: HELLO_HASH });
+    });
+
     it('discards staged content on request', async () => {
       const store = makeStore();
       await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 });

@@ -1,3 +1,5 @@
+import { pipeline } from 'node:stream/promises';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
@@ -156,8 +158,17 @@ export const buildBlobTransferRoutes = ctx => {
       if (range) {
         res.setHeader('content-range', `bytes ${start}-${end}/${held.size}`);
       }
-      stream.on('error', error => res.destroy(error));
-      stream.pipe(res);
+      // pipeline destroys the file stream when either side terminates, so a
+      // client dropping mid-download does not leak the open file handle.
+      try {
+        await pipeline(stream, res);
+      } catch (error) {
+        // A client going away mid-download is routine on this channel: it is
+        // how an interrupted fetch pauses before resuming with a range request.
+        if (error?.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
+          throw error;
+        }
+      }
     }),
   );
 

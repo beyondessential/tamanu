@@ -86,10 +86,29 @@ export class BlobTransferChannel {
       return { hash, size: held.size, existed: true };
     }
 
+    // The size central holds for this hash, once learned (from a resume probe
+    // or a response). Staged bytes covering it mean only verification is left
+    // — including when a previous call was interrupted between staging the
+    // final byte and committing, where re-requesting from that offset would
+    // only ever earn a range-not-satisfiable refusal.
+    let knownSize;
+    if ((await this.#blobStore.stagedSize(hash)) > 0) {
+      const central = await this.#centralServer.fetch(
+        `blob/${encodeURIComponent(hash)}/availability`,
+      );
+      if (central.availability === BLOB_AVAILABILITY_STATES.AVAILABLE) {
+        knownSize = central.size;
+      }
+    }
+
     let stalledAttempts = 0;
     for (;;) {
       const offset = await this.#blobStore.stagedSize(hash);
-      let expectedSize;
+      if (knownSize !== undefined && offset >= knownSize) {
+        // Everything is staged; commit verifies it. Over-staged content fails
+        // verification there and is discarded, so the next call starts clean.
+        break;
+      }
       try {
         const response = await this.#centralServer.fetch(
           `blob/${encodeURIComponent(hash)}`,
@@ -100,7 +119,7 @@ export class BlobTransferChannel {
             headers: offset > 0 ? { range: `bytes=${offset}-` } : {},
           },
         );
-        expectedSize = totalSizeFromResponse(response, offset);
+        knownSize = totalSizeFromResponse(response, offset) ?? knownSize;
         const body = response.body ? Readable.fromWeb(response.body) : Readable.from([]);
         await this.#blobStore.stage(hash, body, { offset });
       } catch (error) {
@@ -124,13 +143,11 @@ export class BlobTransferChannel {
       }
 
       const staged = await this.#blobStore.stagedSize(hash);
-      if (expectedSize !== undefined && staged < expectedSize) {
+      if (knownSize !== undefined && staged < knownSize) {
         // The stream ended early without erroring; go around for the rest.
         stalledAttempts = staged > offset ? 0 : stalledAttempts + 1;
         if (stalledAttempts >= STALLED_ATTEMPTS) {
-          throw new RemoteCallError(
-            `Fetch of ${hash} stalled at ${staged} of ${expectedSize} bytes`,
-          );
+          throw new RemoteCallError(`Fetch of ${hash} stalled at ${staged} of ${knownSize} bytes`);
         }
         continue;
       }
