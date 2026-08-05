@@ -31,6 +31,11 @@ export class Blob extends Model {
         size: {
           type: DataTypes.BIGINT,
           allowNull: false,
+          // Postgres hands BIGINT back as a string, and callers do arithmetic
+          // on blob sizes.
+          get(this: Blob): number {
+            return Number(this.getDataValue('size'));
+          },
         },
         integrityState: {
           type: DataTypes.TEXT,
