@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 
@@ -26,9 +26,22 @@ import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
+// The table stays border-collapsed so the row-separator borders render; a border-radius on a
+// collapsed table is ignored, so the rounded outer border lives on TableWrapper, which clips the
+// square table corners with overflow: hidden. The edit-mode product dropdown portals out, so it
+// isn't affected by the clipping.
+const TableWrapper = styled.div`
+  ${p =>
+    p.$bordered &&
+    css`
+      border: 1px solid ${Colors.outline};
+      border-radius: 3px;
+      overflow: hidden;
+    `}
+`;
+
 const Table = styled.table`
   background-color: ${p => p.theme.palette.background.paper};
-  border: 1px solid ${Colors.outline};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   inline-size: 100%;
   font-size: 14px;
@@ -179,58 +192,63 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       validationSchema={invoiceFormSchema}
       render={({ submitForm, values }) => (
         <>
-          <Table>
-            <FieldArray name="invoiceItems">
-              {formArrayMethods => (
-                <>
-                  <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
-                  <tbody>
-                    {values.invoiceItems?.map((item, index) => {
-                      // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
-                      // and the save payload are unchanged.
-                      if (isZeroedBedFeeItem(item)) return null;
-                      return (
-                        <InvoiceItemRow
-                          cellWidths={cellWidths}
-                          encounterId={invoice.encounterId}
-                          formArrayMethods={formArrayMethods}
-                          index={index}
-                          isCancelled={isCancelled}
-                          isEditing={isAddForm || isEditForm}
-                          isFinalised={isFinalised}
-                          item={item}
-                          key={item.id}
-                          onUpdateApproval={updateItemApproval}
-                          onUpdateInvoice={handleUpdateItem}
-                          priceListId={invoice.priceList?.id}
-                        />
-                      );
-                    })}
-                  </tbody>
-                  {editable && (isReadOnlyForm || isAddForm) && (
-                    <FormFooter>
-                      <AddButton
-                        onClick={() => {
-                          if (isReadOnlyForm) {
-                            setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                          } else {
-                            formArrayMethods.push(
-                              getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                            );
-                          }
-                        }}
-                      >
-                        <TranslatedText
-                          stringId="invoice.form.action.addItem"
-                          fallback="Add item"
-                        />
-                      </AddButton>
-                    </FormFooter>
-                  )}
-                </>
-              )}
-            </FieldArray>
-          </Table>
+          <TableWrapper $bordered={isEditForm || isAddForm}>
+            <Table>
+              <FieldArray name="invoiceItems">
+                {formArrayMethods => (
+                  <>
+                    <InvoiceItemHeader
+                      cellWidths={cellWidths}
+                      isEditing={isAddForm || isEditForm}
+                    />
+                    <tbody>
+                      {values.invoiceItems?.map((item, index) => {
+                        // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                        // and the save payload are unchanged.
+                        if (isZeroedBedFeeItem(item)) return null;
+                        return (
+                          <InvoiceItemRow
+                            cellWidths={cellWidths}
+                            encounterId={invoice.encounterId}
+                            formArrayMethods={formArrayMethods}
+                            index={index}
+                            isCancelled={isCancelled}
+                            isEditing={isAddForm || isEditForm}
+                            isFinalised={isFinalised}
+                            item={item}
+                            key={item.id}
+                            onUpdateApproval={updateItemApproval}
+                            onUpdateInvoice={handleUpdateItem}
+                            priceListId={invoice.priceList?.id}
+                          />
+                        );
+                      })}
+                    </tbody>
+                    {editable && (isReadOnlyForm || isAddForm) && (
+                      <FormFooter>
+                        <AddButton
+                          onClick={() => {
+                            if (isReadOnlyForm) {
+                              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                            } else {
+                              formArrayMethods.push(
+                                getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                              );
+                            }
+                          }}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                          />
+                        </AddButton>
+                      </FormFooter>
+                    )}
+                  </>
+                )}
+              </FieldArray>
+            </Table>
+          </TableWrapper>
           {editable && (isEditForm || isAddForm) && (
             <EditModalFooter>
               <FormCancelButton

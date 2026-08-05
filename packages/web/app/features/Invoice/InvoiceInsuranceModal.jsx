@@ -33,21 +33,12 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
-  const {
-    data: insurancePlans = [],
-    isLoading: isLoadingInsurancePlans,
-  } = usePatientInsurancePlansQuery({ patientId });
+  const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
+    usePatientInsurancePlansQuery({ patientId });
   const { navigateToPatient } = usePatientNavigation();
-  // Only offer multi-select when the patient has more than one plan to choose from
-  const isMultiSelect = insurancePlans.length > 1;
   const onChange = ({ target }) => {
-    if (isMultiSelect) {
-      const value = typeof target.value === 'string' ? JSON.parse(target.value) : target.value;
-      setSelectedPlans(value ?? []);
-    } else {
-      // Single-select emits a scalar id; keep state as an array so submission is consistent
-      setSelectedPlans(target.value ? [target.value] : []);
-    }
+    const value = typeof target.value === 'string' ? JSON.parse(target.value) : target.value;
+    setSelectedPlans(value);
   };
 
   const onConfirm = async () => {
@@ -147,11 +138,11 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
           }
           field={{
             name: 'insurancePlans',
-            value: isMultiSelect ? selectedPlans : (selectedPlans[0] ?? ''),
+            value: selectedPlans,
             onChange,
           }}
           endpoint="invoiceInsurancePlan"
-          isMulti={isMultiSelect}
+          isMulti
           baseQueryParameters={{ patientId }}
         />
       </ModalBody>
