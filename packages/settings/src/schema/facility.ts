@@ -231,6 +231,7 @@ export const facilitySettings = {
           },
         ),
         sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        reportingGrantRepair: scheduledTaskSchema({ schedule: '*/5 * * * *' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(
           { schedule: '0 2 * * *', enabled: false },

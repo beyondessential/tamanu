@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import config from 'config';
+import { QueryTypes } from 'sequelize';
 
 import {
   REPORT_DB_CONNECTION_ROLES,
@@ -90,6 +91,49 @@ const withCatalogRaceRetry = async (label, fn) => {
   }
 };
 
+// Everything a reporting schema script destroys when it runs
+// `DROP SCHEMA ... CASCADE`: the schema's own ACL and the default privileges keyed
+// to its oid both go with it. Re-applying needs no password, so the repair task
+// below can call this without touching the role's credentials.
+const applySchemaGrants = async (sequelize, connectionName) => {
+  const role = REPORT_DB_CONNECTION_ROLES[connectionName];
+  const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
+
+  if (schema !== 'public') {
+    await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
+  }
+
+  await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
+  await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
+  // Covers tables created later (e.g. materialised reporting tables).
+  await sequelize.query(
+    `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
+  );
+
+  // The raw role reads all of `public` for reporting, but report SQL has no
+  // business reading credential/token tables: local_system_secrets holds the
+  // device private key and the reporting secret (encrypted, but still not for
+  // reports), and the rest hold auth tokens or certificate signing keys. Revoke
+  // SELECT on them.
+  // to_regclass skips any not present on this server (e.g. central-only ones).
+  if (schema === 'public') {
+    const sensitiveTablesArray = REPORTING_SENSITIVE_TABLES.map(table => `'${table}'`).join(', ');
+    await sequelize.query(`
+      DO $$
+      DECLARE
+        sensitive_table text;
+      BEGIN
+        FOREACH sensitive_table IN ARRAY ARRAY[${sensitiveTablesArray}] LOOP
+          IF to_regclass('public.' || sensitive_table) IS NOT NULL THEN
+            EXECUTE format('REVOKE SELECT ON public.%I FROM %I', sensitive_table, '${role}');
+          END IF;
+        END LOOP;
+      END
+      $$;
+    `);
+  }
+};
+
 const ensureReportingRole = async (existingStore, connectionName, password) => {
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
   const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
@@ -126,44 +170,89 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
       }
 
       if (schema !== 'public') {
-        await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
-        // Lets reporting reports reference tables without the schema prefix.
+        // Role-level (survives a schema drop): lets reports skip the schema prefix.
         await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
       }
 
-      await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
-      await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
-      // Covers tables created later (e.g. materialised reporting tables).
-      await sequelize.query(
-        `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
-      );
-
-      // The raw role reads all of `public` for reporting, but report SQL has no
-      // business reading credential/token tables: local_system_secrets holds the
-      // device private key and the reporting secret (encrypted, but still not for
-      // reports), and the rest hold auth tokens or certificate signing keys. Revoke
-      // SELECT on them.
-      // to_regclass skips any not present on this server (e.g. central-only ones).
-      if (schema === 'public') {
-        const sensitiveTablesArray = REPORTING_SENSITIVE_TABLES.map(table => `'${table}'`).join(
-          ', ',
-        );
-        await sequelize.query(`
-        DO $$
-        DECLARE
-          sensitive_table text;
-        BEGIN
-          FOREACH sensitive_table IN ARRAY ARRAY[${sensitiveTablesArray}] LOOP
-            IF to_regclass('public.' || sensitive_table) IS NOT NULL THEN
-              EXECUTE format('REVOKE SELECT ON public.%I FROM %I', sensitive_table, '${role}');
-            END IF;
-          END LOOP;
-        END
-        $$;
-      `);
-      }
+      await applySchemaGrants(sequelize, connectionName);
     }),
   );
+};
+
+// A dropped-and-recreated schema leaves the role able to log in but unable to read
+// anything, so this checks exactly what `applySchemaGrants` sets. Catalog-only and
+// read-only, cheap enough to run on a short schedule.
+const reportingGrantsNeedRepair = async (sequelize, connectionName) => {
+  const role = REPORT_DB_CONNECTION_ROLES[connectionName];
+  const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
+
+  const [present] = await sequelize.query(
+    `SELECT to_regnamespace(:schema) IS NOT NULL AS "schemaExists",
+            EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :role) AS "roleExists";`,
+    { replacements: { schema, role }, type: QueryTypes.SELECT },
+  );
+  // Creating either is startup's job. Granting into a schema a reporting script has
+  // dropped but not yet recreated would also make that script's own CREATE SCHEMA fail.
+  if (!present.schemaExists || !present.roleExists) return false;
+
+  // The raw role is deliberately denied these, so their absence isn't drift.
+  const deliberatelyRevoked =
+    schema === 'public'
+      ? `AND cls.relname <> ALL (ARRAY[${REPORTING_SENSITIVE_TABLES.map(
+          table => `'${table}'`,
+        ).join(', ')}]::text[])`
+      : '';
+
+  const [state] = await sequelize.query(
+    `SELECT
+       has_schema_privilege(:role, :schema, 'USAGE') AS "hasUsage",
+       EXISTS (
+         SELECT 1
+         FROM pg_default_acl acl
+         JOIN pg_namespace nsp ON nsp.oid = acl.defaclnamespace
+         CROSS JOIN LATERAL aclexplode(acl.defaclacl) AS ace
+         WHERE nsp.nspname = :schema
+           AND acl.defaclobjtype = 'r'
+           AND ace.privilege_type = 'SELECT'
+           AND ace.grantee = (SELECT oid FROM pg_roles WHERE rolname = :role)
+       ) AS "hasDefaultPrivileges",
+       EXISTS (
+         SELECT 1
+         FROM pg_class cls
+         JOIN pg_namespace nsp ON nsp.oid = cls.relnamespace
+         WHERE nsp.nspname = :schema
+           AND cls.relkind IN ('r', 'v', 'm', 'f', 'p')
+           AND NOT has_table_privilege(:role, cls.oid, 'SELECT')
+           ${deliberatelyRevoked}
+       ) AS "hasUnreadableTable";`,
+    { replacements: { schema, role }, type: QueryTypes.SELECT },
+  );
+
+  return !state.hasUsage || !state.hasDefaultPrivileges || state.hasUnreadableTable;
+};
+
+/**
+ * Re-apply the schema grants that a reporting script's `DROP SCHEMA ... CASCADE`
+ * removes, so reporting recovers on its own instead of waiting for a server restart.
+ * Checks before granting: `GRANT ... ON ALL TABLES` locks every table it touches,
+ * which is not something to do on a schedule for no reason.
+ *
+ * Returns the connections it repaired.
+ */
+export const repairReportingGrants = async ({ sequelize }) => {
+  const repaired = [];
+  for (const connectionName of REPORT_DB_CONNECTION_VALUES) {
+    if (!(await reportingGrantsNeedRepair(sequelize, connectionName))) continue;
+
+    await withCatalogRaceRetry(`repairReportingGrants(${connectionName})`, () =>
+      sequelize.transaction(async () => {
+        await sequelize.query(`SELECT pg_advisory_xact_lock(${REPORTING_ROLES_LOCK_KEY}::bigint);`);
+        await applySchemaGrants(sequelize, connectionName);
+      }),
+    );
+    repaired.push(connectionName);
+  }
+  return repaired;
 };
 
 const initReportStore = async (existingStore, connectionName, secret) => {

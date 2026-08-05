@@ -107,7 +107,7 @@ export class ApplicationContext {
       // rest of the server works without reporting, so degrade instead of
       // crash-looping the whole deployment.
       log.error(
-        'initReporting failed; reporting schemas unavailable until the db grants are fixed',
+        'initReporting failed; reporting schemas unavailable until the db grants are fixed and this server restarts. Grants wiped by a reporting schema script are re-applied by ReportingGrantRepair without a restart; this is a different failure.',
         { error },
       );
     }

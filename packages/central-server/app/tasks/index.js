@@ -34,6 +34,7 @@ import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdm
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
 import { ProgramRegistryPltfuFlagger } from './ProgramRegistryPltfuFlagger';
+import { ReportingGrantRepair } from '@tamanu/database/tasks/ReportingGrantRepair';
 
 export { startFhirWorkerTasks } from '@tamanu/shared/tasks';
 
@@ -49,6 +50,7 @@ export async function startScheduledTasks(context) {
   /* eslint-enable require-atomic-updates */
 
   const taskClasses = [
+    ReportingGrantRepair,
     OutpatientDischarger,
     DeceasedPatientDischarger,
     PatientEmailCommunicationProcessor,

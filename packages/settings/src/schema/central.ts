@@ -822,6 +822,7 @@ export const centralSettings = {
       description: 'Cron schedules and tuning for central-server background tasks',
       requiresRestart: true,
       properties: {
+        reportingGrantRepair: scheduledTaskSchema({ schedule: '*/5 * * * *' }),
         outpatientDischarger: scheduledTaskSchema(
           { schedule: '0 2 * * *' },
           batchingProperties(1000, 50),

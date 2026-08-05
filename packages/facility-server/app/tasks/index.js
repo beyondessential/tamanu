@@ -14,10 +14,12 @@ import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
+import { ReportingGrantRepair } from '@tamanu/database/tasks/ReportingGrantRepair';
 
 export { startFhirWorkerTasks };
 
 const DEFAULT_TASK_CLASSES = [
+  ReportingGrantRepair,
   RefreshUpcomingVaccinations,
   SendStatusToMetaServer,
   TimeSyncTask,
