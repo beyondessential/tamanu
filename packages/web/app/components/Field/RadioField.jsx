@@ -112,18 +112,18 @@ export const RadioInput = ({
 }) => {
   const { onChange } = props;
 
-  useEffect(() => {
-    if (!autofillSingleAvailableOption) {
-      return;
-    }
+  const validOptions = options.filter(o => !o.disabled);
+  const soleValidOptionValue =
+    autofillSingleAvailableOption && validOptions.length === 1 ? validOptions[0].value : undefined;
+  useEffect(
+    function populateIfExactlyOneValidOption() {
+      if (soleValidOptionValue === undefined) return;
+      onChange({ target: { value: soleValidOptionValue, name } });
+    },
+    // Keyed on the value, so we don’t depend on referential stability of `options`
+    [name, onChange, soleValidOptionValue],
+  );
 
-    const validOptions = options.filter(o => !o.disabled);
-    if (validOptions.length === 1) {
-      onChange({ target: { value: validOptions[0].value, name } });
-    }
-    // only trigger autofill when options are changed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options]);
   return (
     <OuterLabelFieldWrapper
       label={label}
