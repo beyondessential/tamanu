@@ -146,23 +146,31 @@ class FakeCentralConnection {
     }
 
     const start = parseInt(headers.range?.match(/^bytes=(\d+)-$/)?.[1] ?? '0', 10);
-    let source = await this.store.get(hash, start > 0 ? { start } : {});
-    if (this.dropFetchStreamsAfter !== null) {
-      const limit = this.dropFetchStreamsAfter;
-      async function* dropping(stream) {
-        let sent = 0;
-        for await (const chunk of stream) {
-          const remaining = limit - sent;
-          if (chunk.length >= remaining) {
-            yield chunk.subarray(0, remaining);
-            throw new Error('stream dropped');
+    const full = await readAll(await this.store.get(hash, start > 0 ? { start } : {}));
+
+    // Deliver the leading bytes, then either close cleanly or error on the
+    // next pull — a pull-based source so the consumer reads (and stages) the
+    // delivered bytes before the error surfaces. Built as a web stream
+    // directly, with no intermediate Node stream to leak an unhandled error.
+    const shouldDrop = this.dropFetchStreamsAfter !== null && full.length > this.dropFetchStreamsAfter;
+    const delivered = shouldDrop ? full.subarray(0, this.dropFetchStreamsAfter) : full;
+    let sent = false;
+    const body = new ReadableStream({
+      pull(controller) {
+        if (!sent) {
+          sent = true;
+          if (delivered.length > 0) {
+            controller.enqueue(delivered);
+            return;
           }
-          sent += chunk.length;
-          yield chunk;
         }
-      }
-      source = Readable.from(dropping(source));
-    }
+        if (shouldDrop) {
+          controller.error(new Error('stream dropped'));
+        } else {
+          controller.close();
+        }
+      },
+    });
 
     const length = held.size - start;
     const responseHeaders = new Map([['content-length', String(length)]]);
@@ -172,7 +180,7 @@ class FakeCentralConnection {
     return {
       status: start > 0 ? 206 : 200,
       headers: responseHeaders,
-      body: Readable.toWeb(source),
+      body,
     };
   }
 }

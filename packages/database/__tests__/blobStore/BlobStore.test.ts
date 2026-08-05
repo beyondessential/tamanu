@@ -409,7 +409,9 @@ describe('BlobStore', () => {
       const store = makeStore();
       async function* slowSource(text: string) {
         for (const character of text) {
-          await new Promise(resolve => setTimeout(resolve, 1));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 1);
+          });
           yield Buffer.from(character);
         }
       }
