@@ -86,7 +86,7 @@ rendering paths, with readers tolerating both new (hash) and legacy (in-database
 rows during transition. Depends on the foundation cards; the bulk move of existing
 data is the backfill card's job.
 
-## Extract a sans-io blob package shared with mobile
+## Extract a sans-io blob package shared with mobile · S2
 
 Lifts the store management and transfer protocol logic out of `@tamanu/database` and
 the two servers into a dependency-free package that mobile can consume, so the

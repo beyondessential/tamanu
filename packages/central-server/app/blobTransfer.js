@@ -40,13 +40,16 @@ export const buildBlobTransferRoutes = ctx => {
 
   routes.use(ensurePermissionCheck);
   routes.use((req, _res, next) => {
+    // Flag first so a rejection below sends through the normal error path
+    // rather than the "no permission check ran" trap (which would 501). The
+    // device-scope assertion is this route's permission check.
+    req.flagPermissionChecked();
     if (!req.device) {
       throw new ForbiddenError(
         'Blob transfer requires an authenticated device ID (ie provided at login)',
       );
     }
     req.device.ensureHasScope(DEVICE_SCOPES.SYNC_CLIENT);
-    req.flagPermissionChecked();
     next();
   });
 
