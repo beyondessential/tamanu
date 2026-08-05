@@ -32,10 +32,18 @@ export class BlobTransferChannel {
   #blobStore;
   #centralServer;
   #pushChunkBytes;
+  #facilityIds;
 
-  constructor({ blobStore, centralServer, pushChunkBytes = PUSH_CHUNK_BYTES }) {
+  // spec: BLAC
+  // facilityIds is the store's own server facilities (getServerFacilityIds),
+  // declared to central on every request so it scopes blob access exactly as it
+  // scopes record sync for this server. Without it central cannot tell which
+  // facility the request acts for and would have to fall back on the sync
+  // user's whole entitlement.
+  constructor({ blobStore, centralServer, facilityIds = [], pushChunkBytes = PUSH_CHUNK_BYTES }) {
     this.#blobStore = blobStore;
     this.#centralServer = centralServer;
+    this.#facilityIds = facilityIds;
     this.#pushChunkBytes = pushChunkBytes;
   }
 
@@ -54,6 +62,7 @@ export class BlobTransferChannel {
     }
     const central = await this.#centralServer.fetch(
       `blob/${encodeURIComponent(hash)}/availability`,
+      { query: { facilityIds: this.#facilityIds } },
     );
     if (central.availability === BLOB_AVAILABILITY_STATES.AVAILABLE) {
       return { availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH, size: central.size };
@@ -115,7 +124,7 @@ export class BlobTransferChannel {
       try {
         const response = await this.#centralServer.fetch(
           `blob/${encodeURIComponent(hash)}`,
-          {},
+          { facilityIds: this.#facilityIds },
           {
             returnResponse: true,
             retryAuth: true,
@@ -195,6 +204,15 @@ export class BlobTransferChannel {
           // transfer retry's (see specs/blob-storage/integrity.md).
           throw error;
         }
+        if (error?.type === ERROR_TYPE.FORBIDDEN) {
+          // spec: BLAC
+          // Central refuses the push: the blob's referencing record hasn't
+          // synchronised there yet (or isn't in our scope). Retrying without a
+          // sync in between cannot change the answer, so fail the push now and
+          // let the pusher move on to the next blob (see
+          // specs/blob-storage/facility-cache.md).
+          throw error;
+        }
         // Learn where central actually got to and resume from there — covers
         // a connection dropped mid-chunk, where central staged part of the
         // body we sent. A re-offer that itself fails is just another transient
@@ -233,6 +251,7 @@ export class BlobTransferChannel {
   async #offer(hash, size) {
     return await this.#centralServer.fetch(`blob/${encodeURIComponent(hash)}/offer`, {
       method: 'POST',
+      query: { facilityIds: this.#facilityIds },
       body: { size },
     });
   }
@@ -279,7 +298,7 @@ export class BlobTransferChannel {
   async #putChunk(hash, chunk, offset, totalSize) {
     return await this.#centralServer.fetch(`blob/${encodeURIComponent(hash)}/content`, {
       method: 'PUT',
-      query: { offset, totalSize },
+      query: { offset, totalSize, facilityIds: this.#facilityIds },
       body: chunk,
       headers: { 'content-type': 'application/octet-stream' },
     });

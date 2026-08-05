@@ -4,10 +4,17 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
-import { BLOB_AVAILABILITY_STATES, BLOB_OFFER_STATUSES, DEVICE_SCOPES } from '@tamanu/constants';
+import {
+  BLOB_AVAILABILITY_STATES,
+  BLOB_INTEGRITY_STATES,
+  BLOB_OFFER_STATUSES,
+  DEVICE_SCOPES,
+} from '@tamanu/constants';
 import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { parseBlobHash } from '@tamanu/utils/blobs';
+
+import { isHashReferencedInScope } from './blobReferences';
 
 // Resume-oriented subset of HTTP ranges: a single open-ended or closed range.
 // Anything else is ignored and the full blob served, as RFC 9110 permits.
@@ -32,8 +39,10 @@ const validateHash = hash => {
 // fetch its bytes (streamed, ranged for resume), and offer/push bytes in
 // offset-addressed chunks staged until verified. Gated on the same
 // authenticated sync-client device scope as record sync, so the store is never
-// an open content-addressed endpoint; reference-level data scoping layers on
-// top (see specs/blob-storage/access-control.md).
+// an open content-addressed endpoint, and every operation is scoped at the
+// reference layer: a hash is visible or pushable only through a synchronised
+// record within the requester's data scope (see
+// specs/blob-storage/access-control.md).
 export const buildBlobTransferRoutes = ctx => {
   const { blobStore } = ctx;
   const routes = express.Router();
@@ -53,6 +62,63 @@ export const buildBlobTransferRoutes = ctx => {
     next();
   });
 
+  // spec: BLAC
+  // The requesting server's scope is the set of facilities it declares it is
+  // operating as — exactly what record synchronisation scopes a pull to, and
+  // typically the one facility the server runs. Declared by the client and
+  // validated against the user's entitlement, the same check the sync session
+  // makes; the entitlement itself is only the ceiling, never the scope, since
+  // a facility server's sync user is often entitled to every facility.
+  const requestFacilityScope = async req => {
+    const raw = req.query.facilityIds;
+    const facilityIds = (Array.isArray(raw) ? raw : [raw]).filter(id => typeof id === 'string');
+    if (facilityIds.length === 0) {
+      throw new ForbiddenError('Blob transfer requires the requesting facilities');
+    }
+    const user = await req.store.models.User.findByPk(req.user.id);
+    for (const facilityId of facilityIds) {
+      if (!(await user.canAccessFacility(facilityId))) {
+        throw new ForbiddenError('User does not have access to facility');
+      }
+    }
+    return facilityIds;
+  };
+
+  // spec: BLAC
+  // A hash is in scope when a record referencing it lies within the declared
+  // facility scope. Out-of-scope and unreferenced hashes are treated
+  // identically to ones the store does not hold, so the channel discloses
+  // nothing about unscoped content.
+  const hashInScope = async (req, hash) =>
+    await isHashReferencedInScope(req.store.sequelize, {
+      hash,
+      facilityIds: await requestFacilityScope(req),
+    });
+
+  // spec: BLAC, SCRUB
+  // The store retains a quarantined blob but never serves it. On the read path
+  // it is therefore not held: availability and fetch answer as they would for
+  // absent content, so neither advertises a blob fetch would refuse nor
+  // discloses the quarantine.
+  const servableStat = async hash => {
+    const held = await blobStore.stat(hash);
+    if (!held || held.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+      return null;
+    }
+    return held;
+  };
+
+  // Identical for a hash that is genuinely not held and one outside the
+  // requester's scope: the two must be indistinguishable.
+  const blobNotHeld = hash =>
+    new NotFoundError(`Blob not held: ${hash}`).withExtraData({
+      availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+    });
+
+  // Identical whether or not the content is held: an unexpected push must not
+  // disclose what the central store holds.
+  const pushNotExpected = hash => new ForbiddenError(`Blob not expected: ${hash}`);
+
   // spec: XFER
   // Availability without transferring bytes. The central server is the
   // authoritative store and never fetches, so absent bytes are always awaiting
@@ -62,7 +128,10 @@ export const buildBlobTransferRoutes = ctx => {
     '/:hash/availability',
     asyncHandler(async (req, res) => {
       const hash = validateHash(req.params.hash);
-      const held = await blobStore.stat(hash);
+      // spec: BLAC
+      // Scoping applies to the probe as much as the fetch: whether unscoped
+      // content exists is itself information.
+      const held = (await hashInScope(req, hash)) && (await servableStat(hash));
       if (held) {
         res.send({ availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: held.size });
       } else {
@@ -79,6 +148,18 @@ export const buildBlobTransferRoutes = ctx => {
     '/:hash/offer',
     asyncHandler(async (req, res) => {
       const hash = validateHash(req.params.hash);
+      // spec: BLAC
+      // Sync-first push: the offer is accepted only once a synchronised record
+      // within the offering server's scope references the hash. Checked before
+      // the store is consulted so an unexpected offer for held content is
+      // refused identically to one for absent content.
+      if (!(await hashInScope(req, hash))) {
+        throw pushNotExpected(hash);
+      }
+      // Plain stat, not servableStat: a quarantined copy still occupies the
+      // hash, so re-pushing it would no-op against the retained bytes. Pushing
+      // a good replacement over a quarantined copy is the self-heal path, which
+      // belongs to the integrity spec (see specs/blob-storage/integrity.md).
       if (await blobStore.stat(hash)) {
         res.send({ status: BLOB_OFFER_STATUSES.ALREADY_STORED });
         return;
@@ -100,6 +181,14 @@ export const buildBlobTransferRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const hash = validateHash(req.params.hash);
       const { offset, totalSize } = await putContentQuerySchema.validate(req.query);
+
+      // spec: BLAC
+      // Refusal applies from the first byte and to every resumed segment:
+      // content for an unexpected hash is never staged, even partially, so
+      // transient storage is as bounded as admitted storage.
+      if (!(await hashInScope(req, hash))) {
+        throw pushNotExpected(hash);
+      }
 
       if (await blobStore.stat(hash)) {
         res.send({ acknowledged: true, existed: true });
@@ -132,11 +221,13 @@ export const buildBlobTransferRoutes = ctx => {
     '/:hash',
     asyncHandler(async (req, res) => {
       const hash = validateHash(req.params.hash);
-      const held = await blobStore.stat(hash);
+      // spec: BLAC
+      // A hash outside the requester's scope answers exactly as one the store
+      // does not hold, from the same throw site so the responses cannot drift
+      // apart.
+      const held = (await hashInScope(req, hash)) && (await servableStat(hash));
       if (!held) {
-        throw new NotFoundError(`Blob not held: ${hash}`).withExtraData({
-          availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
-        });
+        throw blobNotHeld(hash);
       }
 
       const range = req.headers.range?.match(RANGE_PATTERN)?.groups;
