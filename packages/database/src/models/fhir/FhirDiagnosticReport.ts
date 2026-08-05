@@ -133,18 +133,17 @@ export class FhirDiagnosticReport extends FhirResource {
         `entered-in-error DiagnosticReport can only be applied to a published LabRequest`,
       );
     }
+    const newStatus = this.getLabRequestStatus();
+    if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
+      return labRequest;
+    }
+
     if (!requesterId)
       throw new InvalidOperationError('No user found for LabRequest status change.');
 
     // the results arrive from the laboratory, but the change belongs to the requester
     await runWithAuditUser(requesterId, () =>
       this.sequelize.transaction(async () => {
-        const newStatus = this.getLabRequestStatus();
-
-        if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
-          return;
-        }
-
         labRequest.set({ status: newStatus });
         if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
           labRequest.set({ publishedDate: getCurrentDateTimeString() });
