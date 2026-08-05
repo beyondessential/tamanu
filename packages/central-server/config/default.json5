@@ -459,11 +459,5 @@
     // This committed key is for local dev/test ONLY; deploys override it via
     // the CRYPTO_KEY_FILE env var pointing at a mounted secret.
     "keyFile": "config/dev-secret.key"
-  },
-  "blobStorage": {
-    // Root directory of the content-addressed blob store, resolved relative to
-    // the server's working directory when not absolute. May be pointed at a
-    // separate volume to remove disk contention with the database.
-    "root": "data/blobs"
   }
 }

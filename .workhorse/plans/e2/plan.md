@@ -67,7 +67,7 @@ Load-bearing durability detail, currently absent from CAS — worth **one CAS cr
 - [x] dbt source model for `blobs` (hand-written; reconcile with `npm run dbt-generate-model` when a live DB is available)
 - [x] `BlobStore` class (`@tamanu/database/blobStore`): `has` / `get` / `put` / `delete` with hash-on-write and atomic temp-write-then-rename
 - [x] Windows/NTFS rename and path handling (retry on EEXIST/EPERM/EBUSY, dedupe on lost race); real-NTFS verification tracked in test cases
-- [x] Configurable store root (config `blobStorage.root` on central + facility) + free-disk reserve (global setting `blobStorage.freeDiskReserveGB`)
+- [x] Configurable store root (`TAMANU_BLOB_STORAGE_ROOT` env var, default `data/blobs` — a per-host volume path, so not a synced setting and not config) + free-disk reserve (global setting `blobStorage.freeDiskReserveGB`)
 - [x] Free-disk floor: measure volume free space (`fs.statfs`), cache-eviction hook, refuse-new-blob path (central included)
 - [x] Tighten CAS with the atomic-write criterion and the store interface contract
 - [x] Unit tests: fan-out layout, empty blob, dedupe no-op, floor refusal, registry state (see `.workhorse/test-cases/e2/overview.md`)
@@ -76,7 +76,7 @@ Follow-ups for sibling cards:
 
 - Crash-orphaned files under `<root>/tmp` are not swept by the primitive; reclamation (D2's
   area) should own a startup/scheduled sweep of stale temp files.
-- Server context wiring (constructing `BlobStore` from `config.blobStorage.root` and the
+- Server context wiring (constructing `BlobStore` from `blobStorageRoot()` and the
   `blobStorage.freeDiskReserveGB` setting) lands with the first consumer (F2), as does the
   eviction hook implementation (G2).
 
