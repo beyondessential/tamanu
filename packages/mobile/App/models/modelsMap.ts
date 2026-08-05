@@ -46,6 +46,7 @@ import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
 import { Note } from './Note';
+import { VitalLog } from './VitalLog';
 import { UserFacility } from './UserFacility';
 import { EncounterPrescription } from './EncounterPrescription';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
@@ -84,6 +85,7 @@ export const MODELS_MAP = {
   SurveyScreenComponent,
   SurveyResponse,
   SurveyResponseAnswer,
+  VitalLog,
   Vitals,
   Diagnosis,
   ScheduledVaccine,

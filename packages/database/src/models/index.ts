@@ -40,6 +40,7 @@ export * from './Triage';
 export * from './ReferenceData';
 export * from './ReferenceDataRelation';
 
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './ProcedureAssistantClinician';

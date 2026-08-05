@@ -545,6 +545,23 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         });
       });
 
+      it("won't sync sensitive encounter vital logs", async () => {
+        const sensitiveVitalLog = await models.VitalLog.create(
+          fake(models.VitalLog, {
+            answerId: sensitiveSurveyResponseAnswer.id,
+          }),
+        );
+        const nonSensitiveVitalLog = await models.VitalLog.create(
+          fake(models.VitalLog, {
+            answerId: nonSensitiveSurveyResponseAnswer.id,
+          }),
+        );
+        await checkSensitiveRecordFiltering({
+          model: models.VitalLog,
+          sensitiveId: sensitiveVitalLog.id,
+          nonSensitiveId: nonSensitiveVitalLog.id,
+        });
+      });
     });
 
     describe('Imaging clinical data', () => {

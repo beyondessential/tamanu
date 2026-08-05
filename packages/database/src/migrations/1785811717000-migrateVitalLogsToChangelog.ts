@@ -21,6 +21,9 @@ import { QueryInterface } from 'sequelize';
 // recording carries no history, and the tables read a single entry the same as none.
 // That keeps this to tens of thousands of inserts rather than one per vital ever
 // recorded, which runs into the millions.
+//
+// Facilities on earlier versions still push vital_logs carrying reasons this restore has
+// already passed, so it runs again in the release that drops the table.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     UPDATE logs.changes lc
@@ -105,8 +108,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   // DESTRUCTIVE: the reasons restored onto trigger-written entries are kept; only the
-  // synthesised entries go, identified by their sentinel device id since by now the
-  // next migration's down has recreated vital_logs empty.
+  // synthesised entries go, identified by their sentinel device id.
   await query.sequelize.query(`
     DELETE FROM logs.changes
     WHERE device_id = 'vital-log-migration';
