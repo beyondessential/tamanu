@@ -41,16 +41,19 @@ export const dispensingQuantityLabel = (
 );
 
 export const orderingPrescriberLabel = (
-  <TranslatedText stringId="pharmacyOrder.orderingPrescriber.label" fallback="Ordering prescriber" />
+  <TranslatedText
+    stringId="pharmacyOrder.orderingPrescriber.label"
+    fallback="Ordering prescriber"
+  />
 );
 
 /** A blank number input hands back '', which yup would otherwise cast to NaN and reject. */
 const emptyToNull = (value, originalValue) => (originalValue === '' ? null : value);
 
 /**
- * A dispensing quantity is only needed for the medications actually being sent to pharmacy. The
- * rest are carried onto the discharge for reference and are routinely prescribed without one, so
- * requiring a quantity for them would block the discharge over a field the clinician never used.
+ * Every listed medication needs a dispensing quantity, in both tables and whether or not pharmacy
+ * orders are enabled — the discharge records it against the prescription either way. Zero only
+ * stops being acceptable once the row is actually being sent to pharmacy.
  */
 export const getMedicationsValidationSchema = requiredInlineMessage =>
   yup.lazy(medications =>
@@ -62,9 +65,11 @@ export const getMedicationsValidationSchema = requiredInlineMessage =>
             .transform(emptyToNull)
             .integer()
             .min(0)
+            // Nullable so a blank field fails as required rather than as a bad number.
             .nullable()
+            .required(requiredInlineMessage)
             .translatedLabel(dispensingQuantityLabel)
-            .test('requiredWhenSendingToPharmacy', requiredInlineMessage, function (quantity) {
+            .test('atLeastOneWhenSendingToPharmacy', requiredInlineMessage, function (quantity) {
               return !this.parent?.sendToPharmacy || quantity >= 1;
             }),
           repeats: yup
@@ -140,7 +145,7 @@ const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => 
       component={NumberFieldWithoutLabel}
       unitKey={dispensingUnit ?? undefined}
       min={isSentToPharmacy ? 1 : 0}
-      required={isSentToPharmacy}
+      required
       disabled={disabled}
       data-testid="field-ksmf"
     />
@@ -231,6 +236,26 @@ const LastSentAccessor = ({ lastOrderedAt, isLastOrderDispensed }) => {
   );
 };
 
+/*
+ * The discharge medication tables use fixed layout so the two of them stay aligned with each other,
+ * which means any column without a declared width just takes an equal share of whatever is left.
+ * That starved the trailing columns and clipped "Discontinue", so every column states its own share
+ * instead. Percentages rather than ems so the budget holds at any form width.
+ *
+ * The full set sums to 100%; when the optional columns are absent the browser shares the remainder
+ * out over the columns that are present. Nudge these if a column still wraps awkwardly.
+ */
+const COLUMN_WIDTHS = {
+  medication: '21%',
+  quantity: '15%',
+  repeats: '11%',
+  ongoing: '11%',
+  sendToPharmacy: '12%',
+  lastSent: '11%',
+  stock: '9%',
+  discontinued: '10%',
+};
+
 export const MEDICATION_COLUMNS = ({
   getTranslation,
   getEnumTranslation,
@@ -250,15 +275,14 @@ export const MEDICATION_COLUMNS = ({
         getEnumTranslation={getEnumTranslation}
       />
     ),
-    style: { inlineSize: '18em' },
+    style: { inlineSize: COLUMN_WIDTHS.medication },
   },
   {
     key: 'quantity',
-    // Nothing can be sent to pharmacy without the feature, so the column is never required there.
     title: (
       <>
         {dispensingQuantityLabel}
-        {isPharmacyOrderEnabled && <RequiredOrnament />}
+        <RequiredOrnament />
       </>
     ),
     accessor: ({ id, medication, dispensingUnit }) => (
@@ -271,7 +295,7 @@ export const MEDICATION_COLUMNS = ({
         }
       />
     ),
-    style: { inlineSize: '10em', minInlineSize: '10em' },
+    style: { inlineSize: COLUMN_WIDTHS.quantity },
   },
   {
     key: 'repeats',
@@ -291,13 +315,13 @@ export const MEDICATION_COLUMNS = ({
         onInput={preventInvalidRepeatsInput}
       />
     ),
-    style: { inlineSize: '8em', minInlineSize: '8em' },
+    style: { inlineSize: COLUMN_WIDTHS.repeats },
   },
   {
     key: 'Ongoing',
     title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
     accessor: OngoingAccessor,
-    style: { minWidth: 0 },
+    style: { inlineSize: COLUMN_WIDTHS.ongoing },
   },
   ...(isPharmacyOrderEnabled
     ? [
@@ -316,7 +340,7 @@ export const MEDICATION_COLUMNS = ({
               data-testid="field-sendtopharmacy"
             />
           ),
-          style: { minWidth: 0 },
+          style: { inlineSize: COLUMN_WIDTHS.sendToPharmacy },
         },
         {
           key: 'lastSent',
@@ -324,7 +348,7 @@ export const MEDICATION_COLUMNS = ({
             <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />
           ),
           accessor: LastSentAccessor,
-          style: { minWidth: 0 },
+          style: { inlineSize: COLUMN_WIDTHS.lastSent },
         },
       ]
     : []),
@@ -341,7 +365,7 @@ export const MEDICATION_COLUMNS = ({
           accessor: medication => (
             <DarkestText>{getStockStatus({ prescription: medication }, false)}</DarkestText>
           ),
-          style: { minWidth: 0 },
+          style: { inlineSize: COLUMN_WIDTHS.stock },
         },
       ]
     : []),
@@ -363,7 +387,7 @@ export const MEDICATION_COLUMNS = ({
                 handleDiscontinueMedication={handleDiscontinueMedication}
               />
             ),
-          style: { minWidth: 0 },
+          style: { inlineSize: COLUMN_WIDTHS.discontinued },
         },
       ]
     : []),

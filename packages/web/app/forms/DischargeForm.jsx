@@ -99,9 +99,22 @@ const TableContainer = styled(Box)`
 
   .MuiTableBody-root .MuiTableCell-body {
     border: none;
+    /* Rows have no divider of their own, so the space above does the separating. */
+    padding-block-start: 10px;
     &:not(:has(:nth-child(1))) {
       padding-block: 15px 0;
     }
+  }
+
+  /* Cells are vertically centred, so a validation message left in flow would move the whole row.
+   * It sits out of flow instead, in room the row reserves beneath every cell. */
+  .MuiTableBody-root .MuiFormHelperText-root {
+    position: absolute;
+    inset-block-start: 100%;
+  }
+
+  .MuiTableBody-root .MuiTableRow-root:has(.MuiFormHelperText-root) .MuiTableCell-body {
+    padding-block-end: 24px;
   }
 `;
 
