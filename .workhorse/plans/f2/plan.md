@@ -40,15 +40,19 @@ build delivers the channel itself.
 
 ## Design areas to nail down
 
-1. **Protocol surface** — the concrete operations: fetch by hash (streamed,
-   resumable), offer/push by hash, an availability probe, and the acknowledgement
-   that lets an origin demote a blob from outbox to cache. Idempotency of each.
-2. **Resumability** — how an interrupted transfer resumes (byte offset / ranged
-   continuation), and how receipt verification (hash the full received stream)
-   interacts with resuming a partial transfer.
-3. **Content-pending response shape** — how a serving server reports "reference
-   held, bytes absent", distinguishing upload-pending (origin hasn't delivered)
-   from fetch-pending (this server hasn't fetched), in one response.
+1. **Protocol surface** — decided (2026-08-05): three hash-keyed operations —
+   probe (availability without bytes), fetch (streamed, ranged, resumable from
+   offset, verified whole on completion), and offer/push (resumable upload,
+   verified on receipt). Acknowledgement is the push completion signal: central
+   acknowledges only once bytes are verified and durably stored, releasing the
+   origin's outbox copy. All folded into the transfer spec.
+2. **Resumability** — decided (2026-08-05): both directions resume from bytes
+   already delivered; verification always covers the complete blob including
+   pre-interruption parts. In the spec.
+3. **Content-pending response shape** — the two-state distinction
+   (upload-pending vs fetch-pending) was already in the transfer spec; the probe
+   now reports the same states. The concrete response encoding is
+   implementation-level detail to settle during build.
 4. **Direction and reachability** — decided (2026-08-05): the operations are
    symmetric (offer, fetch, acknowledge, probe by hash) but transport
    connections are always established facility→central, matching sync's
@@ -60,9 +64,9 @@ build delivers the channel itself.
 
 ## Open questions
 
-- Does the transfer channel live on the existing sync-authenticated
-  facility–central connection, or as its own authenticated surface? (H2 owns the
-  scoping rules, but F2 must pick the surface. Riding `CentralServerConnection`
-  is the natural fit now that it carries the multiplexing client.)
+- Transfer surface: working decision is to ride the existing authenticated
+  facility-central client (`CentralServerConnection`), which now carries the
+  multiplexing fetch implementation. H2 owns the scoping rules that apply on
+  that surface. Revisit only if H2 finds the shared surface unworkable.
 - What does "a facility may also serve a blob it currently holds" require of F2
   now — anything beyond the local-then-central read path that already exists?
