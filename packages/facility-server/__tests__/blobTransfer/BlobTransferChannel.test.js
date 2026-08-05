@@ -61,6 +61,12 @@ class FakeCentralConnection {
   cutPushChunksAfter = null;
 
   fetchCalls = 0;
+  // Transient one-shot failures the push loop must survive: each throws a
+  // remote error and decrements. failReoffersRemaining fails only re-offers
+  // (offer calls after the first), leaving the initial offer intact.
+  failPutsRemaining = 0;
+  failReoffersRemaining = 0;
+  #offerCalls = 0;
 
   constructor(store) {
     this.store = store;
@@ -92,6 +98,11 @@ class FakeCentralConnection {
   }
 
   async #offer(hash) {
+    this.#offerCalls += 1;
+    if (this.#offerCalls > 1 && this.failReoffersRemaining > 0) {
+      this.failReoffersRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 're-offer failed');
+    }
     if (await this.store.stat(hash)) {
       return { status: BLOB_OFFER_STATUSES.ALREADY_STORED };
     }
@@ -102,6 +113,10 @@ class FakeCentralConnection {
   }
 
   async #putContent(hash, { query: { offset, totalSize }, body }) {
+    if (this.failPutsRemaining > 0) {
+      this.failPutsRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'push chunk failed');
+    }
     if (await this.store.stat(hash)) {
       return { acknowledged: true, existed: true };
     }
@@ -270,6 +285,20 @@ describe('BlobTransferChannel', () => {
       const result = await channel.pushToCentral(hash);
       expect(result).toMatchObject({ acknowledged: true });
       expect(await centralStore.has(hash)).toBe(true);
+    });
+
+    it('survives a re-offer that itself fails transiently after an interruption', async () => {
+      const content = Buffer.from('pushed despite a flaky re-offer on the way');
+      const { hash } = await localStore.put(Readable.from(content));
+      // the first push chunk fails, and the re-offer that follows fails too:
+      // the re-offer failure must be treated as a stalled attempt, not abort
+      // the push and swallow the original error
+      central.failPutsRemaining = 1;
+      central.failReoffersRemaining = 1;
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toMatchObject({ acknowledged: true });
+      expect((await readAll(await centralStore.get(hash))).equals(content)).toBe(true);
     });
 
     it('surfaces a hash mismatch without retrying', async () => {

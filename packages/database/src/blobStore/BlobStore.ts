@@ -63,6 +63,11 @@ export interface PutResult {
   existed: boolean;
 }
 
+export interface BlobStat {
+  size: number;
+  integrityState: string;
+}
+
 // spec: CAS, CAP
 // The content-addressed blob store primitive: bytes on disk under an
 // algorithm-namespaced two-level fan-out, and a row per blob in the local
@@ -95,9 +100,15 @@ export class BlobStore {
     return await fileExists(filePath);
   }
 
-  async get(hash: string, { start, end }: { start?: number; end?: number } = {}): Promise<Readable> {
+  async get(
+    hash: string,
+    { start, end, stat }: { start?: number; end?: number; stat?: BlobStat | null } = {},
+  ): Promise<Readable> {
     const filePath = this.#pathFor(hash);
-    const registered = await this.#models.Blob.findOne({ where: { hash } });
+    // A caller that has just run stat() for this hash (the serving path, which
+    // needs the size for range handling) passes it back so the primary read
+    // path queries the registry once, not twice.
+    const registered = stat ?? (await this.#models.Blob.findOne({ where: { hash } }));
     if (!registered) {
       // Bytes with no registry row are a crash orphan, not admitted content.
       throw new NotFoundError(`Blob not found: ${hash}`);
@@ -119,7 +130,7 @@ export class BlobStore {
   }
 
   /** The registry's record of a held blob, or null when the blob is not held. */
-  async stat(hash: string): Promise<{ size: number; integrityState: string } | null> {
+  async stat(hash: string): Promise<BlobStat | null> {
     const registered = await this.#models.Blob.findOne({ where: { hash } });
     if (!registered || !(await fileExists(this.#pathFor(hash)))) {
       return null;
@@ -190,20 +201,27 @@ export class BlobStore {
    * stagedSize and resume from there. A failure partway through the source
    * keeps the bytes already appended as the resume point. Refuses rather than
    * take the volume below the free-disk reserve, like put.
+   *
+   * `maxBytes` bounds how many bytes this append may add. A source that would
+   * exceed it is a protocol violation (a peer sending more than it declared):
+   * the append stops before writing the overrun, the staging is discarded, and
+   * it throws — so the store never writes unbounded excess ahead of the check.
    */
   async stage(
     hash: string,
     source: Readable,
-    { offset }: { offset: number },
+    { offset, maxBytes }: { offset: number; maxBytes?: number },
   ): Promise<{ stagedSize: number }> {
     parseBlobHash(hash);
-    return await this.#withStagingLock(hash, () => this.#stageLocked(hash, source, { offset }));
+    return await this.#withStagingLock(hash, () =>
+      this.#stageLocked(hash, source, { offset, maxBytes }),
+    );
   }
 
   async #stageLocked(
     hash: string,
     source: Readable,
-    { offset }: { offset: number },
+    { offset, maxBytes }: { offset: number; maxBytes?: number },
   ): Promise<{ stagedSize: number }> {
     const stagingPath = this.#stagingPathFor(hash);
     await fs.mkdir(path.dirname(stagingPath), { recursive: true });
@@ -219,10 +237,18 @@ export class BlobStore {
 
     let written = 0;
     let bytesSinceFloorCheck = 0;
+    let overran = false;
     const handle = await fs.open(stagingPath, 'a');
     try {
       for await (const chunk of source) {
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        if (maxBytes !== undefined && written + buffer.length > maxBytes) {
+          // Stop before writing the overrun; break so the finally closes the
+          // handle before the staging is removed (Windows cannot unlink an
+          // open file). Breaking also destroys the source stream.
+          overran = true;
+          break;
+        }
         written += buffer.length;
         bytesSinceFloorCheck += buffer.length;
         await handle.write(buffer);
@@ -234,6 +260,13 @@ export class BlobStore {
       await handle.sync();
     } finally {
       await handle.close();
+    }
+
+    if (overran) {
+      await this.#removeStagingFile(hash);
+      throw new InvalidParameterError(
+        `Staged content for ${hash} exceeded the declared ${maxBytes} remaining bytes; staging discarded`,
+      );
     }
 
     return { stagedSize: alreadyStaged + written };

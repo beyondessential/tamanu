@@ -12,7 +12,9 @@ and the facility channel tests
 - [x] Probing a held hash on central reports available with its size (verifies spec: XFER)
 - [x] Facility availability distinguishes available, awaiting-fetch, and awaiting-upload (verifies spec: XFER)
 - [x] Malformed hashes are rejected on every endpoint (verifies spec: XFER)
-- [x] Channel endpoints refuse unauthenticated requests and devices without the sync-client scope (verifies spec: BLAC)
+- [x] Channel endpoints refuse unauthenticated requests (verifies spec: BLAC)
+- [x] Channel endpoints refuse an authenticated caller with no device (missing-device guard) (verifies spec: BLAC)
+- [x] Channel endpoints refuse a registered device lacking the sync-client scope (scope assertion) (verifies spec: BLAC)
 
 ## Push
 
@@ -25,6 +27,8 @@ and the facility channel tests
 - [x] Staging that overruns the declared total is discarded (verifies spec: XFER)
 - [x] A zero-byte blob transfers like any other (verifies spec: CAS)
 - [x] Pushing stops with the free-disk floor intact when the store refuses new content (verifies spec: CAP)
+- [x] A push that declares fewer bytes than it sends is refused before the excess reaches disk, and the staging discarded (verifies spec: XFER, BLAC)
+- [x] A re-offer that itself fails transiently is retried, not aborted, and the original error is preserved when attempts exhaust (verifies spec: XFER)
 
 ## Fetch
 

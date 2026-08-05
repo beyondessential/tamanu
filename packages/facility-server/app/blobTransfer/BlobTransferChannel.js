@@ -66,10 +66,13 @@ export class BlobTransferChannel {
    * server first when they are not held locally.
    */
   async open(hash, { start, end } = {}) {
-    if (!(await this.#blobStore.stat(hash))) {
+    let stat = await this.#blobStore.stat(hash);
+    if (!stat) {
       await this.fetchFromCentral(hash);
+      stat = await this.#blobStore.stat(hash);
     }
-    return await this.#blobStore.get(hash, { start, end });
+    // Pass the stat so get does not re-query the registry for the same hash.
+    return await this.#blobStore.get(hash, { start, end, stat });
   }
 
   // spec: XFER
@@ -194,8 +197,20 @@ export class BlobTransferChannel {
         }
         // Learn where central actually got to and resume from there — covers
         // a connection dropped mid-chunk, where central staged part of the
-        // body we sent.
-        const reoffer = await this.#offer(hash, size);
+        // body we sent. A re-offer that itself fails is just another transient
+        // fault: count it as a stalled attempt and retry from the same offset,
+        // rather than letting it abort the push and swallow the original error.
+        let reoffer;
+        try {
+          reoffer = await this.#offer(hash, size);
+        } catch {
+          stalledAttempts += 1;
+          if (stalledAttempts >= STALLED_ATTEMPTS) {
+            throw error;
+          }
+          await sleepAsync(RETRY_BASE_MS * stalledAttempts);
+          continue;
+        }
         if (reoffer.status === BLOB_OFFER_STATUSES.ALREADY_STORED) {
           return { acknowledged: true, existed: true };
         }

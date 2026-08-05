@@ -16,24 +16,22 @@ describe('Blob transfer channel', () => {
   let baseApp;
   let models;
 
-  const asSyncDevice = async deviceId => {
+  const asDeviceWithScopes = async (deviceId, scopes) => {
     const user = await models.User.create(fake(models.User, { password: 'password' }));
     await models.Device.create(
-      fake(models.Device, {
-        id: deviceId,
-        registeredById: user.id,
-        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-      }),
+      fake(models.Device, { id: deviceId, registeredById: user.id, scopes }),
     );
     const login = await baseApp.post('/api/login').send({
       email: user.email,
       password: 'password',
       deviceId,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      scopes,
     });
     expect(login).toHaveSucceeded();
     return { token: login.body.token };
   };
+
+  const asSyncDevice = deviceId => asDeviceWithScopes(deviceId, [DEVICE_SCOPES.SYNC_CLIENT]);
 
   const authed = (request, token) => request.set('authorization', `Bearer ${token}`);
 
@@ -74,19 +72,23 @@ describe('Blob transfer channel', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('rejects an authenticated user whose device lacks the sync-client scope', async () => {
-      const user = await models.User.create(fake(models.User, { password: 'password' }));
-      const login = await baseApp.post('/api/login').send({
-        email: user.email,
-        password: 'password',
-        deviceId: 'blob-transfer-unscoped-device',
-        scopes: [],
-      });
-      expect(login).toHaveSucceeded();
+    it('rejects an authenticated user with no device', async () => {
+      // A webapp token carries no device, so req.device is absent and the
+      // missing-device guard fires before any scope check.
+      const agent = await baseApp.asRole('practitioner');
+      const response = await agent.get(
+        `/api/blob/${encodeURIComponent(HELLO_HASH)}/availability`,
+      );
+      expect(response).toHaveRequestError();
+    });
 
+    it('rejects an authenticated user whose device lacks the sync-client scope', async () => {
+      // A registered device that holds a different scope: req.device is
+      // present, so the ensureHasScope(SYNC_CLIENT) assertion is what rejects.
+      const { token: unscopedToken } = await asDeviceWithScopes('blob-transfer-unscoped-device', []);
       const response = await authed(
         baseApp.get(`/api/blob/${encodeURIComponent(HELLO_HASH)}/availability`),
-        login.body.token,
+        unscopedToken,
       );
       expect(response.status).toBeGreaterThanOrEqual(400);
     });

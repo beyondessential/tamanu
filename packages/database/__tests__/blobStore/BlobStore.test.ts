@@ -189,6 +189,28 @@ describe('BlobStore', () => {
       const store = makeStore();
       await expect(store.get('not-a-hash')).rejects.toThrow(/algorithm-tagged/);
     });
+
+    it('serves from a provided stat without re-querying the registry', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      // Drop the registry row but keep the file: a provided stat lets get
+      // serve, proving it did not look the row up again.
+      fakeBlob.rows.clear();
+
+      const content = await readAll(
+        await store.get(hash, { stat: { size: 11, integrityState: 'verified' } }),
+      );
+      expect(content.toString()).toBe('hello world');
+    });
+
+    it('refuses a provided stat marked quarantined', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      await expect(
+        store.get(hash, { stat: { size: 11, integrityState: 'quarantined' } }),
+      ).rejects.toThrow(NotFoundError);
+    });
   });
 
   describe('has', () => {
@@ -447,6 +469,31 @@ describe('BlobStore', () => {
       await expect(
         store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 }),
       ).rejects.toThrow(InsufficientStorageError);
+    });
+
+    it('accepts an append up to exactly maxBytes', async () => {
+      const store = makeStore();
+      const { stagedSize } = await store.stage(
+        HELLO_HASH,
+        Readable.from(Buffer.from('hello ')),
+        { offset: 0, maxBytes: 6 },
+      );
+      expect(stagedSize).toBe(6);
+    });
+
+    it('discards and refuses an append that exceeds maxBytes, including prior bytes', async () => {
+      const store = makeStore();
+      async function* twoChunks() {
+        yield Buffer.from('he');
+        yield Buffer.from('llo');
+      }
+
+      // maxBytes 3: 'he' fits (2), 'llo' would reach 5, so the append stops
+      // before writing the overrun and the whole staging is discarded.
+      await expect(
+        store.stage(HELLO_HASH, Readable.from(twoChunks()), { offset: 0, maxBytes: 3 }),
+      ).rejects.toThrow(InvalidParameterError);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
     });
 
     it('rejects a malformed hash', async () => {

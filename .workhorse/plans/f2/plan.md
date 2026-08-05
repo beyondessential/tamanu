@@ -104,6 +104,17 @@ commit, satisfying the resume-then-verify criterion.
       file handles; fetch resume probes availability when staging exists and
       commits directly once staged bytes cover the size, fixing the wedge when
       a crash lands between the final append and commit
+- [x] Review round 2 (2026-08-05): removed the redundant registry lookup on the
+      serving path (get accepts the stat the caller already fetched); bounded
+      the central push ingest with a maxBytes cap so an origin sending more than
+      it declared is refused before the excess reaches disk; wrapped the
+      push re-offer in its own try/catch so a transient re-offer failure counts
+      as a stalled attempt instead of aborting the push and swallowing the
+      original error; made the auth tests cover both middleware branches (the
+      missing-device guard and the scope assertion) explicitly. The reviewer's
+      premise on the scope test was mistaken — logging in with a deviceId
+      already registers the device, so ensureHasScope was in fact exercised —
+      but the split makes both branches unambiguous.
 - [ ] Lint and test runs — not runnable in this environment, verified by CI
 
 Out of scope, owned by siblings: background pusher and eviction (G2), data

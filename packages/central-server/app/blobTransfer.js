@@ -103,13 +103,13 @@ export const buildBlobTransferRoutes = ctx => {
         return;
       }
 
-      const { stagedSize } = await blobStore.stage(hash, req, { offset });
-      if (stagedSize > totalSize) {
-        await blobStore.discardStaged(hash);
-        throw new InvalidParameterError(
-          `Staged content for ${hash} reached ${stagedSize} bytes, over the declared total of ${totalSize}; staging discarded`,
-        );
-      }
+      // maxBytes caps the write at the declared remaining total, so an origin
+      // sending more than it declared is refused before the excess reaches
+      // disk rather than after the whole body has been staged.
+      const { stagedSize } = await blobStore.stage(hash, req, {
+        offset,
+        maxBytes: totalSize - offset,
+      });
       if (stagedSize < totalSize) {
         res.send({ acknowledged: false, receivedBytes: stagedSize });
         return;
@@ -149,7 +149,9 @@ export const buildBlobTransferRoutes = ctx => {
         }
       }
 
-      const stream = await blobStore.get(hash, range ? { start, end } : {});
+      // Pass the stat already fetched so the read path queries the registry
+      // once, not twice, on the primary serving route.
+      const stream = await blobStore.get(hash, range ? { start, end, stat: held } : { stat: held });
       res.status(range ? 206 : 200);
       res.setHeader('content-type', 'application/octet-stream');
       res.setHeader('content-length', range ? end - start + 1 : held.size);
