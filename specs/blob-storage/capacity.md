@@ -21,6 +21,9 @@ blob.
   un-evictable outbox content is consuming the space — the blob store refuses to
   admit new blobs rather than cross into the reserve, so a new upload or push is
   rejected before the database can be starved.
+- [ ] A refused admission fails the submitting operation immediately with an error
+  identifying storage capacity as the cause, so an upload fails visibly at the time
+  it is attempted and its consumer can present the failure to the user.
 - [ ] The floor applies wherever the blob store runs, including the central server,
   whose store grows without deletion and must not starve the central database.
 
