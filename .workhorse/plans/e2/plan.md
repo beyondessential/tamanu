@@ -78,9 +78,10 @@ Follow-ups for sibling cards:
   area) should own a startup/scheduled sweep of stale temp files.
 - Server context wiring (constructing `BlobStore` from the `blobStorage.root` and
   `blobStorage.freeDiskReserveGB` settings) lands with the first consumer (F2), as does the
-  eviction hook implementation (G2). Root is read once at startup: a fresh server may boot
-  before its settings row arrives (facility first-sync, upgrade migrations), so F2's wiring
-  must tolerate blobs landing under the default path or read the setting before first write.
+  eviction hook implementation (G2). Read `blobStorage.root` at store construction or per
+  use, not cached at process boot: on a fresh facility the settings row lands during initial
+  sync, before anything can write a blob (no logins until sync, and bytes fetch on demand
+  after references sync), so a lazy read is all that's needed.
 
 Implementation notes:
 
