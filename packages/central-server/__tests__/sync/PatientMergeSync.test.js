@@ -284,12 +284,12 @@ describe('Sync Patient Merge', () => {
 
     await setupMergeData();
 
-    await models.Note.create({
+    const note = await models.Note.create({
       ...fake(models.Note),
       recordId: mergeEnc.id,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     });
-    await models.Note.create({
+    const note2 = await models.Note.create({
       ...fake(models.Note),
       recordId: mergeEnc2.id,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -321,7 +321,10 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter((c) => c.recordType === 'notes');
+    // Scoped to this test's own notes: the sync tick and lookup table are server-wide, so a
+    // suite running in parallel against the same database can put its rows in the snapshot.
+    const noteIds = [note.id, note2.id];
+    const notes = changes.filter((c) => c.recordType === 'notes' && noteIds.includes(c.recordId));
 
     expect(notes).toHaveLength(0);
   });
