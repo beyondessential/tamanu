@@ -153,6 +153,19 @@ describe('BlobStore', () => {
       await expect(store.put(Readable.from(failingSource()))).rejects.toThrow('upload aborted');
       expect(await fs.readdir(path.join(root, 'tmp'))).toHaveLength(0);
     });
+
+    it('adopts an orphan file left by a crash between placement and registration', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      // simulate a crash after the rename but before the registry insert
+      fakeBlob.rows.clear();
+
+      const again = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(again.existed).toBe(true);
+      expect(fakeBlob.rows.get(hash)).toMatchObject({ hash, size: 11 });
+      expect(await store.has(hash)).toBe(true);
+    });
   });
 
   describe('get', () => {
@@ -225,6 +238,20 @@ describe('BlobStore', () => {
       await fs.rm(path.join(root, 'sha256'), { recursive: true, force: true });
       expect(await store.has(hash)).toBe(false);
     });
+
+    it('reports a quarantined blob as present', async () => {
+      // presence, not servability: get refuses the same blob
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+
+      expect(await store.has(hash)).toBe(true);
+    });
+
+    it('rejects a malformed hash', async () => {
+      const store = makeStore();
+      await expect(store.has('not-a-hash')).rejects.toThrow(/algorithm-tagged/);
+    });
   });
 
   describe('delete', () => {
@@ -243,6 +270,11 @@ describe('BlobStore', () => {
       const store = makeStore();
       await expect(store.delete(HELLO_HASH)).resolves.toBeUndefined();
     });
+
+    it('rejects a malformed hash', async () => {
+      const store = makeStore();
+      await expect(store.delete('not-a-hash')).rejects.toThrow(/algorithm-tagged/);
+    });
   });
 
   describe('free-disk floor', () => {
@@ -250,9 +282,9 @@ describe('BlobStore', () => {
       volumeFreeBytes = 100;
       const store = makeStore({ reserveBytes: 1000 });
 
-      await expect(store.put(Readable.from(Buffer.from('hello world')))).rejects.toThrow(
-        InsufficientStorageError,
-      );
+      const source = Readable.from(Buffer.from('hello world'));
+      await expect(store.put(source)).rejects.toThrow(InsufficientStorageError);
+      expect(source.destroyed).toBe(true);
       expect(fakeBlob.rows.size).toBe(0);
       expect(await fs.readdir(path.join(root, 'tmp'))).toHaveLength(0);
     });

@@ -15,6 +15,10 @@ export const BLOB_INTEGRITY_STATES = {
   QUARANTINED: 'quarantined',
 } as const;
 
+export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLOB_INTEGRITY_STATES];
+
+export const BLOB_INTEGRITY_STATES_VALUES = Object.values(BLOB_INTEGRITY_STATES);
+
 // spec: XFER
 // The availability of a referenced blob's bytes on a serving server. A
 // content-pending reference is awaiting either upload from its origin or fetch
@@ -39,7 +43,3 @@ export const BLOB_OFFER_STATUSES = {
 } as const;
 
 export type BlobOfferStatus = (typeof BLOB_OFFER_STATUSES)[keyof typeof BLOB_OFFER_STATUSES];
-
-export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLOB_INTEGRITY_STATES];
-
-export const BLOB_INTEGRITY_STATES_VALUES = Object.values(BLOB_INTEGRITY_STATES);

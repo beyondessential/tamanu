@@ -91,6 +91,11 @@ export class BlobStore {
     this.#statfs = statfs ?? (r => fs.statfs(r));
   }
 
+  /**
+   * Presence, not servability: a quarantined blob is present (has → true) but
+   * is never served (get refuses). A malformed hash throws rather than
+   * reporting absent, on every operation alike.
+   */
   async has(hash: string): Promise<boolean> {
     const filePath = this.#pathFor(hash);
     const registered = await this.#models.Blob.findOne({ where: { hash } });
@@ -143,9 +148,23 @@ export class BlobStore {
    * within the store, then atomically rename into the fan-out path and record
    * it in the registry. Idempotent — identical content resolves to the one
    * stored blob. Refuses (InsufficientStorageError) rather than take the
-   * volume's free space below the configured reserve.
+   * volume's free space below the configured reserve. On any failure the
+   * source stream is destroyed; it cannot be reused.
+   *
+   * Cannot replace bytes already stored under the hash: an existing blob wins
+   * (`existed: true`), including a quarantined one, whose corrupt bytes and
+   * state are kept. Repair is delete-then-put.
    */
-  async put(source: Readable, { sizeHint }: { sizeHint?: number } = {}): Promise<PutResult> {
+  async put(source: Readable, options: { sizeHint?: number } = {}): Promise<PutResult> {
+    try {
+      return await this.#admit(source, options);
+    } catch (error) {
+      source.destroy();
+      throw error;
+    }
+  }
+
+  async #admit(source: Readable, { sizeHint }: { sizeHint?: number }): Promise<PutResult> {
     const tempDir = path.join(this.root, TEMP_DIR);
     await fs.mkdir(tempDir, { recursive: true });
     await this.#ensureFloor(sizeHint ?? 0);
@@ -251,7 +270,7 @@ export class BlobStore {
         }
         written += buffer.length;
         bytesSinceFloorCheck += buffer.length;
-        await handle.write(buffer);
+        await writeAll(handle, buffer);
         if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
           bytesSinceFloorCheck = 0;
           await this.#ensureFloor(0);
@@ -343,7 +362,17 @@ export class BlobStore {
     // Hard delete: a soft-deleted row would shadow re-admission of the same
     // hash. Registry first, so a crash leaves an adoptable orphan file.
     await this.#models.Blob.destroy({ where: { hash }, force: true });
-    await fs.rm(filePath, { force: true });
+    try {
+      await fs.rm(filePath, { force: true });
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code ?? '';
+      // Windows refuses to unlink a file a reader still has open. The row is
+      // already gone, so the file is an adoptable orphan — the same outcome
+      // as a crash between the two steps — rather than a failed delete.
+      if (!['EPERM', 'EACCES', 'EBUSY'].includes(code)) {
+        throw error;
+      }
+    }
   }
 
   #pathFor(hash: string): string {
@@ -395,7 +424,7 @@ export class BlobStore {
         hasher.update(buffer);
         size += buffer.length;
         bytesSinceFloorCheck += buffer.length;
-        await handle.write(buffer);
+        await writeAll(handle, buffer);
         if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
           bytesSinceFloorCheck = 0;
           await this.#ensureFloor(0);
@@ -453,12 +482,17 @@ export class BlobStore {
 
   async #register(hash: string, size: number): Promise<void> {
     // Race-safe against concurrent puts of the same content; the loser's
-    // insert is a no-op against the winner's identical row.
+    // insert is a no-op against the winner's identical row. A soft-deleted
+    // row still occupies the unique index and would otherwise shadow
+    // re-admission forever (invisible to has/get, conflicting here), so
+    // resurrect it; rows that are alive are left untouched.
     await this.#models.Blob.sequelize.query(
       `
         INSERT INTO blobs (id, hash, size, integrity_state)
         VALUES ($id, $hash, $size, $integrityState)
-        ON CONFLICT (hash) DO NOTHING
+        ON CONFLICT (hash) DO UPDATE
+          SET deleted_at = NULL, updated_at = now()
+          WHERE blobs.deleted_at IS NOT NULL
       `,
       {
         bind: {
@@ -499,6 +533,20 @@ export class BlobStore {
   async #volumeFreeBytes(): Promise<number> {
     const stats = await this.#statfs(this.root);
     return Number(stats.bavail) * Number(stats.bsize);
+  }
+}
+
+// A single write may persist fewer bytes than given (e.g. the kernel keeps what
+// fits as the volume fills and returns a short count), so loop until the whole
+// buffer is down: a short write must never truncate content that a hash or a
+// staged byte count has already accounted for.
+async function writeAll(handle: fs.FileHandle, buffer: Buffer): Promise<void> {
+  for (let offset = 0; offset < buffer.length; ) {
+    const { bytesWritten } = await handle.write(buffer, offset);
+    if (bytesWritten <= 0) {
+      throw new Error(`Blob write stalled at ${offset}/${buffer.length} bytes`);
+    }
+    offset += bytesWritten;
   }
 }
 

@@ -7,7 +7,11 @@ id: FEC
 On storage that provides no redundancy of its own, a blob can carry parity data so
 that limited corruption is repaired in place, without needing another copy. Error
 correction is off by default and enabled per deployment, chiefly for bare-metal and
-NTFS servers where the filesystem cannot repair bit rot.
+NTFS servers where the filesystem cannot repair bit rot. It targets copies that are
+effectively isolated — with no reachable peer holding the same content and no fresh
+backup — such as a remote facility's outbox on poor connectivity. Servers with
+reachable peers or backups rely on those instead; central in particular can draw on
+the facilities that cache its content as an opportunistic replica pool.
 
 ## Parity
 

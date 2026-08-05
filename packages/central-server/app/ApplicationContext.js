@@ -93,7 +93,7 @@ export class ApplicationContext {
     // No evictCache hook: central is the authoritative store, nothing is
     // evictable, so the free-disk floor refuses new blobs directly.
     this.blobStore = new BlobStore({
-      root: config.blobStorage.root,
+      root: await this.settings.get('blobStorage.root'),
       models: this.store.models,
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
