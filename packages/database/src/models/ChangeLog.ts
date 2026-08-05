@@ -13,7 +13,6 @@ export class ChangeLog extends Model {
   declare loggedAt: Date;
   declare updatedByUserId: string;
   declare recordId: string;
-  declare recordUpdate: boolean;
   declare recordCreatedAt: Date;
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;

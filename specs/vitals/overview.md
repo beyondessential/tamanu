@@ -17,6 +17,6 @@ Vitals and clinical observation charting. Clinicians record observations against
 
 - [ ] Each recorded value offers its history: every edit with the date, the user who made it, the reason given, and the value before and after.
 - [ ] History is reconstructed from the answer's changelog entries. Consecutive entries supply each edit's before and after values, and the answer's insert entry supplies the original recording.
-  - [ ] A vital recorded on mobile has its insert entry written by the central server as the record syncs, so its original recording carries the time of that sync and the user who was signed in for it. A vital recorded on web carries the observation time and the recording clinician.
+  - [ ] The original recording carries the observation time and the recording clinician, read from the response. An insert entry authored while applying a sync carries no audit user and the time of that sync, so it is not the source for that line.
 - [ ] History that predates the changelog appears in the same view carrying its original editor, time, reason, and values.
   - [ ] Entries imported from earlier history storage carry the original change's provenance, and read as operational entries, so history views that exclude migration entries still show them.
