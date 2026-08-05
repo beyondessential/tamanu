@@ -46,5 +46,9 @@ be found.
   on central, or an outbox blob that is the only copy — is quarantined, escalated for
   attention, and repaired from the cheapest available source in order: local error
   correction where present, a peer holding the hash, then a backup.
+- [ ] For the central server a peer source is a facility that holds the blob within
+  its data scope. Central cannot reach a facility on demand, so it heals from a peer
+  opportunistically as facilities connect, and maintains no index of what facilities
+  hold; a backup remains its dependable source.
 - [ ] A quarantined blob is retained rather than deleted, so it remains available for
   investigation and is never served.
