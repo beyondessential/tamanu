@@ -89,11 +89,12 @@ Work through these in order:
    everything: anything an operator might tune, anything per-facility, anything the admin
    panel should show.
 2. **A secret?** It is a `secret: true` setting, encrypted at rest and masked in the UI.
-3. **Needed synchronously at boot, before the database is up?** Only then is it config, and
-   only if it is genuinely one of the bootstrap concerns already there: database connection,
-   `serverFacilityId`, crypto key paths, ports. A deploy-supplied value also needs a mapping
-   in `custom-environment-variables.json5`; the env var is how a deployment sets the key, not
-   a way around adding one.
+3. **Needed synchronously at boot, before the database is up?** It is bootstrap. Prefer reading
+   it straight from `process.env`, the way `resolveDbConfig` reads `DATABASE_URL`: that needs no
+   config key and no mapping. Add a config key only when the value genuinely needs a committed
+   default or must be settable from a config file, and then map it in
+   `custom-environment-variables.json5` so deployments can set it. The keys already there are
+   database connection, `serverFacilityId`, crypto key paths and ports.
 4. **Anything else:** stop. Do not add the key. Name the value, say why you think it cannot be
    a setting, and let a reviewer decide.
 
