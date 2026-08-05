@@ -49,7 +49,8 @@ session and never holds up the records around it.
   blob is pushed, so the central server already expects the blob when it arrives
   (see `access-control.md`).
 - [ ] A server that originates a blob delivers its bytes to the central server over
-  the transfer channel.
+  the transfer channel. Delivery is initiated by the origin's background pusher;
+  its schedule, ordering, and eligibility rules live in `facility-cache.md`.
 - [ ] The central server acknowledges a pushed blob only once its bytes have been
   verified against the hash and durably stored, so an acknowledgement is a safe
   signal to release the origin's durable copy.
