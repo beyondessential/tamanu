@@ -10,6 +10,7 @@ import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 const Div = styled.div`
   display: grid;
   inset: 0;
+  padding: 5px;
   place-items: center;
   pointer-events: none;
   position: absolute;
