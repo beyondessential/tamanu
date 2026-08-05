@@ -12,8 +12,8 @@ retrieved blob can be verified by re-hashing it.
 
 ## Blob identity
 
-- [ ] Content is hashed with BLAKE3.
-- [ ] A hash is stored as an algorithm-tagged lowercase value: `blake3:` followed
+- [ ] Content is hashed with SHA-256.
+- [ ] A hash is stored as an algorithm-tagged lowercase value: `sha256:` followed
   by the lowercase-hex digest.
 - [ ] Equal hash means equal content: a hash uniquely denotes its bytes, and a
   collision is treated as impossible.
@@ -26,11 +26,25 @@ retrieved blob can be verified by re-hashing it.
 
 - [ ] A blob's on-disk path is derived from its hash: the algorithm name, then a
   two-level fan-out of the first two bytes of the digest, then the remainder as the
-  filename (e.g. `blake3/ab/cd/<rest>`).
+  filename (e.g. `sha256/ab/cd/<rest>`).
 - [ ] Path components use lowercase hex so the layout is stable on case-insensitive
   filesystems.
 - [ ] The fan-out keeps the number of entries per directory manageable on all
   supported filesystems.
+
+## Store interface
+
+- [ ] The store exposes four operations keyed by hash: presence check, streamed
+  retrieval, admission, and removal.
+- [ ] Admission hashes content as it streams in, so a blob's recorded hash is
+  always computed from the bytes actually stored.
+- [ ] Admission is idempotent: content whose hash is already stored is not stored
+  again, and the existing blob is shared.
+- [ ] Admission records the blob in the local registry with its size and integrity
+  state.
+- [ ] Content is written to a temporary file within the store, flushed, and moved
+  into its fan-out path by an atomic rename, so a reader never observes a partial
+  blob. This holds on Windows/NTFS as well as POSIX filesystems.
 
 ## Blobs and references
 
