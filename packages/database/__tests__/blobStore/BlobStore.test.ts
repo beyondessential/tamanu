@@ -356,16 +356,16 @@ describe('BlobStore', () => {
     it('keeps bytes already appended when the source fails partway', async () => {
       const store = makeStore();
       async function* failingSource() {
-        yield Buffer.from('hel');
+        yield Buffer.from('he');
         throw new Error('connection lost');
       }
 
       await expect(
         store.stage(HELLO_HASH, Readable.from(failingSource()), { offset: 0 }),
       ).rejects.toThrow('connection lost');
-      expect(await store.stagedSize(HELLO_HASH)).toBe(3);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(2);
 
-      await store.stage(HELLO_HASH, Readable.from(Buffer.from('lo world')), { offset: 3 });
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('llo world')), { offset: 2 });
       expect(await store.commitStaged(HELLO_HASH)).toMatchObject({
         hash: HELLO_HASH,
         existed: false,
