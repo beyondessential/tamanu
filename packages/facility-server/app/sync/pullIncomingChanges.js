@@ -106,12 +106,13 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
   // Inserts run in the background so the stream isn't stalled waiting on the database, but only one
   // runs at a time. With no ceiling, a stream that outruns the database starts an insert per batch
-  // and nothing stops it: the connection pool is finite and shared with the rest of the facility
-  // server, and every batch still waiting on it is held in memory — which is the problem streaming
-  // exists to solve, arrived at from the other side. Waiting for the previous insert before starting
-  // the next keeps the overlap that backgrounding is for (one batch inserting while the next
-  // streams), caps what we hold at two batches, and turns a failed insert into a failed pull at the
-  // next batch instead of at the final await, hours of streaming later.
+  // and nothing stops it: the pool is finite whichever process we're in (sync gets its own under the
+  // tasks runner, and shares the API's only in the all-in-one dev server), the database behind it is
+  // shared with everything else either way, and every batch still waiting is held in memory — which
+  // is the problem streaming exists to solve, arrived at from the other side. Waiting for the
+  // previous insert before starting the next keeps the overlap that backgrounding is for (one batch
+  // inserting while the next streams), caps what we hold at two batches, and turns a failed insert
+  // into a failed pull at the next batch instead of at the final await, hours of streaming later.
   const flushRecords = async () => {
     if (records.length === 0) return;
     const batch = records;
