@@ -109,7 +109,7 @@ const MarStatusTooltipContent = ({
             </p>
           )}
           <p>
-            <TranslatedText stringId="medication.mar.notGiven" fallback="Not given." />
+            <TranslatedText stringId="medication.mar.notGiven" fallback="Not given" />
           </p>
           <p>{reasonNotGiven?.name}</p>
         </>
