@@ -169,6 +169,14 @@ describe('BlobStore', () => {
       await expect(store.get(hash)).rejects.toThrow(NotFoundError);
     });
 
+    it('never serves bytes with no registry row', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      fakeBlob.rows.clear();
+
+      await expect(store.get(hash)).rejects.toThrow(NotFoundError);
+    });
+
     it('rejects a malformed hash', async () => {
       const store = makeStore();
       await expect(store.get('not-a-hash')).rejects.toThrow(/algorithm-tagged/);

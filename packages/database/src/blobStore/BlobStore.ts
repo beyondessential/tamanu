@@ -75,22 +75,28 @@ export class BlobStore {
   }
 
   async has(hash: string): Promise<boolean> {
+    const filePath = this.#pathFor(hash);
     const registered = await this.#models.Blob.findOne({ where: { hash } });
     if (!registered) {
       return false;
     }
-    return await fileExists(this.#pathFor(hash));
+    return await fileExists(filePath);
   }
 
   async get(hash: string): Promise<Readable> {
+    const filePath = this.#pathFor(hash);
     const registered = await this.#models.Blob.findOne({ where: { hash } });
-    if (registered?.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+    if (!registered) {
+      // Bytes with no registry row are a crash orphan, not admitted content.
+      throw new NotFoundError(`Blob not found: ${hash}`);
+    }
+    if (registered.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
       // Quarantined content is retained for investigation but never served.
       throw new NotFoundError(`Blob is quarantined: ${hash}`);
     }
     let handle;
     try {
-      handle = await fs.open(this.#pathFor(hash), 'r');
+      handle = await fs.open(filePath, 'r');
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         throw new NotFoundError(`Blob not found: ${hash}`);
