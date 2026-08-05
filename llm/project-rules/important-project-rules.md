@@ -17,6 +17,12 @@ This file contains essential Tamanu-specific information for LLM agents.
 
 We use **managed transactions** with `sequelize.transaction(async () => { ... })` and **Sequelize.useCLS()**, so the transaction object is not passed to inner calls. See `llm/project-rules/sequelize-transactions.md` for details.
 
+## Config Change Detection
+
+**Load `llm/project-rules/settings.md` before editing any `config/*.json5`**, or when adding a
+value a deployment or operator would set. `config/*.json5` is closed to new keys; that rule has
+the decision procedure.
+
 ## Copy Change Detection
 
 **Load `llm/project-rules/update-copy.md` when the user mentions:**

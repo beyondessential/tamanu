@@ -78,11 +78,24 @@ only has `models` and can't reasonably be threaded a reader.
 `get()` is async and reads from the DB, so settings can only be read from async
 code that runs after startup — not from bootstrap/module-load code.
 
-## Settings, not config files
+## Settings and env, not config files
 
-New configurable values belong in the settings schema, **not** in the
-`config/*.json5` files. Config is reserved for deployment/bootstrap concerns
-that must be read synchronously before settings are available — DB connection,
-`serverFacilityId`, crypto key paths, ports. Anything an operator might tune at
-runtime should be a setting: it's DB-backed, admin-editable, and per-facility
-where needed, none of which a config file can do.
+**`config/*.json5` is closed to new keys.** New configurable values go in the settings
+schema. Adding a config key is a call a human makes, not one an agent makes on judgement.
+
+Work through these in order:
+
+1. **Readable after startup, from async code?** It is a **setting**. That covers almost
+   everything: anything an operator might tune, anything per-facility, anything the admin
+   panel should show.
+2. **A secret?** It is a `secret: true` setting, encrypted at rest and masked in the UI.
+3. **Needed synchronously at boot, before the database is up?** Only then is it config, and
+   only if it is genuinely one of the bootstrap concerns already there: database connection,
+   `serverFacilityId`, crypto key paths, ports. A deploy-supplied value also needs a mapping
+   in `custom-environment-variables.json5`; the env var is how a deployment sets the key, not
+   a way around adding one.
+4. **Anything else:** stop. Do not add the key. Name the value, say why you think it cannot be
+   a setting, and let a reviewer decide.
+
+Nothing lints this, so it holds only if you apply it, and a config key that should have been a
+setting is expensive to undo once deployments have set it.

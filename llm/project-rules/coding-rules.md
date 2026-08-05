@@ -34,6 +34,12 @@ Readability is the highest priority. Every line of code is read many times over 
 - Schema changes (added/removed/changed tables or columns) require updating the dbt source models in `database/model/` — see `packages/database/CLAUDE.md`
 - Adding a new **importable reference-data type** (a new `reference_data` type, or anything added to `OTHER_REFERENCE_TYPES` that flows into `GENERAL_IMPORTABLE_DATA_TYPES`) makes it **required by the provisioning completeness check** (`validateFullReferenceDataImport` in `provision.js`). You must either add a matching `packages/central-server/app/subCommands/defaultProvisioningData/<Sheet>.json5` (with at least one data row) **or** add it to `EXCLUDED_FROM_FULL_IMPORT_CHECK` if it's optional — otherwise `provision` throws and the deploy's central-provisioner job fails (central-api never starts).
 
+### Config
+
+- Never add a key to `config/*.json5`. New configurable values are settings; see
+  @llm/project-rules/settings.md for the decision procedure and the short list of bootstrap
+  concerns that are still config.
+
 ### Sync
 
 - Never modify `updated_at_sync_tick` manually
