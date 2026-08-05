@@ -30,6 +30,12 @@ referenceDataManageRouter.post(
     const { baseData, satelliteData } = splitSatelliteData(columns, data);
 
     try {
+      // multiSelect is only ever set on ReferenceDataRelation.referenceDataId (see
+      // MULTI_SELECT_FK_COLUMNS), and that type has no satellite — so this branch is never
+      // reached by a satellite-backed type, and passing the unpartitioned `data` cannot leak
+      // satellite keys today. If a satellite-backed type ever becomes multiSelect, this branch
+      // must switch to `baseData` (or handle the satellite) before the base/satellite split is
+      // bypassed.
       if (columns.some(c => c.multiSelect)) {
         const records = await createMultiSelectRecords(model, columns, data, typeFilter);
         return res.send(records);
@@ -37,7 +43,7 @@ referenceDataManageRouter.post(
 
       const record = await model.sequelize.transaction(async () => {
         const created = await model.create({ ...typeFilter, ...baseData });
-        if (satellite) {
+        if (satellite && Object.keys(satelliteData).length > 0) {
           await upsertSatelliteRecord(satellite.model, created.id, satelliteData);
         }
         return created;
@@ -77,7 +83,7 @@ referenceDataManageRouter.put(
 
     await model.sequelize.transaction(async () => {
       await record.update(baseData);
-      if (satellite) {
+      if (satellite && Object.keys(satelliteData).length > 0) {
         await upsertSatelliteRecord(satellite.model, record.id, satelliteData);
       }
     });
