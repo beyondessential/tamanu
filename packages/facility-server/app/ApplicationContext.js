@@ -12,6 +12,7 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
+import { FacilityBlobCache } from './blobCache';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -37,6 +38,9 @@ export class ApplicationContext {
 
   /** @type {BlobStore | null} */
   blobStore = null;
+
+  /** @type {FacilityBlobCache | null} */
+  blobCache = null;
 
   reportSchemaStores = null;
 
@@ -75,8 +79,6 @@ export class ApplicationContext {
     this.settings.global = ReadSettings.forGlobal(this.models);
 
     // spec: CAS, CAP
-    // Cache eviction under the free-disk floor arrives with the facility
-    // cache tier (see specs/blob-storage/facility-cache.md).
     // The root is facility-scoped but server-wide, so the first facility's value
     // applies; a server that has not synced a facility yet falls back to the default.
     this.blobStore = new BlobStore({
@@ -86,7 +88,32 @@ export class ApplicationContext {
       models: this.models,
       getFreeDiskReserveBytes: async () =>
         (await this.settings.global.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+      // spec: CAP — as free disk approaches the reserve, cache is evicted
+      // before any other measure. Late-bound: blobCache is built just below.
+      evictCache: async bytesNeeded => {
+        await this.blobCache?.evictBytes(bytesNeeded);
+      },
     });
+
+    // spec: CACHE
+    // The budget is a facility setting; tasks convention applies on a
+    // multi-facility server (first facility's value). A server booted before
+    // setup has no facility yet and runs on the schema default.
+    const [primaryFacilityId] = facilityIds;
+    this.blobCache = new FacilityBlobCache({
+      blobStore: this.blobStore,
+      models: this.models,
+      getCacheBudgetBytes: async () => {
+        const budgetGB = primaryFacilityId
+          ? await this.settings[primaryFacilityId].get('blobStorage.cacheSizeBudgetGB')
+          : facilityDefaults.blobStorage.cacheSizeBudgetGB;
+        return budgetGB * 1024 ** 3;
+      },
+    });
+
+    // spec: CACHE — consumers (attachments, assets) append their synced-record
+    // resolvers here so their blobs become eligible for push.
+    this.blobReferenceResolvers = [];
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
 

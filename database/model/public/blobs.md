@@ -23,3 +23,23 @@ The blob's integrity state: `verified` when its content matched its hash at the
 last check, `quarantined` when verification failed and the blob is retained for
 investigation but never served.
 {% enddocs %}
+
+{% docs blobs__tier %}
+Durability tier on a facility or mobile server: `outbox` while this server
+holds the only durable copy, awaiting the central server's acknowledgement —
+never evicted; `cache` once the content is durable on the central server —
+evictable under the LRU size budget. Not consulted on the central server.
+{% enddocs %}
+
+{% docs blobs__last_accessed_at %}
+When the blob's content was last read (or admitted, whichever is later), used
+for least-recently-used eviction ordering on facility and mobile servers.
+Recency updates may be coalesced, so this is a lower bound on the true last
+access.
+{% enddocs %}
+
+{% docs blobs__sync_cycles_unpushed %}
+How many successful sync cycles this blob has survived in the outbox while
+eligible for push and not actively transferring. The outbox dysfunction
+measure: a working connection with an undelivered blob. Zero for cache blobs.
+{% enddocs %}

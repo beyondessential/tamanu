@@ -42,3 +42,28 @@ card builds on.
 - **Dysfunction signal**: count sync cycles from eligibility, exclude blobs with
   an actively progressing transfer. Needs per-blob bookkeeping of
   eligible-since and last-progress, which fits the local `blobs` registry.
+- **Consumers arrive with J2/K2**: eligibility ("referencing record has synced")
+  is consumer-specific, so the pusher takes a registry of reference resolvers
+  (`context.blobReferenceResolvers`). Empty until J2/K2 register theirs; G2
+  ships the mechanism plus a generic synced-reference resolver factory.
+- **Health surfacing (G2 slice)**: outbox stats on the facility `/api/sync/status`
+  endpoint plus escalating log warnings. A central-side Canopy healthcheck needs
+  central to learn the numbers (e.g. via sync session metadata) — deferred, noted
+  as unticked test coverage.
+
+## Build checklist
+
+- [x] `BLOB_TIERS` constants (outbox/cache)
+- [x] Server migration: `tier`, `last_accessed_at`, `sync_cycles_unpushed` on `blobs` + LRU index; Blob model columns; dbt model update
+- [x] Mobile parity migration and model columns
+- [x] Facility settings: `blobStorage.cacheSizeBudgetGB`; schedules for pusher and cache evictor tasks
+- [x] `FacilityBlobCache`: outbox admission, read-through open with recency touch and active-read guard, demotion, budget enforcement (MRU guard), floor-driven `evictBytes`
+- [x] `BlobOutboxPusher`: eligibility via resolvers, oldest-first, skip-on-failure, single in-flight, demote on ack, sync-cycle counter
+- [x] Wiring: ApplicationContext (cache + floor hook), setupSyncRuntime (channel + pusher), scheduled tasks, sync-manager hook, sync status route
+- [x] Facility-server tests for cache and pusher; tick test cases
+
+Outbox admission (`putOutbox`) sets the tier at registration inside
+`BlobStore.put` (a `tier` option added to the primitive) rather than as a
+follow-up update, so a new outbox blob is never momentarily visible as
+evictable cache. The tier column defaults to `cache`, which is also correct on
+the central server where it is not consulted.

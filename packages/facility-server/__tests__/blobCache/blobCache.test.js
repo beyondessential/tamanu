@@ -1,0 +1,400 @@
+import { createHash, randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+
+import { BLOB_TIERS } from '@tamanu/constants';
+import { BlobStore } from '@tamanu/database/blobStore';
+
+import { createTestContext } from '../utilities';
+import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
+import { BlobOutboxPusher } from '../../app/blobCache/BlobOutboxPusher';
+import { blobOutboxStatus } from '../../app/blobCache/outboxStatus';
+
+const GB = 1024 ** 3;
+
+const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
+
+const uniqueContent = () => Buffer.from(`blob content ${randomUUID()}`);
+
+async function readAll(stream) {
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
+async function waitFor(predicate, { timeoutMs = 5000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (!predicate()) {
+    if (Date.now() > deadline) throw new Error('waitFor timed out');
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+}
+
+describe('facility blob outbox and LRU cache', () => {
+  let ctx;
+  let models;
+  let root;
+  let blobStore;
+  let blobCache;
+  let cacheBudgetBytes;
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.models;
+  });
+
+  afterAll(() => ctx.close());
+
+  beforeEach(async () => {
+    await models.Blob.destroy({ where: {}, force: true });
+    root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-cache-test-'));
+    cacheBudgetBytes = 10 * GB;
+    blobStore = new BlobStore({
+      root,
+      models,
+      getFreeDiskReserveBytes: async () => 0,
+    });
+    blobCache = new FacilityBlobCache({
+      blobStore,
+      models,
+      getCacheBudgetBytes: async () => cacheBudgetBytes,
+    });
+  });
+
+  afterEach(async () => {
+    await fs.rm(root, { recursive: true, force: true });
+  });
+
+  const putCache = async (content = uniqueContent()) => {
+    const { hash } = await blobStore.put(Readable.from(content));
+    return { hash, content };
+  };
+
+  const putOutbox = async (content = uniqueContent()) => {
+    const { hash } = await blobCache.putOutbox(Readable.from(content));
+    return { hash, content };
+  };
+
+  const tierOf = async hash => (await models.Blob.findOne({ where: { hash } })).tier;
+
+  const setLastAccessed = async (hash, msAgo) =>
+    models.Blob.update(
+      { lastAccessedAt: new Date(Date.now() - msAgo) },
+      { where: { hash }, silent: true },
+    );
+
+  describe('outbox and cache tiers', () => {
+    it('admits locally originated content as outbox', async () => {
+      // verifies spec: CACHE
+      const { hash } = await putOutbox();
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
+    });
+
+    it('keeps content already held as cache in the cache tier on outbox re-admission', async () => {
+      // verifies spec: CACHE — the tier reflects whether central holds the bytes
+      const content = uniqueContent();
+      await putCache(content);
+      const { hash } = await putOutbox(content);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
+    });
+
+    it('keeps an un-acknowledged blob in the outbox on repeat admission', async () => {
+      const content = uniqueContent();
+      const { hash } = await putOutbox(content);
+      const again = await blobCache.putOutbox(Readable.from(content));
+      expect(again.existed).toBe(true);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
+    });
+
+    it('demotes an acknowledged blob to cache and zeroes its dysfunction measure', async () => {
+      // verifies spec: CACHE
+      const { hash } = await putOutbox();
+      await models.Blob.increment('syncCyclesUnpushed', { where: { hash } });
+
+      await blobCache.demote(hash);
+
+      const row = await models.Blob.findOne({ where: { hash } });
+      expect(row.tier).toBe(BLOB_TIERS.CACHE);
+      expect(row.syncCyclesUnpushed).toBe(0);
+    });
+  });
+
+  describe('read-through open', () => {
+    it('serves local bytes and refreshes stale recency', async () => {
+      // verifies spec: CACHE — any read refreshes recency
+      const { hash, content } = await putCache();
+      await setLastAccessed(hash, 10 * 60 * 1000);
+
+      const served = await readAll(await blobCache.open(hash));
+      expect(served.equals(content)).toBe(true);
+
+      const row = await models.Blob.findOne({ where: { hash } });
+      expect(Date.now() - row.lastAccessedAt.getTime()).toBeLessThan(60 * 1000);
+    });
+
+    it('coalesces recency updates within the window', async () => {
+      // verifies spec: CACHE — recency updates may be coalesced
+      const { hash } = await putCache();
+      await setLastAccessed(hash, 30 * 1000);
+      const before = (await models.Blob.findOne({ where: { hash } })).lastAccessedAt;
+
+      await readAll(await blobCache.open(hash));
+
+      const after = (await models.Blob.findOne({ where: { hash } })).lastAccessedAt;
+      expect(after.getTime()).toBe(before.getTime());
+    });
+
+    it('fetches from central on a local miss, then serves', async () => {
+      // verifies spec: CACHE, XFER — evicted or absent content refetches on demand
+      const content = uniqueContent();
+      const hash = hashOf(content);
+      blobCache.setTransferChannel({
+        fetchFromCentral: async wanted => {
+          expect(wanted).toBe(hash);
+          return await blobStore.put(Readable.from(content));
+        },
+      });
+
+      const served = await readAll(await blobCache.open(hash));
+      expect(served.equals(content)).toBe(true);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
+    });
+
+    it('reports not-found on a local miss with no central connection', async () => {
+      await expect(blobCache.open(hashOf('never anywhere'))).rejects.toThrow(/no central/);
+    });
+  });
+
+  describe('eviction', () => {
+    it('evicts least-recently-used cache blobs first once over budget', async () => {
+      // verifies spec: CACHE
+      const oldest = await putCache();
+      const middle = await putCache();
+      const newest = await putCache();
+      await setLastAccessed(oldest.hash, 3 * 60 * 60 * 1000);
+      await setLastAccessed(middle.hash, 2 * 60 * 60 * 1000);
+      await setLastAccessed(newest.hash, 60 * 60 * 1000);
+      // budget forces roughly one blob's worth of eviction
+      cacheBudgetBytes = middle.content.length + newest.content.length;
+
+      await blobCache.enforceBudget();
+
+      expect(await blobStore.has(oldest.hash)).toBe(false);
+      expect(await blobStore.has(middle.hash)).toBe(true);
+      expect(await blobStore.has(newest.hash)).toBe(true);
+    });
+
+    it('never evicts the most recently used blob merely to satisfy the budget', async () => {
+      // verifies spec: CACHE — a blob larger than the budget serves reads while in use
+      const only = await putCache();
+      cacheBudgetBytes = 1; // the lone cache blob exceeds the whole budget
+
+      const result = await blobCache.enforceBudget();
+
+      expect(result.evictedCount).toBe(0);
+      expect(await blobStore.has(only.hash)).toBe(true);
+    });
+
+    it('leaves outbox blobs untouched and outside the budget', async () => {
+      // verifies spec: CACHE — outbox blobs are never evicted and count against neither
+      const outbox = await putOutbox();
+      const cacheA = await putCache();
+      const cacheB = await putCache();
+      await setLastAccessed(outbox.hash, 10 * 60 * 60 * 1000);
+      await setLastAccessed(cacheA.hash, 2 * 60 * 60 * 1000);
+      cacheBudgetBytes = cacheB.content.length;
+
+      await blobCache.enforceBudget();
+
+      expect(await blobStore.has(outbox.hash)).toBe(true);
+      expect(await blobStore.has(cacheA.hash)).toBe(false);
+    });
+
+    it('defers eviction of a blob with a read in progress until the read completes', async () => {
+      // verifies spec: CACHE
+      const oldest = await putCache();
+      const newest = await putCache();
+      cacheBudgetBytes = newest.content.length;
+
+      const inProgress = await blobCache.open(oldest.hash);
+      // the open refreshed recency; re-pin it as the LRU so only the active
+      // read protects it
+      await setLastAccessed(oldest.hash, 2 * 60 * 60 * 1000);
+
+      await blobCache.enforceBudget();
+      expect(await blobStore.has(oldest.hash)).toBe(true);
+
+      await readAll(inProgress); // completes and closes the stream
+      // the close event lands a tick later; wait for the guard to release
+      await waitFor(() => inProgress.closed);
+      await blobCache.enforceBudget();
+      expect(await blobStore.has(oldest.hash)).toBe(false);
+    });
+
+    it('evicts even the most recently used blob under free-disk floor pressure', async () => {
+      // verifies spec: CAP — the floor is the hard bound, the budget is a target
+      const only = await putCache();
+
+      const result = await blobCache.evictBytes(1);
+
+      expect(result.evictedCount).toBe(1);
+      expect(await blobStore.has(only.hash)).toBe(false);
+    });
+
+    it('applies a budget change on the next enforcement pass', async () => {
+      // verifies spec: CACHE — budget is read per pass, no restart needed
+      const blob = await putCache();
+      await setLastAccessed(blob.hash, 2 * 60 * 60 * 1000);
+      await putCache(); // newer MRU blob so the first is a candidate
+      await blobCache.enforceBudget();
+      expect(await blobStore.has(blob.hash)).toBe(true);
+
+      cacheBudgetBytes = 1;
+      await blobCache.enforceBudget();
+      expect(await blobStore.has(blob.hash)).toBe(false);
+    });
+  });
+
+  describe('background pusher', () => {
+    const makePusher = ({ resolvers, pushToCentral }) =>
+      new BlobOutboxPusher({
+        models,
+        transferChannel: { pushToCentral },
+        blobCache,
+        referenceResolvers: resolvers,
+      });
+
+    const eligibleAll = async (_models, hashes) => hashes;
+
+    it('pushes only blobs whose referencing record has synchronised', async () => {
+      // verifies spec: CACHE — eligibility gate
+      const synced = await putOutbox();
+      const unsynced = await putOutbox();
+      const pushed = [];
+      const pusher = makePusher({
+        resolvers: [async (_models, hashes) => hashes.filter(h => h === synced.hash)],
+        pushToCentral: async hash => {
+          pushed.push(hash);
+          return { acknowledged: true };
+        },
+      });
+
+      await pusher.runOnce();
+
+      expect(pushed).toEqual([synced.hash]);
+      expect(await tierOf(synced.hash)).toBe(BLOB_TIERS.CACHE);
+      expect(await tierOf(unsynced.hash)).toBe(BLOB_TIERS.OUTBOX);
+    });
+
+    it('offers eligible blobs oldest-first', async () => {
+      // verifies spec: CACHE
+      const first = await putOutbox();
+      const second = await putOutbox();
+      await models.Blob.update(
+        { createdAt: new Date(Date.now() - 60 * 60 * 1000) },
+        { where: { hash: first.hash }, silent: true },
+      );
+      const pushed = [];
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: async hash => {
+          pushed.push(hash);
+          return { acknowledged: true };
+        },
+      });
+
+      await pusher.runOnce();
+
+      expect(pushed).toEqual([first.hash, second.hash]);
+    });
+
+    it('continues past a failed push and leaves the blob in the outbox', async () => {
+      // verifies spec: CACHE — a refused or failed offer does not block the queue
+      const failing = await putOutbox();
+      const fine = await putOutbox();
+      await models.Blob.update(
+        { createdAt: new Date(Date.now() - 60 * 60 * 1000) },
+        { where: { hash: failing.hash }, silent: true },
+      );
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: async hash => {
+          if (hash === failing.hash) throw new Error('central refused the offer');
+          return { acknowledged: true };
+        },
+      });
+
+      const counts = await pusher.runOnce();
+
+      expect(counts).toMatchObject({ pushed: 1, failed: 1 });
+      expect(await tierOf(failing.hash)).toBe(BLOB_TIERS.OUTBOX);
+      expect(await tierOf(fine.hash)).toBe(BLOB_TIERS.CACHE);
+    });
+
+    it('starts no second transfer for a blob whose push is in flight', async () => {
+      // verifies spec: CACHE — at most one transfer in flight per blob
+      const { hash } = await putOutbox();
+      let resolvePush;
+      let attempts = 0;
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: () => {
+          attempts += 1;
+          return new Promise(resolve => {
+            resolvePush = () => resolve({ acknowledged: true });
+          });
+        },
+      });
+
+      const firstRun = pusher.runOnce();
+      await waitFor(() => attempts === 1); // the first push is in flight
+      const secondRun = pusher.runOnce();
+
+      resolvePush();
+      await Promise.all([firstRun, secondRun]);
+
+      expect(attempts).toBe(1);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
+    });
+  });
+
+  describe('outbox dysfunction measure', () => {
+    it('advances only for eligible blobs not being attempted', async () => {
+      // verifies spec: CAP
+      const eligible = await putOutbox();
+      const unsynced = await putOutbox();
+      const pusher = new BlobOutboxPusher({
+        models,
+        transferChannel: { pushToCentral: async () => ({ acknowledged: true }) },
+        blobCache,
+        referenceResolvers: [async (_models, hashes) => hashes.filter(h => h === eligible.hash)],
+      });
+
+      await pusher.recordSyncCycle();
+      await pusher.recordSyncCycle();
+
+      const cyclesOf = async hash =>
+        (await models.Blob.findOne({ where: { hash } })).syncCyclesUnpushed;
+      expect(await cyclesOf(eligible.hash)).toBe(2);
+      expect(await cyclesOf(unsynced.hash)).toBe(0);
+    });
+
+    it('reports outbox size and worst measure', async () => {
+      // verifies spec: CAP — surfaced as a health signal
+      const one = await putOutbox();
+      await putOutbox();
+      await putCache(); // cache blobs don't count
+      await models.Blob.increment('syncCyclesUnpushed', { by: 4, where: { hash: one.hash } });
+
+      const status = await blobOutboxStatus(models);
+
+      expect(status.count).toBe(2);
+      expect(status.totalBytes).toBeGreaterThan(0);
+      expect(status.maxSyncCyclesUnpushed).toBe(4);
+    });
+  });
+});

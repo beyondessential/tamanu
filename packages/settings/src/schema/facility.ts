@@ -66,6 +66,20 @@ export const facilitySettings = {
         },
       },
     },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage on this facility server',
+      properties: {
+        cacheSizeBudgetGB: {
+          name: 'Cache size budget',
+          description:
+            'Target size for the evictable blob cache; least-recently-used blobs are evicted once the cache exceeds it. A target rather than a hard limit — un-pushed blobs and content in active use are retained regardless, and the free disk reserve is what protects the host',
+          type: yup.number().positive(),
+          defaultValue: 20,
+          unit: 'GB',
+        },
+      },
+    },
     certifications: {
       properties: {
         covidClearanceCertificate: {
@@ -227,6 +241,12 @@ export const facilitySettings = {
           { schedule: '0 * * * *' },
           batchingProperties(100, 50),
         ),
+        // every minute so a blob follows its record to central promptly; a push
+        // still in flight is skipped, not doubled up
+        blobOutboxPusher: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        // periodic backstop for the cache size budget; admission-time
+        // enforcement does the routine work
+        blobCacheEvictor: scheduledTaskSchema({ schedule: '23 * * * *' }),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
         // Enabled even where the FHIR worker is not: a facility that once ran one
         // has rows to prune, and where none ever ran there is nothing to match.
