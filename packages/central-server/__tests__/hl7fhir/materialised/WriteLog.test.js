@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 
 import { showError } from '@tamanu/shared/test-helpers';
 import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
@@ -23,15 +24,17 @@ jest.mock('@tamanu/constants', () => {
   };
 });
 
+// The write log is recorded in a setImmediate after the response, so it lands some
+// time after the request resolves.
 const attemptFlogRetrieval = async (FhirWriteLog, options) => {
-  let flog;
-  for (let i = 0; i < 10; i++) {
-    flog = await FhirWriteLog.findOne(options);
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const flog = await FhirWriteLog.findOne(options);
     if (flog) {
-      break;
+      return flog;
     }
+    await sleepAsync(50);
   }
-  return flog;
+  return null;
 };
 
 describe(`Materialised FHIR - WriteLog`, () => {
