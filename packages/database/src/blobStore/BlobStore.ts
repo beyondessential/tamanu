@@ -147,10 +147,11 @@ export class BlobStore {
   }
 
   async delete(hash: string): Promise<void> {
-    await fs.rm(this.#pathFor(hash), { force: true });
-    // Hard delete: the registry is a mechanical index of on-disk content, and
-    // a soft-deleted row would shadow re-admission of the same hash.
+    const filePath = this.#pathFor(hash);
+    // Hard delete: a soft-deleted row would shadow re-admission of the same
+    // hash. Registry first, so a crash leaves an adoptable orphan file.
     await this.#models.Blob.destroy({ where: { hash }, force: true });
+    await fs.rm(filePath, { force: true });
   }
 
   #pathFor(hash: string): string {
