@@ -1,14 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { isErrorUnknownAllow404s } from '../TamanuApi';
 
 export const useEncounterInvoiceQuery = (encounterId) => {
   const api = useApi();
 
   return useQuery(
     [`encounter/${encounterId}/invoice`],
-    () =>
-      api.get(`encounter/${encounterId}/invoice`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
+    () => api.get(`encounter/${encounterId}/invoice`),
     {
       enabled: !!encounterId,
     },
@@ -20,12 +18,7 @@ export const useInvoiceTotalOutstandingBalanceQuery = (patientId) => {
 
   return useQuery(
     [`patient/${patientId}/invoices/totalOutstandingBalance`],
-    () =>
-      api.get(
-        `patient/${patientId}/invoices/totalOutstandingBalance`,
-        {},
-        { isErrorUnknown: isErrorUnknownAllow404s },
-      ),
+    () => api.get(`patient/${patientId}/invoices/totalOutstandingBalance`),
     {
       enabled: !!patientId,
     },

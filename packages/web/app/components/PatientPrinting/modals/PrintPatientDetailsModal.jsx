@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
 import { OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { isErrorUnknownAllow404s, useApi } from '../../../api';
+import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
@@ -363,11 +363,7 @@ const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
 
 async function getPatientProfileImage(api, patientId) {
   try {
-    const { data } = await api.get(
-      `patient/${patientId}/profilePicture`,
-      {},
-      { isErrorUnknown: isErrorUnknownAllow404s },
-    );
+    const { data } = await api.get(`patient/${patientId}/profilePicture`);
     return data;
   } catch (e) {
     // 1x1 blank pixel
