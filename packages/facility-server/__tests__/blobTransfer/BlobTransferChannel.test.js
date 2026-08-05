@@ -66,6 +66,7 @@ class FakeCentralConnection {
   // (offer calls after the first), leaving the initial offer intact.
   failPutsRemaining = 0;
   failReoffersRemaining = 0;
+  failFetchGetsRemaining = 0;
   #offerCalls = 0;
 
   constructor(store) {
@@ -155,6 +156,10 @@ class FakeCentralConnection {
   }
 
   async #get(hash, { headers = {} } = {}) {
+    if (this.failFetchGetsRemaining > 0) {
+      this.failFetchGetsRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'fetch failed');
+    }
     const held = await this.store.stat(hash);
     if (!held) {
       throw new Problem(ERROR_TYPE.NOT_FOUND, 'Not found', 404, `Blob not held: ${hash}`);
@@ -163,31 +168,28 @@ class FakeCentralConnection {
     const start = parseInt(headers.range?.match(/^bytes=(\d+)-$/)?.[1] ?? '0', 10);
     const full = await readAll(await this.store.get(hash, start > 0 ? { start } : {}));
 
-    // Deliver the leading bytes, then either close cleanly or error on the
-    // next pull — a pull-based source so the consumer reads (and stages) the
-    // delivered bytes before the error surfaces. Built as a web stream
-    // directly, with no intermediate Node stream to leak an unhandled error.
-    const shouldDrop = this.dropFetchStreamsAfter !== null && full.length > this.dropFetchStreamsAfter;
-    const delivered = shouldDrop ? full.subarray(0, this.dropFetchStreamsAfter) : full;
-    let sent = false;
+    // Model a dropped connection the way the client actually observes one: the
+    // headers promise the full remaining size, but the body delivers fewer
+    // bytes and then ends. The channel stages the short read, sees it is under
+    // the known size, and resumes with a range request. A clean early close
+    // (rather than an errored stream) keeps the simulation free of the
+    // web-stream error-propagation hazards.
+    const delivered =
+      this.dropFetchStreamsAfter !== null && full.length > this.dropFetchStreamsAfter
+        ? full.subarray(0, this.dropFetchStreamsAfter)
+        : full;
     const body = new ReadableStream({
-      pull(controller) {
-        if (!sent) {
-          sent = true;
-          if (delivered.length > 0) {
-            controller.enqueue(delivered);
-            return;
-          }
+      start(controller) {
+        if (delivered.length > 0) {
+          controller.enqueue(delivered);
         }
-        if (shouldDrop) {
-          controller.error(new Error('stream dropped'));
-        } else {
-          controller.close();
-        }
+        controller.close();
       },
     });
 
-    const length = held.size - start;
+    // content-length always reports the full remaining bytes, so the channel
+    // learns the true size even when the body is short.
+    const length = full.length;
     const responseHeaders = new Map([['content-length', String(length)]]);
     if (start > 0) {
       responseHeaders.set('content-range', `bytes ${start}-${held.size - 1}/${held.size}`);
@@ -358,6 +360,16 @@ describe('BlobTransferChannel', () => {
       await expect(channel.fetchFromCentral(hashOf('not on central'))).rejects.toMatchObject({
         type: ERROR_TYPE.NOT_FOUND,
       });
+    });
+
+    it('retries a fetch that fails transiently before delivering', async () => {
+      const content = Buffer.from('fetched after a transient failure');
+      const { hash } = await centralStore.put(Readable.from(content));
+      central.failFetchGetsRemaining = 1;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
     });
 
     it('commits fully staged bytes without re-downloading, as after a crash before commit', async () => {
