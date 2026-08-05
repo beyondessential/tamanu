@@ -86,6 +86,16 @@ rendering paths, with readers tolerating both new (hash) and legacy (in-database
 rows during transition. Depends on the foundation cards; the bulk move of existing
 data is the backfill card's job.
 
+## Extract a sans-io blob package shared with mobile
+
+Lifts the store management and transfer protocol logic out of `@tamanu/database` and
+the two servers into a dependency-free package that mobile can consume, so the
+hashing, fan-out layout, offer/fetch state machine, and resume arithmetic have one
+implementation rather than a server copy and a React Native copy. Sans-io: the
+package decides what to read, write and send, and the host supplies the filesystem
+and HTTP. Best done once mobile's blob work has shown which seams are real, so the
+boundary is drawn from two callers rather than guessed from one.
+
 ## Mobile blob storage and lazy fetch · L2
 
 Aligns the mobile app's already file-backed attachment model with the blob transfer
