@@ -183,8 +183,8 @@ export const migrationList = [
   addLabTestReferenceRangeColumns1778546880000,
   addSurveyResponseEditMetadata1778560763154,
   addLabTestReferenceRangeText1779700000000,
-  addDosingAndDispensingUnitColumns1779900000001,
   removeDietIdFromEncounter1781501076000,
   addUserKind1783118255000,
+  addDosingAndDispensingUnitColumns1779900000001,
   addProgramFormQueryIndexes1785739800000,
 ];
