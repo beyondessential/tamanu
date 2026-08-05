@@ -89,4 +89,16 @@ describe('Lab request status history', () => {
       updatedBy: { displayName: user.body.displayName },
     });
   });
+
+  it('forbids a user without LabRequestLog list permission', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const baseUserApp = await baseApp.asRole('base');
+
+    expect(await baseUserApp.get(`/api/labRequestLog/labRequest/${requestId}`)).toBeForbidden();
+    expect(
+      await baseUserApp.get(`/api/labRequestLog/labRequest/${requestId}/latest-published`),
+    ).toBeForbidden();
+  });
 });
