@@ -1,14 +1,47 @@
 import { upperFirst } from 'es-toolkit/compat';
 import {
+  REFERENCE_TYPES,
   REFERENCE_TYPE_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
   SUGGESTER_ENDPOINTS,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 
+// Reference-data types whose type-specific columns live on a separate 1:1 "satellite"
+// table — a `hasOne` on ReferenceData keyed by `referenceDataId` (e.g. `reference_drugs`).
+// getModelForType resolves these types to the base ReferenceData model, so a satellite's
+// columns only reach the Manage table when its association is joined explicitly. Maps each
+// satellite-backed reference type to its hasOne association alias on ReferenceData.
+export const SATELLITE_ASSOCIATIONS = {
+  [REFERENCE_TYPES.DRUG]: 'referenceDrug',
+  [REFERENCE_TYPES.TASK_TEMPLATE]: 'taskTemplate',
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'medicationTemplate',
+};
+
+// Of the satellite-backed types above, those whose satellite columns the Manage table
+// currently surfaces and persists. Wiring up taskTemplate and medicationTemplate (plus the
+// provisioning/importer parity they need) is the follow-up tracked in TAM-7046; until then
+// the guardrail test allowlists their not-yet-surfaced satellite columns individually.
+export const MANAGE_ENABLED_SATELLITE_TYPES = new Set([REFERENCE_TYPES.DRUG]);
+
+// Resolve the satellite association to join for a reference type, or null when the type has
+// no satellite or its satellite isn't surfaced in Manage yet. Returns the association alias
+// and its target model so the caller can derive columns and eager-load/persist rows.
+export const getSatelliteForType = (models, type) => {
+  if (!MANAGE_ENABLED_SATELLITE_TYPES.has(type)) return null;
+  const as = SATELLITE_ASSOCIATIONS[type];
+  const association = models.ReferenceData.associations?.[as];
+  if (!association) return null;
+  return { as, model: association.target };
+};
+
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
-    return { model: models.ReferenceData, typeFilter: { type } };
+    return {
+      model: models.ReferenceData,
+      typeFilter: { type },
+      satellite: getSatelliteForType(models, type),
+    };
   }
   // For all other types (OTHER_REFERENCE_TYPES, clinical, system), resolve via upperFirst
   const modelName = upperFirst(type);
@@ -16,7 +49,7 @@ export const getModelForType = (models, type) => {
   if (!model) {
     throw new InvalidOperationError(`No model found for type: ${type}`);
   }
-  return { model, typeFilter: {} };
+  return { model, typeFilter: {}, satellite: null };
 };
 
 // Columns hidden from the admin UI.
@@ -35,6 +68,17 @@ const isColumnHidden = (key, modelName) => {
   if (rule instanceof Set) return rule.has(modelName);
   return false;
 };
+
+// Columns never shown for a satellite: its own primary key and the `referenceDataId` link
+// (implied by the base row), plus the standard bookkeeping columns.
+const SATELLITE_HIDDEN_COLUMNS = new Set([
+  'id',
+  'referenceDataId',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+]);
 
 // Fields that are read-only only on edit
 const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
@@ -119,7 +163,44 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
-export const getColumnsForModel = async model => {
+// The satellite columns Manage manages for a satellite model: every attribute except its own
+// primary key, the referenceDataId link, and bookkeeping columns. Exported so the guardrail test
+// checks the same set of columns the Manage table is expected to surface.
+export const getSatelliteColumnKeys = satelliteModel =>
+  Object.keys(satelliteModel.rawAttributes ?? {}).filter(key => !SATELLITE_HIDDEN_COLUMNS.has(key));
+
+// Build the Manage columns for a satellite table. Satellite columns are plain data columns
+// (route, dosingUnit, unitConversion, …) edited/saved alongside the base row; they carry no FK
+// suggesters or name companions, and are flagged so the list/write path can join and persist them.
+const getSatelliteColumns = async satellite => {
+  const rawAttributes = satellite.model.rawAttributes ?? {};
+  const dbColumns = await getDbColumnInfo(satellite.model);
+  const satelliteKeys = new Set(getSatelliteColumnKeys(satellite.model));
+
+  return Object.entries(rawAttributes)
+    .filter(([key]) => satelliteKeys.has(key))
+    .map(([key, attr]) => {
+      const dbField = attr.field ?? key;
+      const dbCol = dbColumns.get(dbField);
+      const typeName = attr.type?.constructor?.name ?? 'STRING';
+      const col = {
+        key,
+        type: typeName,
+        allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
+        hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
+        readOnly: false,
+        readOnlyOnEdit: false,
+        isSatellite: true,
+        satelliteAssociation: satellite.as,
+      };
+      if (typeName === 'ENUM' && attr.type?.values) {
+        col.enumValues = attr.type.values;
+      }
+      return col;
+    });
+};
+
+export const getColumnsForModel = async (model, satellite = null) => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
@@ -153,10 +234,17 @@ export const getColumnsForModel = async model => {
 
   // Slot each FK's read-only name column in immediately after its id column.
   const nameColByFk = new Map(getForeignKeyNameColumns(model).map(c => [c.fkKey, c]));
-  return baseColumns.flatMap(col => {
+  const columns = baseColumns.flatMap(col => {
     const nameCol = nameColByFk.get(col.key);
     return nameCol ? [col, nameCol] : [col];
   });
+
+  // Append the satellite table's columns so they display and edit alongside the base row.
+  if (satellite) {
+    columns.push(...(await getSatelliteColumns(satellite)));
+  }
+
+  return columns;
 };
 
 export const assertValidType = type => {
@@ -174,6 +262,33 @@ export const getWritableData = (columns, data, isEditMode) => {
     columns.filter(c => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map(c => c.key),
   );
   return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
+};
+
+// Partition already-writable data into the base ReferenceData row and its satellite row, using
+// the satellite flag on the columns so satellite fields never get written to the base model.
+export const splitSatelliteData = (columns, data) => {
+  const satelliteKeys = new Set(columns.filter(c => c.isSatellite).map(c => c.key));
+  const baseData = {};
+  const satelliteData = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (satelliteKeys.has(key)) satelliteData[key] = value;
+    else baseData[key] = value;
+  }
+  return { baseData, satelliteData };
+};
+
+// Upsert a satellite row keyed by its owning reference data id (the 1:1 link). Mirrors the
+// importer/loader, which keys ReferenceDrug on referenceDataId. Runs inside the caller's
+// managed transaction (CLS binds it), so no transaction object is threaded through.
+export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, satelliteData) => {
+  const [record, created] = await satelliteModel.findOrCreate({
+    where: { referenceDataId },
+    defaults: { referenceDataId, ...satelliteData },
+  });
+  if (!created && Object.keys(satelliteData).length > 0) {
+    await record.update(satelliteData);
+  }
+  return record;
 };
 
 /**

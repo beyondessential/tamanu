@@ -7,7 +7,37 @@ import {
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
+import {
+  SATELLITE_ASSOCIATIONS,
+  getSatelliteColumnKeys,
+} from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
+
+// Satellite columns that are NOT yet surfaced in the Manage table, listed individually (per
+// type + column) rather than as a blanket type-level skip. This is deliberate: a NEWLY added
+// satellite column on one of these types is not on the list, so the guardrail below will fail
+// until it is either surfaced in Manage or explicitly added here. Wiring these two satellites
+// up to Manage (with the provisioning/importer parity that entails) is tracked in TAM-7046
+// (https://linear.app/bes/issue/TAM-7046).
+const MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS = new Set([
+  // taskTemplate -> TaskTemplate (task_templates); known follow-up, TAM-7046.
+  'taskTemplate.frequencyValue',
+  'taskTemplate.frequencyUnit',
+  'taskTemplate.highPriority',
+  // medicationTemplate -> ReferenceMedicationTemplate; known follow-up, TAM-7046.
+  'medicationTemplate.medicationId',
+  'medicationTemplate.isOngoing',
+  'medicationTemplate.isPrn',
+  'medicationTemplate.isVariableDose',
+  'medicationTemplate.doseAmount',
+  'medicationTemplate.dosingUnit',
+  'medicationTemplate.frequency',
+  'medicationTemplate.route',
+  'medicationTemplate.durationValue',
+  'medicationTemplate.durationUnit',
+  'medicationTemplate.notes',
+  'medicationTemplate.dischargeQuantity',
+]);
 
 const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
@@ -110,6 +140,60 @@ describe('Reference Data Manage', () => {
         referenceDataType: PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
       });
       expect(response).toHaveRequestError();
+    });
+
+    // A reference type whose columns are split across a 1:1 "satellite" table (a hasOne on
+    // ReferenceData keyed by referenceDataId, e.g. reference_drugs) resolves to the base
+    // ReferenceData model, so the satellite's columns only reach the Manage table when joined
+    // explicitly. This guardrail asserts that every satellite column of every satellite-backed
+    // manageable type is EITHER surfaced by the /columns endpoint OR explicitly allowlisted as a
+    // known follow-up — mirroring validateFullReferenceDataImport's allowlist-and-throw style and
+    // the selfReferencingFkDeferrability test's "enumerate everything, else fail" shape. It would
+    // have caught dosingUnit/dispensingUnit/unitConversion being added to reference_drugs without
+    // being wired into Manage.
+    it('surfaces every satellite column in the Manage columns, or lists it on the exclusion allowlist', async () => {
+      // Structurally discover satellite associations from the model layer: a hasOne on
+      // ReferenceData keyed by referenceDataId. The registry that drives the Manage join must
+      // cover exactly these, so a NEW satellite type cannot be added without being registered.
+      const discoveredAliases = Object.values(models.ReferenceData.associations)
+        .filter(
+          assoc => assoc.associationType === 'HasOne' && assoc.foreignKey === 'referenceDataId',
+        )
+        .map(assoc => assoc.as)
+        .sort();
+      expect(discoveredAliases).toEqual(Object.values(SATELLITE_ASSOCIATIONS).sort());
+
+      const missing = [];
+      for (const [type, alias] of Object.entries(SATELLITE_ASSOCIATIONS)) {
+        expect(MANAGEABLE_REFERENCE_DATA_TYPES).toContain(type);
+
+        const satelliteModel = models.ReferenceData.associations[alias].target;
+        const satelliteColumnKeys = getSatelliteColumnKeys(satelliteModel);
+        expect(satelliteColumnKeys.length).toBeGreaterThan(0);
+
+        const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
+        expect(response).toHaveSucceeded();
+        const surfacedKeys = new Set(response.body.map(col => col.key));
+
+        for (const columnKey of satelliteColumnKeys) {
+          const isSurfaced = surfacedKeys.has(columnKey);
+          const isAllowlisted = MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS.has(`${type}.${columnKey}`);
+          if (!isSurfaced && !isAllowlisted) {
+            missing.push(`${type}.${columnKey}`);
+          }
+        }
+      }
+
+      if (missing.length > 0) {
+        throw new Error(
+          `Satellite reference-data columns are neither surfaced in the Manage table nor allowlisted:\n` +
+            `${missing.map(key => `  ${key}`).join('\n')}\n\n` +
+            `Either surface them (join the satellite in packages/central-server/app/admin/` +
+            `referenceDataManageUtils.js via MANAGE_ENABLED_SATELLITE_TYPES + SATELLITE_ASSOCIATIONS), ` +
+            `or, if intentionally deferred, add each to MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS in this ` +
+            `test with a note referencing the follow-up card.`,
+        );
+      }
     });
   });
 
@@ -376,6 +460,127 @@ describe('Reference Data Manage', () => {
     it('should forbid access without permission', async () => {
       const response = await noPermissionApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
+    });
+  });
+
+  // End-to-end coverage for the drug satellite (ReferenceDrug / reference_drugs): its columns must
+  // display in /columns, save on create, upsert on update, list as flat row values, and be filterable
+  // — the parity the Manage table was missing for satellite-backed reference data (TAM-7046).
+  describe('drug satellite (ReferenceDrug) columns', () => {
+    const SATELLITE_KEYS = [
+      'route',
+      'dosingUnit',
+      'dispensingUnit',
+      'unitConversion',
+      'notes',
+      'isSensitive',
+    ];
+
+    it('surfaces the ReferenceDrug satellite columns in GET /columns for drug', async () => {
+      const response = await adminApp
+        .get(COLUMNS_URL)
+        .query({ referenceDataType: REFERENCE_TYPES.DRUG });
+      expect(response).toHaveSucceeded();
+
+      const byKey = new Map(response.body.map(col => [col.key, col]));
+      for (const key of SATELLITE_KEYS) {
+        expect(byKey.get(key)).toMatchObject({ key, isSatellite: true, readOnly: false });
+      }
+      // typed so the web renders the right field/table cell (number input, Yes/No)
+      expect(byKey.get('unitConversion').type).toBe('DECIMAL');
+      expect(byKey.get('isSensitive').type).toBe('BOOLEAN');
+    });
+
+    it('persists satellite fields to reference_drugs on create', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-create-code',
+        name: 'Satellite Create Drug',
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        unitConversion: 2,
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(response).toHaveSucceeded();
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(satellite).toBeTruthy();
+      expect(satellite).toMatchObject({
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(Number(satellite.unitConversion)).toBe(2);
+    });
+
+    it('upserts the satellite row on update without creating duplicates', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      // first update creates the satellite row (none existed yet)
+      const first = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Updated Satellite Drug',
+        route: 'iv',
+        dosingUnit: 'mL',
+        isSensitive: true,
+      });
+      expect(first).toHaveSucceeded();
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: record.id },
+      });
+      expect(satellite).toMatchObject({ route: 'iv', dosingUnit: 'mL', isSensitive: true });
+
+      // second update mutates the same satellite row rather than inserting another
+      const second = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'oral',
+      });
+      expect(second).toHaveSucceeded();
+
+      const count = await models.ReferenceDrug.count({ where: { referenceDataId: record.id } });
+      expect(count).toBe(1);
+      await satellite.reload();
+      expect(satellite.route).toBe('oral');
+    });
+
+    it('flattens satellite values onto the listed row and can filter on them', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'sat-list-code',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({
+        referenceDataId: record.id,
+        route: 'sublingual-unique',
+        dosingUnit: 'mcg',
+        isSensitive: true,
+      });
+
+      // satellite column search resolves via the joined association ($alias.column$)
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'sublingual-unique',
+      });
+      expect(response).toHaveSucceeded();
+
+      const row = response.body.data.find(r => r.id === record.id);
+      expect(row).toBeTruthy();
+      expect(row).toMatchObject({ route: 'sublingual-unique', dosingUnit: 'mcg', isSensitive: true });
+      // the nested association object is flattened away, not returned raw
+      expect(row).not.toHaveProperty('referenceDrug');
+      expect(response.body.data.every(r => r.route === 'sublingual-unique')).toBe(true);
     });
   });
 });

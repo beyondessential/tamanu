@@ -9,6 +9,8 @@ import {
   assertValidType,
   getWritableData,
   createMultiSelectRecords,
+  splitSatelliteData,
+  upsertSatelliteRecord,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -22,9 +24,10 @@ referenceDataManageRouter.post(
 
     assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
+    const { model, typeFilter, satellite } = getModelForType(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, satellite);
     const data = getWritableData(columns, rawData, false);
+    const { baseData, satelliteData } = splitSatelliteData(columns, data);
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -32,7 +35,13 @@ referenceDataManageRouter.post(
         return res.send(records);
       }
 
-      const record = await model.create({ ...typeFilter, ...data });
+      const record = await model.sequelize.transaction(async () => {
+        const created = await model.create({ ...typeFilter, ...baseData });
+        if (satellite) {
+          await upsertSatelliteRecord(satellite.model, created.id, satelliteData);
+        }
+        return created;
+      });
       res.send(record.forResponse());
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
@@ -55,17 +64,23 @@ referenceDataManageRouter.put(
 
     assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
+    const { model, typeFilter, satellite } = getModelForType(req.store.models, referenceDataType);
     const record = await model.findOne({ where: { id, ...typeFilter } });
 
     if (!record) {
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    const columns = await getColumnsForModel(model);
+    const columns = await getColumnsForModel(model, satellite);
     const data = getWritableData(columns, rawData, true);
+    const { baseData, satelliteData } = splitSatelliteData(columns, data);
 
-    await record.update(data);
+    await model.sequelize.transaction(async () => {
+      await record.update(baseData);
+      if (satellite) {
+        await upsertSatelliteRecord(satellite.model, record.id, satelliteData);
+      }
+    });
     res.send(record.forResponse());
   }),
 );
@@ -94,8 +109,8 @@ referenceDataManageRouter.get(
     req.checkPermission('list', 'ReferenceData');
     const { referenceDataType } = req.query;
     assertValidType(referenceDataType);
-    const { model } = getModelForType(req.store.models, referenceDataType);
-    res.send(await getColumnsForModel(model));
+    const { model, satellite } = getModelForType(req.store.models, referenceDataType);
+    res.send(await getColumnsForModel(model, satellite));
   }),
 );
 
@@ -117,8 +132,8 @@ referenceDataManageRouter.get(
 
     assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
+    const { model, typeFilter, satellite } = getModelForType(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, satellite);
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
     // The list query eager-loads those associations so the name can be displayed in the row.
@@ -129,6 +144,14 @@ referenceDataManageRouter.get(
       attributes: ['id', 'name'],
       required: false,
     }));
+
+    // Satellite columns live on a 1:1 companion table; eager-load it so its columns can be
+    // displayed and searched on the row (searched via the `$alias.column$` path syntax below).
+    const satelliteColumns = columns.filter(c => c.isSatellite);
+    const satelliteByKey = new Map(satelliteColumns.map(c => [c.key, c]));
+    if (satellite) {
+      include.push({ association: satellite.as, required: false });
+    }
 
     // Build search filters from query params
     const searchWhere = {};
@@ -176,6 +199,14 @@ referenceDataManageRouter.get(
         searchWhere[`$${fkNameCol.key}.name$`] = { [Op.iLike]: `%${value}%` };
         continue;
       }
+      const satelliteCol = satelliteByKey.get(key);
+      if (satelliteCol) {
+        // search the satellite's column via the joined association, not a column on this model
+        searchWhere[`$${satellite.as}.${key}$`] = exactMatchKeys.has(key)
+          ? value
+          : { [Op.iLike]: `%${value}%` };
+        continue;
+      }
       if (searchableKeys.has(key)) {
         searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
       }
@@ -189,11 +220,16 @@ referenceDataManageRouter.get(
 
     const where = { ...typeFilter, ...searchWhere };
 
-    // count() only needs the FK joins that a name filter actually references; the rest are
-    // display-only and would add pointless LEFT JOINs to the count query. findAll keeps them
-    // all so every companion column can be populated in the response.
+    // count() only needs the joins a filter actually references (via a `$alias.column$` path);
+    // the rest are display-only and would add pointless LEFT JOINs to the count query. findAll
+    // keeps them all so every companion/satellite column can be populated in the response.
+    const referencedAssociations = new Set(
+      Object.keys(searchWhere)
+        .filter(key => key.startsWith('$') && key.endsWith('$'))
+        .map(key => key.slice(1, -1).split('.')[0]),
+    );
     const countInclude = include.filter(({ association }) =>
-      Object.prototype.hasOwnProperty.call(searchWhere, `$${association}.name$`),
+      referencedAssociations.has(association),
     );
 
     const count = await model.count({ where, include: countInclude });
@@ -214,6 +250,14 @@ referenceDataManageRouter.get(
         const row = record.forResponse();
         for (const c of fkNameColumns) {
           row[c.key] = record[c.key]?.name ?? null;
+        }
+        if (satellite) {
+          const satelliteRecord = record[satellite.as];
+          for (const c of satelliteColumns) {
+            row[c.key] = satelliteRecord?.[c.key] ?? null;
+          }
+          // drop the nested association object forResponse may have carried through
+          delete row[satellite.as];
         }
         return row;
       }),
