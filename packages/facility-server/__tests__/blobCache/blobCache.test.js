@@ -30,7 +30,9 @@ async function waitFor(predicate, { timeoutMs = 5000 } = {}) {
   const deadline = Date.now() + timeoutMs;
   while (!predicate()) {
     if (Date.now() > deadline) throw new Error('waitFor timed out');
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => {
+      setTimeout(resolve, 10);
+    });
   }
 }
 
