@@ -24,13 +24,6 @@ const FLOOR_CHECK_INTERVAL_BYTES = 64 * 1024 * 1024;
 
 const TEMP_DIR = 'tmp';
 
-/**
- * Store root for this host. Deploys point it at a dedicated volume (absolute
- * path) via TAMANU_BLOB_STORAGE_ROOT; the default resolves against the
- * server's working directory.
- */
-export const blobStorageRoot = () => process.env.TAMANU_BLOB_STORAGE_ROOT ?? 'data/blobs';
-
 export interface VolumeStats {
   bavail: number | bigint;
   bsize: number | bigint;

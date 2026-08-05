@@ -77,6 +77,20 @@ export const centralSettings = {
         },
       },
     },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      highRisk: true,
+      properties: {
+        root: {
+          name: 'Store root',
+          description:
+            'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
+          type: yup.string(),
+          defaultValue: 'data/blobs',
+        },
+      },
+    },
     disk: {
       name: 'Disk',
       description: 'Disk settings',

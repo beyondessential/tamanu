@@ -24,6 +24,20 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      highRisk: true,
+      properties: {
+        root: {
+          name: 'Store root',
+          description:
+            'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
+          type: yup.string(),
+          defaultValue: 'data/blobs',
+        },
+      },
+    },
     appointments: {
       description: 'Settings related to scheduling patient appointments and location bookings',
       properties: {
