@@ -34,13 +34,16 @@ function makeFakeBlobModel() {
       rows.delete(hash);
     },
     sequelize: {
-      async query(_sql: string, { bind }: { bind: { id: string; hash: string; size: number } }) {
+      async query(
+        _sql: string,
+        { bind }: { bind: { id: string; hash: string; size: number; integrityState: string } },
+      ) {
         if (!rows.has(bind.hash)) {
           rows.set(bind.hash, {
             id: bind.id,
             hash: bind.hash,
             size: bind.size,
-            integrityState: 'verified',
+            integrityState: bind.integrityState,
           });
         }
       },

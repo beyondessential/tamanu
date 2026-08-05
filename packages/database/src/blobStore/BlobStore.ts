@@ -236,11 +236,18 @@ export class BlobStore {
     // insert is a no-op against the winner's identical row.
     await this.#models.Blob.sequelize.query(
       `
-        INSERT INTO blobs (id, hash, size)
-        VALUES ($id, $hash, $size)
+        INSERT INTO blobs (id, hash, size, integrity_state)
+        VALUES ($id, $hash, $size, $integrityState)
         ON CONFLICT (hash) DO NOTHING
       `,
-      { bind: { id: randomUUID(), hash, size } },
+      {
+        bind: {
+          id: randomUUID(),
+          hash,
+          size,
+          integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+        },
+      },
     );
   }
 
