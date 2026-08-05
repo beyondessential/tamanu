@@ -1,9 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { once } from 'node:events';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
-import { finished } from 'node:stream/promises';
 
 import { BLOB_INTEGRITY_STATES, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
 import { InsufficientStorageError, NotFoundError } from '@tamanu/errors';
@@ -161,27 +159,21 @@ export class BlobStore {
     let size = 0;
     let bytesSinceFloorCheck = 0;
 
+    // Written through the handle, not a write stream from it: such a stream
+    // holds a reference that handle.close() never resolves past.
     const handle = await fs.open(tempPath, 'wx');
     try {
-      const writeStream = handle.createWriteStream({ autoClose: false });
-      // Swallow 'error' events between writes so a failure (e.g. ENOSPC) can't
-      // crash the process before finished() below surfaces it.
-      writeStream.on('error', () => {});
       for await (const chunk of source) {
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
         hasher.update(buffer);
         size += buffer.length;
         bytesSinceFloorCheck += buffer.length;
-        if (!writeStream.write(buffer)) {
-          await once(writeStream, 'drain');
-        }
+        await handle.write(buffer);
         if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
           bytesSinceFloorCheck = 0;
           await this.#ensureFloor(0);
         }
       }
-      writeStream.end();
-      await finished(writeStream);
       // Flush before rename so a crash cannot leave a fully-named partial blob.
       await handle.sync();
     } finally {
