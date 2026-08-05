@@ -166,7 +166,7 @@ export const globalSettings = {
       name: 'Blob storage',
       description: 'Content-addressed blob storage',
       properties: {
-        freeDiskReserve: {
+        freeDiskReserveGB: {
           name: 'Free disk reserve',
           description:
             'Free disk space the blob store must leave available on its volume; as free space approaches this floor the store evicts cache, then refuses new blobs',
