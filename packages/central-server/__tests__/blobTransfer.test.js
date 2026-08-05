@@ -15,7 +15,6 @@ describe('Blob transfer channel', () => {
   let ctx;
   let baseApp;
   let models;
-  let agent;
 
   const asSyncDevice = async deviceId => {
     const user = await models.User.create(fake(models.User, { password: 'password' }));
