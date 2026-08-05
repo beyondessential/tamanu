@@ -3,6 +3,7 @@ import { omit } from 'es-toolkit/compat';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
+import { BlobStore } from '@tamanu/database/blobStore';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -56,6 +57,9 @@ export class ApplicationContext {
   /**@type {ReadSettings<CentralSettingPath> | null} */
   settings = null;
 
+  /** @type {BlobStore | null} */
+  blobStore = null;
+
   /** @type {string | null} */
   deviceId = null;
 
@@ -84,6 +88,16 @@ export class ApplicationContext {
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
       return this;
     }
+
+    // spec: CAS, CAP
+    // No evictCache hook: central is the authoritative store, nothing is
+    // evictable, so the free-disk floor refuses new blobs directly.
+    this.blobStore = new BlobStore({
+      root: config.blobStorage.root,
+      models: this.store.models,
+      getFreeDiskReserveBytes: async () =>
+        (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+    });
 
     await initFhirSettingsFromDb(this.settings);
     // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and

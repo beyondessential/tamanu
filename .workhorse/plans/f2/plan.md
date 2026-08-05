@@ -62,6 +62,49 @@ build delivers the channel itself.
    semantics. Facility-to-facility movement relays via central, which is the
    authoritative store anyway.
 
+## Implementation checklist
+
+Rebased the card onto E2's branch (2026-08-05), which carries the `BlobStore`
+primitive, the `blobs` registry, config/settings for the store root and disk
+reserve, and the SHA-256 decision. The faith (PR #10656) HTTP/2 client rides
+along on this branch.
+
+Transport decision: push moves bytes in bounded chunks (buffer per request,
+offset-addressed) rather than a streamed request body, because the faith fetch
+implementation's streaming-body support is unproven and chunks give natural
+resume points; fetch streams the response body and appends to a staging file,
+resuming via Range. Verification happens over the complete staged file at
+commit, satisfying the resume-then-verify criterion.
+
+- [x] Constants: blob availability states (available, awaiting-upload,
+      awaiting-fetch) and offer statuses
+- [x] Errors: BlobHashMismatchError with its own problem type so the origin can
+      distinguish a mismatch from a retriable transfer fault
+- [x] BlobStore: ranged `get`, `stat`, and the resumable staging API
+      (`stagedSize`, `stage` at offset with floor checks, `commitStaged` with
+      whole-file verification, `discardStaged`), staging surviving restarts
+- [x] BlobStore tests for the above
+- [x] Central server: store constructed in ApplicationContext; blob transfer
+      routes at `/api/blob` (availability probe, ranged fetch GET, offer,
+      chunked PUT with acknowledge-on-verified-store), gated by sync-client
+      device scope
+- [x] Central endpoint tests: auth, availability, fetch + range, offer/push,
+      resume, idempotency, hash mismatch (central test context gained a
+      temp-rooted blob store)
+- [x] Facility server: store constructed in ApplicationContext; a
+      BlobTransferChannel (availability incl. awaiting-fetch derivation,
+      resumable fetch-from-central, chunked resumable push-to-central,
+      read-through open) generalising the try-local-then-central pattern
+- [x] Facility channel tests against a fake central backed by a second real
+      store, with dropped-stream and cut-chunk failure injection
+- [x] Test-cases file
+- [ ] Lint and test runs — not runnable in this environment, verified by CI
+
+Out of scope, owned by siblings: background pusher and eviction (G2), data
+scoping and the push reference gate (H2), consumer rewiring (J2/K2), mobile
+(L2). The attachment GET keeps reading the attachments table until J2 adopts
+the channel.
+
 ## Open questions
 
 - Transfer surface: working decision is to ride the existing authenticated

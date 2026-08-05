@@ -5,7 +5,12 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { InsufficientStorageError, NotFoundError } from '@tamanu/errors';
+import {
+  BlobHashMismatchError,
+  InsufficientStorageError,
+  InvalidParameterError,
+  NotFoundError,
+} from '@tamanu/errors';
 
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
@@ -269,6 +274,159 @@ describe('BlobStore', () => {
         InsufficientStorageError,
       );
       expect(consumed).toBe(false);
+    });
+  });
+
+  describe('get with range', () => {
+    it('streams only the requested byte range, inclusive of both ends', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect((await readAll(await store.get(hash, { start: 6 }))).toString()).toBe('world');
+      expect((await readAll(await store.get(hash, { start: 0, end: 4 }))).toString()).toBe('hello');
+      expect((await readAll(await store.get(hash, { start: 4, end: 6 }))).toString()).toBe('o w');
+    });
+  });
+
+  describe('stat', () => {
+    it('reports size and integrity state for a held blob', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(await store.stat(hash)).toEqual({ size: 11, integrityState: 'verified' });
+    });
+
+    it('reports null for an absent blob', async () => {
+      const store = makeStore();
+      expect(await store.stat(HELLO_HASH)).toBeNull();
+    });
+
+    it('reports null for a registry row whose bytes are missing', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await fs.rm(path.join(root, 'sha256'), { recursive: true, force: true });
+
+      expect(await store.stat(hash)).toBeNull();
+    });
+  });
+
+  // spec: XFER
+  describe('staging', () => {
+    it('accumulates appended content and commits it as a stored blob', async () => {
+      const store = makeStore();
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
+
+      const first = await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), {
+        offset: 0,
+      });
+      expect(first.stagedSize).toBe(6);
+
+      const second = await store.stage(HELLO_HASH, Readable.from(Buffer.from('world')), {
+        offset: 6,
+      });
+      expect(second.stagedSize).toBe(11);
+
+      const result = await store.commitStaged(HELLO_HASH);
+      expect(result).toEqual({ hash: HELLO_HASH, size: 11, existed: false });
+      expect(await store.has(HELLO_HASH)).toBe(true);
+      expect((await readAll(await store.get(HELLO_HASH))).toString()).toBe('hello world');
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
+    });
+
+    it('resumes across store instances, as after a restart', async () => {
+      await makeStore().stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 });
+
+      const restarted = makeStore();
+      expect(await restarted.stagedSize(HELLO_HASH)).toBe(6);
+      await restarted.stage(HELLO_HASH, Readable.from(Buffer.from('world')), { offset: 6 });
+      expect(await restarted.commitStaged(HELLO_HASH)).toMatchObject({ existed: false });
+      expect(await restarted.has(HELLO_HASH)).toBe(true);
+    });
+
+    it('rejects an append whose offset does not match the staged bytes', async () => {
+      const store = makeStore();
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 });
+
+      await expect(
+        store.stage(HELLO_HASH, Readable.from(Buffer.from('world')), { offset: 3 }),
+      ).rejects.toThrow(InvalidParameterError);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(6);
+    });
+
+    it('keeps bytes already appended when the source fails partway', async () => {
+      const store = makeStore();
+      async function* failingSource() {
+        yield Buffer.from('hel');
+        throw new Error('connection lost');
+      }
+
+      await expect(
+        store.stage(HELLO_HASH, Readable.from(failingSource()), { offset: 0 }),
+      ).rejects.toThrow('connection lost');
+      expect(await store.stagedSize(HELLO_HASH)).toBe(3);
+
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('lo world')), { offset: 3 });
+      expect(await store.commitStaged(HELLO_HASH)).toMatchObject({
+        hash: HELLO_HASH,
+        existed: false,
+      });
+    });
+
+    it('verifies the complete staged content and discards a mismatch', async () => {
+      const store = makeStore();
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('goodbye moon')), { offset: 0 });
+
+      await expect(store.commitStaged(HELLO_HASH)).rejects.toThrow(BlobHashMismatchError);
+      expect(await store.has(HELLO_HASH)).toBe(false);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
+    });
+
+    it('commits an already-held hash as a no-op and drops the staging', async () => {
+      const store = makeStore();
+      await store.put(Readable.from(Buffer.from('hello world')));
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('anything')), { offset: 0 });
+
+      const result = await store.commitStaged(HELLO_HASH);
+      expect(result).toEqual({ hash: HELLO_HASH, size: 11, existed: true });
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
+    });
+
+    it('throws NotFoundError when committing with nothing staged', async () => {
+      const store = makeStore();
+      await expect(store.commitStaged(HELLO_HASH)).rejects.toThrow(NotFoundError);
+    });
+
+    it('commits a zero-byte staging as the empty blob', async () => {
+      const store = makeStore();
+      await store.stage(EMPTY_HASH, Readable.from(Buffer.alloc(0)), { offset: 0 });
+
+      const result = await store.commitStaged(EMPTY_HASH);
+      expect(result).toEqual({ hash: EMPTY_HASH, size: 0, existed: false });
+      expect(await store.has(EMPTY_HASH)).toBe(true);
+    });
+
+    it('discards staged content on request', async () => {
+      const store = makeStore();
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 });
+
+      await store.discardStaged(HELLO_HASH);
+      expect(await store.stagedSize(HELLO_HASH)).toBe(0);
+    });
+
+    it('refuses to stage rather than cross into the free-disk reserve', async () => {
+      volumeFreeBytes = 100;
+      const store = makeStore({ reserveBytes: 1000 });
+
+      await expect(
+        store.stage(HELLO_HASH, Readable.from(Buffer.from('hello ')), { offset: 0 }),
+      ).rejects.toThrow(InsufficientStorageError);
+    });
+
+    it('rejects a malformed hash', async () => {
+      const store = makeStore();
+      await expect(
+        store.stage('not-a-hash', Readable.from(Buffer.from('x')), { offset: 0 }),
+      ).rejects.toThrow(/algorithm-tagged/);
     });
   });
 

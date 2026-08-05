@@ -4,8 +4,13 @@ import path from 'node:path';
 import type { Readable } from 'node:stream';
 
 import { BLOB_INTEGRITY_STATES, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
-import { InsufficientStorageError, NotFoundError } from '@tamanu/errors';
-import { blobPathSegments, formatBlobHash } from '@tamanu/utils/blobs';
+import {
+  BlobHashMismatchError,
+  InsufficientStorageError,
+  InvalidParameterError,
+  NotFoundError,
+} from '@tamanu/errors';
+import { blobPathSegments, formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import type { Blob } from '../models/Blob';
@@ -23,6 +28,12 @@ const RENAME_RETRY_BASE_MS = 50;
 const FLOOR_CHECK_INTERVAL_BYTES = 64 * 1024 * 1024;
 
 const TEMP_DIR = 'tmp';
+
+// spec: XFER
+// Partially received transfers live here, named by their offered hash, so an
+// interrupted transfer resumes from the bytes already delivered — including
+// across a server restart.
+const STAGING_DIR = 'staging';
 
 export interface VolumeStats {
   bavail: number | bigint;
@@ -83,7 +94,7 @@ export class BlobStore {
     return await fileExists(filePath);
   }
 
-  async get(hash: string): Promise<Readable> {
+  async get(hash: string, { start, end }: { start?: number; end?: number } = {}): Promise<Readable> {
     const filePath = this.#pathFor(hash);
     const registered = await this.#models.Blob.findOne({ where: { hash } });
     if (!registered) {
@@ -103,7 +114,16 @@ export class BlobStore {
       }
       throw error;
     }
-    return handle.createReadStream();
+    return handle.createReadStream({ start, end });
+  }
+
+  /** The registry's record of a held blob, or null when the blob is not held. */
+  async stat(hash: string): Promise<{ size: number; integrityState: string } | null> {
+    const registered = await this.#models.Blob.findOne({ where: { hash } });
+    if (!registered || !(await fileExists(this.#pathFor(hash)))) {
+      return null;
+    }
+    return { size: registered.size, integrityState: registered.integrityState };
   }
 
   /**
@@ -146,6 +166,127 @@ export class BlobStore {
     return { hash, size, existed };
   }
 
+  // spec: XFER
+  /** Bytes already staged for a hash, so an interrupted transfer resumes from them. */
+  async stagedSize(hash: string): Promise<number> {
+    const stagingPath = this.#stagingPathFor(hash);
+    try {
+      const stats = await fs.stat(stagingPath);
+      return stats.size;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return 0;
+      }
+      throw error;
+    }
+  }
+
+  // spec: XFER
+  /**
+   * Append received content for a hash to its staging file. The caller states
+   * the offset it is delivering from, which must equal the bytes already
+   * staged — on mismatch nothing is written and the caller should re-check
+   * stagedSize and resume from there. A failure partway through the source
+   * keeps the bytes already appended as the resume point. Refuses rather than
+   * take the volume below the free-disk reserve, like put.
+   */
+  async stage(
+    hash: string,
+    source: Readable,
+    { offset }: { offset: number },
+  ): Promise<{ stagedSize: number }> {
+    parseBlobHash(hash);
+    const stagingPath = this.#stagingPathFor(hash);
+    await fs.mkdir(path.dirname(stagingPath), { recursive: true });
+
+    const alreadyStaged = await this.stagedSize(hash);
+    if (offset !== alreadyStaged) {
+      throw new InvalidParameterError(
+        `Staged content offset mismatch for ${hash}: ${alreadyStaged} bytes staged, offset ${offset} delivered`,
+      );
+    }
+
+    await this.#ensureFloor(0);
+
+    let written = 0;
+    let bytesSinceFloorCheck = 0;
+    const handle = await fs.open(stagingPath, 'a');
+    try {
+      for await (const chunk of source) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        written += buffer.length;
+        bytesSinceFloorCheck += buffer.length;
+        await handle.write(buffer);
+        if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
+          bytesSinceFloorCheck = 0;
+          await this.#ensureFloor(0);
+        }
+      }
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+
+    return { stagedSize: alreadyStaged + written };
+  }
+
+  // spec: XFER
+  /**
+   * Verify the staged content against its hash and admit it into the store.
+   * Verification covers the complete staged file, including any bytes
+   * delivered before an interruption. On mismatch the staged content is
+   * discarded and BlobHashMismatchError thrown. Idempotent: a hash the store
+   * already holds commits as a no-op and drops the staging.
+   */
+  async commitStaged(hash: string): Promise<PutResult> {
+    const existing = await this.stat(hash);
+    if (existing) {
+      await this.discardStaged(hash);
+      return { hash, size: existing.size, existed: true };
+    }
+
+    const { algorithm } = parseBlobHash(hash);
+    const stagingPath = this.#stagingPathFor(hash);
+    let handle;
+    try {
+      handle = await fs.open(stagingPath, 'r');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        throw new NotFoundError(`Nothing staged for blob: ${hash}`);
+      }
+      throw error;
+    }
+
+    const hasher = createHash(algorithm);
+    let size = 0;
+    try {
+      for await (const chunk of handle.createReadStream({ autoClose: false })) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        hasher.update(buffer);
+        size += buffer.length;
+      }
+    } finally {
+      await handle.close();
+    }
+
+    const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
+    if (actualHash !== hash) {
+      await this.discardStaged(hash);
+      throw new BlobHashMismatchError(
+        `Staged content for ${hash} hashed to ${actualHash}; content discarded`,
+      );
+    }
+
+    await this.#placeAtFinalPath(stagingPath, this.#pathFor(hash));
+    await this.#register(hash, size);
+    return { hash, size, existed: false };
+  }
+
+  // spec: XFER
+  async discardStaged(hash: string): Promise<void> {
+    await fs.rm(this.#stagingPathFor(hash), { force: true });
+  }
+
   async delete(hash: string): Promise<void> {
     const filePath = this.#pathFor(hash);
     // Hard delete: a soft-deleted row would shadow re-admission of the same
@@ -156,6 +297,13 @@ export class BlobStore {
 
   #pathFor(hash: string): string {
     return path.join(this.root, ...blobPathSegments(hash));
+  }
+
+  #stagingPathFor(hash: string): string {
+    // parseBlobHash constrains the hash to lowercase alphanumerics and a
+    // colon, so the flat filename is path-safe on every filesystem.
+    const { algorithm, digest } = parseBlobHash(hash);
+    return path.join(this.root, STAGING_DIR, `${algorithm}-${digest}`);
   }
 
   async #writeAndHash(
