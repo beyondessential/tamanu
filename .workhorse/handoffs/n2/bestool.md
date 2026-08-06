@@ -55,13 +55,13 @@ based on `workhorse/b2`, the epic's parent, not on `main`, so diff it against
 
 Read its neighbours in `specs/blob-storage/` too. The ones that bear on backups:
 
-- `content-addressing.md` (`CAS`) — hash-keyed layout, atomic admission, the blob
+- `content-addressing.md` (`CAS`): hash-keyed layout, atomic admission, the blob
   registry
-- `facility-cache.md` (`CACHE`) — the outbox and cache tiers
-- `integrity.md` (`SCRUB`) — verification, and the registry reconciliation that is
+- `facility-cache.md` (`CACHE`): the outbox and cache tiers
+- `integrity.md` (`SCRUB`): verification, and the registry reconciliation that is
   Tamanu's side of restore
-- `reclamation.md` (`RECL`) — the only thing that ever removes a blob
-- `capacity.md` (`CAP`) — the free-disk floor
+- `reclamation.md` (`RECL`): the only thing that ever removes a blob
+- `capacity.md` (`CAP`): the free-disk floor
 
 ## What the store looks like
 
