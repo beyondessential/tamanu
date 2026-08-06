@@ -109,7 +109,11 @@ const StyledTable = styled(DataFetchingTable)`
   .MuiCheckbox-root {
     padding: 0 8px 0 0;
   }
+  .MuiFormControl-root {
+    vertical-align: middle;
+  }
   td {
+    vertical-align: middle;
     &:last-child {
       max-width: 188px;
       white-space: nowrap;
@@ -153,6 +157,7 @@ const StatusIconContainer = styled.span`
   align-items: center;
   justify-content: center;
   width: ${STATUS_COLUMN_WIDTH}px;
+  vertical-align: middle;
 `;
 
 const StyledActionsRow = styled.div`

@@ -18,6 +18,9 @@ export const TaskNameContainer = styled.span`
   display: inline-flex;
   align-items: center;
   max-width: 100%;
+  // Without this, the browser's default vertical-align: baseline leaves this inline-flex
+  // span sitting slightly above the table cell's vertical centre.
+  vertical-align: middle;
 `;
 
 export const PriorityIconSlot = styled.span`
