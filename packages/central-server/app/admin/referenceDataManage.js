@@ -30,14 +30,10 @@ referenceDataManageRouter.post(
     const { baseData, satelliteData } = splitSatelliteData(columns, data);
 
     try {
-      // multiSelect is only ever set on ReferenceDataRelation.referenceDataId (see
-      // MULTI_SELECT_FK_COLUMNS), and that type has no satellite — so this branch is never
-      // reached by a satellite-backed type, and passing the unpartitioned `data` cannot leak
-      // satellite keys today. If a satellite-backed type ever becomes multiSelect, this branch
-      // must switch to `baseData` (or handle the satellite) before the base/satellite split is
-      // bypassed.
+      // multiSelect is only set on ReferenceDataRelation.referenceDataId, which has no satellite,
+      // so baseData === data here; passing baseData keeps satellite keys out either way.
       if (columns.some(c => c.multiSelect)) {
-        const records = await createMultiSelectRecords(model, columns, data, typeFilter);
+        const records = await createMultiSelectRecords(model, columns, baseData, typeFilter);
         return res.send(records);
       }
 
