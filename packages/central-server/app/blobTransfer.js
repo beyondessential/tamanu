@@ -20,10 +20,17 @@ import { isHashReferencedInScope } from './blobReferences';
 // Anything else is ignored and the full blob served, as RFC 9110 permits.
 const RANGE_PATTERN = /^bytes=(?<start>\d+)-(?<end>\d*)$/;
 
-const putContentQuerySchema = yup.object({
-  offset: yup.number().integer().min(0).required(),
-  totalSize: yup.number().integer().min(0).required(),
-});
+const putContentQuerySchema = yup
+  .object({
+    offset: yup.number().integer().min(0).required(),
+    totalSize: yup.number().integer().min(0).required(),
+  })
+  // offset past totalSize would make the remaining-bytes cap (totalSize - offset)
+  // negative, which the store reads as "every byte overruns" and discards the
+  // staging — so a miscalculating client could wipe its own resume progress.
+  .test('offset-within-total', 'offset must not exceed totalSize', ({ offset, totalSize }) =>
+    offset <= totalSize,
+  );
 
 const validateHash = hash => {
   try {

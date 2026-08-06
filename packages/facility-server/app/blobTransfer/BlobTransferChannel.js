@@ -159,11 +159,14 @@ export class BlobTransferChannel {
 
       const staged = await this.#blobStore.stagedSize(hash);
       if (knownSize !== undefined && staged < knownSize) {
-        // The stream ended early without erroring; go around for the rest.
+        // The stream ended early without erroring; go around for the rest,
+        // backing off the same as the error path so a peer that keeps returning
+        // truncated bodies is paced rather than hammered.
         stalledAttempts = staged > offset ? 0 : stalledAttempts + 1;
         if (stalledAttempts >= STALLED_ATTEMPTS) {
           throw new RemoteCallError(`Fetch of ${hash} stalled at ${staged} of ${knownSize} bytes`);
         }
+        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
         continue;
       }
       break;
