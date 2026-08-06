@@ -14,6 +14,12 @@ import { blobOutboxStatus } from './outboxStatus';
 // specs/blob-storage/capacity.md); this local escalation is a coarse aid.
 const DYSFUNCTION_PUSH_TICK_GAP = 6;
 
+// Upper bound on outbox rows scanned per pass, so an outbox that grew large
+// during an extended outage never materialises whole in memory (nor produces a
+// huge `IN (…)` eligibility list). Oldest-first, so the longest-waiting blobs
+// are always handled; the rest are picked up on subsequent passes.
+const OUTBOX_SCAN_LIMIT = 1000;
+
 // spec: CACHE
 // Drains the outbox to the central server: oldest-first among blobs whose
 // referencing record has synchronised, skipping past failures, one transfer in
@@ -70,8 +76,9 @@ export class BlobOutboxPusher {
       // spec: CACHE — oldest-first: the longest-unacknowledged blob is offered first
       order: [['createdAt', 'ASC']],
       attributes: ['hash'],
+      limit: OUTBOX_SCAN_LIMIT,
     });
-    const counts = { pushed: 0, failed: 0, ineligible: 0, inFlight: 0 };
+    const counts = { pushed: 0, failed: 0, skipped: 0, ineligible: 0, inFlight: 0 };
     if (outbox.length === 0) {
       return counts;
     }
@@ -89,12 +96,27 @@ export class BlobOutboxPusher {
       }
       this.#inFlight.add(hash);
       try {
-        const { acknowledged } = await this.#transferChannel.pushToCentral(hash);
-        if (acknowledged) {
-          // spec: XFER — acknowledgement means verified and durably stored on
-          // central, so the local copy demotes to evictable cache
-          await this.#blobCache.demote(hash);
+        const result = await this.#transferChannel.pushToCentral(hash);
+        if (!result?.acknowledged) {
+          // Neither thrown nor acknowledged: leave it in the outbox, don't count
+          // it as pushed, and try again on a later pass.
+          counts.skipped += 1;
+          log.warn('BlobOutboxPusher: push returned without acknowledgement, will retry', {
+            hash,
+          });
+        } else {
+          // spec: XFER — acknowledgement means the bytes are verified and durably
+          // stored on central, so the push is done even if the local demotion
+          // fails; a later idempotent re-offer will re-demote.
           counts.pushed += 1;
+          try {
+            await this.#blobCache.demote(hash);
+          } catch (error) {
+            log.warn('BlobOutboxPusher: pushed but local demotion failed, will re-demote', {
+              hash,
+              error: error.message,
+            });
+          }
         }
       } catch (error) {
         // spec: CACHE — a refused or failed offer does not block the queue
@@ -108,7 +130,7 @@ export class BlobOutboxPusher {
       }
     }
 
-    if (counts.pushed > 0 || counts.failed > 0) {
+    if (counts.pushed > 0 || counts.failed > 0 || counts.skipped > 0) {
       log.info('BlobOutboxPusher: outbox pass complete', counts);
     }
     return counts;
@@ -125,7 +147,11 @@ export class BlobOutboxPusher {
   async recordSyncCycle() {
     const outbox = await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.OUTBOX },
+      // Bounded and oldest-first, like runOnce: the longest-waiting blobs are
+      // marked first; a larger backlog is marked across successive cycles.
+      order: [['createdAt', 'ASC']],
       attributes: ['hash'],
+      limit: OUTBOX_SCAN_LIMIT,
     });
     if (outbox.length === 0) {
       return;

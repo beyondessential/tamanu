@@ -505,15 +505,19 @@ export class BlobStore {
     // cache even when re-admitted with outbox intent (spec: CACHE). A
     // soft-deleted row still occupies the unique index and would otherwise
     // shadow re-admission forever (invisible to has/get, conflicting here), so
-    // resurrect it — taking the incoming tier, since a resurrected row is a
-    // fresh admission (an outbox re-admission must not stay evictable cache).
-    // Live rows are left untouched.
+    // resurrect it as the fresh admission it is: take the incoming tier (an
+    // outbox re-admission must not stay evictable cache) and reset recency to
+    // now (so it is not instantly the oldest LRU victim). Live rows are left
+    // untouched.
     await this.#models.Blob.sequelize.query(
       `
         INSERT INTO blobs (id, hash, size, integrity_state, tier)
         VALUES ($id, $hash, $size, $integrityState, $tier)
         ON CONFLICT (hash) DO UPDATE
-          SET deleted_at = NULL, updated_at = now(), tier = EXCLUDED.tier
+          SET deleted_at = NULL,
+              updated_at = now(),
+              last_accessed_at = now(),
+              tier = EXCLUDED.tier
           WHERE blobs.deleted_at IS NOT NULL
       `,
       {

@@ -375,6 +375,43 @@ describe('facility blob outbox and LRU cache', () => {
       expect(attempts).toBe(1);
       expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
     });
+
+    it('leaves a blob in the outbox when a push returns without acknowledgement', async () => {
+      // verifies spec: CACHE — only an acknowledged push demotes the blob
+      const { hash } = await putOutbox();
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: async () => ({ acknowledged: false }),
+      });
+
+      const counts = await pusher.runOnce();
+
+      expect(counts).toMatchObject({ pushed: 0, skipped: 1 });
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
+    });
+
+    it('counts a push as done even if the local demotion fails', async () => {
+      // spec: XFER — an acknowledgement means the bytes are durable on central,
+      // so a failed local demote does not undo the push; it re-demotes next pass
+      const { hash } = await putOutbox();
+      const pusher = new BlobOutboxPusher({
+        models,
+        transferChannel: { pushToCentral: async () => ({ acknowledged: true }) },
+        blobCache: {
+          demote: async () => {
+            throw new Error('registry unavailable');
+          },
+        },
+        referenceResolvers: [eligibleAll],
+      });
+
+      const counts = await pusher.runOnce();
+
+      expect(counts).toMatchObject({ pushed: 1, failed: 0 });
+      // demote threw, so the blob is still outbox — a later pass re-offers and
+      // re-demotes it (central's store is idempotent).
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
+    });
   });
 
   describe('outbox dysfunction measure', () => {
