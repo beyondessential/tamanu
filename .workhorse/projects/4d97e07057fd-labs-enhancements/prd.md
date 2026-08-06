@@ -20,10 +20,9 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 8 | [TAM-6827](https://linear.app/bes/issue/TAM-6827) | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
 | 9 | [TAM-3086](https://linear.app/bes/issue/TAM-3086) | Default "Collected by" to the current user | Medium | **None** — field default |
 | 10 | [TAM-3090](https://linear.app/bes/issue/TAM-3090) | Support a default specimen type for lab tests | Medium | _TBC_ |
-| 11 | [TAM-3091](https://linear.app/bes/issue/TAM-3091) | Support a default method for lab tests | Medium | _TBC_ |
-| 12 | [TAM-6823](https://linear.app/bes/issue/TAM-6823) | Manage panelOnly lab test types on central | No priority | _TBC_ |
-| 13 | [TAM-6925](https://linear.app/bes/issue/TAM-6925) | Add a "Reflex test" visibility status | No priority | _TBC_ |
-| 14 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
+| 11 | [TAM-6823](https://linear.app/bes/issue/TAM-6823) | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 12 | [TAM-6925](https://linear.app/bes/issue/TAM-6925) | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 13 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
 
 ---
 
@@ -82,7 +81,7 @@ Applied per surface:
 
 
 **Open questions (to resolve before design):**
-- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 13.
+- **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 12.
 
 _To be detailed._
 
@@ -212,15 +211,7 @@ _To be detailed._
 
 ---
 
-### 11. Support a default method for lab tests
-
-**Summary.** Support a default "Method" for lab tests to reduce data entry, where staff currently pick a method from the full list for each result. Needed for phase 3 of the integration. Raised by FSM and Nauru.
-
-_To be detailed._
-
----
-
-### 12. Manage panelOnly lab test types on central
+### 11. Manage panelOnly lab test types on central
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
@@ -228,7 +219,7 @@ _To be detailed._
 
 ---
 
-### 13. Add a "Reflex test" visibility status
+### 12. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
 
@@ -236,7 +227,7 @@ _To be detailed._
 
 ---
 
-### 14. Update the Sample taken modal when recording a sample from the lab request screen
+### 13. Update the Sample taken modal when recording a sample from the lab request screen
 
 **Summary.** Update the current modal so it is the same modal that appears during a new lab request. However please keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
