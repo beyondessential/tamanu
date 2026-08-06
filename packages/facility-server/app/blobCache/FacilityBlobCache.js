@@ -7,6 +7,13 @@ import { log } from '@tamanu/shared/services/logging';
 // refreshes degrades eviction ordering only.
 const RECENCY_COALESCE_SECONDS = 60;
 
+// Upper bound on cache rows scanned per eviction pass, so a facility with a very
+// large cache population never materialises the whole tier in memory. A cache
+// bigger than this is trimmed across successive passes (the periodic evictor and
+// admission-time enforcement), which is fine — eviction need not converge in one
+// pass.
+const EVICTION_SCAN_LIMIT = 10000;
+
 // spec: CACHE
 // The facility store's two durability tiers over the blob store primitive: the
 // outbox (un-pushed blobs, the only durable copy, never evicted) and the cache
@@ -122,20 +129,16 @@ export class FacilityBlobCache {
       });
       return { evictedBytes: 0, evictedCount: 0 };
     }
-    // Cheap early-out for the common under-budget case, avoiding the row load.
-    if ((await this.cacheSizeBytes()) <= budget) {
-      return { evictedBytes: 0, evictedCount: 0 };
-    }
-    const rows = await this.#cacheRowsLruFirst();
-    // Recompute excess from this row snapshot: a concurrent eviction between the
-    // size check and this load may already have freed space, and evicting to a
-    // stale, larger excess would remove blobs that now fit.
-    const excess = rows.reduce((total, row) => total + Number(row.size), 0) - budget;
+    const excess = (await this.cacheSizeBytes()) - budget;
     if (excess <= 0) {
       return { evictedBytes: 0, evictedCount: 0 };
     }
-    // Withhold the most recently used blob from budget eviction.
-    return await this.#evictRows(rows.slice(0, -1), excess);
+    // Withhold the single most-recently-used cache blob from budget eviction so
+    // an oversized in-use blob isn't thrashed. Identified explicitly (rather
+    // than as the tail of the scanned rows) because the scan is a bounded
+    // oldest-first batch that need not contain the newest blob.
+    const protectHash = await this.#mostRecentlyUsedCacheHash();
+    return await this.#evictRows(await this.#cacheRowsLruFirst(), excess, { protectHash });
   }
 
   // spec: CAP
@@ -148,6 +151,9 @@ export class FacilityBlobCache {
     return await this.#evictRows(await this.#cacheRowsLruFirst(), bytesNeeded);
   }
 
+  // The least-recently-used cache blobs, bounded so memory stays flat regardless
+  // of cache population. Eviction stops once its byte target is met, so a scan
+  // that reaches the limit without meeting it simply continues next pass.
   async #cacheRowsLruFirst() {
     return await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.CACHE },
@@ -156,14 +162,32 @@ export class FacilityBlobCache {
         ['createdAt', 'ASC'],
       ],
       attributes: ['hash', 'size'],
+      limit: EVICTION_SCAN_LIMIT,
     });
   }
 
-  async #evictRows(rows, bytesTarget) {
+  async #mostRecentlyUsedCacheHash() {
+    const row = await this.#models.Blob.findOne({
+      where: { tier: BLOB_TIERS.CACHE },
+      order: [
+        ['lastAccessedAt', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      attributes: ['hash'],
+    });
+    return row?.hash ?? null;
+  }
+
+  async #evictRows(rows, bytesTarget, { protectHash = null } = {}) {
     let evictedBytes = 0;
     let evictedCount = 0;
     for (const { hash, size } of rows) {
       if (evictedBytes >= bytesTarget) break;
+      if (hash === protectHash) {
+        // spec: CACHE — the most-recently-used blob is withheld from budget
+        // eviction (not from the free-disk floor, which passes no protectHash).
+        continue;
+      }
       if (this.#activeReads.has(hash)) {
         // spec: CACHE — a blob with a read in progress is removed only once
         // that read completes; it stays a candidate for a later pass.
@@ -171,7 +195,9 @@ export class FacilityBlobCache {
       }
       try {
         await this.#blobStore.delete(hash);
-        evictedBytes += size;
+        // size arrives via the model's BIGINT getter as a number, but coerce
+        // defensively so the accumulator can never become a string.
+        evictedBytes += Number(size);
         evictedCount += 1;
       } catch (error) {
         log.warn('FacilityBlobCache: eviction of blob failed, skipping', {

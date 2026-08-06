@@ -70,13 +70,22 @@ follow-up update, so a new outbox blob is never momentarily visible as
 evictable cache. The tier column defaults to `cache`, which is also correct on
 the central server where it is not consulted.
 
-## Known follow-up: eviction memory footprint
+## Eviction memory footprint
 
-Cache eviction loads the cache-tier rows (hash + size only) into memory to pick
-LRU victims. For realistic facility scale this is bounded — the 20 GB budget
-against MB-sized attachments is tens of thousands of rows — so it is left as a
-single load for now. If a deployment ever caches very many small blobs, switch
-`#cacheRowsLruFirst` to keyset-paginated batches (`ORDER BY last_accessed_at ASC
-LIMIT n`, evict, repeat), preserving the most-recently-used withhold and the
-active-read skip. Deferred deliberately rather than rewritten blind, since the
-eviction control flow carries several tested invariants.
+Cache eviction scans the least-recently-used rows in a bounded batch
+(`EVICTION_SCAN_LIMIT`), so memory stays flat regardless of cache population; a
+cache larger than one batch is trimmed across successive passes (the periodic
+evictor plus admission-time enforcement), which is fine since eviction need not
+converge in a single pass. The most-recently-used blob is withheld from budget
+eviction by an explicit lookup rather than the tail of the scanned rows, because
+the batch need not contain the newest blob.
+
+## Known follow-up: concurrent outbox pushes
+
+`BlobOutboxPusher.runOnce` pushes eligible blobs serially. The transfer
+subprotocol is designed for many small blobs multiplexed concurrently over the
+shared facility–central connection (see `transfer.md`), so a backed-up outbox
+would drain faster with bounded-concurrency pushes (an `async-pool`-style cap,
+per the coding rule) inside a single pass, the per-blob in-flight guard still
+ensuring one transfer per blob. Left serial for now — correct but not maximally
+fast; the concurrency is an optimisation to add with its own tests.
