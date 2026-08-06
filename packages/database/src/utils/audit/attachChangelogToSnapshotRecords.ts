@@ -43,19 +43,16 @@ export const attachChangelogToSnapshotRecords = async (
       ),
   );
 
-  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangeLog[]>>(
-    (acc, changelogRecord) => {
-      const id = `${changelogRecord.tableName}-${changelogRecord.recordId}`;
-      acc[id] ??= [];
-      acc[id].push(changelogRecord);
-      return acc;
-    },
-    {},
-  );
+  const changelogRecordsByRecordId: Record<string, ChangeLog[]> = {};
+  for (const changelogRecord of changelogRecords) {
+    const id = `${changelogRecord.tableName}-${changelogRecord.recordId}`;
+    changelogRecordsByRecordId[id] ??= [];
+    changelogRecordsByRecordId[id].push(changelogRecord);
+  }
 
-  snapshotRecords.forEach((snapshotRecord: SyncSnapshotAttributesWithChangelog) => {
+  for (const snapshotRecord of snapshotRecords as SyncSnapshotAttributesWithChangelog[]) {
     const id = `${snapshotRecord.recordType}-${snapshotRecord.recordId}`;
     snapshotRecord.changelogRecords = changelogRecordsByRecordId[id] ?? [];
-  });
+  }
   return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
 };
