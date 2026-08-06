@@ -22,6 +22,20 @@ export function registerBlobReferenceSource({ recordType, hashColumn }) {
       `Blob reference source must use plain snake_case identifiers: ${recordType}.${hashColumn}`,
     );
   }
+  // Idempotent: a server process may build its context more than once (notably
+  // across test contexts), and the same source must not stack duplicate UNION
+  // branches into the scope query.
+  const existing = BLOB_REFERENCE_SOURCES.find(
+    s => s.recordType === recordType && s.hashColumn === hashColumn,
+  );
+  if (existing) {
+    return () => {
+      const index = BLOB_REFERENCE_SOURCES.indexOf(existing);
+      if (index !== -1) {
+        BLOB_REFERENCE_SOURCES.splice(index, 1);
+      }
+    };
+  }
   const source = { recordType, hashColumn };
   BLOB_REFERENCE_SOURCES.push(source);
   return () => {

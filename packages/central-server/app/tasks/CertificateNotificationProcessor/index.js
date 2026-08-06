@@ -41,7 +41,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { settings, store } = this.context;
+    const { settings, store, blobStore } = this.context;
     const { models, sequelize } = store;
     const {
       CertificateNotification,
@@ -91,6 +91,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeCovidVaccineCertificate({
               models,
               settings,
+              blobStore,
               language,
               patient,
               printedBy,
@@ -106,6 +107,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeCovidCertificate({
               models,
               settings,
+              blobStore,
               certType: CertificateTypes.test,
               language,
               patient,
@@ -121,6 +123,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeCovidCertificate({
               models,
               settings,
+              blobStore,
               certType: CertificateTypes.clearance,
               language,
               patient,
@@ -133,6 +136,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeVaccineCertificate({
               models,
               settings,
+              blobStore,
               facilityName,
               language,
               patient,

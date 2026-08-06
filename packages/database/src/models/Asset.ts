@@ -9,6 +9,7 @@ export class Asset extends Model {
   declare name?: string;
   declare type?: string;
   declare data?: Buffer;
+  declare hash?: string;
   declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -18,6 +19,10 @@ export class Asset extends Model {
         name: DataTypes.STRING,
         type: DataTypes.STRING,
         data: DataTypes.BLOB,
+        // spec: ASSET
+        // The image lives in the blob store, addressed by this hash; the row
+        // carries no bytes. Null on legacy rows still holding bytes in `data`.
+        hash: DataTypes.TEXT,
       },
       {
         ...options,
