@@ -873,7 +873,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
     recordCreatedAt: fakeDateTimeString(),
     recordUpdatedAt: fakeDateTimeString(),
     updatedByUserId: fakeUUID(),
-    recordUpdate: true,
   }),
   SurveyResponse: () => ({
     // editedTime implies “patched after original survey response submission”; must start as NULL

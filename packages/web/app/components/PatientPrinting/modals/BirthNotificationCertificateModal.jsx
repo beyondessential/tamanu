@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
 import { useAuth } from '../../../contexts/Auth';
-import { isErrorUnknownAllow404s, useApi } from '../../../api';
+import { useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
@@ -110,12 +110,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   const { data: deathData, isLoading: isDeathDataLoading } = useQuery(
     ['deathData', patient.id],
-    () =>
-      api.get(
-        `patient/${encodeURIComponent(patient.id)}/death`,
-        {},
-        { isErrorUnknown: isErrorUnknownAllow404s },
-      ),
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/death`),
   );
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>

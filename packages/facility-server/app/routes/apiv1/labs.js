@@ -60,7 +60,7 @@ labRequest.get(
 labRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params, db } = req;
+    const { models, params, db, settings, facilityId } = req;
     const { userId, ...labRequestData } = req.body;
     req.checkPermission('read', 'LabRequest');
     const labRequestRecord = await models.LabRequest.findByPk(params.id, {
@@ -71,6 +71,17 @@ labRequest.put(
 
     if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
       req.checkPermission('write', 'LabRequestStatus');
+    }
+
+    const priorityEditable =
+      (await settings[facilityId]?.get('features.labRequest.priorityEditable')) ?? true;
+
+    if (
+      !priorityEditable &&
+      labRequestData.labTestPriorityId !== undefined &&
+      labRequestData.labTestPriorityId !== labRequestRecord.labTestPriorityId
+    ) {
+      throw new InvalidOperationError('Lab request priority cannot be changed.');
     }
 
     const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);

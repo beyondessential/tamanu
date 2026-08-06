@@ -6,7 +6,7 @@ This file contains patterns and conventions for the database package that should
 
 ### Never Mix DDL and DML in the Same Migration
 
-**Problem:** PostgreSQL uses deferred constraint triggers for audit logging. When you UPDATE a table, trigger events are queued to fire at transaction commit. If you then try to ALTER TABLE (add/remove columns) in the same transaction, PostgreSQL throws:
+**Problem:** PostgreSQL uses deferred constraint triggers for audit logging. When you INSERT, UPDATE or DELETE rows in a table, trigger events are queued to fire at transaction commit. If you then try to ALTER TABLE (add/remove columns) in the same transaction, PostgreSQL throws:
 
 ```
 error: cannot ALTER TABLE "table_name" because it has pending trigger events
