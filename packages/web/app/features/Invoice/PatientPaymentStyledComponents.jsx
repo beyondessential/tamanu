@@ -6,7 +6,7 @@ import { Modal } from '../../components/Modal';
 
 export const StyledModal = styled(Modal)`
   .MuiPaper-root {
-    max-width: 680px;
+    max-width: 760px;
   }
 `;
 
