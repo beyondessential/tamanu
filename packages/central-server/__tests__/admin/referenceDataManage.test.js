@@ -521,6 +521,17 @@ describe('Reference Data Manage', () => {
         isSensitive: true,
       });
       expect(Number(satellite.unitConversion)).toBe(2);
+
+      // the single-record create response flattens the just-saved satellite fields (parity with the
+      // list route), so a client refreshing this row after save sees them
+      expect(response.body).toMatchObject({
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(Number(response.body.unitConversion)).toBe(2);
     });
 
     it('upserts the satellite row on update without creating duplicates', async () => {
@@ -539,6 +550,8 @@ describe('Reference Data Manage', () => {
         isSensitive: true,
       });
       expect(first).toHaveSucceeded();
+      // the update response flattens the saved satellite fields too (parity with the list route)
+      expect(first.body).toMatchObject({ route: 'iv', dosingUnit: 'mL', isSensitive: true });
 
       const satellite = await models.ReferenceDrug.findOne({
         where: { referenceDataId: record.id },
@@ -551,6 +564,9 @@ describe('Reference Data Manage', () => {
         route: 'oral',
       });
       expect(second).toHaveSucceeded();
+      // the response reflects the merged satellite row: the new route plus fields the earlier update
+      // set and this one omitted
+      expect(second.body).toMatchObject({ route: 'oral', dosingUnit: 'mL', isSensitive: true });
 
       const count = await models.ReferenceDrug.count({ where: { referenceDataId: record.id } });
       expect(count).toBe(1);
@@ -657,6 +673,73 @@ describe('Reference Data Manage', () => {
       expect(count).toBe(1);
       await satellite.reload();
       expect(satellite).toMatchObject({ route: 'oral', dosingUnit: 'mg', isSensitive: true });
+    });
+
+    // Satellite columns are sortable: Sequelize can ORDER BY a column on the eagerly-included 1:1
+    // association. These assert ascending/descending order by `route` and that a drug with no
+    // satellite row (null route) sorts without erroring.
+    describe('sorting by a satellite column', () => {
+      const CODE_PREFIX = 'sat-sort-';
+
+      beforeAll(async () => {
+        const createDrugWithRoute = async (code, route) => {
+          const record = await models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: REFERENCE_TYPES.DRUG,
+            code,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          });
+          await models.ReferenceDrug.create({ referenceDataId: record.id, route });
+        };
+        await createDrugWithRoute(`${CODE_PREFIX}b`, 'bravo-route');
+        await createDrugWithRoute(`${CODE_PREFIX}a`, 'alpha-route');
+        await createDrugWithRoute(`${CODE_PREFIX}c`, 'charlie-route');
+        // a drug with no reference_drugs row → null route; it must still list and sort
+        await models.ReferenceData.create({
+          ...fake(models.ReferenceData),
+          type: REFERENCE_TYPES.DRUG,
+          code: `${CODE_PREFIX}none`,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      });
+
+      it('sorts ascending by the satellite route column, tolerating a null satellite row', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          orderBy: 'route',
+          order: 'ASC',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+
+        const routes = response.body.data.map(r => r.route);
+        expect(routes.filter(route => route != null)).toEqual([
+          'alpha-route',
+          'bravo-route',
+          'charlie-route',
+        ]);
+        // the satellite-less drug still lists with a null route, proving nulls don't error
+        expect(routes).toContain(null);
+      });
+
+      it('sorts descending by the satellite route column', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          orderBy: 'route',
+          order: 'DESC',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+
+        const routes = response.body.data.map(r => r.route);
+        expect(routes.filter(route => route != null)).toEqual([
+          'charlie-route',
+          'bravo-route',
+          'alpha-route',
+        ]);
+      });
     });
   });
 });
