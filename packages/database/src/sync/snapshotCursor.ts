@@ -21,11 +21,24 @@ export const decodeSnapshotCursor = (cursor?: string | null): Partial<SnapshotCu
 
   // the cursor arrives as a query parameter, so a malformed one is a bad request rather than a
   // server fault, and it says which parameter to look at
+  let decoded;
   try {
-    return JSON.parse(atob(cursor));
+    decoded = JSON.parse(atob(cursor));
   } catch (error) {
     throw new InvalidParameterError(
       `fromId is not a valid pull cursor: ${(error as Error).message}`,
     );
   }
+
+  // Both parts go into a SQL comparison against (sort_order, id), so a cursor that decodes but
+  // carries the wrong types is still the client's mistake — checked here rather than left to fail as
+  // a query error, which reaches the client as a server fault and says nothing about the cause.
+  const { sortOrder, id } = decoded ?? {};
+  if (!Number.isInteger(sortOrder) || !['string', 'number'].includes(typeof id)) {
+    throw new InvalidParameterError(
+      'fromId is not a valid pull cursor: expected a sort order and a record id',
+    );
+  }
+
+  return { sortOrder, id };
 };
