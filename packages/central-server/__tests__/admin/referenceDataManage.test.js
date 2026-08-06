@@ -8,7 +8,7 @@ import {
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
 import {
-  SATELLITE_ASSOCIATIONS,
+  SATELLITE_REGISTRY,
   getSatelliteColumnKeys,
 } from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
@@ -161,10 +161,14 @@ describe('Reference Data Manage', () => {
         )
         .map(assoc => assoc.as)
         .sort();
-      expect(discoveredAliases).toEqual(Object.values(SATELLITE_ASSOCIATIONS).sort());
+      expect(discoveredAliases).toEqual(
+        Object.values(SATELLITE_REGISTRY)
+          .map(entry => entry.as)
+          .sort(),
+      );
 
       const missing = [];
-      for (const [type, alias] of Object.entries(SATELLITE_ASSOCIATIONS)) {
+      for (const [type, { as: alias }] of Object.entries(SATELLITE_REGISTRY)) {
         expect(MANAGEABLE_REFERENCE_DATA_TYPES).toContain(type);
 
         const satelliteModel = models.ReferenceData.associations[alias].target;
@@ -189,7 +193,7 @@ describe('Reference Data Manage', () => {
           `Satellite reference-data columns are neither surfaced in the Manage table nor allowlisted:\n` +
             `${missing.map(key => `  ${key}`).join('\n')}\n\n` +
             `Either surface them (join the satellite in packages/central-server/app/admin/` +
-            `referenceDataManageUtils.js via MANAGE_ENABLED_SATELLITE_TYPES + SATELLITE_ASSOCIATIONS), ` +
+            `referenceDataManageUtils.js by setting enabled: true for the type in SATELLITE_REGISTRY), ` +
             `or, if intentionally deferred, add each to MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS in this ` +
             `test with a note referencing the follow-up card.`,
         );
@@ -626,6 +630,33 @@ describe('Reference Data Manage', () => {
         where: { referenceDataId: response.body.id },
       });
       expect(satellite).toBeNull();
+    });
+
+    it('leaves a pre-existing satellite row unchanged when updating with no satellite fields', async () => {
+      // The empty-satellite guard also protects the update path: an update carrying no satellite
+      // fields must not touch (or wipe) an existing reference_drugs row.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      const satellite = await models.ReferenceDrug.create({
+        referenceDataId: record.id,
+        route: 'oral',
+        dosingUnit: 'mg',
+        isSensitive: true,
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Renamed With No Satellite Fields',
+      });
+      expect(response).toHaveSucceeded();
+
+      const count = await models.ReferenceDrug.count({ where: { referenceDataId: record.id } });
+      expect(count).toBe(1);
+      await satellite.reload();
+      expect(satellite).toMatchObject({ route: 'oral', dosingUnit: 'mg', isSensitive: true });
     });
   });
 });
