@@ -26,8 +26,7 @@ export const facilitySettings = {
   properties: {
     blobStorage: {
       name: 'Blob storage',
-      description: 'Content-addressed blob storage',
-      highRisk: true,
+      description: 'Content-addressed blob storage on this facility server',
       properties: {
         root: {
           name: 'Store root',
@@ -35,6 +34,15 @@ export const facilitySettings = {
             'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
           type: yup.string(),
           defaultValue: 'data/blobs',
+          highRisk: true,
+        },
+        cacheSizeBudgetGB: {
+          name: 'Cache size budget',
+          description:
+            'Target size for the evictable blob cache; least-recently-used blobs are evicted once the cache exceeds it. A target rather than a hard limit — un-pushed blobs and content in active use are retained regardless, and the free disk reserve is what protects the host',
+          type: yup.number().positive(),
+          defaultValue: 20,
+          unit: 'GB',
         },
       },
     },
@@ -63,20 +71,6 @@ export const facilitySettings = {
               defaultValue: '30min',
             },
           },
-        },
-      },
-    },
-    blobStorage: {
-      name: 'Blob storage',
-      description: 'Content-addressed blob storage on this facility server',
-      properties: {
-        cacheSizeBudgetGB: {
-          name: 'Cache size budget',
-          description:
-            'Target size for the evictable blob cache; least-recently-used blobs are evicted once the cache exceeds it. A target rather than a hard limit — un-pushed blobs and content in active use are retained regardless, and the free disk reserve is what protects the host',
-          type: yup.number().positive(),
-          defaultValue: 20,
-          unit: 'GB',
         },
       },
     },
