@@ -14,6 +14,11 @@ Assets — letterhead logos, certificate watermarks, and certificate footer imag
 
 - [ ] A reader resolves an asset's bytes from the blob store by the row's hash. A legacy row that carries in-database bytes and no hash is read from the row directly; every asset reader accepts both forms.
 - [ ] This applies to all asset readers: certificate rendering on the central server, patient-letter rendering on the facility server, and the facility endpoint serving assets to the web client.
+- [ ] The facility asset endpoint returns the image bytes inline, resolved from whichever form the row takes, so web clients are unaffected by where the bytes live.
+
+## Access
+
+- [ ] A server-to-server fetch of an asset's bytes is authorised by the referencing asset row (see `access-control.md`). Assets sync to every facility, so every facility server may fetch any asset's bytes.
 
 ## Facility availability
 
