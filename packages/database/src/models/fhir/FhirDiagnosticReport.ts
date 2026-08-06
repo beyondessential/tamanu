@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -255,7 +257,17 @@ export class FhirDiagnosticReport extends FhirResource {
       data: form.data,
       type: form.contentType,
     });
-    const attachment = await Attachment.create({ data, type });
+    // spec: ATCH
+    // The report PDF is admitted to the central store and the attachment records
+    // only its hash, scoped to the lab request's encounter so it synchronises
+    // with the records that reference it.
+    const { hash, size } = await this.sequelize.blobStore.put(Readable.from([data]));
+    const attachment = await Attachment.create({
+      type,
+      hash,
+      size,
+      encounterId: labRequest.encounterId,
+    });
     const lastAttachment = await labRequest.getLatestAttachment();
     const labRequestAttachment = await LabRequestAttachment.create({
       attachmentId: attachment.id,

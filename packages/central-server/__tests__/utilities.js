@@ -46,6 +46,7 @@ class MockApplicationContext {
       models: this.store.models,
       getFreeDiskReserveBytes: async () => 0,
     });
+    this.store.sequelize.blobStore = this.blobStore;
     this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     this.emailService = {

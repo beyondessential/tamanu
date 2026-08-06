@@ -98,6 +98,10 @@ export class ApplicationContext {
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
     });
+    // Model methods that admit content reach the store here: materialising a FHIR
+    // DiagnosticReport writes its report PDF from deep inside the upstream write,
+    // with no request or context to carry it.
+    this.store.sequelize.blobStore = this.blobStore;
 
     await initFhirSettingsFromDb(this.settings);
     // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and

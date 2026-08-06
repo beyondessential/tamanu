@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_attachments_from_sync_lookup
               - notify_attachments_changed
               - record_attachments_changelog
               - set_attachments_updated_at
@@ -56,3 +57,9 @@ sources:
             config:
               meta:
                 masking: text
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('attachments__patient_id') }}"
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('attachments__encounter_id') }}"

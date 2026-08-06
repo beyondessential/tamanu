@@ -16,12 +16,13 @@ uncited ones are operational.
 - [x] A newly created attachment row carries a locally assigned identifier, a hash, a content-type, and a size, with no `data` bytes (verifies spec: ATCH)
 - [ ] Creating an attachment assigns its identifier without reaching another server (verifies spec: ATCH)
 - [ ] A legacy row (bytea populated, hash null) is untouched by the migration and remains readable (verifies spec: ATCH)
-- [ ] An attachment record syncs as an ordinary persistent record carrying only its hash — the sync payload and the changelog snapshot contain no blob bytes (verifies spec: ATCH)
+- [x] A legacy attachment stays out of the sync lookup, including through a full lookup rebuild, so its bytes never reach a facility (verifies spec: ATCH)
+- [x] An attachment record syncs as an ordinary persistent record carrying only its hash — the sync payload and the changelog snapshot contain no blob bytes (verifies spec: ATCH)
 - [ ] A facility retains its attachment records after they reach central, rather than deleting them post-push (verifies spec: ATCH)
 
 ## Scoping and sync scope
 
-- [ ] A new attachment copies the patient and facility linkage of the record it is created for at creation time (verifies spec: ATCH)
+- [x] A new attachment copies the patient and facility linkage of the record it is created for at creation time (verifies spec: ATCH)
 - [ ] An attachment for a record pinned to a facility syncs only to facilities entitled to that record's scope, and its blob is authorised against that scope (verifies spec: ATCH, BLAC)
 - [ ] An attachment on a sensitive facility's record is not served to a facility barred from that facility's data (verifies spec: BLAC)
 
@@ -35,7 +36,7 @@ uncited ones are operational.
 - [ ] Create a patient letter (`POST /api/patient/:id/createPatientLetter`) and confirm the generated PDF is admitted to the facility outbox and the row carries its hash (verifies spec: ATCH)
 - [ ] Submit a survey response with a photo answer from web and confirm a hash-backed attachment is created with the answer body holding its id (verifies spec: ATCH)
 - [ ] Blank out a photo answer (`PUT /api/surveyResponseAnswer/photo/:id`) and confirm the empty-content overwrite stores the defined zero-byte hash and the photo no longer renders (verifies spec: CAS)
-- [ ] Post a FHIR DiagnosticReport with a `presentedForm` PDF and confirm the attachment is admitted directly to the central store hash-backed and linked to the lab request (verifies spec: ATCH)
+- [x] Post a FHIR DiagnosticReport with a `presentedForm` PDF and confirm the attachment is admitted directly to the central store hash-backed and linked to the lab request (verifies spec: ATCH)
 - [ ] Confirm central accepts a hash-carrying attachment record arriving through sync from a facility, with the bytes arriving separately over the transfer channel (verifies spec: ATCH, XFER)
 - [ ] Upload a document over the configured maximum file size and confirm it is rejected with the request stream drained, so the response finish logs without error (verifies spec: ATCH)
 - [x] Attempt an upload the store cannot admit without crossing the free-disk reserve and confirm an insufficient-storage error (verifies spec: ATCH, CAP)

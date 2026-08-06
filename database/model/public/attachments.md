@@ -32,3 +32,11 @@ The file data.
 {% docs attachments__hash %}
 The algorithm-tagged hash of the file's content, naming its blob in the content-addressed blob store. Null on legacy attachments, which hold their bytes in `data` instead.
 {% enddocs %}
+
+{% docs attachments__patient_id %}
+The patient the attachment was created for, copied from its owning record so the attachment synchronises within that record's scope.
+{% enddocs %}
+
+{% docs attachments__encounter_id %}
+The encounter the attachment was created for, where its owning record is pinned to one. Attachments created directly against a patient leave this null.
+{% enddocs %}
