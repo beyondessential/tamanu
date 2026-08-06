@@ -50,7 +50,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disable the 'Next' button until one item has been selected
 - 
 Testing note: 
-- eflex test 
+- Reflex test 
 ---
 
 ### 2. Merge multiple lab requests into a single request
