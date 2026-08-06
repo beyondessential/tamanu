@@ -25,8 +25,7 @@ const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds, now
   }
 
   const triageTimes = categoryData
-    .map(triage => triage.triageTime)
-    .map(storedDateTimeToEpochMilliseconds)
+    .map(triage => storedDateTimeToEpochMilliseconds(triage.triageTime))
     .filter(time => time != null);
   const summedWaitTime = triageTimes.reduce((prev, curr) => prev + Math.round(now - curr), 0);
   return summedWaitTime / triageTimes.length;
