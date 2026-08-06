@@ -33,6 +33,16 @@ export function makeSyncedReferenceResolver({ tableName, hashColumn }) {
   const table = quoteIdentifier(tableName);
   const column = quoteIdentifier(hashColumn);
   return async (models, hashes) => {
+    // An empty IN list is a syntax error in Postgres; nothing is eligible anyway.
+    if (hashes.length === 0) {
+      return [];
+    }
+    // The push cursor is a single scalar that changes at most once per sync
+    // cycle. Read it once and bind it, rather than a correlated subquery
+    // re-evaluated against local_system_facts for every candidate row.
+    const pushCursor = Number(
+      (await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) ?? -1,
+    );
     const rows = await models.Blob.sequelize.query(
       `
         SELECT DISTINCT ${column} AS hash
@@ -40,14 +50,7 @@ export function makeSyncedReferenceResolver({ tableName, hashColumn }) {
         WHERE ${column} IN (:hashes)
           AND (
             updated_at_sync_tick = :lastUpdatedElsewhere
-            OR (
-              updated_at_sync_tick > 0
-              AND updated_at_sync_tick <= (
-                SELECT COALESCE(MAX(value::bigint), -1)
-                FROM local_system_facts
-                WHERE key = :lastSuccessfulPushKey
-              )
-            )
+            OR (updated_at_sync_tick > 0 AND updated_at_sync_tick <= :pushCursor)
           )
       `,
       {
@@ -55,7 +58,7 @@ export function makeSyncedReferenceResolver({ tableName, hashColumn }) {
         replacements: {
           hashes,
           lastUpdatedElsewhere: SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
-          lastSuccessfulPushKey: FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+          pushCursor,
         },
       },
     );

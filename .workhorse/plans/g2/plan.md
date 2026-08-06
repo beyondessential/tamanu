@@ -69,3 +69,14 @@ Outbox admission (`putOutbox`) sets the tier at registration inside
 follow-up update, so a new outbox blob is never momentarily visible as
 evictable cache. The tier column defaults to `cache`, which is also correct on
 the central server where it is not consulted.
+
+## Known follow-up: eviction memory footprint
+
+Cache eviction loads the cache-tier rows (hash + size only) into memory to pick
+LRU victims. For realistic facility scale this is bounded — the 20 GB budget
+against MB-sized attachments is tens of thousands of rows — so it is left as a
+single load for now. If a deployment ever caches very many small blobs, switch
+`#cacheRowsLruFirst` to keyset-paginated batches (`ORDER BY last_accessed_at ASC
+LIMIT n`, evict, repeat), preserving the most-recently-used withhold and the
+active-read skip. Deferred deliberately rather than rewritten blind, since the
+eviction control flow carries several tested invariants.

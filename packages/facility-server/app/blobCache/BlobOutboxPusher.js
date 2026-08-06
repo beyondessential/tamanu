@@ -48,8 +48,16 @@ export class BlobOutboxPusher {
       return eligible;
     }
     for (const resolver of this.#referenceResolvers) {
-      for (const hash of await resolver(this.#models, hashes)) {
-        eligible.add(hash);
+      // Isolate resolvers: one consumer's failing query (e.g. a schema mismatch)
+      // must not starve every other consumer's blobs of eligibility.
+      try {
+        for (const hash of await resolver(this.#models, hashes)) {
+          eligible.add(hash);
+        }
+      } catch (error) {
+        log.warn('BlobOutboxPusher: a reference resolver failed, skipping it this pass', {
+          error: error.message,
+        });
       }
     }
     return eligible;

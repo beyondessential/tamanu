@@ -500,18 +500,20 @@ export class BlobStore {
 
   async #register(hash: string, size: number, tier?: BlobTier): Promise<void> {
     // Race-safe against concurrent puts of the same content; the loser's
-    // insert is a no-op against the winner's identical row, which keeps its
-    // tier: content already held as cache is durable on central and stays
+    // insert is a no-op against the winner's identical live row, which keeps
+    // its tier: content already held as cache is durable on central and stays
     // cache even when re-admitted with outbox intent (spec: CACHE). A
     // soft-deleted row still occupies the unique index and would otherwise
     // shadow re-admission forever (invisible to has/get, conflicting here), so
-    // resurrect it; rows that are alive are left untouched.
+    // resurrect it — taking the incoming tier, since a resurrected row is a
+    // fresh admission (an outbox re-admission must not stay evictable cache).
+    // Live rows are left untouched.
     await this.#models.Blob.sequelize.query(
       `
         INSERT INTO blobs (id, hash, size, integrity_state, tier)
         VALUES ($id, $hash, $size, $integrityState, $tier)
         ON CONFLICT (hash) DO UPDATE
-          SET deleted_at = NULL, updated_at = now()
+          SET deleted_at = NULL, updated_at = now(), tier = EXCLUDED.tier
           WHERE blobs.deleted_at IS NOT NULL
       `,
       {

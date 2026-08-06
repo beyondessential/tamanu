@@ -528,6 +528,11 @@ describe('facility blob outbox and LRU cache', () => {
       expect(eligible).toEqual(['fromElsewhere']);
     });
 
+    it('returns nothing for an empty candidate list without querying', async () => {
+      const resolve = makeSyncedReferenceResolver({ tableName: TABLE, hashColumn: 'hash' });
+      expect(await resolve(models, [])).toEqual([]);
+    });
+
     it('rejects a malformed identifier rather than interpolating it', () => {
       expect(() =>
         makeSyncedReferenceResolver({
