@@ -33,6 +33,8 @@ export async function createApiApp({
   syncConnection,
   deviceId,
   settings,
+  blobStore,
+  blobCache,
 }) {
   const express = defineExpress();
   // Match Express 4 query parsing (qs) — Express 5 defaults to "simple" and does
@@ -80,6 +82,8 @@ export async function createApiApp({
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;
     req.dbNotifier = dbNotifier;
+    req.blobStore = blobStore;
+    req.blobCache = blobCache;
 
     next();
   });

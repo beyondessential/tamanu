@@ -1,9 +1,12 @@
-import fs, { promises as asyncFs } from 'fs';
-import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
+import fs from 'fs';
+import { InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
-import { CentralServerConnection } from '../sync';
 
-// Helper function for uploading one file to the central server
+// spec: ATCH
+// Uploading a file admits its bytes to this server's outbox and creates the
+// attachment record together, so creation completes without central
+// connectivity and an admitted blob always has its referencing record. The
+// background pusher delivers the bytes once the record has synchronised.
 // req: express request, maxFileSize: integer (size in bytes)
 // scope: { patientId } or { encounterId } of the record the file is being
 // attached to, carried so the attachment synchronises within that record's scope
@@ -12,42 +15,32 @@ export const uploadAttachment = async (req, maxFileSize, scope = {}) => {
   // an Attachment
   // req.checkPermission('write', 'Attachment'); ??
 
-  // Read request and extract file, stats and metadata
-  const { deviceId } = req;
+  const { models, blobCache } = req;
   const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
   const { size } = fs.statSync(file);
-  const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
-  // Parsed file needs to be deleted from memory
-  if (deleteFileAfterImport) fs.unlink(file, () => null);
+  try {
+    if (maxFileSize && size > maxFileSize) {
+      throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
+    }
 
-  // Check file size constraint
-  if (maxFileSize && size > maxFileSize) {
-    throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
-  }
-
-  // Upload file to central server
-  // CentralServerConnection takes care of adding headers and convert body to JSON
-  const centralServer = new CentralServerConnection({ deviceId });
-  const syncResponse = await centralServer.fetch('attachment', {
-    method: 'POST',
-    body: {
+    const { hash, size: storedSize } = await blobCache.putOutbox(fs.createReadStream(file), {
+      sizeHint: size,
+    });
+    const attachment = await models.Attachment.create({
       type,
-      size,
-      data: fileData,
+      hash,
+      size: storedSize,
       ...scope,
-    },
-    backoff: { maxAttempts: 1 },
-  });
+    });
 
-  if (syncResponse.error) {
-    throw new RemoteCallError(syncResponse.error.message);
+    return {
+      attachmentId: attachment.id,
+      type,
+      metadata,
+    };
+  } finally {
+    // Parsed file needs to be deleted from memory
+    if (deleteFileAfterImport) fs.unlink(file, () => null);
   }
-
-  // Send parsed metadata along with the new created attachment id
-  return {
-    attachmentId: syncResponse.attachmentId,
-    type,
-    metadata,
-  };
 };

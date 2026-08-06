@@ -5,7 +5,7 @@ import asyncHandler from 'express-async-handler';
 import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
-import { serveBlob } from './utils/serveBlob';
+import { serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 export const attachmentRoutes = express.Router();
 
@@ -43,7 +43,12 @@ attachmentRoutes.get(
         res.send({ data: Buffer.concat(chunks).toString('base64') });
         return;
       }
-      await serveBlob(req, res, blobStore, attachment.hash, stat, { contentType: attachment.type });
+      await serveBlob(req, res, {
+        hash: attachment.hash,
+        size: stat.size,
+        contentType: attachment.type,
+        open: range => blobStore.get(attachment.hash, { ...range, stat }),
+      });
       return;
     }
 

@@ -12,8 +12,9 @@ import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/er
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { parseBlobHash } from '@tamanu/utils/blobs';
 
+import { serveBlob } from '@tamanu/shared/utils/serveBlob';
+
 import { isHashReferencedInScope } from './blobReferences';
-import { serveBlob } from './utils/serveBlob';
 
 const putContentQuerySchema = yup
   .object({
@@ -234,7 +235,11 @@ export const buildBlobTransferRoutes = ctx => {
 
       // The stat already fetched is passed through so the read path queries the
       // registry once, not twice, on the primary serving route.
-      await serveBlob(req, res, blobStore, hash, held);
+      await serveBlob(req, res, {
+        hash,
+        size: held.size,
+        open: range => blobStore.get(hash, { ...range, stat: held }),
+      });
     }),
   );
 

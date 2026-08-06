@@ -7,31 +7,32 @@ const RANGE_PATTERN = /^bytes=(?<start>\d+)-(?<end>\d*)$/;
 // spec: SERVE
 // Stream a stored blob over HTTP: range support for large files, the hash as a
 // strong entity tag since it names immutable content, and a pipeline that
-// destroys the file stream when either side terminates so a dropped download
-// does not leak the open file handle. Callers resolve the blob (scope, presence)
-// and pass its stat as `held`.
-export async function serveBlob(req, res, blobStore, hash, held, { contentType } = {}) {
+// destroys the source when either side terminates so a dropped download does not
+// leak the open file handle. The caller supplies `open`, which returns the byte
+// stream for a range — a facility passes its cache's read-through open, so a
+// served blob is fetched on a local miss and counts as a use.
+export async function serveBlob(req, res, { hash, size, contentType, open }) {
   const range = req.headers.range?.match(RANGE_PATTERN)?.groups;
   let start;
   let end;
   if (range) {
     start = parseInt(range.start, 10);
-    end = range.end === '' ? held.size - 1 : parseInt(range.end, 10);
-    if (start >= held.size || end >= held.size || start > end) {
-      res.status(416).setHeader('content-range', `bytes */${held.size}`);
+    end = range.end === '' ? size - 1 : parseInt(range.end, 10);
+    if (start >= size || end >= size || start > end) {
+      res.status(416).setHeader('content-range', `bytes */${size}`);
       res.end();
       return;
     }
   }
 
-  const stream = await blobStore.get(hash, range ? { start, end, stat: held } : { stat: held });
+  const stream = await open(range ? { start, end } : {});
   res.status(range ? 206 : 200);
   res.setHeader('content-type', contentType ?? 'application/octet-stream');
-  res.setHeader('content-length', range ? end - start + 1 : held.size);
+  res.setHeader('content-length', range ? end - start + 1 : size);
   res.setHeader('etag', `"${hash}"`);
   res.setHeader('accept-ranges', 'bytes');
   if (range) {
-    res.setHeader('content-range', `bytes ${start}-${end}/${held.size}`);
+    res.setHeader('content-range', `bytes ${start}-${end}/${size}`);
   }
   try {
     await pipeline(stream, res);

@@ -5,7 +5,12 @@ import { BlobOutboxPusher } from './blobCache';
 import { BlobTransferChannel } from './blobTransfer';
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
-import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncConfig,
+  isServerConfigured,
+  initServerConfig,
+} from './serverConfig';
 import { resolveSchedules } from './tasks';
 
 // How often a sync/tasks process re-checks for first-run setup completing.
@@ -39,6 +44,9 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
   context.blobTransferChannel = new BlobTransferChannel({
     blobStore: context.blobStore,
     centralServer: context.centralServer,
+    // Central scopes every fetch and push to the facilities the caller declares,
+    // and refuses a caller that declares none.
+    facilityIds: getServerFacilityIds() ?? [],
   });
   context.blobCache.setTransferChannel(context.blobTransferChannel);
   context.blobOutboxPusher = new BlobOutboxPusher({
