@@ -8,17 +8,17 @@ export const extractChangelogFromSnapshotRecords = (
   changelogRecords: ChangeLog[];
 } => {
   const changelogRecords: ChangeLog[] = [];
-  const processedRecords = snapshotRecordsWithChangelog.reduce((acc, row) => {
+  const processedRecords: SyncSnapshotAttributes[] = [];
+
+  for (const row of snapshotRecordsWithChangelog) {
     if (row.changelogRecords !== undefined) {
       for (const changelogRecord of row.changelogRecords) {
         changelogRecords.push(changelogRecord);
       }
       delete row.changelogRecords;
     }
-    acc.push(row);
-
-    return acc;
-  }, [] as SyncSnapshotAttributes[]);
+    processedRecords.push(row);
+  }
 
   return {
     snapshotRecords: processedRecords,
