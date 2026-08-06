@@ -33,6 +33,7 @@ The blob layer is fully specified by the epic and needs no J2 work: identity, la
 
 ## Trade-offs
 
+- **Non-deterministic ids are the sync-safe choice — verified against the sync engine.** Sync applies incoming records keyed by id (create if new, update if existing, creates deduplicated by id per batch — `saveChanges.ts`), so a locally-assigned UUID persisted at creation upserts idempotently through any retry. Hash-derived ids would break this: two facilities uploading identical bytes for different patients mint the same id, and the second create is either merged over the first on central (`mergeRecord` rewrites the row's patient/facility scoping, cutting off the first facility's blob access under BLAC) or silently dropped by batch dedup. The only residual duplicate window with UUIDs is an HTTP response lost between web client and facility before the id is known — an every-endpoint exposure today, fixable with client-generated ids at implementation time; not a sync concern and not spec-visible.
 - **Hash-derived ids vs per-owner scoping.** The card description names both "local hash-based id assignment" and (implicitly, via BLAC) scoped access control, but they pull apart: deterministic hash ids dedupe reference rows network-wide, while scoping needs each owner's attachment row to carry that owner's patient/facility. Recommendation is to keep dedupe at the blob layer only (where CAS already provides it — many references, one stored blob) and let reference rows be distinct, locally-identified, and scoped.
 
 ## Implementation notes
