@@ -76,19 +76,22 @@ without its bytes.
 Most of what could be wrong here self-corrects, so the job is to confirm recovery
 is happening rather than to intervene.
 
+Queries for the checks below are in `../reference/query-cookbook.md` under "Blob
+store".
+
 - **[diagnose]** Confirm the store was restored at all, and that its root is where
   the facility's configuration expects it. A store restored to the wrong path reads
-  as a facility that has lost every attachment.
+  as a facility that has lost every attachment. Compare the store size by tier
+  against the files actually under the configured root.
 - **[diagnose]** Check for files awaiting their bytes. After a restore some
   references are legitimately content-pending, and a facility resolves those by
   fetching from central on demand and in the background. A count that falls over
   the following hours is the system healing itself; one that does not move points
   at the transfer path, not at the restore.
-- **[diagnose]** Check the outbox is draining. The outbox holds blobs originated at
-  this facility that central has not yet acknowledged, and it is the only durable
-  copy of that content. After a restore the background pusher resumes delivering
-  them. An outbox that is not shrinking while sync is otherwise healthy means the
-  connection works but the push path does not, and is worth escalating.
+- **[diagnose]** Check the outbox is draining, using the outbox depth and age
+  query. The outbox holds blobs originated at this facility that central has not
+  yet acknowledged, and it is the only durable copy of that content. After a
+  restore the background pusher resumes delivering them.
 
 Two failure modes here are worse than content-pending and do warrant escalation:
 

@@ -84,6 +84,21 @@ a property of the model. Grouped otherwise, dedup does not cross between servers
 Worth confirming how deployments are actually grouped before relying on it for
 capacity planning.
 
+## Outstanding: the content-pending query
+
+The runbook's section 5 asks a support officer to check for references awaiting
+their bytes, and the cookbook has no query for it, because on this card's base
+branch nothing references a blob yet: `Attachment` still carries a `data` BLOB
+column, and references by hash arrive with the attachments and assets cards.
+
+The other two checks (outbox depth and age, quarantined blobs) run against the
+`blobs` registry, which does exist here, so those are written.
+
+Once the reference tables are in place the content-pending query is a left join
+from them to `blobs` on hash, counting references with no matching row, and it
+belongs in the cookbook's "Blob store" section beside the others. Better done when
+the epic assembles than by guessing the reference column names from here.
+
 ## The one piece of Tamanu-side work
 
 Restore reconciles the store against the blob registry. The registry is a database

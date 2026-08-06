@@ -506,6 +506,59 @@ For the `logs.fhir_writes` join that shows what an integration received for a la
 request, and the SENAITE-specific interpretation, see
 `../runbooks/senaite-integration-delay.md`.
 
+## Blob store
+
+`blobs` is the server's registry of the attachment and asset bytes it holds on
+disk, one row per blob. It is local to each server and does not sync, so the
+figures below describe that server only. All **[diagnose]**.
+
+On a facility server `tier` separates the two kinds of content, and the
+distinction is the one that matters when triaging: an `outbox` blob has not been
+acknowledged by central and is the only copy of its content, while a `cache` blob
+is durable on central and can be refetched. On the central server every row is
+authoritative and `tier` is not consulted.
+
+### Store size by tier
+
+```sql
+SELECT tier,
+       count(*) AS blobs,
+       pg_size_pretty(sum(size)) AS bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY tier;
+```
+
+### Outbox depth and age (facility)
+
+An outbox that is not draining while sync is otherwise healthy means the
+connection works but the push path does not. `eligible_since_tick` is set once a
+blob's referencing record has synced, so a null is a blob not yet eligible to
+push rather than a stuck one.
+
+```sql
+SELECT count(*) AS outbox_blobs,
+       pg_size_pretty(sum(size)) AS bytes,
+       min(created_at) AS oldest,
+       count(*) FILTER (WHERE eligible_since_tick IS NULL) AS not_yet_eligible
+FROM blobs
+WHERE deleted_at IS NULL AND tier = 'outbox';
+```
+
+### Quarantined blobs
+
+A quarantined blob failed verification against its hash and is never served. On a
+facility this should self-correct by refetching; a count that persists means the
+repair path is not working. On central it is an authoritative copy needing repair
+from a peer or a backup, and is an escalation.
+
+```sql
+SELECT id, hash, size, created_at
+FROM blobs
+WHERE deleted_at IS NULL AND integrity_state = 'quarantined'
+ORDER BY created_at;
+```
+
 ## DHIS2 push log
 
 `logs.dhis2_pushes` has one row per failed or successful push to DHIS2.

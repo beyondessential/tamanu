@@ -2,7 +2,8 @@
 
 The behaviour is implemented in bestool, so most of these are manual scenarios run
 against a test deployment rather than automated Tamanu tests. The registry
-reconciliation is the exception and is automatable in the Tamanu codebase.
+reconciliation is the exception and is automatable in the Tamanu codebase, on
+whichever card implements it.
 
 ## Backup ordering
 
@@ -28,8 +29,6 @@ reconciliation is the exception and is automatable in the Tamanu codebase.
   spec: BKUP)
 - [ ] A blob added many cycles ago and never touched since is still recoverable
   from the most recent cycle (verifies spec: BKUP)
-- [ ] The same content held by both a facility and central occupies one copy in the
-  repository (verifies spec: BKUP)
 
 ## Facility backups
 
@@ -46,6 +45,8 @@ reconciliation is the exception and is automatable in the Tamanu codebase.
   bytes (verifies spec: BKUP)
 - [ ] A later store capture restored against an earlier database capture leaves no
   reference without its bytes (verifies spec: BKUP)
+- [ ] An earlier store capture is refused against a later database capture
+  (verifies spec: BKUP)
 - [ ] A blob on disk with no registry row after a restore is registered and becomes
   servable (verifies spec: BKUP)
 - [ ] A registry row whose bytes are missing after a restore is recorded as absent,
@@ -61,8 +62,13 @@ reconciliation is the exception and is automatable in the Tamanu codebase.
   same blob restored onto a facility is treated as cache and evicted under the
   budget (verifies spec: BKUP)
 
-## Runbook
+## Runbook and cookbook
 
+- [ ] The store size by tier query runs on a facility server and on central, and
+  its figures match what is on disk under the configured store root
+- [ ] The outbox depth query distinguishes a blob not yet eligible to push from one
+  that is eligible and stuck
+- [ ] The quarantined blobs query returns nothing on a healthy server
 - [ ] A support officer following the runbook can tell a store restored to the
   wrong path from a store that was not restored at all
 - [ ] A support officer following the runbook can distinguish a content-pending
