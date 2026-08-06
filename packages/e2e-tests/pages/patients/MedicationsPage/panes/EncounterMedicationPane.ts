@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
+import { NewPrescriptionModal } from '../modals/NewPrescriptionModal';
 
 export class EncounterMedicationPane extends BasePatientPane {
   readonly contentPane!: Locator;
@@ -58,4 +59,21 @@ export class EncounterMedicationPane extends BasePatientPane {
     await this.medicationTable.waitFor({ state: 'visible' });
   }
 
+  /**
+   * Where the deployment has medication sets configured, New prescription opens a chooser first —
+   * step through it to the single-medication form so the caller gets the same modal either way.
+   */
+  async openNewPrescription(): Promise<NewPrescriptionModal> {
+    await this.newPrescriptionButton.click();
+
+    const chooser = this.page.getByRole('button', { name: 'Continue', exact: true });
+    if (await chooser.isVisible().catch(() => false)) {
+      await this.page.getByText('Single medication', { exact: true }).click();
+      await chooser.click();
+    }
+
+    const modal = new NewPrescriptionModal(this.page);
+    await modal.waitForModalToLoad();
+    return modal;
+  }
 }
