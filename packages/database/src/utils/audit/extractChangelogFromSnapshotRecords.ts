@@ -11,10 +11,8 @@ export const extractChangelogFromSnapshotRecords = (
   const processedRecords: SyncSnapshotAttributes[] = [];
 
   for (const row of snapshotRecordsWithChangelog) {
-    if (row.changelogRecords !== undefined) {
-      for (const changelogRecord of row.changelogRecords) {
-        changelogRecords.push(changelogRecord);
-      }
+    if (row.changelogRecords) {
+      for (const changelogRecord of row.changelogRecords) changelogRecords.push(changelogRecord);
       delete row.changelogRecords;
     }
     processedRecords.push(row);
