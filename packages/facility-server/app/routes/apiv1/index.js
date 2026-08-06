@@ -19,6 +19,7 @@ import * as z from 'zod';
 import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { getInitialSyncPhaseLabel } from '../../sync/initialSyncPhase';
 import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { allergy } from './allergy';
@@ -98,11 +99,17 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.get(
     '/public/ping',
-    asyncHandler((req, res) => {
+    asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      // setupRequired drives the first-run setup wizard, folded into the alive
-      // check the web app already makes rather than a separate endpoint/request.
-      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
+      // setupRequired drives the first-run setup wizard, and initialSyncPhase the progress screen
+      // that holds a user out until the facility's first sync is far enough along. Both are folded
+      // into the alive check the web app already makes rather than a separate endpoint/request, which
+      // is also what lets the progress screen poll for free.
+      return res.send({
+        ok: 'ok',
+        setupRequired: !isServerConfigured(),
+        initialSyncPhase: await getInitialSyncPhaseLabel(req.models),
+      });
     }),
   );
 

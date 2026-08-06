@@ -1,4 +1,5 @@
-import { SYNC_PHASES_VALUES } from '@tamanu/constants';
+import { SYNC_PHASE_LABELS, SYNC_PHASES_VALUES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import {
   FACT_INITIAL_SYNC_PHASE,
   FACT_INITIAL_SYNC_PULLED_UP_TO,
@@ -25,6 +26,24 @@ export const getInitialSyncPhase = async models => {
 
   await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PHASE, `${FIRST_PHASE}`);
   return FIRST_PHASE;
+};
+
+/**
+ * The phase a facility's first sync is up to, named for display, or null when it isn't performing
+ * one.
+ *
+ * This is read on the liveness check, which otherwise answers without touching the database at all,
+ * so a database that can't be reached reports no phase rather than taking the liveness check - and
+ * with it the whole app's idea of whether the server is up - down alongside it.
+ */
+export const getInitialSyncPhaseLabel = async models => {
+  try {
+    const phase = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE);
+    return phase === null ? null : SYNC_PHASE_LABELS[parseInt(phase, 10)];
+  } catch (error) {
+    log.warn('getInitialSyncPhaseLabel.failed', { error: error.message });
+    return null;
+  }
 };
 
 /**

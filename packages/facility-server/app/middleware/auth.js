@@ -247,16 +247,13 @@ export async function loginHandler(req, res, next) {
       allowedFacilities,
       serverFacilities,
     );
-    if (availableFacilities.length === 0) {
-      // a facility whose first sync hasn't reached the end of its boot phase has no facilities to
-      // match a user against yet, which is a server that isn't ready rather than a user without access
-      const initialSyncPhase = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE);
-      if (initialSyncPhase !== null) {
-        throw new AuthPermissionError(
-          'This server is still completing its first sync. Please try again shortly.',
-        );
-      }
-
+    // A facility part-way through its first sync may have no facilities to match a user against yet,
+    // or may have them without the data that makes them usable. Either way that is a server which
+    // isn't ready rather than a user without access, so the login succeeds and the client holds the
+    // user on the initial sync progress screen until the facility is far enough along.
+    const isFirstSyncInProgress =
+      (await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE)) !== null;
+    if (availableFacilities.length === 0 && !isFirstSyncInProgress) {
       throw new AuthPermissionError('User does not have access to any facilities on this server');
     }
 

@@ -28,6 +28,12 @@ export const SYNC_PHASE_LABELS = {
   [SYNC_PHASES.RECORDS]: 'records',
 };
 
+// the phases in the order they run, named as they are reported, for a client showing progress
+// through them without having to know their numbering
+export const SYNC_PHASE_SEQUENCE = [...SYNC_PHASES_VALUES]
+  .sort((a, b) => a - b)
+  .map(phase => SYNC_PHASE_LABELS[phase]);
+
 // 16-bit uint
 //
 // When adding message kinds here, also add them to the Wireshark dissector at:

@@ -5,9 +5,10 @@ import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
-// A facility part-way through the boot phase of its first sync has no facilities to match a user
-// against, which reads as a user without access unless the login path knows an initial sync is
-// underway. This suite stands a user in that position: restricted to facilities, and linked to none.
+// A facility part-way through its first sync has no facilities to match a user against, or has them
+// without the data that makes them usable. That is a server which isn't ready rather than a user
+// without access, so the login succeeds and the client holds the user on the progress screen. This
+// suite stands a user in that position: restricted to facilities, and linked to none.
 describe('login during the initial sync', () => {
   disableHardcodedPermissionsForSuite();
 
@@ -46,16 +47,17 @@ describe('login during the initial sync', () => {
   const login = () =>
     baseApp.post('/api/login').send({ email: user.email, password, deviceId: 'test-device-id' });
 
-  it('reports that the server is still syncing while a phase of the first sync is in progress', async () => {
+  it('lets a user in with no facilities while the first sync is still running', async () => {
     await models.LocalSystemFact.set(FACT_INITIAL_SYNC_PHASE, `${SYNC_PHASES.BOOT}`);
 
     const result = await login();
 
-    expect(result).toHaveRequestError();
-    expect(result.body.error.message).toMatch(/still completing its first sync/);
+    expect(result).toHaveSucceeded();
+    // nothing to select yet: the client shows the progress screen rather than facility selection
+    expect(result.body.availableFacilities).toEqual([]);
   });
 
-  it('reports a lack of facility access once the first sync is complete', async () => {
+  it('refuses a user with no facilities once the first sync is complete', async () => {
     const result = await login();
 
     expect(result).toHaveRequestError();

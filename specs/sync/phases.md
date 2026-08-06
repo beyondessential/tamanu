@@ -61,4 +61,14 @@ Every sync after the first is a single unphased session pulling the changes sinc
 
 - [ ] The facility's sync status reports which phase of the first sync it is performing, and reports no phase once the first sync is complete.
 - [ ] Each phase logs which phase it is and how many tables it covers when it starts, and its phase when it completes, so the time each phase took on a deployment is recoverable from the logs.
-- [ ] A user who attempts to log in while the boot phase is still in progress is told the server is completing its first sync, distinctly from being told they have no access to any facility on the server.
+- [ ] The facility also reports the phase on the unauthenticated status check the web app already makes to see whether the server is alive and whether it needs first-run setup, so a client can tell how far along a facility is without a session, a permission, or a request of its own.
+
+## Using a facility during its first sync
+
+- [ ] A user can log in while a facility's first sync is in progress, including before any facility record has arrived. The login is served by central, which a syncing facility can reach by definition, so it does not depend on data the facility has yet to pull.
+- [ ] A user who logs in before the catalogue phase has completed is shown the progress of the first sync and can do nothing else: no navigation, no facility selection. The gate is on the phase rather than on whether any facility has arrived, because the boot phase delivers facilities while the data that makes them usable is still coming.
+- [ ] The progress display names the phase being performed and shows how far through the phases the facility is.
+- [ ] Once the catalogue phase has completed, the display offers to continue into the server, and the records phase carries on behind the user.
+- [ ] A user who continues is not shown the display again for the rest of their session, and it is not shown at all once the first sync has completed.
+- [ ] The client re-checks the facility's progress on an interval while the display is up, so it advances and offers to continue without the user reloading.
+- [ ] Completing first-run setup logs the user in with the credentials they supplied to it and takes them straight to that display, rather than returning them to a login form.
