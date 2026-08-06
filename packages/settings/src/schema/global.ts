@@ -745,7 +745,7 @@ export const globalSettings = {
             priorityEditable: {
               name: 'Lab request priority editable',
               description:
-                'Allow lab request priority to be edited after the request has been submitted. When disabled, the option to change priority is not offered once the request is no longer reception pending.',
+                'Allow lab request priority to be edited after the request has been created. When disabled, the option to edit priority is never offered.',
               type: yup.boolean(),
               defaultValue: true,
             },
