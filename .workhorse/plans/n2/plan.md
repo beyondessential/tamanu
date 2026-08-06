@@ -84,6 +84,25 @@ a property of the model. Grouped otherwise, dedup does not cross between servers
 Worth confirming how deployments are actually grouped before relying on it for
 capacity planning.
 
+## What Canopy needs (nothing, in code)
+
+bestool took the `after = "<type>"` route (beyondessential/bestool#810): the
+follower is chained device-side by the driver, so the ordering never reaches
+Canopy. Checked against Canopy's code, that needs no change there. `BackupType` is
+open (`TamanuPostgres` plus `Custom(String)`), staleness is already evaluated per
+`(server, type)` with type-suffixed alert refs, and restore credentials are issued
+per `(server, type)`, so a new follower type registers, alerts and restores as it
+stands.
+
+The configuration does matter, though. `crates/database/src/backup/staleness.rs`
+scans only enabled capabilities with a non-NULL `expected_interval`, and a
+newly-seen type arrives with no schedule, so a blob type driven only by the chain
+is never scanned: a chain that silently stops leaves the store unbacked with no
+alert. Give the type its own interval as a backstop, longer than the database
+type's, since the chain covers the common case and a scheduled run adds a capture
+on top. Set its retention deliberately too, per the note above about central's
+store being the archive and the heal source.
+
 ## Outstanding: the content-pending query
 
 The runbook's section 5 asks a support officer to check for references awaiting
