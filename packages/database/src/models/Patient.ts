@@ -1,5 +1,10 @@
 import { Op, DataTypes, type FindOptions, Sequelize } from 'sequelize';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  SYNC_DIRECTIONS,
+  SYNC_PHASES,
+  VACCINE_STATUS,
+} from '@tamanu/constants';
 import {
   getCovidClearanceCertificateFilter,
   getLabTestsFromLabRequests,
@@ -54,6 +59,7 @@ export class Patient extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },

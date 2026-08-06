@@ -3,6 +3,7 @@ import {
   CHARTING_SURVEY_TYPES,
   SURVEY_TYPES,
   SYNC_DIRECTIONS,
+  SYNC_PHASES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Model } from './Model';
@@ -59,6 +60,7 @@ export class Survey extends Model {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

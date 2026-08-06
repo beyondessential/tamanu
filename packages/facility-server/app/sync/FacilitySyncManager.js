@@ -1,5 +1,6 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { SYNC_PHASE_LABELS } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -11,6 +12,8 @@ import {
   dropSnapshotTable,
   getModelsForPush,
   getModelsForPull,
+  getModelsForPullPhase,
+  getModelsForPullThroughPhase,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
@@ -27,6 +30,11 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
+import {
+  completeInitialSyncPhase,
+  getInitialSyncPhase,
+  getPhaseCatchUpSince,
+} from './initialSyncPhase';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -55,6 +63,9 @@ export class FacilitySyncManager {
   currentSyncPromise = null;
 
   nextSyncPromise = null;
+
+  // the run of the next initial sync phase, kicked off by the phase before it
+  initialSyncContinuation = null;
 
   reason = null;
 
@@ -108,15 +119,24 @@ export class FacilitySyncManager {
     this.currentSyncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
+    let result;
     try {
-      const result = await this.currentSyncPromise;
-      return { enabled: true, ...result };
+      result = await this.currentSyncPromise;
     } finally {
       this.currentSyncPromise = null;
       this.nextSyncPromise = null;
       this.reason = '';
       this.currentStartTime = 0;
     }
+
+    // the phase chain is the manager's own business: callers get the outcome of the run they asked
+    // for, not the bookkeeping for the one it goes on to start
+    const { nextPhase, ...outcome } = result ?? {};
+    if (nextPhase) {
+      this.continueInitialSync(nextPhase);
+    }
+
+    return { enabled: true, ...outcome };
   }
 
   async runSync() {
@@ -139,7 +159,15 @@ export class FacilitySyncManager {
       startTime,
     });
 
-    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) ?? -1;
+
+    // a facility that hasn't finished its first sync performs one phase of it per run, and reports
+    // its position as never-synced until the last phase lands, which keeps its place at the front of
+    // the sync queue
+    const phase = await getInitialSyncPhase(this.models);
+    if (phase) {
+      log.info('FacilitySyncManager.startingInitialSyncPhase', { phase: SYNC_PHASE_LABELS[phase] });
+    }
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -167,10 +195,11 @@ export class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     });
 
+    let nextPhase = null;
     try {
       await this.pushChanges(sessionId, newSyncClockTime);
 
-      await this.pullChanges(sessionId);
+      nextPhase = await this.pullChanges(sessionId, phase, pullSince);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
       if (!(error instanceof Problem && error.response)) {
@@ -205,11 +234,12 @@ export class FacilitySyncManager {
     const durationMs = Date.now() - startTime;
     log.info('FacilitySyncManager.completedSession', {
       durationMs,
+      ...(phase && { phase: SYNC_PHASE_LABELS[phase] }),
     });
     this.lastDurationMs = durationMs;
     this.lastCompletedAt = new Date();
 
-    return { queued: false, ran: true };
+    return { queued: false, ran: true, nextPhase };
   }
 
   async pushChanges(sessionId, newSyncClockTime) {
@@ -257,11 +287,47 @@ export class FacilitySyncManager {
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
-  async pullChanges(sessionId) {
-    // syncing incoming changes happens in two phases: pulling all the records from the server,
+  // the next phase of an initial sync starts as soon as the phase before it lands, rather than
+  // waiting for the next scheduled sync. If it fails to start, the scheduled sync picks up the same
+  // phase, so this is not awaited and its failure is not the completed phase's problem
+  continueInitialSync(phase) {
+    log.info('FacilitySyncManager.continuingInitialSync', { phase: SYNC_PHASE_LABELS[phase] });
+    // not urgent: a facility mid-initial-sync already keeps its place at the front of the queue by
+    // reporting itself as never-synced, and urgent is for syncs a person is waiting on
+    const reason = { type: 'initialSyncPhase', phase: SYNC_PHASE_LABELS[phase], urgent: false };
+    this.initialSyncContinuation = this.triggerSync(reason).catch(error => {
+      log.warn('FacilitySyncManager.continueInitialSyncFailed', {
+        phase: SYNC_PHASE_LABELS[phase],
+        error: error.message,
+      });
+    });
+  }
+
+  // returns the phase of the initial sync to run next, or null if this was an ordinary sync or the
+  // last phase of an initial one
+  async pullChanges(sessionId, phase, pullSince) {
+    // syncing incoming changes happens in two stages: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
+
+    // A phase pulls its own tables from the beginning of the sync timeline, and every earlier
+    // phase's tables from where the phase before it stopped. Without that catch-up, a record in this
+    // phase could reference one created on central after an earlier phase was snapshotted - a new
+    // clinician, location, or patient - and the save would fail on a foreign key to a row that was
+    // never pulled, permanently: every retry re-snapshots at a later tick and misses it again.
+    const modelsForPull = phase
+      ? getModelsForPullThroughPhase(this.models, phase)
+      : getModelsForPull(this.models);
+    const pullParams = phase
+      ? {
+          since: await getPhaseCatchUpSince(this.models),
+          tablesToInclude: Object.values(modelsForPull).map(model => model.tableName),
+          tablesForFullResync: Object.values(getModelsForPullPhase(this.models, phase)).map(
+            model => model.tableName,
+          ),
+          isInitialSync: true,
+        }
+      : { since: pullSince };
 
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
@@ -273,30 +339,32 @@ export class FacilitySyncManager {
       this.centralServer,
       this.sequelize,
       sessionId,
-      pullSince,
+      pullParams,
     );
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
-      await assertIfPulledRecordsUpdatedAfterPushSnapshot(
-        Object.values(getModelsForPull(this.models)),
-        sessionId,
-      );
+      await assertIfPulledRecordsUpdatedAfterPushSnapshot(Object.values(modelsForPull), sessionId);
     }
 
-    await this.sequelize.transaction(async () => {
+    return await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await withDeferredSyncSafeguards(this.sequelize, async () =>
-          saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId),
+          saveIncomingChanges(this.sequelize, modelsForPull, sessionId),
         );
       }
 
-      // update the last successful sync in the same save transaction - if updating the cursor fails,
-      // we want to roll back the rest of the saves so that we don't end up detecting them as
-      // needing a sync up to the central server when we attempt to resync from the same old cursor
+      // update the sync position in the same save transaction - if updating it fails, we want to roll
+      // back the rest of the saves so that we don't end up detecting them as needing a sync up to the
+      // central server when we attempt to resync from the same old cursor
+      if (phase) {
+        return await completeInitialSyncPhase(this.models, phase, pullUntil);
+      }
+
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, pullUntil);
+      return null;
     });
   }
 }

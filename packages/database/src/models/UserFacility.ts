@@ -1,5 +1,5 @@
 import { ValidationError } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -16,6 +16,7 @@ export class UserFacility extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         uniqueKeys: {
           user_location_unique: {
             fields: ['user_id', 'facility_id'],
