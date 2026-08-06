@@ -14,24 +14,30 @@ legacy in-database rows.
 - Central `/api/blob` transfer routes; facility `BlobTransferChannel` (`open` = read-through fetch-on-miss). `BLOB_AVAILABILITY_STATES` in `packages/constants/src/blobs.ts`.
 - Hash helpers in `packages/utils/src/blobs.ts`; `formatBlobHash`/`parseBlobHash`.
 
-## Known dependency gap
+## G2 (merged)
 
-- **G2 (facility outbox + background pusher) is not implemented.** `pushToCentral`
-  is a one-shot primitive; there is no outbox table, no scheduler, and the facility
-  context does not instantiate `BlobTransferChannel`. The fully offline-tolerant
-  facility upload path (admit locally, push in background) depends on it. Interim:
-  trigger `pushToCentral` consumer-side after admission; flag the durable-outbox
-  scheduling as owed to G2. Revisit once G2 merges (working-doc note).
+Rebased onto `workhorse/b2`, which now carries G2. Available: `blobStore.put(source,
+{ tier })` with `BLOB_TIERS.OUTBOX`/`CACHE`, `FacilityBlobCache.putOutbox` (call it
+inside the operation that creates the referencing record — facility servers run no
+orphan collection), `blobCache.open()` for read-through with recency touch,
+`BlobOutboxPusher` on a scheduled task, and `blobReferenceResolvers` for push
+eligibility (J2 registers the attachments resolver).
+
+**Bug found in G2's wiring, still to fix:** `setupSyncRuntime.js` constructs
+`BlobTransferChannel` without `facilityIds`, so it defaults to `[]` and central's
+`requestFacilityScope` rejects every fetch and push with a 403. G2's own tests pass
+`facilityIds` explicitly, which is why they don't catch it. Fix is to pass
+`getServerFacilityIds()`.
 
 ## Progress note
 
-Phase A below (central-ingress + serving, additive, no sync-direction change) is
-**implemented and verified**: central attachment suite 15/15, F2 blob transfer
-34/34 (covering the `serveBlob` refactor), BlobStore 43/43, facility
-uploadAttachment 3/3, eslint clean, migration applied against a real Postgres,
-dbt models regenerated and `dbt-check-todos` passing. Phase B (sync direction +
-scoping + facility-origin paths) is gated on two decisions (see bottom) and the
-G2 dependency.
+Phase A (central ingress + serving) and most of Phase B (scoping, sync direction,
+scope-at-creation, FHIR lab PDFs) are **implemented and verified** locally:
+central attachment 15/15, attachment sync scope 4/4, DiagnosticReport 15/15, the
+full central sync suite 172/172, facility blob/document/survey suites 131/131,
+BlobStore 43/43, eslint clean, migrations applied against a real Postgres, dbt
+regenerated with `dbt-check-todos` passing. What remains is the facility-origin
+write path (§5 below).
 
 **Local environment note:** the repo needs Node 26.3.1 (`fnm use`), and a stale
 `DATABASE_URL` env var pointing at a dead port overrides the config and breaks
@@ -53,31 +59,36 @@ every DB-backed test — run with `env -u DATABASE_URL`.
 - [x] Regenerate dbt source models for the `hash` column; `dbt-check-todos` passing.
 - [x] Central endpoint tests: store-backed upload, admitted size, streamed serve with etag, range, unsatisfiable range, base64, legacy fallback, insufficient storage.
 
-## Phase B — sync direction, scoping, facility-origin (gated)
+## Phase B — scoping and sync (done), facility-origin writes (remaining)
 
-### 1. Schema — scoping + persistent sync
-- [ ] Add scoping columns (`patient_id`, optional `encounter_id`/`facility_id`); backfill from owning records (separate DML migration); `flag_lookup_model_to_rebuild('attachments')`.
-- [ ] `Attachment` model: `syncDirection` → BIDIRECTIONAL; implement `buildPatientSyncFilter` + `buildSyncLookupQueryDetails` (patient-scoped).
-- [ ] Mobile TypeORM migration + model mirror; decide mobile pull direction.
-- [ ] Regenerate dbt source models; fill TODOs; `dbt-check-todos`.
+### 1. Schema — scoping + persistent sync  [done]
+- [x] `patient_id` / `encounter_id` on attachments (DDL), backfilled from owning records (separate DML), `flag_lookup_model_to_rebuild('attachments')`.
+- [x] `syncDirection` → BIDIRECTIONAL; `buildPatientSyncFilter` + `buildSyncLookupQueryDetails` mirroring DocumentMetadata (COALESCE patient, encounter-linked joins).
+- [x] Legacy rows excluded from sync via a filtering join, so their bytes never reach a facility. The filter is a join, not a where clause, because a full lookup rebuild replaces the where clause — covered by a test that rebuilds.
+- [x] dbt regenerated for hash + scope columns; `dbt-check-todos` passing.
+- [ ] Mobile TypeORM migration + model mirror; decide mobile pull direction (L2 territory).
 
-### 2. blobReferences registration
-- [ ] Register `{ recordType: 'attachments', hashColumn: 'hash' }` at central startup.
+### 2. Scope at creation  [done]
+- [x] Central `POST /attachment` accepts and persists `patientId`/`encounterId`.
+- [x] `uploadAttachment` threads scope; patient documents pass `patientId`, encounter documents pass `encounterId` + the encounter's patient.
+- [x] Patient letters, survey photo answers (create and patch), and FHIR lab PDFs all set scope at creation.
 
-### 3. Facility serving via transfer channel
-- [ ] Facility `GET /api/attachment/:id`: hash → read-through `open` (fetch-on-miss) → `serveBlob`; content-pending response distinguishing upload- vs fetch-pending.
+### 3. blobReferences registration  [done]
+- [x] Central: `attachments`/`hash` registered as a blob reference source (access control).
+- [x] Facility: attachments resolver registered in `blobReferenceResolvers` so outbox blobs become push-eligible.
 
-### 4. Server-side survey answers
-- [ ] `SurveyResponse.getBodyForAnswer` and photo blank-out (`surveyResponseAnswer` PUT): admit / zero-byte admit to the store.
+### 4. FHIR lab PDFs  [done]
+- [x] `FhirDiagnosticReport.saveAttachment` admits to the central store via `sequelize.blobStore`, scoped to the lab request's encounter.
 
-### 5. Write paths — facility (admit local + push)
-- [ ] `uploadAttachment.js`: admit to facility `blobStore` and create the attachment row together (CACHE invariant: outbox blob always has a referencing record); replace the synchronous base64 POST-to-central.
-- [ ] `createPatientLetter.js`: admit generated PDF to facility store.
-- [ ] Trigger `pushToCentral` for admitted blobs (interim, pending G2 scheduler).
-- [ ] Enforce `maxFileSize` product guard at admission; map `InsufficientStorageError` to the user-facing insufficient-storage rejection.
+### 5. Facility-origin writes — remaining
+- [ ] Fix the G2 `facilityIds` wiring bug first; the facility push path 403s without it.
+- [ ] `uploadAttachment.js`: admit to the facility store at outbox tier and create the attachment row in the same operation, replacing the synchronous base64 POST-to-central (spec: creation completes without central connectivity).
+- [ ] `createPatientLetter.js`: admit the generated PDF to the facility outbox.
+- [ ] Enforce `maxFileSize` at admission; surface `InsufficientStorageError`.
+- [ ] Facility `GET /api/attachment/:id`: read-through `blobCache.open()` (fetch-on-miss, recency touch) → `serveBlob`; content-pending response distinguishing upload- from fetch-pending. Note `req` has no blob store today — needs plumbing through `createApiApp`, and the API process does not run `setupSyncRuntime`, so reads there are local-only.
 
 ### 6. Tests
-- [ ] Work the `.workhorse/test-cases/j2/overview.md` checklist: migration/model unit, central endpoint (serve, legacy, content-pending, scope), facility route (read-through, base64), write-path integration. Tick as covered.
+- [ ] Continue working `.workhorse/test-cases/j2/overview.md`. 11/46 ticked.
 
 ## Open product questions (surface, don't guess)
 - Central ingest of legacy inline sync rows — only needed if mobile L2 ships in a
