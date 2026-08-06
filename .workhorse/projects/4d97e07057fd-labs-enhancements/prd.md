@@ -42,7 +42,7 @@ Priority-ordered. TAM-2053 and TAM-2045 are detailed; the rest are stubs to be w
 
 Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41338-21844&t=tyhjuqgTUSzOAZGg-1
 
--Tests and panels should be combined in the list and ordered alphabetically by category 
+,-Tests and panels should be combined in the list and ordered alphabetically by category 
 - Tests within a panel should be listed in the same order as they appear in the reference data
 - If you search an individual test, display the test first followed by any panels that contain that test alphabetically.
 - Default all panel dropdowns as closed
