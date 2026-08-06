@@ -71,14 +71,13 @@ const isColumnHidden = (key, modelName) => {
 };
 
 // Columns never shown for a satellite: its own primary key and the `referenceDataId` link
-// (implied by the base row), plus the standard bookkeeping columns.
+// (implied by the base row), plus the standard bookkeeping columns. The bookkeeping columns are
+// derived from HIDDEN_COLUMNS' universally-hidden keys (those mapped to `true`) so the two can't
+// drift; the model-scoped `type` rule (a Set, not `true`) is excluded, matching current behaviour.
 const SATELLITE_HIDDEN_COLUMNS = new Set([
+  ...Object.keys(HIDDEN_COLUMNS).filter(key => HIDDEN_COLUMNS[key] === true),
   'id',
   'referenceDataId',
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'updatedAtSyncTick',
 ]);
 
 // Fields that are read-only only on edit
@@ -321,14 +320,13 @@ export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, sat
 
 // Flatten a satellite row's columns onto a base response row as top-level keys (null when the
 // satellite row is absent), then drop the nested association object forResponse may have carried
-// through. Single implementation shared by the single-record helper below and the list route, so
-// both produce the same flat shape.
+// through. Mutates `row` in place (returns nothing). Single implementation shared by the
+// single-record helper below and the list route, so both produce the same flat shape.
 export const flattenSatelliteOntoRow = (row, satelliteColumns, satelliteAs, satelliteRecord) => {
   for (const column of satelliteColumns) {
     row[column.key] = satelliteRecord?.[column.key] ?? null;
   }
   delete row[satelliteAs];
-  return row;
 };
 
 // Build the single-record create/update response, shared by the POST and PUT handlers so the shape
@@ -340,12 +338,13 @@ export const flattenSatelliteOntoRow = (row, satelliteColumns, satelliteAs, sate
 export const buildResponseWithSatellite = (record, columns, satellite, satelliteRecord) => {
   const row = record.forResponse();
   if (!satellite) return row;
-  return flattenSatelliteOntoRow(
+  flattenSatelliteOntoRow(
     row,
     columns.filter(column => column.isSatellite),
     satellite.as,
     satelliteRecord,
   );
+  return row;
 };
 
 /**
