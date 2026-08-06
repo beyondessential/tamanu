@@ -5,12 +5,14 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { BLOB_TIERS } from '@tamanu/constants';
+import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { BlobStore } from '@tamanu/database/blobStore';
 
 import { createTestContext } from '../utilities';
 import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
 import { BlobOutboxPusher } from '../../app/blobCache/BlobOutboxPusher';
 import { blobOutboxStatus } from '../../app/blobCache/outboxStatus';
+import { makeSyncedReferenceResolver } from '../../app/blobCache/referenceResolvers';
 
 const GB = 1024 ** 3;
 
@@ -259,6 +261,17 @@ describe('facility blob outbox and LRU cache', () => {
       await blobCache.enforceBudget();
       expect(await blobStore.has(blob.hash)).toBe(false);
     });
+
+    it('evicts nothing when the budget is not a finite number', async () => {
+      // A misread or unset budget must not be taken as "evict everything".
+      const blob = await putCache();
+      cacheBudgetBytes = undefined;
+
+      const result = await blobCache.enforceBudget();
+
+      expect(result.evictedCount).toBe(0);
+      expect(await blobStore.has(blob.hash)).toBe(true);
+    });
   });
 
   describe('background pusher', () => {
@@ -397,6 +410,91 @@ describe('facility blob outbox and LRU cache', () => {
       expect(status.count).toBe(2);
       expect(status.totalBytes).toBeGreaterThan(0);
       expect(status.maxSyncCyclesUnpushed).toBe(4);
+    });
+  });
+
+  describe('synced reference resolver eligibility', () => {
+    // A throwaway stand-in for a consumer table (attachments arrive in a later
+    // card); rows carry a hash and a raw sync tick, no triggers.
+    const TABLE = 'blob_ref_resolver_test';
+    let originalPushCursor;
+
+    beforeEach(async () => {
+      originalPushCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH);
+      await models.Blob.sequelize.query(
+        `CREATE TABLE IF NOT EXISTS ${TABLE} (hash text, updated_at_sync_tick bigint)`,
+      );
+      await models.Blob.sequelize.query(`TRUNCATE ${TABLE}`);
+    });
+
+    afterEach(async () => {
+      await models.Blob.sequelize.query(`DROP TABLE IF EXISTS ${TABLE}`);
+      if (originalPushCursor == null) {
+        await models.LocalSystemFact.destroy({
+          where: { key: FACT_LAST_SUCCESSFUL_SYNC_PUSH },
+          force: true,
+        });
+      } else {
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, originalPushCursor);
+      }
+    });
+
+    const seed = async records => {
+      for (const [hash, tick] of records) {
+        await models.Blob.sequelize.query(
+          `INSERT INTO ${TABLE} (hash, updated_at_sync_tick) VALUES (:hash, :tick)`,
+          { replacements: { hash, tick } },
+        );
+      }
+    };
+
+    it('is synced only when pushed (positive tick at or under the cursor) or arrived from elsewhere', async () => {
+      // verifies spec: CACHE — the eligibility gate; flag ticks are not "pushed"
+      await seed([
+        ['pushed', 5], // eligible: a real tick at or below the push cursor
+        ['fromElsewhere', -999], // eligible: LAST_UPDATED_ELSEWHERE
+        ['notYetPushed', 50], // not eligible: tick above the cursor
+        ['incomingFlag', -1], // not eligible: INCOMING_FROM_CENTRAL_SERVER flag
+        ['overwriteFlag', 0], // not eligible: OVERWRITE_WITH_CURRENT_TICK flag
+      ]);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
+
+      const resolve = makeSyncedReferenceResolver({ tableName: TABLE, hashColumn: 'hash' });
+      const eligible = await resolve(models, [
+        'pushed',
+        'fromElsewhere',
+        'notYetPushed',
+        'incomingFlag',
+        'overwriteFlag',
+      ]);
+
+      expect([...eligible].sort()).toEqual(['fromElsewhere', 'pushed']);
+    });
+
+    it('treats nothing as pushed before the first successful push completes', async () => {
+      // verifies spec: CACHE — with no push cursor, only from-elsewhere records qualify
+      await seed([
+        ['pushed', 5],
+        ['fromElsewhere', -999],
+      ]);
+      await models.LocalSystemFact.destroy({
+        where: { key: FACT_LAST_SUCCESSFUL_SYNC_PUSH },
+        force: true,
+      });
+
+      const resolve = makeSyncedReferenceResolver({ tableName: TABLE, hashColumn: 'hash' });
+      const eligible = await resolve(models, ['pushed', 'fromElsewhere']);
+
+      expect(eligible).toEqual(['fromElsewhere']);
+    });
+
+    it('rejects a malformed identifier rather than interpolating it', () => {
+      expect(() =>
+        makeSyncedReferenceResolver({
+          tableName: 'attachments; DROP TABLE blobs',
+          hashColumn: 'hash',
+        }),
+      ).toThrow(/Unsafe SQL identifier/);
     });
   });
 });

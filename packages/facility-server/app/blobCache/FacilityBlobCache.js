@@ -52,28 +52,38 @@ export class FacilityBlobCache {
    * read is in progress.
    */
   async open(hash, { start, end } = {}) {
-    if (!(await this.#blobStore.stat(hash))) {
-      if (!this.#transferChannel) {
-        throw new NotFoundError(
-          `Blob not held locally and no central connection to fetch it: ${hash}`,
-        );
+    // Retain before the stat check so eviction defers for the whole open
+    // window: without this, a concurrent eviction between stat and get could
+    // hard-delete the blob and turn a refetchable read into a not-found.
+    this.#retainRead(hash);
+    try {
+      if (!(await this.#blobStore.stat(hash))) {
+        if (!this.#transferChannel) {
+          throw new NotFoundError(
+            `Blob not held locally and no central connection to fetch it: ${hash}`,
+          );
+        }
+        await this.#transferChannel.fetchFromCentral(hash);
+        // A fetch admission may take the cache over budget; enforcement never
+        // evicts the most recently used blob, which the new arrival is.
+        try {
+          await this.enforceBudget();
+        } catch (error) {
+          log.warn('FacilityBlobCache.open: budget enforcement after fetch failed', {
+            hash,
+            error: error.message,
+          });
+        }
       }
-      await this.#transferChannel.fetchFromCentral(hash);
-      // A fetch admission may take the cache over budget; enforcement never
-      // evicts the most recently used blob, which the new arrival is.
-      try {
-        await this.enforceBudget();
-      } catch (error) {
-        log.warn('FacilityBlobCache.open: budget enforcement after fetch failed', {
-          hash,
-          error: error.message,
-        });
-      }
+      await this.#touch(hash);
+      const stream = await this.#blobStore.get(hash, { start, end });
+      // Hand the retain over to the stream: it is released once reading ends.
+      this.#releaseReadOnClose(hash, stream);
+      return stream;
+    } catch (error) {
+      this.#releaseRead(hash);
+      throw error;
     }
-    await this.#touch(hash);
-    const stream = await this.#blobStore.get(hash, { start, end });
-    this.#trackRead(hash, stream);
-    return stream;
   }
 
   // spec: CACHE
@@ -89,7 +99,9 @@ export class FacilityBlobCache {
     const total = await this.#models.Blob.sum('size', {
       where: { tier: BLOB_TIERS.CACHE },
     });
-    return total ?? 0;
+    // SUM over BIGINT can arrive as a string from the pg driver; coerce so
+    // callers compare numbers, not a string against a number.
+    return Number(total ?? 0);
   }
 
   // spec: CACHE
@@ -102,11 +114,26 @@ export class FacilityBlobCache {
    */
   async enforceBudget() {
     const budget = await this.#getCacheBudgetBytes();
-    const excess = (await this.cacheSizeBytes()) - budget;
-    if (excess <= 0) {
+    if (!Number.isFinite(budget)) {
+      // A misconfigured or unset budget must not be read as "evict everything";
+      // leave the cache untouched and let the periodic task retry once fixed.
+      log.warn('FacilityBlobCache.enforceBudget: cache size budget is not a finite number', {
+        budget,
+      });
+      return { evictedBytes: 0, evictedCount: 0 };
+    }
+    // Cheap early-out for the common under-budget case, avoiding the row load.
+    if ((await this.cacheSizeBytes()) <= budget) {
       return { evictedBytes: 0, evictedCount: 0 };
     }
     const rows = await this.#cacheRowsLruFirst();
+    // Recompute excess from this row snapshot: a concurrent eviction between the
+    // size check and this load may already have freed space, and evicting to a
+    // stale, larger excess would remove blobs that now fit.
+    const excess = rows.reduce((total, row) => total + Number(row.size), 0) - budget;
+    if (excess <= 0) {
+      return { evictedBytes: 0, evictedCount: 0 };
+    }
     // Withhold the most recently used blob from budget eviction.
     return await this.#evictRows(rows.slice(0, -1), excess);
   }
@@ -173,17 +200,22 @@ export class FacilityBlobCache {
     );
   }
 
-  #trackRead(hash, stream) {
+  #retainRead(hash) {
     this.#activeReads.set(hash, (this.#activeReads.get(hash) ?? 0) + 1);
+  }
+
+  #releaseRead(hash) {
+    const count = this.#activeReads.get(hash) ?? 0;
+    if (count <= 1) {
+      this.#activeReads.delete(hash);
+    } else {
+      this.#activeReads.set(hash, count - 1);
+    }
+  }
+
+  #releaseReadOnClose(hash, stream) {
     // 'close' fires on both completion and destruction (error or abandoned
-    // stream), so the guard always releases.
-    stream.once('close', () => {
-      const count = this.#activeReads.get(hash) ?? 0;
-      if (count <= 1) {
-        this.#activeReads.delete(hash);
-      } else {
-        this.#activeReads.set(hash, count - 1);
-      }
-    });
+    // stream), so the retain always releases exactly once.
+    stream.once('close', () => this.#releaseRead(hash));
   }
 }
