@@ -1396,7 +1396,7 @@ describe('Encounter', () => {
 
       // The lines have to point back at the ongoing prescription as well, because the patient-level
       // last-sent state is resolved through ongoing_prescription_id rather than prescription_id.
-      it('points lines taken from the patient’s ongoing medications at the ongoing prescription', async () => {
+      it('points the PharmacyOrderPrescription at the ongoingPrescription only when an ongoing medication was selected', async () => {
         const { encounterToDischarge, prescription } = await createEncounterToDischarge();
         const ongoingPrescription = await createOngoingPrescription();
 

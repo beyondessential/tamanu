@@ -21,7 +21,11 @@ export class PrepareDischargeModal {
     
     // Form fields
     this.dischargeNoteTextarea = page.getByTestId('field-0uma-input');
-    this.orderingPrescriberInput = page.getByTestId('field-orderingprescriber-input');
+    // The field's test id lands on the input's container rather than the input, so the disabled
+    // state is only readable from the input itself.
+    this.orderingPrescriberInput = page.locator(
+      'input[name="pharmacyOrder.orderingClinicianId"]',
+    );
     
     // Action buttons (these would need to be updated with actual test IDs from the modal)
     this.confirmButton = page.getByTestId('box-p5wr');
