@@ -28,7 +28,7 @@ export const attachChangelogToSnapshotRecords = async (
           SELECT * FROM logs.changes
           WHERE updated_at_sync_tick >= ?
           ${maxSourceTick ? 'AND updated_at_sync_tick <= ?' : ''}
-          AND (table_name, record_id) IN (VALUES ${snapshotRecordBatch.map(() => `(?, ?)`).join(',')});
+          AND (table_name, record_id) IN (VALUES ${snapshotRecordBatch.map(() => '(?, ?)').join(',')});
         `,
         {
           model: models.ChangeLog,
@@ -37,7 +37,7 @@ export const attachChangelogToSnapshotRecords = async (
           replacements: [
             minSourceTick,
             ...(maxSourceTick ? [maxSourceTick] : []),
-            ...snapshotRecordBatch.map(({ recordType, recordId }) => [recordType, recordId]).flat(),
+            ...snapshotRecordBatch.flatMap(({ recordType, recordId }) => [recordType, recordId]),
           ],
         },
       ),
@@ -46,16 +46,16 @@ export const attachChangelogToSnapshotRecords = async (
   const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangeLog[]>>(
     (acc, changelogRecord) => {
       const id = `${changelogRecord.tableName}-${changelogRecord.recordId}`;
-      (acc[id] = acc[id] || []).push(changelogRecord);
+      acc[id] ??= [];
+      acc[id].push(changelogRecord);
       return acc;
     },
     {},
   );
 
-  snapshotRecords.forEach(snapshotRecord => {
+  snapshotRecords.forEach((snapshotRecord: SyncSnapshotAttributesWithChangelog) => {
     const id = `${snapshotRecord.recordType}-${snapshotRecord.recordId}`;
-    (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords =
-      changelogRecordsByRecordId[id] || [];
+    snapshotRecord.changelogRecords = changelogRecordsByRecordId[id] ?? [];
   });
   return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
 };
