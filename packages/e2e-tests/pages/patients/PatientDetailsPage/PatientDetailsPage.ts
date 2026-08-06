@@ -29,6 +29,7 @@ import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
+  readonly dischargeSummaryButton: Locator;
   readonly vaccineTab: Locator;
   readonly procedureTab: Locator;
   readonly invoicingTab: Locator;
@@ -129,6 +130,11 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
     this.prepareDischargeButton = this.page.getByRole('button', {
       name: 'Prepare discharge',
+      exact: true,
+    });
+    // A discharged encounter offers its summary in place of the discharge action.
+    this.dischargeSummaryButton = this.page.getByRole('button', {
+      name: 'Discharge summary',
       exact: true,
     });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');

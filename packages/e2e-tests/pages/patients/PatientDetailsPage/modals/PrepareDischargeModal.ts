@@ -7,6 +7,8 @@ export class PrepareDischargeModal {
   // Form fields
   readonly dischargeNoteTextarea: Locator;
   
+  readonly orderingPrescriberInput: Locator;
+
   // Action buttons
   readonly confirmButton: Locator;
   readonly cancelButton: Locator;
@@ -19,6 +21,7 @@ export class PrepareDischargeModal {
     
     // Form fields
     this.dischargeNoteTextarea = page.getByTestId('field-0uma-input');
+    this.orderingPrescriberInput = page.getByTestId('field-orderingprescriber-input');
     
     // Action buttons (these would need to be updated with actual test IDs from the modal)
     this.confirmButton = page.getByTestId('box-p5wr');
@@ -45,15 +48,28 @@ export class PrepareDischargeModal {
     return this.page.locator(`input[name="medications.${prescriptionId}.sendToPharmacy"]`);
   }
 
+  /** The inline validation message beneath a row's dispensing quantity. */
+  dispensingQuantityError(prescriptionId: string): Locator {
+    // The message is rendered outside the input's own container, so it is addressed via the row.
+    return this.page
+      .locator('tr', { has: this.dispensingQuantityInput(prescriptionId) })
+      .locator('.MuiFormHelperText-root');
+  }
+
   async setDispensingQuantity(prescriptionId: string, quantity: number) {
     const input = this.dispensingQuantityInput(prescriptionId);
     await input.waitFor({ state: 'visible' });
     await input.fill(String(quantity));
   }
 
+  /** Submits the form without expecting it to pass validation. */
+  async attemptFinaliseDischarge() {
+    await this.confirmButton.click();
+  }
+
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */
   async finaliseDischarge() {
-    await this.confirmButton.click();
+    await this.attemptFinaliseDischarge();
     const confirmDischargeButton = this.page.getByRole('button', { name: 'Confirm' });
     await confirmDischargeButton.waitFor({ state: 'visible' });
     await confirmDischargeButton.click();

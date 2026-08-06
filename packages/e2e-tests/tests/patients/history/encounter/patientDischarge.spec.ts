@@ -50,4 +50,95 @@ test.describe('Patient discharge', () => {
     await expect(patientRows).toContainText(sentDrug.name);
     await expect(patientRows).not.toContainText(notSentDrug.name);
   });
+
+  // The discharge itself must still work where nothing is being ordered — the form sends the same
+  // medications payload either way, and its validation gates every discharge.
+  test('A discharge that sends nothing to pharmacy still finalises', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+    medicationRequestsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    await dischargeModal.setDispensingQuantity(prescription.id, 5);
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
+    await dischargeModal.finaliseDischarge();
+
+    // A discharged encounter offers its summary in place of the discharge action.
+    await patientDetailsPage.navigateToFirstEncounter();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
+
+    await expect(medicationRequestsPage.rowForPatient(newPatient.displayId)).toHaveCount(0);
+  });
+
+  test('Finalising is blocked until a medication being sent has a dispensing quantity', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    // Prescriptions are created without a quantity, so the row starts blank and selected to send.
+    await dischargeModal.attemptFinaliseDischarge();
+    await expect(dischargeModal.dispensingQuantityError(prescription.id)).toHaveText('*Required');
+
+    // Zero is no dispense at all, so it is not enough for a row going to pharmacy either.
+    await dischargeModal.setDispensingQuantity(prescription.id, 0);
+    await dischargeModal.attemptFinaliseDischarge();
+    await expect(dischargeModal.dispensingQuantityError(prescription.id)).toHaveText('*Required');
+
+    await dischargeModal.setDispensingQuantity(prescription.id, 3);
+    await dischargeModal.finaliseDischarge();
+
+    await patientDetailsPage.navigateToFirstEncounter();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
+  });
+
+  test('Ordering prescriber is only active while a medication is selected to send', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    // Encounter medications start selected, so there is an order to attribute from the outset.
+    await expect(dischargeModal.orderingPrescriberInput).toBeEnabled();
+
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
+    await expect(dischargeModal.orderingPrescriberInput).toBeDisabled();
+
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).check();
+    await expect(dischargeModal.orderingPrescriberInput).toBeEnabled();
+  });
 });
