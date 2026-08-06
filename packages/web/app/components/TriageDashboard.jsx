@@ -1,14 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import AccessTime from '@mui/icons-material/AccessTime';
+import { useQuery } from '@tanstack/react-query';
+import styled from 'styled-components';
+
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
-import { useApi } from '../api';
-import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
+import { TranslatedText, useApi, useDateTime, useSettings } from '@tamanu/ui-components';
 import { Colors } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
+import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
+
+function useTriageQuery() {
+  const api = useApi();
+  const { facilityId } = useAuth();
+  return useQuery({
+    queryKey: ['triage', facilityId],
+    queryFn: async () => (await api.get('triage', { facilityId })).data,
+    refetchInterval: 30_000,
+  });
+}
 
 const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
   if (categoryData.length === 0) {
@@ -25,23 +34,9 @@ const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => 
 };
 
 const useTriageData = storedDateTimeToEpochMilliseconds => {
-  const api = useApi();
-  const { facilityId } = useAuth();
-  const [data, setData] = useState([]);
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
-
-  useEffect(() => {
-    const fetchTriageData = async () => {
-      const result = await api.get('triage', { facilityId });
-      setData(result.data);
-    };
-
-    fetchTriageData();
-    // update data every 30 seconds
-    const interval = setInterval(() => fetchTriageData(), 30000);
-    return () => clearInterval(interval);
-  }, [api]);
+  const { data = [] } = useTriageQuery();
 
   return triageCategories?.map(category => {
     const categoryData = data.filter(
