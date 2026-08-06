@@ -11,6 +11,7 @@ import {
   createMultiSelectRecords,
   splitSatelliteData,
   upsertSatelliteRecord,
+  buildResponseWithSatellite,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -44,7 +45,18 @@ referenceDataManageRouter.post(
         }
         return created;
       });
-      res.send(record.forResponse());
+
+      if (!satellite) {
+        res.send(record.forResponse());
+        return;
+      }
+      // Flatten the just-saved satellite fields onto the response so a client refreshing this row
+      // sees them, matching the flat shape the list route returns.
+      const satelliteColumns = columns.filter(c => c.isSatellite);
+      const satelliteRecord = await satellite.model.findOne({
+        where: { referenceDataId: record.id },
+      });
+      res.send(buildResponseWithSatellite(record, satelliteColumns, satelliteRecord));
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
@@ -83,7 +95,18 @@ referenceDataManageRouter.put(
         await upsertSatelliteRecord(satellite.model, record.id, satelliteData);
       }
     });
-    res.send(record.forResponse());
+
+    if (!satellite) {
+      res.send(record.forResponse());
+      return;
+    }
+    // Flatten the current satellite fields onto the response so a client refreshing this row after
+    // save sees them, matching the flat shape the list route returns.
+    const satelliteColumns = columns.filter(c => c.isSatellite);
+    const satelliteRecord = await satellite.model.findOne({
+      where: { referenceDataId: record.id },
+    });
+    res.send(buildResponseWithSatellite(record, satelliteColumns, satelliteRecord));
   }),
 );
 
@@ -170,10 +193,14 @@ referenceDataManageRouter.get(
       throw new InvalidOperationError(`Invalid order value: ${order}`);
     }
 
+    // A satellite column sorts via the joined 1:1 association; a base column sorts on this model.
+    // Validate against whichever set owns the key so orderBy stays an allowlisted column, never an
+    // arbitrary string.
     const validOrderByColumns = new Set(
       Object.keys(model.rawAttributes ?? {}).filter(key => key !== 'deletedAt'),
     );
-    if (!validOrderByColumns.has(orderBy)) {
+    const isSatelliteOrderBy = Boolean(satellite) && satelliteByKey.has(orderBy);
+    if (!validOrderByColumns.has(orderBy) && !isSatelliteOrderBy) {
       throw new InvalidOperationError(`Invalid orderBy value: ${orderBy}`);
     }
 
@@ -234,14 +261,18 @@ referenceDataManageRouter.get(
       referencedAssociations.has(association),
     );
 
+    // Order on the satellite via its association ([{ model, as }, column, direction]); otherwise a
+    // plain base-model column order. A stable id tiebreak keeps pagination deterministic, and nulls
+    // (a drug with no satellite row) sort without erroring.
+    const primaryOrder = isSatelliteOrderBy
+      ? [{ model: satellite.model, as: satellite.as }, orderBy, normalizedOrder]
+      : [orderBy, normalizedOrder];
+
     const count = await model.count({ where, include: countInclude });
     const data = await model.findAll({
       where,
       include,
-      order: [
-        [orderBy, normalizedOrder],
-        ['id', 'ASC'],
-      ],
+      order: [primaryOrder, ['id', 'ASC']],
       limit: Number(rowsPerPage),
       offset: Number(page) * Number(rowsPerPage),
     });

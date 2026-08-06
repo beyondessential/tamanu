@@ -16,6 +16,9 @@ import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 // taskTemplate and medicationTemplate (plus the provisioning/importer parity they need) is the
 // follow-up tracked in TAM-7046; until then the guardrail test allowlists their not-yet-surfaced
 // satellite columns individually.
+// `enabled` is load-bearing, not a runtime feature flag: it drives both getSatelliteForType gating
+// (only enabled satellites are joined/persisted) and the guardrail test's surfaced-vs-follow-up
+// split — don't drop it.
 export const SATELLITE_REGISTRY = {
   [REFERENCE_TYPES.DRUG]: { as: 'referenceDrug', enabled: true },
   [REFERENCE_TYPES.TASK_TEMPLATE]: { as: 'taskTemplate', enabled: false },
@@ -28,7 +31,7 @@ export const SATELLITE_REGISTRY = {
 export const getSatelliteForType = (models, type) => {
   const entry = SATELLITE_REGISTRY[type];
   if (!entry?.enabled) return null;
-  const association = models.ReferenceData.associations?.[entry.as];
+  const association = models.ReferenceData.associations[entry.as];
   if (!association) return null;
   return { as: entry.as, model: association.target };
 };
@@ -187,6 +190,9 @@ export const getSatelliteColumnKeys = satelliteModel =>
 // Build the Manage columns for a satellite table. Satellite columns are plain data columns
 // (route, dosingUnit, unitConversion, …) edited/saved alongside the base row; they carry no FK
 // suggesters or name companions, and are flagged so the list/write path can join and persist them.
+// Assumption: hardcoding readOnly:false and skipping FK-suggester/name-companion detection is only
+// valid while every enabled satellite has plain data columns (no FK columns) — ReferenceDrug does.
+// A future FK-bearing satellite must revisit this to run getForeignKeySuggesters/name-companion logic.
 const getSatelliteColumns = async satellite => {
   const rawAttributes = satellite.model.rawAttributes;
   const dbColumns = await getDbColumnInfo(satellite.model);
@@ -280,6 +286,17 @@ export const splitSatelliteData = (columns, data) => {
 export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, satelliteData) => {
   const [record] = await satelliteModel.upsert({ referenceDataId, ...satelliteData });
   return record;
+};
+
+// Flatten a satellite row's columns onto the base record's response so a single-record create/update
+// response carries the same flat shape the list route returns: satellite fields as top-level keys,
+// null when the satellite row is absent. satelliteColumns is the isSatellite subset of the columns.
+export const buildResponseWithSatellite = (record, satelliteColumns, satelliteRecord) => {
+  const row = record.forResponse();
+  for (const column of satelliteColumns) {
+    row[column.key] = satelliteRecord?.[column.key] ?? null;
+  }
+  return row;
 };
 
 /**
