@@ -12,6 +12,7 @@ import {
   splitSatelliteData,
   upsertSatelliteRecord,
   buildResponseWithSatellite,
+  flattenSatelliteOntoRow,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -285,12 +286,7 @@ referenceDataManageRouter.get(
           row[c.key] = record[c.key]?.name ?? null;
         }
         if (satellite) {
-          const satelliteRecord = record[satellite.as];
-          for (const c of satelliteColumns) {
-            row[c.key] = satelliteRecord?.[c.key] ?? null;
-          }
-          // drop the nested association object forResponse may have carried through
-          delete row[satellite.as];
+          flattenSatelliteOntoRow(row, satelliteColumns, satellite.as, record[satellite.as]);
         }
         return row;
       }),

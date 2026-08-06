@@ -153,15 +153,25 @@ const getForeignKeyNameColumns = model => {
   return columns;
 };
 
+// Table schemas don't change at runtime, but getColumnsForModel runs on every POST/PUT/GET-list/
+// GET-columns request (twice when a satellite is joined). Cache each table's column metadata the
+// first time it's queried so information_schema.columns is hit once per table per process.
+const dbColumnInfoCache = new Map();
+
 const getDbColumnInfo = async model => {
   const tableName = model.getTableName();
+  const cached = dbColumnInfoCache.get(tableName);
+  if (cached) return cached;
+
   const [results] = await model.sequelize.query(
     `SELECT column_name, is_nullable, column_default
      FROM information_schema.columns
      WHERE table_name = :tableName AND table_schema = 'public'`,
     { replacements: { tableName } },
   );
-  return new Map(results.map(row => [row.column_name, row]));
+  const columnInfo = new Map(results.map(row => [row.column_name, row]));
+  dbColumnInfoCache.set(tableName, columnInfo);
+  return columnInfo;
 };
 
 // Map a single Sequelize attribute to the base Manage column descriptor shared by base and
@@ -240,6 +250,7 @@ export const getColumnsForModel = async (model, satellite = null) => {
         ...buildColumnDescriptor(key, attr, dbColumns.get(attr.field ?? key)),
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
+        isSatellite: false,
       };
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];
@@ -308,6 +319,18 @@ export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, sat
   return record;
 };
 
+// Flatten a satellite row's columns onto a base response row as top-level keys (null when the
+// satellite row is absent), then drop the nested association object forResponse may have carried
+// through. Single implementation shared by the single-record helper below and the list route, so
+// both produce the same flat shape.
+export const flattenSatelliteOntoRow = (row, satelliteColumns, satelliteAs, satelliteRecord) => {
+  for (const column of satelliteColumns) {
+    row[column.key] = satelliteRecord?.[column.key] ?? null;
+  }
+  delete row[satelliteAs];
+  return row;
+};
+
 // Build the single-record create/update response, shared by the POST and PUT handlers so the shape
 // lives in one place. With no satellite it's just the base record. With a satellite the response
 // carries the same flat shape the list route returns: satellite fields flattened onto the base row
@@ -317,10 +340,12 @@ export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, sat
 export const buildResponseWithSatellite = (record, columns, satellite, satelliteRecord) => {
   const row = record.forResponse();
   if (!satellite) return row;
-  for (const column of columns.filter(c => c.isSatellite)) {
-    row[column.key] = satelliteRecord?.[column.key] ?? null;
-  }
-  return row;
+  return flattenSatelliteOntoRow(
+    row,
+    columns.filter(column => column.isSatellite),
+    satellite.as,
+    satelliteRecord,
+  );
 };
 
 /**
