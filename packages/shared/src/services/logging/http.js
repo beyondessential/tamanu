@@ -56,15 +56,10 @@ const httpFormatter = (tokens, req, res) => {
 };
 
 function recordActualBytes(req, res) {
-  // A request whose stream was destroyed (e.g. a rejected oversized upload)
-  // leaves no socket to read counters from; skip rather than throw in a
-  // finish/end handler.
-  const { socket } = req;
-  if (!socket) return;
-  req._bytesRead = socket.bytesRead - req._prevBytesRead;
-  res._bytesWritten = socket.bytesWritten - res._prevBytesWritten;
-  req._prevBytesRead = socket.bytesRead;
-  res._prevBytesWritten = socket.bytesWritten;
+  req._bytesRead = req.socket.bytesRead - req._prevBytesRead;
+  res._bytesWritten = req.socket.bytesWritten - res._prevBytesWritten;
+  req._prevBytesRead = req.socket.bytesRead;
+  res._prevBytesWritten = req.socket.bytesWritten;
 }
 
 export function getLoggingMiddleware() {
