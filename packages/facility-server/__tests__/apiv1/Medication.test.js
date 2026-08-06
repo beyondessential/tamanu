@@ -10,6 +10,7 @@ import {
   INVOICE_STATUSES,
   NOTIFICATION_TYPES,
   PHARMACY_ENCOUNTER_FEE_CODE,
+  PHARMACY_PRESCRIPTION_TYPES,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SETTINGS_SCOPES,
@@ -532,6 +533,176 @@ describe('Medication', () => {
 
         const reloadedPrescription = await models.Prescription.findByPk(prescription.id);
         expect(reloadedPrescription.repeats).toBe(3);
+      });
+    });
+  });
+
+  describe('POST /api/medication/encounterPrescription/:encounterId send to pharmacy', () => {
+    // The route rejects a prescription starting before its encounter, so pin the encounter's start
+    // date rather than letting `fake` pick one that may land in the future.
+    const createOpenEncounter = () =>
+      models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          startDate: '2025-01-01 00:00:00',
+          endDate: null,
+        }),
+      );
+
+    const prescriptionPayload = (medicationId, overrides = {}) => ({
+      medicationId,
+      prescriberId: app.user.id,
+      doseAmount: 1,
+      frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+      route: DRUG_ROUTES.oral,
+      date: '2025-01-01',
+      startDate: getCurrentDateTimeString(),
+      ...overrides,
+    });
+
+    const getPharmacyOrderFor = prescriptionId =>
+      models.PharmacyOrderPrescription.findOne({
+        where: { prescriptionId },
+        include: [{ model: models.PharmacyOrder, as: 'pharmacyOrder' }],
+      });
+
+    it('raises a pharmacy order for the new prescription', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app.post(`/api/medication/encounterPrescription/${encounter.id}`).send(
+        prescriptionPayload(medication.id, {
+          quantity: 12,
+          repeats: 2,
+          sendToPharmacy: true,
+          prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+        }),
+      );
+
+      expect(result).toHaveSucceeded();
+
+      const orderPrescription = await getPharmacyOrderFor(result.body.id);
+      expect(orderPrescription).toBeTruthy();
+      expect(orderPrescription.quantity).toBe(12);
+      expect(orderPrescription.repeats).toBe(2);
+      expect(orderPrescription.pharmacyOrder.encounterId).toBe(encounter.id);
+      expect(orderPrescription.pharmacyOrder.orderingClinicianId).toBe(app.user.id);
+      expect(orderPrescription.pharmacyOrder.facilityId).toBe(facilityId);
+      expect(orderPrescription.pharmacyOrder.isDischargePrescription).toBe(false);
+    });
+
+    it('marks the order as a discharge prescription for an outpatient/discharge type', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app.post(`/api/medication/encounterPrescription/${encounter.id}`).send(
+        prescriptionPayload(medication.id, {
+          quantity: 5,
+          sendToPharmacy: true,
+          prescriptionType: PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+        }),
+      );
+
+      expect(result).toHaveSucceeded();
+
+      const orderPrescription = await getPharmacyOrderFor(result.body.id);
+      expect(orderPrescription.pharmacyOrder.isDischargePrescription).toBe(true);
+    });
+
+    it('does not raise an order when send to pharmacy is not requested', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/encounterPrescription/${encounter.id}`)
+        .send(prescriptionPayload(medication.id, { quantity: 12, sendToPharmacy: false }));
+
+      expect(result).toHaveSucceeded();
+      expect(await getPharmacyOrderFor(result.body.id)).toBeNull();
+    });
+
+    it.each([
+      ['no prescription type', { quantity: 12 }],
+      ['no dispensing quantity', { prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT }],
+      [
+        'a dispensing quantity of zero',
+        { quantity: 0, prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT },
+      ],
+    ])('rejects sending to pharmacy with %s', async (_label, overrides) => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/encounterPrescription/${encounter.id}`)
+        .send(prescriptionPayload(medication.id, { sendToPharmacy: true, ...overrides }));
+
+      expect(result).toHaveRequestError();
+      expect(await models.PharmacyOrder.count({ where: { encounterId: encounter.id } })).toBe(0);
+    });
+
+    it('ignores send to pharmacy on an ongoing prescription, which has its own flow', async () => {
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/patientOngoingPrescription/${patient.id}`)
+        .send(
+          prescriptionPayload(medication.id, {
+            isOngoing: true,
+            quantity: 12,
+            sendToPharmacy: true,
+            prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+          }),
+        );
+
+      expect(result).toHaveSucceeded();
+      expect(await getPharmacyOrderFor(result.body.id)).toBeNull();
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects sending to pharmacy without permission to create a medication request', async () => {
+        const limitedApp = await baseApp.asNewRole([
+          ['create', 'Medication'],
+          ['read', 'Medication'],
+        ]);
+        const encounter = await createOpenEncounter();
+        const { medication } = await createDrug();
+
+        const result = await limitedApp
+          .post(`/api/medication/encounterPrescription/${encounter.id}`)
+          .send({
+            ...prescriptionPayload(medication.id, {
+              quantity: 12,
+              sendToPharmacy: true,
+              prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+            }),
+            prescriberId: limitedApp.user.id,
+          });
+
+        expect(result).toBeForbidden();
+        expect(await models.PharmacyOrder.count({ where: { encounterId: encounter.id } })).toBe(0);
+      });
+
+      it('allows a prescription without send to pharmacy for the same user', async () => {
+        const limitedApp = await baseApp.asNewRole([
+          ['create', 'Medication'],
+          ['read', 'Medication'],
+        ]);
+        const encounter = await createOpenEncounter();
+        const { medication } = await createDrug();
+
+        const result = await limitedApp
+          .post(`/api/medication/encounterPrescription/${encounter.id}`)
+          .send({
+            ...prescriptionPayload(medication.id, { quantity: 12 }),
+            prescriberId: limitedApp.user.id,
+          });
+
+        expect(result).toHaveSucceeded();
       });
     });
   });

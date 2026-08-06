@@ -45,6 +45,11 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import {
+  checkPharmacyOrderPermission,
+  checkSensitiveMedicationPermission,
+  createPharmacyOrder,
+} from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 
@@ -232,15 +237,10 @@ encounter.put(
         // Placed inside the discharge transaction so a patient is never discharged with the order
         // half-written, nor an order left behind by a discharge that failed.
         if (pharmacyOrderLines.length > 0) {
-          req.checkPermission('create', 'MedicationRequest');
-          req.checkPermission('read', 'Medication');
-
-          const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+          await checkPharmacyOrderPermission(
+            req,
             pharmacyOrderLines.map(line => line.medicationId),
           );
-          if (hasSensitive) {
-            req.checkPermission('read', 'SensitiveMedication');
-          }
 
           const { orderingClinicianId } = req.body.pharmacyOrder ?? {};
           if (!orderingClinicianId) {
@@ -249,25 +249,16 @@ encounter.put(
             );
           }
 
-          const pharmacyOrder = await models.PharmacyOrder.create({
-            orderingClinicianId,
+          await createPharmacyOrder({
+            models,
             encounterId: id,
+            facilityId: req.facilityId,
+            orderingClinicianId,
             // Anything ordered as part of a discharge is an outpatient/discharge prescription,
             // whatever the facility's default prescription type is.
             isDischargePrescription: true,
-            date: getCurrentDateTimeString(),
-            facilityId: req.facilityId,
+            lines: pharmacyOrderLines,
           });
-
-          await models.PharmacyOrderPrescription.bulkCreate(
-            pharmacyOrderLines.map(line => ({
-              pharmacyOrderId: pharmacyOrder.id,
-              prescriptionId: line.prescriptionId,
-              quantity: line.quantity,
-              repeats: line.repeats,
-              ongoingPrescriptionId: line.ongoingPrescriptionId,
-            })),
-          );
         }
       }
 
@@ -384,35 +375,24 @@ encounter.post(
       attributes: ['id', 'medicationId', 'quantity'],
     });
 
-    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+    await checkSensitiveMedicationPermission(
       prescriptionRecords.map(p => p.medicationId),
+      req,
+      'read',
     );
 
-    if (hasSensitive) {
-      req.checkPermission('read', 'SensitiveMedication');
-    }
-
-    const result = await db.transaction(async () => {
-      const pharmacyOrder = await models.PharmacyOrder.create({
-        orderingClinicianId,
+    const result = await db.transaction(() =>
+      createPharmacyOrder({
+        models,
         encounterId: id,
+        facilityId,
+        orderingClinicianId,
         comments,
         isDischargePrescription,
-        date: date || getCurrentDateTimeString(),
-        facilityId,
-      });
-
-      await models.PharmacyOrderPrescription.bulkCreate(
-        pharmacyOrderPrescriptions.map(prescription => ({
-          pharmacyOrderId: pharmacyOrder.id,
-          prescriptionId: prescription.prescriptionId,
-          quantity: prescription.quantity,
-          repeats: prescription.repeats,
-        })),
-      );
-
-      return pharmacyOrder;
-    });
+        date,
+        lines: pharmacyOrderPrescriptions,
+      }),
+    );
 
     res.send(result);
   }),

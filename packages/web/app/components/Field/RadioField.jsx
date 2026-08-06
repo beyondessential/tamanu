@@ -223,12 +223,19 @@ export const RadioField = ({ field, error, ...props }) => (
   />
 );
 
+const LeftAlignedRadioInput = styled(RadioInput)`
+  .MuiFormControlLabel-root {
+    justify-content: flex-start;
+    padding-inline-start: 15px;
+  }
+`;
+
 export const TranslatedRadioField = ({ error, ...props }) => {
   return (
     <TranslatedEnumField
       error={error || undefined}
       {...props}
-      component={RadioInput}
+      component={LeftAlignedRadioInput}
       data-testid="translatedenumfield-qh1t"
     />
   );
