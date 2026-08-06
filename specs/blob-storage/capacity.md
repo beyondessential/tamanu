@@ -28,6 +28,9 @@ blob.
   reference stays content-pending and the fetch is retried (see `transfer.md`).
 - [ ] The floor applies wherever the blob store runs, including the central server,
   whose store grows without deletion and must not starve the central database.
+- [ ] On a mobile device the floor protects the device's own storage and the local
+  database, and is what bounds the store when un-evictable outbox content is what
+  fills the device.
 
 ## Siting the store
 

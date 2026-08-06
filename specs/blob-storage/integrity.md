@@ -27,6 +27,12 @@ be found.
   that every blob is verified within a target cycle.
 - [ ] The scrub runs on every server that stores blobs, central and facilities
   alike.
+- [ ] A mobile device runs no scheduled scrub, since it is battery-powered and
+  intermittently awake. It relies on verification at receipt and on read, and its
+  cache refetches on demand.
+- [ ] A device verifies an outbox blob against its hash before offering it, so
+  corruption of content the device alone holds is detected and surfaced on the
+  device rather than as a repeatedly refused push.
 - [ ] The scrub also checks referential integrity for content that must be durably
   present on the server: every referenced, delivered blob on the central server, and
   every outbox blob on a facility. A blob absent in these cases is reported the same

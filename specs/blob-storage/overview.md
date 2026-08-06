@@ -18,6 +18,7 @@ The specs in this area cover:
 - `content-addressing.md` — how blobs are identified, stored, and recorded
 - `transfer.md` — how bytes move between servers, and the content-pending state
 - `facility-cache.md` — the facility and mobile outbox-and-cache store
+- `mobile.md` — blobs on a mobile device
 - `capacity.md` — protecting the host's disk from the store
 - `reclamation.md` — when blobs are reclaimed
 - `access-control.md` — who may read and push blobs
