@@ -548,6 +548,46 @@ describe('Blob transfer channel', () => {
           });
         }
       });
+
+      it('scopes to every facility a multi-facility server declares', async () => {
+        // A server running several facilities declares them all; a blob
+        // referenced at any one is in scope, and each declared facility is
+        // validated against the user's entitlement.
+        const user = await models.User.create(fake(models.User, { password: 'password' }));
+        for (const facilityId of [facilityA.id, facilityB.id]) {
+          await models.UserFacility.create(fake(models.UserFacility, { userId: user.id, facilityId }));
+        }
+        await models.Device.create(
+          fake(models.Device, {
+            id: 'blob-scope-device-ab',
+            registeredById: user.id,
+            scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+          }),
+        );
+        const login = await baseApp.post('/api/login').send({
+          email: user.email,
+          password: 'password',
+          deviceId: 'blob-scope-device-ab',
+          scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+        });
+        const scopeAB = { token: login.body.token, facilityIds: [facilityA.id, facilityB.id] };
+
+        const patientAtB = await models.Patient.create(fake(models.Patient));
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patientAtB.id,
+          facilityId: facilityB.id,
+        });
+        const content = Buffer.from('multi facility scope');
+        const hash = await seedHeldBlob(content);
+        await reference(hash, { patientId: patientAtB.id });
+
+        const response = await availability(hash, scopeAB);
+        expect(response.body).toEqual({
+          availability: BLOB_AVAILABILITY_STATES.AVAILABLE,
+          size: content.length,
+        });
+      });
     });
 
     describe('push', () => {

@@ -123,6 +123,9 @@ export class BlobTransferChannel {
       }
       try {
         const response = await this.#centralServer.fetch(
+          // Three-argument api-client form: the second positional argument is
+          // the query (facilityIds go through as query params), the third is
+          // the request config. See CentralServerConnection.fetch.
           `blob/${encodeURIComponent(hash)}`,
           { facilityIds: this.#facilityIds },
           {

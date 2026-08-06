@@ -24,6 +24,7 @@ J2/K2.
 - [x] Fetch a hash whose bytes central holds but which no record references at all and confirm it answers as absent for any facility. verifies spec: BLAC#server-to-server-fetch
 - [x] With facility restriction off (user entitled to every facility), a server that declares only its own facility does not get a blob referenced only at another facility — scope follows the declared facilities, not the entitlement. verifies spec: BLAC#server-to-server-fetch
 - [x] A request declaring a facility the user cannot access is refused. verifies spec: BLAC#server-to-server-fetch
+- [x] A multi-facility server declaring several facilities gets a blob referenced at any one of them, with each declared facility validated against entitlement. verifies spec: BLAC#server-to-server-fetch
 - [x] A quarantined blob answers as absent on both availability and fetch, identically to content central does not hold, and the response does not disclose the quarantine. verifies spec: BLAC#server-to-server-fetch
 
 ## Server-to-server push gating

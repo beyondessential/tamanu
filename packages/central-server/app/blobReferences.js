@@ -11,9 +11,11 @@
 // add themselves as they move onto the blob store.
 const BLOB_REFERENCE_SOURCES = [];
 
-// Identifiers are interpolated into SQL; anything else must go through
-// replacements.
-const SAFE_IDENTIFIER = /^[a-z_]+$/;
+// Table and column names are interpolated into SQL as identifiers (which can't
+// be parameterised); anything else goes through replacements. The pattern
+// admits digits after the first character so names like `document_metadata_v2`
+// register.
+const SAFE_IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
 
 export function registerBlobReferenceSource({ recordType, hashColumn }) {
   if (!SAFE_IDENTIFIER.test(recordType) || !SAFE_IDENTIFIER.test(hashColumn)) {
@@ -56,21 +58,26 @@ export async function isHashReferencedInScope(sequelize, { hash, facilityIds }) 
         sync_lookup.facility_id IS NULL
         OR sync_lookup.facility_id IN (:facilityIds)
       )`;
-  const perSource = BLOB_REFERENCE_SOURCES.map(
-    ({ recordType, hashColumn }) => `
+  // Table and column names must be interpolated (SQL identifiers can't be
+  // bound), and are constrained to SAFE_IDENTIFIER at registration. The
+  // record_type value is a bound parameter per source.
+  const replacements = { hash, facilityIds };
+  const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
+    replacements[`recordType${index}`] = recordType;
+    return `
       SELECT 1
       FROM ${recordType} record
       JOIN sync_lookup
-        ON sync_lookup.record_type = '${recordType}'
+        ON sync_lookup.record_type = :recordType${index}
         AND sync_lookup.record_id = record.id::text
       WHERE record.${hashColumn} = :hash
       AND sync_lookup.data IS NOT NULL
-      ${scopeClause}`,
-  );
+      ${scopeClause}`;
+  });
 
   const [[{ referenced }]] = await sequelize.query(
     `SELECT EXISTS (${perSource.join(' UNION ALL ')}) AS "referenced"`,
-    { replacements: { hash, facilityIds } },
+    { replacements },
   );
   return referenced;
 }
