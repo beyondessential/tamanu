@@ -59,6 +59,14 @@ outbox, where the device holds the only copy of captured content, so an outbox b
 is verified before it is offered. That turns local corruption into a surfaced fault
 rather than a push that is refused over and over.
 
+## Status
+
+Held pending J2. The hash-resolution approach rests on J2 giving attachment records
+their owning record's patient linkage, and the mobile spec cross-references J2's
+attachments spec, which is not on this base yet. Resume once J2 lands: rebase onto
+it, confirm the linkage landed as specified, and settle whether mobile's attachment
+behaviour folds into the attachments spec or stays its own file.
+
 ## Notes
 
 - Branch is based on `workhorse/b2` rather than `main`, matching siblings K2 and N2,
