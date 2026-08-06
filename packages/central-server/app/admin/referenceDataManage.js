@@ -221,8 +221,17 @@ referenceDataManageRouter.get(
       }
       const satelliteCol = satelliteByKey.get(key);
       if (satelliteCol) {
-        // search the satellite's column via the joined association, not a column on this model
-        searchWhere[`$${satellite.as}.${key}$`] = exactMatchKeys.has(key)
+        // Gate satellite columns by the same searchable-type rule as base columns, so a
+        // non-searchable satellite column type can't reach the filter path.
+        if (!searchableKeys.has(key)) continue;
+        // Search the satellite's column via the joined association, not a column on this model.
+        // The `$alias.column$` path is not run through Sequelize's attribute→field mapping, so it
+        // must use the real DB column name (e.g. is_sensitive), not the camelCase attribute key
+        // (isSensitive) — otherwise Postgres errors with "column referenceDrug.isSensitive does not
+        // exist". Postgres coerces the untyped string literal for BOOLEAN/DECIMAL exact matches, so
+        // the raw query value works as-is (mirrors the base-column path, which also passes it raw).
+        const field = satellite.model.rawAttributes[key]?.field ?? key;
+        searchWhere[`$${satellite.as}.${field}$`] = exactMatchKeys.has(key)
           ? value
           : { [Op.iLike]: `%${value}%` };
         continue;

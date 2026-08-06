@@ -675,6 +675,94 @@ describe('Reference Data Manage', () => {
       expect(satellite).toMatchObject({ route: 'oral', dosingUnit: 'mg', isSensitive: true });
     });
 
+    // Filtering by satellite columns whose camelCase attribute key differs from its snake_case DB
+    // column (isSensitive→is_sensitive, unitConversion→unit_conversion, dosingUnit→dosing_unit).
+    // The `$alias.column$` search path is not run through Sequelize's attribute→field mapping, so it
+    // must use the real DB column name; using the camelCase key made Postgres throw "column
+    // referenceDrug.isSensitive does not exist" (HTTP 500). BOOLEAN and DECIMAL columns are compared
+    // to the raw string query value, which Postgres coerces from the untyped literal.
+    describe('filtering by typed and camelCase satellite columns', () => {
+      const CODE_PREFIX = 'sat-filter-';
+      let sensitiveId;
+      let plainId;
+
+      beforeAll(async () => {
+        const createDrug = async (codeSuffix, drugFields) => {
+          const record = await models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: REFERENCE_TYPES.DRUG,
+            code: `${CODE_PREFIX}${codeSuffix}`,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          });
+          await models.ReferenceDrug.create({ referenceDataId: record.id, ...drugFields });
+          return record.id;
+        };
+        sensitiveId = await createDrug('sensitive', {
+          isSensitive: true,
+          unitConversion: 5.5,
+          dosingUnit: 'grams-unique',
+        });
+        plainId = await createDrug('plain', {
+          isSensitive: false,
+          unitConversion: 1.0,
+          dosingUnit: 'mg',
+        });
+      });
+
+      it('filters by a BOOLEAN satellite column (isSensitive=true) without erroring', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          isSensitive: 'true',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toContain(sensitiveId);
+        expect(ids).not.toContain(plainId);
+        expect(response.body.count).toBe(1);
+      });
+
+      it('filters by a BOOLEAN satellite column (isSensitive=false)', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          isSensitive: 'false',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toContain(plainId);
+        expect(ids).not.toContain(sensitiveId);
+      });
+
+      it('filters by a DECIMAL satellite column (unitConversion) via a numeric string param', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          unitConversion: '5.5',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toEqual([sensitiveId]);
+        expect(response.body.count).toBe(1);
+      });
+
+      it('filters by a camelCase STRING satellite column (dosingUnit) via iLike', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          dosingUnit: 'grams-unique',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toEqual([sensitiveId]);
+        expect(response.body.count).toBe(1);
+      });
+    });
+
     // Satellite columns are sortable: Sequelize can ORDER BY a column on the eagerly-included 1:1
     // association. These assert ascending/descending order by `route` and that a drug with no
     // satellite row (null route) sorts without erroring.
