@@ -26,24 +26,32 @@ legacy in-database rows.
 ## Progress note
 
 Phase A below (central-ingress + serving, additive, no sync-direction change) is
-**written but unverified** — this worktree has no `node_modules` installed and no
-DB configured, so migration/dbt/endpoint tests have not run. Phase B (sync
-direction + scoping + facility-origin paths) is gated on two decisions (see
-bottom) and the G2 dependency.
+**implemented and verified**: central attachment suite 15/15, F2 blob transfer
+34/34 (covering the `serveBlob` refactor), BlobStore 43/43, facility
+uploadAttachment 3/3, eslint clean, migration applied against a real Postgres,
+dbt models regenerated and `dbt-check-todos` passing. Phase B (sync direction +
+scoping + facility-origin paths) is gated on two decisions (see bottom) and the
+G2 dependency.
+
+**Local environment note:** the repo needs Node 26.3.1 (`fnm use`), and a stale
+`DATABASE_URL` env var pointing at a dead port overrides the config and breaks
+every DB-backed test — run with `env -u DATABASE_URL`.
 
 ## Phase A — central ingress + serving (additive, reversible)
 
 ### 1a. Schema — hash column
-- [x] Server migration `1785820000000-addAttachmentHash.ts`: add `hash` (TEXT, nullable), relax `data` to nullable. DDL only. *(written, unrun)*
-- [x] `Attachment` model: add `hash` column. *(written, unrun)*
+- [x] Server migration `1785820000000-addAttachmentHash.ts`: add `hash` (TEXT, nullable), relax `data` to nullable. DDL only. Applied against a real Postgres.
+- [x] `Attachment` model: add `hash` column.
 
 ### 3a. Serving — shared helper + central reads
-- [x] Extract range/etag/streaming framing from `blobTransfer.js` into `app/utils/serveBlob.js`; refactor the transfer route onto it. *(written, unrun)*
-- [x] Central `GET /api/attachment/:id`: hash → `serveBlob`; legacy → in-database bytea; retain `base64=true`. *(written, unrun)*
+- [x] Extract range/etag/streaming framing from `blobTransfer.js` into `app/utils/serveBlob.js`; refactor the transfer route onto it.
+- [x] Central `GET /api/attachment/:id`: hash → `serveBlob`; legacy → in-database bytea; retain `base64=true`.
 
 ### 4a. Write paths — central ingress
-- [x] Central `POST /api/attachment`: admit to `ctx.blobStore`, store hash, size from admitted bytes; drop `canUploadAttachment` in favour of the store's free-disk floor. *(written, unrun)*
+- [x] Central `POST /api/attachment`: admit to `ctx.blobStore`, store hash, size from admitted bytes; drop `canUploadAttachment` in favour of the store's free-disk floor.
 - [ ] FHIR lab PDF: `FhirDiagnosticReport.saveAttachment` admits to the store — deferred (needs the blob store plumbed to the model method, not just the route).
+- [x] Regenerate dbt source models for the `hash` column; `dbt-check-todos` passing.
+- [x] Central endpoint tests: store-backed upload, admitted size, streamed serve with etag, range, unsatisfiable range, base64, legacy fallback, insufficient storage.
 
 ## Phase B — sync direction, scoping, facility-origin (gated)
 

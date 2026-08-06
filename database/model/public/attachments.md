@@ -28,3 +28,7 @@ The file size in bytes.
 {% docs attachments__data %}
 The file data.
 {% enddocs %}
+
+{% docs attachments__hash %}
+The algorithm-tagged hash of the file's content, naming its blob in the content-addressed blob store. Null on legacy attachments, which hold their bytes in `data` instead.
+{% enddocs %}

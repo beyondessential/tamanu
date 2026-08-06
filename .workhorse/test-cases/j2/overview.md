@@ -13,7 +13,7 @@ uncited ones are operational.
 ## Migration and model
 
 - [ ] The migration adds `hash`, and patient/facility scoping columns, to `attachments` and relaxes `data` to nullable, with a mobile (TypeORM) migration alongside and the dbt source models regenerated
-- [ ] A newly created attachment row carries a locally assigned identifier, a hash, a content-type, and a size, with no `data` bytes (verifies spec: ATCH)
+- [x] A newly created attachment row carries a locally assigned identifier, a hash, a content-type, and a size, with no `data` bytes (verifies spec: ATCH)
 - [ ] Creating an attachment assigns its identifier without reaching another server (verifies spec: ATCH)
 - [ ] A legacy row (bytea populated, hash null) is untouched by the migration and remains readable (verifies spec: ATCH)
 - [ ] An attachment record syncs as an ordinary persistent record carrying only its hash — the sync payload and the changelog snapshot contain no blob bytes (verifies spec: ATCH)
@@ -30,7 +30,7 @@ uncited ones are operational.
 - [ ] Upload a document against an encounter (`POST /api/encounter/:id/documentMetadata`) and confirm the bytes are admitted to the facility outbox store, the row records hash/size/type, and the document metadata links to it (verifies spec: ATCH)
 - [ ] Upload a document against a patient (`POST /api/patient/:id/documentMetadata`) with the same outcome (verifies spec: ATCH)
 - [ ] Upload a document while central is unreachable and confirm creation completes locally, then the record syncs and the background pusher delivers the bytes after connectivity returns (verifies spec: ATCH, XFER)
-- [ ] Confirm an attachment's recorded size is taken from the bytes actually admitted, not from the caller's declared size (verifies spec: ATCH)
+- [x] Confirm an attachment's recorded size is taken from the bytes actually admitted, not from the caller's declared size (verifies spec: ATCH)
 - [ ] Upload the same file content twice and confirm both attachment references resolve, each with its own scoping, backed by a single blob on disk (verifies spec: CAS)
 - [ ] Create a patient letter (`POST /api/patient/:id/createPatientLetter`) and confirm the generated PDF is admitted to the facility outbox and the row carries its hash (verifies spec: ATCH)
 - [ ] Submit a survey response with a photo answer from web and confirm a hash-backed attachment is created with the answer body holding its id (verifies spec: ATCH)
@@ -38,15 +38,16 @@ uncited ones are operational.
 - [ ] Post a FHIR DiagnosticReport with a `presentedForm` PDF and confirm the attachment is admitted directly to the central store hash-backed and linked to the lab request (verifies spec: ATCH)
 - [ ] Confirm central accepts a hash-carrying attachment record arriving through sync from a facility, with the bytes arriving separately over the transfer channel (verifies spec: ATCH, XFER)
 - [ ] Upload a document over the configured maximum file size and confirm it is rejected with the request stream drained, so the response finish logs without error (verifies spec: ATCH)
-- [ ] Attempt an upload the store cannot admit without crossing the free-disk reserve and confirm an insufficient-storage error (verifies spec: ATCH, CAP)
+- [x] Attempt an upload the store cannot admit without crossing the free-disk reserve and confirm an insufficient-storage error (verifies spec: ATCH, CAP)
 
 ## Serving
 
 - [ ] Fetch an attachment (`GET /api/attachment/:id`) and confirm the bytes stream with the declared content-type, without the file being buffered whole in memory (verifies spec: ATCH, SERVE)
-- [ ] Request a byte range of a large attachment and confirm a partial response with correct extent (verifies spec: SERVE)
+- [x] Request a byte range of a large attachment and confirm a partial response with correct extent (verifies spec: SERVE)
 - [ ] Confirm content served from the store carries the hash as cache validator and a conditional re-request returns not-modified (verifies spec: SERVE)
-- [ ] Request an attachment with `base64=true` and confirm the inline-encoded response still works for a hash-backed attachment (verifies spec: ATCH)
-- [ ] Fetch a legacy row (bytea, no hash) and confirm it serves identically, resolving the in-database bytes because no hash is present (verifies spec: ATCH)
+- [x] Refuse an unsatisfiable range on a hash-backed attachment with the content's true extent (verifies spec: SERVE)
+- [x] Request an attachment with `base64=true` and confirm the inline-encoded response still works for a hash-backed attachment (verifies spec: ATCH)
+- [x] Fetch a legacy row (bytea, no hash) and confirm it serves identically, resolving the in-database bytes because no hash is present (verifies spec: ATCH)
 - [ ] Serve a legacy attachment on a facility and confirm it reads through the central server, since legacy rows reside only on central (verifies spec: ATCH)
 - [ ] Fetch an attachment on a facility that holds the blob locally and confirm it serves without contacting central (verifies spec: ATCH)
 - [ ] Fetch an attachment on a facility that does not hold the blob and confirm the read-through resolves it from central, caches it, and serves it (verifies spec: ATCH, XFER, CACHE)
