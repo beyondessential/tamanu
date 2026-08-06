@@ -35,6 +35,7 @@ untouched suites). Boxes stay unticked until the scenarios run green.
 
 ## Facility availability
 
+- [x] A hash-form asset row (null inline bytes) passes the sync sanitiser on ingest, so the row and its hash land on the facility rather than throwing (verifies spec: ASSET)
 - [ ] Sync a newly uploaded asset row to a facility; the facility fetches the bytes soon after the row arrives, before any reader touches it (verifies spec: ASSET)
 - [ ] Evict the asset blob from the facility cache, then render a patient letter; the bytes are refetched on demand and the letter renders (verifies spec: ASSET, CACHE)
 - [ ] With asset bytes absent and central reachable, GET the facility asset endpoint; the on-demand fetch fills the cache and the bytes serve (verifies spec: ASSET)
