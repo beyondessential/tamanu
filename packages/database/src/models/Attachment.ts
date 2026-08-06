@@ -8,6 +8,7 @@ export class Attachment extends Model {
   declare id: string;
   declare type?: String;
   declare size?: Number;
+  declare hash?: string;
   declare data?: Buffer;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -16,6 +17,7 @@ export class Attachment extends Model {
         id: primaryKey,
         type: DataTypes.TEXT,
         size: DataTypes.INTEGER,
+        hash: DataTypes.TEXT,
         data: DataTypes.BLOB,
       },
       {
