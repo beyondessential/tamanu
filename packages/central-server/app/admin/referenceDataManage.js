@@ -38,25 +38,19 @@ referenceDataManageRouter.post(
         return res.send(records);
       }
 
-      const record = await model.sequelize.transaction(async () => {
+      // upsertSatelliteRecord returns the persisted satellite row (RETURNING *), so the response is
+      // built from it directly — no extra findOne outside the transaction. A brand-new base record
+      // has no satellite row when no satellite fields were provided, so satelliteRecord is null then.
+      const { record, satelliteRecord } = await model.sequelize.transaction(async () => {
         const created = await model.create({ ...typeFilter, ...baseData });
-        if (satellite && Object.keys(satelliteData).length > 0) {
-          await upsertSatelliteRecord(satellite.model, created.id, satelliteData);
-        }
-        return created;
+        const upserted =
+          satellite && Object.keys(satelliteData).length > 0
+            ? await upsertSatelliteRecord(satellite.model, created.id, satelliteData)
+            : null;
+        return { record: created, satelliteRecord: upserted };
       });
 
-      if (!satellite) {
-        res.send(record.forResponse());
-        return;
-      }
-      // Flatten the just-saved satellite fields onto the response so a client refreshing this row
-      // sees them, matching the flat shape the list route returns.
-      const satelliteColumns = columns.filter(c => c.isSatellite);
-      const satelliteRecord = await satellite.model.findOne({
-        where: { referenceDataId: record.id },
-      });
-      res.send(buildResponseWithSatellite(record, satelliteColumns, satelliteRecord));
+      res.send(buildResponseWithSatellite(record, columns, satellite, satelliteRecord));
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
@@ -89,24 +83,21 @@ referenceDataManageRouter.put(
     const data = getWritableData(columns, rawData, true);
     const { baseData, satelliteData } = splitSatelliteData(columns, data);
 
-    await model.sequelize.transaction(async () => {
+    // The transaction returns the satellite row the response is flattened from, so there's no extra
+    // findOne outside it. When the update carries satellite fields, upsert returns the merged row
+    // (RETURNING *). When it carries none, the satellite row is left untouched, but the response must
+    // still reflect any pre-existing row — read it once inside the transaction (still one query, and
+    // only in this no-satellite-fields case) so the response shape stays identical.
+    const satelliteRecord = await model.sequelize.transaction(async () => {
       await record.update(baseData);
-      if (satellite && Object.keys(satelliteData).length > 0) {
-        await upsertSatelliteRecord(satellite.model, record.id, satelliteData);
+      if (!satellite) return null;
+      if (Object.keys(satelliteData).length > 0) {
+        return upsertSatelliteRecord(satellite.model, record.id, satelliteData);
       }
+      return satellite.model.findOne({ where: { referenceDataId: record.id } });
     });
 
-    if (!satellite) {
-      res.send(record.forResponse());
-      return;
-    }
-    // Flatten the current satellite fields onto the response so a client refreshing this row after
-    // save sees them, matching the flat shape the list route returns.
-    const satelliteColumns = columns.filter(c => c.isSatellite);
-    const satelliteRecord = await satellite.model.findOne({
-      where: { referenceDataId: record.id },
-    });
-    res.send(buildResponseWithSatellite(record, satelliteColumns, satelliteRecord));
+    res.send(buildResponseWithSatellite(record, columns, satellite, satelliteRecord));
   }),
 );
 

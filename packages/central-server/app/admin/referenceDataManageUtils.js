@@ -288,12 +288,16 @@ export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, sat
   return record;
 };
 
-// Flatten a satellite row's columns onto the base record's response so a single-record create/update
-// response carries the same flat shape the list route returns: satellite fields as top-level keys,
-// null when the satellite row is absent. satelliteColumns is the isSatellite subset of the columns.
-export const buildResponseWithSatellite = (record, satelliteColumns, satelliteRecord) => {
+// Build the single-record create/update response, shared by the POST and PUT handlers so the shape
+// lives in one place. With no satellite it's just the base record. With a satellite the response
+// carries the same flat shape the list route returns: satellite fields flattened onto the base row
+// as top-level keys, null when the satellite row is absent (satelliteRecord null). satelliteRecord
+// is the row the transaction returned (the upserted row, or the existing row when the write left the
+// satellite untouched), so no extra query is needed to build this.
+export const buildResponseWithSatellite = (record, columns, satellite, satelliteRecord) => {
   const row = record.forResponse();
-  for (const column of satelliteColumns) {
+  if (!satellite) return row;
+  for (const column of columns.filter(c => c.isSatellite)) {
     row[column.key] = satelliteRecord?.[column.key] ?? null;
   }
   return row;
