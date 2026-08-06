@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useDateTime } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const MINUTE = 60 * 1000;
@@ -18,7 +18,8 @@ const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
   const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
-  return `${hours}hrs ${minutes}mins`;
+  const formatter = new Intl.DurationFormat(getCurrentLanguageCode(), { style: 'short' });
+  return <time dateTime={`${hours}h ${minutes}m`}>{formatter.format({ hours, minutes })}</time>;
 };
 
 const PlainCell = styled.div`
@@ -93,14 +94,14 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.TRIAGE:
         return (
           <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-xrcr">
-            <div>{getDuration(assumedArrivalTime, storedDateTimeToEpochMilliseconds)}</div>
+            {getDuration(assumedArrivalTime, storedDateTimeToEpochMilliseconds)}
             <div>
               <TranslatedText
                 stringId="patientList.triage.table.waitTime.cell.triageTime"
-                fallback="Triage at :triageDate"
-                replacements={{ triageDate: formatTime(triageTime) }}
+                fallback="Triage at"
                 data-testid="translatedtext-wovf"
-              />
+              />{' '}
+              <time dateTime={triageTime}>{formatTime(triageTime)}</time>
             </div>
           </TriageCell>
         );
