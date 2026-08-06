@@ -7,11 +7,12 @@ seeded blob store; the print-preview and connectivity-loss cases are manual.
 Cache mechanics (eviction, outbox, backpressure) are G2's coverage; this card
 covers assets as a consumer of them.
 
-Coverage status: the shared dual-read resolver has a passing unit test; the
-central upload/read endpoint tests are authored but unrun locally, as the
-DB-backed Jest harness cannot build a test context on this machine (a
-pre-existing `read ECONNRESET` at the Postgres handshake that also fails
-untouched suites). Boxes stay unticked until the scenarios run green.
+Coverage status: the dual-read resolver, the sync sanitisers, and the prefetch
+pass have passing unit tests (25 cases, no database needed). The central
+upload/read endpoint tests are authored but unrun locally, as the DB-backed Jest
+harness cannot build a test context on this machine (a pre-existing
+`read ECONNRESET` at the Postgres handshake that also fails untouched suites).
+Boxes stay unticked until the scenarios run green.
 
 ## Upload path (central admin endpoint)
 
@@ -55,5 +56,5 @@ untouched suites). Boxes stay unticked until the scenarios run green.
 
 ## Operational
 
-- [ ] Manual: on a facility web client, open a certificate print preview after new-form assets are in place; letterhead, watermark, and footer display with no web changes deployed
+- [ ] Manual: on a facility web client, open a certificate print preview after new-form assets are in place; letterhead, watermark, and footer all display
 - [ ] Manual: email a vaccine certificate from central with hash-form assets; the attached PDF carries the images
