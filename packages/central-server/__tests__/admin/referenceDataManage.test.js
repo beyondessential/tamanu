@@ -10,6 +10,7 @@ import {
 import {
   SATELLITE_REGISTRY,
   getSatelliteColumnKeys,
+  getColumnsForModel,
 } from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
 
@@ -828,6 +829,31 @@ describe('Reference Data Manage', () => {
           'alpha-route',
         ]);
       });
+    });
+  });
+
+  // getSatelliteColumns hardcodes readOnly:false and skips FK-suggester/name-companion detection,
+  // which is only valid for satellites with plain data columns (ReferenceDrug). A satellite carrying
+  // a BelongsTo (FK) association other than its referenceDataId back-link must fail loudly at
+  // column-build time rather than silently emitting wrong descriptors.
+  describe('FK-bearing satellite guardrail', () => {
+    it('throws when building columns for an enabled satellite with a foreign-key association', async () => {
+      // ReferenceMedicationTemplate has a real FK (medicationId) plus the referenceDataId link — a
+      // stand-in for a hypothetical FK-bearing enabled satellite (medicationTemplate, deferred).
+      const fkBearingSatellite = {
+        as: 'medicationTemplate',
+        model: models.ReferenceMedicationTemplate,
+      };
+      await expect(
+        getColumnsForModel(models.ReferenceData, fkBearingSatellite),
+      ).rejects.toThrow(/BelongsTo association/);
+    });
+
+    it('does not throw for the drug satellite, whose only BelongsTo is the referenceDataId link', async () => {
+      const drugSatellite = { as: 'referenceDrug', model: models.ReferenceDrug };
+      await expect(
+        getColumnsForModel(models.ReferenceData, drugSatellite),
+      ).resolves.toBeInstanceOf(Array);
     });
   });
 });

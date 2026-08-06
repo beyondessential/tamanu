@@ -194,6 +194,26 @@ export const getSatelliteColumnKeys = satelliteModel =>
 // valid while every enabled satellite has plain data columns (no FK columns) — ReferenceDrug does.
 // A future FK-bearing satellite must revisit this to run getForeignKeySuggesters/name-companion logic.
 const getSatelliteColumns = async satellite => {
+  // Guardrail for the readOnly:false / no-FK-detection shortcut below: an enabled satellite with a
+  // BelongsTo (FK) association other than its referenceDataId back-link would silently get wrong
+  // descriptors (no suggester, no name companion, the FK treated as a plain editable column). Fail
+  // loudly at column-build time instead — the fix is to run getForeignKeySuggesters/name-companion
+  // logic for that satellite before enabling it. The referenceDataId link (the 1:1 back-reference,
+  // hidden via SATELLITE_HIDDEN_COLUMNS) is excluded — every satellite has it. This bites the
+  // deferred medicationTemplate satellite's medicationId FK if it is ever enabled (TAM-7046).
+  const foreignKeyAssociations = Object.values(satellite.model.associations ?? {}).filter(
+    assoc =>
+      assoc.associationType === 'BelongsTo' && !SATELLITE_HIDDEN_COLUMNS.has(assoc.foreignKey),
+  );
+  if (foreignKeyAssociations.length > 0) {
+    const fkList = foreignKeyAssociations.map(assoc => assoc.foreignKey).join(', ');
+    throw new InvalidOperationError(
+      `Satellite model ${satellite.model.name} has BelongsTo association(s) (${fkList}); ` +
+        `FK-bearing satellites are not yet supported in Manage. Add FK-suggester and name-companion ` +
+        `handling to getSatelliteColumns before enabling this satellite.`,
+    );
+  }
+
   const rawAttributes = satellite.model.rawAttributes;
   const dbColumns = await getDbColumnInfo(satellite.model);
   const satelliteKeys = new Set(getSatelliteColumnKeys(satellite.model));
