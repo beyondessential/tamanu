@@ -7,6 +7,12 @@ seeded blob store; the print-preview and connectivity-loss cases are manual.
 Cache mechanics (eviction, outbox, backpressure) are G2's coverage; this card
 covers assets as a consumer of them.
 
+Coverage status: the shared dual-read resolver has a passing unit test; the
+central upload/read endpoint tests are authored but unrun locally, as the
+DB-backed Jest harness cannot build a test context on this machine (a
+pre-existing `read ECONNRESET` at the Postgres handshake that also fails
+untouched suites). Boxes stay unticked until the scenarios run green.
+
 ## Upload path (central admin endpoint)
 
 - [ ] Upload a new asset via the admin PUT endpoint; the image bytes are admitted to central's blob store and the asset row records the content hash with no image bytes in the row (verifies spec: ASSET)

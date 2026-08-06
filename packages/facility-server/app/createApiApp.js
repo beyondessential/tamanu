@@ -33,6 +33,7 @@ export async function createApiApp({
   syncConnection,
   deviceId,
   settings,
+  blobCache,
 }) {
   const express = defineExpress();
   // Match Express 4 query parsing (qs) — Express 5 defaults to "simple" and does
@@ -72,6 +73,7 @@ export async function createApiApp({
     req.models = models;
     req.db = sequelize;
     req.store = store;
+    req.blobCache = blobCache;
     req.reportSchemaStores = reportSchemaStores;
     req.syncConnection = syncConnection;
     req.deviceId = deviceId;

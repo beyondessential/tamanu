@@ -15,9 +15,13 @@ This is the type of asset stored.
 {% enddocs %}
 
 {% docs assets__data %}
-Contains a binary version of image data uploaded by user.
+Legacy inline copy of the uploaded image bytes. Null for assets stored on the blob store, which are addressed by hash instead.
 {% enddocs %}
 
 {% docs assets__facility_id %}
 Reference to the [facilities](#!/source/source.tamanu.tamanu.facilities) this asset is associated with.
+{% enddocs %}
+
+{% docs assets__hash %}
+Content hash of the asset's image in the blob store. Null for legacy assets whose bytes are still held inline in data.
 {% enddocs %}

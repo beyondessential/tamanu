@@ -15,6 +15,7 @@ import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { EmailService } from './services/EmailService';
 
+import { registerBlobReferenceSource } from './blobReferences';
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
@@ -98,6 +99,10 @@ export class ApplicationContext {
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
     });
+
+    // spec: ASSET, BLAC — assets reference blobs by hash; a facility's fetch of
+    // an asset's bytes is authorised against the referencing asset row.
+    registerBlobReferenceSource({ recordType: 'assets', hashColumn: 'hash' });
 
     await initFhirSettingsFromDb(this.settings);
     // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and
