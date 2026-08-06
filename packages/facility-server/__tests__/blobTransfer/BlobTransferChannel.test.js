@@ -59,6 +59,10 @@ class FakeCentralConnection {
   dropFetchStreamsAfter = null;
   // accept only this many bytes of each pushed chunk, then fail; null = off
   cutPushChunksAfter = null;
+  // refuse offers/content deliveries as the central access gate does when the
+  // hash is not expected (see specs/blob-storage/access-control.md)
+  refuseOffers = false;
+  refuseContent = false;
 
   fetchCalls = 0;
   // Transient one-shot failures the push loop must survive: each throws a
@@ -100,6 +104,9 @@ class FakeCentralConnection {
 
   async #offer(hash) {
     this.#offerCalls += 1;
+    if (this.refuseOffers) {
+      throw new Problem(ERROR_TYPE.FORBIDDEN, 'Forbidden', 403, `Blob not expected: ${hash}`);
+    }
     if (this.#offerCalls > 1 && this.failReoffersRemaining > 0) {
       this.failReoffersRemaining -= 1;
       throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 're-offer failed');
@@ -114,6 +121,9 @@ class FakeCentralConnection {
   }
 
   async #putContent(hash, { query: { offset, totalSize }, body }) {
+    if (this.refuseContent) {
+      throw new Problem(ERROR_TYPE.FORBIDDEN, 'Forbidden', 403, `Blob not expected: ${hash}`);
+    }
     if (this.failPutsRemaining > 0) {
       this.failPutsRemaining -= 1;
       throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'push chunk failed');
@@ -217,6 +227,7 @@ describe('BlobTransferChannel', () => {
     channel = new BlobTransferChannel({
       blobStore: localStore,
       centralServer: central,
+      facilityIds: ['test-facility'],
       pushChunkBytes: 8,
     });
   });
@@ -323,6 +334,32 @@ describe('BlobTransferChannel', () => {
       await expect(channel.pushToCentral(hashOf('never stored'))).rejects.toMatchObject({
         type: ERROR_TYPE.NOT_FOUND,
       });
+    });
+
+    // spec: BLAC
+    it('fails a refused offer immediately, without a resume loop', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.from('refused at offer')));
+      central.refuseOffers = true;
+      central.fetchCalls = 0;
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.FORBIDDEN,
+      });
+      expect(central.fetchCalls).toBe(1); // the offer alone, no retries
+    });
+
+    // spec: BLAC
+    it('fails a push refused mid-transfer without re-offering', async () => {
+      const content = Buffer.from('this content spans several push chunks');
+      const { hash } = await localStore.put(Readable.from(content));
+      central.refuseContent = true;
+      central.fetchCalls = 0;
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.FORBIDDEN,
+      });
+      expect(central.fetchCalls).toBe(2); // the offer and the one refused delivery
+      expect(await centralStore.has(hash)).toBe(false);
     });
   });
 
