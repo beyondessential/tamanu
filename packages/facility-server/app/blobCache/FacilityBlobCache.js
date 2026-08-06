@@ -90,7 +90,7 @@ export class FacilityBlobCache {
   /** Move an acknowledged blob from outbox to cache: durable on central, evictable. */
   async demote(hash) {
     await this.#models.Blob.update(
-      { tier: BLOB_TIERS.CACHE, syncCyclesUnpushed: 0 },
+      { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
       { where: { hash, tier: BLOB_TIERS.OUTBOX } },
     );
   }

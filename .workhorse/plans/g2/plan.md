@@ -39,9 +39,11 @@ card builds on.
   push session (its `updated_at_sync_tick` is at or below the last successfully
   pushed tick, and not flagged for re-push). The pusher queries eligibility
   rather than tracking it event-by-event, so it self-corrects across crashes.
-- **Dysfunction signal**: count sync cycles from eligibility, exclude blobs with
-  an actively progressing transfer. Needs per-blob bookkeeping of
-  eligible-since and last-progress, which fits the local `blobs` registry.
+- **Dysfunction signal**: store `eligible_since_tick` — the push cursor when a
+  blob was first observed eligible — set once per blob, then measure dysfunction
+  by comparing it against the current push cursor (a stable marker vs live sync
+  state, not an accumulated per-cycle counter). Exclude actively-transferring
+  blobs from the comparison.
 - **Consumers arrive with J2/K2**: eligibility ("referencing record has synced")
   is consumer-specific, so the pusher takes a registry of reference resolvers
   (`context.blobReferenceResolvers`). Empty until J2/K2 register theirs; G2
@@ -54,11 +56,11 @@ card builds on.
 ## Build checklist
 
 - [x] `BLOB_TIERS` constants (outbox/cache)
-- [x] Server migration: `tier`, `last_accessed_at`, `sync_cycles_unpushed` on `blobs` + LRU index; Blob model columns; dbt model update
+- [x] Server migration: `tier`, `last_accessed_at`, `eligible_since_tick` on `blobs` + LRU index; Blob model columns; dbt model update
 - [x] Mobile parity migration and model columns
 - [x] Facility settings: `blobStorage.cacheSizeBudgetGB`; schedules for pusher and cache evictor tasks
 - [x] `FacilityBlobCache`: outbox admission, read-through open with recency touch and active-read guard, demotion, budget enforcement (MRU guard), floor-driven `evictBytes`
-- [x] `BlobOutboxPusher`: eligibility via resolvers, oldest-first, skip-on-failure, single in-flight, demote on ack, sync-cycle counter
+- [x] `BlobOutboxPusher`: eligibility via resolvers, oldest-first, skip-on-failure, single in-flight, demote on ack, eligibility-marker dysfunction signal
 - [x] Wiring: ApplicationContext (cache + floor hook), setupSyncRuntime (channel + pusher), scheduled tasks, sync-manager hook, sync status route
 - [x] Facility-server tests for cache and pusher; tick test cases
 

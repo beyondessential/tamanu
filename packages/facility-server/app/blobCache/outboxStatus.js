@@ -1,16 +1,18 @@
 import { BLOB_TIERS } from '@tamanu/constants';
 
 // spec: CAP
-// The outbox at a glance: how much un-pushed content this server is carrying
-// and the worst dysfunction measure among it. Served on the sync status
-// endpoint and logged by the pusher's escalation.
+// The outbox at a glance: how much un-pushed content this server is carrying,
+// and the oldest push cursor at which any of it became eligible for push. A
+// consumer compares oldestEligibleTick against the current push cursor (the
+// sync status endpoint exposes both) to gauge how long a blob has gone unpushed
+// while syncs kept succeeding — the outbox dysfunction signal.
 export async function blobOutboxStatus(models) {
   const row = await models.Blob.sequelize.query(
     `
       SELECT
         COUNT(*)::integer AS count,
         COALESCE(SUM(size), 0)::bigint AS total_bytes,
-        COALESCE(MAX(sync_cycles_unpushed), 0)::integer AS max_sync_cycles_unpushed
+        MIN(eligible_since_tick) AS oldest_eligible_tick
       FROM blobs
       WHERE tier = $tier
     `,
@@ -19,6 +21,8 @@ export async function blobOutboxStatus(models) {
   return {
     count: row.count,
     totalBytes: Number(row.total_bytes),
-    maxSyncCyclesUnpushed: row.max_sync_cycles_unpushed,
+    // The smallest (oldest) marker is the blob eligible the longest; null when
+    // nothing in the outbox is eligible yet.
+    oldestEligibleTick: row.oldest_eligible_tick == null ? null : Number(row.oldest_eligible_tick),
   };
 }

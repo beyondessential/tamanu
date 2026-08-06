@@ -114,16 +114,16 @@ describe('facility blob outbox and LRU cache', () => {
       expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
 
-    it('demotes an acknowledged blob to cache and zeroes its dysfunction measure', async () => {
+    it('demotes an acknowledged blob to cache and clears its eligibility marker', async () => {
       // verifies spec: CACHE
       const { hash } = await putOutbox();
-      await models.Blob.increment('syncCyclesUnpushed', { where: { hash } });
+      await models.Blob.update({ eligibleSinceTick: 7 }, { where: { hash } });
 
       await blobCache.demote(hash);
 
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.tier).toBe(BLOB_TIERS.CACHE);
-      expect(row.syncCyclesUnpushed).toBe(0);
+      expect(row.eligibleSinceTick).toBeNull();
     });
   });
 
@@ -378,38 +378,78 @@ describe('facility blob outbox and LRU cache', () => {
   });
 
   describe('outbox dysfunction measure', () => {
-    it('advances only for eligible blobs not being attempted', async () => {
-      // verifies spec: CAP
-      const eligible = await putOutbox();
-      const unsynced = await putOutbox();
-      const pusher = new BlobOutboxPusher({
+    let originalPushCursor;
+
+    beforeEach(async () => {
+      originalPushCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH);
+    });
+
+    afterEach(async () => {
+      if (originalPushCursor == null) {
+        await models.LocalSystemFact.destroy({
+          where: { key: FACT_LAST_SUCCESSFUL_SYNC_PUSH },
+          force: true,
+        });
+      } else {
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, originalPushCursor);
+      }
+    });
+
+    const eligibleSinceOf = async hash =>
+      (await models.Blob.findOne({ where: { hash } })).eligibleSinceTick;
+
+    const makeCyclePusher = eligibleHash =>
+      new BlobOutboxPusher({
         models,
         transferChannel: { pushToCentral: async () => ({ acknowledged: true }) },
         blobCache,
-        referenceResolvers: [async (_models, hashes) => hashes.filter(h => h === eligible.hash)],
+        referenceResolvers: [async (_models, hashes) => hashes.filter(h => h === eligibleHash)],
       });
 
-      await pusher.recordSyncCycle();
-      await pusher.recordSyncCycle();
+    it('marks an eligible outbox blob once, at the push cursor when first eligible', async () => {
+      // verifies spec: CAP — the measure counts from eligibility, set once
+      const eligible = await putOutbox();
+      const unsynced = await putOutbox();
+      const pusher = makeCyclePusher(eligible.hash);
 
-      const cyclesOf = async hash =>
-        (await models.Blob.findOne({ where: { hash } })).syncCyclesUnpushed;
-      expect(await cyclesOf(eligible.hash)).toBe(2);
-      expect(await cyclesOf(unsynced.hash)).toBe(0);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '100');
+      await pusher.recordSyncCycle();
+      expect(await eligibleSinceOf(eligible.hash)).toBe(100);
+      expect(await eligibleSinceOf(unsynced.hash)).toBeNull();
+
+      // a later cycle leaves the existing marker untouched
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '200');
+      await pusher.recordSyncCycle();
+      expect(await eligibleSinceOf(eligible.hash)).toBe(100);
+      expect(await eligibleSinceOf(unsynced.hash)).toBeNull();
     });
 
-    it('reports outbox size and worst measure', async () => {
+    it('clears the marker when a pushed blob is demoted', async () => {
+      // verifies spec: CACHE — demotion resets the eligibility marker
+      const { hash } = await putOutbox();
+      const pusher = makeCyclePusher(hash);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '5');
+      await pusher.recordSyncCycle();
+      expect(await eligibleSinceOf(hash)).toBe(5);
+
+      await blobCache.demote(hash);
+      expect(await eligibleSinceOf(hash)).toBeNull();
+    });
+
+    it('reports outbox size and the oldest eligibility marker', async () => {
       // verifies spec: CAP — surfaced as a health signal
-      const one = await putOutbox();
-      await putOutbox();
-      await putCache(); // cache blobs don't count
-      await models.Blob.increment('syncCyclesUnpushed', { by: 4, where: { hash: one.hash } });
+      const eligible = await putOutbox();
+      await putOutbox(); // stays unsynced → no marker
+      await putCache(); // cache blobs are outside the outbox
+      const pusher = makeCyclePusher(eligible.hash);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '42');
+      await pusher.recordSyncCycle();
 
       const status = await blobOutboxStatus(models);
 
       expect(status.count).toBe(2);
       expect(status.totalBytes).toBeGreaterThan(0);
-      expect(status.maxSyncCyclesUnpushed).toBe(4);
+      expect(status.oldestEligibleTick).toBe(42);
     });
   });
 

@@ -38,8 +38,10 @@ Recency updates may be coalesced, so this is a lower bound on the true last
 access.
 {% enddocs %}
 
-{% docs blobs__sync_cycles_unpushed %}
-How many successful sync cycles this blob has survived in the outbox while
-eligible for push and not actively transferring. The outbox dysfunction
-measure: a working connection with an undelivered blob. Zero for cache blobs.
+{% docs blobs__eligible_since_tick %}
+The push cursor (last successful sync push tick) at the moment this outbox blob
+was first observed eligible for push — its referencing record had synced.
+Compared against the current push cursor to measure how long the blob has gone
+unpushed while syncs kept succeeding: the outbox dysfunction signal. Null while
+the blob is not yet eligible, and cleared when it is pushed and demoted to cache.
 {% enddocs %}

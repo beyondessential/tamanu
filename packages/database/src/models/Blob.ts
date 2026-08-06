@@ -23,7 +23,7 @@ export class Blob extends Model {
   declare integrityState: BlobIntegrityState;
   declare tier: BlobTier;
   declare lastAccessedAt: Date;
-  declare syncCyclesUnpushed: number;
+  declare eligibleSinceTick: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -65,13 +65,19 @@ export class Blob extends Model {
           defaultValue: DataTypes.NOW,
         },
         // spec: CAP
-        // Successful sync cycles this blob has survived in the outbox while
-        // eligible for push and not being attempted; the outbox dysfunction
-        // measure. Zeroed on demotion to cache.
-        syncCyclesUnpushed: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          defaultValue: 0,
+        // The push cursor at the moment this blob was first observed eligible
+        // for push (its referencing record had synced). Null while not yet
+        // eligible; cleared on demotion to cache. The outbox dysfunction
+        // measure compares it against the current push cursor.
+        eligibleSinceTick: {
+          type: DataTypes.BIGINT,
+          allowNull: true,
+          // Postgres returns BIGINT as a string; callers compare it against the
+          // numeric sync tick.
+          get(this: Blob): number | null {
+            const value = this.getDataValue('eligibleSinceTick');
+            return value == null ? null : Number(value);
+          },
         },
       },
       {

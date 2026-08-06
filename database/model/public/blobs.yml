@@ -52,8 +52,6 @@ sources:
             description: "{{ doc('blobs__last_accessed_at') }}"
             data_tests:
               - not_null
-          - name: sync_cycles_unpushed
-            data_type: integer
-            description: "{{ doc('blobs__sync_cycles_unpushed') }}"
-            data_tests:
-              - not_null
+          - name: eligible_since_tick
+            data_type: bigint
+            description: "{{ doc('blobs__eligible_since_tick') }}"

@@ -20,10 +20,9 @@ const NEW_COLUMNS = [
     default: "datetime('now')",
   }),
   new TableColumn({
-    name: 'syncCyclesUnpushed',
-    type: 'integer',
-    isNullable: false,
-    default: 0,
+    name: 'eligibleSinceTick',
+    type: 'bigint',
+    isNullable: true,
   }),
 ];
 

@@ -32,8 +32,9 @@ export class Blob extends BaseModel {
   lastAccessedAt: Date;
 
   // spec: CAP
-  // Successful sync cycles survived unpushed while eligible; the outbox
-  // dysfunction measure. Zeroed on demotion to cache.
-  @Column({ type: 'integer', nullable: false, default: 0 })
-  syncCyclesUnpushed: number;
+  // The push cursor when this blob first became eligible for push; null until
+  // then, cleared on demotion to cache. The outbox dysfunction measure compares
+  // it against the current push cursor.
+  @Column({ type: 'bigint', nullable: true })
+  eligibleSinceTick: number;
 }
