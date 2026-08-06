@@ -1,46 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import AccessTime from '@mui/icons-material/AccessTime';
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import styled from 'styled-components';
+
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
-import { useApi } from '../api';
-import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
+import { TranslatedText, useApi, useDateTime, useSettings } from '@tamanu/ui-components';
 import { Colors } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 import { getTriageWaitTime, splitDurationHoursMinutes } from '../utils/triageWaitTime';
+import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 
-export const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
+function useTriageQuery() {
+  const api = useApi();
+  const { facilityId } = useAuth();
+  return useQuery({
+    queryKey: ['triage', facilityId],
+    queryFn: async () => (await api.get('triage', { facilityId })).data,
+    refetchInterval: 30_000,
+  });
+}
+
+export const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds, now) => {
   if (categoryData.length === 0) {
     return 0;
   }
 
   const waitTimes = categoryData
-    .map(triage => getTriageWaitTime(triage, storedDateTimeToEpochMilliseconds))
+    .map(triage => getTriageWaitTime(triage, storedDateTimeToEpochMilliseconds, now))
     .filter(time => time != null);
   const summedWaitTime = waitTimes.reduce((prev, curr) => prev + curr, 0);
   return summedWaitTime / waitTimes.length;
 };
 
 const useTriageData = storedDateTimeToEpochMilliseconds => {
-  const api = useApi();
-  const { facilityId } = useAuth();
-  const [data, setData] = useState([]);
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
-
-  useEffect(() => {
-    const fetchTriageData = async () => {
-      const result = await api.get('triage', { facilityId });
-      setData(result.data);
-    };
-
-    fetchTriageData();
-    // update data every 30 seconds
-    const interval = setInterval(() => fetchTriageData(), 30000);
-    return () => clearInterval(interval);
-  }, [api]);
+  const { data = [], dataUpdatedAt } = useTriageQuery();
 
   return triageCategories?.map(category => {
     const categoryData = data.filter(
@@ -48,7 +43,11 @@ const useTriageData = storedDateTimeToEpochMilliseconds => {
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );
-    const averageWaitTime = getAverageWaitTime(categoryData, storedDateTimeToEpochMilliseconds);
+    const averageWaitTime = getAverageWaitTime(
+      categoryData,
+      storedDateTimeToEpochMilliseconds,
+      dataUpdatedAt,
+    );
     return {
       averageWaitTime,
       numberOfPatients: categoryData.length,
