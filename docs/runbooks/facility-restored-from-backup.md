@@ -80,9 +80,10 @@ Queries for the checks below are in `../reference/query-cookbook.md` under "Blob
 store".
 
 - **[diagnose]** Confirm the store was restored at all, and that its root is where
-  the facility's configuration expects it. A store restored to the wrong path reads
-  as a facility that has lost every attachment. Compare the store size by tier
-  against the files actually under the configured root.
+  the facility expects it. `bestool tamanu blob-root` prints the root from the
+  setting (see `../reference/bestool-commands.md`); compare the store size by tier
+  against the files actually under it. A store restored to the wrong path reads as
+  a facility that has lost every attachment.
 - **[diagnose]** Check for files awaiting their bytes. After a restore some
   references are legitimately content-pending, and a facility resolves those by
   fetching from central on demand and in the background. A count that falls over
