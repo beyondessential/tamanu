@@ -117,11 +117,11 @@ export const RadioInput = ({
     autofillSingleAvailableOption && validOptions.length === 1 ? validOptions[0].value : undefined;
   useEffect(
     function populateIfExactlyOneValidOption() {
-      if (soleValidOptionValue === undefined) return;
+      if (soleValidOptionValue === undefined || value === soleValidOptionValue) return;
       onChange({ target: { value: soleValidOptionValue, name } });
     },
     // Keyed on the value, so we don’t depend on referential stability of `options`
-    [name, onChange, soleValidOptionValue],
+    [name, onChange, soleValidOptionValue, value],
   );
 
   return (
