@@ -32,11 +32,17 @@ untouched suites). Boxes stay unticked until the scenarios run green.
 - [ ] GET the facility asset endpoint for a hash-form row with bytes local; the response carries the image bytes inline in the same shape as for a legacy row, and the web client renders it unchanged (verifies spec: ASSET)
 - [ ] GET the facility asset endpoint for a legacy row; the response is unchanged from current behaviour (verifies spec: ASSET)
 - [ ] GET the facility asset endpoint for a hash-form row whose bytes cannot be resolved; the response indicates content-pending rather than presenting the asset as absent (verifies spec: ASSET, XFER)
+- [ ] A content-pending asset is not replaced by its fallback asset in the web client, and the pending state is surfaced instead of a different image (verifies spec: ASSET)
+- [ ] A patient letter whose letterhead bytes cannot be resolved fails as unreachable-upstream, distinguishable from a missing encounter or clinician (verifies spec: ASSET)
 
 ## Facility availability
 
 - [x] A hash-form asset row (null inline bytes) passes the sync sanitiser on ingest, so the row and its hash land on the facility rather than throwing (verifies spec: ASSET)
 - [ ] Sync a newly uploaded asset row to a facility; the facility fetches the bytes soon after the row arrives, before any reader touches it (verifies spec: ASSET)
+- [x] Prefetch scopes to deployment-wide assets plus this server's own facilities, so another facility's assets are not fetched (verifies spec: ASSET)
+- [x] Prefetch fetches each distinct hash once when several assets share content (verifies spec: CAS)
+- [x] Prefetch abandons its pass on a transport failure rather than running the retry ladder for every remaining asset (verifies spec: ASSET)
+- [x] Prefetch enforces the cache budget after admitting new content, and never fails the sync it rode in on (verifies spec: CACHE)
 - [ ] Evict the asset blob from the facility cache, then render a patient letter; the bytes are refetched on demand and the letter renders (verifies spec: ASSET, CACHE)
 - [ ] With asset bytes absent and central reachable, GET the facility asset endpoint; the on-demand fetch fills the cache and the bytes serve (verifies spec: ASSET)
 - [ ] With asset bytes absent and central unreachable, render a patient letter; it fails with a message that the asset is not yet available, rather than rendering without the letterhead (verifies spec: ASSET)

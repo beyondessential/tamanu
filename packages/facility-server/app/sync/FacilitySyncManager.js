@@ -65,12 +65,20 @@ export class FacilitySyncManager {
 
   currentStartTime = 0;
 
-  constructor({ models, sequelize, centralServer, blobOutboxPusher, blobTransferChannel }) {
+  constructor({
+    models,
+    sequelize,
+    centralServer,
+    blobOutboxPusher,
+    blobTransferChannel,
+    blobCache,
+  }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
     this.blobOutboxPusher = blobOutboxPusher ?? null;
     this.blobTransferChannel = blobTransferChannel ?? null;
+    this.blobCache = blobCache ?? null;
   }
 
   isSyncRunning() {
@@ -222,6 +230,7 @@ export class FacilitySyncManager {
       await prefetchAssets({
         models: this.models,
         transferChannel: this.blobTransferChannel,
+        blobCache: this.blobCache,
       });
     } catch (error) {
       log.warn('FacilitySyncManager.prefetchAssetsFailed', { error: error.message });

@@ -17,6 +17,7 @@ Assets — the images a deployment uploads to brand and complete its printed doc
 - [ ] An asset may be facility-specific: a reader serving a facility resolves that facility's asset in preference to the deployment-wide one.
 - [ ] The facility asset endpoint returns the image bytes inline, resolved from whichever form the row takes, so web clients need no awareness of where the bytes live. Assets are small enough to serve whole; streamed, ranged serving stays the province of the dedicated blob-serving path (see `serving.md`).
 - [ ] When the endpoint holds a hash row whose bytes it cannot resolve, its response indicates the content-pending state (see `transfer.md`) rather than presenting the asset as absent.
+- [ ] A reader distinguishes a content-pending asset from one that was never uploaded. Where an asset has a fallback, the fallback stands in only for an asset that was never uploaded — a content-pending asset is never substituted with a different image, and its pending state is available to the surface displaying it.
 
 ## Access
 
