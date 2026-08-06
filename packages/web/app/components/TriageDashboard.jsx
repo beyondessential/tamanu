@@ -19,12 +19,11 @@ function useTriageQuery() {
   });
 }
 
-const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
+const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds, now) => {
   if (categoryData.length === 0) {
     return 0;
   }
 
-  const now = Date.now();
   const triageTimes = categoryData
     .map(triage => triage.triageTime)
     .map(storedDateTimeToEpochMilliseconds)
@@ -36,7 +35,7 @@ const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => 
 const useTriageData = storedDateTimeToEpochMilliseconds => {
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
-  const { data = [] } = useTriageQuery();
+  const { data = [], dataUpdatedAt } = useTriageQuery();
 
   return triageCategories?.map(category => {
     const categoryData = data.filter(
@@ -44,7 +43,11 @@ const useTriageData = storedDateTimeToEpochMilliseconds => {
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );
-    const averageWaitTime = getAverageWaitTime(categoryData, storedDateTimeToEpochMilliseconds);
+    const averageWaitTime = getAverageWaitTime(
+      categoryData,
+      storedDateTimeToEpochMilliseconds,
+      dataUpdatedAt,
+    );
     return {
       averageWaitTime,
       numberOfPatients: categoryData.length,
