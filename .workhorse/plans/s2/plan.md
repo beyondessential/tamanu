@@ -86,8 +86,100 @@ port covering ranged GET, the offer POST and the offset-addressed content PUT.
 
 ## Sequencing
 
-The card's own description says this is best done once mobile's blob work has shown
-which seams are real, so the boundary is drawn from two callers rather than guessed
-from one. L2 (mobile blob storage and lazy fetch) has not been built: mobile has the
-`blobs` table, the `Blob` model and the two migrations from the foundation cards, and
-nothing that uses them. Drawing the boundary now is drawing it from one caller.
+L2 goes first. The card's own description asks for the boundary to be drawn from two
+callers rather than guessed from one, and mobile currently has only the `blobs` table,
+the `Blob` model and the two migrations from the foundation cards, with nothing using
+them. So mobile builds its store and lazy fetch against the ports sketched below, and
+this card extracts afterwards, when both callers exist and the seams have been proven
+rather than predicted.
+
+The decisions below are settled now rather than after L2 because L2 has to build
+against them.
+
+## Decisions
+
+### Sans-io lite, not intent-yielding
+
+The package owns the decisions and the state machines and takes injected async IO
+functions. It does not yield intents for a host to interpret. This keeps the
+extraction a lift of the existing `BlobTransferChannel`, `FacilityBlobCache` and
+`BlobStore` logic rather than a rewrite of code that landed with tests in E2, F2 and
+G2.
+
+### The package never touches bytes
+
+Every port is expressed in counts, offsets and paths. The package decides *which*
+bytes move and *when*; the host moves them. This falls out of what React Native can
+actually do well: `react-native-fs` moves bytes across the JS bridge as base64
+strings, but its `downloadFile` and `uploadFiles` do the whole transfer natively
+without the bytes entering JS at all. A port that handed the package a byte stream
+would force mobile onto its slowest path.
+
+So the transfer ports are whole operations, not byte plumbing:
+
+- `fetchInto(hash, { offset })` returning status, bytes appended, and the total size
+  when the host learned it
+- `offer(hash, { size })` returning the offer status and the receiver's staged byte
+  count
+- `pushChunk(hash, { offset, length, totalSize })` returning acknowledgement and the
+  receiver's staged byte count
+
+What stays in the package is the arithmetic around them: which offset to ask for,
+the stalled-attempt counter that only advances when no new bytes land, the early
+exit when staged already covers the known size, which errors are terminal (hash
+mismatch, forbidden) against retriable, and the re-offer that relearns the
+receiver's position after a failure. The `content-range` / `content-length` parsing
+becomes an exported pure helper, since the server needs it and mobile gets the total
+from `downloadFile` directly.
+
+### Hashing is `hashFile(path)`, not a streaming hasher
+
+`react-native-fs` exposes a native `hash(filepath, 'sha256')`, so mobile hashes
+without a new dependency and without a JS SHA-256 pass on a low-end device.
+
+The deciding argument is port surface: `commitStaged` already re-reads and hashes the
+staged file to verify a transfer, so `hashFile` is needed on both hosts regardless.
+Requiring a streaming hasher as well would make hosts supply two hashing primitives
+where one covers both paths. Only `put()` changes shape, and only to the extent that
+it hashes the temp file after writing rather than while writing, which costs a read
+pass on direct puts. Push-receive already pays that cost today.
+
+The guarantee is unchanged: the hash is still computed from the bytes the store
+wrote, never from one a caller supplied. `content-addressing.md` said "hashes content
+as it streams in", which over-constrained the mechanism; it now states the guarantee
+without it, and both the current implementation and the extracted one satisfy it.
+
+### Registry is a port with stated semantics
+
+The state machines are registry-driven throughout, and two pieces currently carry
+their semantics in Postgres syntax rather than in words:
+
+- `#register`'s upsert, which must be atomic against concurrent puts, must leave a
+  live row entirely alone (so content already held as cache stays cache), and must
+  resurrect a soft-deleted row with the incoming tier and reset recency.
+- `#touch`'s coalesced recency update, which must be a no-op while the recorded
+  access is within the coalesce window.
+
+These get written down as port contracts, because SQLite via TypeORM will implement
+them differently and this is where behaviour drifts silently between the two.
+
+### Tunables belong to the host
+
+Push chunk size, the recency coalesce window, scan limits, and retry backoff are
+host-supplied, not package constants. Mobile's viable chunk size is far smaller than
+the server's 8 MB, and `BlobTransferChannel` already takes `pushChunkBytes` through
+its constructor.
+
+### What stays behind
+
+The central-side Express routes, the access-control and facility-scope checks, the
+Sequelize models and tasks, settings reads, and the consumers' reference resolvers.
+None have a mobile counterpart.
+
+### Package placement
+
+A new package depending on `@tamanu/constants`, `@tamanu/errors` and `@tamanu/utils`,
+with no node builtins. Mobile already depends on all three, so the dependency floor
+is established. `@tamanu/utils/blobs` keeps the pure hash and fan-out helpers where
+they are rather than being absorbed, which avoids churning every existing import for
+no gain.
