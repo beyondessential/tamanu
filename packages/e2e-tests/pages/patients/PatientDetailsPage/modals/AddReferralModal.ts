@@ -39,7 +39,6 @@ export class AddReferralModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.surveySelector.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async selectSurvey(surveyName: string): Promise<void> {
@@ -49,12 +48,11 @@ export class AddReferralModal {
     });
     await this.beginReferralButton.click();
     // Wait for the survey form to load after selecting
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await this.waitForFormFieldsToBeVisible();
   }
 
   async waitForFormFieldsToBeVisible(): Promise<void> {
     await this.formFields.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillCVDPrimaryScreeningForm(values: {

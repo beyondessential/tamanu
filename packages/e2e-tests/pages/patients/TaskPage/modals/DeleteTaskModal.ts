@@ -33,7 +33,6 @@ export class DeleteTaskModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.recordedByInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: {

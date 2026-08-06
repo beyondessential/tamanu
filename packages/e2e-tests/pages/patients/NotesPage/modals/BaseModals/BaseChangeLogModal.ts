@@ -30,7 +30,6 @@ export abstract class BaseChangeLogModal {
 
   async waitForModalToLoad() {
     await this.noteTypeLabel.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async waitForModalToClose() {

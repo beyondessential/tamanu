@@ -345,7 +345,6 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.page.getByText(expectedLocation, { exact: true }).first().click();
     // Confirm the move
     await patientDetailsPage.page.getByRole('button', { name: 'Confirm' }).click();
-    await patientDetailsPage.page.waitForLoadState('networkidle');
     await expect(patientDetailsPage.locationLabel).toHaveText(
       `${expectedArea}, ${expectedLocation}`,
     );

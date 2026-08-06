@@ -35,7 +35,6 @@ export abstract class BaseNoteModal {
   // Common methods
   async waitForModalToLoad() {
     await this.confirmButton.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async waitForModalToClose() {

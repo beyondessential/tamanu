@@ -33,7 +33,6 @@ export class NewNoteModal extends BaseNoteModal {
 
   async waitForModalToLoad() {
     await this.typeSelect.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   // Form field interaction methods

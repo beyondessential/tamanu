@@ -94,12 +94,10 @@ export class NotesPane {
   // Wait for the notes pane to load
   async waitForNotesPaneToLoad() {
     await this.notesTable.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async waitForNoteRowsToEqual(count: number) {
     await this.noteRows.nth(count - 1).waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async selectNoteType(noteType: string) {

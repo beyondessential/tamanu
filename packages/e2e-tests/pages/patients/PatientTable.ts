@@ -107,7 +107,6 @@ export class PatientTable {
   async waitForTableToLoad() {
     try {
       await this.loadingCell.waitFor({ state: 'detached' });
-      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
     } catch (error) {
       throw new Error(
         `Failed to wait for table to load: ${error instanceof Error ? error.message : String(error)}`,

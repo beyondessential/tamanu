@@ -33,7 +33,6 @@ export class ChangePriorityModal {
 
   async waitForModalToLoad() {
     await this.form.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
 }

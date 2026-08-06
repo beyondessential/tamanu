@@ -16,7 +16,6 @@ export class StatusLogModal {
 
   async waitForModalToLoad() {
     await this.modalContent.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async getDateTime(rowIndex: number): Promise<string> {

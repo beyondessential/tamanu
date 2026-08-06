@@ -26,7 +26,6 @@ export class ChangeDietModal {
   async waitForModalToLoad(): Promise<void> {
     await this.modalTitle.waitFor({ state: 'visible' });
     await this.dietMultiSelectInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async changeDiet(diet: string): Promise<void> {

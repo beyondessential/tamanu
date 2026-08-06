@@ -135,7 +135,6 @@ export class LabRequestDetailsPage {
 
   async waitForPageToLoad() {
     await this.container.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async validateLabRequestDetails(

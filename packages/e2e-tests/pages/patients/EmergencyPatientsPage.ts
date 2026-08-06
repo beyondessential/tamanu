@@ -131,7 +131,6 @@ export class EmergencyPatientsPage extends BasePage {
 
   async waitForPageToLoad() {
     await this.pageHeading.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async searchTable(searchCriteria: TriageSearchCriteria): Promise<void> {

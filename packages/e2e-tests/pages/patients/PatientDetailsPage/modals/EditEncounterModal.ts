@@ -30,7 +30,6 @@ export class EditEncounterModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.modal.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   /**
@@ -45,6 +44,6 @@ export class EditEncounterModal {
 
   async saveChanges(): Promise<void> {
     await this.saveChangesButton.click();
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await this.modal.waitFor({ state: 'detached' });
   }
 }

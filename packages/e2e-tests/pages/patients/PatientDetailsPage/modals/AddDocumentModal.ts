@@ -31,7 +31,6 @@ export class AddDocumentModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.fileNameInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: { fileName: string; documentOwner?: string; note?: string; filePath: string }): Promise<{ department: string }> {
