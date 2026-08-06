@@ -260,19 +260,14 @@ export class BlobStore {
     const handle = await fs.open(stagingPath, 'a');
     try {
       for await (const chunk of source) {
-        if (overran) {
-          // Keep draining the source without writing more. Destroying it
-          // mid-body instead would tear down the request socket, which the
-          // response-logging middleware then dereferences on finish.
-          continue;
-        }
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
         if (maxBytes !== undefined && written + buffer.length > maxBytes) {
           // A peer sending more than it declared is a protocol violation: stop
-          // writing here (so the store never commits unbounded excess to disk)
-          // and drain the rest before discarding the staging and refusing.
+          // reading here so the store neither commits the excess to disk nor
+          // reads an unbounded body off the socket. Breaking destroys the
+          // source stream (its finish handler tolerates the torn-down socket).
           overran = true;
-          continue;
+          break;
         }
         written += buffer.length;
         bytesSinceFloorCheck += buffer.length;
