@@ -4,7 +4,7 @@ Behaviour is specified in `specs/blob-storage/assets.md` (ASSET). These are impl
 
 ## Sequencing
 
-- Re-update from B2 once G2 (facility outbox and LRU cache) merges, before implementing: the facility-side fetch-on-miss and prefetch land on G2's cache-tier `BlobStore` API, and G2 also brings `FacilityBlobCache` and the sync-runtime hooks the prefetch can attach to.
+- G2 (facility outbox and LRU cache) has merged into B2 and this branch includes it (updated 2026-08-06): the facility-side fetch-on-miss and prefetch land on its cache-tier `BlobStore` API, `FacilityBlobCache`, and the sync-runtime hooks the prefetch can attach to.
 - Register the assets hash column in central's `BLOB_REFERENCE_SOURCES` registry (`blobReferences.js`, currently empty, added by H2). J2 registers attachments in the same registry — trivial merge overlap, coordinate ordering if both are in flight.
 
 ## Touch points
