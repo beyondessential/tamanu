@@ -63,16 +63,26 @@ own, being a live path snapshot.
 
 ## Why capturing the facility cache is affordable
 
-The spec captures both facility store tiers, including cache, which looks wasteful
-until the repository is taken into account. The kopia repository is per group and
-deduplicating, and the store is content-addressed, so a facility's cache blob that
-central's store backup already put in the repository is not transferred again. The
-cost of including cache is close to the cost of the metadata.
+Decided: capture both facility store tiers, cache included.
 
-Worth confirming rather than assuming: this holds only if a deployment's central
-and facility servers share one group, and therefore one repository. If they are
-grouped separately, dedup does not cross between them and including cache costs
-real bytes and money.
+The outbox is non-negotiable, being the only durable copy of its content. Cache is
+the judgment call, and it goes in because the card's rationale is upgrade rehearsal
+against a faithful copy: a facility whose cache arrives empty is exactly the
+part-reconstituted state the card is trying to avoid.
+
+The cost is bounded by the store being content-addressed and the backup
+incremental, so a cache blob captured by an earlier cycle is not captured again.
+That argument holds per server and needs no assumption about grouping.
+
+A stronger cost argument does exist but the spec deliberately does not lean on it.
+The kopia repository is per group and deduplicating, so where a deployment's
+central and facility servers share a group they share a repository, and a facility
+cache blob that central's store backup already put there costs only metadata. But a
+group is an operator-defined set of servers (`servers.group_id`, nullable) with at
+most one backup configuration, so that sharing is a grouping convention rather than
+a property of the model. Grouped otherwise, dedup does not cross between servers.
+Worth confirming how deployments are actually grouped before relying on it for
+capacity planning.
 
 ## The one piece of Tamanu-side work
 
@@ -84,5 +94,10 @@ would claim to hold). bestool restores files and knows nothing about the registr
 so this reconciliation belongs to Tamanu, most likely as a startup step on a server
 that detects it has been restored.
 
-This is the part of this card that could need a Tamanu code change, and it is worth
-deciding whether it lands here or on the store card.
+Decided: specify it here, implement it elsewhere. The behaviour is restore
+behaviour and so belongs in `specs/blob-storage/backups.md`, but this card is a
+spec card whose implementation is bestool-side, and the reconciliation is Tamanu
+code sitting directly on the store primitive. It wants its own card on the store's
+board, which also keeps it behind the store landing.
+
+Nothing in the Tamanu codebase changes on this card.

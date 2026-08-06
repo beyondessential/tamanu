@@ -48,8 +48,8 @@ carries the references and the blob registry, the store capture carries the byte
   the store when it was taken, and restoring it requires no earlier capture, so a
   blob that remains in the store remains recoverable from the most recent cycle
   however long ago it was added.
-- [ ] Identical content is held once in the backup however many servers or captures
-  contain it, since the store names blobs by content hash.
+- [ ] Content already captured by an earlier cycle is not captured again, however
+  many blobs in the store share it, since the store names blobs by content hash.
 
 ## Facility backups
 
