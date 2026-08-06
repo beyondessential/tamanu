@@ -97,9 +97,12 @@ stack dropped.
 
 ## Sequencing and branch base
 
-- Spec work sits on B2. When H2 moves to implementation, rebase onto F2's branch
-  (`workhorse/f2`), which carries both the store primitive (E2) and the transfer
-  subprotocol the access checks attach to.
+- H2 is based on `workhorse/b2`, which carries the store primitive (E2, #10687)
+  and the transfer subprotocol (F2, #10694) the access checks attach to; both
+  landed there as squashed merges and their branches are gone. B2 was brought in
+  by merge after F2 landed, with the two overlapping files (`blobTransfer.js`,
+  `BlobTransferChannel.js`) resolved to carry both F2's final review tweaks and
+  H2's scoping.
 - G2's facility-cache pusher eligibility ("offer only blobs whose referencing
   record has synchronised") is the facility-side half of BLAC's sync-first push;
   the specs cross-reference each other, and the facility-cache side lands with G2.
