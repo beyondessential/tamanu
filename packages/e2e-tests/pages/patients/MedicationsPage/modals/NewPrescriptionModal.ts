@@ -1,21 +1,22 @@
 import { Locator, Page } from '@playwright/test';
 
-import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
 
 /**
  * The new prescription modal, reached from New prescription on the encounter medication pane.
  *
- * Where the deployment has medication sets configured, that button first opens a chooser; the
- * modal's own openers handle both paths.
+ * Field components suffix the test id they are given — `-input` for text and autocomplete fields,
+ * `-select` for selects, `-controlcheck` for checkboxes — so none of these locators use the bare
+ * id from the form.
  */
 export class NewPrescriptionModal {
   readonly page: Page;
   readonly medicationField: Locator;
-  readonly doseAmountField: Locator;
+  readonly doseAmountInput: Locator;
   readonly frequencyField: Locator;
   readonly routeField: Locator;
   readonly prescriberField: Locator;
-  readonly dispensingQuantityField: Locator;
+  readonly dispensingQuantityInput: Locator;
 
   readonly sendToPharmacyCheckbox: Locator;
   readonly prescriptionTypeLabel: Locator;
@@ -23,12 +24,12 @@ export class NewPrescriptionModal {
 
   constructor(page: Page) {
     this.page = page;
-    this.medicationField = page.getByTestId('medication-field-medicationId-8k3m');
-    this.doseAmountField = page.getByTestId('medication-field-doseAmount-3t6w');
-    this.frequencyField = page.getByTestId('medication-field-frequency-4c7z');
-    this.routeField = page.getByTestId('medication-field-route-6d1b');
-    this.prescriberField = page.getByTestId('medication-field-prescriberId-3x5h');
-    this.dispensingQuantityField = page.getByTestId('medication-field-quantity-6j9m');
+    this.medicationField = page.getByTestId('medication-field-medicationId-8k3m-input');
+    this.doseAmountInput = page.getByTestId('medication-field-doseAmount-3t6w-input');
+    this.frequencyField = page.getByTestId('medication-field-frequency-4c7z-input');
+    this.routeField = page.getByTestId('medication-field-route-6d1b-select');
+    this.prescriberField = page.getByTestId('medication-field-prescriberId-3x5h-input');
+    this.dispensingQuantityInput = page.getByTestId('medication-field-quantity-6j9m-input');
 
     this.sendToPharmacyCheckbox = page.getByTestId(
       'medication-field-sendToPharmacy-6r4d-controlcheck',
@@ -61,16 +62,15 @@ export class NewPrescriptionModal {
     frequency = 'Immediately',
     route = 'Oral',
   }: { doseAmount?: string; frequency?: string; route?: string } = {}): Promise<void> {
-    await this.doseAmountField.locator('input').fill(doseAmount);
+    await this.doseAmountInput.fill(doseAmount);
     await selectAutocompleteFieldOption(this.page, this.frequencyField, {
       optionToSelect: frequency,
     });
-    await this.routeField.locator('input').fill(route);
-    await this.page.getByRole('option', { name: route, exact: true }).click();
+    await selectFieldOption(this.page, this.routeField, { optionToSelect: route });
   }
 
   async setDispensingQuantity(quantity: string): Promise<void> {
-    await this.dispensingQuantityField.locator('input').fill(quantity);
+    await this.dispensingQuantityInput.fill(quantity);
   }
 
   async tickSendToPharmacy(): Promise<void> {
