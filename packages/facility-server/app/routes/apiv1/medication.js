@@ -497,7 +497,7 @@ medication.post(
 
     const currentDateTime = getCurrentDateTimeString();
 
-    const result = await db.transaction(async transaction => {
+    const result = await db.transaction(async () => {
       // Create the automatic encounter
       const encounter = await Encounter.create(
         {
@@ -511,7 +511,6 @@ medication.post(
           locationId: automaticEncounterLocationId,
           departmentId: automaticEncounterDepartmentId,
         },
-        { transaction },
       );
 
       // Automatically add an invoice
@@ -520,7 +519,6 @@ medication.post(
         encounter.encounterType,
         encounter.startDate,
         facilitySettings,
-        { transaction },
       );
       if (invoice) {
         await models.Invoice.addEncounterFee(
@@ -542,7 +540,7 @@ medication.post(
 
         // We only start decrementing repeats after the first send.
         if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+          await originalPrescription.update({ repeats: repeats - 1 });
         }
 
         // Create a new prescription with the original details but updated quantity and repeats
@@ -556,7 +554,6 @@ medication.post(
             repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
-          { transaction },
         );
 
         // Link prescription to encounter
@@ -566,7 +563,6 @@ medication.post(
             prescriptionId: newPrescription.id,
             isSelectedForDischarge: true,
           },
-          { transaction },
         );
 
         newPrescriptions.push(newPrescription);

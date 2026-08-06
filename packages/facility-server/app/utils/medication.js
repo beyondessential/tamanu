@@ -99,7 +99,7 @@ export const createPharmacyOrderForPrescription = async ({
       {
         prescriptionId: prescription.id,
         quantity: prescription.quantity,
-        repeats: prescription.repeats,
+        repeats: prescription.repeats ?? 0,
       },
     ],
   });
