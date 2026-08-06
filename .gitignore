@@ -74,3 +74,8 @@ lints.md
 
 #keep .devcontainer
 !.devcontainer/**/*
+
+# Local agent/tooling artefacts (must never be committed)
+/backups/
+/policy-limits.json
+/remote-settings.json

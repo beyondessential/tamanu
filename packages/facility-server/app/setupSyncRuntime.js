@@ -1,6 +1,8 @@
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
+import { BlobOutboxPusher } from './blobCache';
+import { BlobTransferChannel } from './blobTransfer';
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
 import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
@@ -29,6 +31,23 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
     enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
   context.centralServer = new CentralServerConnection(context);
+
+  // spec: CACHE
+  // The blob transfer channel and outbox pusher need a central connection, so
+  // they arrive with the sync runtime; the cache itself (context.blobCache)
+  // works local-only from boot.
+  context.blobTransferChannel = new BlobTransferChannel({
+    blobStore: context.blobStore,
+    centralServer: context.centralServer,
+  });
+  context.blobCache.setTransferChannel(context.blobTransferChannel);
+  context.blobOutboxPusher = new BlobOutboxPusher({
+    models: context.models,
+    transferChannel: context.blobTransferChannel,
+    blobCache: context.blobCache,
+    referenceResolvers: context.blobReferenceResolvers,
+  });
+
   context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
   await performTimeZoneChecks({ sequelize: context.sequelize });

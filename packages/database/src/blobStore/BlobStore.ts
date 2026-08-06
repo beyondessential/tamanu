@@ -3,7 +3,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
 
-import { BLOB_INTEGRITY_STATES, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_TIERS,
+  CURRENT_BLOB_HASH_ALGORITHM,
+  type BlobTier,
+} from '@tamanu/constants';
 import {
   BlobHashMismatchError,
   InsufficientStorageError,
@@ -147,15 +152,19 @@ export class BlobStore {
    * Admit content into the store: hash it while streaming to a temporary file
    * within the store, then atomically rename into the fan-out path and record
    * it in the registry. Idempotent — identical content resolves to the one
-   * stored blob. Refuses (InsufficientStorageError) rather than take the
-   * volume's free space below the configured reserve. On any failure the
+   * stored blob, keeping its existing tier (spec: CACHE — content already held
+   * as cache stays cache). Refuses (InsufficientStorageError) rather than take
+   * the volume's free space below the configured reserve. On any failure the
    * source stream is destroyed; it cannot be reused.
    *
    * Cannot replace bytes already stored under the hash: an existing blob wins
    * (`existed: true`), including a quarantined one, whose corrupt bytes and
    * state are kept. Repair is delete-then-put.
    */
-  async put(source: Readable, options: { sizeHint?: number } = {}): Promise<PutResult> {
+  async put(
+    source: Readable,
+    options: { sizeHint?: number; tier?: BlobTier } = {},
+  ): Promise<PutResult> {
     try {
       return await this.#admit(source, options);
     } catch (error) {
@@ -164,7 +173,10 @@ export class BlobStore {
     }
   }
 
-  async #admit(source: Readable, { sizeHint }: { sizeHint?: number }): Promise<PutResult> {
+  async #admit(
+    source: Readable,
+    { sizeHint, tier }: { sizeHint?: number; tier?: BlobTier },
+  ): Promise<PutResult> {
     const tempDir = path.join(this.root, TEMP_DIR);
     await fs.mkdir(tempDir, { recursive: true });
     await this.#ensureFloor(sizeHint ?? 0);
@@ -192,7 +204,7 @@ export class BlobStore {
     // Register after placement: a crash in between leaves an orphan file that
     // the next put of the same content adopts, never a registry row pointing
     // at missing bytes.
-    await this.#register(hash, size);
+    await this.#register(hash, size, tier);
 
     return { hash, size, existed };
   }
@@ -486,18 +498,26 @@ export class BlobStore {
     }
   }
 
-  async #register(hash: string, size: number): Promise<void> {
+  async #register(hash: string, size: number, tier?: BlobTier): Promise<void> {
     // Race-safe against concurrent puts of the same content; the loser's
-    // insert is a no-op against the winner's identical row. A soft-deleted
-    // row still occupies the unique index and would otherwise shadow
-    // re-admission forever (invisible to has/get, conflicting here), so
-    // resurrect it; rows that are alive are left untouched.
+    // insert is a no-op against the winner's identical live row, which keeps
+    // its tier: content already held as cache is durable on central and stays
+    // cache even when re-admitted with outbox intent (spec: CACHE). A
+    // soft-deleted row still occupies the unique index and would otherwise
+    // shadow re-admission forever (invisible to has/get, conflicting here), so
+    // resurrect it as the fresh admission it is: take the incoming tier (an
+    // outbox re-admission must not stay evictable cache) and reset recency to
+    // now (so it is not instantly the oldest LRU victim). Live rows are left
+    // untouched.
     await this.#models.Blob.sequelize.query(
       `
-        INSERT INTO blobs (id, hash, size, integrity_state)
-        VALUES ($id, $hash, $size, $integrityState)
+        INSERT INTO blobs (id, hash, size, integrity_state, tier)
+        VALUES ($id, $hash, $size, $integrityState, $tier)
         ON CONFLICT (hash) DO UPDATE
-          SET deleted_at = NULL, updated_at = now()
+          SET deleted_at = NULL,
+              updated_at = now(),
+              last_accessed_at = now(),
+              tier = EXCLUDED.tier
           WHERE blobs.deleted_at IS NOT NULL
       `,
       {
@@ -506,6 +526,7 @@ export class BlobStore {
           hash,
           size,
           integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+          tier: tier ?? BLOB_TIERS.CACHE,
         },
       },
     );

@@ -64,10 +64,11 @@ export class FacilitySyncManager {
 
   currentStartTime = 0;
 
-  constructor({ models, sequelize, centralServer }) {
+  constructor({ models, sequelize, centralServer, blobOutboxPusher }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
+    this.blobOutboxPusher = blobOutboxPusher ?? null;
   }
 
   isSyncRunning() {
@@ -200,6 +201,16 @@ export class FacilitySyncManager {
       await pullSettingsPsk({ models: this.models, centralServer: this.centralServer });
     } catch (error) {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
+    }
+
+    // spec: CAP
+    // A completed cycle proves the connection works, so any outbox blob that
+    // is eligible for push yet not transferring advances the dysfunction
+    // measure. Never fails the sync it rode in on.
+    try {
+      await this.blobOutboxPusher?.recordSyncCycle();
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordBlobOutboxSyncCycleFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;

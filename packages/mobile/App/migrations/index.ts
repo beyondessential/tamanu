@@ -92,6 +92,7 @@ import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDi
 import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 import { addBlobsTable1785810000000 } from './1785810000000-addBlobsTable';
+import { addBlobCacheTierColumns1785820000000 } from './1785820000000-addBlobCacheTierColumns';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -187,4 +188,5 @@ export const migrationList = [
   addUserKind1783118255000,
   addDosingAndDispensingUnitColumns1779900000001,
   addBlobsTable1785810000000,
+  addBlobCacheTierColumns1785820000000,
 ];

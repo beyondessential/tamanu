@@ -2,8 +2,10 @@ import { DataTypes } from 'sequelize';
 
 import {
   BLOB_INTEGRITY_STATES,
+  BLOB_TIERS,
   SYNC_DIRECTIONS,
   type BlobIntegrityState,
+  type BlobTier,
 } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
@@ -19,6 +21,9 @@ export class Blob extends Model {
   declare hash: string;
   declare size: number;
   declare integrityState: BlobIntegrityState;
+  declare tier: BlobTier;
+  declare lastAccessedAt: Date;
+  declare eligibleSinceTick: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -41,6 +46,38 @@ export class Blob extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
           defaultValue: BLOB_INTEGRITY_STATES.VERIFIED,
+        },
+        // spec: CACHE
+        // Facility/mobile durability tier: an outbox blob is the only durable
+        // copy and never evicted; a cache blob is durable on central and
+        // evictable. Not consulted on the central server.
+        tier: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+          defaultValue: BLOB_TIERS.CACHE,
+        },
+        // spec: CACHE
+        // LRU recency: set at admission (column default), refreshed on reads —
+        // possibly coalesced, so it is a lower bound on the true last access.
+        lastAccessedAt: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: DataTypes.NOW,
+        },
+        // spec: CAP
+        // The push cursor at the moment this blob was first observed eligible
+        // for push (its referencing record had synced). Null while not yet
+        // eligible; cleared on demotion to cache. The outbox dysfunction
+        // measure compares it against the current push cursor.
+        eligibleSinceTick: {
+          type: DataTypes.BIGINT,
+          allowNull: true,
+          // Postgres returns BIGINT as a string; callers compare it against the
+          // numeric sync tick.
+          get(this: Blob): number | null {
+            const value = this.getDataValue('eligibleSinceTick');
+            return value == null ? null : Number(value);
+          },
         },
       },
       {

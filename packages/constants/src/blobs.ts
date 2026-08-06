@@ -19,6 +19,21 @@ export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLO
 
 export const BLOB_INTEGRITY_STATES_VALUES = Object.values(BLOB_INTEGRITY_STATES);
 
+// spec: CACHE
+// The durability tier of a blob on a facility or mobile server. An outbox blob
+// is the only durable copy of its content — never evicted, awaiting central's
+// acknowledgement. A cache blob is durable on the central server and evictable
+// under the LRU size budget. On the central server the registry is
+// authoritative and the tier is not consulted.
+export const BLOB_TIERS = {
+  OUTBOX: 'outbox',
+  CACHE: 'cache',
+} as const;
+
+export type BlobTier = (typeof BLOB_TIERS)[keyof typeof BLOB_TIERS];
+
+export const BLOB_TIERS_VALUES = Object.values(BLOB_TIERS);
+
 // spec: XFER
 // The availability of a referenced blob's bytes on a serving server. A
 // content-pending reference is awaiting either upload from its origin or fetch

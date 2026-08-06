@@ -21,6 +21,11 @@ blob.
   un-evictable outbox content is consuming the space — the blob store refuses to
   admit new blobs rather than cross into the reserve, so a new upload or push is
   rejected before the database can be starved.
+- [ ] A refused admission fails the submitting operation immediately with an error
+  identifying storage capacity as the cause, so an upload fails visibly at the time
+  it is attempted and its consumer can present the failure to the user.
+- [ ] A background fetch refused for capacity is treated as a failed fetch: the
+  reference stays content-pending and the fetch is retried (see `transfer.md`).
 - [ ] The floor applies wherever the blob store runs, including the central server,
   whose store grows without deletion and must not starve the central database.
 
@@ -37,6 +42,11 @@ blob.
   server is expected accumulation; a blob that survives several successful sync
   cycles without being pushed is a severe dysfunction, because the connection is
   working but the push path is not.
+- [ ] The dysfunction measure counts sync cycles from when a blob became eligible
+  for push (its referencing record has synchronised — see `facility-cache.md`), and
+  a blob whose transfer is actively progressing is healthy accumulation: escalation
+  applies to eligible blobs that are not being attempted or whose attempts
+  repeatedly fail.
 - [ ] Outbox backpressure is surfaced as a health signal visible to central-side
   monitoring, escalating with both the number of successful sync cycles a blob has
   gone unpushed and the space the outbox is consuming.

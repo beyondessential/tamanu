@@ -10,6 +10,8 @@ import { facilityDefaults } from '@tamanu/settings';
 import { getServerFacilityIds } from '../serverConfig';
 
 import { BedFeeCharger } from './BedFeeCharger';
+import { BlobCacheEvictorTask } from './BlobCacheEvictorTask';
+import { BlobOutboxPusherTask } from './BlobOutboxPusherTask';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
@@ -21,6 +23,8 @@ const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
   SendStatusToMetaServer,
   TimeSyncTask,
+  BlobOutboxPusherTask,
+  BlobCacheEvictorTask,
   FhirMissingResources,
   FhirJobWorkerCleaner,
   FhirErroredJobCleaner,

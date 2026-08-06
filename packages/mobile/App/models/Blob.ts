@@ -19,4 +19,22 @@ export class Blob extends BaseModel {
 
   @Column({ nullable: false, default: 'verified' })
   integrityState: string;
+
+  // spec: CACHE
+  // Durability tier: an outbox blob is the only durable copy, never evicted; a
+  // cache blob is durable on central and evictable under the LRU size budget.
+  @Column({ nullable: false, default: 'cache' })
+  tier: string;
+
+  // spec: CACHE
+  // LRU recency: set at admission, refreshed (possibly coalesced) on reads.
+  @Column({ type: 'datetime', nullable: false, default: () => "datetime('now')" })
+  lastAccessedAt: Date;
+
+  // spec: CAP
+  // The push cursor when this blob first became eligible for push; null until
+  // then, cleared on demotion to cache. The outbox dysfunction measure compares
+  // it against the current push cursor.
+  @Column({ type: 'bigint', nullable: true })
+  eligibleSinceTick: number;
 }
