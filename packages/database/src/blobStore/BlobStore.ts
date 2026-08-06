@@ -4,8 +4,13 @@ import path from 'node:path';
 import type { Readable } from 'node:stream';
 
 import { BLOB_INTEGRITY_STATES, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
-import { InsufficientStorageError, NotFoundError } from '@tamanu/errors';
-import { blobPathSegments, formatBlobHash } from '@tamanu/utils/blobs';
+import {
+  BlobHashMismatchError,
+  InsufficientStorageError,
+  InvalidParameterError,
+  NotFoundError,
+} from '@tamanu/errors';
+import { blobPathSegments, formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import type { Blob } from '../models/Blob';
@@ -23,6 +28,12 @@ const RENAME_RETRY_BASE_MS = 50;
 const FLOOR_CHECK_INTERVAL_BYTES = 64 * 1024 * 1024;
 
 const TEMP_DIR = 'tmp';
+
+// spec: XFER
+// Partially received transfers live here, named by their offered hash, so an
+// interrupted transfer resumes from the bytes already delivered — including
+// across a server restart.
+const STAGING_DIR = 'staging';
 
 export interface VolumeStats {
   bavail: number | bigint;
@@ -52,6 +63,11 @@ export interface PutResult {
   existed: boolean;
 }
 
+export interface BlobStat {
+  size: number;
+  integrityState: string;
+}
+
 // spec: CAS, CAP
 // The content-addressed blob store primitive: bytes on disk under an
 // algorithm-namespaced two-level fan-out, and a row per blob in the local
@@ -65,6 +81,7 @@ export class BlobStore {
   readonly #getFreeDiskReserveBytes: () => Promise<number>;
   readonly #evictCache?: (bytesNeeded: number) => Promise<void>;
   readonly #statfs: (root: string) => Promise<VolumeStats>;
+  readonly #stagingLocks = new Map<string, Promise<unknown>>();
 
   constructor({ root, models, getFreeDiskReserveBytes, evictCache, statfs }: BlobStoreOptions) {
     this.root = root;
@@ -88,9 +105,15 @@ export class BlobStore {
     return await fileExists(filePath);
   }
 
-  async get(hash: string): Promise<Readable> {
+  async get(
+    hash: string,
+    { start, end, stat }: { start?: number; end?: number; stat?: BlobStat | null } = {},
+  ): Promise<Readable> {
     const filePath = this.#pathFor(hash);
-    const registered = await this.#models.Blob.findOne({ where: { hash } });
+    // A caller that has just run stat() for this hash (the serving path, which
+    // needs the size for range handling) passes it back so the primary read
+    // path queries the registry once, not twice.
+    const registered = stat ?? (await this.#models.Blob.findOne({ where: { hash } }));
     if (!registered) {
       // Bytes with no registry row are a crash orphan, not admitted content.
       throw new NotFoundError(`Blob not found: ${hash}`);
@@ -108,7 +131,16 @@ export class BlobStore {
       }
       throw error;
     }
-    return handle.createReadStream();
+    return handle.createReadStream({ start, end });
+  }
+
+  /** The registry's record of a held blob, or null when the blob is not held. */
+  async stat(hash: string): Promise<BlobStat | null> {
+    const registered = await this.#models.Blob.findOne({ where: { hash } });
+    if (!registered || !(await fileExists(this.#pathFor(hash)))) {
+      return null;
+    }
+    return { size: registered.size, integrityState: registered.integrityState };
   }
 
   /**
@@ -165,6 +197,172 @@ export class BlobStore {
     return { hash, size, existed };
   }
 
+  // spec: XFER
+  /** Bytes already staged for a hash, so an interrupted transfer resumes from them. */
+  async stagedSize(hash: string): Promise<number> {
+    const stagingPath = this.#stagingPathFor(hash);
+    try {
+      const stats = await fs.stat(stagingPath);
+      return stats.size;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return 0;
+      }
+      throw error;
+    }
+  }
+
+  // spec: XFER
+  /**
+   * Append received content for a hash to its staging file. The caller states
+   * the offset it is delivering from, which must equal the bytes already
+   * staged — on mismatch nothing is written and the caller should re-check
+   * stagedSize and resume from there. A failure partway through the source
+   * keeps the bytes already appended as the resume point. Refuses rather than
+   * take the volume below the free-disk reserve, like put.
+   *
+   * `maxBytes` bounds how many bytes this append may add. A source that would
+   * exceed it is a protocol violation (a peer sending more than it declared):
+   * the append stops before writing the overrun, the staging is discarded, and
+   * it throws — so the store never writes unbounded excess ahead of the check.
+   */
+  async stage(
+    hash: string,
+    source: Readable,
+    { offset, maxBytes }: { offset: number; maxBytes?: number },
+  ): Promise<{ stagedSize: number }> {
+    parseBlobHash(hash);
+    return await this.#withStagingLock(hash, () =>
+      this.#stageLocked(hash, source, { offset, maxBytes }),
+    );
+  }
+
+  async #stageLocked(
+    hash: string,
+    source: Readable,
+    { offset, maxBytes }: { offset: number; maxBytes?: number },
+  ): Promise<{ stagedSize: number }> {
+    const stagingPath = this.#stagingPathFor(hash);
+    await fs.mkdir(path.dirname(stagingPath), { recursive: true });
+
+    const alreadyStaged = await this.stagedSize(hash);
+    if (offset !== alreadyStaged) {
+      throw new InvalidParameterError(
+        `Staged content offset mismatch for ${hash}: ${alreadyStaged} bytes staged, offset ${offset} delivered`,
+      );
+    }
+
+    await this.#ensureFloor(0);
+
+    let written = 0;
+    let bytesSinceFloorCheck = 0;
+    let overran = false;
+    const handle = await fs.open(stagingPath, 'a');
+    try {
+      for await (const chunk of source) {
+        if (overran) {
+          // Keep draining the source without writing more. Destroying it
+          // mid-body instead would tear down the request socket, which the
+          // response-logging middleware then dereferences on finish.
+          continue;
+        }
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        if (maxBytes !== undefined && written + buffer.length > maxBytes) {
+          // A peer sending more than it declared is a protocol violation: stop
+          // writing here (so the store never commits unbounded excess to disk)
+          // and drain the rest before discarding the staging and refusing.
+          overran = true;
+          continue;
+        }
+        written += buffer.length;
+        bytesSinceFloorCheck += buffer.length;
+        await writeAll(handle, buffer);
+        if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
+          bytesSinceFloorCheck = 0;
+          await this.#ensureFloor(0);
+        }
+      }
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+
+    if (overran) {
+      await this.#removeStagingFile(hash);
+      throw new InvalidParameterError(
+        `Staged content for ${hash} exceeded the declared ${maxBytes} remaining bytes; staging discarded`,
+      );
+    }
+
+    return { stagedSize: alreadyStaged + written };
+  }
+
+  // spec: XFER
+  /**
+   * Verify the staged content against its hash and admit it into the store.
+   * Verification covers the complete staged file, including any bytes
+   * delivered before an interruption. On mismatch the staged content is
+   * discarded and BlobHashMismatchError thrown. Idempotent: a hash the store
+   * already holds commits as a no-op and drops the staging.
+   */
+  async commitStaged(hash: string): Promise<PutResult> {
+    parseBlobHash(hash);
+    return await this.#withStagingLock(hash, () => this.#commitStagedLocked(hash));
+  }
+
+  async #commitStagedLocked(hash: string): Promise<PutResult> {
+    const existing = await this.stat(hash);
+    if (existing) {
+      await this.#removeStagingFile(hash);
+      return { hash, size: existing.size, existed: true };
+    }
+
+    const { algorithm } = parseBlobHash(hash);
+    const stagingPath = this.#stagingPathFor(hash);
+    let handle;
+    try {
+      handle = await fs.open(stagingPath, 'r');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        throw new NotFoundError(`Nothing staged for blob: ${hash}`);
+      }
+      throw error;
+    }
+
+    const hasher = createHash(algorithm);
+    let size = 0;
+    try {
+      for await (const chunk of handle.createReadStream({ autoClose: false })) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        hasher.update(buffer);
+        size += buffer.length;
+      }
+    } finally {
+      await handle.close();
+    }
+
+    const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
+    if (actualHash !== hash) {
+      await this.#removeStagingFile(hash);
+      throw new BlobHashMismatchError(
+        `Staged content for ${hash} hashed to ${actualHash}; content discarded`,
+      );
+    }
+
+    await this.#placeAtFinalPath(stagingPath, this.#pathFor(hash));
+    await this.#register(hash, size);
+    return { hash, size, existed: false };
+  }
+
+  // spec: XFER
+  async discardStaged(hash: string): Promise<void> {
+    await this.#withStagingLock(hash, () => this.#removeStagingFile(hash));
+  }
+
+  async #removeStagingFile(hash: string): Promise<void> {
+    await fs.rm(this.#stagingPathFor(hash), { force: true });
+  }
+
   async delete(hash: string): Promise<void> {
     const filePath = this.#pathFor(hash);
     // Hard delete: a soft-deleted row would shadow re-admission of the same
@@ -187,6 +385,34 @@ export class BlobStore {
     return path.join(this.root, ...blobPathSegments(hash));
   }
 
+  // spec: XFER
+  // Staging mutations for one hash are serialised within this process: the
+  // offset check and the append must be atomic against concurrent transfers
+  // of the same content, or interleaved appends corrupt the staging file. A
+  // waiter that loses the race fails the offset check cleanly and resumes
+  // from the new staged size. Writers in other processes are not covered;
+  // commit verification remains the backstop there.
+  async #withStagingLock<T>(hash: string, operation: () => Promise<T>): Promise<T> {
+    const previous = this.#stagingLocks.get(hash) ?? Promise.resolve();
+    const run = previous.catch(() => {}).then(operation);
+    const tail = run.catch(() => {});
+    this.#stagingLocks.set(hash, tail);
+    try {
+      return await run;
+    } finally {
+      if (this.#stagingLocks.get(hash) === tail) {
+        this.#stagingLocks.delete(hash);
+      }
+    }
+  }
+
+  #stagingPathFor(hash: string): string {
+    // parseBlobHash constrains the hash to lowercase alphanumerics and a
+    // colon, so the flat filename is path-safe on every filesystem.
+    const { algorithm, digest } = parseBlobHash(hash);
+    return path.join(this.root, STAGING_DIR, `${algorithm}-${digest}`);
+  }
+
   async #writeAndHash(
     source: Readable,
     tempPath: string,
@@ -204,17 +430,7 @@ export class BlobStore {
         hasher.update(buffer);
         size += buffer.length;
         bytesSinceFloorCheck += buffer.length;
-        // A single write may persist fewer bytes than given (e.g. the kernel
-        // keeps what fits as the volume fills and returns a short count), and
-        // the hash already covers the whole chunk; loop so a short write can
-        // never truncate content that would then rename in as verified.
-        for (let offset = 0; offset < buffer.length; ) {
-          const { bytesWritten } = await handle.write(buffer, offset);
-          if (bytesWritten <= 0) {
-            throw new Error(`Blob temp write stalled at ${offset}/${buffer.length} bytes`);
-          }
-          offset += bytesWritten;
-        }
+        await writeAll(handle, buffer);
         if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
           bytesSinceFloorCheck = 0;
           await this.#ensureFloor(0);
@@ -323,6 +539,20 @@ export class BlobStore {
   async #volumeFreeBytes(): Promise<number> {
     const stats = await this.#statfs(this.root);
     return Number(stats.bavail) * Number(stats.bsize);
+  }
+}
+
+// A single write may persist fewer bytes than given (e.g. the kernel keeps what
+// fits as the volume fills and returns a short count), so loop until the whole
+// buffer is down: a short write must never truncate content that a hash or a
+// staged byte count has already accounted for.
+async function writeAll(handle: fs.FileHandle, buffer: Buffer): Promise<void> {
+  for (let offset = 0; offset < buffer.length; ) {
+    const { bytesWritten } = await handle.write(buffer, offset);
+    if (bytesWritten <= 0) {
+      throw new Error(`Blob write stalled at ${offset}/${buffer.length} bytes`);
+    }
+    offset += bytesWritten;
   }
 }
 

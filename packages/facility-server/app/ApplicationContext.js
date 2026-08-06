@@ -1,8 +1,10 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
+import { BlobStore } from '@tamanu/database/blobStore';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { facilityDefaults } from '@tamanu/settings';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -32,6 +34,9 @@ export class ApplicationContext {
    * @type {ReadSettings<FacilitySettingPath> | null}
    */
   settings = null;
+
+  /** @type {BlobStore | null} */
+  blobStore = null;
 
   reportSchemaStores = null;
 
@@ -68,6 +73,20 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = ReadSettings.forGlobal(this.models);
+
+    // spec: CAS, CAP
+    // Cache eviction under the free-disk floor arrives with the facility
+    // cache tier (see specs/blob-storage/facility-cache.md).
+    // The root is facility-scoped but server-wide, so the first facility's value
+    // applies; a server that has not synced a facility yet falls back to the default.
+    this.blobStore = new BlobStore({
+      root: facilityIds.length
+        ? await this.settings[facilityIds[0]].get('blobStorage.root')
+        : facilityDefaults.blobStorage.root,
+      models: this.models,
+      getFreeDiskReserveBytes: async () =>
+        (await this.settings.global.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+    });
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
 

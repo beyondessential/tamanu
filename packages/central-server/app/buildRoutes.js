@@ -6,6 +6,7 @@ import { ReadSettings } from '@tamanu/settings';
 
 import { buildSyncRoutes } from './sync';
 import { attachmentRoutes } from './attachment';
+import { buildBlobTransferRoutes } from './blobTransfer';
 import { facilityRoutes } from './facility';
 import { healthRoutes } from './health';
 import { integrationRoutes } from './integrations';
@@ -34,6 +35,7 @@ export const buildRoutes = ctx => {
 
   routes.use('/sync', buildSyncRoutes(ctx));
   routes.use('/attachment', attachmentRoutes);
+  routes.use('/blob', buildBlobTransferRoutes(ctx));
   routes.use('/facility', facilityRoutes);
   routes.use('/health', healthRoutes);
   routes.use('/integration', integrationRoutes);
