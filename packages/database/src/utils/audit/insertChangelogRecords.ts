@@ -1,25 +1,31 @@
+import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
+
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
 
-export const insertChangelogRecords = async (models: Models, changelogRecords: ChangeLog[]) => {
+const DEFAULT_INSERT_BATCH_SIZE = 1000;
+
+/**
+ * `logs.changes` records carry a full copy of the record in `record_data`. Keep batches small to
+ * small to avoid building one enormous `INSERT` query in memory.
+ */
+export const insertChangelogRecords = async (
+  models: Models,
+  changelogRecords: ChangeLog[],
+  batchSize = DEFAULT_INSERT_BATCH_SIZE,
+) => {
+  if (!changelogRecords.length) return;
+
   const { ChangeLog } = models;
 
-  if (!changelogRecords.length) {
-    return;
-  }
-
-  const existingRecords = await ChangeLog.findAll({
-    where: {
-      id: changelogRecords.map(({ id }) => id),
-    },
-  });
-
-  const existingIds = existingRecords.map(({ id }) => id);
-  const recordsToInsert = changelogRecords
-    .filter(({ id }) => !existingIds.includes(id))
-    .map((changelogRecord) => ({
-      ...changelogRecord,
-    }));
-
-  await ChangeLog.bulkCreate(recordsToInsert);
+  // Entries are immutable, so re-delivered records are skipped rather than merged
+  await runFunctionInBatches(
+    changelogRecords,
+    batch =>
+      ChangeLog.bulkCreate(
+        batch.map(record => ({ ...record })),
+        { ignoreDuplicates: true },
+      ),
+    batchSize,
+  );
 };
