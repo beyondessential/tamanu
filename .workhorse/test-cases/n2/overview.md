@@ -48,9 +48,13 @@ whichever card implements it.
 - [ ] An earlier store capture is refused against a later database capture
   (verifies spec: BKUP)
 - [ ] A blob on disk with no registry row after a restore is registered and becomes
-  servable (verifies spec: BKUP)
+  servable (verifies spec: SCRUB)
 - [ ] A registry row whose bytes are missing after a restore is recorded as absent,
-  and the server does not report holding the blob (verifies spec: BKUP)
+  and the server does not report holding the blob (verifies spec: SCRUB)
+- [ ] A blob left on disk by an admission interrupted before registration is adopted
+  without any restore having happened (verifies spec: SCRUB)
+- [ ] A file in the store whose contents do not hash to the location it occupies is
+  treated as corrupt rather than registered as good (verifies spec: SCRUB)
 - [ ] A restored facility reference whose bytes are absent is surfaced as
   content-pending rather than as an error, and resolves once fetched from central
   (verifies spec: BKUP)

@@ -134,7 +134,14 @@ rather than per-range verification), and by a scheduled incremental scrub that c
 cold blobs and checks referential integrity. Corruption is repaired via the self-heal
 ladder — error correction, peer, then backup — with severity graded by whether the
 copy is authoritative. Records scrub state in the local index and surfaces a Canopy
-health check and runbook. Runs on central and facilities; most valuable on bare-metal
+health check and runbook. The scrub also reconciles the store against the registry in
+the disk-to-registry direction, adopting a blob present on disk that no registry entry
+names: unregistered content is otherwise permanent, being never served and never
+reclaimed (eviction works off a registry-derived budget and facilities collect no
+orphans) while still occupying disk the free-disk floor measures. This is how a
+restored server converges, its database and store having been captured at different
+moments, and how a server recovers an admission interrupted between the blob reaching
+its location and being registered. Runs on central and facilities; most valuable on bare-metal
 and NTFS deployments where the filesystem offers no checksum repair. Per-range
 verified streaming (Bao) is a deferred option, checked in the BLAKE3 research spike
 only if large-file range verification is later wanted.

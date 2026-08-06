@@ -82,13 +82,9 @@ carries the references and the blob registry, the store capture carries the byte
   may be restored against an earlier database capture, since a later capture is
   still a superset of what the earlier database references. An earlier store capture
   is never restored against a later database capture.
-- [ ] Restore reconciles the store against the restored blob registry, because the
-  two captures are taken at different moments and the registry is what makes a blob
-  visible to the server (see `content-addressing.md`).
-- [ ] A blob present in the store but absent from the registry is registered, so its
-  bytes are usable rather than stranded on disk.
-- [ ] A registry entry whose bytes are absent from the store is recorded as absent,
-  so the server acquires them rather than offering a blob it cannot serve.
+- [ ] A restored server reconciles its store against its restored blob registry,
+  because the two captures are taken at different moments and can disagree in either
+  direction. Reconciliation is the scrub's, and is specified in `integrity.md`.
 - [ ] A reference whose bytes are absent after a restore is content-pending rather
   than corrupt (see `transfer.md`). On a facility server it is fetched from central
   on demand and in the background. On the central server it is content that must be

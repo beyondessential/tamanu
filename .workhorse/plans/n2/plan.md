@@ -109,10 +109,24 @@ would claim to hold). bestool restores files and knows nothing about the registr
 so this reconciliation belongs to Tamanu, most likely as a startup step on a server
 that detects it has been restored.
 
-Decided: specify it here, implement it elsewhere. The behaviour is restore
-behaviour and so belongs in `specs/blob-storage/backups.md`, but this card is a
-spec card whose implementation is bestool-side, and the reconciliation is Tamanu
-code sitting directly on the store primitive. It wants its own card on the store's
-board, which also keeps it behind the store landing.
+Decided: folded into the integrity scrub card (P2), not carried here and not given
+its own card.
+
+The behaviour is specified in `specs/blob-storage/integrity.md` under "Registry
+reconciliation", and `backups.md` cross-references it rather than restating it. P2
+already owns periodic detect-and-repair sweeps and the registry's scrub state, so
+this is a second direction on the same walk: its verification pass walks the
+registry, its reconciliation pass walks the store.
+
+Two reasons it belongs there rather than in a restore-triggered step. A server
+cannot readily tell it has been restored, so hanging the work off a restore needs a
+detection mechanism that a periodic sweep does not. And the same gap arises without
+any restore: an admission interrupted between the atomic rename and the registry
+insert strands a blob permanently, since it is never served and never reclaimed
+while still consuming disk the free-disk floor measures.
+
+The risk to watch is timing. P2 is a late resilience card and restore needs
+reconciliation as soon as the store ships, so if P2 slips, this wants splitting into
+a small card depending on E2 alone.
 
 Nothing in the Tamanu codebase changes on this card.
