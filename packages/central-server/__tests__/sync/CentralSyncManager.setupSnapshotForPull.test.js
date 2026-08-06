@@ -589,6 +589,32 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
   });
 
   describe('handles sync special case configurations', () => {
+    it('snapshots only the tables a session asks for', async () => {
+      // How a phase of a facility's first sync keeps its snapshot to its own share: it names the
+      // tables it wants, and everything else it would otherwise be sent stays out.
+      const facility = await models.Facility.create(fake(models.Facility));
+      const program = await models.Program.create(fake(models.Program));
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          tablesToInclude: ['programs'],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+      expect(outgoingChanges.map(({ recordId }) => recordId)).toEqual([program.id]);
+      expect(outgoingChanges.map(({ recordType }) => recordType)).not.toContain('facilities');
+    });
+
     describe('syncAllLabRequests', () => {
       let facility;
       let otherFacility;

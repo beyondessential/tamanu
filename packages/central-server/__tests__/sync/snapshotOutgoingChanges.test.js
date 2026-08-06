@@ -70,6 +70,41 @@ describe('snapshotOutgoingChanges', () => {
   );
 
   it(
+    'returns 0 for an empty set of models rather than building a broken query',
+    withErrorShown(async () => {
+      // The boot phase of a facility's first sync carries no patient-linked tables, so the pass that
+      // snapshots those is handed nothing. Without a guard the record type filter has no values to
+      // match against, which is a SQL error rather than an empty result.
+      const { LocalSystemFact } = models;
+      const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
+
+      const sessionId = fakeUUID();
+      await createSnapshotTable(ctx.store.sequelize, sessionId);
+
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        sessionId,
+        true,
+        [''],
+        tock - 1,
+      );
+
+      const result = await snapshotOutgoingChanges(
+        ctx.store,
+        {},
+        tock - 1,
+        0,
+        fullSyncPatientsTable,
+        sessionId,
+        [''],
+        null,
+        simplestSessionConfig,
+      );
+      expect(result).toEqual(0);
+    }),
+  );
+
+  it(
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
@@ -110,7 +145,7 @@ describe('snapshotOutgoingChanges', () => {
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
       expect(
-        Object.keys(syncRecord.data).every((key) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
+        Object.keys(syncRecord.data).every(key => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
       ).toBe(true);
     }),
   );
@@ -202,7 +237,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -265,7 +300,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async (transaction) => {
+      const after = ctx.store.sequelize.transaction(async transaction => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -288,7 +323,7 @@ describe('snapshotOutgoingChanges', () => {
 
       const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
       });
       const fakeModelThatWaitsUntilWeSaySo = {
@@ -348,7 +383,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.store.sequelize.transaction(async (transaction) => {
+      const after = ctx.store.sequelize.transaction(async transaction => {
         await ReferenceData.create(fakeReferenceData(), {
           transaction,
         });
@@ -503,7 +538,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,
@@ -553,7 +588,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [
           labTest1.id,
           labTest2.id,

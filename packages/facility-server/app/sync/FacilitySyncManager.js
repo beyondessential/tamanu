@@ -129,11 +129,14 @@ export class FacilitySyncManager {
       this.currentStartTime = 0;
     }
 
-    if (result?.nextPhase) {
-      this.continueInitialSync(result.nextPhase);
+    // the phase chain is the manager's own business: callers get the outcome of the run they asked
+    // for, not the bookkeeping for the one it goes on to start
+    const { nextPhase, ...outcome } = result ?? {};
+    if (nextPhase) {
+      this.continueInitialSync(nextPhase);
     }
 
-    return { enabled: true, ...result };
+    return { enabled: true, ...outcome };
   }
 
   async runSync() {
@@ -289,7 +292,10 @@ export class FacilitySyncManager {
   // phase, so this is not awaited and its failure is not the completed phase's problem
   continueInitialSync(phase) {
     log.info('FacilitySyncManager.continuingInitialSync', { phase: SYNC_PHASE_LABELS[phase] });
-    this.initialSyncContinuation = this.triggerSync({ initialSyncPhase: phase }).catch(error => {
+    // not urgent: a facility mid-initial-sync already keeps its place at the front of the queue by
+    // reporting itself as never-synced, and urgent is for syncs a person is waiting on
+    const reason = { type: 'initialSyncPhase', phase: SYNC_PHASE_LABELS[phase], urgent: false };
+    this.initialSyncContinuation = this.triggerSync(reason).catch(error => {
       log.warn('FacilitySyncManager.continueInitialSyncFailed', {
         phase: SYNC_PHASE_LABELS[phase],
         error: error.message,
