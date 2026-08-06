@@ -44,6 +44,8 @@ export const createPatientLetter = (modelName, idField) =>
         type: mimeType,
         size,
         data: fileData,
+        [idField]: params.id,
+        ...(modelName === 'Encounter' ? { patientId: specifiedObject.patientId } : {}),
       }),
     );
 

@@ -68,9 +68,9 @@ attachmentRoutes.post(
     req.checkPermission('create', 'Attachment');
 
     const { Attachment } = req.store.models;
-    const { type, data } = Attachment.sanitizeForDatabase(req.body);
+    const { type, data, patientId, encounterId } = Attachment.sanitizeForDatabase(req.body);
     const { hash, size } = await req.ctx.blobStore.put(Readable.from([data]));
-    const attachment = await Attachment.create({ type, hash, size });
+    const attachment = await Attachment.create({ type, hash, size, patientId, encounterId });
 
     // Send only the ID to be able to link it to metadata
     res.send({

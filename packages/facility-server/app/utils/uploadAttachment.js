@@ -5,7 +5,9 @@ import { CentralServerConnection } from '../sync';
 
 // Helper function for uploading one file to the central server
 // req: express request, maxFileSize: integer (size in bytes)
-export const uploadAttachment = async (req, maxFileSize) => {
+// scope: { patientId } or { encounterId } of the record the file is being
+// attached to, carried so the attachment synchronises within that record's scope
+export const uploadAttachment = async (req, maxFileSize, scope = {}) => {
   // TODO: Figure out permission management for writing
   // an Attachment
   // req.checkPermission('write', 'Attachment'); ??
@@ -33,6 +35,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
       type,
       size,
       data: fileData,
+      ...scope,
     },
     backoff: { maxAttempts: 1 },
   });

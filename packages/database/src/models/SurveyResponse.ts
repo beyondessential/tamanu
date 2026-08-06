@@ -445,7 +445,9 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models);
+      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models, {
+        encounterId: record.encounterId,
+      });
       // Don't create null answers
       if (body === null) {
         continue;
@@ -488,6 +490,7 @@ export class SurveyResponse extends Model {
     dataElementType: ProgramDataElement['type'],
     value: any,
     models: Models,
+    scope: { encounterId?: string; patientId?: string } = {},
   ) {
     if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
       // If the client already provided an attachment ID, keep it as-is
@@ -495,7 +498,7 @@ export class SurveyResponse extends Model {
 
       const { size, data } = value as unknown as { size: number; data: string };
       const { id: attachmentId } = await models.Attachment.create(
-        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg' }),
+        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg', ...scope }),
       );
 
       return attachmentId; // Store attachment ID as answer body

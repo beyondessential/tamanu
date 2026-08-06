@@ -12,7 +12,7 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
-import { FacilityBlobCache } from './blobCache';
+import { FacilityBlobCache, makeSyncedReferenceResolver } from './blobCache';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -113,7 +113,9 @@ export class ApplicationContext {
 
     // spec: CACHE — consumers (attachments, assets) append their synced-record
     // resolvers here so their blobs become eligible for push.
-    this.blobReferenceResolvers = [];
+    this.blobReferenceResolvers = [
+      makeSyncedReferenceResolver({ tableName: 'attachments', hashColumn: 'hash' }),
+    ];
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
 
