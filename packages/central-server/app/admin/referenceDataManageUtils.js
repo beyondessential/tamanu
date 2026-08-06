@@ -7,32 +7,30 @@ import {
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 
-// Reference-data types whose type-specific columns live on a separate 1:1 "satellite"
-// table — a `hasOne` on ReferenceData keyed by `referenceDataId` (e.g. `reference_drugs`).
-// getModelForType resolves these types to the base ReferenceData model, so a satellite's
-// columns only reach the Manage table when its association is joined explicitly. Maps each
-// satellite-backed reference type to its hasOne association alias on ReferenceData.
-export const SATELLITE_ASSOCIATIONS = {
-  [REFERENCE_TYPES.DRUG]: 'referenceDrug',
-  [REFERENCE_TYPES.TASK_TEMPLATE]: 'taskTemplate',
-  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'medicationTemplate',
+// Reference-data types whose type-specific columns live on a separate 1:1 "satellite" table —
+// a `hasOne` on ReferenceData keyed by `referenceDataId` (e.g. `reference_drugs`).
+// getModelForType resolves these types to the base ReferenceData model, so a satellite's columns
+// only reach the Manage table when its association is joined explicitly. Single source of truth
+// mapping each satellite-backed reference type to its `hasOne` association alias on ReferenceData
+// (`as`) and whether Manage currently surfaces/persists its columns (`enabled`). Wiring up
+// taskTemplate and medicationTemplate (plus the provisioning/importer parity they need) is the
+// follow-up tracked in TAM-7046; until then the guardrail test allowlists their not-yet-surfaced
+// satellite columns individually.
+export const SATELLITE_REGISTRY = {
+  [REFERENCE_TYPES.DRUG]: { as: 'referenceDrug', enabled: true },
+  [REFERENCE_TYPES.TASK_TEMPLATE]: { as: 'taskTemplate', enabled: false },
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: { as: 'medicationTemplate', enabled: false },
 };
-
-// Of the satellite-backed types above, those whose satellite columns the Manage table
-// currently surfaces and persists. Wiring up taskTemplate and medicationTemplate (plus the
-// provisioning/importer parity they need) is the follow-up tracked in TAM-7046; until then
-// the guardrail test allowlists their not-yet-surfaced satellite columns individually.
-export const MANAGE_ENABLED_SATELLITE_TYPES = new Set([REFERENCE_TYPES.DRUG]);
 
 // Resolve the satellite association to join for a reference type, or null when the type has
 // no satellite or its satellite isn't surfaced in Manage yet. Returns the association alias
 // and its target model so the caller can derive columns and eager-load/persist rows.
 export const getSatelliteForType = (models, type) => {
-  if (!MANAGE_ENABLED_SATELLITE_TYPES.has(type)) return null;
-  const as = SATELLITE_ASSOCIATIONS[type];
-  const association = models.ReferenceData.associations?.[as];
+  const entry = SATELLITE_REGISTRY[type];
+  if (!entry?.enabled) return null;
+  const association = models.ReferenceData.associations?.[entry.as];
   if (!association) return null;
-  return { as, model: association.target };
+  return { as: entry.as, model: association.target };
 };
 
 export const getModelForType = (models, type) => {
@@ -163,6 +161,23 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
+// Map a single Sequelize attribute to the base Manage column descriptor shared by base and
+// satellite columns: its type, nullability and default (preferring live DB metadata, falling back
+// to the model attribute), plus ENUM values. Callers layer read-only/FK/satellite flags on top.
+const buildColumnDescriptor = (key, attr, dbCol) => {
+  const typeName = attr.type?.constructor?.name ?? 'STRING';
+  const col = {
+    key,
+    type: typeName,
+    allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
+    hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
+  };
+  if (typeName === 'ENUM' && attr.type?.values) {
+    col.enumValues = attr.type.values;
+  }
+  return col;
+};
+
 // The satellite columns Manage manages for a satellite model: every attribute except its own
 // primary key, the referenceDataId link, and bookkeeping columns. Exported so the guardrail test
 // checks the same set of columns the Manage table is expected to surface.
@@ -179,24 +194,12 @@ const getSatelliteColumns = async satellite => {
 
   return Object.entries(rawAttributes)
     .filter(([key]) => satelliteKeys.has(key))
-    .map(([key, attr]) => {
-      const dbField = attr.field ?? key;
-      const dbCol = dbColumns.get(dbField);
-      const typeName = attr.type?.constructor?.name ?? 'STRING';
-      const col = {
-        key,
-        type: typeName,
-        allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
-        hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
-        readOnly: false,
-        readOnlyOnEdit: false,
-        isSatellite: true,
-      };
-      if (typeName === 'ENUM' && attr.type?.values) {
-        col.enumValues = attr.type.values;
-      }
-      return col;
-    });
+    .map(([key, attr]) => ({
+      ...buildColumnDescriptor(key, attr, dbColumns.get(attr.field ?? key)),
+      readOnly: false,
+      readOnlyOnEdit: false,
+      isSatellite: true,
+    }));
 };
 
 export const getColumnsForModel = async (model, satellite = null) => {
@@ -207,20 +210,11 @@ export const getColumnsForModel = async (model, satellite = null) => {
   const baseColumns = Object.entries(rawAttributes)
     .filter(([key]) => !isColumnHidden(key, model.name))
     .map(([key, attr]) => {
-      const dbField = attr.field ?? key;
-      const dbCol = dbColumns.get(dbField);
-      const typeName = attr.type?.constructor?.name ?? 'STRING';
       const col = {
-        key,
-        type: typeName,
-        allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
-        hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
+        ...buildColumnDescriptor(key, attr, dbColumns.get(attr.field ?? key)),
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
-      if (typeName === 'ENUM' && attr.type?.values) {
-        col.enumValues = attr.type.values;
-      }
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];
         col.readOnlyOnEdit = true;
@@ -278,11 +272,11 @@ export const splitSatelliteData = (columns, data) => {
 
 // Upsert a satellite row keyed by its owning reference data id (the 1:1 link). referenceDataId
 // carries a unique constraint, so this is a single atomic INSERT ... ON CONFLICT (no findOrCreate
-// + update race between concurrent saves for the same referenceDataId). Only the fields present in
-// satelliteData are written on conflict — Sequelize applies model defaults with { raw: true } so
-// they never enter the changed set and an unset column keeps its stored value (a partial update
-// merges, it doesn't wipe). Runs inside the caller's managed transaction (CLS binds it), so no
-// transaction object is threaded through.
+// + update race between concurrent saves for the same referenceDataId). Model.upsert derives the
+// ON CONFLICT DO UPDATE set from the built instance's changed fields, which are exactly the values
+// we pass here (referenceDataId + satelliteData) — columns we don't pass aren't in the update set,
+// so they keep their stored value (a partial update merges, it doesn't wipe). Runs inside the
+// caller's managed transaction (CLS binds it), so no transaction object is threaded through.
 export const upsertSatelliteRecord = async (satelliteModel, referenceDataId, satelliteData) => {
   const [record] = await satelliteModel.upsert({ referenceDataId, ...satelliteData });
   return record;
