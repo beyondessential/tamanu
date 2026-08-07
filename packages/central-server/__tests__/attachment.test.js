@@ -94,6 +94,23 @@ describe('Attachment (central-server)', () => {
     expect(createdAttachment).toBeDefined();
   });
 
+  // spec: ATCH, BLAC
+  // Scope cannot be set from the request body: a client must not be able to
+  // scope an attachment to an arbitrary patient or encounter.
+  it('ignores patient and encounter scope supplied in the request body', async () => {
+    const result = await app.post('/api/attachment').send({
+      type: 'image/jpeg',
+      size: 1002,
+      data: FILEDATA,
+      patientId: 'attacker-supplied-patient',
+      encounterId: 'attacker-supplied-encounter',
+    });
+    expect(result).toHaveSucceeded();
+    const created = await models.Attachment.findByPk(result.body.attachmentId);
+    expect(created.patientId).toBeFalsy();
+    expect(created.encounterId).toBeFalsy();
+  });
+
   // spec: ATCH
   describe('Blob-backed attachments', () => {
     const CONTENT = Buffer.from('a stored attachment body, long enough to range over', 'utf8');

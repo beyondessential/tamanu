@@ -85,10 +85,16 @@ attachmentRoutes.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Attachment');
 
+    // Scope is never taken from the request body: this route has no caller that
+    // is entitled to set another patient's or encounter's scope, and trusting the
+    // body would let a client scope an attachment to any patient. Attachments are
+    // scoped by the server-side writer that owns the referencing record (a
+    // document, letter, survey answer, or lab report); one created here carries no
+    // scope and stays central-only until such a writer references it.
     const { Attachment } = req.store.models;
-    const { type, data, patientId, encounterId } = Attachment.sanitizeForDatabase(req.body);
+    const { type, data } = Attachment.sanitizeForDatabase(req.body);
     const { hash, size } = await req.ctx.blobStore.put(Readable.from([data]));
-    const attachment = await Attachment.create({ type, hash, size, patientId, encounterId });
+    const attachment = await Attachment.create({ type, hash, size });
 
     // Send only the ID to be able to link it to metadata
     res.send({
