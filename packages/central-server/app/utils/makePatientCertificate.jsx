@@ -5,6 +5,7 @@ import ReactPDF from '@react-pdf/renderer';
 
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { resolveAssetImageData } from '@tamanu/shared/utils/assets';
 
 import { getPatientSurveyResponseAnswer, tmpdir } from '@tamanu/shared/utils';
 import {
@@ -16,23 +17,33 @@ import {
 
 import { getLocalisation } from '../localisation';
 
-async function getCertificateAssets(models, footerAssetName) {
-  const footerAsset = await models.Asset.findOne({
-    raw: true,
-    where: { name: footerAssetName, facilityId: null },
-  });
-  const footerAssetData = footerAsset?.data;
-  const [logo, watermark, signingImage] = (
-    await Promise.all(
-      [
-        ASSET_NAMES.LETTERHEAD_LOGO,
-        ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK,
-        ...(footerAsset?.data
-          ? []
-          : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
-      ].map(name => name && models.Asset.findOne({ raw: true, where: { name, facilityId: null } })),
-    )
-  ).map(record => record?.data);
+// spec: ASSET
+// Assets read from whichever form the row takes: bytes held in the central blob
+// store addressed by hash, or legacy bytes carried inline on the row.
+async function getCertificateAssets(models, footerAssetName, blobStore) {
+  // Central owns the authoritative store, so a hash always resolves here — no
+  // content-pending state to handle, unlike the facility read-through. A missing
+  // store or blob is a genuine anomaly and surfaces as an error that fails the
+  // render, rather than a certificate quietly printed without its artwork.
+  const openBlob = hash => {
+    if (!blobStore) throw new Error(`Blob store is required to resolve asset ${hash}`);
+    return blobStore.get(hash);
+  };
+  const findAsset = name =>
+    name ? models.Asset.findOne({ raw: true, where: { name, facilityId: null } }) : null;
+
+  const footerAsset = await findAsset(footerAssetName);
+  const footerAssetData = await resolveAssetImageData(footerAsset, openBlob);
+
+  const [logo, watermark, signingImage] = await Promise.all(
+    [
+      ASSET_NAMES.LETTERHEAD_LOGO,
+      ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK,
+      ...(footerAssetData
+        ? []
+        : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
+    ].map(async name => resolveAssetImageData(await findAsset(name), openBlob)),
+  );
 
   return { logo, signingImage: footerAssetData || signingImage, watermark };
 }
@@ -71,6 +82,7 @@ async function getPatientVaccines(models, patient) {
 export const makeCovidVaccineCertificate = async ({
   models,
   settings,
+  blobStore,
   language,
   patient,
   printedBy,
@@ -84,6 +96,7 @@ export const makeCovidVaccineCertificate = async ({
   const { logo, signingImage, watermark } = await getCertificateAssets(
     models,
     ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
+    blobStore,
   );
   const { certifiableVaccines, patientData } = await getPatientVaccines(models, patient);
 
@@ -108,6 +121,7 @@ export const makeCovidVaccineCertificate = async ({
 export const makeVaccineCertificate = async ({
   models,
   settings,
+  blobStore,
   facilityName,
   language,
   patient,
@@ -125,6 +139,7 @@ export const makeVaccineCertificate = async ({
   const { logo, signingImage, watermark } = await getCertificateAssets(
     models,
     ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
+    blobStore,
   );
   const { vaccines, patientData } = await getPatientVaccines(models, patient);
 
@@ -153,6 +168,7 @@ export const makeVaccineCertificate = async ({
 export const makeCovidCertificate = async ({
   models,
   settings,
+  blobStore,
   certType,
   language,
   patient,
@@ -166,7 +182,11 @@ export const makeCovidCertificate = async ({
     certType === CertificateTypes.test
       ? ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER
       : ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
-  const { logo, signingImage, watermark } = await getCertificateAssets(models, footerAssetName);
+  const { logo, signingImage, watermark } = await getCertificateAssets(
+    models,
+    footerAssetName,
+    blobStore,
+  );
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
