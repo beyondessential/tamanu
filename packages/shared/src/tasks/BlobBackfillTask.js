@@ -71,6 +71,11 @@ export class BlobBackfillTask extends ScheduledTask {
         });
       }
 
+      // Scoped to this server's tables, so a facility rewrites only asset
+      // changelog entries. Its attachment changelog entries are deliberately
+      // left inline: those attachments are pushed then deleted, so relocating
+      // their historical bytes would admit blobs for gone rows that a changelog
+      // reference then pins un-evictable in the facility cache forever.
       await this.drain('changelog', batchSize, sleepMs, () =>
         backfill.rewriteChangelogEntries(batchSize),
       );
