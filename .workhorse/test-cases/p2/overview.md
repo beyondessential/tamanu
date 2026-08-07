@@ -65,11 +65,11 @@ Automated coverage lives in `packages/database/__tests__/blobStore/`,
 
 - [x] Hashes reported as undeliverable by the server are raised as faults
 - [x] The pass is skipped where a server supplies no reference check
-- [ ] A reference whose record synced longer ago than the delivery grace, with no
-  bytes held, is reported (verifies spec: SCRUB) — needs J2 or K2 to register a
-  real reference source before it can be exercised
-- [ ] A reference still within the delivery grace is treated as content-pending
-  rather than reported — same dependency
+- [x] A reference whose record synced longer ago than the delivery grace, with no
+  bytes held, is reported (verifies spec: SCRUB) — covered against a scratch
+  reference source; a real consumer source arrives with J2 or K2
+- [x] A reference still within the delivery grace is treated as content-pending
+  rather than reported
 
 ## Operations
 
