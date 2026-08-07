@@ -24,8 +24,8 @@ in build-tooling and mobile. This card removes `@swc/jest` specifically.
 Already on vitest 4: `database`, `utils`, `upgrade`, `web`.
 
 Still on jest: `central-server` (180 test files), `facility-server` (100), `shared` (17),
-`settings` (6), `mobile` (48), `.new-package` (template). `fake-data` has no tests of its own but is
-not merely config: its source reads the jest global (see the seed finding below).
+`settings` (6), `mobile` (48). `fake-data` has no tests of its own but is not merely config: its
+source reads the jest global (see the seed finding below).
 
 ## Decisions
 
@@ -130,14 +130,20 @@ The port is to own the seed rather than borrow the runner's. Resolve
 This is strictly better than what jest gave: runner-agnostic, works for the already-migrated
 packages and for non-test callers of `fake-data`, and survives sharding.
 
-**`.new-package` is stale beyond its test config.** It carries `jest.config.mjs`, a `__tests__`
-directory, and a `.swcrc`, the last being notable because `common.jest.config.mjs` states "there are
-no per-package `.swcrc` files left to locate". Its `package.json` also still describes the
-pre-build-less world (`main: dist/cjs/index.js`, `module: dist/mjs/index.js`, `exports` pointing at
-`dist`, `build:src` running `swc`) while real packages now use `"exports": { ".": "./src" }`.
-`create-package.mjs` just recursively copies the template and rewrites name and version, so all
-fixes land in the template. Correcting only its test config leaves a scaffold that is wrong in
-bigger ways.
+**`.new-package` was stale beyond its test config, and has been deleted** along with
+`scripts/create-package.mjs` and the root `create-package` script entry.
+
+It carried `jest.config.mjs`, a `__tests__` directory, and a `.swcrc`, the last being notable
+because `common.jest.config.mjs` states "there are no per-package `.swcrc` files left to locate".
+Its `package.json` also still described the pre-build-less world (`main: dist/cjs/index.js`,
+`module: dist/mjs/index.js`, `exports` pointing at `dist`, `build:src` running `swc`) while real
+packages now use `"exports": { ".": "./src" }`. Anything scaffolded from it would have needed
+rework immediately.
+
+Staleness confirmed by history: its last two touches were a repo-wide rebrand and a Turborepo
+change, both sweeping, with no deliberate maintenance since the repo went build-less. Nothing else
+referenced it. `plan-ci.mjs` already skipped it via `if (dir.startsWith('.')) continue;`, and it was
+never a workspace member, so CI and installs are unaffected.
 
 ## Project discovery
 
@@ -179,7 +185,8 @@ in CI's matrix but missing from the project list, or the reverse.
 - [ ] Remove deps: `jest`, `@jest/globals`, `@swc/jest`, `jest-expect-message`, `jest-extended`
 - [ ] Delete `common.jest.config.mjs` (as jest config) and six `jest.config.mjs` files
 - [ ] Delete `scripts/test-all.mjs`; point the root `test` script at vitest
-- [ ] Update `.new-package` template
+- [x] Delete `packages/.new-package`, `scripts/create-package.mjs`, and the root `create-package`
+      script entry
 - [ ] ESLint rule keeping `vi.mock` at top level
 - [ ] Confirm collected test-file counts match the pre-migration numbers exactly
 - [ ] Sanity-check local Postgres connection limits against `maxWorkers`, since central and facility
@@ -189,6 +196,5 @@ in CI's matrix but missing from the project list, or the reverse.
 
 - `chai` is still a devDependency in four packages including the already-migrated `utils`, with 3
   direct import sites. Vitest bundles chai's assertion core
-- `.new-package`'s pre-build-less `package.json` and `.swcrc`
 - Turning on `sequence.shuffle`
 - Mobile
