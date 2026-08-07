@@ -98,17 +98,27 @@ held open by a row no pass would ever process. The task latches completion in
 memory once nothing remains — new writes carry only a hash, so the done state is
 permanent for the process and later ticks skip the changelog scan.
 
-## Changelog index: flagged, not added
+## Changelog index: not needed on central
 
-The changelog queries filter `logs.changes` on `table_name` and
-`record_data->>'data'`, and the historical changelog indexes were dropped
-upstream, so each batch seq-scans the table. A partial index would fix it, but
-building one on a large `logs.changes` in a transactional migration takes a long
-write-lock during upgrade, and this codebase has no `CREATE INDEX CONCURRENTLY`
-migration pattern to build it safely. Left out pending a decision on whether the
-lock cost at upgrade is acceptable, or whether to add a concurrent-index
-migration harness. The in-memory completion latch removes the *ongoing*
-post-completion scan cost regardless.
+Review flagged the changelog queries as full seq scans because
+`dropUnusedChangelogIndexes` removed the old changelog indexes. That is wrong for
+central. The dropped `changes_table_name` was an *expression* index on
+`(table_schema || '.' || table_name)`, which this predicate could never have
+used; the plain btree `changes_table_name_record_id ON (table_name, record_id)`
+survives, and `table_name` is its leading column. Verified with EXPLAIN against a
+migrated database: the backfill's changelog predicate plans a
+`Bitmap Index Scan on changes_table_name_record_id` with
+`Index Cond: (table_name = ANY ('{attachments,assets}'))`, narrowing to the
+attachment/asset slice before the JSONB filter runs. Attachment and asset entries
+are a tiny fraction of a changelog dominated by clinical tables, so this is the
+cheap path already.
+
+A facility does not have that index: migration `1765504440717` returns early on
+facility servers and keeps `changes_record_id` instead. A facility's changelog
+rewrite is assets-only and its changelog is far smaller than central's, so the
+scan cost there is bounded and one-time. Not worth a `CREATE INDEX CONCURRENTLY`
+harness (which this codebase has no pattern for) or a transactional index build
+that would take a long write-lock at upgrade.
 
 ## Environment notes for whoever picks this up
 
