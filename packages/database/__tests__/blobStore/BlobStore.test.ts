@@ -24,16 +24,37 @@ interface FakeRow {
   hash: string;
   size: number;
   integrityState: string;
+  lastScrubbedAt: Date | null;
 }
 
 // In-memory stand-in for the Blob registry model, covering the calls the
-// store makes: findOne, destroy, and the raw upsert via sequelize.query.
+// store makes: findOne, update, destroy, and the raw upsert via
+// sequelize.query.
 function makeFakeBlobModel() {
   const rows = new Map<string, FakeRow>();
   return {
     rows,
     async findOne({ where: { hash } }: { where: { hash: string } }) {
       return rows.get(hash) ?? null;
+    },
+    async update(
+      values: Partial<FakeRow>,
+      { where }: { where: { hash: string; integrityState?: { [key: symbol]: string } } },
+    ) {
+      const row = rows.get(where.hash);
+      if (!row) {
+        return;
+      }
+      // The only operator the store uses here is Op.ne on integrityState.
+      const excluded = where.integrityState
+        ? Object.getOwnPropertySymbols(where.integrityState).map(
+            symbol => (where.integrityState as Record<symbol, string>)[symbol],
+          )
+        : [];
+      if (excluded.includes(row.integrityState)) {
+        return;
+      }
+      Object.assign(row, values);
     },
     async destroy({ where: { hash } }: { where: { hash: string } }) {
       rows.delete(hash);
@@ -49,6 +70,7 @@ function makeFakeBlobModel() {
             hash: bind.hash,
             size: bind.size,
             integrityState: bind.integrityState,
+            lastScrubbedAt: new Date(),
           });
         }
       },
@@ -72,17 +94,31 @@ describe('BlobStore', () => {
   const makeStore = ({
     reserveBytes = 0,
     evictCache,
+    onCorruptionDetected,
   }: {
     reserveBytes?: number;
     evictCache?: (bytesNeeded: number) => Promise<void>;
+    onCorruptionDetected?: (hash: string) => Promise<void>;
   } = {}) =>
     new BlobStore({
       root,
       models: { Blob: fakeBlob as unknown as typeof Blob },
       getFreeDiskReserveBytes: async () => reserveBytes,
       evictCache,
+      onCorruptionDetected,
+      log: { error: () => {} },
       statfs: async () => ({ bavail: volumeFreeBytes, bsize: 1 }),
     });
+
+  // Rewrite a stored blob's bytes in place, leaving its registry row and its
+  // path untouched: bit rot as the store would meet it.
+  const corruptStoredBytes = async (hash: string, replacement: string) => {
+    const digest = hash.split(':')[1];
+    await fs.writeFile(
+      path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4)),
+      replacement,
+    );
+  };
 
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-store-test-'));
@@ -223,6 +259,139 @@ describe('BlobStore', () => {
       await expect(
         store.get(hash, { stat: { size: 11, integrityState: 'quarantined' } }),
       ).rejects.toThrow(NotFoundError);
+    });
+  });
+
+  // spec: SCRUB
+  describe('read verification', () => {
+    it('fails a whole-blob read whose stored bytes no longer match the hash', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await corruptStoredBytes(hash, 'goodbye wo');
+
+      await expect(readAll(await store.get(hash))).rejects.toThrow(BlobHashMismatchError);
+    });
+
+    it('reports the corruption to the healer', async () => {
+      const detected: string[] = [];
+      const store = makeStore({
+        onCorruptionDetected: async hash => {
+          detected.push(hash);
+        },
+      });
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await corruptStoredBytes(hash, 'goodbye wo');
+
+      await expect(readAll(await store.get(hash))).rejects.toThrow(BlobHashMismatchError);
+      expect(detected).toEqual([hash]);
+    });
+
+    it('serves intact content without complaint', async () => {
+      const detected: string[] = [];
+      const store = makeStore({
+        onCorruptionDetected: async hash => {
+          detected.push(hash);
+        },
+      });
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect((await readAll(await store.get(hash))).toString()).toBe('hello world');
+      expect(detected).toEqual([]);
+    });
+
+    it('leaves a ranged read unverified, since part of a blob cannot match a hash of the whole', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await corruptStoredBytes(hash, 'goodbye wo');
+
+      const content = await readAll(await store.get(hash, { start: 0, end: 4 }));
+      expect(content.toString()).toBe('goodb');
+    });
+
+    it('can be opted out of, for callers that are themselves the verification', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await corruptStoredBytes(hash, 'goodbye wo');
+
+      const content = await readAll(await store.get(hash, { verify: false }));
+      expect(content.toString()).toBe('goodbye wo');
+    });
+  });
+
+  // spec: SCRUB
+  describe('verify', () => {
+    it('confirms intact content and reports its size', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(await store.verify(hash)).toEqual({
+        held: true,
+        matches: true,
+        size: 11,
+        actualHash: hash,
+      });
+    });
+
+    it('reports what corrupt bytes actually hash to', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await corruptStoredBytes(hash, 'goodbye wo');
+
+      const result = await store.verify(hash);
+      expect(result.matches).toBe(false);
+      expect(result.held).toBe(true);
+      expect(result.actualHash).not.toBe(hash);
+    });
+
+    it('reports bytes the store does not hold as unheld rather than throwing', async () => {
+      const store = makeStore();
+      expect(await store.verify(HELLO_HASH)).toEqual({
+        held: false,
+        matches: false,
+        size: 0,
+        actualHash: null,
+      });
+    });
+
+    it('verifies quarantined content, so a repair can re-check what it replaced', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+
+      expect((await store.verify(hash)).matches).toBe(true);
+    });
+  });
+
+  // spec: SCRUB
+  describe('storedHashes', () => {
+    const collect = async (store: BlobStore) => {
+      const found: string[] = [];
+      for await (const hash of store.storedHashes()) {
+        found.push(hash);
+      }
+      return found.sort();
+    };
+
+    it('yields nothing for an empty store', async () => {
+      expect(await collect(makeStore())).toEqual([]);
+    });
+
+    it('finds bytes on disk whether or not the registry names them', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      const { hash: emptyHash } = await store.put(Readable.from([]));
+      fakeBlob.rows.clear();
+
+      expect(await collect(store)).toEqual([hash, emptyHash].sort());
+    });
+
+    it('skips staging and temp files, which are not content', async () => {
+      const store = makeStore();
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello')), { offset: 0 });
+      await fs.mkdir(path.join(root, 'tmp'), { recursive: true });
+      await fs.writeFile(path.join(root, 'tmp', 'leftover'), 'x');
+
+      expect(await collect(store)).toEqual([]);
     });
   });
 

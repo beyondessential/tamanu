@@ -11,6 +11,7 @@ import { getServerFacilityIds } from '../serverConfig';
 
 import { BedFeeCharger } from './BedFeeCharger';
 import { BlobCacheEvictorTask } from './BlobCacheEvictorTask';
+import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { BlobOutboxPusherTask } from './BlobOutboxPusherTask';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
@@ -25,6 +26,7 @@ const DEFAULT_TASK_CLASSES = [
   TimeSyncTask,
   BlobOutboxPusherTask,
   BlobCacheEvictorTask,
+  BlobIntegrityScrubTask,
   FhirMissingResources,
   FhirJobWorkerCleaner,
   FhirErroredJobCleaner,

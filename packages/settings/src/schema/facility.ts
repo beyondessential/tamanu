@@ -8,6 +8,7 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  blobScrubProperties,
   emailSchema,
   letterheadProperties,
   nationalityIdSchema,
@@ -241,6 +242,12 @@ export const facilitySettings = {
         // periodic backstop for the cache size budget; admission-time
         // enforcement does the routine work
         blobCacheEvictor: scheduledTaskSchema({ schedule: '23 * * * *' }),
+        // hourly and incremental: each pass takes the least-recently-scrubbed
+        // blobs, so the store is covered over many passes rather than one sweep
+        blobIntegrityScrub: scheduledTaskSchema(
+          { schedule: '41 * * * *', jitterTime: '5m' },
+          blobScrubProperties(),
+        ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
         // Enabled even where the FHIR worker is not: a facility that once ran one
         // has rows to prune, and where none ever ran there is nothing to match.

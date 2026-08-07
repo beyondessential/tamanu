@@ -33,6 +33,48 @@ export function registerBlobReferenceSource({ recordType, hashColumn }) {
   };
 }
 
+// spec: SCRUB
+// Referential integrity in the direction the verification pass cannot see. That
+// pass walks the registry, so it finds rows whose bytes have gone; this finds
+// synchronised records referencing a hash the registry does not name at all,
+// which is central advertising content it cannot serve.
+//
+// `deliveredBefore` is what separates a fault from ordinary content-pending:
+// push is sync-first, so every reference is briefly ahead of its bytes, and
+// only a reference whose record synced long enough ago for the upload to have
+// happened counts as undelivered.
+export async function findUndeliverableReferences(sequelize, { limit, deliveredBefore }) {
+  if (BLOB_REFERENCE_SOURCES.length === 0) {
+    return [];
+  }
+
+  const replacements = { limit, deliveredBefore };
+  const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
+    replacements[`recordType${index}`] = recordType;
+    return `
+      SELECT record.${hashColumn} AS hash
+      FROM ${recordType} record
+      JOIN sync_lookup
+        ON sync_lookup.record_type = :recordType${index}
+        AND sync_lookup.record_id = record.id::text
+      WHERE record.${hashColumn} IS NOT NULL
+      AND sync_lookup.data IS NOT NULL
+      AND record.updated_at < :deliveredBefore`;
+  });
+
+  const [rows] = await sequelize.query(
+    `
+      SELECT DISTINCT referenced.hash
+      FROM (${perSource.join(' UNION ALL ')}) referenced
+      LEFT JOIN blobs ON blobs.hash = referenced.hash AND blobs.deleted_at IS NULL
+      WHERE blobs.id IS NULL
+      LIMIT :limit
+    `,
+    { replacements },
+  );
+  return rows.map(({ hash }) => hash);
+}
+
 // spec: BLAC
 // Whether a hash is referenced by a record within the given facility scope.
 // `facilityIds` is the set of facilities the requesting server operates as —

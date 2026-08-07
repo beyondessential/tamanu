@@ -52,6 +52,9 @@ sources:
             description: "{{ doc('blobs__last_accessed_at') }}"
             data_tests:
               - not_null
+          - name: last_scrubbed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('blobs__last_scrubbed_at') }}"
           - name: eligible_since_tick
             data_type: bigint
             description: "{{ doc('blobs__eligible_since_tick') }}"

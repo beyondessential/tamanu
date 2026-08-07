@@ -4,6 +4,7 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   batchingProperties,
+  blobScrubProperties,
   cronExpressionSchema,
   durationStringSchema,
   dhis2IdSchemeSchema,
@@ -859,6 +860,12 @@ export const centralSettings = {
         surveyCompletionNotifierProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(100),
+        ),
+        // spec: SCRUB — central holds the authoritative copy of every blob, so
+        // its scrub is the one that finds loss nothing else can recover from
+        blobIntegrityScrub: scheduledTaskSchema(
+          { schedule: '17 * * * *', jitterTime: '5m' },
+          blobScrubProperties(),
         ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),

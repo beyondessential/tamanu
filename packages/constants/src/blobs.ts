@@ -10,9 +10,15 @@ export type BlobHashAlgorithm = (typeof BLOB_HASH_ALGORITHMS)[keyof typeof BLOB_
 // not a migration of stored content.
 export const CURRENT_BLOB_HASH_ALGORITHM: BlobHashAlgorithm = BLOB_HASH_ALGORITHMS.SHA256;
 
+// spec: SCRUB
+// A blob's standing against its hash. `verified` content matched when it was
+// last checked; `quarantined` content failed and is retained for investigation
+// but never served; `absent` is a registry entry whose bytes the store does not
+// hold, which the server acquires rather than offers.
 export const BLOB_INTEGRITY_STATES = {
   VERIFIED: 'verified',
   QUARANTINED: 'quarantined',
+  ABSENT: 'absent',
 } as const;
 
 export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLOB_INTEGRITY_STATES];

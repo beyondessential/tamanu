@@ -103,7 +103,11 @@ Two failure modes here are worse than content-pending and do warrant escalation:
   absent one. A facility cache copy repairs itself by refetching, so a corruption
   report that persists means the repair path is not working.
 
+Both are covered by `blob-integrity.md`, which also explains how the store grades
+and repairs these on its own.
+
 Do **not** hand-copy blob files between servers, or delete store files to "reset"
-the facility. The store is content-addressed and its registry lives in the
-database, so files placed on disk by hand are not visible to the server, and
-deleting outbox files destroys the only copy of that content.
+the facility. Deleting outbox files destroys the only copy of that content. A file
+placed by hand is picked up only if it lands in the exact fan-out path its hash
+dictates, which the scrub then verifies and registers; anywhere else it is
+invisible to the server and never reclaimed.
