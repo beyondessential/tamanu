@@ -35,7 +35,7 @@ export const insertChangelogRecords = async (
       await ChangeLog.bulkCreate(batch, bulkCreateOptions);
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
       // Result of this `runFunctionInBatches` is unused anyway; let the `bulkCreate` results get
-      // garbage collected.
+      // garbage collected. Returning empty array simply for type safety
       return [];
     },
     batchSize,
