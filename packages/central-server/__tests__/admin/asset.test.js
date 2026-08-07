@@ -4,6 +4,10 @@ import { createTestContext } from '../utilities';
 // doesn't really matter which name it is as long is it's consistent, but each
 // test that asserts a create must own a name no other test has touched
 const [NAME, OTHER_NAME, THIRD_NAME, FORBID_NAME] = Object.values(ASSET_NAMES);
+// The dedup case needs two names no other test touches, named explicitly so a
+// reorder of ASSET_NAMES can't silently change which assets it uploads.
+const DEDUP_NAME_A = ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER;
+const DEDUP_NAME_B = ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
 
 const streamToBuffer = async stream => {
   const chunks = [];
@@ -136,20 +140,19 @@ describe('Asset upload', () => {
   });
 
   it('should store identical bytes once under one hash', async () => {
-    const [name1, name2] = Object.values(ASSET_NAMES).slice(4, 6);
-    const res1 = await adminApp.put(`/api/admin/asset/${name1}`).send({
+    const res1 = await adminApp.put(`/api/admin/asset/${DEDUP_NAME_A}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
-    const res2 = await adminApp.put(`/api/admin/asset/${name2}`).send({
+    const res2 = await adminApp.put(`/api/admin/asset/${DEDUP_NAME_B}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(res1).toHaveSucceeded();
     expect(res2).toHaveSucceeded();
 
-    const asset1 = await models.Asset.findOne({ where: { name: name1 }});
-    const asset2 = await models.Asset.findOne({ where: { name: name2 }});
+    const asset1 = await models.Asset.findOne({ where: { name: DEDUP_NAME_A }});
+    const asset2 = await models.Asset.findOne({ where: { name: DEDUP_NAME_B }});
     // spec: CAS — content addressing means the same bytes resolve to one hash.
     expect(asset1.hash).toEqual(asset2.hash);
     const blobCount = await models.Blob.count({ where: { hash: asset1.hash } });
