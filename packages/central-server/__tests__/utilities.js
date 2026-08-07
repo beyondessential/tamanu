@@ -46,6 +46,8 @@ class MockApplicationContext {
       models: this.store.models,
       getFreeDiskReserveBytes: async () => 0,
     });
+    this.store.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobStore.put(source, options);
     this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     this.emailService = {

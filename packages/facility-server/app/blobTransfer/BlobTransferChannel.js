@@ -40,7 +40,13 @@ export class BlobTransferChannel {
   // scopes record sync for this server. Without it central cannot tell which
   // facility the request acts for and would have to fall back on the sync
   // user's whole entitlement.
-  constructor({ blobStore, centralServer, facilityIds = [], pushChunkBytes = PUSH_CHUNK_BYTES }) {
+  constructor({ blobStore, centralServer, facilityIds, pushChunkBytes = PUSH_CHUNK_BYTES }) {
+    // Central refuses a caller that declares no facilities, so an omitted list
+    // fails every fetch and push. Rejecting it here surfaces the misconfiguration
+    // at boot rather than as a forbidden response on the first transfer.
+    if (!facilityIds?.length) {
+      throw new Error('BlobTransferChannel requires the server facility ids');
+    }
     this.#blobStore = blobStore;
     this.#centralServer = centralServer;
     this.#facilityIds = facilityIds;

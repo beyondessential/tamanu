@@ -1,5 +1,3 @@
-import { pipeline } from 'node:stream/promises';
-
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
@@ -14,11 +12,9 @@ import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/er
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { parseBlobHash } from '@tamanu/utils/blobs';
 
-import { isHashReferencedInScope } from './blobReferences';
+import { serveBlob } from '@tamanu/shared/utils/serveBlob';
 
-// Resume-oriented subset of HTTP ranges: a single open-ended or closed range.
-// Anything else is ignored and the full blob served, as RFC 9110 permits.
-const RANGE_PATTERN = /^bytes=(?<start>\d+)-(?<end>\d*)$/;
+import { isHashReferencedInScope } from './blobReferences';
 
 const putContentQuerySchema = yup
   .object({
@@ -237,41 +233,13 @@ export const buildBlobTransferRoutes = ctx => {
         throw blobNotHeld(hash);
       }
 
-      const range = req.headers.range?.match(RANGE_PATTERN)?.groups;
-      let start;
-      let end;
-      if (range) {
-        start = parseInt(range.start, 10);
-        end = range.end === '' ? held.size - 1 : parseInt(range.end, 10);
-        if (start >= held.size || end >= held.size || start > end) {
-          res.status(416).setHeader('content-range', `bytes */${held.size}`);
-          res.end();
-          return;
-        }
-      }
-
-      // Pass the stat already fetched so the read path queries the registry
-      // once, not twice, on the primary serving route.
-      const stream = await blobStore.get(hash, range ? { start, end, stat: held } : { stat: held });
-      res.status(range ? 206 : 200);
-      res.setHeader('content-type', 'application/octet-stream');
-      res.setHeader('content-length', range ? end - start + 1 : held.size);
-      res.setHeader('etag', `"${hash}"`);
-      res.setHeader('accept-ranges', 'bytes');
-      if (range) {
-        res.setHeader('content-range', `bytes ${start}-${end}/${held.size}`);
-      }
-      // pipeline destroys the file stream when either side terminates, so a
-      // client dropping mid-download does not leak the open file handle.
-      try {
-        await pipeline(stream, res);
-      } catch (error) {
-        // A client going away mid-download is routine on this channel: it is
-        // how an interrupted fetch pauses before resuming with a range request.
-        if (error?.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
-          throw error;
-        }
-      }
+      // The stat already fetched is passed through so the read path queries the
+      // registry once, not twice, on the primary serving route.
+      await serveBlob(req, res, {
+        hash,
+        size: held.size,
+        open: range => blobStore.get(hash, { ...range, stat: held }),
+      });
     }),
   );
 

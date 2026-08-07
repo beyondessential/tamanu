@@ -70,6 +70,7 @@ describe('Sync Lookup data', () => {
     const {
       AiDocument,
       Asset,
+      Attachment,
       PatientFieldDefinitionCategory,
       Program,
       ProgramDataElement,
@@ -730,6 +731,13 @@ describe('Sync Lookup data', () => {
       fake(PatientInvoiceInsurancePlan, {
         patientId: patient.id,
         invoiceInsurancePlanId: contract.id,
+      }),
+    );
+    await Attachment.create(
+      fake(Attachment, {
+        patientId: patient.id,
+        hash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+        data: null,
       }),
     );
   };

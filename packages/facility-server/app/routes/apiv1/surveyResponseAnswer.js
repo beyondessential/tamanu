@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op } from 'sequelize';
@@ -328,14 +330,20 @@ surveyResponseAnswer.put(
       subject('Charting', { id: answerObject.surveyResponse.surveyId }),
     );
 
+    // spec: ATCH, CAS
+    // Blanking a photo overwrites it with empty content, admitted to the store
+    // like any other blob (empty content has a defined zero-byte hash), so the
+    // emptied attachment stays hash-backed and synchronises.
+    const { hash, size } = await req.blobCache.putOutbox(Readable.from([Buffer.from([])]));
+
     await db.transaction(async () => {
-      // Blank out the attachment. We need to upsert because the record
-      // might not exist on facility server.
+      // We need to upsert because the record might not exist on facility server.
       await Attachment.upsert({
         id: answerObject.body,
-        data: Buffer.from([]),
+        hash,
+        data: null,
         type: 'image/jpeg',
-        size: 0,
+        size,
       });
 
       // Update answer to empty string (needed for logs and table display)

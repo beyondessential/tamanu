@@ -7,9 +7,8 @@
 // be a synced table (present in sync_lookup), or its references never authorise
 // anything.
 //
-// Empty until the consumer tables carry hash columns: attachments and assets
-// add themselves as they move onto the blob store.
-const BLOB_REFERENCE_SOURCES = [];
+// Assets join this list as they move onto the blob store.
+const BLOB_REFERENCE_SOURCES = [{ recordType: 'attachments', hashColumn: 'hash' }];
 
 // Table and column names are interpolated into SQL as identifiers (which can't
 // be parameterised); anything else goes through replacements. The pattern

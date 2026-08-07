@@ -1,4 +1,8 @@
-import { canUploadAttachment } from '../app/utils/getFreeDiskSpace';
+import { Readable } from 'node:stream';
+
+import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
+import { InsufficientStorageError } from '@tamanu/errors';
+
 import { createTestContext } from './utilities';
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
@@ -61,22 +65,25 @@ describe('Attachment (central-server)', () => {
     expect(receivedStr).toBe(reEncodedStr);
   });
 
+  // spec: ATCH
+  // The store refuses admission rather than cross the host's free-disk reserve,
+  // and the route surfaces that as the upload's rejection (see capacity.md).
   it('should send error if there is no enough disk space', async () => {
-    canUploadAttachment.mockImplementationOnce(async () => false);
+    jest
+      .spyOn(ctx.blobStore, 'put')
+      .mockRejectedValueOnce(
+        new InsufficientStorageError('Document cannot be uploaded due to lack of storage space.'),
+      );
     const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
       data: FILEDATA,
     });
     expect(result.body.error).toBeTruthy();
-    expect(result.body.error.message).toBe(
-      'Document cannot be uploaded due to lack of storage space.',
-    );
     expect(result.body.error.name).toBe('InsufficientStorageError');
   });
 
   it('should create an attachment and receive its ID back', async () => {
-    canUploadAttachment.mockImplementationOnce(async () => true);
     const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
@@ -84,8 +91,122 @@ describe('Attachment (central-server)', () => {
     });
     expect(result).toHaveSucceeded();
     expect(result.body.attachmentId).toBeTruthy();
-    const createdAttachment = await models.Attachment.findByPk(result.body.id);
+    const createdAttachment = await models.Attachment.findByPk(result.body.attachmentId);
     expect(createdAttachment).toBeDefined();
+  });
+
+  // spec: ATCH, BLAC
+  // Scope cannot be set from the request body: a client must not be able to
+  // scope an attachment to an arbitrary patient or encounter.
+  it('ignores patient and encounter scope supplied in the request body', async () => {
+    const result = await app.post('/api/attachment').send({
+      type: 'image/jpeg',
+      size: 1002,
+      data: FILEDATA,
+      patientId: 'attacker-supplied-patient',
+      encounterId: 'attacker-supplied-encounter',
+    });
+    expect(result).toHaveSucceeded();
+    const created = await models.Attachment.findByPk(result.body.attachmentId);
+    expect(created.patientId).toBeFalsy();
+    expect(created.encounterId).toBeFalsy();
+  });
+
+  // spec: ATCH
+  describe('Blob-backed attachments', () => {
+    const CONTENT = Buffer.from('a stored attachment body, long enough to range over', 'utf8');
+    let stored;
+
+    beforeAll(async () => {
+      const { hash, size } = await ctx.blobStore.put(Readable.from([CONTENT]));
+      stored = await models.Attachment.create({ type: 'text/plain', hash, size });
+    });
+
+    it('stores an uploaded attachment in the blob store, not the database row', async () => {
+      const result = await app.post('/api/attachment').send({
+        type: 'image/jpeg',
+        size: 1002,
+        data: FILEDATA,
+      });
+      expect(result).toHaveSucceeded();
+      const created = await models.Attachment.findByPk(result.body.attachmentId);
+      expect(created.hash).toBeTruthy();
+      expect(created.data).toBeFalsy();
+      expect(await ctx.blobStore.has(created.hash)).toBe(true);
+    });
+
+    it('records the size of the bytes actually admitted, not the declared size', async () => {
+      const result = await app.post('/api/attachment').send({
+        type: 'image/jpeg',
+        size: 7, // a caller's declaration the admitted bytes contradict
+        data: FILEDATA,
+      });
+      expect(result).toHaveSucceeded();
+      const created = await models.Attachment.findByPk(result.body.attachmentId);
+      expect(Number(created.size)).toBe(Buffer.from(FILEDATA, 'base64').length);
+    });
+
+    it('serves the content from the store with the hash as entity tag', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.headers.etag).toBe(`"${stored.hash}"`);
+      expect(result.headers['accept-ranges']).toBe('bytes');
+      expect(result.headers['content-type']).toContain('text/plain');
+      expect(result.text).toBe(CONTENT.toString('utf8'));
+    });
+
+    it('serves a requested byte range of the content', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}`).set('range', 'bytes=5-14');
+      expect(result.status).toBe(206);
+      expect(result.headers['content-range']).toBe(`bytes 5-14/${CONTENT.length}`);
+      expect(result.text).toBe(CONTENT.subarray(5, 15).toString('utf8'));
+    });
+
+    it('refuses an unsatisfiable range with the content extent', async () => {
+      const result = await app
+        .get(`/api/attachment/${stored.id}`)
+        .set('range', `bytes=${CONTENT.length}-`);
+      expect(result.status).toBe(416);
+      expect(result.headers['content-range']).toBe(`bytes */${CONTENT.length}`);
+    });
+
+    it('serves the content base64-encoded for clients that consume it inline', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toBe(CONTENT.toString('base64'));
+    });
+
+    // spec: SERVE
+    // Inline encoding holds the whole content in memory, so content past the
+    // limit is refused that way and the caller directed to stream it.
+    it('refuses to encode content past the inline limit', async () => {
+      jest.spyOn(ctx.blobStore, 'stat').mockResolvedValueOnce({ size: MAX_INLINE_BLOB_BYTES + 1 });
+
+      const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
+      expect(result).toHaveRequestError(422);
+
+      const streamed = await app.get(`/api/attachment/${stored.id}`);
+      expect(streamed).toHaveSucceeded();
+    });
+
+    // spec: ATCH
+    // Central holds the record but not yet the bytes: the origin has synced its
+    // attachment but not pushed its content. It presents as awaiting upload, not
+    // a crash on the missing blob.
+    it('presents a hash-backed attachment whose bytes central lacks as awaiting content', async () => {
+      const pending = await models.Attachment.create({
+        type: 'application/pdf',
+        hash: `sha256:${'c'.repeat(64)}`,
+        size: 10,
+      });
+
+      const result = await app.get(`/api/attachment/${pending.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: pending.id,
+        availability: 'awaiting-upload',
+      });
+    });
   });
 
   describe('Permissions', () => {
@@ -105,7 +226,6 @@ describe('Attachment (central-server)', () => {
         id: 'practitioner',
       });
 
-      canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
         type: 'image/jpeg',
         size: 1002,
@@ -126,7 +246,6 @@ describe('Attachment (central-server)', () => {
     it('rejects getting an attachment if there is no create Attachment permission', async () => {
       app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
 
-      canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
         type: 'image/jpeg',
         size: 1002,

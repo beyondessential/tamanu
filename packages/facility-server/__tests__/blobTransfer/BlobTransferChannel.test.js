@@ -237,6 +237,20 @@ describe('BlobTransferChannel', () => {
     await fs.rm(centralRoot, { recursive: true, force: true });
   });
 
+  // spec: BLAC
+  // Central scopes blob access to the facilities the caller declares and refuses
+  // a caller declaring none, so a channel built without them would forbid every
+  // transfer. It refuses to construct instead.
+  describe('construction', () => {
+    it('refuses to build without the server facility ids', () => {
+      for (const facilityIds of [undefined, []]) {
+        expect(
+          () => new BlobTransferChannel({ blobStore: localStore, centralServer: central, facilityIds }),
+        ).toThrow(/facility ids/);
+      }
+    });
+  });
+
   describe('availability', () => {
     it('reports locally held bytes as available', async () => {
       const { hash } = await localStore.put(Readable.from(Buffer.from('local bytes')));
