@@ -1,12 +1,16 @@
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { Readable } from 'node:stream';
+import { Transform, type Readable } from 'node:stream';
+
+import { Op } from 'sequelize';
 
 import {
+  BLOB_HASH_ALGORITHMS,
   BLOB_INTEGRITY_STATES,
   BLOB_TIERS,
   CURRENT_BLOB_HASH_ALGORITHM,
+  type BlobIntegrityState,
   type BlobTier,
 } from '@tamanu/constants';
 import {
@@ -15,7 +19,12 @@ import {
   InvalidParameterError,
   NotFoundError,
 } from '@tamanu/errors';
-import { blobPathSegments, formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
+import {
+  blobHashFromPathSegments,
+  blobPathSegments,
+  formatBlobHash,
+  parseBlobHash,
+} from '@tamanu/utils/blobs';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import type { Blob } from '../models/Blob';
@@ -57,6 +66,13 @@ export interface BlobStoreOptions {
    * on servers with nothing evictable.
    */
   evictCache?: (bytesNeeded: number) => Promise<void>;
+  /**
+   * Self-heal hook (spec: SCRUB): called with the hash of a blob whose bytes
+   * failed verification on the read path. Supplied by the server, which owns
+   * severity grading and the repair ladder.
+   */
+  onCorruptionDetected?: (hash: string) => Promise<void>;
+  log?: { error: (message: string, meta?: object) => void };
   /** Injectable for tests; defaults to fs.statfs on the store root. */
   statfs?: (root: string) => Promise<VolumeStats>;
 }
@@ -73,6 +89,15 @@ export interface BlobStat {
   integrityState: string;
 }
 
+export interface VerifyResult {
+  /** Whether the store holds bytes for the hash at all. */
+  held: boolean;
+  matches: boolean;
+  size: number;
+  /** What the held bytes actually hash to, or null when none are held. */
+  actualHash: string | null;
+}
+
 // spec: CAS, CAP
 // The content-addressed blob store primitive: bytes on disk under an
 // algorithm-namespaced two-level fan-out, and a row per blob in the local
@@ -85,14 +110,26 @@ export class BlobStore {
   readonly #models: { Blob: typeof Blob };
   readonly #getFreeDiskReserveBytes: () => Promise<number>;
   readonly #evictCache?: (bytesNeeded: number) => Promise<void>;
+  readonly #onCorruptionDetected?: (hash: string) => Promise<void>;
+  readonly #log?: { error: (message: string, meta?: object) => void };
   readonly #statfs: (root: string) => Promise<VolumeStats>;
   readonly #stagingLocks = new Map<string, Promise<unknown>>();
 
-  constructor({ root, models, getFreeDiskReserveBytes, evictCache, statfs }: BlobStoreOptions) {
+  constructor({
+    root,
+    models,
+    getFreeDiskReserveBytes,
+    evictCache,
+    onCorruptionDetected,
+    log,
+    statfs,
+  }: BlobStoreOptions) {
     this.root = root;
     this.#models = models;
     this.#getFreeDiskReserveBytes = getFreeDiskReserveBytes;
     this.#evictCache = evictCache;
+    this.#onCorruptionDetected = onCorruptionDetected;
+    this.#log = log;
     this.#statfs = statfs ?? (r => fs.statfs(r));
   }
 
@@ -110,9 +147,24 @@ export class BlobStore {
     return await fileExists(filePath);
   }
 
+  /**
+   * Stream a blob's bytes.
+   *
+   * spec: SCRUB — a read of the whole blob re-verifies it: the bytes are hashed
+   * as they stream and the stream fails at the end if they do not match, so
+   * corrupt content is never served as complete. A ranged read cannot be
+   * verified this way and relies on receipt verification and the scrub instead.
+   * `verify: false` opts out for callers that are themselves the verification
+   * (the scrub) or that must read quarantined bytes.
+   */
   async get(
     hash: string,
-    { start, end, stat }: { start?: number; end?: number; stat?: BlobStat | null } = {},
+    {
+      start,
+      end,
+      stat,
+      verify = true,
+    }: { start?: number; end?: number; stat?: BlobStat | null; verify?: boolean } = {},
   ): Promise<Readable> {
     const filePath = this.#pathFor(hash);
     // A caller that has just run stat() for this hash (the serving path, which
@@ -136,7 +188,111 @@ export class BlobStore {
       }
       throw error;
     }
-    return handle.createReadStream({ start, end });
+    const stream = handle.createReadStream({ start, end });
+    // A read bounded at either end covers part of the content, so its bytes
+    // cannot be checked against a hash of the whole.
+    const isWholeBlob = (start ?? 0) === 0 && end === undefined;
+    if (!verify || !isWholeBlob) {
+      return stream;
+    }
+    return verifyingStream(stream, hash, () => this.#onReadCorruption(hash));
+  }
+
+  async #onReadCorruption(hash: string): Promise<void> {
+    // The read path detects; the healer decides severity and repair, since that
+    // differs between an authoritative copy and a refetchable cache one.
+    if (!this.#onCorruptionDetected) {
+      return;
+    }
+    try {
+      await this.#onCorruptionDetected(hash);
+    } catch (error) {
+      // A failed heal must not replace the mismatch error the reader is about
+      // to see with one about the repair attempt.
+      this.#log?.error('BlobStore: self-heal after a failed read verification threw', {
+        hash,
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // spec: SCRUB
+  /**
+   * Re-hash the stored bytes for a hash and report whether they still match it.
+   * Reads the file directly, so it verifies quarantined content too — a repair
+   * needs to be able to re-check what it replaced.
+   */
+  async verify(hash: string): Promise<VerifyResult> {
+    const { algorithm } = parseBlobHash(hash);
+    let handle;
+    try {
+      handle = await fs.open(this.#pathFor(hash), 'r');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return { held: false, matches: false, size: 0, actualHash: null };
+      }
+      throw error;
+    }
+
+    const hasher = createHash(algorithm);
+    let size = 0;
+    try {
+      for await (const chunk of handle.createReadStream({ autoClose: false })) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        hasher.update(buffer);
+        size += buffer.length;
+      }
+    } finally {
+      await handle.close();
+    }
+
+    const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
+    return { held: true, matches: actualHash === hash, size, actualHash };
+  }
+
+  // spec: SCRUB
+  /**
+   * Every hash the store holds bytes for, read from the fan-out layout rather
+   * than the registry, so bytes no registry entry names are found. Yields as it
+   * walks: a store with a very large population is never materialised whole.
+   * Paths that do not parse as a hash are skipped — the staging and temp
+   * directories live under the same root, and neither is content.
+   */
+  async *storedHashes(): AsyncGenerator<string> {
+    for (const algorithm of Object.values(BLOB_HASH_ALGORITHMS)) {
+      const algorithmRoot = path.join(this.root, algorithm);
+      for await (const filePath of walkFiles(algorithmRoot)) {
+        const segments = path.relative(this.root, filePath).split(path.sep);
+        const hash = blobHashFromPathSegments(segments);
+        if (hash) {
+          yield hash;
+        }
+      }
+    }
+  }
+
+  // spec: SCRUB
+  /**
+   * Record a blob's standing against its hash, stamping the scrub time. The
+   * result of a scrub is the state it leaves behind, so the two are written
+   * together and never drift.
+   */
+  async recordIntegrityState(hash: string, integrityState: BlobIntegrityState): Promise<void> {
+    await this.#models.Blob.update(
+      { integrityState, lastScrubbedAt: new Date() },
+      { where: { hash } },
+    );
+  }
+
+  // spec: SCRUB
+  /**
+   * Register bytes already sitting in their fan-out path — content admitted by
+   * a process that died between placing the file and recording it, or restored
+   * from a store backup taken after its database. The caller has verified the
+   * bytes against the hash their location encodes.
+   */
+  async adopt(hash: string, size: number): Promise<void> {
+    await this.#register(hash, size);
   }
 
   /** The registry's record of a held blob, or null when the blob is not held. */
@@ -324,7 +480,10 @@ export class BlobStore {
 
   async #commitStagedLocked(hash: string): Promise<PutResult> {
     const existing = await this.stat(hash);
-    if (existing) {
+    // spec: SCRUB — a quarantined copy is exactly what an incoming good copy is
+    // there to replace, so it does not count as content already held. The bad
+    // bytes are dropped only once the replacement has verified below.
+    if (existing && existing.integrityState !== BLOB_INTEGRITY_STATES.QUARANTINED) {
       await this.#removeStagingFile(hash);
       return { hash, size: existing.size, existed: true };
     }
@@ -361,8 +520,22 @@ export class BlobStore {
       );
     }
 
+    if (existing) {
+      // spec: SCRUB — the replacement has verified, so the quarantined bytes go
+      // now. Removing them first is what lets the rename below land, since
+      // placement treats an occupied destination as content already won.
+      await fs.rm(this.#pathFor(hash), { force: true });
+    }
     await this.#placeAtFinalPath(stagingPath, this.#pathFor(hash));
     await this.#register(hash, size);
+    // spec: SCRUB — these bytes just verified, so a row still standing as
+    // quarantined or absent is now out of date. Covers both self-heal arrivals:
+    // a replacement for a corrupt copy, and a refetch of one whose bytes had
+    // gone. A row already verified is left alone.
+    await this.#models.Blob.update(
+      { integrityState: BLOB_INTEGRITY_STATES.VERIFIED, size, lastScrubbedAt: new Date() },
+      { where: { hash, integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.VERIFIED } } },
+    );
     return { hash, size, existed: false };
   }
 
@@ -509,14 +682,19 @@ export class BlobStore {
     // outbox re-admission must not stay evictable cache) and reset recency to
     // now (so it is not instantly the oldest LRU victim). Live rows are left
     // untouched.
+    //
+    // Admission hashes the content it stores, so the blob is verified as at
+    // now: stamping the scrub time here keeps freshly admitted content from
+    // going straight to the front of the scrub queue ahead of colder blobs.
     await this.#models.Blob.sequelize.query(
       `
-        INSERT INTO blobs (id, hash, size, integrity_state, tier)
-        VALUES ($id, $hash, $size, $integrityState, $tier)
+        INSERT INTO blobs (id, hash, size, integrity_state, tier, last_scrubbed_at)
+        VALUES ($id, $hash, $size, $integrityState, $tier, now())
         ON CONFLICT (hash) DO UPDATE
           SET deleted_at = NULL,
               updated_at = now(),
               last_accessed_at = now(),
+              last_scrubbed_at = now(),
               tier = EXCLUDED.tier
           WHERE blobs.deleted_at IS NOT NULL
       `,
@@ -583,5 +761,65 @@ async function fileExists(filePath: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+// spec: SCRUB
+// Hash the bytes as they pass and fail the stream at the end if they do not
+// match, so a reader either gets content that verified or gets an error — never
+// a clean end-of-stream over corrupt bytes. The mismatch surfaces after the
+// bytes have gone out, which is unavoidable when verification is of the whole:
+// what it protects is the reader's ability to tell a complete blob from a
+// corrupt one.
+function verifyingStream(source: Readable, hash: string, onMismatch: () => Promise<void>): Readable {
+  const { algorithm } = parseBlobHash(hash);
+  const hasher = createHash(algorithm);
+  const verifier = new Transform({
+    transform(chunk, _encoding, callback) {
+      hasher.update(chunk);
+      callback(null, chunk);
+    },
+    flush(callback) {
+      const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
+      if (actualHash === hash) {
+        callback();
+        return;
+      }
+      // Heal in the background: the reader's error must not wait on a repair,
+      // and the repair must not be skipped because the reader gave up.
+      void onMismatch();
+      callback(
+        new BlobHashMismatchError(`Stored content for ${hash} hashed to ${actualHash} on read`),
+      );
+    },
+  });
+  // The file handle must close whether the reader finished, errored, or walked
+  // away, and a read error on the file must reach the reader rather than ending
+  // the stream cleanly and failing verification instead.
+  verifier.on('close', () => source.destroy());
+  source.on('error', error => verifier.destroy(error));
+  return source.pipe(verifier);
+}
+
+// Every file beneath a directory, depth-first, yielded as it goes. A missing
+// directory is empty rather than an error: an algorithm's tree only exists once
+// content has been stored under it.
+async function* walkFiles(directory: string): AsyncGenerator<string> {
+  let entries;
+  try {
+    entries = await fs.readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return;
+    }
+    throw error;
+  }
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      yield* walkFiles(entryPath);
+    } else if (entry.isFile()) {
+      yield entryPath;
+    }
   }
 }
