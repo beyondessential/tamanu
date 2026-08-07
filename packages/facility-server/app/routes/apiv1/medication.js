@@ -2757,7 +2757,12 @@ const buildDispensedDetails = (item, prescription, unitsByMedicationId, dispense
 // Notifies the original prescriber about modified fills (the pharmacy note hint in the modal
 // promises this). With the prescription untouched, the Prescription.afterUpdate pharmacy-note hook
 // never fires, so push the notification explicitly.
-const notifyPrescriberOfModifications = async (items, prescriptionsByPopId, models, transaction) => {
+const notifyPrescriberOfModifications = async (
+  items,
+  prescriptionsByPopId,
+  models,
+  transaction,
+) => {
   for (const item of items) {
     if (!item.modification) continue;
     const prescription = prescriptionsByPopId.get(item.pharmacyOrderPrescriptionId);
@@ -3063,6 +3068,13 @@ medication.get(
       });
     }
 
-    res.send(object);
+    const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId([
+      object.id,
+    ]);
+
+    res.send({
+      ...object.forResponse(),
+      latestModifiedDispense: latestModifiedDispenses[object.id] ?? null,
+    });
   }),
 );

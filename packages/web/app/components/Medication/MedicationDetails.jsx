@@ -24,9 +24,9 @@ import {
   Field,
   Form,
   FormGrid,
+  MultilineTextField,
   NumberField,
   OutlinedButton,
-  TextField,
   TimeDisplay,
   TimeRangeDisplay,
   TranslatedEnum,
@@ -41,6 +41,7 @@ import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { useEncounter } from '../../contexts/Encounter';
 import { singularize } from '../../utils';
+import { getDisplayedPharmacyNote } from '../../utils/medications';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
 import { CheckField } from '../Field';
 import { FormModal } from '../FormModal';
@@ -48,6 +49,7 @@ import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { MedicationResumeModal } from './MedicationResumeModal';
+import { PrescriptionChangeHistoryModal } from './PrescriptionChangeHistoryModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -95,6 +97,19 @@ const PausedText = styled(Box)`
   color: ${Colors.primary};
 `;
 
+const ChangeLogLink = styled.a`
+  color: ${Colors.primary};
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export const MedicationDetails = ({
   initialMedication,
   onClose,
@@ -115,7 +130,10 @@ export const MedicationDetails = ({
   const [openDiscontinueModal, setOpenDiscontinueModal] = useState(false);
   const [openPauseModal, setOpenPauseModal] = useState(false);
   const [openResumeModal, setOpenResumeModal] = useState(false);
+  const [showChangeHistoryModal, setShowChangeHistoryModal] = useState(false);
   const [medication, setMedication] = useState(initialMedication);
+
+  const { modifiedPharmacyNote } = getDisplayedPharmacyNote(medication);
 
   const { data, refetch: refetchPauseData } = usePausePrescriptionQuery(
     {
@@ -277,8 +295,10 @@ export const MedicationDetails = ({
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={validationSchema}
         initialValues={{
-          pharmacyNotes: medication.pharmacyNotes,
-          displayPharmacyNotesInMar: medication.displayPharmacyNotesInMar,
+          pharmacyNotes: modifiedPharmacyNote ?? medication.pharmacyNotes,
+          displayPharmacyNotesInMar: modifiedPharmacyNote
+            ? medication.latestModifiedDispense.displayPharmacyNotesInMar
+            : medication.displayPharmacyNotesInMar,
           repeats: medication.repeats ?? 0,
         }}
         render={values => (
@@ -454,7 +474,7 @@ export const MedicationDetails = ({
                           fallback="Pharmacy notes"
                         />
                       }
-                      component={TextField}
+                      component={MultilineTextField}
                       disabled={
                         !canCreateMedicationPharmacyNote ||
                         (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
@@ -466,22 +486,34 @@ export const MedicationDetails = ({
                   </NoteModalActionBlocker>
                 </div>
                 {!medication.discontinued && !isPausing && !isOngoingPrescription && (
-                  <div style={{ gridColumn: '1/-1', marginTop: '-12px' }}>
-                    <NoteModalActionBlocker>
-                      <Field
-                        name="displayPharmacyNotesInMar"
-                        label={
-                          <MidText color={`${Colors.darkText} !important`}>
-                            <TranslatedText
-                              stringId="medication.details.displayInMarInstructions"
-                              fallback="Display pharmacy notes on MAR"
-                            />
-                          </MidText>
-                        }
-                        component={CheckField}
-                        disabled={!canCreateMedicationPharmacyNote}
-                      />
-                    </NoteModalActionBlocker>
+                  <div style={{ gridColumn: '1/-1', marginTop: '-16px' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <NoteModalActionBlocker>
+                        <Field
+                          name="displayPharmacyNotesInMar"
+                          label={
+                            <MidText color={`${Colors.darkText} !important`}>
+                              <TranslatedText
+                                stringId="medication.details.displayInMarInstructions"
+                                fallback="Display pharmacy notes on MAR"
+                              />
+                            </MidText>
+                          }
+                          component={CheckField}
+                          disabled={
+                            !canCreateMedicationPharmacyNote || Boolean(modifiedPharmacyNote)
+                          }
+                        />
+                      </NoteModalActionBlocker>
+                      {modifiedPharmacyNote && (
+                        <ChangeLogLink onClick={() => setShowChangeHistoryModal(true)}>
+                          <TranslatedText
+                            stringId="medication.mar.viewChange"
+                            fallback="View change"
+                          />
+                        </ChangeLogLink>
+                      )}
+                    </Box>
                   </div>
                 )}
               </FormGrid>
@@ -663,6 +695,12 @@ export const MedicationDetails = ({
                 onClose={() => setOpenResumeModal(false)}
               />
             )}
+
+            <PrescriptionChangeHistoryModal
+              open={showChangeHistoryModal}
+              dispenseId={medication.latestModifiedDispense?.id}
+              onClose={() => setShowChangeHistoryModal(false)}
+            />
           </>
         )}
       />
