@@ -4,11 +4,7 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import {
-  findAdministrationTimeSlotFromIdealTime,
-  getMedicationDoseDisplay,
-  getTranslatedFrequency,
-} from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
   TAMANU_COLORS,
   TranslatedReferenceData,
@@ -17,30 +13,14 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
-import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
-import { MarStatus } from './MarStatus';
-import TableCellButton from './TableCellButton';
-
-/**
- * @param {{ dueAt: string, id?: string }[]} [medicationAdministrationRecords]
- * @param {import('@tamanu/ui-components').DateTimeContextValue['toFacilityDateTime']} toFacilityDateTime
- * @returns {({ dueAt: string, id?: string } | null)[]}
- */
-const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
-  const result = Array(MEDICATION_ADMINISTRATION_TIME_SLOTS.length).fill(null);
-  for (const record of medicationAdministrationRecords) {
-    const facilityDueAt = toFacilityDateTime(record.dueAt);
-    const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
-    if (!facilityTime) continue;
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(facilityTime).index;
-    result[windowIndex] = record;
-  }
-  return result;
-};
+import { MarCellButton } from './components';
+import MarCell from './MarCell';
+import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
+import useCanViewMedication from './useCanViewMedication';
 
 const TableRow = styled.tr(
   props => css`
@@ -58,9 +38,9 @@ const TableRow = styled.tr(
 
 const TableRowHeader = styled(({ children, disabled, onClick, ...props }) => (
   <th scope="row" {...props}>
-    <TableCellButton disabled={disabled} onClick={onClick}>
+    <MarCellButton disabled={disabled} onClick={onClick}>
       {children}
-    </TableCellButton>
+    </MarCellButton>
   </th>
 ))`
   font-weight: inherit;
@@ -94,9 +74,7 @@ export const MarTableRow = ({
     latestModifiedDispense,
   } = medication;
   const { toFacilityDateTime } = useDateTime();
-  const { ability } = useAuth();
-  const canView =
-    !medicationRef.referenceDrug?.isSensitive || ability.can('read', 'SensitiveMedication');
+  const canViewMedication = useCanViewMedication(medicationRef);
 
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -115,7 +93,7 @@ export const MarTableRow = ({
   };
 
   const openMedicationDetails = () => {
-    if (!canView) return;
+    if (!canViewMedication) return;
     setMedicationDetailsOpen(true);
   };
 
@@ -123,10 +101,17 @@ export const MarTableRow = ({
     marDate: selectedDate,
   });
 
+  const dosesPerSlot = getDosesPerSlot(frequency);
+  const recordsByWindow = mapRecordsToWindows(
+    medicationAdministrationRecords,
+    toFacilityDateTime,
+    dosesPerSlot,
+  );
+
   return (
     <>
       <TableRow discontinued={discontinued} isPausing={isPausing}>
-        <TableRowHeader disabled={!canView} onClick={openMedicationDetails}>
+        <TableRowHeader disabled={!canViewMedication} onClick={openMedicationDetails}>
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
@@ -170,22 +155,19 @@ export const MarTableRow = ({
             )}
           </Box>
         </TableRowHeader>
-        {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
-          (record, index, array) => (
-            <MarStatus
-              key={record?.id || index}
-              selectedDate={selectedDate}
-              timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
-              medication={medication}
-              marInfo={record}
-              previousMarInfo={array[index - 1]}
-              nextMarInfo={array[index + 1]}
-              pauseRecords={pauseRecords}
-              anchorEl={popperAnchorEl}
-              onAnchorElChange={onPopperAnchorElChange}
-            />
-          ),
-        )}
+        {recordsByWindow.map((marInfos, index) => (
+          <MarCell
+            key={marInfos.find(r => r?.id)?.id || index}
+            selectedDate={selectedDate}
+            timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
+            medication={medication}
+            marInfos={marInfos}
+            nextWindowMarInfos={recordsByWindow[index + 1]}
+            pauseRecords={pauseRecords}
+            anchorEl={popperAnchorEl}
+            onAnchorElChange={onPopperAnchorElChange}
+          />
+        ))}
       </TableRow>
       {medicationDetailsOpen && (
         <MedicationDetails
