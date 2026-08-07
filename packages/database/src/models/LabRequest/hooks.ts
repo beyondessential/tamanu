@@ -143,16 +143,14 @@ const addToInvoice = async (instance: LabRequest) => {
   }
 
   const products = await getItemsForLabRequest(instance);
-  await Promise.all(
-    products.map(async ({ item, product }) =>
-      instance.sequelize.models.Invoice.addItemToInvoice(
-        item,
-        encounterId,
-        product,
-        instance.requestedById,
-      ),
-    ),
-  );
+  for (const { item, product } of products) {
+    await instance.sequelize.models.Invoice.addItemToInvoice(
+      item,
+      encounterId,
+      product,
+      instance.requestedById,
+    );
+  }
 };
 
 const removeFromInvoice = async (instance: LabRequest) => {
@@ -162,11 +160,9 @@ const removeFromInvoice = async (instance: LabRequest) => {
   }
 
   const items = await getItemsForLabRequest(instance);
-  await Promise.all(
-    items.map(async ({ item }) =>
-      instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
-    ),
-  );
+  for (const { item } of items) {
+    await instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId);
+  }
 };
 
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: LabRequest) => {

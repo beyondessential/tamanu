@@ -37,6 +37,9 @@ import {
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 import type { Location } from '../Location';
+import { stringToStableInteger } from '@tamanu/shared/utils';
+
+const BASE_INVOICE_ITEM_ADVISORY_KEY = 'addItemToInvoiceAdvisoryLock';
 
 type InvoiceItemSourceRecord =
   | Procedure
@@ -239,22 +242,49 @@ export class Invoice extends Model {
 
     const quantity = this.normaliseInvoiceItemQuantity(options?.quantity, 1);
 
-    await this.sequelize.models.InvoiceItem.upsert(
-      {
-        invoiceId: invoice.id,
-        sourceRecordType: newItem.getModelName(),
-        sourceRecordId: newItem.id,
-        productId: invoiceProduct.id,
-        orderedByUserId,
-        orderDate: new Date(),
-        quantity: quantity,
-        note: options?.note,
-        deletedAt: null, // Ensure we restore the item if it already exists
-      },
-      {
-        conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
-      },
-    );
+    const values = {
+      productId: invoiceProduct.id,
+      orderedByUserId,
+      orderDate: new Date(),
+      quantity,
+      note: options?.note,
+    };
+
+    // Not a plain upsert() because invoice_items_invoice_id_source_record_type_source_record_id_un
+    // is DEFERRABLE (see TAM-7004), and Postgres forbids deferrable constraints as
+    // ON CONFLICT arbiters.
+    // We use an advisory lock here to avoid concurrent creates of the same invoiceItem which would violate
+    // the uniqueness constraint.
+    await this.sequelize.transaction(async () => {
+      const lockId = stringToStableInteger(
+        `${BASE_INVOICE_ITEM_ADVISORY_KEY}:${invoice.id}:${newItem.getModelName()}:${newItem.id}`,
+      );
+      await this.sequelize.query(`SELECT pg_advisory_xact_lock(:lockId)`, {
+        replacements: { lockId },
+      });
+
+      const existingItem = await this.sequelize.models.InvoiceItem.findOne({
+        where: {
+          invoiceId: invoice.id,
+          sourceRecordType: newItem.getModelName(),
+          sourceRecordId: newItem.id,
+        },
+        paranoid: false,
+      });
+      if (existingItem) {
+        if (existingItem.deletedAt) {
+          await existingItem.restore(); // Ensure we restore the item if it already exists
+        }
+        await existingItem.update(values);
+      } else {
+        await this.sequelize.models.InvoiceItem.create({
+          invoiceId: invoice.id,
+          sourceRecordType: newItem.getModelName(),
+          sourceRecordId: newItem.id,
+          ...values,
+        });
+      }
+    });
   }
 
   static async removeItemFromInvoice(
