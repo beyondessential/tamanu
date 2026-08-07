@@ -1,6 +1,9 @@
 import { Readable } from 'node:stream';
 
+import config from 'config';
+
 import { ASSET_NAMES, BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
 
@@ -14,6 +17,9 @@ describe('Asset GET endpoint', () => {
   let ctx;
   let models;
   let app;
+  // The web client always scopes the asset lookup to its facility (useAuth), so
+  // the request carries the facility id the same way here.
+  const [facilityId] = selectFacilityIds(config);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -27,7 +33,7 @@ describe('Asset GET endpoint', () => {
     const { hash } = await ctx.blobStore.put(Readable.from([IMAGE]), { sizeHint: IMAGE.length });
     await models.Asset.create({ name: NAME, type: 'image/png', hash, data: null });
 
-    const response = await app.get(`/api/asset/${NAME}`);
+    const response = await app.get(`/api/asset/${NAME}`).query({ facilityId });
     expect(response).toHaveSucceeded();
     expect(Buffer.from(response.body.data)).toEqual(IMAGE);
     expect(response.body.availability).toBeUndefined();
@@ -36,7 +42,7 @@ describe('Asset GET endpoint', () => {
   it('returns a legacy in-database row unchanged', async () => {
     await models.Asset.create({ name: LEGACY_NAME, type: 'image/png', data: IMAGE, hash: null });
 
-    const response = await app.get(`/api/asset/${LEGACY_NAME}`);
+    const response = await app.get(`/api/asset/${LEGACY_NAME}`).query({ facilityId });
     expect(response).toHaveSucceeded();
     expect(Buffer.from(response.body.data)).toEqual(IMAGE);
   });
@@ -51,14 +57,14 @@ describe('Asset GET endpoint', () => {
       data: null,
     });
 
-    const response = await app.get(`/api/asset/${PENDING_NAME}`);
+    const response = await app.get(`/api/asset/${PENDING_NAME}`).query({ facilityId });
     expect(response).toHaveSucceeded();
     expect(response.body.data).toBeNull();
     expect(response.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_FETCH);
   });
 
   it('returns an empty object when no asset row exists', async () => {
-    const response = await app.get(`/api/asset/${UNUPLOADED_NAME}`);
+    const response = await app.get(`/api/asset/${UNUPLOADED_NAME}`).query({ facilityId });
     expect(response).toHaveSucceeded();
     expect(response.body).toEqual({});
   });
