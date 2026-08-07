@@ -1,24 +1,25 @@
-import { SERVER_TYPES } from '@tamanu/constants';
 import { BlobBackfill, REFERENCE_TABLES, createBlobStore } from '@tamanu/database/blobStore';
 import { InsufficientStorageError } from '@tamanu/errors';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { log } from '../services/logging';
-import { serviceContext } from '../services/logging/context';
 import { ScheduledTask } from './ScheduledTask';
 
 /**
- * The reader for settings scoped to this server rather than to a facility.
- * Central's context carries one reader; a facility's is keyed by facility id.
- * The store root is a property of the server's disk, and a task is server-wide,
- * so on a multi-facility server the first facility's value applies — the same
- * rule the other facility scheduled tasks use.
+ * Settings reach this task differently on each server, and that difference is
+ * also what tells the two apart: central carries a single reader, while a
+ * facility carries one per facility plus a global. The store root is a property
+ * of the server's disk and this task is server-wide, so on a multi-facility
+ * server the first facility's value applies, the same rule the other facility
+ * scheduled tasks use.
  */
-function getServerSettings(context) {
+function resolveServer(context) {
   const { settings } = context;
-  if (typeof settings?.get === 'function') return settings;
+  if (typeof settings?.get === 'function') {
+    return { settings, isCentral: true };
+  }
   const [facilityId] = Object.keys(settings ?? {}).filter(key => key !== 'global');
-  return facilityId ? settings[facilityId] : settings?.global;
+  return { settings: facilityId ? settings[facilityId] : settings?.global, isCentral: false };
 }
 
 // spec: BKFL
@@ -35,13 +36,14 @@ export class BlobBackfillTask extends ScheduledTask {
     const conf = { ...context.schedules?.blobBackfill, ...overrideConfig };
     super(conf.schedule, log, conf.jitterTime, conf.enabled);
     this.config = conf;
-    this.context = context;
     this.models = context.models ?? context.store?.models;
     this.sequelize = context.sequelize ?? context.store?.sequelize;
     // Only the server that owns a row may rewrite it. Attachment and asset
     // bytes live on central; a facility holds pulled copies whose updates
     // arrive through sync, so it seeds its store and leaves the rows alone.
-    this.ownsRows = serviceContext()['service.type'] === SERVER_TYPES.CENTRAL;
+    const { settings, isCentral } = resolveServer(context);
+    this.settings = settings;
+    this.ownsRows = isCentral;
   }
 
   async countQueue() {
@@ -53,10 +55,7 @@ export class BlobBackfillTask extends ScheduledTask {
   async getBackfill() {
     this.backfill ??= new BlobBackfill({
       sequelize: this.sequelize,
-      blobStore: await createBlobStore({
-        models: this.models,
-        settings: getServerSettings(this.context),
-      }),
+      blobStore: await createBlobStore({ models: this.models, settings: this.settings }),
     });
     return this.backfill;
   }

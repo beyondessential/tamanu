@@ -33,8 +33,6 @@ sources:
           - name: data
             data_type: bytea
             description: "{{ doc('attachments__data') }}"
-            data_tests:
-              - not_null
             config:
               meta:
                 masking: zero
@@ -52,3 +50,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in attachments."
             data_tests:
               - not_null
+          - name: hash
+            data_type: text
+            description: "{{ doc('attachments__hash') }}"

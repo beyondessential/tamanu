@@ -26,5 +26,11 @@ The file size in bytes.
 {% enddocs %}
 
 {% docs attachments__data %}
-The file data.
+The file data, for attachments that predate content-addressed blob storage and
+have not yet been moved onto the filesystem. Empty once the row carries a hash.
+{% enddocs %}
+
+{% docs attachments__hash %}
+The algorithm-tagged hash of the file's contents, naming the blob that holds the
+bytes in the [blob store](#!/source/source.tamanu.tamanu.blobs).
 {% enddocs %}

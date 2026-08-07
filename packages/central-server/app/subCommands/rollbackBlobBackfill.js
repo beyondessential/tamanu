@@ -17,7 +17,8 @@ const DEFAULT_DELAY_MS = 1000;
 // not from a backup.
 export const rollbackBlobBackfill = async ({ batchSize, delay }) => {
   const batch = Number(batchSize) || DEFAULT_BATCH_SIZE;
-  const delayMs = Number(delay) ?? DEFAULT_DELAY_MS;
+  // Not `||`: an explicit 0 means run without pausing.
+  const delayMs = delay === undefined ? DEFAULT_DELAY_MS : Number(delay);
   const log = createNamedLogger('rollbackBlobBackfill', { batchSize: batch, delay: delayMs });
 
   const { sequelize, models } = await initDatabase({ testMode: false });

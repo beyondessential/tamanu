@@ -41,6 +41,9 @@ minor-version sync skew), so the backfill owes no compatibility to older peers.
   `capacity.md`): the store grows before the database shrinks, so when headroom
   runs out the job pauses and surfaces the condition rather than crossing the
   reserve.
+- [ ] Moving a row is not itself recorded in the changelog. The row's content is
+  unchanged and only its storage moves, so an entry would duplicate the one
+  already there to no purpose.
 - [ ] References created after the upgrade carry only a hash from the start and
   are not part of the backfill.
 
