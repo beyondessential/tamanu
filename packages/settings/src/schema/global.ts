@@ -162,6 +162,20 @@ export const globalSettings = {
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      properties: {
+        freeDiskReserveGB: {
+          name: 'Free disk reserve',
+          description:
+            'Free disk space the blob store must leave available on its volume; as free space approaches this floor the store evicts cache, then refuses new blobs',
+          type: yup.number().positive(),
+          defaultValue: 10,
+          unit: 'GB',
+        },
+      },
+    },
     browserSupport: {
       name: 'Browser support',
       description: 'Controls which browsers and devices may load the web application',

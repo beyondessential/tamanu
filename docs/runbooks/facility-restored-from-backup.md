@@ -8,6 +8,11 @@ Every action is tagged with its class from the ladder in `../README.md`. Check
 `../ruled-out-actions.md` before running anything mutating — the fix here is a
 **[dev-OTS]** action (truncating `sync_lookup`), so read this carefully.
 
+A restore has a second dimension besides sync: the facility's blob store holds
+attachment and asset bytes, and it is restored alongside the database. Section 5
+covers what to check there. The two are independent, so work the sync problem
+first if that is what was reported.
+
 ## 1. When this applies
 
 Use this when, shortly after a facility restore, the facility's sync errors show
@@ -60,3 +65,45 @@ Because the only known fix is developer-run, treat this as an escalation by
 default: hand to a developer with the confirmation of the restore, the fkey-error
 evidence (redacted), and the affected facility/device. Use the structured payload
 from `senaite-integration-delay.md` §6.
+
+## 5. Check the blob store after the restore
+
+A facility restore covers the database and the blob store as a pair, the database
+captured first and the store second. Both must have been restored: a database
+restored without its store leaves every attachment and asset on that facility
+without its bytes.
+
+Most of what could be wrong here self-corrects, so the job is to confirm recovery
+is happening rather than to intervene.
+
+Queries for the checks below are in `../reference/query-cookbook.md` under "Blob
+store".
+
+- **[diagnose]** Confirm the store was restored at all, and that its root is where
+  the facility expects it. `bestool tamanu blob-root` prints the root from the
+  setting (see `../reference/bestool-commands.md`); compare the store size by tier
+  against the files actually under it. A store restored to the wrong path reads as
+  a facility that has lost every attachment.
+- **[diagnose]** Check for files awaiting their bytes. After a restore some
+  references are legitimately content-pending, and a facility resolves those by
+  fetching from central on demand and in the background. A count that falls over
+  the following hours is the system healing itself; one that does not move points
+  at the transfer path, not at the restore.
+- **[diagnose]** Check the outbox is draining, using the outbox depth and age
+  query. The outbox holds blobs originated at this facility that central has not
+  yet acknowledged, and it is the only durable copy of that content. After a
+  restore the background pusher resumes delivering them.
+
+Two failure modes here are worse than content-pending and do warrant escalation:
+
+- An **outbox blob missing from the restored store** is content that may exist
+  nowhere else, since central had not acknowledged it. Escalate rather than
+  waiting for it to resolve, because nothing will refetch it.
+- A **corrupt blob** reported by the store's own verification, rather than a merely
+  absent one. A facility cache copy repairs itself by refetching, so a corruption
+  report that persists means the repair path is not working.
+
+Do **not** hand-copy blob files between servers, or delete store files to "reset"
+the facility. The store is content-addressed and its registry lives in the
+database, so files placed on disk by hand are not visible to the server, and
+deleting outbox files destroys the only copy of that content.
