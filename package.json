@@ -11,7 +11,6 @@
     "prepare": "node scripts/run-patch-package.mjs",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
-    "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "npm run build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
     "clean-build": "npm run clean-build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
