@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 
 import { ReadSettings } from '@tamanu/settings';
-import { BlobBackfill, REFERENCE_TABLES, createBlobStore } from '@tamanu/database/blobStore';
+import { BlobBackfill, BlobStore, REFERENCE_TABLES } from '@tamanu/database/blobStore';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -23,9 +23,17 @@ export const rollbackBlobBackfill = async ({ batchSize, delay }) => {
 
   const { sequelize, models } = await initDatabase({ testMode: false });
   const settings = new ReadSettings(models);
+  // Built here rather than taken from an application context: this runs as a
+  // standalone command with no server started. Central is the authoritative
+  // store, so there is nothing evictable and no evictCache hook.
   const backfill = new BlobBackfill({
     sequelize,
-    blobStore: await createBlobStore({ models, settings }),
+    blobStore: new BlobStore({
+      root: await settings.get('blobStorage.root'),
+      models,
+      getFreeDiskReserveBytes: async () =>
+        (await settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+    }),
   });
 
   const drain = async (unit, doBatch) => {

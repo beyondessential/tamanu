@@ -43,7 +43,7 @@ Bounded regardless of blob size, not just regardless of volume.
 - [x] Chunked bytea read/write helpers
 - [x] Backfill engine: reference rows, changelog entries, remaining counts,
       unbacked-hash check, rollback both ways
-- [x] Store factory from settings (root + free-disk reserve)
+- [x] Uses the server's own `context.blobStore` rather than building one
 - [x] Scheduled task on central and facility, with settings
 - [x] Rollback sub-command
 - [x] dbt source models updated by hand, `dbt-check-todos` clean
@@ -55,8 +55,21 @@ Bounded regardless of blob size, not just regardless of volume.
 The task runs on both servers and behaves differently on each, so it needs to
 know which it is on. `serviceContext()` is not reliably populated under test, so
 it reads the shape of `context.settings` instead: central carries one reader,
-a facility carries one per facility plus a global. That same resolution already
-had to happen for the store root, so it is one check rather than two.
+a facility carries one per facility plus a global.
+
+## Taking the store from the context
+
+F2/G2/H2 landed a `context.blobStore` on both servers, so the backfill uses that
+rather than constructing its own. This matters on a facility: the server's store
+carries the cache-eviction hook, so an admission that runs the volume down to
+the reserve evicts cache instead of refusing. A second store built from the same
+settings would have refused. The standalone rollback command still builds one,
+since it runs with no server started.
+
+Central admissions take the default `cache` tier. Nothing on central reads the
+tier (there is no eviction there, and no `evictCache` hook), so it is inert.
+Facility seeding wants `cache` anyway: pulled asset content is evictable and
+refetchable.
 
 ## Environment notes for whoever picks this up
 
