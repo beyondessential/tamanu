@@ -114,7 +114,11 @@ export class ApplicationContext {
       // spec: SCRUB — a whole-blob read that fails verification heals by the
       // same ladder the scrub uses.
       onCorruptionDetected: async hash => {
-        await this.blobHealer?.heal({ hash, fault: BLOB_FAULTS.CORRUPT });
+        await this.blobHealer?.heal({
+          hash,
+          fault: BLOB_FAULTS.CORRUPT,
+          blob: await this.store.models.Blob.findOne({ where: { hash } }),
+        });
       },
       log,
     });

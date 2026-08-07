@@ -109,7 +109,10 @@ export const buildBlobTransferRoutes = ctx => {
   // discloses the quarantine.
   const servableStat = async hash => {
     const held = await blobStore.stat(hash);
-    if (!held || held.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+    // Only verified content is servable. Stated as an allow-list rather than a
+    // list of states to exclude, so a state added later is withheld until it is
+    // deliberately allowed rather than served by omission.
+    if (!held || held.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
       return null;
     }
     return held;
