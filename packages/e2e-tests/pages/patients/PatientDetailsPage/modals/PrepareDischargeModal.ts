@@ -34,7 +34,6 @@ export class PrepareDischargeModal {
 
   async waitForModalToLoad() {
     await this.dischargeNoteTextarea.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
 

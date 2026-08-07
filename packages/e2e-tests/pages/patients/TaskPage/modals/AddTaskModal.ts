@@ -59,7 +59,6 @@ export class AddTaskModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.startDateTimeInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillForm(values: { 

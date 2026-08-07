@@ -19,7 +19,6 @@ export class CreateEncounterModal {
 
   async waitForModalToLoad() {
     await this.hospitalAdmissionButton.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getHospitalAdmissionModal(): HospitalAdmissionModal {

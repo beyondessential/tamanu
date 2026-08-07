@@ -115,7 +115,6 @@ export class ProcedurePane extends BasePatientPane {
 
   async waitForTableToLoad(){
      await this.page1Button.waitFor({ state: 'visible' });
-     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async getNoDataFoundText() {

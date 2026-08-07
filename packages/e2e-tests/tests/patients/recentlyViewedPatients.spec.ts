@@ -141,10 +141,20 @@ test.describe('Recently viewed patients pagination', () => {
       await verifyRecentlyViewedPatients(allPatientsPage, patientStack);
 
       // The recently viewed patient list is 6 patients so need to navigate to the next page
+      const firstBeforePaging = (
+        await allPatientsPage.recentlyViewedPatientsList.getRecentlyViewedPatientByIndex(0)
+      ).name;
       await allPatientsPage.recentlyViewedPatientsList.navigateNext.click();
 
-      // Wait for the page to load after navigation
-      await allPatientsPage.page.waitForLoadState('networkidle');
+      // Paging swaps the cards in place, and the verification below reads their text rather than
+      // asserting on locators, so it has to wait for the swap instead of reading whatever is up
+      await expect
+        .poll(
+          async () =>
+            (await allPatientsPage.recentlyViewedPatientsList.getRecentlyViewedPatientByIndex(0))
+              .name,
+        )
+        .not.toBe(firstBeforePaging);
 
       await verifyRecentlyViewedPatients(allPatientsPage, patientStack);
     },

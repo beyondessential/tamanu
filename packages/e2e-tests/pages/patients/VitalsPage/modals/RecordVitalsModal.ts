@@ -78,7 +78,6 @@ export class RecordVitalsModal {
 
   async waitForModalToLoad() {
     await this.modalTitle.getByText('Record vitals').waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async fillVitalsForm(values: Record<string, string>) {
