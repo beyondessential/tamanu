@@ -60,6 +60,8 @@ Automated coverage lives in `packages/database/__tests__/blobStore/`,
 - [x] An offer for content central holds and has no fault with is still declined
 - [x] A quarantined blob is never served, and the channel does not disclose the
   quarantine
+- [x] An absent blob is withheld the same way: not held on availability and fetch,
+  wanted on offer (verifies spec: BLAC, SCRUB)
 
 ## Referential integrity
 
