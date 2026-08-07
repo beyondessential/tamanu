@@ -1,8 +1,28 @@
 import { pipeline } from 'node:stream/promises';
 
+import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
+import { InvalidParameterError } from '@tamanu/errors';
+
 // Resume-oriented subset of HTTP ranges: a single open-ended or closed range.
 // Anything else is ignored and the full blob served, as RFC 9110 permits.
 const RANGE_PATTERN = /^bytes=(?<start>\d+)-(?<end>\d*)$/;
+
+// spec: SERVE
+// Read a stored blob into a base64 string for a caller that consumes the content
+// inline. The whole blob and its encoding are held in memory at once, so content
+// past the inline limit is refused rather than served this way.
+export async function readBlobAsBase64({ size, open }) {
+  if (size > MAX_INLINE_BLOB_BYTES) {
+    throw new InvalidParameterError(
+      `Content of ${size} bytes is too large to encode inline; request it without base64 to stream it.`,
+    );
+  }
+  const chunks = [];
+  for await (const chunk of await open({})) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString('base64');
+}
 
 // spec: SERVE
 // Stream a stored blob over HTTP: range support for large files, the hash as a

@@ -48,6 +48,13 @@ export const BLOB_AVAILABILITY_STATES = {
 export type BlobAvailabilityState =
   (typeof BLOB_AVAILABILITY_STATES)[keyof typeof BLOB_AVAILABILITY_STATES];
 
+// spec: SERVE
+// The largest content a server will encode inline in a response body. Inline
+// encoding holds the whole blob and its encoding in memory at once, so it is
+// offered only up to a size the inline consumers (profile pictures, photo
+// answers) stay well within; anything larger is served as a stream instead.
+export const MAX_INLINE_BLOB_BYTES = 16 * 1024 * 1024;
+
 // spec: XFER
 // A receiving server's answer to a blob being offered: content it already
 // holds is skipped, otherwise it reports how many bytes it has already staged

@@ -1,5 +1,6 @@
 import { Readable } from 'node:stream';
 
+import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
 import { InsufficientStorageError } from '@tamanu/errors';
 
 import { createTestContext } from './utilities';
@@ -173,6 +174,19 @@ describe('Attachment (central-server)', () => {
       const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toBe(CONTENT.toString('base64'));
+    });
+
+    // spec: SERVE
+    // Inline encoding holds the whole content in memory, so content past the
+    // limit is refused that way and the caller directed to stream it.
+    it('refuses to encode content past the inline limit', async () => {
+      jest.spyOn(ctx.blobStore, 'stat').mockResolvedValueOnce({ size: MAX_INLINE_BLOB_BYTES + 1 });
+
+      const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
+      expect(result).toHaveRequestError(422);
+
+      const streamed = await app.get(`/api/attachment/${stored.id}`);
+      expect(streamed).toHaveSucceeded();
     });
 
     // spec: ATCH

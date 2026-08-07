@@ -48,6 +48,7 @@ uncited ones are operational.
 - [ ] Confirm content served from the store carries the hash as cache validator and a conditional re-request returns not-modified (verifies spec: SERVE)
 - [x] Refuse an unsatisfiable range on a hash-backed attachment with the content's true extent (verifies spec: SERVE)
 - [x] Request an attachment with `base64=true` and confirm the inline-encoded response still works for a hash-backed attachment (verifies spec: ATCH)
+- [x] Request an attachment past the inline size limit with `base64=true` on both central and a facility, and confirm it is refused without the content being read, while the same attachment still streams (verifies spec: SERVE)
 - [x] Fetch a legacy row (bytea, no hash) and confirm it serves identically, resolving the in-database bytes because no hash is present (verifies spec: ATCH)
 - [ ] Serve a legacy attachment on a facility and confirm it reads through the central server, since legacy rows reside only on central (verifies spec: ATCH)
 - [ ] Fetch an attachment on a facility that holds the blob locally and confirm it serves without contacting central (verifies spec: ATCH)

@@ -70,8 +70,9 @@ servers over the transfer channel (see `transfer.md`).
 - [ ] Attachment content is streamed, with range support; content served from the
   blob store carries the hash as its cache validator (see `serving.md`).
 - [ ] A caller may request attachment content base64-encoded, for clients that
-  consume the content inline rather than as a download — profile pictures and
-  photo answers among them.
+  consume the content inline rather than as a download, profile pictures and
+  photo answers among them. Content past the inline size limit is refused this
+  way, directing the caller to stream it instead (see `serving.md`).
 
 ## Content-pending attachments
 

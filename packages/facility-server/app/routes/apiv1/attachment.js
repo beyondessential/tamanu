@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
 import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
-import { serveBlob } from '@tamanu/shared/utils/serveBlob';
+import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 import { BlobTransferChannel } from '../../blobTransfer';
 import { getServerFacilityIds } from '../../serverConfig';
@@ -15,14 +15,6 @@ const ID_SCHEMA = yup
   .matches(SAFE_ID_REGEX, 'id must not have spaces or punctuation other than -');
 
 export const attachment = express.Router();
-
-const readAll = async stream => {
-  const chunks = [];
-  for await (const chunk of stream) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
-};
 
 // Content this server does not hold is resolved from central on demand. The API
 // process runs no sync runtime and so has no channel of its own; it builds one
@@ -75,7 +67,7 @@ attachment.get(
       }
 
       if (base64) {
-        res.send({ data: (await readAll(await blobCache.open(hash))).toString('base64') });
+        res.send({ data: await readBlobAsBase64({ size, open: () => blobCache.open(hash) }) });
         return;
       }
 

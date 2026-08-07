@@ -1,7 +1,7 @@
 import { Readable } from 'node:stream';
 import { createHash } from 'node:crypto';
 
-import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
+import { BLOB_AVAILABILITY_STATES, MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
@@ -106,6 +106,24 @@ describe('Attachment (facility-server)', () => {
     const result = await app.get(`/api/attachment/${attachment.id}?base64=true`);
     expect(result).toHaveSucceeded();
     expect(result.body.data).toBe(content.toString('base64'));
+  });
+
+  // spec: SERVE
+  // Inline encoding holds the whole content in memory, so content past the limit
+  // is refused that way and the caller directed to stream it.
+  it('refuses to encode a locally held attachment past the inline limit', async () => {
+    const content = uniqueContent();
+    const { hash } = await ctx.blobStore.put(Readable.from([content]));
+    const attachment = await makeAttachment(hash, content.length);
+    ctx.blobCache.setTransferChannel({
+      availability: async () => ({
+        availability: BLOB_AVAILABILITY_STATES.AVAILABLE,
+        size: MAX_INLINE_BLOB_BYTES + 1,
+      }),
+    });
+
+    const result = await app.get(`/api/attachment/${attachment.id}?base64=true`);
+    expect(result).toHaveRequestError(422);
   });
 
   it('serves a requested byte range of a locally held attachment', async () => {

@@ -6,7 +6,7 @@ import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
-import { serveBlob } from '@tamanu/shared/utils/serveBlob';
+import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 export const attachmentRoutes = express.Router();
 
@@ -48,12 +48,11 @@ attachmentRoutes.get(
         return;
       }
       if (base64 === 'true') {
-        const stream = await blobStore.get(attachment.hash, { stat });
-        const chunks = [];
-        for await (const chunk of stream) {
-          chunks.push(chunk);
-        }
-        res.send({ data: Buffer.concat(chunks).toString('base64') });
+        const data = await readBlobAsBase64({
+          size: stat.size,
+          open: () => blobStore.get(attachment.hash, { stat }),
+        });
+        res.send({ data });
         return;
       }
       await serveBlob(req, res, {
