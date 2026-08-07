@@ -171,6 +171,14 @@ jobs:
             # A library can have several LOAD segments; the smallest alignment governs.
             min="$(readelf -lW "$so" | awk '$1 == "LOAD" { print $NF }' \
               | while read -r a; do printf '%d\n' "$a"; done | sort -n | head -1)"
+            # No LOAD segments at all (unreadable or stub .so) must not pass silently:
+            # set -e does not fire on a command-substitution assignment, and a later
+            # `[ "" -lt 16384 ]` errors to stderr then takes the else branch, reporting ok.
+            if [ -z "$min" ]; then
+              echo "::error::$abi/$(basename "$so") has no readable LOAD segments; cannot verify alignment"
+              failed=$((failed + 1))
+              continue
+            fi
             if [ "$min" -lt 16384 ]; then
               echo "::error::$abi/$(basename "$so") is ${min}-byte aligned, need >= 16384"
               failed=$((failed + 1))
@@ -189,7 +197,14 @@ jobs:
           # Complementary: verifies the .so entries are page-aligned within the zip so
           # they can be mapped directly from the APK. AGP handles this, so it is a guard
           # against packaging regressions rather than the requirement above.
-          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 "$apk" > /dev/null
+          # Resolve the newest build-tools rather than pinning a version the runner's SDK
+          # may not have; sort -V so 36.0.0 beats 9.0.0 and 30.0.3 beats 30.0.2.
+          zipalign="$(find "$ANDROID_HOME/build-tools" -name zipalign -type f | sort -V | tail -1)"
+          if [ -z "$zipalign" ]; then
+            echo "::error::zipalign not found under $ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          "$zipalign" -c -P 16 -v 4 "$apk" > /dev/null
 
       - name: Upload final build
         id: artifact-upload
