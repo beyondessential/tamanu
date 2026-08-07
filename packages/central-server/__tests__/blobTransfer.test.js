@@ -464,6 +464,44 @@ describe('Blob transfer channel', () => {
     });
   });
 
+  // spec: BLAC, SCRUB
+  // Only verified content is servable, so an absent copy is withheld on the
+  // channel exactly as a quarantined one is: availability and fetch answer as
+  // for content central does not hold, and an offer is wanted so the bytes can
+  // be restored.
+  describe('absent content', () => {
+    it('answers an absent hash as not held on availability and fetch', async () => {
+      const content = Buffer.from('absent content');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.ABSENT },
+        { where: { hash } },
+      );
+
+      const probe = await availability(hash);
+      expect(probe.body).toEqual({ availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD });
+
+      const fetched = await getBlob(hash);
+      expect(fetched.status).toBe(404);
+      expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD);
+    });
+
+    it('wants a hash whose held copy is absent, rather than declining it', async () => {
+      const content = Buffer.from('content whose bytes central lost');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.ABSENT },
+        { where: { hash } },
+      );
+
+      const offered = await offer(hash, content.length);
+      expect(offered).toHaveSucceeded();
+      expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.WANTED);
+    });
+  });
+
   // spec: BLAC
   // The scope is the declared facility set, not the user's entitlement. With
   // facility restriction off, the sync user may access every facility, yet a
