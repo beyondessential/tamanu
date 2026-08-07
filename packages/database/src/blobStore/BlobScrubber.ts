@@ -144,16 +144,23 @@ export class BlobScrubber {
       limit: limits.maxBlobs,
     });
 
+    // The happy path is that a blob verifies; stamp those as a single batch at
+    // the end rather than one write each, since a pass verifies up to maxBlobs.
+    // A fault is rarer and its state is written through the heal path per blob.
+    const verified: string[] = [];
+    const stampVerified = () => this.#blobStore.recordVerified(verified);
+
     for (const blob of candidates) {
       if (result.bytesRead >= limits.maxBytes) {
         result.ratelimited = true;
+        await stampVerified();
         return;
       }
       const outcome = await this.#blobStore.verify(blob.hash);
       result.bytesRead += outcome.size;
 
       if (outcome.held && outcome.matches) {
-        await this.#blobStore.recordIntegrityState(blob.hash, BLOB_INTEGRITY_STATES.VERIFIED);
+        verified.push(blob.hash);
         result.verified += 1;
         continue;
       }
@@ -166,6 +173,7 @@ export class BlobScrubber {
       });
     }
 
+    await stampVerified();
     result.ratelimited ||= candidates.length === limits.maxBlobs;
   }
 

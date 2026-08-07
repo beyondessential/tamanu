@@ -169,6 +169,26 @@ describe('BlobScrubber', () => {
       expect(fakeBlob.rows.get(hash)!.lastScrubbedAt).toBeInstanceOf(Date);
     });
 
+    it('stamps a whole batch of verified blobs in a single write', async () => {
+      for (let i = 0; i < 5; i++) {
+        await store.put(Readable.from(Buffer.from(`verified content ${i}`)));
+      }
+      const calls: string[][] = [];
+      const original = store.recordVerified.bind(store);
+      store.recordVerified = async hashes => {
+        calls.push(hashes);
+        return original(hashes);
+      };
+
+      const result = await makeScrubber().run();
+
+      expect(result.verified).toBe(5);
+      // One stamp call carrying all five, not one write per blob.
+      const stampCalls = calls.filter(hashes => hashes.length > 0);
+      expect(stampCalls).toHaveLength(1);
+      expect(stampCalls[0]).toHaveLength(5);
+    });
+
     it('reports content whose bytes no longer match its hash as corrupt', async () => {
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       await corruptStoredBytes(hash, 'goodbye wo');
