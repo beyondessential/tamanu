@@ -1,4 +1,7 @@
 import 'jest-expect-message';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import supertest from 'supertest';
 import config from 'config';
 
@@ -23,6 +26,9 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
+import { BlobStore } from '@tamanu/database/blobStore';
+
+import { FacilityBlobCache } from '../app/blobCache';
 import { createApiApp } from '../app/createApiApp';
 import { buildToken } from '../app/middleware/auth';
 import { initDatabase } from '../app/database';
@@ -145,6 +151,25 @@ class MockApplicationContext extends ApplicationContext {
     if (enableReportInstances) {
       this.reportSchemaStores = await initReporting(this.store);
     }
+
+    // Temp-rooted and reserve-free so tests exercise the blob store and cache
+    // without depending on the host's real disk headroom, mirroring the central
+    // test context.
+    const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'facility-blob-store-test-'));
+    this.blobStore = new BlobStore({
+      root: blobRoot,
+      models: this.models,
+      getFreeDiskReserveBytes: async () => 0,
+      evictCache: async bytesNeeded => {
+        await this.blobCache?.evictBytes(bytesNeeded);
+      },
+    });
+    this.blobCache = new FacilityBlobCache({
+      blobStore: this.blobStore,
+      models: this.models,
+      getCacheBudgetBytes: async () => Number.POSITIVE_INFINITY,
+    });
+    this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     return this;
   }

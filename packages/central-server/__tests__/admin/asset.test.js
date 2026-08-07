@@ -42,6 +42,21 @@ describe('Asset upload', () => {
     expect(response).not.toHaveSucceeded();
   });
 
+  it('should forbid a user without write permission from replacing an existing asset', async () => {
+    // Seed the asset so the PUT takes the update (write) branch, not create.
+    await adminApp.put(`/api/admin/asset/${NAME}`).send({
+      filename: 'test.png',
+      data: B64_PNG_1X1_CLEAR,
+    });
+
+    const noWriteApp = await baseApp.asNewRole([['read', 'Asset']]);
+    const response = await noWriteApp.put(`/api/admin/asset/${NAME}`).send({
+      filename: 'test.png',
+      data: B64_PNG_1X1_WHITE,
+    });
+    expect(response).toBeForbidden();
+  });
+
   it('should upload a new asset, storing the bytes as a blob and recording the hash', async () => {
     const response = await adminApp.put(`/api/admin/asset/${NAME}`).send({
       filename: 'test.png',

@@ -39,7 +39,12 @@ asset.get(
     }
 
     try {
-      const data = await resolveAssetImageData(assetRecord, hash => blobCache.open(hash));
+      const data = await resolveAssetImageData(assetRecord, hash => {
+        // No cache means the bytes cannot be resolved here; treat that as
+        // content-pending (below) rather than an opaque 500.
+        if (!blobCache) throw new NotFoundError(`Blob cache unavailable for ${hash}`);
+        return blobCache.open(hash);
+      });
       res.send({ ...assetRecord.get({ plain: true }), data });
     } catch (error) {
       if (error instanceof NotFoundError) {
