@@ -1,6 +1,21 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { pullIncomingChanges } from '../../app/sync/pullIncomingChanges';
+import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import { encodeSnapshotCursor } from '@tamanu/database/sync';
+
+import { pullIncomingChanges, streamIncomingChanges } from '../../app/sync/pullIncomingChanges';
+
+const fakeChange = ({ id, sortOrder, recordType }) => ({
+  id,
+  sortOrder,
+  recordType,
+  recordId: `record-${id}`,
+  isDeleted: false,
+  data: { id: `record-${id}` },
+});
+
+// stands in for a snapshot table, so we can see what would be inserted into it
+const fakeSequelize = bulkInsert => ({ getQueryInterface: () => ({ bulkInsert }) });
 
 describe('pullIncomingChanges', () => {
   it('completes cleanly when the central server returns an empty page', async () => {
@@ -16,5 +31,105 @@ describe('pullIncomingChanges', () => {
 
     expect(centralServer.pull).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ totalPulled: 10, pullUntil: 42 });
+  });
+
+  it('pages from the last record of the previous page, on both cursor parts', async () => {
+    const page = [
+      fakeChange({ id: '1', sortOrder: 1, recordType: 'facilities' }),
+      fakeChange({ id: '2', sortOrder: 4, recordType: 'users' }),
+    ];
+    const centralServer = {
+      // more to pull than the page returns, so a second page is requested
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 3, pullUntil: 42 }),
+      pull: jest.fn().mockResolvedValueOnce(page).mockResolvedValue([]),
+    };
+
+    await pullIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', 1);
+
+    expect(centralServer.pull).toHaveBeenNthCalledWith(
+      2,
+      'sessionId',
+      expect.objectContaining({ fromId: encodeSnapshotCursor({ sortOrder: 4, id: '2' }) }),
+    );
+  });
+
+  it('keeps sortOrder out of the snapshot table', async () => {
+    const bulkInsert = jest.fn();
+    const centralServer = {
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 1, pullUntil: 42 }),
+      pull: jest
+        .fn()
+        .mockResolvedValueOnce([fakeChange({ id: '1', sortOrder: 1, recordType: 'facilities' })]),
+    };
+
+    await pullIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+
+    const [, insertedRows] = bulkInsert.mock.calls[0];
+    expect(insertedRows[0]).not.toHaveProperty('sort_order');
+    expect(insertedRows[0]).toHaveProperty('record_id', 'record-1');
+  });
+});
+
+describe('streamIncomingChanges', () => {
+  const streamOf = (changes, captureResume) =>
+    async function* stream(endpointFn) {
+      for (const change of changes) {
+        yield { kind: SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE, message: change };
+      }
+      captureResume(endpointFn().query);
+      yield { kind: SYNC_STREAM_MESSAGE_KIND.END };
+    };
+
+  it('resumes from the last streamed record, on both cursor parts', async () => {
+    const change = fakeChange({ id: '7', sortOrder: 2, recordType: 'users' });
+    let resumeQuery;
+    const centralServer = {
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 1, pullUntil: 42 }),
+      stream: streamOf([change], query => {
+        resumeQuery = query;
+      }),
+    };
+
+    await streamIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', 1);
+
+    expect(resumeQuery.fromId).toBe(encodeSnapshotCursor(change));
+  });
+
+  it('keeps sortOrder out of the snapshot table', async () => {
+    const bulkInsert = jest.fn();
+    const centralServer = {
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 1, pullUntil: 42 }),
+      stream: streamOf([fakeChange({ id: '7', sortOrder: 2, recordType: 'users' })], () => {}),
+    };
+
+    await streamIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+
+    const [, insertedRows] = bulkInsert.mock.calls[0];
+    expect(insertedRows[0]).not.toHaveProperty('sort_order');
+    expect(insertedRows[0]).toHaveProperty('record_id', 'record-7');
+  });
+
+  it('leaves the streamed records intact, so a write cannot blank the resume cursor', async () => {
+    // the streamed records are the cursor: writing a batch must not take sortOrder off them, or a
+    // reconnect after that write resumes from a cursor missing half its key and restarts the pull
+    // from the beginning of the snapshot. totalToPull of 1 caps the write batch at one record, so
+    // the first record is written while the second is still streaming.
+    const changes = [
+      fakeChange({ id: '7', sortOrder: 2, recordType: 'users' }),
+      fakeChange({ id: '8', sortOrder: 2, recordType: 'users' }),
+    ];
+    const bulkInsert = jest.fn();
+    const centralServer = {
+      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 1, pullUntil: 42 }),
+      stream: streamOf(changes, () => {}),
+    };
+
+    await streamIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+
+    expect(bulkInsert).toHaveBeenCalled();
+    expect(changes).toEqual([
+      expect.objectContaining({ id: '7', sortOrder: 2 }),
+      expect.objectContaining({ id: '8', sortOrder: 2 }),
+    ]);
   });
 });

@@ -3,6 +3,7 @@ import { chunk } from 'es-toolkit/compat';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {
+  encodeSnapshotCursor,
   insertSnapshotRecords,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
@@ -12,6 +13,22 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { calculatePageLimit } from './calculatePageLimit';
 
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
+
+// sortOrder comes from the dependency ordering central pages by; it belongs to the cursor, not to
+// the snapshot table, which has no such column.
+//
+// Must not mutate the record it is given: the streaming path holds the same objects in both its
+// write batch and its resume cursor, so dropping sortOrder in place would blank the cursor and
+// restart the stream from the beginning of the snapshot. Removing the key by destructuring rather
+// than `delete` also keeps the object out of dictionary mode, so the spread below stays cheap —
+// this runs once per pulled record.
+// eslint-disable-next-line no-unused-vars
+const toSnapshotRecord = ({ sortOrder, ...record }) => ({
+  ...record,
+  // mark as never updated, so we don't push it back to the central server until the next local update
+  data: { ...record.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
+  direction: SYNC_SESSION_DIRECTION.INCOMING,
+});
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   const start = Date.now();
@@ -42,21 +59,13 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       break;
     }
 
-    const { id, sortOrder } = records[records.length - 1];
-    fromId = btoa(JSON.stringify({ sortOrder, id }));
+    fromId = encodeSnapshotCursor(records[records.length - 1]);
     totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => {
-      delete r.sortOrder;
-      return {
-      ...r,
-      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    };
-  });
+    const recordsToSave = records.map(toSnapshotRecord);
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -87,16 +96,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
   const writeBatch = async records => {
     if (records.length === 0) return;
-    await insertSnapshotRecords(
-      sequelize,
-      sessionId,
-      records.map(r => ({
-        ...r,
-        // mark as never updated, so we don't push it back to the central server until the next local update
-        data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
-        direction: SYNC_SESSION_DIRECTION.INCOMING,
-      })),
-    );
+    await insertSnapshotRecords(sequelize, sessionId, records.map(toSnapshotRecord));
   };
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
@@ -104,12 +104,17 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   let records = []; // for batching writes
   let writes = []; // ongoing write promises
 
-  // keep track of the ID we're on so we can resume the stream
-  // on disconnect from where we left off rather than the start
-  let fromId;
+  // keep track of the record we're on so we can resume the stream on disconnect from where we left
+  // off rather than the start. Only the last one is ever encoded, on the reconnect that needs it,
+  // rather than once per record streamed.
+  //
+  // This is the same object that goes into the write batch below, and its sortOrder is half of the
+  // cursor, so whatever the batch does to a record on its way to the snapshot table has to leave the
+  // record itself alone — see toSnapshotRecord
+  let lastRecord;
   const endpointFn = () => ({
     endpoint: `sync/${sessionId}/pull/stream`,
-    query: { fromId },
+    query: { fromId: lastRecord && encodeSnapshotCursor(lastRecord) },
   });
 
   stream: for await (const { kind, message } of centralServer.stream(endpointFn)) {
@@ -123,7 +128,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(message);
         totalPulled += 1;
-        fromId = message.id;
+        lastRecord = message;
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);
