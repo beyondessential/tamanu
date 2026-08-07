@@ -5,7 +5,7 @@ label: "Split working doc"
 pill-order:
   specifying: 8
 jockey-hint: "Surface as soon as the card has a working doc in draft — the moment it exists, regardless of how developed it looks. On cards with no draft working doc, do not include in pills or suggestions at all."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Split the working doc

@@ -6,7 +6,7 @@ pill-order:
   specifying: 7
   implementing: 4
 jockey-hint: "Good fit when the user wants to talk through technical tradeoffs before committing to implementation. Demote once substantial tech notes are already in the plan unless the user signals a fresh area to workshop."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Tech design workshop
