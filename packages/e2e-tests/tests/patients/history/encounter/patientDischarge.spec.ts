@@ -17,12 +17,15 @@ test.describe('Patient discharge', () => {
     const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
     // Distinct drugs so the two medications can be told apart in the active medications table.
     const [sentDrug, notSentDrug] = await getDrugSuggestions(api, 2);
-    const sentPrescription = await createEncounterPrescriptionViaApi(api, encounter.id, {
+    const sentPrescription = await createEncounterPrescriptionViaApi(api, encounter.id, undefined, {
       medicationId: sentDrug.id,
     });
-    const notSentPrescription = await createEncounterPrescriptionViaApi(api, encounter.id, {
-      medicationId: notSentDrug.id,
-    });
+    const notSentPrescription = await createEncounterPrescriptionViaApi(
+      api,
+      encounter.id,
+      undefined,
+      { medicationId: notSentDrug.id },
+    );
 
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.navigateToFirstEncounter();
