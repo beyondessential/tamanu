@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
-  dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
   getDayBoundaries,
@@ -30,84 +29,20 @@ import {
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
-import { getLastOrderedAtForOngoingPrescriptions } from '../../utils/medication';
+import {
+  checkPharmacyOrderPermission,
+  checkSensitiveMedicationPermission,
+  createPharmacyOrder,
+  createPharmacyOrderForPrescription,
+  getLastOrderedAtForOngoingPrescriptions,
+} from '../../utils/medication';
 import { mapQueryFilters } from '../../database/utils';
+import {
+  ENCOUNTER_MEDICATION_INPUT_SCHEMA,
+  MEDICATION_INPUT_SCHEMA,
+} from './medicationValidationSchema';
 
 export const medication = express.Router();
-
-const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
-  if (!medicationIds?.length) return true;
-
-  const isSensitive = await req.models.ReferenceDrug.hasSensitiveMedication(medicationIds);
-  if (isSensitive) {
-    req.checkPermission(action, 'SensitiveMedication');
-  }
-};
-
-const medicationInputSchema = z
-  .object({
-    encounterId: z.string().optional().nullable(),
-    patientId: z.string().optional().nullable(),
-    date: dateCustomValidation,
-    notes: z.string().optional().nullable(),
-    indication: z.string().optional().nullable(),
-    route: z.enum(Object.values(DRUG_ROUTES)),
-    medicationId: z.string(),
-    prescriberId: z.string(),
-    quantity: z.coerce.number().int().optional().nullable(),
-    isOngoing: z.boolean().optional().nullable(),
-    isPrn: z.boolean().optional().nullable(),
-    isVariableDose: z.boolean().optional().nullable(),
-    doseAmount: z.coerce.number().positive().optional().nullable(),
-    frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
-    startDate: datetimeCustomValidation,
-    durationValue: z.coerce.number().positive().optional().nullable(),
-    durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
-    isPhoneOrder: z.boolean().optional(),
-    idealTimes: z.array(z.string()).optional().nullable(),
-    repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-  })
-  .strip()
-  .superRefine((val, ctx) => {
-    if (!val.isVariableDose && !val.doseAmount) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Dose amount is required or isVariableDose must be true',
-      });
-    }
-    if (val.durationValue && !val.durationUnit) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Duration unit is required when duration value is provided',
-      });
-    }
-    if (val.durationUnit && !val.durationValue) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Duration value is required when duration unit is provided',
-      });
-    }
-    if (
-      val.frequency !== ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-      val.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
-      !val.idealTimes?.length
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Ideal times are required when frequency is not IMMEDIATELY or AS_DIRECTED',
-      });
-    }
-    if (
-      (val.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || val.isOngoing) &&
-      val.durationValue
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Duration value and unit are not allowed when frequency is IMMEDIATELY or isOngoing',
-      });
-    }
-  });
 
 medication.post(
   '/patientOngoingPrescription/:patientId',
@@ -117,7 +52,7 @@ medication.post(
     const { Prescription, Patient, PatientOngoingPrescription, ReferenceDrug } = models;
     req.checkPermission('create', 'Medication');
 
-    const data = await medicationInputSchema.parseAsync(req.body);
+    const data = await MEDICATION_INPUT_SCHEMA.parseAsync(req.body);
 
     await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
 
@@ -188,9 +123,14 @@ medication.post(
     const encounterId = req.params.encounterId;
     const { Encounter } = models;
     req.checkPermission('create', 'Medication');
-    const data = await medicationInputSchema.parseAsync(req.body);
+    const { sendToPharmacy, prescriptionType, ...data } =
+      await ENCOUNTER_MEDICATION_INPUT_SCHEMA.parseAsync(req.body);
 
     await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
+
+    if (sendToPharmacy) {
+      await checkPharmacyOrderPermission(req, [data.medicationId]);
+    }
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -212,6 +152,15 @@ medication.post(
         models,
         settings: req.settings,
       });
+      if (sendToPharmacy) {
+        await createPharmacyOrderForPrescription({
+          models,
+          encounter,
+          prescription,
+          prescriptionType,
+          orderingClinicianId: data.prescriberId,
+        });
+      }
       return prescription;
     });
 
@@ -251,7 +200,7 @@ medication.post(
     const result = await req.db.transaction(async () => {
       const prescriptions = [];
       for (const medication of medicationSet) {
-        const data = await medicationInputSchema.parseAsync(medication);
+        const data = await MEDICATION_INPUT_SCHEMA.parseAsync(medication);
         const prescription = await createEncounterPrescription({
           encounter,
           data,
@@ -408,8 +357,6 @@ medication.post(
       Prescription,
       PatientOngoingPrescription,
       EncounterPrescription,
-      PharmacyOrder,
-      PharmacyOrderPrescription,
       Location,
       Department,
     } = models;
@@ -550,7 +497,7 @@ medication.post(
 
     const currentDateTime = getCurrentDateTimeString();
 
-    const result = await db.transaction(async transaction => {
+    const result = await db.transaction(async () => {
       // Create the automatic encounter
       const encounter = await Encounter.create(
         {
@@ -564,7 +511,6 @@ medication.post(
           locationId: automaticEncounterLocationId,
           departmentId: automaticEncounterDepartmentId,
         },
-        { transaction },
       );
 
       // Automatically add an invoice
@@ -573,7 +519,6 @@ medication.post(
         encounter.encounterType,
         encounter.startDate,
         facilitySettings,
-        { transaction },
       );
       if (invoice) {
         await models.Invoice.addEncounterFee(
@@ -595,7 +540,7 @@ medication.post(
 
         // We only start decrementing repeats after the first send.
         if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+          await originalPrescription.update({ repeats: repeats - 1 });
         }
 
         // Create a new prescription with the original details but updated quantity and repeats
@@ -609,7 +554,6 @@ medication.post(
             repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
-          { transaction },
         );
 
         // Link prescription to encounter
@@ -619,39 +563,29 @@ medication.post(
             prescriptionId: newPrescription.id,
             isSelectedForDischarge: true,
           },
-          { transaction },
         );
 
         newPrescriptions.push(newPrescription);
       }
 
-      // Create pharmacy order
-      const pharmacyOrder = await PharmacyOrder.create(
-        {
-          orderingClinicianId,
-          encounterId: encounter.id,
-          comments,
-          isDischargePrescription: true, // Always outpatient/discharge for ongoing medications
-          date: currentDateTime,
-          facilityId,
-        },
-        { transaction },
-      );
-
-      await PharmacyOrderPrescription.bulkCreate(
-        newPrescriptions.map((prescription, index) => {
+      const pharmacyOrder = await createPharmacyOrder({
+        models,
+        encounterId: encounter.id,
+        facilityId,
+        orderingClinicianId,
+        comments,
+        isDischargePrescription: true, // Always outpatient/discharge for ongoing medications
+        date: currentDateTime,
+        lines: newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
-          const requestData = prescriptionMap.get(originalPrescription.id);
           return {
-            pharmacyOrderId: pharmacyOrder.id,
             prescriptionId: prescription.id,
             ongoingPrescriptionId: originalPrescription.id,
-            quantity: requestData.quantity,
+            quantity: prescriptionMap.get(originalPrescription.id).quantity,
             repeats: originalPrescription.repeats ?? 0,
           };
         }),
-        { transaction },
-      );
+      });
 
       return {
         encounter,

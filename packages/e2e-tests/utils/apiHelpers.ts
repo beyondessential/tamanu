@@ -275,22 +275,36 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
-// Fetches the id of the first available drug. When a facilityId is given the suggester excludes
-// drugs unavailable at that facility, matching the real prescribing UI. Otherwise the row click
-// in the medication table is a no-op (the pane ignores clicks on unavailable medications) and the
-// details modal never opens.
-const fetchFirstDrugId = async (api: APIRequestContext, facilityId?: string): Promise<string> => {
+/**
+ * Drugs from reference data, for tests that need a known medication name or several distinct
+ * medications (e.g. one sent to pharmacy on discharge and one left behind).
+ *
+ * When a facilityId is given the suggester excludes drugs unavailable at that facility, matching
+ * the real prescribing UI. Otherwise the row click in the medication table is a no-op (the pane
+ * ignores clicks on unavailable medications) and the details modal never opens.
+ */
+export const getDrugSuggestions = async (
+  api: APIRequestContext,
+  count = 1,
+  facilityId?: string,
+): Promise<{ id: string; name: string }[]> => {
   const facilityParam = facilityId ? `&facilityId=${facilityId}` : '';
-  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=1${facilityParam}`);
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=${count}${facilityParam}`);
   const suggestResponse = await api.get(suggestUrl);
   if (!suggestResponse.ok()) {
     throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
   }
-  const medications = await suggestResponse.json();
-  const medicationId = medications[0]?.id;
-  if (!medicationId) throw new Error('No medications found in drug reference data');
-  return medicationId;
+  const drugs = await suggestResponse.json();
+  if (drugs.length < count) {
+    throw new Error(
+      `Expected ${count} drugs in reference data, found ${drugs.length}. Check provisioning.`,
+    );
+  }
+  return drugs;
 };
+
+const fetchFirstDrugId = async (api: APIRequestContext, facilityId?: string): Promise<string> =>
+  (await getDrugSuggestions(api, 1, facilityId))[0].id;
 
 export const createEncounterPrescriptionViaApi = async (
   api: APIRequestContext,
@@ -304,7 +318,7 @@ export const createEncounterPrescriptionViaApi = async (
   }> = {},
 ) => {
   const user = await getUser(api);
-  const medicationId = await fetchFirstDrugId(api, facilityId);
+  const medicationId = overrides.medicationId ?? (await fetchFirstDrugId(api, facilityId));
 
   const now = new Date();
   const dateString = now.toISOString().substring(0, 10);
