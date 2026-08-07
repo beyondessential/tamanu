@@ -17,6 +17,7 @@ export * from './provision';
 export * from './rebuildSyncLookup';
 export * from './removeDuplicatedDischarges';
 export * from './report';
+export * from './rollbackBlobBackfill';
 export * from './shell';
 export * from './startAll';
 export * from './startApi';
