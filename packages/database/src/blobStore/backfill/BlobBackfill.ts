@@ -1,8 +1,8 @@
+import { Readable } from 'node:stream';
 import { QueryTypes, type Sequelize } from 'sequelize';
 
 import { pauseAudit } from '../../utils/audit/pauseAudit';
 import type { BlobStore } from '../BlobStore';
-import { readByteaStream, writeByteaFromStream } from './byteaChunks';
 
 // Tables whose rows hold binary content directly. Both gain a hash and give up
 // their bytes; nothing else in the schema stores blobs inline.
@@ -26,6 +26,13 @@ export interface BlobBackfillOptions {
 // idempotent and derives its own work from the data, so a run that dies part
 // way through resumes simply by running again: a row still holding bytes has
 // not been moved, and admission by hash absorbs a repeat.
+//
+// A single blob's bytes are handled whole rather than in slices. Attachment and
+// asset content is bounded by the upload limit and the rest of the system
+// already loads it whole; batching bounds the job's footprint by processing one
+// row at a time, not by splitting a row. Reading or writing a bytea in slices
+// would in fact be quadratic, since Postgres re-materialises the whole value per
+// slice.
 export class BlobBackfill {
   readonly #sequelize: Sequelize;
   readonly #blobStore: BlobStore;
@@ -112,15 +119,15 @@ export class BlobBackfill {
 
     let rewritten = 0;
     for (const { id } of rows) {
-      const source = readByteaStream({
-        sequelize: this.#sequelize,
-        // Entries hold the bytea as Postgres renders it into JSON: the hex
-        // format, `\x` then two characters per byte.
-        expression: `decode(substring(record_data->>'data' from 3), 'hex')`,
-        where: 'logs.changes WHERE id = $id',
-        bind: { id },
-      });
-      const { hash } = await this.#blobStore.put(source);
+      // Entries hold the bytea as Postgres renders it into JSON: the hex format,
+      // `\x` then two characters per byte. Decode once, here, rather than inside
+      // a streamed read, where the decode would repeat for every slice.
+      const entry = await this.#sequelize.query<{ content: Buffer }>(
+        `SELECT decode(substring(record_data->>'data' from 3), 'hex') AS content
+         FROM logs.changes WHERE id = $id`,
+        { bind: { id }, type: QueryTypes.SELECT, plain: true },
+      );
+      const { hash } = await this.#blobStore.put(Readable.from([entry!.content]));
 
       // logs.changes carries no triggers, so this rewrite logs nothing itself.
       const updated = await this.#sequelize.query<{ id: string }>(
@@ -198,14 +205,15 @@ export class BlobBackfill {
 
   /**
    * Re-inflate the database from the store, reversing a backfill at any stage.
-   * The bytes land before the hash is dropped, so a row interrupted part way
-   * through still reads as backfilled and is restored again on the next pass.
+   * A row that carries a hash has not been rolled back yet, whatever its data
+   * column holds, so selection keys only on the hash: bytes and hash move
+   * together in one update, leaving no state a resumed pass would skip.
    */
   async rollbackReferenceRows(tableName: ReferenceTable, batchSize: number): Promise<number> {
     const rows = await this.#sequelize.query<{ id: string; hash: string }>(
       `
         SELECT id, hash FROM ${tableName}
-        WHERE hash IS NOT NULL AND data IS NULL
+        WHERE hash IS NOT NULL
         ORDER BY id
         LIMIT :batchSize
       `,
@@ -214,19 +222,15 @@ export class BlobBackfill {
 
     let restored = 0;
     for (const { id, hash } of rows) {
-      const source = await this.#blobStore.get(hash);
-      await writeByteaFromStream({
-        sequelize: this.#sequelize,
-        table: tableName,
-        column: 'data',
-        id,
-        source,
-      });
+      const content = await this.#readWholeBlob(hash);
+      // One update sets the bytes and drops the hash together, so the row is
+      // never observable carrying both or neither, and no append rewrites a
+      // growing value slice by slice.
       const updated = await this.#sequelize.transaction(async () => {
         await pauseAudit(this.#sequelize);
         return await this.#sequelize.query<{ id: string }>(
-          `UPDATE ${tableName} SET hash = NULL WHERE id = $id RETURNING id`,
-          { bind: { id }, type: QueryTypes.SELECT },
+          `UPDATE ${tableName} SET data = $data, hash = NULL WHERE id = $id RETURNING id`,
+          { bind: { id, data: content }, type: QueryTypes.SELECT },
         );
       });
       restored += updated.length;
@@ -290,17 +294,15 @@ export class BlobBackfill {
   }
 
   async #admitRowContent(tableName: ReferenceTable, id: string) {
-    const source = readByteaStream({
-      sequelize: this.#sequelize,
-      expression: 'data',
-      where: `${tableName} WHERE id = $id`,
-      bind: { id },
-    });
-    return await this.#blobStore.put(source);
+    const row = await this.#sequelize.query<{ data: Buffer }>(
+      `SELECT data FROM ${tableName} WHERE id = $id`,
+      { bind: { id }, type: QueryTypes.SELECT, plain: true },
+    );
+    return await this.#blobStore.put(Readable.from([row!.data]));
   }
 
-  // A changelog entry's snapshot is one JSON value, so its content has to be
-  // whole to go back in; bounded by the largest single blob, not the batch.
+  // A restored value goes back as one bytea, so it is read whole; bounded by a
+  // single blob's size, which the upload limit caps.
   async #readWholeBlob(hash: string): Promise<Buffer> {
     const chunks: Buffer[] = [];
     for await (const chunk of await this.#blobStore.get(hash)) {

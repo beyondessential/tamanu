@@ -164,7 +164,7 @@ describe('Blob backfill', () => {
       expect(row.data).toBeNull();
     });
 
-    it('moves content larger than a single read slice intact', async () => {
+    it('moves multi-megabyte content intact', async () => {
       const content = Buffer.alloc(9 * 1024 * 1024);
       for (let i = 0; i < content.length; i++) content[i] = i % 251;
       const id = await insertAttachment(content);
@@ -377,7 +377,7 @@ describe('Blob backfill', () => {
       expect(row.data).toEqual(content);
     });
 
-    it('restores content larger than a single write slice intact', async () => {
+    it('restores multi-megabyte content intact', async () => {
       const content = Buffer.alloc(9 * 1024 * 1024);
       for (let i = 0; i < content.length; i++) content[i] = (i * 7) % 251;
       const id = await insertAttachment(content);
@@ -386,6 +386,25 @@ describe('Blob backfill', () => {
       await backfill.rollbackReferenceRows('attachments', 10);
 
       expect((await rowOf('attachments', id)).data).toEqual(content);
+    });
+
+    it('restores a row left carrying both a hash and stale bytes', async () => {
+      // The shape a crashed earlier rollback attempt would leave behind. The
+      // hash is what marks the row as not yet rolled back, so this must restore
+      // rather than skip, whatever the data column happens to hold.
+      const content = Buffer.from('the authoritative bytes');
+      const id = await insertAttachment(content);
+      await backfill.moveReferenceRows('attachments', 10);
+      await sequelize.query(`UPDATE attachments SET data = '\\x00'::bytea WHERE id = $id`, {
+        bind: { id },
+      });
+
+      const restored = await backfill.rollbackReferenceRows('attachments', 10);
+
+      expect(restored).toBe(1);
+      const row = await rowOf('attachments', id);
+      expect(row.hash).toBeNull();
+      expect(row.data).toEqual(content);
     });
 
     it('restores a changelog entry’s byte snapshot', async () => {
