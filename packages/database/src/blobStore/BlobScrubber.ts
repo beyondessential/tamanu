@@ -126,17 +126,18 @@ export class BlobScrubber {
   // Least-recently-scrubbed first, never-scrubbed ahead of all: a blob admitted
   // today is verified before one checked last week, and the whole population is
   // covered within the target cycle without tracking a cursor across passes.
-  // Blobs already in a recorded fault state are skipped: quarantined and absent
-  // are terminal until a repair, and a repair comes through admission (which
-  // resets the state to verified), never through re-verifying the same fault and
-  // re-escalating it every pass.
+  //
+  // Quarantined blobs are skipped: their bytes are known-bad and on disk, so
+  // re-hashing them every pass would burn the byte budget to re-learn what is
+  // already recorded. Absent blobs are kept in the scan but treated specially:
+  // re-checking one is cheap (its bytes are missing, so there is nothing to
+  // hash) and it is how the scrub notices the bytes coming back — a backup
+  // restore, say. While an absent blob stays missing it is neither re-reported
+  // nor re-repaired, only re-stamped so it yields its slot to unchecked blobs;
+  // once its bytes return and verify, it flips back to verified.
   async #verificationPass(limits: ScrubPassLimits, result: ScrubResult): Promise<void> {
     const candidates = await this.#models.Blob.findAll({
-      where: {
-        integrityState: {
-          [Op.notIn]: [BLOB_INTEGRITY_STATES.QUARANTINED, BLOB_INTEGRITY_STATES.ABSENT],
-        },
-      },
+      where: { integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.QUARANTINED } },
       order: [
         ['lastScrubbedAt', 'ASC NULLS FIRST'],
         ['createdAt', 'ASC'],
@@ -148,20 +149,36 @@ export class BlobScrubber {
     // the end rather than one write each, since a pass verifies up to maxBlobs.
     // A fault is rarer and its state is written through the heal path per blob.
     const verified: string[] = [];
-    const stampVerified = () => this.#blobStore.recordVerified(verified);
+    // Absent blobs that are still missing: their state does not change, but
+    // their scrub time does, so they don't monopolise the next pass's scan.
+    const stillAbsent: string[] = [];
+    const flush = async () => {
+      await this.#blobStore.recordVerified(verified);
+      await this.#blobStore.touchScrubbed(stillAbsent);
+    };
 
     for (const blob of candidates) {
       if (result.bytesRead >= limits.maxBytes) {
         result.ratelimited = true;
-        await stampVerified();
+        await flush();
         return;
       }
       const outcome = await this.#blobStore.verify(blob.hash);
       result.bytesRead += outcome.size;
 
       if (outcome.held && outcome.matches) {
+        // Covers recovery: an absent blob whose bytes have returned verifies
+        // here and is stamped back to verified along with the happy path.
         verified.push(blob.hash);
         result.verified += 1;
+        continue;
+      }
+
+      if (!outcome.held && blob.integrityState === BLOB_INTEGRITY_STATES.ABSENT) {
+        // Already recorded absent and still missing: re-checking found no
+        // change, so don't re-escalate or re-attempt a repair — just note it
+        // was looked at.
+        stillAbsent.push(blob.hash);
         continue;
       }
 
@@ -173,7 +190,7 @@ export class BlobScrubber {
       });
     }
 
-    await stampVerified();
+    await flush();
     result.ratelimited ||= candidates.length === limits.maxBlobs;
   }
 
