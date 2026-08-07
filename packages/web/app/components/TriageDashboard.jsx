@@ -1,12 +1,13 @@
-import React from 'react';
 import AccessTime from '@mui/icons-material/AccessTime';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import styled from 'styled-components';
 
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { TranslatedText, useApi, useDateTime, useSettings } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { getTriageWaitTime, splitDurationHoursMinutes } from '../utils/triageWaitTime';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 
 function useTriageQuery() {
@@ -19,16 +20,16 @@ function useTriageQuery() {
   });
 }
 
-const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds, now) => {
+export const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds, now) => {
   if (categoryData.length === 0) {
     return 0;
   }
 
-  const triageTimes = categoryData
-    .map(triage => storedDateTimeToEpochMilliseconds(triage.triageTime))
+  const waitTimes = categoryData
+    .map(triage => getTriageWaitTime(triage, storedDateTimeToEpochMilliseconds, now))
     .filter(time => time != null);
-  const summedWaitTime = triageTimes.reduce((prev, curr) => prev + Math.round(now - curr), 0);
-  return summedWaitTime / triageTimes.length;
+  const summedWaitTime = waitTimes.reduce((prev, curr) => prev + curr, 0);
+  return summedWaitTime / waitTimes.length;
 };
 
 const useTriageData = storedDateTimeToEpochMilliseconds => {
@@ -56,9 +57,6 @@ const useTriageData = storedDateTimeToEpochMilliseconds => {
   });
 };
 
-const MINUTE = 60 * 1000;
-const HOUR = 60 * MINUTE;
-
 const Row = styled.div`
   display: flex;
   align-items: center;
@@ -79,8 +77,7 @@ const FooterTime = styled(FooterLabel)`
 `;
 
 const CardFooter = ({ averageWaitTime, color }) => {
-  const hours = Math.floor(averageWaitTime / HOUR);
-  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
+  const { hours, minutes } = splitDurationHoursMinutes(averageWaitTime);
   const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
   const averageHrs = pluralise(hours, 'hr');
   const averageMins = pluralise(minutes, 'min');
