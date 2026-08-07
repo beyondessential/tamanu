@@ -17,6 +17,11 @@ export const BLOB_FAULTS = {
 
 export type BlobFault = (typeof BLOB_FAULTS)[keyof typeof BLOB_FAULTS];
 
+// Hashes checked for registration per query while reconciling the store against
+// the registry, so a store with many files costs a query per batch rather than
+// one per file.
+const RECONCILE_EXISTENCE_BATCH = 500;
+
 export interface BlobFaultReport {
   hash: string;
   fault: BlobFault;
@@ -121,9 +126,17 @@ export class BlobScrubber {
   // Least-recently-scrubbed first, never-scrubbed ahead of all: a blob admitted
   // today is verified before one checked last week, and the whole population is
   // covered within the target cycle without tracking a cursor across passes.
+  // Blobs already in a recorded fault state are skipped: quarantined and absent
+  // are terminal until a repair, and a repair comes through admission (which
+  // resets the state to verified), never through re-verifying the same fault and
+  // re-escalating it every pass.
   async #verificationPass(limits: ScrubPassLimits, result: ScrubResult): Promise<void> {
     const candidates = await this.#models.Blob.findAll({
-      where: { integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.QUARANTINED } },
+      where: {
+        integrityState: {
+          [Op.notIn]: [BLOB_INTEGRITY_STATES.QUARANTINED, BLOB_INTEGRITY_STATES.ABSENT],
+        },
+      },
       order: [
         ['lastScrubbedAt', 'ASC NULLS FIRST'],
         ['createdAt', 'ASC'],
@@ -160,48 +173,88 @@ export class BlobScrubber {
   // The store's own contents, so bytes no registry entry names are found. Such
   // a blob is otherwise permanent: never served, and never reclaimed, since a
   // facility evicts against a budget derived from the registry.
+  //
+  // The walk covers the whole store each pass, because an orphan can sit under
+  // any fan-out prefix and a bounded walk without a cursor would only ever see
+  // the same slice. What is kept off the clinical path is the cost that scales:
+  // registration is checked a batch of hashes at a time rather than one query
+  // per file, and the expensive part — re-hashing an orphan's content — is
+  // bounded by the same blob and byte budget as verification, with the rest
+  // deferred to a later pass (an unregistered blob stays found until adopted).
   async #reconciliationPass(limits: ScrubPassLimits, result: ScrubResult): Promise<void> {
-    let examined = 0;
-    for await (const hash of this.#blobStore.storedHashes()) {
-      if (examined >= limits.maxBlobs || result.bytesRead >= limits.maxBytes) {
-        result.ratelimited = true;
+    let batch: string[] = [];
+    let orphansExamined = 0;
+    let stop = false;
+
+    const drainBatch = async (): Promise<void> => {
+      if (batch.length === 0) {
         return;
       }
-      if (await this.#models.Blob.findOne({ where: { hash }, attributes: ['id'] })) {
-        continue;
+      const hashes = batch;
+      batch = [];
+      const registered = new Set(
+        (
+          await this.#models.Blob.findAll({ where: { hash: hashes }, attributes: ['hash'] })
+        ).map(row => row.hash),
+      );
+      for (const hash of hashes) {
+        if (registered.has(hash)) {
+          continue;
+        }
+        if (orphansExamined >= limits.maxBlobs || result.bytesRead >= limits.maxBytes) {
+          // Budget spent on found orphans; the rest stay unregistered on disk
+          // and are found again next pass, so coverage is not lost.
+          result.ratelimited = true;
+          stop = true;
+          return;
+        }
+        orphansExamined += 1;
+        await this.#reconcileOrphan(hash, result);
       }
-      examined += 1;
+    };
 
-      // Verified against the hash its own location encodes: bytes that match
-      // are usable content whatever left them unregistered, and bytes that do
-      // not are corrupt in the ordinary way.
-      const outcome = await this.#blobStore.verify(hash);
-      result.bytesRead += outcome.size;
-      if (!outcome.held) {
-        // Removed between the walk and the read; nothing to reconcile.
-        continue;
+    for await (const hash of this.#blobStore.storedHashes()) {
+      batch.push(hash);
+      if (batch.length >= RECONCILE_EXISTENCE_BATCH) {
+        await drainBatch();
+        if (stop) {
+          return;
+        }
       }
-      // Registered either way. Bytes that match become usable content; bytes
-      // that do not need a registry row before they can be quarantined, which
-      // is what retains them for investigation and keeps them from being
-      // served. Both beat leaving them stranded on disk, where nothing serves
-      // them and nothing reclaims them.
-      await this.#blobStore.adopt(hash, outcome.size);
-      if (!outcome.matches) {
-        await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
-        result.faults += 1;
-        await this.#reportFault({
-          hash,
-          fault: BLOB_FAULTS.CORRUPT,
-          blob: await this.#models.Blob.findOne({ where: { hash } }),
-        });
-        continue;
-      }
-
-      await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.VERIFIED);
-      result.adopted += 1;
-      this.#log.info('BlobScrubber: adopted an unregistered blob', { hash, size: outcome.size });
     }
+    await drainBatch();
+  }
+
+  async #reconcileOrphan(hash: string, result: ScrubResult): Promise<void> {
+    // Verified against the hash its own location encodes: bytes that match are
+    // usable content whatever left them unregistered, and bytes that do not are
+    // corrupt in the ordinary way.
+    const outcome = await this.#blobStore.verify(hash);
+    result.bytesRead += outcome.size;
+    if (!outcome.held) {
+      // Removed between the walk and the read; nothing to reconcile.
+      return;
+    }
+    // Registered either way. Bytes that match become usable content; bytes that
+    // do not need a registry row before they can be quarantined, which is what
+    // retains them for investigation and keeps them from being served. Both beat
+    // leaving them stranded on disk, where nothing serves them and nothing
+    // reclaims them.
+    await this.#blobStore.adopt(hash, outcome.size);
+    if (!outcome.matches) {
+      await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      result.faults += 1;
+      await this.#reportFault({
+        hash,
+        fault: BLOB_FAULTS.CORRUPT,
+        blob: await this.#models.Blob.findOne({ where: { hash } }),
+      });
+      return;
+    }
+
+    await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.VERIFIED);
+    result.adopted += 1;
+    this.#log.info('BlobScrubber: adopted an unregistered blob', { hash, size: outcome.size });
   }
 
   // spec: SCRUB
