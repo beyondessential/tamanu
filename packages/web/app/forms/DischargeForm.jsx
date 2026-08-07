@@ -273,9 +273,9 @@ export const DischargeForm = ({
   );
 
   const activeMedicationHashes = new Set(activeMedications.map(createPrescriptionHash));
-  const ongoingMedications = (ongoingPrescriptions?.data || [])
-    .filter(p => !p.discontinued)
-    .filter(p => !activeMedicationHashes.has(createPrescriptionHash(p)));
+  const ongoingMedications = (ongoingPrescriptions?.data || []).filter(
+    p => !p.discontinued && !activeMedicationHashes.has(createPrescriptionHash(p)),
+  );
   const medicationInitialValues = getMedicationsInitialValues({
     encounterMedications: activeMedications,
     ongoingMedications,
