@@ -390,11 +390,6 @@ export class SurveyResponse extends Model {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
 
-    // figure out if its a vital survey response
-    const vitalsSurvey = await models.Survey.getVitalsSurvey();
-    // use optional chaining because vitals survey might not exist
-    const isVitalSurvey = surveyId === vitalsSurvey?.id;
-
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
     const calculatedAnswers = runCalculations(questions, answers);
@@ -451,18 +446,10 @@ export class SurveyResponse extends Model {
         continue;
       }
 
-      const answer = await models.SurveyResponseAnswer.create({
+      await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
         responseId: record.id,
-      });
-      if (!isVitalSurvey || body === '') continue;
-      // Generate initial vital log
-      await models.VitalLog.create({
-        date: record.endTime || getCurrentDateTimeString(),
-        newValue: body,
-        recordedById: responseData.userId,
-        answerId: answer.id,
       });
     }
 

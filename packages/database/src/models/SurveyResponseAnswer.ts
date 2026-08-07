@@ -7,13 +7,23 @@ import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
-import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
 } from '../sync/buildEncounterLinkedLookupFilter';
+
+// The changelog trigger reads the reason once, at commit, so it belongs to the whole
+// transaction rather than to one write: every entry the transaction commits carries the
+// last reason set, and outside a transaction it expires before the trigger ever sees it.
+const setReasonForChange = async (sequelize: any, reasonForChange?: string) => {
+  if (!reasonForChange) return;
+  if (!sequelize.isInsideTransaction()) {
+    throw new Error('a reason for change must be recorded inside a transaction');
+  }
+  await sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+};
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;
@@ -145,12 +155,7 @@ export class SurveyResponseAnswer extends Model {
 
   // To be called after creating/updating a vitals survey response answer. Checks if
   // said answer is used in calculated questions and updates them accordingly.
-  async upsertCalculatedQuestions(data: {
-    date: string;
-    reasonForChange: string;
-    user: ModelProperties<User>;
-    isVital: boolean;
-  }) {
+  async upsertCalculatedQuestions(data: { reasonForChange: string }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
     }
@@ -186,7 +191,7 @@ export class SurveyResponseAnswer extends Model {
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
 
-    const { date, reasonForChange, user, isVital } = data;
+    const { reasonForChange } = data;
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
@@ -204,42 +209,36 @@ export class SurveyResponseAnswer extends Model {
       const existingCalculatedAnswer = answers.find(
         answer => answer.dataElementId === component.dataElement.id,
       );
-      const previousCalculatedValue = existingCalculatedAnswer?.body;
-      let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
         await existingCalculatedAnswer.updateWithReasonForChange(
           newCalculatedValue,
           reasonForChange,
         );
       } else {
-        newCalculatedAnswer = await models.SurveyResponseAnswer.create({
-          dataElementId: component.dataElement.id,
-          body: newCalculatedValue,
-          responseId: surveyResponse.id,
-        });
-      }
-
-      if (isVital) {
-        await models.VitalLog.create({
-          date,
+        await models.SurveyResponseAnswer.createWithReasonForChange(
+          {
+            dataElementId: component.dataElement.id,
+            body: newCalculatedValue,
+            responseId: surveyResponse.id,
+          },
           reasonForChange,
-          previousValue: previousCalculatedValue || null,
-          newValue: newCalculatedValue,
-          recordedById: user.id,
-          answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
-        });
+        );
       }
     }
     return this;
   }
 
-  // This is to avoid affecting other audit logs that might be created in the same transaction
+  static async createWithReasonForChange(
+    values: Partial<ModelProperties<SurveyResponseAnswer>>,
+    reasonForChange?: string,
+  ) {
+    await setReasonForChange(this.sequelize, reasonForChange);
+    return this.create(values);
+  }
+
   async updateWithReasonForChange(newValue: string, reasonForChange: string) {
-    if (reasonForChange) {
-      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
-    }
+    await setReasonForChange(this.sequelize, reasonForChange);
     await this.update({ body: newValue });
-    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, null);
     return this;
   }
 }

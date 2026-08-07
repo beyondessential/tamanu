@@ -1686,7 +1686,7 @@ describe('Encounter', () => {
           },
           survey: {
             id: 'vitals-survey',
-            survey_type: 'vitals',
+            surveyType: 'vitals',
           },
           questions: [
             {
@@ -1715,7 +1715,6 @@ describe('Encounter', () => {
 
       describe('basic vital features', () => {
         beforeEach(async () => {
-          await models.VitalLog.truncate({});
           await models.SurveyResponseAnswer.truncate({});
           await models.SurveyResponse.truncate({});
         });
@@ -1770,13 +1769,69 @@ describe('Encounter', () => {
                     [submissionDate]: expect.objectContaining({
                       id: expect.any(String),
                       body: value.toString(),
-                      logs: null,
+                      // the answer's changelog insert entry is the initial recording
+                      logs: [
+                        expect.objectContaining({
+                          newValue: value.toString(),
+                          reasonForChange: null,
+                          userDisplayName: expect.any(String),
+                        }),
+                      ],
                     }),
                   },
                 }),
               ),
             ),
           );
+
+          // log dates render in the primary timezone like every other datestring,
+          // so the insert entry's date sits within moments of the submission
+          const heartRate = body.data.find(d => d.dataElementId === 'pde-PatientVitalsHeartRate');
+          const logDate = heartRate.records[submissionDate].logs[0].date;
+          expect(Math.abs(new Date(logDate) - new Date(submissionDate))).toBeLessThan(120_000);
+        });
+
+        it('should show the full history after a vital is edited', async () => {
+          await models.Setting.set('features.enableVitalEdit', true);
+          const submissionDate = getCurrentDateTimeString();
+          await app.post('/api/surveyResponse').send({
+            surveyId: 'vitals-survey',
+            patientId: vitalsPatient.id,
+            startTime: submissionDate,
+            endTime: submissionDate,
+            answers: {
+              'pde-PatientVitalsDate': submissionDate,
+              'pde-PatientVitalsHeartRate': 111,
+            },
+            facilityId,
+          });
+          const answer = await models.SurveyResponseAnswer.findOne({
+            where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '111' },
+          });
+
+          const editResult = await app.put(`/api/surveyResponseAnswer/vital/${answer.id}`).send({
+            reasonForChange: 'entered-in-error',
+            newValue: 222,
+            date: getCurrentDateTimeString(),
+            facilityId,
+          });
+          expect(editResult).toHaveSucceeded();
+
+          const { body } = await app.get(`/api/encounter/${vitalsEncounter.id}/vitals`);
+          const heartRate = body.data.find(d => d.dataElementId === 'pde-PatientVitalsHeartRate');
+          const { logs } = heartRate.records[submissionDate];
+          expect(logs).toEqual([
+            expect.objectContaining({
+              newValue: '111',
+              reasonForChange: null,
+              userDisplayName: expect.any(String),
+            }),
+            expect.objectContaining({
+              newValue: '222',
+              reasonForChange: 'entered-in-error',
+              userDisplayName: expect.any(String),
+            }),
+          ]);
         });
       });
 

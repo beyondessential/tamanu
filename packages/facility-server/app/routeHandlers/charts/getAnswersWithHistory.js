@@ -1,7 +1,12 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { subject } from '@casl/ability';
-import { VITALS_DATA_ELEMENT_IDS, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import {
+  VITALS_DATA_ELEMENT_IDS,
+  CHARTING_DATA_ELEMENT_IDS,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 // Route handler factory for getting survey response answers with edit history
 export const fetchAnswersWithHistory = (options = {}) =>
@@ -82,46 +87,44 @@ async function getAnswersWithHistory(req, options = {}) {
 
   const { page = 0, rowsPerPage = isVitals ? 10 : 50 } = query;
 
-  const vitalsHistorySelect = `
-    SELECT
-      vl.answer_id,
-      ARRAY_AGG((
-        JSONB_BUILD_OBJECT(
-          'newValue', vl.new_value,
-          'reasonForChange', vl.reason_for_change,
-          'date', vl.date,
-          'userDisplayName', u.display_name
-        )
-      )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
-      LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
-      LEFT JOIN users u ON u.id = vl.recorded_by_id
-    WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
-      AND sr.deleted_at IS NULL
-    GROUP BY vl.answer_id
-  `;
-
-  const chartHistorySelect = `
+  // An insert entry authored while applying a sync carries no audit user and the sync time,
+  // so the original recording reads from the response, which has the clinician and observation time.
+  const historySelect = `
     SELECT
       lc.record_id as answer_id,
       ARRAY_AGG((
         JSONB_BUILD_OBJECT(
           'newValue', lc.record_data->>'body',
           'reasonForChange', lc.reason,
-          'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
-          'userDisplayName', u.display_name
+          'date', COALESCE(
+            CASE
+              WHEN lc.record_created_at = lc.record_updated_at
+                AND lc.updated_by_user_id = :systemUserId
+              THEN date.body
+            END,
+            TO_CHAR(lc.logged_at AT TIME ZONE :primaryTimeZone, 'YYYY-MM-DD HH24:MI:SS')
+          ),
+          'userDisplayName', COALESCE(
+            CASE
+              WHEN lc.record_created_at = lc.record_updated_at
+                AND lc.updated_by_user_id = :systemUserId
+              THEN recorder.display_name
+            END,
+            u.display_name
+          )
         )
-      )) logs
+      ) ORDER BY lc.logged_at, lc.created_at) logs
     FROM survey_response_answers sra
       INNER JOIN survey_responses sr ON sr.id = sra.response_id
+      INNER JOIN date ON date.response_id = sr.id
       ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
       LEFT JOIN logs.changes lc ON lc.record_id = sra.id
       LEFT JOIN users u ON u.id = lc.updated_by_user_id
+      LEFT JOIN users recorder ON recorder.id = sr.user_id
     WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
       AND sr.deleted_at IS NULL
       AND lc.table_name = 'survey_response_answers'
+      AND lc.migration_context IS NULL
     GROUP BY lc.record_id
   `;
 
@@ -142,7 +145,7 @@ async function getAnswersWithHistory(req, options = {}) {
         ORDER BY sra.body ${order} LIMIT :limit OFFSET :offset
       ),
       history AS (
-        ${isVitals ? vitalsHistorySelect : chartHistorySelect}
+        ${historySelect}
       )
 
       SELECT
@@ -169,6 +172,8 @@ async function getAnswersWithHistory(req, options = {}) {
         dateDataElement,
         surveyId,
         instanceId,
+        primaryTimeZone: getPrimaryTimeZone(),
+        systemUserId: SYSTEM_USER_UUID,
       },
       type: QueryTypes.SELECT,
     },

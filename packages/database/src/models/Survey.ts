@@ -89,12 +89,6 @@ export class Survey extends Model {
     });
   }
 
-  static getVitalsSurvey() {
-    return this.findOne({
-      where: { surveyType: SURVEY_TYPES.VITALS },
-    });
-  }
-
   static async getResponsePermissionCheck(id: string) {
     const survey = await this.findByPk(id);
     if (!survey || survey.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {

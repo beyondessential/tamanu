@@ -20,7 +20,6 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
-import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
@@ -210,17 +209,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
         setNote('Attaching answers...');
 
-        // figure out if its a vital survey response
-        let vitalsSurvey;
-        try {
-          vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
-        } catch (e) {
-          console.error(`Errored while trying to get vitals survey: ${e}`);
-        }
-
-        // use optional chaining because vitals survey might not exist
-        const isVitalSurvey = surveyId === vitalsSurvey?.id;
-
         const componentsByCode = new Map(
           components.map((c) => [c.dataElement.code, c]),
         );
@@ -243,20 +231,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           }
 
           setNote(`Attaching answer for ${dataElement.id}...`);
-          const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
+          await SurveyResponseAnswer.createAndSaveOne({
             dataElement: dataElement.id,
             body,
             response: responseRecord.id,
           });
 
-          if (!isVitalSurvey || body === '') continue;
-          setNote(`Attaching initial vital log for ${answerRecord.id}...`);
-          await VitalLog.createAndSaveOne({
-            date: responseRecord.endTime,
-            newValue: body,
-            recordedBy: userId,
-            answer: answerRecord.id,
-          });
         }
         setNote('Writing patient data');
 
