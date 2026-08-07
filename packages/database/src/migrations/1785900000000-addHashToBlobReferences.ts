@@ -7,6 +7,11 @@ const REFERENCE_TABLES = ['attachments', 'assets'] as const;
 // columns are nullable through the backfill: a row holds bytes until it is
 // moved and a hash afterwards, and the two forms coexist until the backfill
 // completes.
+//
+// No matching mobile (TypeORM) migration: mobile has no `assets` table, and its
+// attachments are push-only (PUSH_TO_CENTRAL), so a backfilled hash-only row
+// never syncs down to a device. Mobile's own move to hash-carrying blobs is
+// card L2.
 export async function up(query: QueryInterface): Promise<void> {
   for (const tableName of REFERENCE_TABLES) {
     await query.addColumn(tableName, 'hash', {

@@ -87,6 +87,29 @@ tier (there is no eviction there, and no `evictCache` hook), so it is inert.
 Facility seeding wants `cache` anyway: pulled asset content is evictable and
 refetchable.
 
+## Robustness of the per-row reads
+
+Each row's content is read individually after the batch scan, so a reference or
+changelog row can vanish in between (attachments hard-delete after push). Both
+per-row reads tolerate a missing/emptied row and skip it rather than dereference
+null and crash the run. `countRemaining` counts with the same predicate the
+pending scan uses (`data IS NOT NULL AND hash IS NULL`) so completion can't be
+held open by a row no pass would ever process. The task latches completion in
+memory once nothing remains — new writes carry only a hash, so the done state is
+permanent for the process and later ticks skip the changelog scan.
+
+## Changelog index: flagged, not added
+
+The changelog queries filter `logs.changes` on `table_name` and
+`record_data->>'data'`, and the historical changelog indexes were dropped
+upstream, so each batch seq-scans the table. A partial index would fix it, but
+building one on a large `logs.changes` in a transactional migration takes a long
+write-lock during upgrade, and this codebase has no `CREATE INDEX CONCURRENTLY`
+migration pattern to build it safely. Left out pending a decision on whether the
+lock cost at upgrade is acceptable, or whether to add a concurrent-index
+migration harness. The in-memory completion latch removes the *ongoing*
+post-completion scan cost regardless.
+
 ## Environment notes for whoever picks this up
 
 - A `DATABASE_URL` env var overrides `config/test.json5` through
