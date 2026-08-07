@@ -25,9 +25,9 @@ automated tests in `packages/central-server/__tests__/blobBackfill.test.js`,
 - [x] Seeding admits content and leaves the rows untouched (verifies spec: BKFL)
 - [x] Seeding walks pending rows by offset so a run terminates (verifies spec: BKFL)
 - [x] The facility ends up holding content under the hash central will send (verifies spec: BKFL)
-- [ ] An updated asset row arriving from central resolves against the seeded blob with no refetch (needs the transfer channel, F2)
-- [ ] An asset whose bytes were not seeded before its updated row arrives is content-pending and fetches on demand (needs the transfer channel, F2)
-- [ ] An attachment awaiting upload at upgrade becomes an outbox blob and pushes (needs the facility outbox, G2)
+- [ ] An updated asset row arriving from central resolves against the seeded blob with no refetch (needs the asset read path, K2)
+- [ ] An asset whose bytes were not seeded before its updated row arrives is content-pending and fetches on demand (needs the asset read path, K2)
+- [ ] An attachment awaiting upload at upgrade becomes an outbox blob and pushes (G2 landed the outbox, but `putOutbox` has no consumer until the attachment write path lands in J2)
 
 ## Changelog entries
 

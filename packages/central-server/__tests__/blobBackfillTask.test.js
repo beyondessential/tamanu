@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { QueryTypes } from 'sequelize';
 
-import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { BlobStore } from '@tamanu/database/blobStore';
 import { BlobBackfillTask } from '@tamanu/shared/tasks';
 
 import { createTestContext } from './utilities';
@@ -42,8 +42,11 @@ describe('BlobBackfillTask', () => {
       plain: true,
     });
 
-  const makeTask = overrides =>
-    new BlobBackfillTask(ctx, { schedule: '* * * * *', enabled: true, ...overrides });
+  const makeTask = (overrides, contextOverrides) =>
+    new BlobBackfillTask(
+      { ...ctx, settings: ctx.settings, ...contextOverrides },
+      { schedule: '* * * * *', enabled: true, ...overrides },
+    );
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -56,8 +59,7 @@ describe('BlobBackfillTask', () => {
   });
 
   beforeEach(async () => {
-    root = await fs.mkdtemp(path.join(os.tmpdir(), 'tamanu-backfill-task-'));
-    await models.Setting.set('blobStorage.root', root, SETTINGS_SCOPES.CENTRAL);
+    root = ctx.blobStore.root;
 
     await sequelize.query('DELETE FROM attachments');
     await sequelize.query('DELETE FROM assets');
@@ -67,17 +69,13 @@ describe('BlobBackfillTask', () => {
     await models.Blob.destroy({ where: {}, force: true });
   });
 
-  afterEach(async () => {
-    await fs.rm(root, { recursive: true, force: true });
-  });
-
-  it('builds its store from settings, so the root is where the setting points', async () => {
-    const content = Buffer.from('into the configured root');
+  it('admits into the server\u2019s own store rather than one of its own making', async () => {
+    const content = Buffer.from('into the server store');
     await insertAttachment(content);
 
     await makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 }).run();
 
-    const { digest } = { digest: hashOf(content).split(':')[1] };
+    const digest = hashOf(content).split(':')[1];
     const stored = path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4));
     await expect(fs.access(stored)).resolves.toBeUndefined();
   });
@@ -132,7 +130,7 @@ describe('BlobBackfillTask', () => {
   it('picks up where it left off when a run is cut short', async () => {
     for (let i = 0; i < 4; i++) await insertAttachment(Buffer.from(`document ${i}`));
     const task = makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 });
-    const backfill = await task.getBackfill();
+    const backfill = task.getBackfill();
     // One batch's worth, as though the process died straight afterwards.
     await backfill.moveReferenceRows('attachments', 2);
 
@@ -147,19 +145,23 @@ describe('BlobBackfillTask', () => {
 
   it('pauses instead of failing when the free-disk reserve is reached', async () => {
     const id = await insertAttachment(Buffer.from('no room for this'));
-    // A reserve no real volume can satisfy, so admission refuses. The store
-    // reads the reserve per check, so this applies without rebuilding it.
-    await models.Setting.set('blobStorage.freeDiskReserveGB', 1e9, SETTINGS_SCOPES.GLOBAL);
+    // A store whose volume cannot satisfy its reserve, so admission refuses.
+    const starvedStore = new BlobStore({
+      root: await fs.mkdtemp(path.join(os.tmpdir(), 'tamanu-backfill-starved-')),
+      models,
+      getFreeDiskReserveBytes: async () => 1024 ** 4,
+      statfs: async () => ({ bavail: 1, bsize: 1 }),
+    });
 
-    try {
-      const task = makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 });
-      await expect(task.run()).resolves.toBeUndefined();
+    const task = makeTask(
+      { batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 },
+      { blobStore: starvedStore },
+    );
+    await expect(task.run()).resolves.toBeUndefined();
 
-      const row = await rowOf('attachments', id);
-      expect(row.hash).toBeNull();
-      expect(row.data).not.toBeNull();
-    } finally {
-      await models.Setting.set('blobStorage.freeDiskReserveGB', 10, SETTINGS_SCOPES.GLOBAL);
-    }
+    const row = await rowOf('attachments', id);
+    expect(row.hash).toBeNull();
+    expect(row.data).not.toBeNull();
+    await fs.rm(starvedStore.root, { recursive: true, force: true });
   });
 });

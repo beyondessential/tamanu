@@ -1,4 +1,4 @@
-import { BlobBackfill, REFERENCE_TABLES, createBlobStore } from '@tamanu/database/blobStore';
+import { BlobBackfill, REFERENCE_TABLES } from '@tamanu/database/blobStore';
 import { InsufficientStorageError } from '@tamanu/errors';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -6,20 +6,11 @@ import { log } from '../services/logging';
 import { ScheduledTask } from './ScheduledTask';
 
 /**
- * Settings reach this task differently on each server, and that difference is
- * also what tells the two apart: central carries a single reader, while a
- * facility carries one per facility plus a global. The store root is a property
- * of the server's disk and this task is server-wide, so on a multi-facility
- * server the first facility's value applies, the same rule the other facility
- * scheduled tasks use.
+ * Which server this is running on, told by the shape of its settings: central
+ * carries a single reader, a facility carries one per facility plus a global.
  */
-function resolveServer(context) {
-  const { settings } = context;
-  if (typeof settings?.get === 'function') {
-    return { settings, isCentral: true };
-  }
-  const [facilityId] = Object.keys(settings ?? {}).filter(key => key !== 'global');
-  return { settings: facilityId ? settings[facilityId] : settings?.global, isCentral: false };
+function isCentralServer(context) {
+  return typeof context.settings?.get === 'function';
 }
 
 // spec: BKFL
@@ -36,33 +27,34 @@ export class BlobBackfillTask extends ScheduledTask {
     const conf = { ...context.schedules?.blobBackfill, ...overrideConfig };
     super(conf.schedule, log, conf.jitterTime, conf.enabled);
     this.config = conf;
-    this.models = context.models ?? context.store?.models;
     this.sequelize = context.sequelize ?? context.store?.sequelize;
+    // The server's own store, not one of this task's making: on a facility it
+    // carries the cache-eviction hook, so a backfill admission that runs the
+    // volume down to the reserve evicts cache instead of refusing.
+    this.blobStore = context.blobStore;
     // Only the server that owns a row may rewrite it. Attachment and asset
     // bytes live on central; a facility holds pulled copies whose updates
     // arrive through sync, so it seeds its store and leaves the rows alone.
-    const { settings, isCentral } = resolveServer(context);
-    this.settings = settings;
-    this.ownsRows = isCentral;
+    this.ownsRows = isCentralServer(context);
   }
 
   async countQueue() {
-    const backfill = await this.getBackfill();
+    const backfill = this.getBackfill();
     const { rows, changelogEntries } = await backfill.countRemaining();
     return Object.values(rows).reduce((total, count) => total + count, 0) + changelogEntries;
   }
 
-  async getBackfill() {
+  getBackfill() {
     this.backfill ??= new BlobBackfill({
       sequelize: this.sequelize,
-      blobStore: await createBlobStore({ models: this.models, settings: this.settings }),
+      blobStore: this.blobStore,
     });
     return this.backfill;
   }
 
   async run() {
     const { batchSize, batchSleepAsyncDurationInMilliseconds: sleepMs } = this.config;
-    const backfill = await this.getBackfill();
+    const backfill = this.getBackfill();
 
     try {
       for (const tableName of REFERENCE_TABLES) {
