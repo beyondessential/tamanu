@@ -94,6 +94,41 @@ each test file its own module registry and leaked anyway, so vitest's `isolate: 
 assumed to fix it. If it bites on the 180-file central suite, the fallback is `vmForks` plus
 `vmMemoryLimit` for that project.
 
+**Decision: do not spike this, and do not let it gate the migration.** The limit only bites in CI,
+and it bites as "massively slower" rather than as a failure, so an isolated spike would have to run
+in CI and would still be confounded. Migrate first, then treat CI time as its own optimisation pass.
+
+The baseline below supports that: run-to-run variance on the same job is already north of 30%, so
+only a large regression would be distinguishable anyway, which is exactly the failure mode described.
+
+Levers available for the later optimisation pass, roughly in order of cost:
+
+1. `SERVER_SHARDS` is a single constant in `plan-ci.mjs` (currently 8). Raising it spreads files
+   across more runners and directly reduces per-process accumulation. It is a CI-time lever
+   regardless of whether memory turns out to be the cause
+2. `maxWorkers` tuning per project
+3. `vmForks` plus `vmMemoryLimit` for central-server only, which restores recycling at some speed cost
+
+## CI baseline before migration
+
+Captured from two successful `ci.yml` runs on `main` (31135832256 and 31097899569), so post-migration
+timings have something to compare against. Job durations include checkout, `npm install` and Postgres
+setup, not just test execution, which damps the visible size of any test-execution delta.
+
+| Job | Run A (min) | Run B (min) |
+|---|---|---|
+| central-server, slowest of 8 shards | 5.1 | 3.8 |
+| central-server, fastest of 8 shards | 3.6 | 2.8 |
+| facility-server, slowest of 8 shards | 3.5 | 2.2 |
+| facility-server, fastest of 8 shards | 2.7 | 1.8 |
+| database (per pg version) | 2.9 to 3.5 | 2.0 to 2.3 |
+| web-frontend | 3.0 | 2.2 |
+| mobile | 2.6 | 1.7 |
+
+The `test` job's critical path is the slowest central shard, so roughly 4 to 5 minutes. The same job
+varied by about 34% between these two runs, which sets the detection floor: anything short of a
+~1.5x regression will not be readable without repeated runs.
+
 **No test-discovery drift.** Verified across all four packages: 180 / 100 / 17 / 6 files match under
 both jest's `testRegex` and vitest's default `include`. No files literally named `test.js` or
 `spec.ts` (which jest's `/` alternative would match and vitest's glob would not), and nothing under
@@ -191,6 +226,8 @@ in CI's matrix but missing from the project list, or the reverse.
 - [ ] Confirm collected test-file counts match the pre-migration numbers exactly
 - [ ] Sanity-check local Postgres connection limits against `maxWorkers`, since central and facility
       now run concurrently in one process where `test-all.mjs` serialised them
+- [ ] After merge, compare CI timings against the baseline above and open a separate CI-time
+      optimisation pass if the critical path moved materially
 
 ## Adjacent, not in scope
 
