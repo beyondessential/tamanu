@@ -88,6 +88,7 @@ treated as a hard pre-filter on any suggested action.
 | [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup: sync fkey conflicts, and checking the blob store | Complete |
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
+| [blob-integrity](runbooks/blob-integrity.md) | Attachment or asset bytes corrupt or missing (`blob_integrity` check) | Complete |
 
 ## SOPs
 

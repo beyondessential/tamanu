@@ -35,6 +35,7 @@ marked planned are not written yet; use the Canopy solve in the meantime.
 | `sync_sessions`, `sync_session_errors`, `sync_lookup` | [runbooks/sync-facility-stale.md](runbooks/sync-facility-stale.md) / [runbooks/sync-restart-loop.md](runbooks/sync-restart-loop.md); for backup-restore fkey conflicts, [runbooks/facility-restored-from-backup.md](runbooks/facility-restored-from-backup.md) |
 | `sync_snapshot_tables` | [runbooks/sync-facility-stale.md](runbooks/sync-facility-stale.md) |
 | `report_errors`, `ips_errors`, `patient_communication_errors`, `certificate_notification_errors` | [runbooks/report-and-error-rows.md](runbooks/report-and-error-rows.md) |
+| `blob_integrity` | [runbooks/blob-integrity.md](runbooks/blob-integrity.md) |
 | `db_connect`, `pg_tuning` | Canopy solve, then `reference/maintain-tamanu-on-linux.md` for the frontline host steps |
 | `disk_free`, `btrfs`, `inodes`, `load`, `memory` | Canopy solve; deep disk work is in `beyondessential/ops` |
 | `caddy_certs`, `caddy_version`, `http_errors`, `tailscale_config`, `time_sync` | Canopy solve; see `sops/read-logs.md` and `sops/restart-services.md` |
