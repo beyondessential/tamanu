@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.54.30",
+  "version": "2.54.31",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
