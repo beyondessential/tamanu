@@ -14,7 +14,11 @@ only ever removes blobs that nothing references.
 - [ ] The central server reclaims only orphaned blobs: those referenced by no
   record, whether live or soft-deleted.
 - [ ] Liveness is derived by comparing the stored blobs against the hashes
-  referenced across the reference tables, not from a maintained reference count.
+  referenced across the reference tables and carried in changelog entries, not
+  from a maintained reference count.
+- [ ] Content superseded on a mutable reference (an asset replaced by a later
+  upload) remains referenced by the changelog entries that recorded it, so
+  superseded content is retained rather than collected.
 - [ ] A blob is eligible for collection only when it is unreferenced and older than
   a safety window, so a blob whose reference is momentarily absent during an
   operation is not collected.
