@@ -25,6 +25,7 @@ You need the `gh` CLI authenticated, and you must be working on the card's branc
 
 Review Hero fires on the PR's **edited** event, and the trigger is a ticked checkbox in the PR body marked with `<!-- #ai-review -->`.
 
+- **Record a baseline before you trigger.** Note the newest existing `review-hero[bot]` Summary across all three comment surfaces (listed in step 3) — its comment id and creation time. Summaries from earlier rounds stay on the PR permanently, so this baseline is what lets you tell this round's verdict from the last one's. If no Summary exists yet, the baseline is empty. Do this first, before you touch the checkbox, and on every round
 - Read the body: `gh pr view <n> --json body`
 - Locate the checkbox line by its **marker** `<!-- #ai-review -->`, not by an exact shape — tolerate the bullet character (`-`, `*`, `+`), the checkbox case (`[x]`/`[X]`), and spacing, since GitHub's task-list serialisation and the workflow's own untick reshape the line
   - If the box is already `[x]`, a review is already queued or running — skip to step 3
@@ -42,7 +43,8 @@ The workflow takes a few minutes. Poll — don't assume it's done.
   - inline review comments: `gh api repos/{owner}/{repo}/pulls/<n>/comments`
   - review bodies: `gh api repos/{owner}/{repo}/pulls/<n>/reviews`
   - PR issue comments: `gh pr view <n> --json comments` — the Summary lands here in Review Hero's grouped-comment fallback
-- **A round is complete only once the `review-hero[bot]` Summary has arrived.** Don't treat the checkbox unticking on its own as done — the workflow unticks it when it finishes, but the comments and Summary can still be in flight
+- **A round is complete only once a `review-hero[bot]` Summary newer than this round's baseline has arrived.** The existence of a Summary is not the signal — earlier rounds leave theirs on the PR, so "a Summary is present" is already true the moment you start polling and would hand you the previous round's totals. Compare each candidate's comment id and creation time against the baseline from step 2, and keep polling until one strictly newer appears
+- Don't treat the checkbox unticking on its own as done either — the workflow unticks it when it finishes, but the comments and Summary can still be in flight
 - If the workflow was skipped, errored, or hit a permissions problem on GitHub, or the PR has conflicts with its base branch, Review Hero can't run productively. Resolve the underlying issue first — run the **Update** skill to rebase past base-branch conflicts — then re-trigger. Don't spin waiting for a review that will never come
 
 ### 4. Assess and address the comments
@@ -61,13 +63,13 @@ Do not reply to the comments on GitHub — push fixes silently, the way Workhors
 
 "Clean" folds two signals together: the review verdict **and** CI.
 
-- **Review:** compare the round's Summary totals against the threshold. The default is **at or below 5 total comments (critical + suggestion + nit) and no critical**. (In Workhorse this threshold is configurable per workspace and user; outside it, use the default unless the user gives you a different one.) The threshold is your default gate, but your own judgement leads the card asks you to rerun "until you deem clean": if the remaining items are genuinely non-issues you can deem it clean even slightly over count, and a single unaddressed critical is never clean
+- **Review:** compare the totals from *this* round's Summary — the newer-than-baseline one you settled on in step 3, never an earlier one still sitting on the PR — against the threshold. The default is **at or below 5 total comments (critical + suggestion + nit) and no critical**. (In Workhorse this threshold is configurable per workspace and user; outside it, use the default unless the user gives you a different one.) The threshold is your default gate, but your own judgement leads the card asks you to rerun "until you deem clean": if the remaining items are genuinely non-issues you can deem it clean even slightly over count, and a single unaddressed critical is never clean
 - **CI:** after pushing fixes, wait for CI to pass on the new head (`gh pr checks <n>`). If a check fails on your changes, diagnose and fix it as part of getting to clean; a failure from an unrelated flaky or pre-existing check you note and skip
 - Clean means the review verdict is met **and** CI is green on the current head
 
 ### 6. Loop or stop
 
-- **Not clean, and under the round cap** → go back to step 2 and tick the box again. Your pushed fixes mean the next review runs against the updated diff. Announce which round you're on
+- **Not clean, and under the round cap** → go back to step 2 and tick the box again, re-recording the baseline first so the new round waits for its own Summary. Your pushed fixes mean the next review runs against the updated diff. Announce which round you're on
 - **Cap the loop at 5 rounds.** If you reach five without deeming it clean, stop and report where things stand — don't loop indefinitely
 - **Clean** → move to merge
 
