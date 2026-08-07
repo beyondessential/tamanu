@@ -1,6 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
+import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -77,6 +78,7 @@ export async function startScheduledTasks(context) {
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
+    BlobIntegrityScrubTask,
     SendStatusToMetaServer,
   ];
 
