@@ -8,6 +8,12 @@ import { QueryInterface } from 'sequelize';
 // holds the attachment id. An attachment no record references keeps null scope and
 // stays central-only.
 export async function up(query: QueryInterface): Promise<void> {
+  // This one-time backfill can touch many rows on a large deployment. The sync
+  // tick trigger already runs in its disabled/rebuild-flagging mode during
+  // migrations, so this does not re-queue rows for sync. Pausing the change-log
+  // audit for the transaction keeps it from writing an audit row per attachment
+  // as well; the setting is transaction-local and reverts on commit.
+  await query.sequelize.query(`SELECT set_config('tamanu.audit.pause', 'true', true);`);
   await query.sequelize.query(`
     WITH owners AS (
       SELECT
