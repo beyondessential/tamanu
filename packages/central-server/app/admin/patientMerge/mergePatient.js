@@ -27,6 +27,7 @@ export const simpleUpdateModels = [
   'PatientCommunication',
   'Appointment',
   'DocumentMetadata',
+  'Attachment',
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
