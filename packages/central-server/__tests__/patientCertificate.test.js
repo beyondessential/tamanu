@@ -173,6 +173,7 @@ describe('Certificate', () => {
     const result = await makeCovidCertificate({
       models,
       settings,
+      blobStore: ctx.blobStore,
       certType: chance.pickone(Object.values(CertificateTypes)),
       patient: patientRecord,
       printedBy: chance.name(),
@@ -187,6 +188,7 @@ describe('Certificate', () => {
     const result = await makeVaccineCertificate({
       models,
       settings,
+      blobStore: ctx.blobStore,
       patient: patientRecord,
       printedAt: new Date(),
       printedBy: chance.name(),
