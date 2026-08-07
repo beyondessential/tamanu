@@ -192,6 +192,36 @@ describe('Blob backfill', () => {
       expect(await backfill.moveReferenceRows('attachments', 10)).toBe(0);
     });
 
+    it('skips a row deleted between the batch scan and its read', async () => {
+      const present = Buffer.from('still here');
+      const vanishing = Buffer.from('about to be deleted');
+      const presentId = await insertAttachment(present);
+      const vanishingId = await insertAttachment(vanishing);
+
+      // Delete the row just before its per-row data read, the way an attachment
+      // hard-deleted after push would vanish mid-batch.
+      const realQuery = sequelize.query.bind(sequelize);
+      let deleted = false;
+      jest.spyOn(sequelize, 'query').mockImplementation(async (sql, opts) => {
+        if (!deleted && typeof sql === 'string' && sql.startsWith('SELECT data FROM attachments')) {
+          deleted = true;
+          await realQuery(`DELETE FROM attachments WHERE id = $id`, { bind: { id: vanishingId } });
+        }
+        return realQuery(sql, opts);
+      });
+
+      let moved;
+      try {
+        moved = await backfill.moveReferenceRows('attachments', 10);
+      } finally {
+        sequelize.query.mockRestore();
+      }
+
+      // The run completes rather than throwing, and the surviving row is moved.
+      expect(moved).toBe(1);
+      expect((await rowOf('attachments', presentId)).hash).toBe(hashOf(present));
+    });
+
     it('resumes after an interrupted run without duplicating content', async () => {
       const content = Buffer.from('interrupted midway');
       const id = await insertAttachment(content);

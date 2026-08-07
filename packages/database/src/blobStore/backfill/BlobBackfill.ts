@@ -65,7 +65,9 @@ export class BlobBackfill {
 
     let moved = 0;
     for (const id of ids) {
-      const { hash } = await this.#admitRowContent(tableName, id);
+      const admitted = await this.#admitRowContent(tableName, id);
+      if (!admitted) continue; // row deleted between select and read
+      const { hash } = admitted;
       // Guarded on hash IS NULL so a concurrent run that moved this row first
       // cannot have its result overwritten; the hash is identical either way,
       // but the guard keeps the count honest.
@@ -135,12 +137,16 @@ export class BlobBackfill {
       // Entries hold the bytea as Postgres renders it into JSON: the hex format,
       // `\x` then two characters per byte. Decode once, here, rather than inside
       // a streamed read, where the decode would repeat for every slice.
-      const entry = await this.#sequelize.query<{ content: Buffer }>(
+      const entry = await this.#sequelize.query<{ content: Buffer | null }>(
         `SELECT decode(substring(record_data->>'data' from 3), 'hex') AS content
-         FROM logs.changes WHERE id = $id`,
+         FROM logs.changes WHERE id = $id AND record_data->>'data' IS NOT NULL`,
         { bind: { id }, type: QueryTypes.SELECT, plain: true },
       );
-      const { hash } = await this.#blobStore.put(Readable.from([entry!.content]));
+      // Gone, or already rewritten by a concurrent pass, so its data is now JSON
+      // null and the decode yields nothing: skip rather than store an empty blob
+      // under the wrong hash.
+      if (!entry?.content) continue;
+      const { hash } = await this.#blobStore.put(Readable.from([entry.content]));
 
       // logs.changes carries no triggers, so this rewrite logs nothing itself.
       const updated = await this.#sequelize.query<{ id: string }>(
@@ -164,8 +170,11 @@ export class BlobBackfill {
   async countRemaining(): Promise<BackfillProgress> {
     const rows: Record<string, number> = {};
     for (const tableName of this.#tables) {
+      // Match the pending-row predicate exactly (data present, not yet hashed),
+      // so a row that somehow carried both never keeps the count above zero and
+      // completion is reached.
       const row = await this.#sequelize.query<{ count: string }>(
-        `SELECT count(*) AS count FROM ${tableName} WHERE data IS NOT NULL`,
+        `SELECT count(*) AS count FROM ${tableName} WHERE data IS NOT NULL AND hash IS NULL`,
         { type: QueryTypes.SELECT, plain: true },
       );
       rows[tableName] = Number(row?.count ?? 0);
@@ -308,12 +317,18 @@ export class BlobBackfill {
     return rows.map(row => row.id);
   }
 
+  // Null when the row is gone: a reference can be hard-deleted between the batch
+  // select and this read (attachments delete after push), and a vanished row has
+  // nothing to admit — the caller skips it rather than crashing the run.
   async #admitRowContent(tableName: ReferenceTable, id: string) {
-    const row = await this.#sequelize.query<{ data: Buffer }>(
+    const row = await this.#sequelize.query<{ data: Buffer | null }>(
       `SELECT data FROM ${tableName} WHERE id = $id`,
       { bind: { id }, type: QueryTypes.SELECT, plain: true },
     );
-    return await this.#blobStore.put(Readable.from([row!.data]));
+    if (!row?.data) {
+      return null;
+    }
+    return await this.#blobStore.put(Readable.from([row.data]));
   }
 
   // A restored value goes back as one bytea, so it is read whole; bounded by a

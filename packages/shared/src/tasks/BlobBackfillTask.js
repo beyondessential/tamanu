@@ -34,9 +34,15 @@ export class BlobBackfillTask extends ScheduledTask {
   }
 
   async countQueue() {
+    // Once nothing remains, the backfill is permanently done: new writes carry
+    // only a hash, so no fresh legacy content can appear. Latch it so later ticks
+    // don't keep scanning the changelog for the life of the process.
+    if (this.complete) return 0;
     const backfill = this.getBackfill();
     const { rows, changelogEntries } = await backfill.countRemaining();
-    return Object.values(rows).reduce((total, count) => total + count, 0) + changelogEntries;
+    const remaining = Object.values(rows).reduce((total, count) => total + count, 0) + changelogEntries;
+    if (remaining === 0) this.complete = true;
+    return remaining;
   }
 
   getBackfill() {
