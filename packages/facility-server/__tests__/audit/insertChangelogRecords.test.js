@@ -117,4 +117,56 @@ describe('insertChangelogRecords', () => {
       version: '1.0.3',
     });
   });
+
+  const buildChangelogRecord = n => ({
+    id: `00000000-0000-4000-8000-${`${n}`.padStart(12, '0')}`,
+    tableOid: 1234,
+    tableSchema: 'public',
+    tableName: 'patients',
+    loggedAt: new Date(),
+    recordCreatedAt: new Date(),
+    recordUpdatedAt: new Date(),
+    updatedByUserId: SYSTEM_USER_UUID,
+    recordId: `${n}`,
+    recordData: { first_name: `Patient ${n}` },
+    deviceId: `test-device-id-${n}`,
+    version: '1.0.0',
+  });
+
+  it('should insert all records when they span multiple batches', async () => {
+    // Arrange - 5 records with a batch size of 2 means 3 insert batches
+    const changelogRecords = [1, 2, 3, 4, 5].map(buildChangelogRecord);
+
+    // Act
+    await insertChangelogRecords(models, changelogRecords, 2);
+
+    // Assert
+    const results = await models.ChangeLog.findAll({ order: [['recordId', 'ASC']] });
+    expect(results).toHaveLength(5);
+    expect(results.map(r => r.recordId)).toEqual(['1', '2', '3', '4', '5']);
+  });
+
+  it('should skip duplicates in any batch while inserting the rest', async () => {
+    // Arrange - existing records that will fall into different insert batches
+    await models.ChangeLog.bulkCreate([buildChangelogRecord(1), buildChangelogRecord(4)]);
+
+    const changelogRecords = [1, 2, 3, 4, 5].map(n => ({
+      ...buildChangelogRecord(n),
+      recordData: { first_name: `Patient ${n} Updated` },
+    }));
+
+    // Act
+    await insertChangelogRecords(models, changelogRecords, 2);
+
+    // Assert
+    const results = await models.ChangeLog.findAll({ order: [['recordId', 'ASC']] });
+    expect(results).toHaveLength(5);
+    // Existing entries are immutable so the re-delivered versions are skipped
+    expect(results.find(r => r.recordId === '1').recordData).toEqual({ first_name: 'Patient 1' });
+    expect(results.find(r => r.recordId === '4').recordData).toEqual({ first_name: 'Patient 4' });
+    // New entries are inserted as delivered
+    expect(results.find(r => r.recordId === '2').recordData).toEqual({
+      first_name: 'Patient 2 Updated',
+    });
+  });
 });
