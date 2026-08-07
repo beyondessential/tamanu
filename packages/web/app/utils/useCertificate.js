@@ -29,13 +29,20 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   } = useAssetQuery(ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG);
   const { title, subTitle } = getSetting(SETTING_KEYS.TEMPLATES_LETTERHEAD);
 
-  const isFetching =
-    isLogoFetching || isWatermarkFetching || isFooterImgFetching || isDeathCertFooterImgFetching;
-
   // spec: ASSET — at least one asset exists but its bytes have not reached this
-  // facility, so the document would print without artwork it is meant to carry.
+  // facility yet. The document must not print without artwork it is meant to
+  // carry, so pending folds into the not-ready signal: consumers already gate
+  // rendering on it, holding the document until the bytes arrive (prefetch pulls
+  // them on the next sync) rather than producing an unbranded one.
   const isPending =
     isLogoPending || isWatermarkPending || isFooterImgPending || isDeathCertFooterImgPending;
+
+  const isFetching =
+    isLogoFetching ||
+    isWatermarkFetching ||
+    isFooterImgFetching ||
+    isDeathCertFooterImgFetching ||
+    isPending;
 
   const currentUser = useSelector(getCurrentUser);
 

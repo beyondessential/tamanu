@@ -21,7 +21,14 @@ import { getLocalisation } from '../localisation';
 // Assets read from whichever form the row takes: bytes held in the central blob
 // store addressed by hash, or legacy bytes carried inline on the row.
 async function getCertificateAssets(models, footerAssetName, blobStore) {
-  const openBlob = hash => blobStore.get(hash);
+  // Central owns the authoritative store, so a hash always resolves here — no
+  // content-pending state to handle, unlike the facility read-through. A missing
+  // store or blob is a genuine anomaly and surfaces as an error that fails the
+  // render, rather than a certificate quietly printed without its artwork.
+  const openBlob = hash => {
+    if (!blobStore) throw new Error(`Blob store is required to resolve asset ${hash}`);
+    return blobStore.get(hash);
+  };
   const findAsset = name =>
     name ? models.Asset.findOne({ raw: true, where: { name, facilityId: null } }) : null;
 
