@@ -1,25 +1,43 @@
+import config from 'config';
+import type { BulkCreateOptions, InferAttributes } from 'sequelize';
+
+import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
 
-export const insertChangelogRecords = async (models: Models, changelogRecords: ChangeLog[]) => {
+type ChangeLogAttributes = InferAttributes<ChangeLog>;
+
+const { pauseBetweenPersistedCacheBatchesInMilliseconds, persistedCacheBatchSize } = config.sync;
+
+const bulkCreateOptions = {
+  /** Entries are immutable, so re-delivered records are skipped rather than merged */
+  ignoreDuplicates: true,
+  returning: false,
+} as const satisfies BulkCreateOptions<ChangeLogAttributes>;
+
+/**
+ * `logs.changes` records carry a full copy of the record in `record_data`. Keep batches small to
+ * small to avoid building one enormous `INSERT` query in memory.
+ */
+export const insertChangelogRecords = async (
+  models: Models,
+  changelogRecords: ChangeLogAttributes[],
+  batchSize = persistedCacheBatchSize,
+) => {
+  if (!changelogRecords.length) return;
+
   const { ChangeLog } = models;
 
-  if (!changelogRecords.length) {
-    return;
-  }
-
-  const existingRecords = await ChangeLog.findAll({
-    where: {
-      id: changelogRecords.map(({ id }) => id),
+  await runFunctionInBatches(
+    changelogRecords,
+    async batch => {
+      await ChangeLog.bulkCreate(batch, bulkCreateOptions);
+      await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
+      // Result of this `runFunctionInBatches` is unused anyway; let the `bulkCreate` results get
+      // garbage collected. Returning empty array simply for type safety.
+      return [];
     },
-  });
-
-  const existingIds = existingRecords.map(({ id }) => id);
-  const recordsToInsert = changelogRecords
-    .filter(({ id }) => !existingIds.includes(id))
-    .map((changelogRecord) => ({
-      ...changelogRecord,
-    }));
-
-  await ChangeLog.bulkCreate(recordsToInsert);
+    batchSize,
+  );
 };
