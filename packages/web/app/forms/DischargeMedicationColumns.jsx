@@ -25,6 +25,7 @@ import { CheckField } from '../components/Field';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
+import { atLeastOneWhenSendingToPharmacy, emptyToNull } from '../utils/validation';
 
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
@@ -47,9 +48,6 @@ export const orderingPrescriberLabel = (
   />
 );
 
-/** A blank number input hands back '', which yup would otherwise cast to NaN and reject. */
-const emptyToNull = (value, originalValue) => (originalValue === '' ? null : value);
-
 /**
  * Every listed medication needs a dispensing quantity, in both tables and whether or not pharmacy
  * orders are enabled — the discharge records it against the prescription either way. Zero only
@@ -69,9 +67,7 @@ export const getMedicationsValidationSchema = requiredInlineMessage =>
             .nullable()
             .required(requiredInlineMessage)
             .translatedLabel(dispensingQuantityLabel)
-            .test('atLeastOneWhenSendingToPharmacy', requiredInlineMessage, function (quantity) {
-              return !this.parent?.sendToPharmacy || quantity >= 1;
-            }),
+            .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage)),
           repeats: yup
             .number()
             .transform(emptyToNull)
