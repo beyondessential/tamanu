@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
@@ -34,6 +35,18 @@ attachmentRoutes.get(
     if (attachment.hash) {
       const { blobStore } = req.ctx;
       const stat = await blobStore.stat(attachment.hash);
+      // spec: ATCH
+      // Central holds the record but its origin may not have pushed the bytes
+      // yet: present it as an existing file awaiting its content rather than
+      // reading a null stat. Central is authoritative and never fetches, so
+      // absent bytes are always awaiting upload from the origin.
+      if (!stat) {
+        res.status(202).send({
+          attachmentId: id,
+          availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+        });
+        return;
+      }
       if (base64 === 'true') {
         const stream = await blobStore.get(attachment.hash, { stat });
         const chunks = [];

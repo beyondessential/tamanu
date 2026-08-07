@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import { DataTypes, Op, Sequelize } from 'sequelize';
 
 import {
@@ -496,10 +498,21 @@ export class SurveyResponse extends Model {
       // If the client already provided an attachment ID, keep it as-is
       if (typeof value === 'string') return value;
 
+      // spec: ATCH
+      // The photo is admitted to the blob store and the attachment records only
+      // its hash, so it synchronises with the survey answer that references it
+      // rather than carrying its bytes through sync.
       const { size, data } = value as unknown as { size: number; data: string };
-      const { id: attachmentId } = await models.Attachment.create(
-        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg', ...scope }),
+      const { hash, size: storedSize } = await models.Attachment.sequelize.admitAttachmentBlob(
+        Readable.from([Buffer.from(data, 'base64')]),
+        { sizeHint: size },
       );
+      const { id: attachmentId } = await models.Attachment.create({
+        type: 'image/jpeg',
+        hash,
+        size: storedSize,
+        ...scope,
+      });
 
       return attachmentId; // Store attachment ID as answer body
     }

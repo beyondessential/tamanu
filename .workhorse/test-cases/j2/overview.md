@@ -34,8 +34,8 @@ uncited ones are operational.
 - [x] Confirm an attachment's recorded size is taken from the bytes actually admitted, not from the caller's declared size (verifies spec: ATCH)
 - [ ] Upload the same file content twice and confirm both attachment references resolve, each with its own scoping, backed by a single blob on disk (verifies spec: CAS)
 - [ ] Create a patient letter (`POST /api/patient/:id/createPatientLetter`) and confirm the generated PDF is admitted to the facility outbox and the row carries its hash (verifies spec: ATCH)
-- [ ] Submit a survey response with a photo answer from web and confirm a hash-backed attachment is created with the answer body holding its id (verifies spec: ATCH)
-- [ ] Blank out a photo answer (`PUT /api/surveyResponseAnswer/photo/:id`) and confirm the empty-content overwrite stores the defined zero-byte hash and the photo no longer renders (verifies spec: CAS)
+- [x] Submit a survey response with a photo answer from web and confirm a hash-backed attachment is created with the answer body holding its id (verifies spec: ATCH)
+- [x] Blank out a photo answer (`PUT /api/surveyResponseAnswer/photo/:id`) and confirm the empty-content overwrite stores the defined zero-byte hash and the photo no longer renders (verifies spec: CAS)
 - [x] Post a FHIR DiagnosticReport with a `presentedForm` PDF and confirm the attachment is admitted directly to the central store hash-backed and linked to the lab request (verifies spec: ATCH)
 - [ ] Confirm central accepts a hash-carrying attachment record arriving through sync from a facility, with the bytes arriving separately over the transfer channel (verifies spec: ATCH, XFER)
 - [ ] Upload a document over the configured maximum file size and confirm it is rejected with the request stream drained, so the response finish logs without error (verifies spec: ATCH)
@@ -60,7 +60,7 @@ uncited ones are operational.
 
 ## Content-pending
 
-- [ ] Fetch an attachment whose record has synced but whose bytes cannot be promptly resolved and confirm it presents as an existing file awaiting content, not not-found (verifies spec: ATCH)
+- [x] Fetch an attachment whose record has synced but whose bytes cannot be promptly resolved and confirm it presents as an existing file awaiting content, not not-found (verifies spec: ATCH)
 - [ ] Confirm the awaiting-content response distinguishes upload-pending from fetch-pending, while the UI shows a single awaiting-content message for both (verifies spec: ATCH, XFER)
 - [ ] Re-fetch a content-pending attachment after its bytes arrive and confirm it resolves to the content (verifies spec: ATCH, XFER)
 - [ ] Confirm an attachment record is visible in lists while its bytes are still pending — the record is never held back for its blob (verifies spec: XFER)

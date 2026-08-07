@@ -160,6 +160,8 @@ class MockApplicationContext extends ApplicationContext {
       models: this.models,
       getCacheBudgetBytes: async () => 10 * 1024 ** 3,
     });
+    this.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobCache.putOutbox(source, options);
     this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     // Reporting reads its per-server secret from local_system_facts, so init it

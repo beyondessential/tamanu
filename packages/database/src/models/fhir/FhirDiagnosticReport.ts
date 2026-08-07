@@ -261,7 +261,7 @@ export class FhirDiagnosticReport extends FhirResource {
     // The report PDF is admitted to the central store and the attachment records
     // only its hash, scoped to the lab request's encounter so it synchronises
     // with the records that reference it.
-    const { hash, size } = await this.sequelize.blobStore.put(Readable.from([data]));
+    const { hash, size } = await this.sequelize.admitAttachmentBlob(Readable.from([data]));
     const attachment = await Attachment.create({
       type,
       hash,

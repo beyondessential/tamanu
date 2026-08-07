@@ -111,6 +111,14 @@ export class ApplicationContext {
       },
     });
 
+    // spec: ATCH
+    // Shared model code admits attachment content through this so it reaches the
+    // store from deep in a write (a survey photo answer) with no request to carry
+    // it. On a facility, origin content lands in the outbox and the pusher
+    // delivers it once the referencing record has synchronised.
+    this.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobCache.putOutbox(source, options);
+
     // spec: CACHE — consumers (attachments, assets) append their synced-record
     // resolvers here so their blobs become eligible for push.
     this.blobReferenceResolvers = [

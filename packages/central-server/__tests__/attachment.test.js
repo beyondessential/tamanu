@@ -157,6 +157,25 @@ describe('Attachment (central-server)', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data).toBe(CONTENT.toString('base64'));
     });
+
+    // spec: ATCH
+    // Central holds the record but not yet the bytes: the origin has synced its
+    // attachment but not pushed its content. It presents as awaiting upload, not
+    // a crash on the missing blob.
+    it('presents a hash-backed attachment whose bytes central lacks as awaiting content', async () => {
+      const pending = await models.Attachment.create({
+        type: 'application/pdf',
+        hash: `sha256:${'c'.repeat(64)}`,
+        size: 10,
+      });
+
+      const result = await app.get(`/api/attachment/${pending.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: pending.id,
+        availability: 'awaiting-upload',
+      });
+    });
   });
 
   describe('Permissions', () => {

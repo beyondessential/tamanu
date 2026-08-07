@@ -98,10 +98,13 @@ export class ApplicationContext {
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
     });
-    // Model methods that admit content reach the store here: materialising a FHIR
-    // DiagnosticReport writes its report PDF from deep inside the upstream write,
-    // with no request or context to carry it.
-    this.store.sequelize.blobStore = this.blobStore;
+    // spec: ATCH
+    // Model and shared route code admits attachment content through this, so it
+    // reaches the store from deep in an upstream write (a FHIR DiagnosticReport's
+    // report PDF, a survey photo answer) with no request to carry it. Central is
+    // the authoritative store, so admission is direct.
+    this.store.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobStore.put(source, options);
 
     await initFhirSettingsFromDb(this.settings);
     // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and
