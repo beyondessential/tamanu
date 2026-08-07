@@ -8,7 +8,8 @@ export class Attachment extends Model {
   declare id: string;
   declare type?: String;
   declare size?: Number;
-  declare data?: Buffer;
+  declare data?: Buffer | null;
+  declare hash?: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -16,7 +17,9 @@ export class Attachment extends Model {
         id: primaryKey,
         type: DataTypes.TEXT,
         size: DataTypes.INTEGER,
+        // spec: BKFL — bytes until the backfill moves them, hash afterwards.
         data: DataTypes.BLOB,
+        hash: DataTypes.TEXT,
       },
       {
         ...options,
@@ -29,6 +32,10 @@ export class Attachment extends Model {
     data,
     ...restOfValues
   }: ModelSanitizeArgs<{ data: string; type?: string; size?: number }>) {
+    // A backfilled attachment carries its hash instead of its bytes (spec: BKFL).
+    if (data === null || data === undefined) {
+      return { ...restOfValues, data: null };
+    }
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 

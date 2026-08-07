@@ -18,6 +18,7 @@ import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import {
+  BlobBackfillTask,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
@@ -77,6 +78,7 @@ export async function startScheduledTasks(context) {
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
+    BlobBackfillTask,
     SendStatusToMetaServer,
   ];
 
