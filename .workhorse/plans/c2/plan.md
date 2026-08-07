@@ -16,6 +16,15 @@ Two lines in `common.jest.config.mjs` exist only to prop that up, with no produc
 Deleting those two hacks is the deliverable. Vitest's feature set (projects, module-graph watch,
 merged coverage, `--typecheck`) is the second motivation.
 
+They are not deleted into nothing: vitest needs its own resolution setup, already proven in
+`packages/database/vitest.config.ts` and `packages/upgrade/vitest.config.ts`. That is the
+`tamanuSourceResolve` plugin, `resolve.conditions: ['source', 'module', 'development|production']`,
+and `server.deps.inline: [/@tamanu\//]`, consuming workspace packages from TypeScript source. The
+win is that this is vite's resolution, the same machinery the frontends already build with, rather
+than a jest-only CJS fiction. Central and facility additionally whitelist `sequelize`,
+`@smithy/middleware-retry` and `@aws-sdk/client-s3` for transformation; under vitest those stay
+externalised and load natively, which should be verified rather than assumed.
+
 swc does not leave the repo: `@vitejs/plugin-react-swc` stays in web and patient-portal, `@swc/cli`
 in build-tooling and mobile. This card removes `@swc/jest` specifically.
 
@@ -63,23 +72,71 @@ PR since they are 280 of the ~300 files.
 
 | Bucket | Size | Treatment |
 |---|---|---|
-| `jest.mock` / `unmock` | 38 sites, all top-level | codemod, mechanical |
+| `jest.mock` / `unmock` in test files | 36 sites, all top-level | codemod, mechanical |
+| `jest.mock` in non-test files | 4 sites, 3 files | hand-work: see hoisting reach below |
 | `requireActual` / `doMock` / `isolateModules` | 25 files (13 central, 10 facility, 2 shared) | hand-work: sync to async restructure |
-| `fn` / `spyOn` / `setTimeout` / `clearAllMocks` etc | ~68 files | codemod |
+| `fn` / `spyOn` / `clearAllMocks` etc | ~68 files | codemod |
+| `jest.setTimeout` | 25 sites, incl. all four setup files | `testTimeout` config or `vi.setConfig` |
+| `jest.useFakeTimers` | 5 sites | hand-check: vitest fakes a different default set of timers |
 | `@jest/globals` imports | 17 files | module-specifier swap |
-| `toBeEmpty` | 73 sites | mostly `expect(errors).toBeEmpty()` on arrays, to `toHaveLength(0)` |
+| `toBeEmpty` | 73 sites, 12 files, all central | mostly `expect(errors).toBeEmpty()` on arrays, to `toHaveLength(0)` |
 | `toBeTrue` / `toBeFalse` | 4 sites | `toBe(true)` / `toBe(false)` |
 
-All 38 `jest.mock` calls are already at top level, so no restructuring is needed for them. Vitest 5
-will throw (v4 warns) on `vi.mock` inside a function, block, or `describe`/`test` callback, so an
-ESLint rule should lock that in.
+Vitest 5 will throw (v4 warns) on `vi.mock` inside a function, block, or `describe`/`test` callback,
+so an ESLint rule should lock that in.
 
-`jest-extended`'s `toBeEmpty` also covers objects, strings and iterables. The 73 sites need a pass
-to confirm they are all arrays; stragglers can join the four custom matchers already hand-maintained
-in `configureEnvironment.js` (`toBeForbidden`, `toHaveRequestError`, `toBeProblemOfType`,
+`jest-extended`'s `toBeEmpty` also covers objects, strings and iterables. All 73 sites are in
+central-server (which is also the only package declaring `jest-extended`), across 12 files, so the
+audit is contained; stragglers can join the four custom matchers already hand-maintained in
+`configureEnvironment.js` (`toBeForbidden`, `toHaveRequestError`, `toBeProblemOfType`,
 `toHaveSucceeded`).
 
+### Mock hoisting reach
+
+Being top-level in its own file is not sufficient. Vitest hoists `vi.mock` only within the file it
+is written in, and its static analysis requires `vi` to have been imported from `vitest` in that
+same file: per the docs, "`vi` that was not directly imported from the `vitest` package (for
+example, from some utility file) cannot be used". This is the same constraint that killed the compat
+shim, applied to the repo's own helpers. Jest's per-test-file module registry hides the difference
+today.
+
+Three files rely on reach that vitest does not give:
+
+- **`packages/facility-server/__tests__/utilities.js:40-41`** mocks
+  `../app/sync/CentralServerConnection` and `../app/utils/uploadAttachment`. **85 of the 100 facility
+  test files import this module**, so those two lines are load-bearing across most of the package.
+  The mocks have to move into the test files that need them, by codemod, and the file itself also
+  imports `CentralServerConnection` directly at line 35
+- **`packages/central-server/__tests__/configureEnvironment.js:20`** mocks
+  `../app/utils/getFreeDiskSpace` from a setup file. Vitest "will not mock modules that were imported
+  inside a setup file because they are cached by the time a test file is running", so this needs
+  relocating or a `vi.hoisted` plus `vi.resetModules()` workaround
+- **`packages/shared/src/test-helpers/spyOn.js`** exports `spyOnModule(jest, path)`, which takes the
+  runner as a parameter and calls `jest.mock` inside itself. This cannot be ported in that shape. It
+  has exactly one call site
+  (`packages/central-server/__tests__/subCommands/importReport/actions.test.js:16`), so delete the
+  helper and inline a literal `vi.mock` there
+
+The seven bare `jest.mock(path)` calls with no factory are fine on their own axis: with no factory
+and no `__mocks__` folder, vitest imports the original module and auto-mocks all its exports. There
+are no `__mocks__` directories outside mobile.
+
 ## Verification findings
+
+**There are four `configureEnvironment.js` files, not two,** and porting them is more than matchers.
+Central and facility carry the custom matchers; shared and settings carry only
+`jest.setTimeout(100000)`. Central's is **CommonJS** (`require(...)`, `globalThis.crypto =
+require('crypto')`) inside a `"type": "module"` package, which works only because `@swc/jest`
+compiles it to CJS, so it has to be rewritten as ESM. Both server packages also load
+`jest-expect-message`, central via `require` in the setup file and facility via a bare
+`import 'jest-expect-message'` at `__tests__/utilities.js:1`, on top of the `setupFilesAfterEnv`
+entries.
+
+**The canary does not cover the canary's purpose.** Shared and settings were chosen to surface
+CJS-to-ESM breakage cheaply, but their setup files are one line each and neither package has the
+helper-file mock problem. The CJS setup file, the 85-file mock fan-out, and the sequelize/AWS
+transform whitelist all live in central and facility. Keep the canary for the cheap signal, but do
+not read a green canary as evidence about the servers.
 
 **`maxWorkers` percentages port verbatim.** Type is `number | string`; a percentage string
 "computes the worker count as the given percentage of the machine's available parallelism" via
@@ -186,40 +243,69 @@ A bare `projects: ['packages/*']` glob is wrong: vitest treats a globbed directo
 config as a project **with defaults**, and its default `include` would sweep in `mobile` (48 jest
 files), `e2e-tests` (Playwright `*.spec.ts`), and `scripts` (tape tests under `tests/**/*.test.*js`).
 
-Rather than hand-enumerating, derive the list. `plan-ci.mjs` already reads every
-`packages/*/package.json`, discovers which have a `test` script, and holds a `SPECIAL_PACKAGES`
-exclusion set. The root vitest config would be asking the same question. Export that discovery from
-one module and have both `plan-ci.mjs` and `vitest.config.ts` consume it, so a package cannot end up
-in CI's matrix but missing from the project list, or the reverse.
+`plan-ci.mjs` already reads every `packages/*/package.json`, discovers which have a `test` script,
+and holds a `SPECIAL_PACKAGES` exclusion set, so it looks like the list is already there. It is not:
+the two configs ask different questions and the answers differ in four places.
+
+`SPECIAL_PACKAGES` means "has bespoke CI handling, keep it out of the standalone matrix". It
+excludes `central-server`, `facility-server` and `database`, which are precisely the packages that
+**must** be vitest projects. And `scripts` (whose `test` script is `tape 'tests/**/*.test.*js'`) is
+not in the set, so it correctly earns a CI matrix entry while equally correctly not being a vitest
+project. Deriving one list from the other inverts the answer for all four.
+
+Share the narrower fact instead: **which packages run vitest**, keyed on the presence of a vitest
+config file. `plan-ci.mjs` can consume that where it is useful, but keeps `SPECIAL_PACKAGES` as its
+own separate concern. That still gives the drift protection (a package cannot run vitest without
+appearing in the project list) without conflating two different questions.
 
 ## Work
 
-- [ ] Shared discovery module for the project list, consumed by both `vitest.config.ts` and `plan-ci.mjs`
+- [ ] Shared "which packages run vitest" module for the project list, consumed by `vitest.config.ts`,
+      with `plan-ci.mjs` keeping its own `SPECIAL_PACKAGES` set
 - [ ] Root `vitest.config.ts` with `projects`, plus root-only `coverage` and `reporters`
-- [ ] Rewrite `common.jest.config.mjs` as a shared vitest config module (projects do not inherit root
-      options unless a project sets `extends: true`, so this stays a shared module rather than
-      disappearing into the root config)
-- [ ] `shared` + `settings` as a throwaway canary to surface CJS-to-ESM breakage cheaply
+- [ ] Rewrite `common.jest.config.mjs` as a shared vitest config module carrying `tamanuSourceResolve`,
+      `resolve.conditions` and `server.deps.inline` (projects do not inherit root options unless a
+      project sets `extends: true`, so this stays a shared module rather than disappearing into the
+      root config)
+- [ ] Add `vitest` as a devDependency to the root and to `central-server`, `facility-server`,
+      `shared`, `settings`
+- [ ] `shared` + `settings` as a throwaway canary. Cheap CJS-to-ESM signal only; it does not exercise
+      the setup files, helper-file mocks, or transform whitelist that make the servers hard
 - [ ] `VITEST_POOL_ID` in `packages/database/src/services/database.js:89`, replacing `JEST_WORKER_ID`.
-      Ids are **1-based in vitest 4** (they were 0-based in v3), and vitest's own migration guide
-      names per-worker database names as the thing to update. Use `VITEST_POOL_ID` (bounded by
-      `maxWorkers`, slots reused), not `VITEST_WORKER_ID` (monotonic, would create unbounded
-      databases). This also un-serialises `packages/database`, which currently runs
-      `--no-file-parallelism` because the variable is absent
+      Vitest's migration guide names per-worker database names as the thing to update. Use
+      `VITEST_POOL_ID` ("always less than or equal to `maxWorkers`", slots reused), not
+      `VITEST_WORKER_ID` (monotonic, would create unbounded databases). This also un-serialises
+      `packages/database`, which currently runs `--no-file-parallelism` because the variable is
+      absent. **Unverified:** that ids are 1-based in v4 and were 0-based in v3. Low consequence for
+      a database-name suffix, but confirm before asserting it in the PR
+- [ ] Check whether `packages/upgrade`'s `--no-file-parallelism` has the same cause as database's, or
+      a separate one
 - [ ] Replace the fake-data seed mechanism: resolve `TAMANU_TEST_SEED ?? randomInt(2 ** 42)` once,
       export it to the environment, print it at startup, and change
       `packages/fake-data/src/fake/fake.ts:71` off `global.jest?.getSeed()`. Also fixes the four
       already-migrated packages, where the seed is currently unreproducible
+- [ ] Move the two `jest.mock` calls out of `packages/facility-server/__tests__/utilities.js` into the
+      test files that need them, across the 85 importers
+- [ ] Move `jest.mock('../app/utils/getFreeDiskSpace')` out of central's setup file
+- [ ] Delete `packages/shared/src/test-helpers/spyOn.js` and inline a literal `vi.mock` at its one
+      call site
 - [ ] Convert `facility-server` (100 files)
 - [ ] Convert `central-server` (180 files)
 - [ ] Fold `database`, `utils`, `upgrade`, `web` into projects; drop web's vestigial `globals: true`
-- [ ] Port the custom matchers in both `configureEnvironment.js` files
+- [ ] Port all four `configureEnvironment.js` files: the custom matchers in central and facility,
+      `jest.setTimeout` to `testTimeout` in all four, and central's CommonJS body to ESM
+- [ ] Hand-check the five `jest.useFakeTimers` sites; vitest fakes a different default set of timers
 - [ ] Replace `jest-extended` matchers; add a local `toBeEmpty` if any of the 73 sites are not arrays
 - [ ] Delete `jest-expect-message` (vitest supports `expect(value, message)` natively; only 6 sites,
-      all work unchanged) and its `setupFilesAfterEach` entries
+      all work unchanged): the `setupFilesAfterEnv` entries, central's `require` in
+      `configureEnvironment.js`, and facility's bare import at `__tests__/utilities.js:1`
 - [ ] Remove deps: `jest`, `@jest/globals`, `@swc/jest`, `jest-expect-message`, `jest-extended`
-- [ ] Delete `common.jest.config.mjs` (as jest config) and six `jest.config.mjs` files
-- [ ] Delete `scripts/test-all.mjs`; point the root `test` script at vitest
+- [ ] Delete `common.jest.config.mjs` (as jest config) and the five in-scope `jest.config.mjs` files
+      (central, facility, shared, settings, fake-data). `packages/mobile/jest.config.js` stays
+- [ ] Decide what root `npm test` becomes. `scripts/test-all.mjs` currently walks every workspace with
+      a `test` script, so deleting it drops mobile (jest), `e2e-tests` (Playwright) and `scripts`
+      (tape), and the root script's leading `npm run build` goes with it. Either keep a thin runner
+      for the non-vitest three or accept losing them, deliberately
 - [x] Delete `packages/.new-package`, `scripts/create-package.mjs`, and the root `create-package`
       script entry
 - [ ] ESLint rule keeping `vi.mock` at top level
