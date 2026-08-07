@@ -20,12 +20,12 @@ export const insertChangelogRecords = async (
 
   const { ChangeLog } = models;
 
-  // Entries are immutable, so re-delivered records are skipped rather than merged
   await runFunctionInBatches(
     changelogRecords,
     async batch => {
       await ChangeLog.bulkCreate(
         batch.map(record => ({ ...record })),
+        // Entries are immutable, so re-delivered records are skipped rather than merged
         { ignoreDuplicates: true },
       );
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
