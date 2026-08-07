@@ -36,6 +36,31 @@ be found.
   `transfer.md`), or a cache blob that has been evicted (durable on central and
   refetched on demand, see `facility-cache.md`).
 
+## Registry reconciliation
+
+The registry is what makes a blob visible to the server, so content on disk that no
+registry entry names is content the server cannot use. The scrub reconciles the two
+in both directions: its verification pass walks the registry, and its reconciliation
+pass walks the store.
+
+- [ ] The scrub walks the store's own contents as well as its registry, so a blob
+  present on disk but named by no registry entry is found.
+- [ ] Such a blob is verified against the hash its location encodes and, where it
+  matches, registered with its size, so its bytes become usable rather than
+  remaining stranded on disk. Where it does not match, it is treated as corrupt.
+- [ ] Reconciliation is necessary because an unregistered blob is otherwise
+  permanent: it is never served, and it is never reclaimed, since a facility evicts
+  against a budget derived from the registry and never collects orphans (see
+  `reclamation.md`). It nonetheless occupies disk that the free-disk floor measures
+  (see `capacity.md`).
+- [ ] A registry entry naming bytes the store does not hold is recorded as absent,
+  so the server acquires them rather than offering content it cannot serve. Bytes
+  that are legitimately absent stay absent, as above.
+- [ ] Reconciliation is how a restored server converges, its database and store
+  having been captured at different moments (see `backups.md`), and how a server
+  recovers from an admission interrupted between a blob reaching its location and
+  being registered.
+
 ## Self-heal
 
 - [ ] A corrupt replica — a facility cache copy whose bytes fail verification, the

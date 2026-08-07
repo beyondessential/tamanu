@@ -85,7 +85,7 @@ treated as a hard pre-filter on any suggested action.
 | [sync-facility-stale](runbooks/sync-facility-stale.md) | A facility has not synced recently (`sync_facility_stale` check) | Complete |
 | [sync-restart-loop](runbooks/sync-restart-loop.md) | A facility's sync keeps restarting (`sync_restart_loop` check) | Complete |
 | [sync-pull-page-limit](runbooks/sync-pull-page-limit.md) | Sync pull page limit stuck in a degenerate low loop | Complete |
-| [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup, sync throwing fkey conflicts | Complete |
+| [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup: sync fkey conflicts, and checking the blob store | Complete |
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
 
