@@ -856,6 +856,48 @@ describe('Medication', () => {
       expect(afterRow.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
     });
 
+    it('should expose the latest modified fill on the single medication endpoint', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+
+      const before = await app.get(`/api/medication/${prescription.id}`);
+      expect(before).toHaveSucceeded();
+      expect(before.body.latestModifiedDispense).toBeNull();
+
+      const dispenseResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Modified label',
+            modification: buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+          },
+        ],
+      });
+      expect(dispenseResult).toHaveSucceeded();
+
+      const after = await app.get(`/api/medication/${prescription.id}`);
+      expect(after).toHaveSucceeded();
+      expect(after.body.latestModifiedDispense.id).toBe(dispenseResult.body[0].id);
+      expect(after.body.latestModifiedDispense.pharmacyNotes).toBe(
+        'This prescription has been modified by pharmacy when dispensing.',
+      );
+      expect(after.body.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
+
+      // The prescription's own pharmacyNotes must remain untouched
+      const reloaded = await models.Prescription.findByPk(prescription.id);
+      expect(reloaded.pharmacyNotes ?? null).toBe(prescription.pharmacyNotes ?? null);
+    });
+
     it('should reject a modification with a duration value but no unit', async () => {
       const { pharmacyOrderPrescription, prescription } =
         await createPharmacyOrderWithPrescription({ patientId: patient.id });
