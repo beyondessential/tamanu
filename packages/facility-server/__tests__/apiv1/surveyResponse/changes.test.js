@@ -251,6 +251,34 @@ describe('SurveyResponse GET /:id/changes', () => {
       expect(answerChanges[0].to).not.toBe(await compressSignatureBody(SIGNATURE_ANSWER_BODY_ALT));
     });
 
+    it('should include the survey screen component config so the frontend can render types (e.g. Autocomplete, PatientData) that depend on it', async () => {
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const otherFacility = await Facility.create(fake(Facility));
+      const sscConfig = JSON.stringify({ source: 'Facility' });
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        sscConfig,
+        facility.id,
+      );
+
+      const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: otherFacility.id },
+        }),
+      );
+      expect(edit).toHaveSucceeded();
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+
+      const answerChanges = changelog.body.filter(c => c.recordId === answer.id);
+      expect(answerChanges).toHaveLength(1);
+      expect(answerChanges[0].componentConfig).toBe(sscConfig);
+    });
+
     it('should return changes in reverse chronological order by edit time', async () => {
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));
