@@ -29,11 +29,18 @@ Facility-side attachment rows are deliberately left alone: they push their
 bytes inline through sync today, and the outbox that replaces that is G2. The
 backfill seeds the facility store and moves changelog entries only.
 
-## Memory
+## Memory and per-blob size
 
-Rows can be far larger than a batch's worth of RAM, so bytea moves in and out
-of Postgres in chunks (`substring(... from ... for ...)`), never as one value.
-Bounded regardless of blob size, not just regardless of volume.
+A single blob is handled whole, not in slices. Attachment content is capped at
+`DOCUMENT_SIZE_LIMIT` (10MB) and assets are small logos, and the rest of the
+system already loads them whole, so a whole-value read or write is bounded and
+in keeping with existing patterns. The "hundreds of gigabytes" is aggregate
+across rows, which batching bounds by working one row at a time.
+
+Slicing a bytea in SQL would have been actively worse: `substring` over a
+`decode(...)` expression, and `data = data || chunk` appends, both re-materialise
+the whole value per slice, so a large blob would be quadratic in CPU and write
+amplification. An earlier chunked helper did exactly this and was removed.
 
 ## Checklist
 
