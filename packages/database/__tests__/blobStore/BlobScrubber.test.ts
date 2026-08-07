@@ -231,17 +231,34 @@ describe('BlobScrubber', () => {
       expect(healed).toEqual([]);
     });
 
-    it('leaves an absent blob alone rather than re-reporting it each pass', async () => {
-      // A registry row whose bytes are gone: recorded absent by an earlier
-      // pass, and terminal until a repair re-admits it.
+    it('re-checks an absent blob without re-reporting it while it stays missing', async () => {
+      // A registry row whose bytes are gone, recorded absent by an earlier pass.
+      // The scrub still looks at it (that is how it would notice recovery) but
+      // does not re-escalate or re-heal, and re-stamps it so it yields its slot.
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       await removeStoredBytes(hash);
       fakeBlob.rows.get(hash)!.integrityState = 'absent';
+      fakeBlob.rows.get(hash)!.lastScrubbedAt = new Date(1000);
 
       const result = await makeScrubber().run();
 
       expect(result.faults).toBe(0);
       expect(healed).toEqual([]);
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('absent');
+      expect(fakeBlob.rows.get(hash)!.lastScrubbedAt!.getTime()).toBeGreaterThan(1000);
+    });
+
+    it('restores an absent blob to verified once its bytes return', async () => {
+      // The bytes come back (e.g. a backup restore drops the file into place)
+      // while the registry row still stands absent; the scrub flips it back.
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      fakeBlob.rows.get(hash)!.integrityState = 'absent';
+
+      const result = await makeScrubber().run();
+
+      expect(result.faults).toBe(0);
+      expect(result.verified).toBe(1);
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('verified');
     });
 
     it('takes least-recently-scrubbed blobs first', async () => {

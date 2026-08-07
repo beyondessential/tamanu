@@ -302,6 +302,20 @@ export class BlobStore {
 
   // spec: SCRUB
   /**
+   * Record that a batch of blobs was scrubbed just now without changing their
+   * integrity state — for a fault the scrub re-checked and found unchanged, so
+   * it moves to the back of the least-recently-scrubbed queue rather than being
+   * re-examined every pass.
+   */
+  async touchScrubbed(hashes: string[]): Promise<void> {
+    if (hashes.length === 0) {
+      return;
+    }
+    await this.#models.Blob.update({ lastScrubbedAt: new Date() }, { where: { hash: hashes } });
+  }
+
+  // spec: SCRUB
+  /**
    * Register bytes already sitting in their fan-out path — content admitted by
    * a process that died between placing the file and recording it, or restored
    * from a store backup taken after its database. The caller has verified the
@@ -496,10 +510,12 @@ export class BlobStore {
 
   async #commitStagedLocked(hash: string): Promise<PutResult> {
     const existing = await this.stat(hash);
-    // spec: SCRUB — a quarantined copy is exactly what an incoming good copy is
-    // there to replace, so it does not count as content already held. The bad
-    // bytes are dropped only once the replacement has verified below.
-    if (existing && existing.integrityState !== BLOB_INTEGRITY_STATES.QUARANTINED) {
+    // spec: SCRUB — only a copy already verified counts as content held; the
+    // commit is a no-op against it. A quarantined or absent copy is exactly what
+    // an incoming good copy is there to replace or restore, so it falls through
+    // and its bytes and state are only settled once the replacement verifies
+    // below.
+    if (existing && existing.integrityState === BLOB_INTEGRITY_STATES.VERIFIED) {
       await this.#removeStagingFile(hash);
       return { hash, size: existing.size, existed: true };
     }

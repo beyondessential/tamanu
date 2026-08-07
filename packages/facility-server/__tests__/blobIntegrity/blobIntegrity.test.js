@@ -206,6 +206,40 @@ describe('facility blob integrity', () => {
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
     });
 
+    it('restores an absent blob to verified once its bytes return', async () => {
+      // A registry row left absent by an earlier loss, whose bytes are then
+      // back on disk (a backup restore). The scrub notices and flips it back
+      // rather than leaving usable content marked absent forever.
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.ABSENT },
+        { where: { hash } },
+      );
+
+      const result = await makeScrubber().run();
+
+      expect(result.verified).toBe(1);
+      const blob = await models.Blob.findOne({ where: { hash } });
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
+    });
+
+    it('re-checks a still-absent blob without re-escalating it', async () => {
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await fs.rm(pathOf(hash));
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.ABSENT, lastScrubbedAt: new Date('2020-01-01T00:00:00Z') },
+        { where: { hash } },
+      );
+
+      const result = await makeScrubber().run();
+
+      expect(result.faults).toBe(0);
+      const blob = await models.Blob.findOne({ where: { hash } });
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.ABSENT);
+      // Re-stamped so it doesn't monopolise the next pass's scan.
+      expect(blob.lastScrubbedAt.getTime()).toBeGreaterThan(new Date('2020-01-01T00:00:00Z').getTime());
+    });
+
     it('retains a corrupt orphan rather than the cache healer deleting it', async () => {
       // A corrupt orphan has no reference and no known provenance, so it cannot
       // be assumed a refetchable replica: quarantine must retain it, not let the
