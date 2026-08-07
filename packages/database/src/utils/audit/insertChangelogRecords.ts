@@ -1,9 +1,11 @@
+import config from 'config';
 import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-const DEFAULT_INSERT_BATCH_SIZE = 1000;
+const { pauseBetweenPersistedCacheBatchesInMilliseconds, persistedCacheBatchSize } = config.sync;
 
 /**
  * `logs.changes` records carry a full copy of the record in `record_data`. Keep batches small to
@@ -12,7 +14,7 @@ const DEFAULT_INSERT_BATCH_SIZE = 1000;
 export const insertChangelogRecords = async (
   models: Models,
   changelogRecords: ChangeLog[],
-  batchSize = DEFAULT_INSERT_BATCH_SIZE,
+  batchSize = persistedCacheBatchSize,
 ) => {
   if (!changelogRecords.length) return;
 
@@ -21,11 +23,13 @@ export const insertChangelogRecords = async (
   // Entries are immutable, so re-delivered records are skipped rather than merged
   await runFunctionInBatches(
     changelogRecords,
-    batch =>
-      ChangeLog.bulkCreate(
+    async batch => {
+      await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
+      return ChangeLog.bulkCreate(
         batch.map(record => ({ ...record })),
         { ignoreDuplicates: true },
-      ),
+      );
+    },
     batchSize,
   );
 };
