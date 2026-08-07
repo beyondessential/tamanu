@@ -1044,24 +1044,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         });
       });
 
-      it("won't sync sensitive encounter lab request logs", async () => {
-        const sensitiveLabRequestLog = await models.LabRequestLog.create(
-          fake(models.LabRequestLog, {
-            labRequestId: sensitiveLabRequest.id,
-          }),
-        );
-        const nonSensitiveLabRequestLog = await models.LabRequestLog.create(
-          fake(models.LabRequestLog, {
-            labRequestId: nonSensitiveLabRequest.id,
-          }),
-        );
-        await checkSensitiveRecordFiltering({
-          model: models.LabRequestLog,
-          sensitiveId: sensitiveLabRequestLog.id,
-          nonSensitiveId: nonSensitiveLabRequestLog.id,
-        });
-      });
-
       it('will sync sensitive lab requests to any facility with syncAllLabRequests enabled', async () => {
         await models.Setting.create({
           facilityId: nonSensitiveFacility.id,

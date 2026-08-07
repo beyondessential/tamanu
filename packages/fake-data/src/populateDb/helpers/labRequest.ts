@@ -22,7 +22,7 @@ export const createLabRequest = async ({
   labTestTypeId,
   testCount = chance.integer({ min: 1, max: 10 }),
 }: CreateLabRequestParams): Promise<void> => {
-  const { LabRequest, LabRequestLog, LabTest, CertificateNotification } = models;
+  const { LabRequest, LabTest, CertificateNotification } = models;
 
   const resolvedDepartmentId = departmentId || (await randomRecordId(models, 'Department'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
@@ -37,14 +37,6 @@ export const createLabRequest = async ({
       collectedById: resolvedUserId,
       requestedById: resolvedUserId,
       encounterId: resolvedEncounterId,
-    }),
-  );
-
-  await LabRequestLog.create(
-    fake(LabRequestLog, {
-      status: 'reception_pending',
-      labRequestId: labRequest.id,
-      updatedById: resolvedUserId,
     }),
   );
 

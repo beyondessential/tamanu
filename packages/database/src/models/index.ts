@@ -57,7 +57,6 @@ export * from './EncounterDiet';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
 export * from './LabTest';
-export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './LabTestPanel';
 export * from './LabTestPanelRequest';

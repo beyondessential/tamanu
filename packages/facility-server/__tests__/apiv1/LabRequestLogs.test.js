@@ -3,7 +3,7 @@ import { createDummyPatient, randomLabRequest } from '@tamanu/database/demoData'
 
 import { createTestContext } from '../utilities';
 
-describe('Lab request logs', () => {
+describe('Lab request status history', () => {
   let patientId = null;
   let app = null;
   let baseApp = null;
@@ -33,7 +33,7 @@ describe('Lab request logs', () => {
     expect(labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
-  it('should create a lab request log when updating a labs status', async () => {
+  it('should record a transition when updating a labs status', async () => {
     const user = await app.get('/api/user/me');
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
@@ -44,34 +44,61 @@ describe('Lab request logs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(requestId);
-
     expect(labRequest).toHaveProperty('status', status);
-    expect(labRequest).toBeTruthy();
-    expect(labRequest.createdAt).toBeTruthy();
 
-    const labRequestLog = await models.LabRequestLog.findAll({
-      where: {
-        labRequestId: labRequest.id,
-      },
-    });
-    // It should have two logs, one for when the lab request is created and another when the lab request is updated
-    expect(labRequestLog.length).toEqual(2);
+    const history = await app.get(`/api/labRequestLog/labRequest/${requestId}`);
+    expect(history).toHaveSucceeded();
+    // the status it was created with, then the transition, most recent first
+    expect(history.body.data).toEqual([
+      expect.objectContaining({ status, updatedByDisplayName: user.body.displayName }),
+      expect.objectContaining({ status: LAB_REQUEST_STATUSES.RECEPTION_PENDING }),
+    ]);
   });
 
-  it('should not create a lab request log if not updating the lab request status', async () => {
+  it('should not record a transition when the status is unchanged', async () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const response = await app.put(`/api/labRequest/${requestId}`).send({ urgent: true });
     expect(response).toHaveSucceeded();
 
-    const labRequestLog = await models.LabRequestLog.findAll({
-      where: {
-        labRequestId: response.body.id,
-      },
-    });
+    const history = await app.get(`/api/labRequestLog/labRequest/${requestId}`);
+    expect(history.body.data).toEqual([
+      expect.objectContaining({ status: LAB_REQUEST_STATUSES.RECEPTION_PENDING }),
+    ]);
+  });
 
-    // It should have one log created for when the lab request is created only
-    expect(labRequestLog.length).toEqual(1);
+  it('reports the latest published transition, and nothing before one', async () => {
+    const user = await app.get('/api/user/me');
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+
+    const before = await app.get(`/api/labRequestLog/labRequest/${requestId}/latest-published`);
+    expect(before).toHaveSucceeded();
+    // an empty body: the printout reads updatedBy off it and shows no publisher
+    expect(before.body.updatedBy).toBeUndefined();
+
+    await app
+      .put(`/api/labRequest/${requestId}`)
+      .send({ status: LAB_REQUEST_STATUSES.PUBLISHED, userId: user.body.id });
+
+    const after = await app.get(`/api/labRequestLog/labRequest/${requestId}/latest-published`);
+    expect(after.body).toMatchObject({
+      status: LAB_REQUEST_STATUSES.PUBLISHED,
+      updatedBy: { displayName: user.body.displayName },
+    });
+  });
+
+  it('forbids a user without LabRequestLog list permission', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const baseUserApp = await baseApp.asRole('base');
+
+    expect(await baseUserApp.get(`/api/labRequestLog/labRequest/${requestId}`)).toBeForbidden();
+    expect(
+      await baseUserApp.get(`/api/labRequestLog/labRequest/${requestId}/latest-published`),
+    ).toBeForbidden();
   });
 });

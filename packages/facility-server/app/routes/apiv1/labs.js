@@ -90,13 +90,8 @@ labRequest.put(
     }
 
     await db.transaction(async () => {
-      if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
-        if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
-        await models.LabRequestLog.create({
-          status: labRequestData.status,
-          labRequestId: params.id,
-          updatedById: userId,
-        });
+      if (labRequestData.status && labRequestData.status !== labRequestRecord.status && !userId) {
+        throw new InvalidOperationError('No user found for LabRequest status change.');
       }
 
       if (labRequestData.specimenTypeId !== undefined) {

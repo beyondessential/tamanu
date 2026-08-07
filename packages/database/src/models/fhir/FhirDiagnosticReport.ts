@@ -13,6 +13,7 @@ import { InvalidOperationError } from '@tamanu/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
+import { runWithAuditUser } from '../../utils/audit/attachAuditUserToDbSession';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
 
@@ -132,33 +133,31 @@ export class FhirDiagnosticReport extends FhirResource {
         `entered-in-error DiagnosticReport can only be applied to a published LabRequest`,
       );
     }
-    await this.sequelize.transaction(async () => {
-      const newStatus = this.getLabRequestStatus();
+    const newStatus = this.getLabRequestStatus();
+    if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
+      return labRequest;
+    }
 
-      if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
-        return;
-      }
+    if (!requesterId)
+      throw new InvalidOperationError('No user found for LabRequest status change.');
 
-      labRequest.set({ status: newStatus });
-      if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
-        labRequest.set({ publishedDate: getCurrentDateTimeString() });
-      }
-      if (this.conclusion) {
-        labRequest.set({ resultsInterpretation: this.conclusion });
-      }
-      await labRequest.save();
+    // the results arrive from the laboratory, but the change belongs to the requester
+    await runWithAuditUser(requesterId, () =>
+      this.sequelize.transaction(async () => {
+        labRequest.set({ status: newStatus });
+        if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+          labRequest.set({ publishedDate: getCurrentDateTimeString() });
+        }
+        if (this.conclusion) {
+          labRequest.set({ resultsInterpretation: this.conclusion });
+        }
+        await labRequest.save();
 
-      if (!requesterId)
-        throw new InvalidOperationError('No user found for LabRequest status change.');
-      await this.sequelize.models.LabRequestLog.create({
-        status: newStatus,
-        labRequestId: labRequest.id,
-        updatedById: requesterId,
-      });
-      if (this.presentedForm) {
-        await this.saveAttachment(labRequest);
-      }
-    });
+        if (this.presentedForm) {
+          await this.saveAttachment(labRequest);
+        }
+      }),
+    );
 
     return labRequest;
   }
