@@ -24,11 +24,14 @@ export const insertChangelogRecords = async (
   await runFunctionInBatches(
     changelogRecords,
     async batch => {
-      await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
-      return ChangeLog.bulkCreate(
+      await ChangeLog.bulkCreate(
         batch.map(record => ({ ...record })),
         { ignoreDuplicates: true },
       );
+      await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
+      // Result of this `runFunctionInBatches` is unused anyway; let the `bulkCreate` results get
+      // garbage collected. Returning empty array simply for type safety.
+      return [];
     },
     batchSize,
   );
