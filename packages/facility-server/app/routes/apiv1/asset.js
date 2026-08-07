@@ -34,7 +34,7 @@ asset.get(
     // the cache, fetching from central on a miss; a legacy row carries its own
     // bytes. No row at all stays an empty response (the asset is optional).
     if (!assetRecord?.hash) {
-      res.send(assetRecord || {});
+      res.send(assetRecord ?? {});
       return;
     }
 
