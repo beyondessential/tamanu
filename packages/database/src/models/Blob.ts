@@ -23,6 +23,7 @@ export class Blob extends Model {
   declare integrityState: BlobIntegrityState;
   declare tier: BlobTier;
   declare lastAccessedAt: Date;
+  declare lastScrubbedAt: Date | null;
   declare eligibleSinceTick: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -63,6 +64,15 @@ export class Blob extends Model {
           type: DataTypes.DATE,
           allowNull: false,
           defaultValue: DataTypes.NOW,
+        },
+        // spec: SCRUB
+        // When the scrub last verified this blob against its hash. Null until
+        // first scrubbed, which the scrub's least-recently-scrubbed-first scan
+        // takes ahead of any stamped row. The result of that verification is
+        // the integrity state above, as at this time.
+        lastScrubbedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
         },
         // spec: CAP
         // The push cursor at the moment this blob was first observed eligible

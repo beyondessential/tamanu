@@ -21,7 +21,8 @@ Size of the blob's content in bytes.
 {% docs blobs__integrity_state %}
 The blob's integrity state: `verified` when its content matched its hash at the
 last check, `quarantined` when verification failed and the blob is retained for
-investigation but never served.
+investigation but never served, `absent` when the store no longer holds the
+bytes this entry names and the server needs to acquire them again.
 {% enddocs %}
 
 {% docs blobs__tier %}
@@ -36,6 +37,14 @@ When the blob's content was last read (or admitted, whichever is later), used
 for least-recently-used eviction ordering on facility and mobile servers.
 Recency updates may be coalesced, so this is a lower bound on the true last
 access.
+{% enddocs %}
+
+{% docs blobs__last_scrubbed_at %}
+When the scheduled integrity scrub last verified this blob's content against its
+hash; the result of that verification is the integrity state as at this time.
+The scrub takes the least-recently-scrubbed blobs first, so how far this lags
+behind the present is how far behind a full cycle of the store the scrub is.
+Null means never scrubbed.
 {% enddocs %}
 
 {% docs blobs__eligible_since_tick %}
