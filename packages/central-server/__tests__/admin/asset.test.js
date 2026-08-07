@@ -69,15 +69,17 @@ describe('Asset upload', () => {
     // The unauthenticated case above is rejected by auth middleware and never
     // reaches checkPermission; this authenticated-but-unprivileged user does.
     const noCreateApp = await baseApp.asNewRole([['read', 'Asset']]);
+    const blobsBefore = await models.Blob.count();
     const response = await noCreateApp.put(`/api/admin/asset/${UNCREATED_NAME}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(response).toBeForbidden();
 
-    // The blob must not be admitted when the permission check refuses.
+    // Neither the row nor the bytes must be admitted when the check refuses.
     const asset = await models.Asset.findOne({ where: { name: UNCREATED_NAME } });
     expect(asset).toBeNull();
+    expect(await models.Blob.count()).toBe(blobsBefore);
   });
 
   it('should upload a new asset, storing the bytes as a blob and recording the hash', async () => {
