@@ -332,14 +332,13 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                     </Box>
                   ))}
                   <NoteText>
-                    {log.userChanged.name}{' '}
-                    {log.userChanged.date}
+                    {log.userChanged.name} {log.userChanged.date}
                   </NoteText>
                   {log.doseIndex && (
                     <DoseLabel>
                       <TranslatedText
                         stringId="medication.mar.dose"
-                        fallback="Dose :index"
+                        fallback="Dose&nbsp;:index"
                         replacements={{ index: log.doseIndex }}
                       />
                     </DoseLabel>
