@@ -59,10 +59,19 @@ amplification. An earlier chunked helper did exactly this and was removed.
 
 ## Server discrimination
 
-The task runs on both servers and behaves differently on each, so it needs to
-know which it is on. `serviceContext()` is not reliably populated under test, so
-it reads the shape of `context.settings` instead: central carries one reader,
-a facility carries one per facility plus a global.
+The task runs on both servers and behaves differently on each, so it reads
+`serviceContext().serverType` (backed by `global.serverInfo.serverType`, set at
+boot in each server package) — the same signal `SendStatusToMetaServer` uses.
+Central owns the rows: it holds attachment and asset bytes and rewrites the rows
+in place, covering both tables. A facility holds only pulled asset bytes, so it
+seeds its store for `assets` alone and leaves the rows for central's synced
+updates; facility attachments push inline and belong to the outbox (G2/J2), not
+this backfill. The per-server table set is threaded into `BlobBackfill` at
+construction so counting, changelog rewrite, and completion all scope to it.
+
+Mobile needs no migration here: it has no `assets` table, and its attachments
+are push-only (`PUSH_TO_CENTRAL`), so a backfilled hash-only row never reaches
+it. Mobile's own blob transition is card L2.
 
 ## Taking the store from the context
 
