@@ -50,17 +50,19 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
       try {
         setIsLoading(true);
         const programName = programOptions.find(option => option.value === programId).label;
-        await saveFile({
+        const saved = await saveFile({
           defaultFileName: `Program-${programName}-export-${getCurrentDateTime()}`,
           getData: async () => await api.download(`admin/export/program/${programId}`),
           extension: 'xlsx',
         });
-        notifySuccess(
-          <TranslatedText
-            stringId="document.notification.downloadSuccess"
-            fallback="Successfully downloaded file"
-          />,
-        );
+        if (saved) {
+          notifySuccess(
+            <TranslatedText
+              stringId="document.notification.downloadSuccess"
+              fallback="Successfully downloaded file"
+            />,
+          );
+        }
       } finally {
         setIsLoading(false);
       }

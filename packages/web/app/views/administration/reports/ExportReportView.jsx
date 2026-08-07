@@ -5,11 +5,7 @@ import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormGrid, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
-import {
-  Field,
-  RadioField,
-  TranslatedText,
-} from '../../../components';
+import { Field, RadioField, TranslatedText } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
@@ -74,21 +70,25 @@ export const ExportReportView = () => {
         return data;
       };
 
-      await saveFile({
+      const saved = await saveFile({
         defaultFileName,
         getData,
         extension: format,
       });
-      notifySuccess(
-        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
-      );
+      if (saved) {
+        notifySuccess(
+          <TranslatedText
+            stringId="document.notification.downloadSuccess"
+            fallback="Successfully downloaded file"
+          />,
+        );
+      }
     } catch (err) {
       toast.error(
         <TranslatedText
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
-          data-testid="translatedtext-w9jy"
         />,
       );
     }

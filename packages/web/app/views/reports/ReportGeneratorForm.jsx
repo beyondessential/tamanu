@@ -295,15 +295,21 @@ export const ReportGeneratorForm = () => {
   };
 
   const onDownload = async () => {
+    // Clear prior attempt feedback. Keep `dataReadyForSaving`, so if user cancels via
+    // `window.showSaveFilePicker()` dialog they can retry without regenerating the same report.
+    setRequestError(null);
+    setSuccessMessage(null);
     try {
-      await saveFile(dataReadyForSaving);
-      resetDownload();
-      setSuccessMessage(
-        <TranslatedText
-          stringId="report.generate.message.export.success"
-          fallback="Report successfully exported"
-        />,
-      );
+      const saved = await saveFile(dataReadyForSaving);
+      if (saved) {
+        resetDownload();
+        setSuccessMessage(
+          <TranslatedText
+            stringId="report.generate.message.export.success"
+            fallback="Report successfully exported"
+          />,
+        );
+      }
     } catch (error) {
       setRequestError(`Unable to export report - ${error.message}`);
     }
