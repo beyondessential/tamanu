@@ -68,4 +68,9 @@ describe('Asset GET endpoint', () => {
     expect(response).toHaveSucceeded();
     expect(response.body).toEqual({});
   });
+
+  it('rejects an unauthenticated request', async () => {
+    const response = await ctx.baseApp.get(`/api/asset/${NAME}`).query({ facilityId });
+    expect(response).not.toHaveSucceeded();
+  });
 });
