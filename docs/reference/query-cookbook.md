@@ -553,10 +553,49 @@ repair path is not working. On central it is an authoritative copy needing repai
 from a peer or a backup, and is an escalation.
 
 ```sql
-SELECT id, hash, size, created_at
+SELECT id, hash, size, tier, created_at, last_scrubbed_at
 FROM blobs
 WHERE deleted_at IS NULL AND integrity_state = 'quarantined'
 ORDER BY created_at;
+```
+
+On a facility, `tier` decides how urgent this is: a `cache` row is self-correcting,
+an `outbox` row may be the only copy of its content. See
+`../runbooks/blob-integrity.md`.
+
+### Integrity state summary
+
+The shape of the store's health in one row, and the basis of the `blob_integrity`
+check. `absent` is a registry entry whose bytes the store no longer holds, as
+distinct from `quarantined` bytes that are held but no longer match their hash.
+
+```sql
+SELECT integrity_state,
+       tier,
+       count(*) AS blobs,
+       pg_size_pretty(sum(size)) AS bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY integrity_state, tier
+ORDER BY integrity_state, tier;
+```
+
+### Scrub coverage
+
+The scrub verifies least-recently-scrubbed blobs first, in rate-limited passes, so
+the oldest scrub time is how far behind a full cycle it is. A figure that keeps
+growing means the store is being added to faster than the per-pass limits cover
+it: raise `maxBlobsPerPass` / `maxGigabytesPerPass`, or run the scrub more often
+(central `schedules.blobIntegrityScrub`, or the same path in facility settings).
+A never-scrubbed count that never falls means the scrub is not running at all.
+
+```sql
+SELECT count(*) AS blobs,
+       count(*) FILTER (WHERE last_scrubbed_at IS NULL) AS never_scrubbed,
+       min(last_scrubbed_at) AS oldest_scrub,
+       max(last_scrubbed_at) AS newest_scrub
+FROM blobs
+WHERE deleted_at IS NULL;
 ```
 
 ## DHIS2 push log
