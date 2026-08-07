@@ -19,6 +19,12 @@ export interface BackfillProgress {
 export interface BlobBackfillOptions {
   sequelize: Sequelize;
   blobStore: BlobStore;
+  /**
+   * Which reference tables this server backfills. Central owns both; a facility
+   * holds only asset bytes (attachments there push inline and are handled by
+   * the outbox), so it passes just `['assets']`. Defaults to both.
+   */
+  tables?: readonly ReferenceTable[];
 }
 
 // spec: BKFL
@@ -36,10 +42,17 @@ export interface BlobBackfillOptions {
 export class BlobBackfill {
   readonly #sequelize: Sequelize;
   readonly #blobStore: BlobStore;
+  readonly #tables: readonly ReferenceTable[];
 
-  constructor({ sequelize, blobStore }: BlobBackfillOptions) {
+  constructor({ sequelize, blobStore, tables = REFERENCE_TABLES }: BlobBackfillOptions) {
     this.#sequelize = sequelize;
     this.#blobStore = blobStore;
+    this.#tables = tables;
+  }
+
+  /** The reference tables this instance backfills. */
+  get tables(): readonly ReferenceTable[] {
+    return this.#tables;
   }
 
   /**
@@ -112,7 +125,7 @@ export class BlobBackfill {
         LIMIT :batchSize
       `,
       {
-        replacements: { tableNames: [...REFERENCE_TABLES], batchSize },
+        replacements: { tableNames: [...this.#tables], batchSize },
         type: QueryTypes.SELECT,
       },
     );
@@ -150,7 +163,7 @@ export class BlobBackfill {
   /** What is left to do, for operator-visible progress. */
   async countRemaining(): Promise<BackfillProgress> {
     const rows: Record<string, number> = {};
-    for (const tableName of REFERENCE_TABLES) {
+    for (const tableName of this.#tables) {
       const row = await this.#sequelize.query<{ count: string }>(
         `SELECT count(*) AS count FROM ${tableName} WHERE data IS NOT NULL`,
         { type: QueryTypes.SELECT, plain: true },
@@ -166,7 +179,7 @@ export class BlobBackfill {
           AND record_data->>'data' IS NOT NULL
       `,
       {
-        replacements: { tableNames: [...REFERENCE_TABLES] },
+        replacements: { tableNames: [...this.#tables] },
         type: QueryTypes.SELECT,
         plain: true,
       },
@@ -180,12 +193,14 @@ export class BlobBackfill {
    * Completion is this, not merely the absence of remaining bytes.
    */
   async findUnbackedHashes(): Promise<string[]> {
+    // Table names are the typed reference-table literals, never user input.
+    const rowHashSelects = this.#tables
+      .map(tableName => `SELECT hash FROM ${tableName} WHERE hash IS NOT NULL`)
+      .join('\n          UNION\n          ');
     const rows = await this.#sequelize.query<{ hash: string }>(
       `
         SELECT DISTINCT referenced.hash FROM (
-          SELECT hash FROM attachments WHERE hash IS NOT NULL
-          UNION
-          SELECT hash FROM assets WHERE hash IS NOT NULL
+          ${rowHashSelects}
           UNION
           SELECT record_data->>'hash' AS hash FROM logs.changes
           WHERE table_schema = 'public'
@@ -196,7 +211,7 @@ export class BlobBackfill {
         WHERE blobs.hash IS NULL
       `,
       {
-        replacements: { tableNames: [...REFERENCE_TABLES] },
+        replacements: { tableNames: [...this.#tables] },
         type: QueryTypes.SELECT,
       },
     );
@@ -251,7 +266,7 @@ export class BlobBackfill {
         LIMIT :batchSize
       `,
       {
-        replacements: { tableNames: [...REFERENCE_TABLES], batchSize },
+        replacements: { tableNames: [...this.#tables], batchSize },
         type: QueryTypes.SELECT,
       },
     );

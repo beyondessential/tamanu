@@ -98,6 +98,31 @@ describe('BlobBackfillTask', () => {
     expect(Number(remaining.count)).toBe(0);
   });
 
+  it('on a facility, seeds asset content and leaves attachments to the outbox', async () => {
+    const assetContent = Buffer.from('a synced letterhead');
+    const attachmentContent = Buffer.from('a local attachment mid-push');
+    const assetId = await insertAsset(assetContent);
+    const attachmentId = await insertAttachment(attachmentContent);
+
+    const previous = global.serverInfo;
+    global.serverInfo = { serverType: 'facility' };
+    try {
+      await makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 }).run();
+    } finally {
+      // eslint-disable-next-line require-atomic-updates -- single-threaded save/restore
+      global.serverInfo = previous;
+    }
+
+    // Asset bytes are seeded into the store so the hash-carrying row central
+    // sends later resolves locally; the row itself is left for that sync.
+    expect(await ctx.blobStore.has(hashOf(assetContent))).toBe(true);
+    expect((await rowOf('assets', assetId)).data).not.toBeNull();
+    // Attachments are not the facility's to move, and are not seeded either:
+    // they push inline and become outbox blobs elsewhere (G2/J2).
+    expect(await ctx.blobStore.has(hashOf(attachmentContent))).toBe(false);
+    expect((await rowOf('attachments', attachmentId)).data).not.toBeNull();
+  });
+
   it('works through more rows than one batch holds', async () => {
     for (let i = 0; i < 7; i++) await insertAttachment(Buffer.from(`document ${i}`));
 

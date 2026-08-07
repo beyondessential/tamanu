@@ -7,6 +7,10 @@ const jestExtendedMatchers = require('jest-extended');
 
 globalThis.crypto = require('crypto');
 
+// Sets global.serverInfo (serverType: 'central') the way a booted server does,
+// so serviceContext() reports the server type under test as it would in production.
+require('../app/serverInfo');
+
 // TextDecoder is undefined in jest environment
 // Required for cbor
 const { TextDecoder } = require('util');

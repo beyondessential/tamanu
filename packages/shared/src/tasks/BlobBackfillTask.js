@@ -1,17 +1,9 @@
-import { BlobBackfill, REFERENCE_TABLES } from '@tamanu/database/blobStore';
+import { BlobBackfill } from '@tamanu/database/blobStore';
 import { InsufficientStorageError } from '@tamanu/errors';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { log } from '../services/logging';
 import { ScheduledTask } from './ScheduledTask';
-
-/**
- * Which server this is running on, told by the shape of its settings: central
- * carries a single reader, a facility carries one per facility plus a global.
- */
-function isCentralServer(context) {
-  return typeof context.settings?.get === 'function';
-}
 
 // spec: BKFL
 // Moves legacy in-database attachment and asset content into the blob store,
@@ -32,10 +24,13 @@ export class BlobBackfillTask extends ScheduledTask {
     // carries the cache-eviction hook, so a backfill admission that runs the
     // volume down to the reserve evicts cache instead of refusing.
     this.blobStore = context.blobStore;
-    // Only the server that owns a row may rewrite it. Attachment and asset
-    // bytes live on central; a facility holds pulled copies whose updates
-    // arrive through sync, so it seeds its store and leaves the rows alone.
-    this.ownsRows = isCentralServer(context);
+    // Only central owns the rows: it holds the attachment and asset bytes and
+    // rewrites the rows in place. A facility holds only pulled asset bytes, so
+    // it seeds its store for assets and leaves the rows for central's synced
+    // updates; its attachments push inline and are the outbox's concern.
+    // `global.serverInfo.serverType` is set at boot in each server package.
+    this.ownsRows = global.serverInfo?.serverType === 'central';
+    this.tables = this.ownsRows ? ['attachments', 'assets'] : ['assets'];
   }
 
   async countQueue() {
@@ -48,6 +43,7 @@ export class BlobBackfillTask extends ScheduledTask {
     this.backfill ??= new BlobBackfill({
       sequelize: this.sequelize,
       blobStore: this.blobStore,
+      tables: this.tables,
     });
     return this.backfill;
   }
@@ -57,7 +53,7 @@ export class BlobBackfillTask extends ScheduledTask {
     const backfill = this.getBackfill();
 
     try {
-      for (const tableName of REFERENCE_TABLES) {
+      for (const tableName of this.tables) {
         // Seeding leaves the rows in place, so it walks them by offset;
         // moving consumes them, so the same query keeps returning fresh work.
         let seeded = 0;
