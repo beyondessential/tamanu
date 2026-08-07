@@ -1,4 +1,5 @@
 import {
+  BlobBackfillTask,
   SendStatusToMetaServer,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
@@ -31,6 +32,7 @@ const DEFAULT_TASK_CLASSES = [
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
   BedFeeCharger,
+  BlobBackfillTask,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.

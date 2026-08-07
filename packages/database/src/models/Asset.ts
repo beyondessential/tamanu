@@ -8,8 +8,8 @@ export class Asset extends Model {
   declare id: string;
   declare name?: string;
   declare type?: string;
-  declare data?: Buffer;
-  declare hash?: string;
+  declare data?: Buffer | null;
+  declare hash?: string | null;
   declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -18,6 +18,7 @@ export class Asset extends Model {
         id: primaryKey,
         name: DataTypes.STRING,
         type: DataTypes.STRING,
+        // spec: BKFL — bytes until the backfill moves them, hash afterwards.
         data: DataTypes.BLOB,
         // spec: ASSET
         // The image lives in the blob store, addressed by this hash; the row
@@ -43,7 +44,7 @@ export class Asset extends Model {
    * Asset is PULL_FROM_CENTRAL, i.e. we don't sync asset up from devices to sync servers.
    */
   static sanitizeForCentralServer({ data, ...restOfValues }: ModelSanitizeArgs) {
-    // spec: ASSET — an asset stored on the blob store carries no inline bytes.
+    // spec: ASSET, BKFL — an asset stored on the blob store carries no inline bytes.
     if (data === null || data === undefined) {
       return { ...restOfValues, data: null };
     }
@@ -62,7 +63,7 @@ export class Asset extends Model {
   }
 
   static sanitizeForFacilityServer({ data, ...restOfValues }: { data: any; [key: string]: any }) {
-    // spec: ASSET — an asset stored on the blob store carries no inline bytes.
+    // spec: ASSET, BKFL — an asset stored on the blob store carries no inline bytes.
     if (data === null || data === undefined) {
       return { ...restOfValues, data: null };
     }
