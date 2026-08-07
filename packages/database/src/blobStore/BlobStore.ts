@@ -286,6 +286,22 @@ export class BlobStore {
 
   // spec: SCRUB
   /**
+   * Stamp a batch of blobs as verified as of now, in one statement. The scrub's
+   * common case is that most blobs pass, so this keeps a pass to a single write
+   * for the verified set rather than one per blob.
+   */
+  async recordVerified(hashes: string[]): Promise<void> {
+    if (hashes.length === 0) {
+      return;
+    }
+    await this.#models.Blob.update(
+      { integrityState: BLOB_INTEGRITY_STATES.VERIFIED, lastScrubbedAt: new Date() },
+      { where: { hash: hashes } },
+    );
+  }
+
+  // spec: SCRUB
+  /**
    * Register bytes already sitting in their fan-out path — content admitted by
    * a process that died between placing the file and recording it, or restored
    * from a store backup taken after its database. The caller has verified the
