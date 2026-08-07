@@ -8,6 +8,8 @@ const [NAME, OTHER_NAME, THIRD_NAME, FORBID_NAME] = Object.values(ASSET_NAMES);
 // reorder of ASSET_NAMES can't silently change which assets it uploads.
 const DEDUP_NAME_A = ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER;
 const DEDUP_NAME_B = ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
+// Must stay unuploaded so the create branch is the one under test.
+const UNCREATED_NAME = ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER;
 
 const streamToBuffer = async stream => {
   const chunks = [];
@@ -61,6 +63,21 @@ describe('Asset upload', () => {
       data: B64_PNG_1X1_WHITE,
     });
     expect(response).toBeForbidden();
+  });
+
+  it('should forbid a user without create permission from uploading a new asset', async () => {
+    // The unauthenticated case above is rejected by auth middleware and never
+    // reaches checkPermission; this authenticated-but-unprivileged user does.
+    const noCreateApp = await baseApp.asNewRole([['read', 'Asset']]);
+    const response = await noCreateApp.put(`/api/admin/asset/${UNCREATED_NAME}`).send({
+      filename: 'test.png',
+      data: B64_PNG_1X1_CLEAR,
+    });
+    expect(response).toBeForbidden();
+
+    // The blob must not be admitted when the permission check refuses.
+    const asset = await models.Asset.findOne({ where: { name: UNCREATED_NAME } });
+    expect(asset).toBeNull();
   });
 
   it('should upload a new asset, storing the bytes as a blob and recording the hash', async () => {
