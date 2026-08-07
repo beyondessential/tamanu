@@ -35,6 +35,10 @@ be found.
   proactively repaired: a blob still awaiting upload or fetch (content-pending, see
   `transfer.md`), or a cache blob that has been evicted (durable on central and
   refetched on demand, see `facility-cache.md`).
+- [ ] Central separates the two by how long the reference has stood: push is
+  sync-first, so every reference is briefly ahead of its bytes, and a reference is
+  undelivered only once its record has been synchronised long enough that the
+  upload should have followed. Within that window it is content-pending.
 
 ## Registry reconciliation
 

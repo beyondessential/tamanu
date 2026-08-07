@@ -97,9 +97,13 @@ export class BlobTransferChannel {
    * download resumes from the bytes already staged, including across calls
    * and restarts, and the complete content is verified against the hash
    * before it is admitted.
+   *
+   * spec: SCRUB — `ignoreLocal` fetches even though the hash is occupied, for
+   * the self-heal path replacing a copy that failed verification. The bad bytes
+   * are only dropped once the replacement has verified.
    */
-  async fetchFromCentral(hash) {
-    const held = await this.#blobStore.stat(hash);
+  async fetchFromCentral(hash, { ignoreLocal = false } = {}) {
+    const held = ignoreLocal ? null : await this.#blobStore.stat(hash);
     if (held) {
       return { hash, size: held.size, existed: true };
     }

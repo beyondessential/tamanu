@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { fake } from '@tamanu/fake-data/fake';
@@ -113,6 +115,18 @@ describe('Blob transfer channel', () => {
 
   // Bytes held by central without going through the push gate.
   const seedHeldBlob = async content => (await ctx.blobStore.put(Readable.from(content))).hash;
+
+  // Where the store keeps a hash's bytes, for tests that need to damage them.
+  const storedPath = hash => {
+    const digest = hash.split(':')[1];
+    return path.join(
+      ctx.blobStore.root,
+      'sha256',
+      digest.slice(0, 2),
+      digest.slice(2, 4),
+      digest.slice(4),
+    );
+  };
 
   // Responses must be identical modulo the hash they were asked about. The
   // stack is dropped before comparing: it is a debug field that production
@@ -393,6 +407,60 @@ describe('Blob transfer channel', () => {
       expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD);
       // and does not disclose the quarantine in the message
       expect(JSON.stringify(fetched.body)).not.toContain('quarantine');
+    });
+
+    // spec: SCRUB
+    // Central's peer healing. It cannot reach a facility on demand and keeps no
+    // index of what facilities hold, so a replacement is taken on a connection
+    // the facility makes anyway, whenever one happens to offer the content.
+    it('wants a hash whose held copy is quarantined, rather than declining it', async () => {
+      const content = Buffer.from('content central found to be bad');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { where: { hash } },
+      );
+
+      const offered = await offer(hash, content.length);
+      expect(offered).toHaveSucceeded();
+      expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.WANTED);
+    });
+
+    it('replaces the quarantined copy once the pushed content verifies', async () => {
+      const content = Buffer.from('content central found to be bad, replaced');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      // Corrupt the stored bytes as the scrub would have found them, so the
+      // replacement is a real repair rather than a no-op over good content.
+      await fs.writeFile(storedPath(hash), Buffer.from('rotted'));
+      await models.Blob.update(
+        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { where: { hash } },
+      );
+
+      const offered = await offer(hash, content.length);
+      expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.WANTED);
+      const put = await putChunk(hash, content, 0, content.length);
+      expect(put).toHaveSucceeded();
+      expect(put.body.acknowledged).toBe(true);
+
+      const blob = await models.Blob.findOne({ where: { hash } });
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
+      expect(await fs.readFile(storedPath(hash))).toEqual(content);
+
+      // and it serves again
+      const fetched = await getBlob(hash);
+      expect(fetched).toHaveSucceeded();
+    });
+
+    it('still declines content it holds and has no fault with', async () => {
+      const content = Buffer.from('content central is happy with');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+
+      const offered = await offer(hash, content.length);
+      expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.ALREADY_STORED);
     });
   });
 
