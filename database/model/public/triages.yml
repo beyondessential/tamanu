@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_triages_from_sync_lookup
               - notify_triages_changed
               - record_triages_changelog
               - set_triages_updated_at

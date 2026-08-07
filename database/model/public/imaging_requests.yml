@@ -11,6 +11,7 @@ sources:
             - clinical
           meta:
             triggers:
+              - delete_imaging_requests_from_sync_lookup
               - notify_imaging_requests_changed
               - record_imaging_requests_changelog
               - set_imaging_requests_updated_at

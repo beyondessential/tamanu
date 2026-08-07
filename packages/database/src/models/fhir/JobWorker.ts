@@ -42,8 +42,13 @@ export class FhirJobWorker extends Model {
     return FhirJobWorker.findByPk(result?.[0]?.id);
   }
 
+  /** Soft-deletes the workers that stopped heartbeating, returning how many. */
   static async clearDead() {
-    await this.sequelize.query('SELECT fhir.job_worker_garbage_collect()');
+    const [result] = await this.sequelize.query<{ pruned: string }>(
+      'SELECT fhir.job_worker_garbage_collect() AS pruned',
+      { type: QueryTypes.SELECT },
+    );
+    return Number(result?.pruned ?? 0);
   }
 
   async heartbeat() {

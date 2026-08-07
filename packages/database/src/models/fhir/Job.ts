@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import ms from 'ms';
 import { DataTypes, QueryTypes, Sequelize } from 'sequelize';
 
-import { JOB_PRIORITIES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { JOB_PRIORITIES, JOB_QUEUE_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
 import { Model } from '../Model';
@@ -92,6 +92,42 @@ export class FhirJob extends Model {
       },
     );
     return result?.[0]?.count;
+  }
+
+  /**
+   * Deletes up to `limit` jobs that errored before `cutoff`, returning how many
+   * went.
+   *
+   * An errored job is an audit record and nothing more: failing a job rewrites
+   * its discriminant so it doesn't block a resubmission, and the queue's counts
+   * pass over the status entirely. Completed jobs delete themselves on
+   * completion, so errored ones are the only rows that outlive their work.
+   *
+   * `job_fail()` sets `errored_at` in the same statement that sets the status,
+   * so the two always agree and the window can be read straight off the column,
+   * which is what lets each batch resolve through `job_errored_at_idx` instead
+   * of scanning what's left of the errored rows.
+   */
+  static async deleteErroredBefore(cutoff: Date, limit: number) {
+    const [result] = await this.sequelize.query<{ count: number }>(
+      `WITH deleted AS (
+         DELETE FROM fhir.jobs
+         WHERE id IN (
+           SELECT id
+           FROM fhir.jobs
+           WHERE status = $status
+             AND errored_at < $cutoff
+           LIMIT $limit
+         )
+         RETURNING 1
+       )
+       SELECT count(*)::int AS count FROM deleted`,
+      {
+        type: QueryTypes.SELECT,
+        bind: { status: JOB_QUEUE_STATUSES.ERRORED, cutoff, limit },
+      },
+    );
+    return result.count;
   }
 
   static async grab(workerId: string, topic: string) {

@@ -223,6 +223,10 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
+  async markSessionErrored(sessionId: string, error: string): Promise<unknown> {
+    return this.post(`sync/${sessionId}/error`, {}, { error });
+  }
+
   async initiatePull(
     sessionId: string,
     since: number,

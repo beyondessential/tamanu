@@ -1,6 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+
 import { constructFacilityUrl } from './navigation';
 import { getAuthTokenFromLocalStorage, getItemFromLocalStorage } from './localStorage';
 import type { Patient, User } from '@tamanu/database';
@@ -22,6 +24,25 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   const userUrl = constructFacilityUrl('/api/user/me');
   const user = await api.get(userUrl);
   return user.json();
+};
+
+// Resolves the logged-in facility from browser storage. Kept separate from the API helpers so
+// they stay independent of the browser context: callers that have a page resolve the facilityId
+// here and pass it in, while callers that already hold it (e.g. fixtures) pass it directly.
+export const getFacilityId = (page: Page): Promise<string> =>
+  getItemFromLocalStorage(page, 'facilityId');
+
+// Returns every practitioner the "Discontinued by" / clinician suggesters offer. Maps to
+// { id, name } where name is the user's display name.
+export const getPractitioners = async (
+  api: APIRequestContext,
+): Promise<Array<{ id: string; name: string }>> => {
+  const url = constructFacilityUrl('/api/suggestions/practitioner/all');
+  const response = await api.get(url);
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch practitioners: ${response.status()}`);
+  }
+  return response.json();
 };
 
 // Stable reference-data id for the "Other" note type (seeded by migration on every server).
@@ -257,12 +278,18 @@ export const createClinicEncounterViaApi = async (
 /**
  * Drugs from reference data, for tests that need a known medication name or several distinct
  * medications (e.g. one sent to pharmacy on discharge and one left behind).
+ *
+ * When a facilityId is given the suggester excludes drugs unavailable at that facility, matching
+ * the real prescribing UI. Otherwise the row click in the medication table is a no-op (the pane
+ * ignores clicks on unavailable medications) and the details modal never opens.
  */
 export const getDrugSuggestions = async (
   api: APIRequestContext,
   count = 1,
+  facilityId?: string,
 ): Promise<{ id: string; name: string }[]> => {
-  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=${count}`);
+  const facilityParam = facilityId ? `&facilityId=${facilityId}` : '';
+  const suggestUrl = constructFacilityUrl(`/api/suggestions/drug?count=${count}${facilityParam}`);
   const suggestResponse = await api.get(suggestUrl);
   if (!suggestResponse.ok()) {
     throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
@@ -276,9 +303,13 @@ export const getDrugSuggestions = async (
   return drugs;
 };
 
+const fetchFirstDrugId = async (api: APIRequestContext, facilityId?: string): Promise<string> =>
+  (await getDrugSuggestions(api, 1, facilityId))[0].id;
+
 export const createEncounterPrescriptionViaApi = async (
   api: APIRequestContext,
   encounterId: string,
+  facilityId?: string,
   overrides: Partial<{
     medicationId: string;
     route: string;
@@ -287,8 +318,7 @@ export const createEncounterPrescriptionViaApi = async (
   }> = {},
 ) => {
   const user = await getUser(api);
-
-  const medicationId = overrides.medicationId ?? (await getDrugSuggestions(api))[0].id;
+  const medicationId = overrides.medicationId ?? (await fetchFirstDrugId(api, facilityId));
 
   const now = new Date();
   const dateString = now.toISOString().substring(0, 10);
@@ -311,6 +341,49 @@ export const createEncounterPrescriptionViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const createPatientOngoingPrescriptionViaApi = async (
+  api: APIRequestContext,
+  patientId: string,
+  facilityId?: string,
+  overrides: Partial<{
+    medicationId: string;
+    route: string;
+    doseAmount: number;
+    units: string;
+    frequency: string;
+  }> = {},
+) => {
+  const user = await getUser(api);
+  const medicationId = await fetchFirstDrugId(api, facilityId);
+
+  const now = new Date();
+  const dateString = now.toISOString().substring(0, 10);
+  const datetimeString = now.toISOString().replace('T', ' ').substring(0, 19);
+
+  const prescriptionData = {
+    medicationId,
+    prescriberId: user.id,
+    date: dateString,
+    startDate: datetimeString,
+    route: 'oral',
+    doseAmount: 1,
+    units: 'mg',
+    frequency: 'Immediately',
+    isOngoing: true,
+    ...overrides,
+  };
+
+  const url = constructFacilityUrl(`/api/medication/patientOngoingPrescription/${patientId}`);
+  const response = await api.post(url, { data: prescriptionData });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create ongoing prescription: ${response.status()} ${errorText}`);
   }
 
   return response.json();
@@ -339,6 +412,51 @@ export const createPharmacyOrderViaApi = async (
   if (!response.ok()) {
     const errorText = await response.text();
     throw new Error(`Failed to create pharmacy order: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+// Creates one vitals survey response (a "reading") at a given recorded date/time, so tests can
+// seed a spread of readings across several days to exercise the vitals chart's time-range filter.
+export const createVitalsReadingViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  encounterId: string,
+  patientId: string,
+  recordedDate: string,
+  overrides: Partial<{
+    temperature: number;
+  }> = {},
+) => {
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+
+  const surveyUrl = constructFacilityUrl('/api/survey/vitals');
+  const surveyResponse = await api.get(surveyUrl);
+  if (!surveyResponse.ok()) {
+    throw new Error(`Failed to fetch vitals survey: ${surveyResponse.status()}`);
+  }
+  const { id: surveyId } = await surveyResponse.json();
+
+  const surveyResponseUrl = constructFacilityUrl('/api/surveyResponse');
+  const response = await api.post(surveyResponseUrl, {
+    data: {
+      surveyId,
+      encounterId,
+      patientId,
+      facilityId,
+      startTime: recordedDate,
+      endTime: recordedDate,
+      answers: {
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: recordedDate,
+        [VITALS_DATA_ELEMENT_IDS.temperature]: overrides.temperature ?? 36.8,
+      },
+    },
+  });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create vitals reading: ${response.status()} ${errorText}`);
   }
 
   return response.json();

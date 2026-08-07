@@ -133,3 +133,57 @@ test.describe('Admin settings editor — array (list) inputs', () => {
     await expect(setting.getByTestId('listsettinginput-remove-0')).toBeHidden();
   });
 });
+
+test.describe('Admin settings editor — saving string settings', () => {
+  let settingsPage: SettingsPage;
+  let seededName: string;
+
+  // country.name is a plain yup.string() in the global scope, directly under the
+  // Country category, so its value survives a save untouched by any structured
+  // editor. Scope defaults to global.
+  const COUNTRY_NAME = 'name';
+
+  test.beforeEach(async ({ page }) => {
+    settingsPage = new SettingsPage(page);
+    await settingsPage.goto();
+    await expect(settingsPage.scopeSelect).toBeVisible();
+    await settingsPage.selectCategory('Country');
+    seededName = await settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME)).inputValue();
+  });
+
+  // restore rather than reset to default: reset deletes the environment's stored
+  // country name instead of putting it back
+  test.afterEach(async () => {
+    const input = settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME));
+    if ((await input.inputValue()) !== seededName) {
+      await input.fill(seededName);
+      await settingsPage.save();
+    }
+  });
+
+  // A string setting whose text happens to parse as JSON must come back as that
+  // text. The save path used to run JSON.parse over every value and keep
+  // anything that parsed to an object, which turned these into real objects.
+  test('[SET-0006] keeps a string setting whose content looks like JSON', async ({ page }) => {
+    const setting = settingsPage.settingLine(COUNTRY_NAME);
+    await settingsPage.textInput(setting).fill('{"a":1}');
+    await settingsPage.save();
+
+    await page.reload();
+    await expect(settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME))).toHaveValue(
+      '{"a":1}',
+    );
+  });
+
+  // "null" parses to null, and typeof null is 'object', so it took the same path.
+  test('[SET-0007] keeps the literal string "null"', async ({ page }) => {
+    const setting = settingsPage.settingLine(COUNTRY_NAME);
+    await settingsPage.textInput(setting).fill('null');
+    await settingsPage.save();
+
+    await page.reload();
+    await expect(settingsPage.textInput(settingsPage.settingLine(COUNTRY_NAME))).toHaveValue(
+      'null',
+    );
+  });
+});

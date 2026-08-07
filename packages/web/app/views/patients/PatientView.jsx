@@ -192,6 +192,7 @@ export const PatientView = () => {
   const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
+    { enabled: Boolean(patient.id) },
   );
   const {
     data: insurancePlans = [],

@@ -9,8 +9,7 @@ sources:
         config:
           tags: []
           meta:
-            triggers:
-              - record_portal_one_time_tokens_changelog
+            triggers: []
         columns:
           - name: id
             data_type: text

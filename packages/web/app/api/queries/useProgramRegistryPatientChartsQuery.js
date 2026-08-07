@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
+import { combineQueries, useApi } from '../index';
 import { getConfigObject } from '../../utils';
 import { useSurveyQuery } from './useSurveyQuery';
 
@@ -75,7 +75,6 @@ export const useProgramRegistryPatientChartsQuery = (patientId, surveyId, instan
       api.get(
         `programRegistry/patient/${patientId}/charts/${surveyId}`,
         { rowsPerPage: 50, instanceId },
-        { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     { enabled: Boolean(patientId) && Boolean(surveyId) },
   );

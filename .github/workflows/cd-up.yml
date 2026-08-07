@@ -107,14 +107,70 @@ jobs:
           echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
 
       - name: Up!
+        id: up
         uses: pulumi/actions@v5
         with:
           work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: up
           stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: true
+          comment-on-pr: false
           upsert: true
           config-map: ${{ steps.config.outputs.pulumi }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Comment Pulumi report on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        env:
+          PULUMI_OUTPUT: ${{ steps.up.outputs.output }}
+        with:
+          script: |
+            if (!context.issue.number) return;
+
+            const fullOutput = process.env.PULUMI_OUTPUT ?? '';
+            const marker = '<!-- pulumi-up-report:${{ inputs.deploy-name }} -->';
+
+            const liveLinkMatch = fullOutput.match(/^View Live:\s*(\S+)/m);
+            // "Outputs:" header, then indented "key: value" lines until a blank
+            // line or a line back at column 0 (see pulumi/pulumi printOutputs()).
+            const outputsMatch = fullOutput.match(/^Outputs:\n((?:[ \t]+\S.*\n?)+)/m);
+
+            let body;
+            if (liveLinkMatch || outputsMatch) {
+              const parts = [];
+              if (liveLinkMatch) parts.push(`**View Live:** ${liveLinkMatch[1]}`);
+              if (outputsMatch) parts.push(`**Outputs:**\n${outputsMatch[1].trimEnd()}`);
+              body = parts.join('\n\n');
+            } else {
+              // Fallback if the expected markers aren't found: head + tail of the raw output.
+              const HEAD_TAIL_LENGTH = 500;
+              body = fullOutput.length <= HEAD_TAIL_LENGTH * 2
+                ? fullOutput
+                : `${fullOutput.slice(0, HEAD_TAIL_LENGTH)}\n\n...\n\n${fullOutput.slice(-HEAD_TAIL_LENGTH)}`;
+            }
+            body = `${marker}\n${body}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

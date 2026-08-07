@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 import { NewPrescriptionModal } from '../modals/NewPrescriptionModal';
+import { MedicationDetailsModal } from '../modals/MedicationDetailsModal';
 
 export class EncounterMedicationPane extends BasePatientPane {
   readonly contentPane!: Locator;
@@ -80,5 +81,23 @@ export class EncounterMedicationPane extends BasePatientPane {
 
     await modal.waitForModalToLoad();
     return modal;
+  }
+
+  async clickFirstMedicationRow(): Promise<MedicationDetailsModal> {
+    // The table always renders a single <tr>: a status row (loading/error/no-data,
+    // one cell with testid `statustablecell-rwkq`) until real data arrives, then data
+    // rows whose cells carry `styledtablecell-2gyy-<row>-<col>`. The `statusrow-fsiy`
+    // / `row-1kia` testids are never emitted to the DOM, so we cannot guard on them.
+    // Wait for a real data cell before clicking, otherwise on a slow backend we click
+    // the status row (no row handler) and the details modal never opens.
+    const firstDataCell = this.tableBody
+      .locator('[data-testid^="styledtablecell-2gyy-0-"]')
+      .first();
+    await firstDataCell.waitFor({ state: 'visible' });
+    await firstDataCell.click();
+
+    const detailsModal = new MedicationDetailsModal(this.page);
+    await detailsModal.waitForModalToLoad();
+    return detailsModal;
   }
 }
