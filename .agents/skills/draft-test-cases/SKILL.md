@@ -6,7 +6,7 @@ pill-order:
   specifying: 9
   implementing: 5
 jockey-hint: "Surface when the card has specs but no test cases yet, or when the user wants to refresh the scenario list. Demote once a healthy test-cases file exists unless the user signals a fresh area to cover."
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Draft test cases

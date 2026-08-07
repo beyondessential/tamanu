@@ -6,7 +6,7 @@ pill-order:
   implementing: 2
   reviewing: 1
   complete: 1
-workhorse-version: 0.1.0
+workhorse-version: 0.2.0
 ---
 
 ## Your task: Bug review
