@@ -26,7 +26,7 @@ const transferChannelFor = ({ blobCache, blobStore, deviceId }) => {
       new BlobTransferChannel({
         blobStore,
         centralServer: new CentralServerConnection({ deviceId }),
-        facilityIds: getServerFacilityIds() ?? [],
+        facilityIds: getServerFacilityIds(),
       }),
     );
   }
