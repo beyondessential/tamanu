@@ -1,8 +1,9 @@
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { createTestContext } from '../utilities';
 
-// doesn't really matter which name it is as long is it's consistent
-const [NAME, OTHER_NAME, THIRD_NAME] = Object.values(ASSET_NAMES);
+// doesn't really matter which name it is as long is it's consistent, but each
+// test that asserts a create must own a name no other test has touched
+const [NAME, OTHER_NAME, THIRD_NAME, FORBID_NAME] = Object.values(ASSET_NAMES);
 
 const streamToBuffer = async stream => {
   const chunks = [];
@@ -43,14 +44,15 @@ describe('Asset upload', () => {
   });
 
   it('should forbid a user without write permission from replacing an existing asset', async () => {
-    // Seed the asset so the PUT takes the update (write) branch, not create.
-    await adminApp.put(`/api/admin/asset/${NAME}`).send({
+    // Seed a dedicated asset so the PUT takes the update (write) branch, not
+    // create, without colliding with the create-asserting tests below.
+    await adminApp.put(`/api/admin/asset/${FORBID_NAME}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
 
     const noWriteApp = await baseApp.asNewRole([['read', 'Asset']]);
-    const response = await noWriteApp.put(`/api/admin/asset/${NAME}`).send({
+    const response = await noWriteApp.put(`/api/admin/asset/${FORBID_NAME}`).send({
       filename: 'test.png',
       data: B64_PNG_1X1_WHITE,
     });
