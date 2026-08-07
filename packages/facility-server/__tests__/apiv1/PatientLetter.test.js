@@ -52,6 +52,18 @@ describe('PatientLetter', () => {
         },
       });
 
+  // spec: ATCH
+  it('stores the letter as a blob-backed attachment scoped to the patient', async () => {
+    const result = await createLetter();
+    expect(result).toHaveSucceeded();
+
+    const attachment = await models.Attachment.findByPk(result.body.attachmentId);
+    expect(attachment.hash).toBeTruthy();
+    expect(attachment.data).toBeFalsy();
+    expect(attachment.patientId).toBe(patient.id);
+    expect(await ctx.blobStore.has(attachment.hash)).toBe(true);
+  });
+
   it('renders the letter with the requesting browser locale', async () => {
     const result = await createLetter();
     expect(result).toHaveSucceeded();
