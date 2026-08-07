@@ -57,15 +57,27 @@ export class NewPrescriptionModal {
     })) as string;
   }
 
+  /**
+   * Frequency options render as "<frequency> (<synonym>)" — "Immediately (STAT)" — so they are
+   * matched on a prefix rather than the exact value the API takes.
+   */
+  async selectFrequency(frequency: string): Promise<void> {
+    await this.frequencyField.click();
+    await this.page
+      .getByTestId('medication-field-frequency-4c7z-suggestionslist')
+      .getByTestId('medication-field-frequency-4c7z-option')
+      .filter({ hasText: frequency })
+      .first()
+      .click();
+  }
+
   async fillClinicalDetails({
     doseAmount = '1',
     frequency = 'Immediately',
     route = 'Oral',
   }: { doseAmount?: string; frequency?: string; route?: string } = {}): Promise<void> {
     await this.doseAmountInput.fill(doseAmount);
-    await selectAutocompleteFieldOption(this.page, this.frequencyField, {
-      optionToSelect: frequency,
-    });
+    await this.selectFrequency(frequency);
     await selectFieldOption(this.page, this.routeField, { optionToSelect: route });
   }
 
