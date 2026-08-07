@@ -37,13 +37,34 @@ Bounded regardless of blob size, not just regardless of volume.
 
 ## Checklist
 
-- [ ] DDL migration: `hash` on attachments and assets, `data` nullable, index
-- [ ] Model fields for `hash` on Attachment and Asset
-- [ ] Chunked bytea read/write helpers
-- [ ] Backfill engine: reference rows, changelog entries, remaining counts
-- [ ] Store factory from settings (root + free-disk reserve)
-- [ ] Scheduled task on central and facility, with settings
-- [ ] Rollback sub-command
-- [ ] dbt source models regenerated
-- [ ] Unit and integration tests
-- [ ] Lint and test run
+- [x] DDL migration: `hash` on attachments and assets, `data` nullable, index
+- [x] Model fields for `hash` on Attachment and Asset, plus null-tolerant sync
+      sanitizers so a backfilled asset still syncs
+- [x] Chunked bytea read/write helpers
+- [x] Backfill engine: reference rows, changelog entries, remaining counts,
+      unbacked-hash check, rollback both ways
+- [x] Store factory from settings (root + free-disk reserve)
+- [x] Scheduled task on central and facility, with settings
+- [x] Rollback sub-command
+- [x] dbt source models updated by hand, `dbt-check-todos` clean
+- [x] Unit and integration tests
+- [x] Lint clean on every changed file
+
+## Server discrimination
+
+The task runs on both servers and behaves differently on each, so it needs to
+know which it is on. `serviceContext()` is not reliably populated under test, so
+it reads the shape of `context.settings` instead: central carries one reader,
+a facility carries one per facility plus a global. That same resolution already
+had to happen for the store root, so it is one check rather than two.
+
+## Environment notes for whoever picks this up
+
+- A `DATABASE_URL` env var overrides `config/test.json5` through
+  `resolveDbConfig`. With one set to a dead address every central test dies with
+  `read ECONNRESET`, including untouched suites.
+- `packages/database` vitest does not set `NODE_CONFIG_DIR`, so 13 test files
+  that transitively import `sync/saveChanges` fail at import on
+  `config.sync.persistUpdateWorkerPoolSize`. Pre-existing.
+- Central suites currently time out in `afterAll` on `ctx.close()`, untouched
+  suites included, so a suite reports failed even when every test passes.

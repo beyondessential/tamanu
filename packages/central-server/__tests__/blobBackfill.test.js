@@ -209,14 +209,21 @@ describe('Blob backfill', () => {
 
     it('writes no changelog entry for the move itself', async () => {
       const id = await insertAttachment(Buffer.from('quiet move'));
+      const countEntries = async () => {
+        const row = await sequelize.query(
+          `SELECT count(*) AS count FROM logs.changes WHERE table_name = 'attachments' AND record_id = $id`,
+          { bind: { id }, type: QueryTypes.SELECT, plain: true },
+        );
+        return Number(row.count);
+      };
+      // The insert itself is logged, bytes and all; that entry is what the
+      // changelog rewrite deals with. The move must not add a second one.
+      const beforeMove = await countEntries();
+      expect(beforeMove).toBe(1);
 
       await backfill.moveReferenceRows('attachments', 10);
 
-      const entries = await sequelize.query(
-        `SELECT count(*) AS count FROM logs.changes WHERE table_name = 'attachments' AND record_id = $id`,
-        { bind: { id }, type: QueryTypes.SELECT, plain: true },
-      );
-      expect(Number(entries.count)).toBe(0);
+      expect(await countEntries()).toBe(beforeMove);
     });
 
     it('refuses to cross the free-disk reserve and leaves the row untouched', async () => {
@@ -321,7 +328,10 @@ describe('Blob backfill', () => {
       const before = await backfill.countRemaining();
       expect(before.rows.attachments).toBe(1);
       expect(before.rows.assets).toBe(1);
-      expect(before.changelogEntries).toBe(1);
+      // The two inserts above are themselves logged with their bytes inline,
+      // which is the duplication this backfill exists to undo, so they count
+      // alongside the entry written directly.
+      expect(before.changelogEntries).toBe(3);
 
       await backfill.moveReferenceRows('attachments', 10);
       await backfill.moveReferenceRows('assets', 10);
