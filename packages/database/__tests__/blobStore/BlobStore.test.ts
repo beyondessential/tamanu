@@ -387,7 +387,7 @@ describe('BlobStore', () => {
 
     it('skips staging and temp files, which are not content', async () => {
       const store = makeStore();
-      await store.stage(HELLO_HASH, Readable.from(Buffer.from('hel')), { offset: 0 });
+      await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello')), { offset: 0 });
       await fs.mkdir(path.join(root, 'tmp'), { recursive: true });
       await fs.writeFile(path.join(root, 'tmp', 'leftover'), 'x');
 
