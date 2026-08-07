@@ -29,13 +29,20 @@ function makeFakeBlobModel() {
 
   const matches = (row: FakeRow, where: Record<string, unknown> = {}) =>
     Object.entries(where).every(([field, expected]) => {
-      if (expected && typeof expected === 'object') {
-        const excluded = Object.getOwnPropertySymbols(expected).map(
-          symbol => (expected as Record<symbol, unknown>)[symbol],
-        );
-        return !excluded.includes(row[field as keyof FakeRow]);
+      const value = row[field as keyof FakeRow];
+      // An array value is an IN check (the batched existence lookup).
+      if (Array.isArray(expected)) {
+        return expected.includes(value);
       }
-      return row[field as keyof FakeRow] === expected;
+      if (expected && typeof expected === 'object') {
+        // The store and scrubber use Op.ne (a scalar) and Op.notIn (an array);
+        // flatten both to the set of excluded values.
+        const excluded = Object.getOwnPropertySymbols(expected)
+          .map(symbol => (expected as Record<symbol, unknown>)[symbol])
+          .flat();
+        return !excluded.includes(value);
+      }
+      return value === expected;
     });
 
   return {
@@ -204,6 +211,19 @@ describe('BlobScrubber', () => {
       expect(healed).toEqual([]);
     });
 
+    it('leaves an absent blob alone rather than re-reporting it each pass', async () => {
+      // A registry row whose bytes are gone: recorded absent by an earlier
+      // pass, and terminal until a repair re-admits it.
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      await removeStoredBytes(hash);
+      fakeBlob.rows.get(hash)!.integrityState = 'absent';
+
+      const result = await makeScrubber().run();
+
+      expect(result.faults).toBe(0);
+      expect(healed).toEqual([]);
+    });
+
     it('takes least-recently-scrubbed blobs first', async () => {
       const stale = await store.put(Readable.from(Buffer.from('stale content')));
       const fresh = await store.put(Readable.from(Buffer.from('fresh content')));
@@ -287,6 +307,41 @@ describe('BlobScrubber', () => {
 
       expect(result.adopted).toBe(0);
       expect(result.faults).toBe(0);
+    });
+
+    it('partitions a batch of stored hashes into registered and orphan', async () => {
+      // A registered blob and two orphans interleaved: the batched existence
+      // check must reconcile only the orphans and leave the registered one.
+      const registered = await store.put(Readable.from(Buffer.from('registered content')));
+      const orphanA = await store.put(Readable.from(Buffer.from('orphan a')));
+      const orphanB = await store.put(Readable.from(Buffer.from('orphan b')));
+      fakeBlob.rows.delete(orphanA.hash);
+      fakeBlob.rows.delete(orphanB.hash);
+
+      const result = await makeScrubber().run();
+
+      expect(result.adopted).toBe(2);
+      expect(fakeBlob.rows.get(orphanA.hash)!.integrityState).toBe('verified');
+      expect(fakeBlob.rows.get(orphanB.hash)!.integrityState).toBe('verified');
+      // The registered blob was verified by the verification pass, not adopted.
+      expect(fakeBlob.rows.get(registered.hash)!.integrityState).toBe('verified');
+    });
+
+    it('stops reconciling orphans on the blob limit, leaving the rest for a later pass', async () => {
+      const orphans = [];
+      for (let i = 0; i < 3; i++) {
+        orphans.push((await store.put(Readable.from(Buffer.from(`orphan ${i}`)))).hash);
+      }
+      fakeBlob.rows.clear();
+
+      const result = await makeScrubber({ maxBlobs: 2 }).run();
+
+      // Two adopted this pass; the third stays unregistered on disk and is found
+      // again next pass, so coverage is not lost.
+      expect(result.adopted).toBe(2);
+      expect(result.ratelimited).toBe(true);
+      const stillOrphan = orphans.filter(hash => !fakeBlob.rows.has(hash));
+      expect(stillOrphan).toHaveLength(1);
     });
   });
 

@@ -29,6 +29,17 @@ export class FacilityBlobHealer {
    * hash repeatedly and concurrently.
    */
   async heal({ hash, fault, blob }) {
+    // spec: SCRUB — a quarantined blob is retained, never deleted. Reconciliation
+    // quarantines a corrupt orphan (unknown provenance, so not assumed to be a
+    // refetchable replica) before handing it here; the cache path below would
+    // otherwise delete the very evidence the quarantine is meant to keep.
+    if (blob?.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+      log.warn('FacilityBlobHealer: retaining a quarantined corrupt blob for investigation', {
+        hash,
+        fault,
+      });
+      return;
+    }
     const tier = blob?.tier ?? BLOB_TIERS.CACHE;
     if (tier === BLOB_TIERS.OUTBOX) {
       await this.#healOutbox({ hash, fault });

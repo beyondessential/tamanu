@@ -205,6 +205,23 @@ describe('facility blob integrity', () => {
       expect(blob.size).toBe(content.length);
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
     });
+
+    it('retains a corrupt orphan rather than the cache healer deleting it', async () => {
+      // A corrupt orphan has no reference and no known provenance, so it cannot
+      // be assumed a refetchable replica: quarantine must retain it, not let the
+      // cache path drop it.
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await corrupt(hash);
+      await models.Blob.destroy({ where: { hash }, force: true });
+
+      const result = await makeScrubber().run();
+
+      expect(result.faults).toBe(1);
+      const blob = await models.Blob.findOne({ where: { hash } });
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+      // The bytes are retained on disk for investigation, not deleted.
+      await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
+    });
   });
 
   // The application context resolves the scrub's per-pass bounds through this
