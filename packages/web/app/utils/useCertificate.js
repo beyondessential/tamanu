@@ -21,7 +21,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
     data: footerImg,
     isFetching: isFooterImgFetching,
     isPending: isFooterImgPending,
-  } = useAssetQuery(footerAssetName || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG);
+  } = useAssetQuery(footerAssetName ?? ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG);
   const {
     data: deathCertFooterImg,
     isFetching: isDeathCertFooterImgFetching,
