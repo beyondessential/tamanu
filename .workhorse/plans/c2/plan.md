@@ -24,7 +24,8 @@ in build-tooling and mobile. This card removes `@swc/jest` specifically.
 Already on vitest 4: `database`, `utils`, `upgrade`, `web`.
 
 Still on jest: `central-server` (180 test files), `facility-server` (100), `shared` (17),
-`settings` (6), `fake-data` (config only, no tests), `mobile` (48), `.new-package` (template).
+`settings` (6), `mobile` (48), `.new-package` (template). `fake-data` has no tests of its own but is
+not merely config: its source reads the jest global (see the seed finding below).
 
 ## Decisions
 
@@ -99,11 +100,35 @@ both jest's `testRegex` and vitest's default `include`. No files literally named
 `app/`, `dist/`, or `__disttests__`, so `testPathIgnorePatterns` is currently a no-op. Post-migration
 counts should match exactly, which is a clean assertion for the PR.
 
-**`showSeed` is a no-op today, nothing to port.** The config line is its only reference in the repo:
-no `--randomize`, no `randomize: true`, nothing in CI. Jest does not shuffle unless asked, so the
-seed printout currently guards nothing. Vitest's counterpart is `sequence.shuffle` +
-`sequence.seed`. Turning shuffle on would deliver what the comment intends, but it will surface
-order-dependence bugs, so it belongs in a follow-up rather than this card.
+**`showSeed` is live and load-bearing, and porting it needs real work.** The seed is not only used
+for test ordering (which is not randomised here). `packages/fake-data/src/fake/fake.ts:71` reads it:
+
+```ts
+export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
+```
+
+So the seed determines **all generated fake data** across the suites, and `showSeed: true` prints it
+so a data-dependent failure can be reproduced with `jest --seed <n>`. The comment calling it
+"order-dependence" is a misnomer; it is data-dependence.
+
+Vitest's `getSeed()` is not a drop-in, for two reasons. It is a **node-side** API on the Vitest
+instance (4.0.0), not reachable from inside a test worker. And it deliberately returns null unless
+tests are actually randomised, which their own e2e test asserts (`expect(ctx?.getSeed()).toBe(null)`).
+`packages/vitest/src/node/logger.ts` does print it, but only when non-null.
+
+Note this mechanism is **already broken** for the four migrated packages: `global.jest` is undefined
+under vitest, so `fake-data` already falls through to `randomInt(2 ** 42)` there, unreproducibly.
+The migration does not break it; it is the opportunity to fix it properly.
+
+The port is to own the seed rather than borrow the runner's. Resolve
+`TAMANU_TEST_SEED ?? randomInt(2 ** 42)` once, put it in the environment (the `forks` pool inherits
+`process.env`, so workers get it), print it at startup, and have `fake.ts` read the env var. Then
+`TAMANU_TEST_SEED=12345 npm test` reproduces a run. Use an explicit undefined check rather than
+`Number(x) || fallback`, so a seed of `0` is not silently discarded. Feeding the same value into
+`sequence.seed` means that if shuffle is ever turned on, ordering and data share one seed.
+
+This is strictly better than what jest gave: runner-agnostic, works for the already-migrated
+packages and for non-test callers of `fake-data`, and survives sharding.
 
 **`.new-package` is stale beyond its test config.** It carries `jest.config.mjs`, a `__tests__`
 directory, and a `.swcrc`, the last being notable because `common.jest.config.mjs` states "there are
@@ -140,6 +165,10 @@ in CI's matrix but missing from the project list, or the reverse.
       `maxWorkers`, slots reused), not `VITEST_WORKER_ID` (monotonic, would create unbounded
       databases). This also un-serialises `packages/database`, which currently runs
       `--no-file-parallelism` because the variable is absent
+- [ ] Replace the fake-data seed mechanism: resolve `TAMANU_TEST_SEED ?? randomInt(2 ** 42)` once,
+      export it to the environment, print it at startup, and change
+      `packages/fake-data/src/fake/fake.ts:71` off `global.jest?.getSeed()`. Also fixes the four
+      already-migrated packages, where the seed is currently unreproducible
 - [ ] Convert `facility-server` (100 files)
 - [ ] Convert `central-server` (180 files)
 - [ ] Fold `database`, `utils`, `upgrade`, `web` into projects; drop web's vestigial `globals: true`
