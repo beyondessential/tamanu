@@ -228,7 +228,7 @@ _To be detailed._
 
 ---
 
-### 13. Autocancel sta
+### 13. Autocancel s
 
 **Summary.** Add a new "Recollect" lab request status. Lab staff transition to it when a sample is unsuitable for testing, signalling the requesting doctor to organise a new sample. For LIMS-integrated instances, it pairs with a "Cancelled" diagnostic report carrying a PDF rejection report so the doctor can see why the sample was rejected.
 
