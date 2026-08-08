@@ -167,7 +167,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 7. Multiselect status filter on the active requests page
+### 6. Multiselect status filter on the active requests page
 
 **Problem.** Lab staff managing collections alternate between "Sample not collected" and "Reception pending" but can only filter on one status at a time, so they can't see both groups together.
 
@@ -182,7 +182,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### . Default "Collected by" to the current user
+### 7. Default "Collected by" to the current user
 
 **Problem.** When recording lab sample details, staff must pick the collector from the practitioner list every time, even though it is almost always the logged-in user.
 
