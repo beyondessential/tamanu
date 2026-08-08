@@ -102,7 +102,7 @@ _To be detailed._
 
 **Summary.** SENAITE sometimes reports that a value fell outside the detection limit, e.g. `< 0.3` (the lowest detectable value is 0.3 and the real result is below it). Tamanu should display the `< 0.3` value wherever the result is shown, while still applying reference-range validation so the result flags as out of range.
 
-Desired behaviour. 
+**Desired behaviour. 
 
 ---
 
