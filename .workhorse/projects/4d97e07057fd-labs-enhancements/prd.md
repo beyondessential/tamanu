@@ -202,7 +202,7 @@ _To be detailed._
 
 - If a category has a default specimen type set, the specimen type should be defaulted for each lab request generated under this category.
   - If a default is set, the field should still be editable. 
-- If no default specimen type is set for a category, the field should be bla
+- If no default specimen type is set for a category, the field should be blank when recording a sample for
 
 **Scope.** Desktop. Mobile may follow as a separate card.
 
