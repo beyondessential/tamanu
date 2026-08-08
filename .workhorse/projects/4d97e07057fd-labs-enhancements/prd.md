@@ -204,7 +204,7 @@ _To be detailed._
 
 ---
 
-### 10. Manage panelOnly lab test types on central
+### 9. Manage panelOnly lab test types on central
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
