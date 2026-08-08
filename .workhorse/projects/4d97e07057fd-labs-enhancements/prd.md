@@ -159,7 +159,7 @@ _To be detailed._
 - **Auto-print and finalise flow.**
 
   - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
-- **Trigger.** When all samples within a request are recorded — via the new lab request workflow or via the lab request view — the print sample label displays automatically once the sample is recorded.
+  - **Trigger.** When all samples within a request are recorded — via the new lab request workflow or via the lab request view — the print sample label displays automatically once the sample is recorded.
 - **Configurable, off by default.** Enabled per facility and disabled by default. When disabled, the current workflows apply unchanged.
 - **Finalise screen when not all samples have been recorded:**
   - If no sample is recorded or only partial samples are recorded, the default standard finalise screen displays. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
