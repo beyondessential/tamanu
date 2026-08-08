@@ -169,7 +169,7 @@ _To be detailed._
     
 ---
 
-### 6. Multiselect status filter on the active requests page
+### 7. Multiselect status filter on the active requests page
 
 **Problem.** Lab staff managing collections alternate between "Sample not collected" and "Reception pending" but can only filter on one status at a time, so they can't see both groups together.
 
