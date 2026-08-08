@@ -182,7 +182,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 8. Default "Collected by" to the current user
+### . Default "Collected by" to the current user
 
 **Problem.** When recording lab sample details, staff must pick the collector from the practitioner list every time, even though it is almost always the logged-in user.
 
@@ -196,7 +196,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 9. Support a default specimen type for lab tests
+### 8. Support a default specimen type for lab tests
 
 **Summary.** Support setting a default specimen type against individual lab test types and panels, via a new `specimenType` reference-data column on both, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
 
