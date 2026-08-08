@@ -46,7 +46,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Tests within a panel should be listed in the same order as they appear in the reference data
 - Search should follow the same behaviour using real-time search
   -
-  -  Search results should be ordered e
+  -  Search results should not prioritise category grouping, but instead order tests by most relevant result. It will be an edge case, but this may mean we sometimes display the same category header more than once. 
   - If a user searches an individual test, display the test first followed by any panels that contain that test alphabetically. 
 - Default all panel dropdowns as closed. 
 - Once selected, tests and panels should be displayed in the selected section and grouped by category.
