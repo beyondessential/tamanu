@@ -212,7 +212,7 @@ _To be detailed._
 
 ---
 
-### 11. Add a "Reflex test" visibility status
+### 10. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
 
@@ -220,7 +220,7 @@ _To be detailed._
 
 ---
 
-### 12. Update the Sample taken modal when recording a sample from the lab request screen
+### 11. Update the Sample taken modal when recording a sample from the lab request screen
 
 **Summary.** Update the current modal so it is the same modal that appears during a new lab request. However please keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
