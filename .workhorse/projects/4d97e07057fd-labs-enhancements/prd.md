@@ -48,7 +48,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
   -
   -  Search results should not prioritise category grouping, but instead order tests by most relevant result. It will be an edge case, but this may mean we sometimes display the same category header more than once. 
   - If a user searches an individual test, display the test first followed by any panels that contain that test alphabetically. 
-- Default all panel dropdowns as closed. 
+- Default all panel dropdowns as closed, even when a search . 
 - Once selected, tests and panels should be displayed in the selected section and grouped by category.
   - Categories should be displayed in alphabetical order and within the category panels and tests should be displayed in reference data order
 - Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disable the 'Next' button until one item has been selected
