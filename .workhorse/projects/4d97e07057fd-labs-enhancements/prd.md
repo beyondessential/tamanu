@@ -192,8 +192,6 @@ _To be detailed._
 
 **Scope.** Desktop. Mobile may follow as a separate card.
 
-**Rationale.** Prefilling the near-universal value removes a repeated manual selection at every sample recording.
-
 ---
 
 ### 8. Support a default specimen type for lab tests
