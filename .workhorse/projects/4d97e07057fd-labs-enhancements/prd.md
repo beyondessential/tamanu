@@ -164,7 +164,8 @@ _To be detailed._
               - Category: Labs
               - Feature: Auto-print sample label
   - Finalise screen when not all samples have been recorded:
-      - If no sample is recorded or only partial samples are recorded, the default standard finalise screen displays. Samples recorded as collected should be autoselected on the finalise modal.  https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
+      - If no sample is recorded or only partial samples are recorded, the default standard finalise screen displays.
+      - Samples recorded as collected should be autoselected on the finalise modal.  https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
     
 
 ---
