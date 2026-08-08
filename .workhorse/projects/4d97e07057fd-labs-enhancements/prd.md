@@ -212,7 +212,7 @@ _To be detailed._
 
 **Summary.** Lab tests that are marked as 'panelOnly' do not appear in the 'Manage' table for lab test types reference data, meaning they can only be managed via export and reimport. 
 
-Desired Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. 
+**Desired behaviourAllow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. 
 
 ---
 
