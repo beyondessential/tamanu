@@ -153,7 +153,7 @@ _To be detailed._
   - MRN / Tamanu patient ID
   - Lab request ID, with a barcode encoding it
   - Collection date & time
-  - Collector's name or initials
+  - Collector's name 
 
 **Design updates — auto-print and finalise flow.**
 https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
