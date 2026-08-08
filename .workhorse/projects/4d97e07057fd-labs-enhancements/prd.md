@@ -135,7 +135,6 @@ _To be detailed._
 - Keep responsive behaviour of all tiles when additional lines of data are added to a tile - the titles should all be aligned.
 - Please adjust the width of the 5 tiles so that date and time of sample collected fit on one line for 13inch screens. Currently it's flowing onto two lines but theres enough room for it to sit on the one.
 
-
 ---
 
 ### 5. Lab request label format with auto-print prompt
