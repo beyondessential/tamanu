@@ -224,7 +224,7 @@ _To be detailed._
 
 **Desired behaviour.**
 
-- Add 
+- Add new visibility status to 
 
 
 
