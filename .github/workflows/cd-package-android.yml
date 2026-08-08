@@ -61,11 +61,17 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - name: Install Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+      - parallel:
+          - name: Install Java
+            uses: actions/setup-java@v4
+            with:
+              java-version: '17'
+              distribution: 'temurin'
+          - name: Set up Node.js
+            uses: actions/setup-node@v6
+            with:
+              node-version-file: '.node-version'
+              cache: npm
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -107,12 +113,6 @@ jobs:
         working-directory: packages/mobile/android
         run: |
           echo "BRANDING=${{ inputs.branding }}" > .env
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
 
       - name: Install dependencies
         run: npm install --include-workspace-root --workspace=@tamanu/mobile
