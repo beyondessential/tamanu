@@ -225,7 +225,7 @@ _To be detailed._
 **Desired behaviour.**
 
 - Add new visibility status to lab test types `reflexTest` .
-- Ensure reflext 
+- Ensure reflext test workflow is working as curre
 
 
 
