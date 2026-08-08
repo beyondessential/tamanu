@@ -212,7 +212,7 @@ _To be detailed._
 
 **Summary.** Lab test types with a visibility status of 'panelOnly' are not listed in the 'Manage' table for lab test types reference data, meaning they can only be managed via export and reimport. We would like to allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. 
 
-**Desired behaviour.** List tests with a visibility status of 'panelOnly' in the lab test type manage tab on the admin panel. Also add 'Panel only' as an option to the visibilityStatus select 
+**Desired behaviour.** List tests with a visibility status of 'panelOnly' in the lab test type manage tab on the admin panel. Also add 'Panel only' as an option to the visibilityStatus select field when managing an in
 
 ---
 
