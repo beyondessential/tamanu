@@ -201,7 +201,7 @@ _To be detailed._
 **Desired behaviour.** Add new column to 'Lab Test Category' to support setting a default specimen type. 
 
 - If a category has a default specimen type set, the specimen type should be defaulted for each lab request generated under this category.
-  - If a default is set, the field should sti
+  - If a default is set, the field should still be editable. 
 - If no specimen 
 
 **Scope.** Desktop. Mobile may follow as a separate card.
