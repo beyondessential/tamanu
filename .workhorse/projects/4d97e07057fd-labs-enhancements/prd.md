@@ -139,7 +139,7 @@ _To be detailed._
 
 ---
 
-### 6. Lab request label format with auto-print prompt
+### 5. Lab request label format with auto-print prompt
 
 **Summary.** Standardise the lab request label format and automatically prompt to print labels, minimising manual errors when handling samples. Initial request from Nauru; applies to all countries and projects using the lab module.
 
