@@ -180,8 +180,6 @@ _To be detailed._
 **Design updates.**
 - The single-select Status dropdown becomes a multiselect, following the existing multiselect field pattern — selected statuses shown as removable chips.
 
-**Rationale.** Seeing the statuses they alternate between in one view removes the constant re-filtering while managing collections.
-
 ---
 
 ### 7. Default "Collected by" to the current user
