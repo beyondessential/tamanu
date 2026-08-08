@@ -167,7 +167,6 @@ _To be detailed._
       - If no sample is recorded or only partial samples are recorded, the default standard finalise screen displays.
       - Samples recorded as collected should be autoselected on the finalise modal.  https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
     
-
 ---
 
 ### 6. Multiselect status filter on the active requests page
