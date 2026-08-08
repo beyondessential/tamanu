@@ -123,8 +123,6 @@ _To be detailed._
 
 ### 4. Show specimen type next to sample collected date & time
 
-**Applies to:** all deployments with the Tamanu–SENAITE integration.
-
 **Problem.** When a sample has the wrong specimen type assigned, it gets sent to SENAITE incorrectly. Lab staff transitioning a request from `Reception pending` to `Results pending` currently can't see the specimen type without opening "View details" on the sample, so they don't reliably check it before transitioning.
 
 **How it works today.** On the lab request view, the "Sample collected" tile shows only the sample date & time. The specimen type is recorded with the sample (alongside collected-by and site) but is only visible via the "View details" modal.
