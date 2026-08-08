@@ -228,7 +228,7 @@ _To be detailed._
 
 **Summary.** Update the current modal so it is the same modal that appears during a new lab request. However please keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
-
+---
 
 _To be detailed.
 
