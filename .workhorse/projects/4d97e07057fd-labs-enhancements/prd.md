@@ -155,8 +155,8 @@ _To be detailed._
       - Request ID, with a barcode encoding it
       - Date collected
       - Collected by
-      
-      - **Auto-print and finalise flow.**
+
+**Auto-print and finalise flow.**
 https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
 - **Trigger.** When all samples within a request are recorded — via the new lab request workflow or via the lab request view — the print sample label displays automatically once the sample is recorded.
 - **Configurable, off by default.** Enabled per facility and disabled by default. When disabled, the current workflows apply unchanged.
