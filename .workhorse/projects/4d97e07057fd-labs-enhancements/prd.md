@@ -178,7 +178,7 @@ _To be detailed._
 **Desired behaviour.** The "Status" filter on the active lab requests listing accepts multiple statuses at once, so staff can view combinations such as "Sample not collected" and "Reception pending" together. With no status selected, all active statuses show, as now. The selectable set stays the active statuses.
 
 **Design updates.**
-- The single-select 'Status' dropdown becomes a multiselect, following the existing multiselect field pattern — selected statuses shown as removable pills.
+- The single-select 'Status' dropdown becomes a multiselect, following the existing multiselect field pattern — selected statuses shown as removable pil.
 
 ---
 
