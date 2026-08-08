@@ -225,7 +225,6 @@ _To be detailed._
 **Desired behaviour.**
 
 - Add new visibility status to lab test types `reflexTest` .
-- Ensure re
 
 
 
