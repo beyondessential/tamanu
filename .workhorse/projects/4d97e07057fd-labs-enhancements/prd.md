@@ -225,6 +225,7 @@ _To be detailed._
 **Desired behaviour.**
 
 - Add new visibility status to lab test types `reflexTest` .
+- What other considerations are there for SENAITE integration here? Ask Rohan?
 
 ---
 
