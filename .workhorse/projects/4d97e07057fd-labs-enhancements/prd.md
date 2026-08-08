@@ -56,7 +56,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
   - If a panel has been selected the individual tests within that panel cannot then be selected. See design with disabled checkbox and tooltip on hover.
   - If the user selects an individual test, they CAN select a panel containing that test however we want to automatically deselect the individual test they originally selected.
   - Multiple panels containing the same individual test can be ordered and no duplicate warning will be displayed.
-      - If a lab request contains multiple panels with the same individual test, is it possible for SENAITE to send the same result back to each of these individual tests? And also only display the result once within the pa
+      - If a lab request contains multiple panels with the same individual test, is it possible for SENAITE to send the same result back to each of these individual tests? And also only display the result once within the patient result table? 
 - Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disable the 'Next' button until one item has been selected.
   
 Testing note: 
