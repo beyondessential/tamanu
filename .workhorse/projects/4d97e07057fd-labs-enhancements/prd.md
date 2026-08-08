@@ -198,6 +198,8 @@ _To be detailed._
 
 **Summary.** Support setting a default specimen type against 'Lab Test Category', via a new `defaultSpecimenType` reference-data column, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
 
+
+
 **Scope.** Desktop. Mobile may follow as a separate card.
 
 ---
