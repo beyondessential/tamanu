@@ -104,8 +104,8 @@ _To be detailed._
 
 **Desired behaviour.** 
 
-For refinement discussion:
-- Any other considerationt
+For refinement discussion.
+- Any other considerations to 
 
 ---
 
