@@ -149,7 +149,7 @@ _To be detailed._
 - **Size:** 40 × 28 mm. 
 - **Fields:**
   - Patient name
-  - Patient date of birth
+  - DOB
   - MRN / Tamanu patient ID
   - Lab request ID, with a barcode encoding it
   - Collection date & time
