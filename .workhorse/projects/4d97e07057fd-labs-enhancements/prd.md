@@ -200,7 +200,7 @@ _To be detailed._
 
 **Desired behaviour.** Add new column to 'Lab Test Category' to support setting a default specimen type. 
 
-- If a category has a default specimen type set, all lab
+- If a category has a default specimen type set, 
 
 **Scope.** Desktop. Mobile may follow as a separate card.
 
