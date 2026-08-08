@@ -188,7 +188,7 @@ _To be detailed._
 
 **How it works today.** "Collected by" starts empty in both collect-sample workflows — the Sample details step when recording at request creation, and the record-sample modal when recording later — and is enabled once a sample time is entered.
 
-**Desired behaviour.** "Collected by" defaults to the current user when recording a sample, when both recording . The default remains editable so staff can select a different collector, and it only applies when no collector is already recorded — editing a sample that already has a collector keeps the existing value.
+**Desired behaviour.** "Collected by" defaults to the current user when recording a sample, both when recording sample as collected during the lab request workflow or via the lab request view. The default remains editable so staff can select a different collector, and it only applies when no collector is already recorded — editing a sample that already has a collector keeps the existing value.
 
 **Scope.** Desktop. Mobile may follow as a separate card.
 
