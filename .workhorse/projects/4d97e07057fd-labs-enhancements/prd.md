@@ -120,7 +120,7 @@ _To be detailed._
 
 ---
 
-### 5. Show specimen type next to sample collected date & time
+### 4. Show specimen type next to sample collected date & time
 
 **Applies to:** all deployments with the Tamanu–SENAITE integration.
 
