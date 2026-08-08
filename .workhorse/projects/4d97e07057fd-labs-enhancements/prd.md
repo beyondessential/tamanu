@@ -13,16 +13,16 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 1 | [TAM-2053](https://linear.app/bes/issue/TAM-2053) | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
 | 2 | [TAM-4022](https://linear.app/bes/issue/TAM-4022) | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
 | 3 | [TAM-6851](https://linear.app/bes/issue/TAM-6851) | Receive numeric results outside the detection limit | High | _TBC_ |
-| 4 | [TAM-1888](https://linear.app/bes/issue/TAM-1888) | Auto-cancel lab requests with no sample collected | High | **None** — backend, opt-in setting |
-| 5 | [TAM-6938](https://linear.app/bes/issue/TAM-6938) | Add a "Recollect" lab request status | High | _TBC_ |
-| 6 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
-| 7 | [TAM-6734](https://linear.app/bes/issue/TAM-6734) | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
-| 8 | [TAM-6827](https://linear.app/bes/issue/TAM-6827) | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
-| 9 | [TAM-3086](https://linear.app/bes/issue/TAM-3086) | Default "Collected by" to the current user | Medium | **None** — field default |
-| 10 | [TAM-3090](https://linear.app/bes/issue/TAM-3090) | Support a default specimen type for lab tests | Medium | _TBC_ |
-| 11 | [TAM-6823](https://linear.app/bes/issue/TAM-6823) | Manage panelOnly lab test types on central | No priority | _TBC_ |
-| 12 | [TAM-6925](https://linear.app/bes/issue/TAM-6925) | Add a "Reflex test" visibility status | No priority | _TBC_ |
-| 13 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
+| 4 | [TAM-6938](https://linear.app/bes/issue/TAM-6938) | Add a "Recollect" lab request status | High | _TBC_ |
+| 5 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
+| 6 | [TAM-6734](https://linear.app/bes/issue/TAM-6734) | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
+| 7 | [TAM-6827](https://linear.app/bes/issue/TAM-6827) | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
+| 8 | [TAM-3086](https://linear.app/bes/issue/TAM-3086) | Default "Collected by" to the current user | Medium | **None** — field default |
+| 9 | [TAM-3090](https://linear.app/bes/issue/TAM-3090) | Support a default specimen type for lab tests | Medium | _TBC_ |
+| 10 | [TAM-6823](https://linear.app/bes/issue/TAM-6823) | Manage panelOnly lab test types on central | No priority | _TBC_ |
+| 11 | [TAM-6925](https://linear.app/bes/issue/TAM-6925) | Add a "Reflex test" visibility status | No priority | _TBC_ |
+| 12 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Keep test category & types visible while entering sample details | No priority | **Some** — sample entry layout |
+| 13 | [TAM-1888](https://linear.app/bes/issue/TAM-1888) | Auto-cancel lab requests with no sample collected | No priority | **None** — backend, opt-in setting |
 
 ---
 
@@ -106,25 +106,7 @@ _To be detailed._
 
 ---
 
-### 4. Auto-cancel lab requests with no sample collected
-
-**Problem.** Lab requests left in "Sample not collected" accumulate indefinitely, inflating the active lab request backlog. When lab reference data is updated, a large backlog overloads the API and causes integration delays — Palau reached 900+ uncollected requests, Nauru ~80. Raised by Palau and Nauru.
-
-**How it works today.** A lab request stays in "Sample not collected" until someone records a sample or cancels it manually; nothing clears stale uncollected requests, so they persist as active requests. Manual cancellation transitions the request to "Cancelled" with a chosen cancellation reason (from the configurable lab cancellation reasons) and an accompanying note.
-
-**Desired behaviour.** A facility can opt in to automatically cancelling lab requests that have sat in "Sample not collected" beyond a configurable age. A periodic background process on central transitions requests past the threshold to "Cancelled", the same end state as a manual cancellation.
-
-- **Opt-in, per facility.** Disabled by default and enabled per facility, with the age threshold configured per facility.
-- **Dedicated reason.** Auto-cancelled requests carry a dedicated, system-reserved cancellation reason — "Sample not collected — auto-cancelled" — separate from the user-configurable manual reasons, plus an accompanying note, so they are distinguishable in the request log from manually cancelled requests.
-
-**Rationale.** Clearing stale uncollected requests keeps active lab request volume down, avoiding the API overload and integration delays a large backlog causes when reference data is updated.
-
-**Open questions (to resolve before design):**
-- **Threshold basis, unit, and default:** measured from the request's requested date (time spent uncollected), expressed in what unit, and with what default once a facility enables it? To be determined.
-
----
-
-### 5. Add a "Recollect" lab request status
+### 4. Add a "Recollect" lab request status
 
 **Summary.** Add a new "Recollect" lab request status. Lab staff transition to it when a sample is unsuitable for testing, signalling the requesting doctor to organise a new sample. For LIMS-integrated instances, it pairs with a "Cancelled" diagnostic report carrying a PDF rejection report so the doctor can see why the sample was rejected.
 
@@ -138,7 +120,7 @@ _To be detailed._
 
 ---
 
-### 6. Show specimen type next to sample collected date & time
+### 5. Show specimen type next to sample collected date & time
 
 **Applies to:** all deployments with the Tamanu–SENAITE integration.
 
@@ -157,7 +139,7 @@ _To be detailed._
 
 ---
 
-### 7. Lab request label format with auto-print prompt
+### 6. Lab request label format with auto-print prompt
 
 **Summary.** Standardise the lab request label format and automatically prompt to print labels, minimising manual errors when handling samples. Initial request from Nauru; applies to all countries and projects using the lab module.
 
@@ -185,7 +167,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 8. Multiselect status filter on the active requests page
+### 7. Multiselect status filter on the active requests page
 
 **Problem.** Lab staff managing collections alternate between "Sample not collected" and "Reception pending" but can only filter on one status at a time, so they can't see both groups together.
 
@@ -200,7 +182,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 9. Default "Collected by" to the current user
+### 8. Default "Collected by" to the current user
 
 **Problem.** When recording lab sample details, staff must pick the collector from the practitioner list every time, even though it is almost always the logged-in user.
 
@@ -214,7 +196,7 @@ https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=417
 
 ---
 
-### 10. Support a default specimen type for lab tests
+### 9. Support a default specimen type for lab tests
 
 **Summary.** Support setting a default specimen type against individual lab test types and panels, via a new `specimenType` reference-data column on both, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
 
@@ -222,7 +204,7 @@ _To be detailed._
 
 ---
 
-### 11. Manage panelOnly lab test types on central
+### 10. Manage panelOnly lab test types on central
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
@@ -230,7 +212,7 @@ _To be detailed._
 
 ---
 
-### 12. Add a "Reflex test" visibility status
+### 11. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
 
@@ -238,7 +220,7 @@ _To be detailed._
 
 ---
 
-### 13. Update the Sample taken modal when recording a sample from the lab request screen
+### 12. Update the Sample taken modal when recording a sample from the lab request screen
 
 **Summary.** Update the current modal so it is the same modal that appears during a new lab request. However please keep header as is 'Record sample details' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 
