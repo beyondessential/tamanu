@@ -214,7 +214,7 @@ _To be detailed._
 
 ---
 
-### 10. Add a "Reflex test" visibility status
+### 11. Add a "Reflex test" visibility status
 
 **Summary.** Add a "Reflex test" visibility status for lab test types that can't be ordered in Tamanu but must exist in reference data so they can be attached to a request when a LIMS sends results back. Without the test in ref data, SENAITE errors and no results publish. These tests are currently given the PanelOnly visibility status as a workaround.
 
