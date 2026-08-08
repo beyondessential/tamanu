@@ -105,7 +105,7 @@ _To be detailed._
 **Desired behaviour.** 
 
 **For refinement discussion.**
-- Any other considerations to be made with this change - reporting
+- Any other considerations to be made with this change - reporting?
 
 ---
 
