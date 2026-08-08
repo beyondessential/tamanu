@@ -72,8 +72,6 @@ Testing note:
 
 **Design updates.**
 
-Applied per surface:
-
 - **New lab request workflow — Sample details step.** Samples are grouped by category, each category's sample listing all the tests and panels it contains (category grouping). https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16442&t=tyhjuqgTUSzOAZGg-1
 - **New lab request workflow - Finalised modal.** Lists tests and panels the same way, grouped within each category (category grouping). Please auto-select checkboxes for categories that have had the samples recorded. Please note other UI design updates to this modal. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
 - **Encounter-level labs table.** No panels column. Hovering over the **Test category** column reveals the tests and panels ordered on the request. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=12440-113980&t=tyhjuqgTUSzOAZGg-1
