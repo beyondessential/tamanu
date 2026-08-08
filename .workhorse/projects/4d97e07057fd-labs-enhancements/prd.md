@@ -155,8 +155,6 @@ _To be detailed._
       - Request ID, with a barcode encoding it
       - Date collected
       - Collected by
-      -
-      -
       
       - **Auto-print and finalise flow.**
 https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
