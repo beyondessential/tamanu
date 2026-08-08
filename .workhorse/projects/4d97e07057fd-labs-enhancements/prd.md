@@ -94,8 +94,6 @@ Testing note:
 **Open questions (to resolve before design):**
 - **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 12.
 
-_To be detailed._
-
 ---
 
 ### 3. Receive numeric results outside the detection limit
