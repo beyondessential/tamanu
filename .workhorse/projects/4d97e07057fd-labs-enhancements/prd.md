@@ -45,7 +45,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Tests and panels should be combined in the list and ordered alphabetically by category 
 - Tests within a panel should be listed in the same order as they appear in the reference data
 - If you search an individual test, display the test first followed by any panels that contain that test alphabetically.
--Search results should prioritise 
+-Search results should prioritise listing the test 
 - Default all panel dropdowns as closed. 
 - Once selected, tests and panels should be displayed in the selected section and grouped by category.
   - Categories should be displayed in alphabetical order and within the category panels and tests should be displayed in reference data order
