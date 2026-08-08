@@ -83,7 +83,8 @@ Testing note:
   - Display individual tests first alphabetically after panels.
       - This should include reflex tests added by SENAITE. 
   - Please also update the tile 'Test category' to 'Category'. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41639-15551&t=tyhjuqgTUSzOAZGg-1
-- **Results entry modal.** Similar layout to the request table. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41830-319441&t=tyhjuqgTUSzOAZGg-1
+- **Results entry modal.**
+  - Similar layout to the request table. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41830-319441&t=tyhjuqgTUSzOAZGg-1
 - **Active requests table and Published request table.** Remove the Panel column, add the tooltip on hover of the test category to display the tests within it. Update column and search from 'Test category' to 'Category' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=37455-2394&t=tyhjuqgTUSzOAZGg-1
 
 
