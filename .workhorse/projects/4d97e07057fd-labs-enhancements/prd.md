@@ -85,7 +85,7 @@ Testing note:
   - Please also update the tile 'Test category' to 'Category'. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41639-15551&t=tyhjuqgTUSzOAZGg-1
 - **Results entry modal:**
   - Use same layout as lab request view. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41830-319441&t=tyhjuqgTUSzOAZGg-1
-- **Active requests table and Published request table.** Remove the Panel column, add the tooltip on hover of the test category to display the tests within it. Update column and search from 'Test category' to 'Category' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=37455-2394&t=tyhjuqgTUSzOAZGg-1
+- **Active requests table and Published request table:** Remove the Panel column, add the tooltip on hover of the test category to display the tests within it. Update column and search from 'Test category' to 'Category' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=37455-2394&t=tyhjuqgTUSzOAZGg-1
 
 
 
