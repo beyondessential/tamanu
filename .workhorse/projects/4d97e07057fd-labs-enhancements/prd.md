@@ -230,4 +230,4 @@ _To be detailed._
 
 ### 13. Autocancel uncollected lab requests
 
-To be detailed.
+_To be detailed._
