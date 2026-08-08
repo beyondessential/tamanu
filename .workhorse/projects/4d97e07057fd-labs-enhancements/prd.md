@@ -182,7 +182,7 @@ _To be detailed._
 
 ---
 
-### 7. Default "Collected by" to the current user
+### 8. Default "Collected by" to the current user
 
 **Problem.** When recording lab sample details, staff must pick the collector from the practitioner list every time, even though it is almost always the logged-in user.
 
