@@ -200,8 +200,6 @@ _To be detailed._
 
 **Scope.** Desktop. Mobile may follow as a separate card.
 
-_To be detailed._
-
 ---
 
 ### 9. Manage panelOnly lab test types on central
