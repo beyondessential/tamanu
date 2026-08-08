@@ -91,8 +91,6 @@ Testing note:
   - Add the tooltip on hover of the test category to display the tests within it.
   - Update column and search from 'Test category' to 'Category' https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=37455-2394&t=tyhjuqgTUSzOAZGg-1
 
-
-
 **Open questions (to resolve before design):**
 - **Reflex test display:** should a panel-only reflex test (e.g. urine microscopy under urinalysis) appear under its panel subheading, while an individual reflex test (e.g. LDL when triglycerides are high) appears in the alphabetical individual tests list? Depends on the reflex visibility work in requirement 12.
 
