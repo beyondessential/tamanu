@@ -147,8 +147,8 @@ _To be detailed._
 
 **Design updates.**
 - **Standard label:**
-  - **Size:** 40 × 28 mm. 
-- **Fields:**
+  - **Size:** 40 × 28 mm.
+  - **Fields:**
   - Patient name
   - DOB
   - Patient ID
