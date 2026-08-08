@@ -151,7 +151,7 @@ _To be detailed._
   - Patient name
   - DOB
   - Patient ID
-  - Lab request ID, with a barcode encoding it
+  - R, with a barcode encoding it
   - Collection date & time
   - Collector's name 
 
