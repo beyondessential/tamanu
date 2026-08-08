@@ -152,7 +152,7 @@ _To be detailed._
   - DOB
   - Patient ID
   - Request ID, with a barcode encoding it
-  - Date cl
+  - Date collected
   - Collector's name 
 
 **Design updates — auto-print and finalise flow.**
