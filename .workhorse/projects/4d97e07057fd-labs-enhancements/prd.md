@@ -76,7 +76,7 @@ Testing note:
   - **Finalised modal.** Lists tests and panels the same way, grouped within each category alphabetically (category grouping). Please auto-select checkboxes for categories that have had the samples recorded. Please note other UI design updates to this modal. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41385-16946&t=tyhjuqgTUSzOAZGg-1
 - **Encounter-level labs table**:
   - Remove panel column.
-  - Hovering over the **Test category** column reveals the tests and panels ordered on the request. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=12440-113980&t=tyhjuqgTUSzOAZGg-1
+  - Hovering over the 'Test category** column reveals the tests and panels ordered on the request. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=12440-113980&t=tyhjuqgTUSzOAZGg-1
 - **Lab request view (encounter level):**
   - Update the table so that it can handle displaying results for both individual tests and panels.
   - Display panels first, with individual tests  Display individual tests first alphabetically followed by panels, alphabetically and within each panel display tests in the same order as listed in reference data. Please also update the tile 'Test category' to 'Category'. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41639-15551&t=tyhjuqgTUSzOAZGg-1
