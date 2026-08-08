@@ -64,8 +64,6 @@ Testing note:
 
 ### 2. Merge multiple lab requests into a single request
 
-**Applies to:** All deployments. The grouping behaviour works whether or not a deployment has a SENAITE integration. Motivated by the Tamanu–SENAITE (LIMS) integration: driven by Palau, and urgent for the Samoa SENAITE go-live, where high sample volumes (up to ~2,000 samples/day) would otherwise create thousands of separate requests and samples per day if Biochem panels are ordered separately.
-
 **Problem.** Panels that could be run off a single sample are split across separate lab requests, each of which creates its own sample in SENAITE. This multiplies the number of samples the lab must create and track. To run a sample on an interfaced analyser with the correct sample ID, lab users print the lab requests from Tamanu rather than labelling the tube with one SENAITE sample ID — increasing delays, the chance a request isn't run first time, and the risk of the wrong sample ID being used.
 
 **How it works today.** Each panel is requested as its own lab request and maps to its own SENAITE sample, even when several panels share a lab category and could share one sample.
