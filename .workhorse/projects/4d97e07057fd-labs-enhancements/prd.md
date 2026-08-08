@@ -154,7 +154,7 @@ _To be detailed._
       - Patient ID
       - Request ID, with a barcode encoding it
       - Date collected
-      - Collector's name 
+      - Collected by
 
 **Design updates — auto-print and finalise flow.**
 https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
