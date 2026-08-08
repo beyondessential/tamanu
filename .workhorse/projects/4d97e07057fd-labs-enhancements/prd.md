@@ -212,8 +212,6 @@ _To be detailed._
 
 **Summary.** Allow managing `panelOnly` lab test types on central so integration codes can be updated easily. Small differences between a Tamanu code and a SENAITE keyword (e.g. capitalisation) stop results transmitting to Tamanu. Applies to all deployments.
 
-_To be detailed._
-
 ---
 
 ### 10. Add a "Reflex test" visibility status
