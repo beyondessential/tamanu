@@ -149,12 +149,12 @@ _To be detailed._
 - **Standard label:**
   - **Size:** 40 × 28 mm.
   - **Fields:**
-  - Patient name
-  - DOB
-  - Patient ID
-  - Request ID, with a barcode encoding it
-  - Date collected
-  - Collector's name 
+      - Patient name
+      - DOB
+      - Patient ID
+      - Request ID, with a barcode encoding it
+      - Date collected
+      - Collector's name 
 
 **Design updates — auto-print and finalise flow.**
 https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41710-34938&t=tyhjuqgTUSzOAZGg-1
