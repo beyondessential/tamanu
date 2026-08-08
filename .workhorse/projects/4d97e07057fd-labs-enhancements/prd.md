@@ -194,7 +194,7 @@ _To be detailed._
 
 ---
 
-### 9. Support a default specimen type for lab tests
+### 9. Support a default specimen type for lab tests categories
 
 **Summary.** Support setting a default specimen type against 'Lab Test Category', via a new `defaultSpecimenType` reference-data column, applied when recording samples. Desktop is the priority; mobile may be split into a separate card.
 
