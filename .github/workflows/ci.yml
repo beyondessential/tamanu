@@ -134,13 +134,13 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
-
-      - name: Install and start postgres if needed
-        if: matrix.postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
+      - parallel:
+          - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
+          - name: Install and start postgres if needed
+            if: matrix.postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+              .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -196,12 +196,12 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
-
-      - name: Install and start postgres ${{ matrix.postgres }}
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-for-one-package.sh migrations
+      - parallel:
+          - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
+          - name: Install and start postgres ${{ matrix.postgres }}
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+              .github/scripts/setup-postgres-for-one-package.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
@@ -245,17 +245,18 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - name: Install dependencies
-        run: |
-          npm install \
-            --include-workspace-root \
-            --workspace=@tamanu/central-server \
-            --workspace=@tamanu/facility-server
+      - parallel:
+          - name: Install dependencies
+            run: |
+              npm install \
+                --include-workspace-root \
+                --workspace=@tamanu/central-server \
+                --workspace=@tamanu/facility-server
+          - name: Install and start postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
+              .github/scripts/test-facility-offline.sh setup-postgres
 
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
-          .github/scripts/test-facility-offline.sh setup-postgres
       - name: Start a central server
         run: .github/scripts/test-facility-offline.sh central-start
       - name: Start a facility server
@@ -302,20 +303,28 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - name: Install and start postgres
-        run: |
-          source .github/scripts/install-postgres-ubuntu.sh 18
+      - parallel:
+          - name: Install and start postgres
+            run: |
+              source .github/scripts/install-postgres-ubuntu.sh 18
 
-          createuser --superuser tamanu
-          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
-          createdb -O tamanu central
-          createdb -O tamanu facility
-
-      - run: |
-          npm install \
-            --include-workspace-root \
-            --workspace=@tamanu/central-server \
-            --workspace=scripts
+              createuser --superuser tamanu
+              psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+              createdb -O tamanu central
+              createdb -O tamanu facility
+          - name: Install npm dependencies
+            run: |
+              npm install \
+                --include-workspace-root \
+                --workspace=@tamanu/central-server \
+                --workspace=scripts
+          - name: Install dbt
+            run: |
+              pip3 install \
+                "dbt-core==1.10.13" \
+                "dbt-postgres==1.9.1" \
+                "dbt-adapters==1.16.7" \
+                "dbt-common==1.35.0"
 
       - name: Configure Tamanu
         run: |
@@ -336,13 +345,7 @@ jobs:
           fi
 
       - name: Check model is valid (ie that docs can generate)
-        run: |
-          pip3 install \
-            "dbt-core==1.10.13" \
-            "dbt-postgres==1.9.1" \
-            "dbt-adapters==1.16.7" \
-            "dbt-common==1.35.0"
-          npm run dbt-generate-docs
+        run: npm run dbt-generate-docs
 
   dbt-todos:
     needs: node_modules_cache
