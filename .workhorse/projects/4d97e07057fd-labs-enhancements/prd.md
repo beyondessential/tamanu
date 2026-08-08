@@ -146,7 +146,7 @@ _To be detailed._
 **Desired behaviour.** The lab request label follows a standard format. When a sample is recorded, the sample label is presented for printing automatically — configurable per facility and off by default — so staff no longer have to remember to print it manually.
 
 **Design updates.**
-- **Update standard l:**
+- **Update standard label size and details:**
   - **Size:** 40 × 28 mm.
   - **Fields:**
       - Patient name
