@@ -232,11 +232,13 @@ jobs:
           # source (which uses extensionless directory exports Node's ESM resolver alone
           # cannot complete). Keeps the heap size from the workflow-level NODE_OPTIONS.
           NODE_OPTIONS: --import tsx --max-old-space-size=6144
-      # Upload diagnostics even when tests fail. if on the parallel group (not the
-      # children) so the group itself is not skipped after a prior failure.
-      - if: always()
-        parallel:
+      # Upload diagnostics even when tests fail. if: always() goes on each member of the
+      # group, not the group itself: a step carrying if is parsed as an ordinary step, so
+      # parallel alongside it is rejected. parallel expands each member into a background
+      # step, and each still applies its own if.
+      - parallel:
           - name: Upload blob report
+            if: always()
             uses: actions/upload-artifact@v7
             with:
               name: blob-report-${{ strategy.job-index }}
@@ -247,6 +249,7 @@ jobs:
           # we need to see what the backend was doing while tests timed out, but were never
           # uploaded — so failures could only be diagnosed from the front end. Keep them.
           - name: Upload server logs
+            if: always()
             uses: actions/upload-artifact@v7
             with:
               name: server-logs-${{ strategy.job-index }}
