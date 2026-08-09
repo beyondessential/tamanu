@@ -26,6 +26,9 @@ Automated coverage lives in `packages/database/__tests__/blobStore/`,
 - [x] Successive passes cover the whole store
 - [x] An already-quarantined blob is not re-reported on every pass
 - [x] A blob the healer cannot repair does not stop the rest of the pass
+- [x] A blob quarantined on the read path mid-pass stays quarantined when the
+  end-of-pass verified batch flushes, so known-bad bytes are never re-served
+  (verifies spec: SCRUB)
 - [ ] A scrub pass on a store of realistic size stays within its byte budget and
   does not starve clinical IO — needs a volume test, not a unit test
 

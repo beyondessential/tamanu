@@ -66,6 +66,27 @@ leaves the seam for it rather than stubbing a hook that does nothing. Bao-style
 per-range verification stays deferred, and the ranged-read carve-out in the spec
 is what makes that acceptable.
 
+## Review follow-ups
+
+Triage of a stashed reviewer finder-pass (2026-08-10, unverified findings from a
+cancelled review):
+
+- **Fixed — scrub flush un-quarantine race.** `recordVerified` batch-stamped
+  VERIFIED with no state guard, so a read-path quarantine landing between a blob's
+  verify() and the end-of-pass flush was overwritten and the known-bad bytes served
+  again until the next pass. Now guarded with `integrityState != quarantined`, the
+  same guard `commitStaged` already uses. Regression test added.
+- **Confirmed, deferred — rollback halted by one corrupt blob.** In the M2 backfill,
+  `rollbackReferenceRows`/`rollbackChangelogEntries` read through the verifying
+  `get()` stream; a single `BlobHashMismatchError` throws out of the batch loop, and
+  because batches are `ORDER BY id` the corrupt row sits at the front of every rerun,
+  so rows after it never restore. Real data-loss, but in the rollback subcommand
+  (dev-OTS, rare) and the right fix needs a product decision on what rollback does
+  with a corrupt blob (skip-and-report vs abort). Belongs to M2, not this card.
+- **Ruled out — ranged reads serving corrupt bytes.** `get()` refuses any
+  quarantined blob up front regardless of range; ranged reads skip only the re-hash,
+  which is the documented carve-out. Not a bug.
+
 ## Steps
 
 - [x] Add the `absent` integrity state and scrub tuning constants

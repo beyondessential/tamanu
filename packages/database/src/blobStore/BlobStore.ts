@@ -289,6 +289,11 @@ export class BlobStore {
    * Stamp a batch of blobs as verified as of now, in one statement. The scrub's
    * common case is that most blobs pass, so this keeps a pass to a single write
    * for the verified set rather than one per blob.
+   *
+   * spec: SCRUB — a read-path quarantine landing between a blob's verify() and
+   * this end-of-pass flush must win: its bytes are known-bad now, whatever they
+   * hashed to earlier in the pass. So this never overwrites a quarantined row,
+   * only the verified/absent ones the scrub actually re-checked.
    */
   async recordVerified(hashes: string[]): Promise<void> {
     if (hashes.length === 0) {
@@ -296,7 +301,12 @@ export class BlobStore {
     }
     await this.#models.Blob.update(
       { integrityState: BLOB_INTEGRITY_STATES.VERIFIED, lastScrubbedAt: new Date() },
-      { where: { hash: hashes } },
+      {
+        where: {
+          hash: hashes,
+          integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.QUARANTINED },
+        },
+      },
     );
   }
 

@@ -363,6 +363,31 @@ describe('BlobStore', () => {
   });
 
   // spec: SCRUB
+  describe('recordVerified', () => {
+    it('stamps a batch of blobs verified', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      fakeBlob.rows.get(hash)!.integrityState = 'absent';
+
+      await store.recordVerified([hash]);
+
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('verified');
+    });
+
+    it('never overwrites a concurrently quarantined blob, so known-bad bytes stay unserved', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+      // A read-path quarantine lands after this blob verified earlier in the
+      // pass but before the end-of-pass flush.
+      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+
+      await store.recordVerified([hash]);
+
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('quarantined');
+    });
+  });
+
+  // spec: SCRUB
   describe('storedHashes', () => {
     const collect = async (store: BlobStore) => {
       const found: string[] = [];
