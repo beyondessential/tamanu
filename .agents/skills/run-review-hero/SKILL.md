@@ -3,7 +3,7 @@ name: run-review-hero
 description: "Drive the card's Review Hero loop by hand — trigger a review, address its comments, rerun until clean, then merge. Use in an external tool (Claude Code, Cursor) where Workhorse's automated loop isn't running."
 label: "Run Review Hero"
 jockey-hint: "External-agent workflow only. Inside Workhorse the PR control section's Run action and Rerun until clean automation drive this loop, so never surface this skill as a pill — keep it out of the pill list in every phase. It is invoked in external tools where those controls aren't available."
-workhorse-version: 0.2.0
+workhorse-version: 0.3.0
 ---
 
 ## Your task: Run Review Hero
