@@ -1,12 +1,10 @@
-import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
-  TAMANU_COLORS,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -17,30 +15,21 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
-import { MarCellButton } from './components';
+import { MarHeaderCellButton } from './components';
 import MarCell from './MarCell';
 import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import useCanViewMedication from './useCanViewMedication';
 
-const TableRow = styled.tr(
-  props => css`
-    ${props.discontinued &&
-    css`
-      text-decoration: line-through;
-    `}
-    ${props.isPausing &&
-    css`
-      color: ${TAMANU_COLORS.softText};
-      font-style: italic;
-    `}
-  `,
-);
-
-const TableRowHeader = styled(({ children, disabled, onClick, ...props }) => (
+const TableRowHeader = styled(({ children, disabled, discontinued, paused, onClick, ...props }) => (
   <th scope="row" {...props}>
-    <MarCellButton disabled={disabled} onClick={onClick}>
+    <MarHeaderCellButton
+      data-discontinued={discontinued}
+      data-paused={paused}
+      disabled={disabled}
+      onClick={onClick}
+    >
       {children}
-    </MarCellButton>
+    </MarHeaderCellButton>
   </th>
 ))`
   font-weight: inherit;
@@ -110,8 +99,13 @@ export const MarTableRow = ({
 
   return (
     <>
-      <TableRow discontinued={discontinued} isPausing={isPausing}>
-        <TableRowHeader disabled={!canViewMedication} onClick={openMedicationDetails}>
+      <tr>
+        <TableRowHeader
+          disabled={!canViewMedication}
+          discontinued={discontinued}
+          onClick={openMedicationDetails}
+          paused={isPausing}
+        >
           <MedicationName>
             <TranslatedReferenceData
               fallback={medicationRef.name}
@@ -134,7 +128,7 @@ export const MarTableRow = ({
               .filter(Boolean)
               .join(', ')}
           </div>
-          <Box color={!isPausing ? TAMANU_COLORS.midText : undefined}>
+          <div>
             <span>{notes}</span>
             {displayedPharmacyNote && (
               <span>
@@ -153,7 +147,7 @@ export const MarTableRow = ({
                 </ViewChangeLink>
               </>
             )}
-          </Box>
+          </div>
         </TableRowHeader>
         {recordsByWindow.map((marInfos, index) => (
           <MarCell
@@ -168,7 +162,7 @@ export const MarTableRow = ({
             onAnchorElChange={onPopperAnchorElChange}
           />
         ))}
-      </TableRow>
+      </tr>
       {medicationDetailsOpen && (
         <MedicationDetails
           initialMedication={medication}
