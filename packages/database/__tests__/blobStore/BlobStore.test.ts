@@ -39,22 +39,24 @@ function makeFakeBlobModel() {
     },
     async update(
       values: Partial<FakeRow>,
-      { where }: { where: { hash: string; integrityState?: { [key: symbol]: string } } },
+      { where }: { where: { hash: string | string[]; integrityState?: { [key: symbol]: string } } },
     ) {
-      const row = rows.get(where.hash);
-      if (!row) {
-        return;
-      }
+      // The store updates a single hash on the heal paths and a batch of them
+      // from the scrub's end-of-pass flush.
+      const hashes = Array.isArray(where.hash) ? where.hash : [where.hash];
       // The only operator the store uses here is Op.ne on integrityState.
       const excluded = where.integrityState
         ? Object.getOwnPropertySymbols(where.integrityState).map(
             symbol => (where.integrityState as Record<symbol, string>)[symbol],
           )
         : [];
-      if (excluded.includes(row.integrityState)) {
-        return;
+      for (const hash of hashes) {
+        const row = rows.get(hash);
+        if (!row || excluded.includes(row.integrityState)) {
+          continue;
+        }
+        Object.assign(row, values);
       }
-      Object.assign(row, values);
     },
     async destroy({ where: { hash } }: { where: { hash: string } }) {
       rows.delete(hash);
