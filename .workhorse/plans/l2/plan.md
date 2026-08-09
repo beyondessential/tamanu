@@ -75,6 +75,77 @@ outbox durability), not just attachments; its Records and bytes section is the
 device-side view of what `attachments.md` states product-wide, and the two
 cross-reference each other.
 
+## Legacy rows on the device
+
+Central's attachment reader prefers the hash when one is set and does not fall back
+to in-row bytes, so adoption of pre-upgrade device rows must not push hashes onto
+central rows that central holds as legacy in-database attachments. Adoption
+therefore splits on push status:
+
+- A row not yet pushed is adopted into the outbox, gains its hash through a normal
+  save (re-marking it for push), and central receives a hash-backed record ahead of
+  the byte push, as for any new capture.
+- A row already pushed is adopted as cache (central already durably holds the bytes
+  in-row), with the hash set by raw update so the sync tick is untouched and
+  central's legacy row is left alone. If that cache copy is later evicted, the read
+  falls back to the legacy by-id fetch, which stays in place for exactly this case.
+- A row whose file is gone has lost its content; its legacy pointer is cleared and
+  the record presents as awaiting content.
+
+The `filePath` column stays (nullable, never synced) as the legacy pointer adoption
+consumes; the `data` blob column was never written on device and is dropped.
+
+## Implementation checklist
+
+- [x] Migration: add `hash`, `patientId`, `encounterId` to attachments; drop `data`
+- [x] Attachment model: bidirectional sync, hash + patient/encounter linkage, no
+      binary column, `filePath` retained as local-only legacy pointer
+- [x] MobileBlobStore: RNFS content-addressed store over the existing `blobs`
+      registry — admit-by-file, fan-out layout, staging, verify-on-commit,
+      free-disk floor derived from device storage with cache-eviction hook
+- [x] MobileBlobCache: outbox/cache tiers, read-through with lazy fetch,
+      verify-on-read (cache refetches, outbox quarantines and surfaces),
+      coalesced recency, device-derived re-derived budget, LRU eviction with
+      MRU protection, floor eviction
+- [x] BlobTransferChannel (mobile): availability probe, resumable ranged fetch via
+      file download into staging, offer/push with raw-file body and resume from
+      central's staged offset, verify outbox blob before offering
+- [x] BlobOutboxPusher (mobile): post-sync pass, oldest-first, demote on
+      acknowledgement, forbidden offer = not yet eligible, dysfunction measure
+      against the push cursor
+- [x] reconcileAttachments startup pass: legacy adoption (split by push status) and
+      stranded-outbox demotion
+- [x] UploadPhoto: drop central capacity pre-check; admit capture to outbox and
+      create the hash-carrying record; insufficient-storage error names device
+      storage
+- [x] ViewPhotoLink: read through the cache by hash with lazy fetch; distinguish
+      awaiting-upload/awaiting-fetch presentation; legacy by-id fallback for
+      hash-less records
+- [x] SurveyResponse.submit: stamp photo attachments with the response's
+      patient/encounter linkage
+- [x] BackendManager: construct and wire store/cache/channel/pusher, run
+      reconciliation at startup, drive pusher + budget enforcement after sync
+- [x] Mobile jest specs for store, cache, channel, pusher, and reconciliation
+- [ ] Run the mobile jest suite and typecheck (needs a build environment — see
+      handoff); CI has not yet confirmed these locally
+
+## Sharing with the server (S2)
+
+The mobile store, cache, transfer channel, and pusher are deliberate copies of the
+server-side classes (E2/F2/G2), reshaped for a whole-file RNFS API rather than
+node streams. S2 is the downstream card that draws the sans-io seams from these two
+real callers; until then the duplication is expected and intentional.
+
+Notable shape differences to fold in at S2 time:
+- admit-by-file (`putFile`) and download-into-part-file, versus the server's
+  stream `put`/`stage`
+- the free-disk floor derives its reserve from live device storage each call,
+  where the server reads a fixed setting
+- the cache budget is re-derived from device storage on every enforcement, where
+  the facility reads an administrator setting
+- integrity is receipt/read verification only (no scheduled scrub), with the
+  outbox-before-offer check surfacing corruption of the sole copy
+
 ## Notes
 
 - Branch is based on `workhorse/b2` rather than `main`, matching siblings K2 and N2,

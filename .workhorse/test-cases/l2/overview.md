@@ -35,12 +35,12 @@ scoping is J2's.
   is unreachable (verifies spec: MOB)
 - [ ] With central at its own capacity limit, capture on the device still succeeds and
   the refusal surfaces on push rather than at capture (verifies spec: MOB, CAP)
-- [ ] Capture with device storage at the free-disk reserve; capture is rejected
+- [x] Capture with device storage at the free-disk reserve; capture is rejected
   immediately with an insufficient-storage error naming device storage (verifies spec:
   MOB, CAP)
-- [ ] After capture, confirm exactly one copy of the content exists on the device, in
+- [x] After capture, confirm exactly one copy of the content exists on the device, in
   the store, with no second copy left in the documents directory (verifies spec: MOB)
-- [ ] Kill the app between admitting the blob and creating its record; on relaunch no
+- [x] Kill the app between admitting the blob and creating its record; on relaunch no
   stranded outbox blob remains without a referencing record (verifies spec: MOB,
   CACHE)
 - [ ] Captured content stays in the outbox and survives app restarts until central
@@ -48,37 +48,37 @@ scoping is J2's.
 
 ## Reading content
 
-- [ ] Read an attachment the device captured, while offline; the content displays from
+- [x] Read an attachment the device captured, while offline; the content displays from
   the outbox with no network call (verifies spec: MOB)
-- [ ] Read an attachment the device holds only as a record; the bytes fetch by hash
+- [x] Read an attachment the device holds only as a record; the bytes fetch by hash
   and the content displays (verifies spec: MOB, XFER)
-- [ ] Read the same attachment again after the first fetch, offline; it displays from
+- [x] Read the same attachment again after the first fetch, offline; it displays from
   cache with no network call (verifies spec: MOB)
 - [ ] Read an attachment the device does not hold, while offline; it presents as an
   existing file awaiting its content, distinct from a missing record (verifies spec:
   MOB, XFER)
 - [ ] Read an attachment whose bytes have not reached central yet; the awaiting-content
   state is reported and resolves once the bytes arrive (verifies spec: MOB, XFER)
-- [ ] Two attachment records referencing identical content resolve to a single stored
+- [x] Two attachment records referencing identical content resolve to a single stored
   blob on the device (verifies spec: MOB, CAS)
-- [ ] Read a cached blob, then trigger eviction; the freshly read blob survives while
+- [x] Read a cached blob, then trigger eviction; the freshly read blob survives while
   less recently read blobs go first (verifies spec: MOB, CACHE)
-- [ ] Interrupt a fetch mid-transfer and retry; the fetch resumes and the content
+- [x] Interrupt a fetch mid-transfer and retry; the fetch resumes and the content
   verifies against its hash before display (verifies spec: XFER, SCRUB)
 
 ## Device cache budget
 
-- [ ] The cache budget is derived from the device's storage, and two devices with
+- [x] The cache budget is derived from the device's storage, and two devices with
   different capacity get different budgets (verifies spec: CACHE)
-- [ ] Fill the device with unrelated data; the budget is re-derived downward and the
+- [x] Fill the device with unrelated data; the budget is re-derived downward and the
   cache gives space back (verifies spec: CACHE)
-- [ ] Free space back up on the device; the budget is re-derived upward (verifies spec:
+- [x] Free space back up on the device; the budget is re-derived upward (verifies spec:
   CACHE)
-- [ ] Exceed the budget with cached content; least-recently-used blobs evict first and
+- [x] Exceed the budget with cached content; least-recently-used blobs evict first and
   their records remain, refetching on demand (verifies spec: CACHE, MOB)
 - [ ] Fetch content larger than the whole budget; it is admitted, displays, and is not
   evicted while it is the most recently used blob (verifies spec: CACHE)
-- [ ] With the cache at budget and outbox content present, run eviction; outbox
+- [x] With the cache at budget and outbox content present, run eviction; outbox
   content is untouched and does not count against the budget (verifies spec: CACHE)
 - [ ] Fill the device with un-evictable outbox content so eviction cannot hold the
   free-disk floor; capture is refused rather than crossing the reserve (verifies spec:
@@ -86,14 +86,14 @@ scoping is J2's.
 
 ## Integrity
 
-- [ ] Corrupt a fetched cache blob on disk and read it; corruption is detected and the
+- [x] Corrupt a fetched cache blob on disk and read it; corruption is detected and the
   blob refetches rather than displaying wrong content (verifies spec: SCRUB)
-- [ ] Corrupt an outbox blob on disk; the corruption is detected before the offer and
+- [x] Corrupt an outbox blob on disk; the corruption is detected before the offer and
   surfaced on the device, and the push is not attempted repeatedly (verifies spec:
   SCRUB, MOB)
 - [ ] Confirm the device runs no scheduled scrub and does no background hashing pass
   while idle (verifies spec: SCRUB)
-- [ ] Deliver bytes that do not match the requested hash; the device rejects them and
+- [x] Deliver bytes that do not match the requested hash; the device rejects them and
   does not admit them to the store (verifies spec: XFER, SCRUB)
 
 ## Operational

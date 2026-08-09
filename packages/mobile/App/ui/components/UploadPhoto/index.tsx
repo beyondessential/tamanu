@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
+import { ERROR_TYPE } from '@tamanu/errors';
 import { useBackend } from '~/ui/hooks';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
@@ -111,24 +112,34 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
-  const [imagePath, setImagePath] = useState(null);
-  const { models, centralServer } = useBackend();
+  const { models, blobCache } = useBackend();
 
-  const removeAttachment = useCallback(async (value, imagePath) => {
-    if (value) {
-      await models.Attachment.delete(value);
+  const removeAttachment = useCallback(async value => {
+    if (!value) {
+      return;
     }
-    if (imagePath) {
-      await deleteFileInDocuments(imagePath);
-      setImagePath(null);
+    const attachment = await models.Attachment.findOne({ where: { id: value } });
+    if (!attachment) {
+      return;
+    }
+    await models.Attachment.delete(value);
+    // A removed draft photo's blob has no referencing record left, so it can
+    // never become eligible for push; demote it to reclaimable cache.
+    if (attachment.hash) {
+      const stillReferenced = await models.Attachment.findOne({
+        where: { hash: attachment.hash },
+      });
+      if (!stillReferenced) {
+        await blobCache.demote(attachment.hash);
+      }
     }
   }, []);
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
     setImageData(null);
-    await removeAttachment(value, imagePath);
-  }, [value, imagePath]);
+    await removeAttachment(value);
+  }, [value]);
 
   const addPhotoCallback = useCallback(
     async imageType => {
@@ -154,40 +165,51 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       await deleteFileInDocuments(image.uri.replace('file://', ''));
 
       // Remove previous photo when selecting a new photo
-      await removeAttachment(value, imagePath);
+      await removeAttachment(value);
 
-      const { path, size } = await resizeImage(imageToBase64URI(image.base64), {
+      const { path } = await resizeImage(imageToBase64URI(image.base64), {
         outputPath: RNFS.DocumentDirectoryPath,
         rotation: 0,
         ...IMAGE_RESIZE_OPTIONS,
       });
 
-      // Make sure the central server has enough space to store a new attachment
-      const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
-
-      if (!canUploadAttachment) {
-        Popup.show({
-          type: 'Warning',
-          title: 'Not enough storage space to upload file',
-          textBody:
-            'The server has limited storage space remaining. To protect performance, you are currently unable to upload images. Please speak to your system administrator to increase your central server hard drive space.',
-          callback: (): void => Popup.hide(),
-        });
+      // spec: MOB
+      // The photo is admitted to the device's blob store at the outbox tier and
+      // the record carries only its hash. Capture completes without
+      // connectivity: the central server's own capacity governs the blob when
+      // it is pushed, not at capture.
+      let putResult;
+      try {
+        putResult = await blobCache.putOutbox(path);
+      } catch (error) {
+        setLoading(false);
+        await deleteFileInDocuments(path);
+        if (error?.type === ERROR_TYPE.STORAGE_INSUFFICIENT) {
+          // spec: CAP — the refusal names the device's storage as the cause
+          Popup.show({
+            type: 'Warning',
+            title: 'Not enough storage space on this device',
+            textBody:
+              'This device is running out of storage space, so the photo cannot be saved. Free up space on the device and try again.',
+            callback: (): void => Popup.hide(),
+          });
+          return;
+        }
+        setErrorMessage(error.message);
         return;
       }
 
       const { id } = await models.Attachment.createAndSaveOne({
-        filePath: path,
-        size,
+        hash: putResult.hash,
+        size: putResult.size,
         type: 'image/jpeg',
       });
 
       onChange(id);
-      setImagePath(path);
       setImageData(image.base64);
       setLoading(false);
     },
-    [value, imagePath],
+    [value],
   );
 
   return (
