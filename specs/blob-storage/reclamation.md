@@ -19,9 +19,10 @@ only ever removes blobs that nothing references.
   a safety window, so a blob whose reference is momentarily absent during an
   operation is not collected.
 - [ ] Because the central server accepts a blob only once a record references it, and
-  records are retained rather than deleted, orphans are rare and arise only from
-  anomalies such as interrupted or abandoned operations; orphan collection is a
-  conservative safety net.
+  records are retained rather than deleted, orphans are rare: they arise from
+  anomalies such as interrupted or abandoned operations, or from a reference being
+  repointed at new content, as when an asset is replaced (see `assets.md`). Orphan
+  collection is a conservative safety net.
 
 ## Facility and mobile reclamation
 

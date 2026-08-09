@@ -27,6 +27,7 @@ import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledR
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
+import { prefetchAssets } from './prefetchAssets';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -64,11 +65,20 @@ export class FacilitySyncManager {
 
   currentStartTime = 0;
 
-  constructor({ models, sequelize, centralServer, blobOutboxPusher }) {
+  constructor({
+    models,
+    sequelize,
+    centralServer,
+    blobOutboxPusher,
+    blobTransferChannel,
+    blobCache,
+  }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
     this.blobOutboxPusher = blobOutboxPusher ?? null;
+    this.blobTransferChannel = blobTransferChannel ?? null;
+    this.blobCache = blobCache ?? null;
   }
 
   isSyncRunning() {
@@ -211,6 +221,19 @@ export class FacilitySyncManager {
       await this.blobOutboxPusher?.recordSyncCycle();
     } catch (error) {
       log.warn('FacilitySyncManager.recordBlobOutboxSyncCycleFailed', { error: error.message });
+    }
+
+    // spec: ASSET
+    // Pull-side assets arrive as rows referencing blob content; fetch their
+    // bytes now so printing never waits on a first use. Never fails the sync.
+    try {
+      await prefetchAssets({
+        models: this.models,
+        transferChannel: this.blobTransferChannel,
+        blobCache: this.blobCache,
+      });
+    } catch (error) {
+      log.warn('FacilitySyncManager.prefetchAssetsFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;

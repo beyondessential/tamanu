@@ -29,7 +29,6 @@ import { setFhirRefreshTriggers } from '@tamanu/database';
 import { BlobStore } from '@tamanu/database/blobStore';
 
 import { FacilityBlobCache } from '../app/blobCache';
-
 import { createApiApp } from '../app/createApiApp';
 import { buildToken } from '../app/middleware/auth';
 import { initDatabase } from '../app/database';
@@ -148,12 +147,15 @@ class MockApplicationContext extends ApplicationContext {
     }
 
     // Temp-rooted and reserve-free so route tests exercise the blob-backed
-    // attachment paths without depending on the test host's disk headroom.
+    // attachment and asset paths without depending on the test host's disk headroom.
     const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'facility-blob-store-test-'));
     this.blobStore = new BlobStore({
       root: blobRoot,
       models: this.models,
       getFreeDiskReserveBytes: async () => 0,
+      evictCache: async bytesNeeded => {
+        await this.blobCache?.evictBytes(bytesNeeded);
+      },
     });
     this.blobCache = new FacilityBlobCache({
       blobStore: this.blobStore,

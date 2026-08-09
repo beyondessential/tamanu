@@ -23,6 +23,7 @@ The specs in this area cover:
 - `access-control.md` — who may read and push blobs
 - `serving.md` — serving blobs to clients
 - `attachments.md` — attachments as blob references
+- `assets.md` — the assets table as a blob store consumer
 - `backups.md` — backing up and restoring the store
 - `integrity.md` — verification, scrubbing, and self-heal
 - `antivirus.md` — optional malware scanning
