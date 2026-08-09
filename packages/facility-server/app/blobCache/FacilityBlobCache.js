@@ -40,6 +40,11 @@ export class FacilityBlobCache {
     this.#transferChannel = transferChannel;
   }
 
+  /** The channel, where one is wired — the API process supplies its own. */
+  get transferChannel() {
+    return this.#transferChannel;
+  }
+
   // spec: CACHE
   /**
    * Admit locally originated content into the outbox. Call within the

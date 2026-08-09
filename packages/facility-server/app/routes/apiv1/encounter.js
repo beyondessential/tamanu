@@ -286,7 +286,10 @@ encounter.post(
     }
 
     // Create file on the central server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT, {
+      encounterId: params.id,
+      patientId: specifiedEncounter.patientId,
+    });
 
     const documentMetadataObject = await models.DocumentMetadata.create({
       ...metadata,

@@ -314,6 +314,16 @@ describe('Create DiagnosticReport', () => {
         title: testAttachment.title,
       });
       expect(response).toHaveSucceeded();
+
+      // spec: ATCH — the report PDF lands in the blob store, and the attachment
+      // records its hash and the encounter it is scoped to, not the bytes.
+      const attachment = await ctx.store.models.Attachment.findByPk(
+        requestAttachment.attachmentId,
+      );
+      expect(attachment.hash).toBeTruthy();
+      expect(attachment.data).toBeFalsy();
+      expect(attachment.encounterId).toBe(labRequest.encounterId);
+      expect(await ctx.blobStore.has(attachment.hash)).toBe(true);
     });
 
     describe('errors', () => {

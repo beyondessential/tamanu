@@ -1,14 +1,23 @@
+import { Readable } from 'node:stream';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, InsufficientStorageError } from '@tamanu/errors';
+import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
+import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { canUploadAttachment } from './utils/getFreeDiskSpace';
+
+import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 export const attachmentRoutes = express.Router();
 
 //TODO: Remove when permission check are implemented in all central server routes
 attachmentRoutes.use(ensurePermissionCheck);
 
+// spec: ATCH
+// Attachment content resolves by hash from the blob store; a legacy row instead
+// holds its bytes in the database column, so a reader resolves the hash when one
+// is present and the in-database bytes otherwise. The base64 mode is retained for
+// clients that consume the content inline (profile pictures, photo answers).
 attachmentRoutes.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -23,6 +32,38 @@ attachmentRoutes.get(
       throw new ForbiddenError('You do not have permission to view this attachment.');
     }
 
+    if (attachment.hash) {
+      const { blobStore } = req.ctx;
+      const stat = await blobStore.stat(attachment.hash);
+      // spec: ATCH
+      // Central holds the record but its origin may not have pushed the bytes
+      // yet: present it as an existing file awaiting its content rather than
+      // reading a null stat. Central is authoritative and never fetches, so
+      // absent bytes are always awaiting upload from the origin.
+      if (!stat) {
+        res.status(202).send({
+          attachmentId: id,
+          availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+        });
+        return;
+      }
+      if (base64 === 'true') {
+        const data = await readBlobAsBase64({
+          size: stat.size,
+          open: () => blobStore.get(attachment.hash, { stat }),
+        });
+        res.send({ data });
+        return;
+      }
+      await serveBlob(req, res, {
+        hash: attachment.hash,
+        size: stat.size,
+        contentType: attachment.type,
+        open: range => blobStore.get(attachment.hash, { ...range, stat }),
+      });
+      return;
+    }
+
     if (base64 === 'true') {
       res.send({ data: Buffer.from(attachment.data).toString('base64') });
     } else {
@@ -33,27 +74,26 @@ attachmentRoutes.get(
   }),
 );
 
+// spec: ATCH
+// A new attachment's bytes are admitted to the blob store, and its recorded size
+// is taken from the bytes actually admitted rather than the caller's declaration.
+// The store refuses admission with an insufficient-storage error rather than
+// cross the host's free-disk reserve (see capacity.md).
 attachmentRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { settings } = req;
     req.checkPermission('create', 'Attachment');
 
-    const canUpload = await canUploadAttachment(settings);
-
-    if (!canUpload) {
-      throw new InsufficientStorageError(
-        'Document cannot be uploaded due to lack of storage space.',
-      );
-    }
-
+    // Scope is never taken from the request body: this route has no caller that
+    // is entitled to set another patient's or encounter's scope, and trusting the
+    // body would let a client scope an attachment to any patient. Attachments are
+    // scoped by the server-side writer that owns the referencing record (a
+    // document, letter, survey answer, or lab report); one created here carries no
+    // scope and stays central-only until such a writer references it.
     const { Attachment } = req.store.models;
-    const { type, size, data } = Attachment.sanitizeForDatabase(req.body);
-    const attachment = await Attachment.create({
-      type,
-      size,
-      data,
-    });
+    const { type, data } = Attachment.sanitizeForDatabase(req.body);
+    const { hash, size } = await req.ctx.blobStore.put(Readable.from([data]));
+    const attachment = await Attachment.create({ type, hash, size });
 
     // Send only the ID to be able to link it to metadata
     res.send({

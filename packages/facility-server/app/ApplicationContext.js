@@ -12,7 +12,7 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
-import { FacilityBlobCache } from './blobCache';
+import { FacilityBlobCache, makeSyncedReferenceResolver } from './blobCache';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -111,9 +111,19 @@ export class ApplicationContext {
       },
     });
 
+    // spec: ATCH
+    // Shared model code admits attachment content through this so it reaches the
+    // store from deep in a write (a survey photo answer) with no request to carry
+    // it. On a facility, origin content lands in the outbox and the pusher
+    // delivers it once the referencing record has synchronised.
+    this.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobCache.putOutbox(source, options);
+
     // spec: CACHE — consumers (attachments, assets) append their synced-record
     // resolvers here so their blobs become eligible for push.
-    this.blobReferenceResolvers = [];
+    this.blobReferenceResolvers = [
+      makeSyncedReferenceResolver({ tableName: 'attachments', hashColumn: 'hash' }),
+    ];
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
 
