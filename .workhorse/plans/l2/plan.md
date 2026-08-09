@@ -61,11 +61,19 @@ rather than a push that is refused over and over.
 
 ## Status
 
-Held pending J2. The hash-resolution approach rests on J2 giving attachment records
-their owning record's patient linkage, and the mobile spec cross-references J2's
-attachments spec, which is not on this base yet. Resume once J2 lands: rebase onto
-it, confirm the linkage landed as specified, and settle whether mobile's attachment
-behaviour folds into the attachments spec or stays its own file.
+Unblocked. J2 merged into the epic branch (PR #10710) and this branch is rebased
+onto it. The linkage landed as the spec assumed: `Attachment` carries its own
+`patientId`/`encounterId`, syncs `BIDIRECTIONAL` with a patient filter over both
+direct and encounter linkage, and only hash-carrying rows sync — legacy
+in-row-bytes attachments stay central-only. The central model still accepts
+mobile's inline-bytes upload as a legacy in-database attachment; retiring that
+path is this card's work.
+
+The spec-structure question is settled: mobile behaviour stays in its own spec.
+`mobile.md` covers the device blob store as a whole (capture, budget, reading,
+outbox durability), not just attachments; its Records and bytes section is the
+device-side view of what `attachments.md` states product-wide, and the two
+cross-reference each other.
 
 ## Notes
 
