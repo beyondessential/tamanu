@@ -268,6 +268,12 @@ export const facilitySettings = {
           schedule: '0 * * * *',
           enabled: false,
         }),
+        // Seeds this server's store from the content it already holds, so a
+        // backfilled row arriving from central finds its blob already present.
+        blobBackfill: scheduledTaskSchema(
+          { schedule: '*/5 * * * *', jitterTime: '30s' },
+          batchingProperties(50, 1000),
+        ),
       },
     },
     sync: {

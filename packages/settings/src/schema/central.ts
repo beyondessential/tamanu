@@ -983,6 +983,14 @@ export const centralSettings = {
           { schedule: '0 3 * * *' },
           batchingProperties(100, 50),
         ),
+        // Runs often so a deployment upgraded mid-day starts moving content
+        // without waiting for a nightly window; it no-ops once complete.
+        // Batches are small and the pause long: a blob move is far heavier
+        // than a row update, and there is no deadline to meet.
+        blobBackfill: scheduledTaskSchema(
+          { schedule: '*/5 * * * *', jitterTime: '30s' },
+          batchingProperties(50, 1000),
+        ),
       },
     },
     security: {
