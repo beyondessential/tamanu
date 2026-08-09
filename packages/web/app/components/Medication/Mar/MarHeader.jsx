@@ -67,11 +67,11 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const encounterEnd = toFacilityDate(encounter?.endDate);
 
   const goToPreviousDay = () => {
-    onDateChange(prevDate => subDays(prevDate, 1));
+    onDateChange(subDays(selectedDate, 1));
   };
 
   const goToNextDay = () => {
-    onDateChange(prevDate => addDays(prevDate, 1));
+    onDateChange(addDays(selectedDate, 1));
   };
 
   const isPreviousDayDisabled = encounterStart && isSameDay(selectedDate, encounterStart);
