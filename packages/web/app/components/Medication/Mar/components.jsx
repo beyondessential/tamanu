@@ -1,4 +1,4 @@
-import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { TAMANU_COLORS, UnstyledHtmlButton } from '@tamanu/ui-components';
 import styled from 'styled-components';
 
 export const MarCellButton = styled(UnstyledHtmlButton)`
@@ -7,9 +7,6 @@ export const MarCellButton = styled(UnstyledHtmlButton)`
   inline-size: 100%;
   position: relative;
 
-  th & {
-    padding: 10px;
-  }
   &:not(:disabled) {
     cursor: pointer;
   }
@@ -37,6 +34,18 @@ export const MarCellButton = styled(UnstyledHtmlButton)`
     background-color: ${p => p.theme.palette.background.paper};
     /* outline (not border) to pixel-align with parent borders, rather than being inset by 1px */
     outline: 1px solid ${p => p.theme.palette.primary.main};
+  }
+`;
+
+export const MarHeaderCellButton = styled(MarCellButton)`
+  padding: 10px;
+  &[data-discontinued='true'] {
+    background-color: unset;
+    text-decoration: line-through;
+  }
+  &[data-paused='true'] {
+    color: ${TAMANU_COLORS.softText};
+    font-style: italic;
   }
 `;
 
