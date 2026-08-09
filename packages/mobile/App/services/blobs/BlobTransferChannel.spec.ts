@@ -160,9 +160,9 @@ describe('BlobTransferChannel', () => {
     // verifies spec: XFER — idempotent when central already holds it
     it('acknowledges without transfer when central already stores the content', async () => {
       fs.seed('/tmp/dup.jpg', 'already there');
+      fs.onUpload = jest.fn();
       const { hash } = await store.putFile('/tmp/dup.jpg', { tier: BLOB_TIERS.OUTBOX });
       centralServer.post.mockResolvedValue({ status: BLOB_OFFER_STATUSES.ALREADY_STORED });
-      fs.onUpload = jest.fn();
 
       const result = await channel.pushToCentral(hash);
       expect(result).toMatchObject({ acknowledged: true, existed: true });

@@ -43,7 +43,7 @@ scoping is J2's.
 - [x] Kill the app between admitting the blob and creating its record; on relaunch no
   stranded outbox blob remains without a referencing record (verifies spec: MOB,
   CACHE)
-- [ ] Captured content stays in the outbox and survives app restarts until central
+- [x] Captured content stays in the outbox and survives app restarts until central
   acknowledges it, then demotes to evictable cache (verifies spec: MOB, CACHE)
 
 ## Reading content

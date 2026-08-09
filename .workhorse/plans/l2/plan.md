@@ -126,8 +126,11 @@ consumes; the `data` blob column was never written on device and is dropped.
 - [x] BackendManager: construct and wire store/cache/channel/pusher, run
       reconciliation at startup, drive pusher + budget enforcement after sync
 - [x] Mobile jest specs for store, cache, channel, pusher, and reconciliation
-- [ ] Run the mobile jest suite and typecheck (needs a build environment — see
-      handoff); CI has not yet confirmed these locally
+- [x] Run the mobile jest suite and typecheck. Suite green: 47 suites, 248 tests,
+      including 45 across the six blob specs. `tsc` reports no fault in this
+      card's code — its only new errors are unresolved `@tamanu/*` imports, the
+      repo-wide breakage that already accounts for the base branch's 609 errors
+      and is not gated by CI (the mobile job runs jest alone)
 
 ## Sharing with the server (S2)
 
