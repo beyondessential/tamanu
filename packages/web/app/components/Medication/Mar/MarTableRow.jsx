@@ -7,6 +7,7 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 import {
   TranslatedReferenceData,
   TranslatedText,
+  UnstyledHtmlButton,
   useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
@@ -39,11 +40,18 @@ const MedicationName = styled.span`
   font-weight: 500;
 `;
 
-const ViewChangeLink = styled.span`
+const PharmacyNote = styled.div`
+  color: ${p => p.theme.palette.text.tertiary};
+`;
+
+const ViewChangeLink = styled(UnstyledHtmlButton)`
   color: ${p => p.theme.palette.text.primary};
+  cursor: pointer;
   font-weight: 500;
   text-decoration: underline;
-  cursor: pointer;
+  &:hover {
+    color: ${p => p.theme.palette.primary.main};
+  }
 `;
 
 export const MarTableRow = ({
@@ -128,7 +136,7 @@ export const MarTableRow = ({
               .filter(Boolean)
               .join(', ')}
           </div>
-          <div>
+          <PharmacyNote>
             <span>{notes}</span>
             {displayedPharmacyNote && (
               <span>
@@ -147,7 +155,7 @@ export const MarTableRow = ({
                 </ViewChangeLink>
               </>
             )}
-          </div>
+          </PharmacyNote>
         </TableRowHeader>
         {recordsByWindow.map((marInfos, index) => (
           <MarCell
