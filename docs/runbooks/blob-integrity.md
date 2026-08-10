@@ -42,6 +42,15 @@ is the distinction that decides how urgent the report is:
 A quarantined blob is **retained, never served, and never deleted automatically**,
 so the bad bytes stay available for investigation.
 
+Quarantine also takes the blob out of the scrub's verification pass, which is
+deliberate: re-hashing bytes already known to be bad every pass would spend the
+scrub's budget re-learning what is recorded. The consequence matters for the
+restores below. **The scrub will not notice good bytes placed under a quarantined
+row on its own**, so clearing the state is an explicit step of the repair rather
+than something to wait for. An `absent` blob is the opposite case: it stays in the
+pass, and returning bytes are picked up and verified without anyone doing
+anything.
+
 ## 3. Establish context
 
 Which deployment and server — see `../deployment-context.md`. Then, on the
@@ -80,9 +89,18 @@ using the quarantined and outbox queries.
 Restoring a single blob from a facility backup is a **[dev-OTS]** action: it means
 extracting one file from the store capture of a backup cycle and placing it in the
 running store. Hand this to a developer with the hash, the facility, and the
-backup cycle to draw from. The scrub's reconciliation pass is what makes it work:
-a file placed in its correct fan-out path is verified and registered on the next
-pass, so the restore does not need a database change.
+backup cycle to draw from. It has two steps, and the second is what people miss:
+
+1. Place the file in the exact fan-out path its hash dictates. Anywhere else it is
+   invisible to the server and never reclaimed.
+2. Return the row to `absent`, which puts the blob back in the scrub's
+   verification pass (see §2). The next pass hashes the placed file and stamps it
+   `verified`, or re-quarantines it if the bytes are still wrong, so the state
+   change is not taking anyone's word for the restore: the scrub still decides.
+
+Step 2 is the only case where writing to a quarantined row is right, and it is
+safe precisely because step 1's bytes are independently re-checked. It does not
+license deleting the row (see §8).
 
 If no backup holds it, the content is lost. Say so plainly to the deployment
 contact rather than leaving a quarantined row to be rediscovered later.
@@ -102,8 +120,9 @@ by how many. An unreferenced quarantined blob is a curiosity; a referenced one i
 a file a clinician cannot open.
 
 The dependable repair is a restore from central's backup, which is
-**[dev-OTS]** and follows the same shape as §5: extract the blob from the store
-capture, place it in its fan-out path, let the scrub adopt it.
+**[dev-OTS]** and follows the same two steps as §5: extract the blob from the store
+capture, place it in its fan-out path, then return the row to `absent` so the next
+scrub pass verifies it.
 
 ## 7. Escalate
 

@@ -286,6 +286,25 @@ export class BlobStore {
 
   // spec: SCRUB
   /**
+   * Record content this store is expected to be able to serve but holds no
+   * registry row for at all — the referential pass's fault, where a
+   * synchronised record references a hash the store has never admitted.
+   *
+   * Registering it absent is what makes the fault visible to everything that
+   * reads the registry, and it stops the referential pass re-finding the same
+   * hash every pass and spending its limit on it. From here the ordinary absent
+   * machinery applies: cheap to re-check (there are no bytes to hash), and an
+   * arriving copy settles it on commit, size included.
+   */
+  async recordAbsentReference(hash: string): Promise<void> {
+    parseBlobHash(hash);
+    // Size is unknown until the content arrives; the commit that admits it
+    // writes the real one.
+    await this.#register(hash, 0, { integrityState: BLOB_INTEGRITY_STATES.ABSENT });
+  }
+
+  // spec: SCRUB
+  /**
    * Stamp a batch of blobs as verified as of now, in one statement. The scrub's
    * common case is that most blobs pass, so this keeps a pass to a single write
    * for the verified set rather than one per blob.
@@ -418,7 +437,7 @@ export class BlobStore {
     // Register after placement: a crash in between leaves an orphan file that
     // the next put of the same content adopts, never a registry row pointing
     // at missing bytes.
-    await this.#register(hash, size, tier);
+    await this.#register(hash, size, { tier });
 
     return { hash, size, existed };
   }
@@ -731,7 +750,11 @@ export class BlobStore {
     }
   }
 
-  async #register(hash: string, size: number, tier?: BlobTier): Promise<void> {
+  async #register(
+    hash: string,
+    size: number,
+    { tier, integrityState }: { tier?: BlobTier; integrityState?: BlobIntegrityState } = {},
+  ): Promise<void> {
     // Race-safe against concurrent puts of the same content; the loser's
     // insert is a no-op against the winner's identical live row, which keeps
     // its tier: content already held as cache is durable on central and stays
@@ -763,7 +786,7 @@ export class BlobStore {
           id: randomUUID(),
           hash,
           size,
-          integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+          integrityState: integrityState ?? BLOB_INTEGRITY_STATES.VERIFIED,
           tier: tier ?? BLOB_TIERS.CACHE,
         },
       },
