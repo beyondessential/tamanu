@@ -54,7 +54,7 @@ and `servePolicy.test.ts`, and in the quarantine case in
   serve-only-when-known-good, rather than withholding everything it holds
 - [x] The central attachment route answers each posture with the right status and
   availability state
-- [ ] The facility attachment route answers on its own quarantine records before
+- [x] The facility attachment route answers on its own quarantine records before
   asking central, so the answer is the same with the link down
 
 ## Quarantine and propagation
@@ -63,7 +63,7 @@ and `servePolicy.test.ts`, and in the quarantine case in
   (verifies spec: AV)
 - [ ] A quarantine written on central reaches a facility and a device by ordinary
   synchronisation
-- [ ] A facility refuses a quarantined hash while it cannot reach central
+- [x] A facility refuses a quarantined hash while it cannot reach central
 - [x] Central answers an offer of a quarantined hash without wanting the bytes
 - [x] Pushed bytes for a quarantined hash are not staged and do not clear it
 - [ ] A quarantined hash is not fetched by a facility or a device

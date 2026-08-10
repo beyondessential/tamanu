@@ -97,6 +97,29 @@ describe('Attachment (facility-server)', () => {
     });
   });
 
+  // spec: AV
+  // The quarantine record reaches the facility by ordinary synchronisation, so
+  // it applies to content already cached here and applies without central
+  // having to be reachable.
+  it('withholds a quarantined attachment it already holds, without asking central', async () => {
+    const content = uniqueContent();
+    const { hash } = await ctx.blobStore.put(Readable.from([content]));
+    const attachment = await makeAttachment(hash, content.length);
+    await models.BlobQuarantine.create({ hash });
+    ctx.blobCache.setTransferChannel({
+      availability: async () => {
+        throw new Error('central must not be consulted for known-bad content');
+      },
+    });
+
+    const result = await app.get(`/api/attachment/${attachment.id}`);
+    expect(result.status).toBe(202);
+    expect(result.body).toMatchObject({
+      attachmentId: attachment.id,
+      availability: BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
+    });
+  });
+
   it('serves a locally held attachment base64-encoded when asked', async () => {
     const content = uniqueContent();
     const { hash } = await ctx.blobStore.put(Readable.from([content]));

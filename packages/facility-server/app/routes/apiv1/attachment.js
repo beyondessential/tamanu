@@ -10,6 +10,13 @@ import { BlobTransferChannel } from '../../blobTransfer';
 import { getServerFacilityIds } from '../../serverConfig';
 import { CentralServerConnection } from '../../sync';
 
+// The availability states a read can be satisfied from: content this server
+// holds, and content central holds and is willing to serve.
+const SERVES_FROM = [
+  BLOB_AVAILABILITY_STATES.AVAILABLE,
+  BLOB_AVAILABILITY_STATES.AWAITING_FETCH,
+];
+
 const SAFE_ID_REGEX = /^[A-Za-z0-9-]+$/;
 const ID_SCHEMA = yup
   .string()
@@ -75,11 +82,11 @@ attachment.get(
       const { availability, size } = await channel.availability(hash);
 
       // spec: ATCH, AV
-      // Anything short of available presents as an existing file that is not
-      // being served yet, carrying the reason: awaiting upload from its origin,
-      // awaiting a scan central has not run, or withheld as infected. Content
-      // central holds and will serve is fetched below.
-      if (availability !== BLOB_AVAILABILITY_STATES.AVAILABLE) {
+      // Available is held here and awaiting-fetch is held by central, which the
+      // read below resolves. Every other state is an existing file that is not
+      // being served, and carries which: awaiting upload from its origin,
+      // awaiting a scan central has not run, or withheld as infected.
+      if (!SERVES_FROM.includes(availability)) {
         res.status(202).send({ attachmentId: id, availability });
         return;
       }
