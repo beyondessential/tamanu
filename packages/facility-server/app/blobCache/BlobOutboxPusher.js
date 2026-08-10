@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 
+import { BlobOutbox, DEFAULT_OUTBOX_SCAN_LIMIT } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
@@ -14,126 +15,64 @@ import { blobOutboxStatus } from './outboxStatus';
 // specs/blob-storage/capacity.md); this local escalation is a coarse aid.
 const DYSFUNCTION_PUSH_TICK_GAP = 6;
 
-// Upper bound on outbox rows scanned per pass, so an outbox that grew large
-// during an extended outage never materialises whole in memory (nor produces a
-// huge `IN (…)` eligibility list). Oldest-first, so the longest-waiting blobs
-// are always handled; the rest are picked up on subsequent passes.
-const OUTBOX_SCAN_LIMIT = 1000;
-
 // spec: CACHE
 // Drains the outbox to the central server: oldest-first among blobs whose
 // referencing record has synchronised, skipping past failures, one transfer in
 // flight per blob. Runs on its own schedule, independent of sync sessions
 // (see tasks/BlobOutboxPusherTask); sync sessions call recordSyncCycle so the
 // outbox dysfunction measure advances with sync progress, not wall-clock time.
+//
+// The pass itself lives in @tamanu/blobs; this class is the server's host for
+// it, holding the registry queries and the sync-progress measure.
 export class BlobOutboxPusher {
   #models;
   #transferChannel;
   #blobCache;
   /** Live array; consumers (attachments, assets) append theirs at startup. */
   #referenceResolvers;
-  #inFlight = new Set();
+  #outbox;
 
   constructor({ models, transferChannel, blobCache, referenceResolvers = [] }) {
     this.#models = models;
     this.#transferChannel = transferChannel;
     this.#blobCache = blobCache;
     this.#referenceResolvers = referenceResolvers;
+    this.#outbox = new BlobOutbox(
+      {
+        listOutbox: limit => this.#listOutbox(limit),
+        push: hash => this.#transferChannel.pushToCentral(hash),
+        demote: hash => this.#blobCache.demote(hash),
+        onWarning: (message, details) => log.warn(`BlobOutboxPusher: ${message}`, details),
+      },
+      {
+        resolvers: () =>
+          this.#referenceResolvers.map(resolver => hashes => resolver(this.#models, hashes)),
+      },
+    );
   }
 
-  // spec: CACHE
-  /**
-   * Which of these outbox blobs are eligible for push — a referencing record
-   * has synchronised to the central server, determined locally by the
-   * consumers' reference resolvers. With no resolvers registered nothing is
-   * eligible, so the pusher stays idle until a consumer arrives.
-   */
   async eligibleHashes(hashes) {
-    const eligible = new Set();
-    if (hashes.length === 0) {
-      return eligible;
-    }
-    for (const resolver of this.#referenceResolvers) {
-      // Isolate resolvers: one consumer's failing query (e.g. a schema mismatch)
-      // must not starve every other consumer's blobs of eligibility.
-      try {
-        for (const hash of await resolver(this.#models, hashes)) {
-          eligible.add(hash);
-        }
-      } catch (error) {
-        log.warn('BlobOutboxPusher: a reference resolver failed, skipping it this pass', {
-          error: error.message,
-        });
-      }
-    }
-    return eligible;
+    return await this.#outbox.eligibleHashes(hashes);
   }
 
   /** One pass over the outbox; the scheduled task calls this. */
   async runOnce() {
+    const counts = await this.#outbox.runOnce();
+    if (counts.pushed > 0 || counts.failed > 0 || counts.skipped > 0) {
+      log.info('BlobOutboxPusher: outbox pass complete', counts);
+    }
+    return counts;
+  }
+
+  async #listOutbox(limit) {
     const outbox = await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.OUTBOX },
       // spec: CACHE — oldest-first: the longest-unacknowledged blob is offered first
       order: [['createdAt', 'ASC']],
       attributes: ['hash'],
-      limit: OUTBOX_SCAN_LIMIT,
+      limit,
     });
-    const counts = { pushed: 0, failed: 0, skipped: 0, ineligible: 0, inFlight: 0 };
-    if (outbox.length === 0) {
-      return counts;
-    }
-
-    const eligible = await this.eligibleHashes(outbox.map(blob => blob.hash));
-    for (const { hash } of outbox) {
-      if (!eligible.has(hash)) {
-        counts.ineligible += 1;
-        continue;
-      }
-      if (this.#inFlight.has(hash)) {
-        // spec: CACHE — at most one transfer in flight per blob
-        counts.inFlight += 1;
-        continue;
-      }
-      this.#inFlight.add(hash);
-      try {
-        const result = await this.#transferChannel.pushToCentral(hash);
-        if (!result?.acknowledged) {
-          // Neither thrown nor acknowledged: leave it in the outbox, don't count
-          // it as pushed, and try again on a later pass.
-          counts.skipped += 1;
-          log.warn('BlobOutboxPusher: push returned without acknowledgement, will retry', {
-            hash,
-          });
-        } else {
-          // spec: XFER — acknowledgement means the bytes are verified and durably
-          // stored on central, so the push is done even if the local demotion
-          // fails; a later idempotent re-offer will re-demote.
-          counts.pushed += 1;
-          try {
-            await this.#blobCache.demote(hash);
-          } catch (error) {
-            log.warn('BlobOutboxPusher: pushed but local demotion failed, will re-demote', {
-              hash,
-              error: error.message,
-            });
-          }
-        }
-      } catch (error) {
-        // spec: CACHE — a refused or failed offer does not block the queue
-        counts.failed += 1;
-        log.warn('BlobOutboxPusher: push failed, continuing with next blob', {
-          hash,
-          error: error.message,
-        });
-      } finally {
-        this.#inFlight.delete(hash);
-      }
-    }
-
-    if (counts.pushed > 0 || counts.failed > 0 || counts.skipped > 0) {
-      log.info('BlobOutboxPusher: outbox pass complete', counts);
-    }
-    return counts;
+    return outbox.map(blob => blob.hash);
   }
 
   // spec: CAP
@@ -145,18 +84,13 @@ export class BlobOutboxPusher {
    * compared against live sync state, rather than accumulated per cycle.
    */
   async recordSyncCycle() {
-    const outbox = await this.#models.Blob.findAll({
-      where: { tier: BLOB_TIERS.OUTBOX },
-      // Bounded and oldest-first, like runOnce: the longest-waiting blobs are
-      // marked first; a larger backlog is marked across successive cycles.
-      order: [['createdAt', 'ASC']],
-      attributes: ['hash'],
-      limit: OUTBOX_SCAN_LIMIT,
-    });
+    // Bounded and oldest-first, like runOnce: the longest-waiting blobs are
+    // marked first; a larger backlog is marked across successive cycles.
+    const outbox = await this.#listOutbox(DEFAULT_OUTBOX_SCAN_LIMIT);
     if (outbox.length === 0) {
       return;
     }
-    const eligible = await this.eligibleHashes(outbox.map(blob => blob.hash));
+    const eligible = await this.eligibleHashes(outbox);
     if (eligible.size > 0) {
       // Stamp the eligibility marker once: the push cursor at the first cycle a
       // blob was seen eligible. Blobs already marked keep their original value,
@@ -181,7 +115,7 @@ export class BlobOutboxPusher {
   // is excluded here: dysfunction is the oldest marker among eligible outbox
   // blobs not currently being pushed, measured against the current push cursor.
   async #reportDysfunction() {
-    const inFlight = [...this.#inFlight];
+    const inFlight = this.#outbox.inFlight;
     const oldestEligibleTick = await this.#models.Blob.min('eligibleSinceTick', {
       where: {
         tier: BLOB_TIERS.OUTBOX,

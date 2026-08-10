@@ -48,14 +48,16 @@ each case asserts on the sequence of decisions rather than on bytes moved.
 
 ### Outbox pusher policy
 
-- [ ] Eligible blobs are offered oldest-first (verifies spec: CACHE)
-- [ ] An ineligible blob is skipped without being offered (verifies spec: CACHE)
-- [ ] A blob already in flight is not offered again (verifies spec: CACHE)
-- [ ] A failed push does not block the blobs behind it (verifies spec: CACHE)
-- [ ] An acknowledged blob is demoted to cache (verifies spec: CACHE)
-- [ ] A push acknowledged but not demoted is re-demoted on a later pass (verifies spec: CACHE)
-- [ ] A failing reference resolver does not starve other consumers of eligibility (verifies spec: CACHE)
-- [ ] No registered resolvers means nothing is eligible (verifies spec: CACHE)
+- [x] Eligible blobs are offered oldest-first (verifies spec: CACHE)
+- [x] An ineligible blob is skipped without being offered (verifies spec: CACHE)
+- [x] A blob already in flight is not offered again (verifies spec: CACHE)
+- [x] A failed push does not block the blobs behind it (verifies spec: CACHE)
+- [x] An acknowledged blob is demoted to cache (verifies spec: CACHE)
+- [x] A push acknowledged but not demoted is re-demoted on a later pass (verifies spec: CACHE)
+- [x] A failing reference resolver does not starve other consumers of eligibility (verifies spec: CACHE)
+- [x] No registered resolvers means nothing is eligible (verifies spec: CACHE)
+- [x] A push that returns without an acknowledgement is left in the outbox, not demoted (verifies spec: CACHE)
+- [x] An empty outbox asks no resolver (verifies spec: CACHE)
 
 ### Eviction policy
 
