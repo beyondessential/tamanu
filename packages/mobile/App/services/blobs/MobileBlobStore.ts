@@ -2,13 +2,9 @@ import RNFS from 'react-native-fs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { BlobAdmission } from '@tamanu/blobs';
-import { BLOB_INTEGRITY_STATES, BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
-import {
-  BlobHashMismatchError,
-  InsufficientStorageError,
-  NotFoundError,
-} from '@tamanu/errors';
-import { blobPathSegments, formatBlobHash, parseBlobHash } from '@tamanu/utils';
+import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
+import { InsufficientStorageError, NotFoundError } from '@tamanu/errors';
+import { blobPathSegments, parseBlobHash } from '@tamanu/utils';
 
 import { Blob } from '~/models/Blob';
 import { DeviceStorageInfo } from './deviceStorage';
@@ -77,7 +73,6 @@ export class MobileBlobStore {
 
   readonly #models: { Blob: typeof Blob };
   readonly #getFreeDiskReserveBytes: (info: DeviceStorageInfo) => number;
-  readonly #evictCache?: (bytesNeeded: number) => Promise<unknown>;
   readonly #fs: BlobFileSystem;
 
   readonly #admission: BlobAdmission;
@@ -86,7 +81,6 @@ export class MobileBlobStore {
     this.root = root;
     this.#models = models;
     this.#getFreeDiskReserveBytes = getFreeDiskReserveBytes;
-    this.#evictCache = evictCache;
     this.#fs = fs ?? (RNFS as unknown as BlobFileSystem);
     this.#admission = new BlobAdmission({
       hashFile: async (path, algorithm) => (await this.#fs.hash(path, algorithm)).toLowerCase(),
