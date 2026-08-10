@@ -14,12 +14,13 @@ const hashOf = content => `sha256:${createHash('sha256').update(content).digest(
 describe('Survey photo attachments (facility-server)', () => {
   let ctx;
   let models;
+  let patient;
   let encounter;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     ({ models } = ctx.store);
-    const patient = await models.Patient.create(await createDummyPatient(models));
+    patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create(
       await createDummyEncounter(models, { patientId: patient.id }),
     );
@@ -42,6 +43,10 @@ describe('Survey photo attachments (facility-server)', () => {
     expect(attachment.data).toBeFalsy();
     expect(attachment.encounterId).toBe(encounter.id);
     expect(Number(attachment.size)).toBe(image.length);
+
+    // spec: ATCH — a caller that knows only the encounter still gets the patient
+    // linkage copied on, so the row is scoped like every other attachment
+    expect(attachment.patientId).toBe(patient.id);
 
     const blob = await models.Blob.findOne({ where: { hash: attachment.hash } });
     expect(blob.tier).toBe(BLOB_TIERS.OUTBOX);
