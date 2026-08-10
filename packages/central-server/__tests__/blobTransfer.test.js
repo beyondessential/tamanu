@@ -8,6 +8,7 @@ import {
   BLOB_AVAILABILITY_STATES,
   BLOB_INTEGRITY_STATES,
   BLOB_OFFER_STATUSES,
+  BLOB_SCAN_VERDICTS,
   DEVICE_SCOPES,
 } from '@tamanu/constants';
 
@@ -514,6 +515,37 @@ describe('Blob transfer channel', () => {
       expect(put.body).toMatchObject({ acknowledged: true, existed: true });
       expect(await ctx.blobStore.stagedSize(hash)).toBe(0);
       expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
+    });
+
+    // verifies spec: AV — the transfer channel answers the serve policy too,
+    // which is what keeps a facility's cache to content central was willing to
+    // serve: it cannot fetch what central has not scanned.
+    it('withholds unscanned content from the channel under serve-only-when-known-good', async () => {
+      const content = Buffer.from('content central has not scanned yet');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await models.Setting.set('blobStorage.antivirus.servePolicy', 'only-known-good');
+      await models.Setting.set('blobStorage.antivirus.scanner', 'clamd');
+
+      try {
+        const probe = await availability(hash);
+        expect(probe.body).toEqual({ availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN });
+
+        const fetched = await getBlob(hash);
+        expect(fetched.status).toBe(404);
+        expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_SCAN);
+
+        // and the same content serves once it has been scanned clean
+        await ctx.blobStore.recordScanVerdict(hash, {
+          verdict: BLOB_SCAN_VERDICTS.CLEAN,
+          scannerVersion: 'ClamAV 1.0.5',
+          signatureVersion: '27100',
+        });
+        expect(await getBlob(hash)).toHaveSucceeded();
+      } finally {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'unless-known-bad');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'none');
+      }
     });
 
     it('keeps the quarantine when the content is already held and verifies', async () => {

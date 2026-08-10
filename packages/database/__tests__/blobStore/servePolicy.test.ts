@@ -27,9 +27,17 @@ describe('blobWithholdReason', () => {
       ['unscanned', { scanVerdict: null }],
       ['clean', { scanVerdict: BLOB_SCAN_VERDICTS.CLEAN }],
       ['infected', { scanVerdict: BLOB_SCAN_VERDICTS.INFECTED }],
-      ['quarantined', { quarantined: true }],
     ])('serves %s content', (_label, overrides) => {
       expect(decide({ policy, ...overrides })).toBeNull();
+    });
+
+    // verifies spec: AV — a quarantine is the deployment's standing record of
+    // confirmed malware rather than one server's verdict, so the posture that
+    // holds back enforcement of verdicts does not license serving it
+    it('still withholds quarantined content', () => {
+      expect(decide({ policy, quarantined: true })).toBe(
+        BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
+      );
     });
   });
 
@@ -84,6 +92,13 @@ describe('blobWithholdReason', () => {
       expect(decide({ policy, quarantined: true, scans: false })).toBe(
         BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
       );
+    });
+
+    // verifies spec: AV — content the server does not hold cannot be waited on
+    // for a verdict: the scan reads what is on disk, so withholding it before
+    // it is fetched would keep it from ever being fetched or scanned
+    it('does not withhold content this server has yet to hold', () => {
+      expect(decide({ policy, scanVerdict: null, scans: false })).toBeNull();
     });
   });
 });

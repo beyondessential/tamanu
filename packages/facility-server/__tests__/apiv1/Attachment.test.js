@@ -1,8 +1,16 @@
 import { Readable } from 'node:stream';
 import { createHash } from 'node:crypto';
 
-import { BLOB_AVAILABILITY_STATES, MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
+import config from 'config';
+
+import {
+  BLOB_AVAILABILITY_STATES,
+  BLOB_SCAN_VERDICTS,
+  MAX_INLINE_BLOB_BYTES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
 
@@ -17,6 +25,7 @@ describe('Attachment (facility-server)', () => {
   let app;
   let models;
   let uniqueSuffix = 0;
+  const [facilityId] = selectFacilityIds(config);
 
   const uniqueContent = () =>
     Buffer.from(`an attachment served from the facility store ${(uniqueSuffix += 1)}`, 'utf8');
@@ -117,6 +126,99 @@ describe('Attachment (facility-server)', () => {
     expect(result.body).toMatchObject({
       attachmentId: attachment.id,
       availability: BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
+    });
+  });
+
+  // spec: AV
+  // The posture is deployment-wide but a facility only has verdicts for content
+  // it holds and scanned itself, so the two legs of this route answer
+  // differently: its own gate for content it has, central's answer for the rest.
+  describe('under serve-only-when-known-good', () => {
+    beforeEach(async () => {
+      await models.Setting.set(
+        'blobStorage.antivirus.servePolicy',
+        'only-known-good',
+        SETTINGS_SCOPES.GLOBAL,
+      );
+      await models.Setting.set(
+        'blobStorage.antivirus.scanner',
+        'clamd',
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+    });
+
+    afterEach(async () => {
+      await models.Setting.set(
+        'blobStorage.antivirus.servePolicy',
+        'unless-known-bad',
+        SETTINGS_SCOPES.GLOBAL,
+      );
+      await models.Setting.set(
+        'blobStorage.antivirus.scanner',
+        'none',
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+    });
+
+    it('withholds content it holds but has not scanned', async () => {
+      const content = uniqueContent();
+      const { hash } = await ctx.blobStore.put(Readable.from([content]));
+      const attachment = await makeAttachment(hash, content.length);
+      setCentral();
+
+      const result = await app.get(`/api/attachment/${attachment.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: attachment.id,
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN,
+      });
+    });
+
+    it('serves the same content once its own scan has passed', async () => {
+      const content = uniqueContent();
+      const { hash } = await ctx.blobStore.put(Readable.from([content]));
+      const attachment = await makeAttachment(hash, content.length);
+      await ctx.blobStore.recordScanVerdict(hash, {
+        verdict: BLOB_SCAN_VERDICTS.CLEAN,
+        scannerVersion: 'ClamAV 1.0.5',
+        signatureVersion: '27100',
+      });
+      setCentral();
+
+      const result = await app.get(`/api/attachment/${attachment.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.text).toBe(content.toString('utf8'));
+    });
+
+    // A blob it has yet to hold cannot be waited on for a local verdict: the
+    // scan reads stored content, so withholding it here would keep it from ever
+    // being fetched, and so from ever being scanned.
+    it('still resolves content it does not hold from central', async () => {
+      const content = uniqueContent();
+      const hash = hashOf(content);
+      const attachment = await makeAttachment(hash, content.length);
+      setCentral({ holds: content });
+
+      const result = await app.get(`/api/attachment/${attachment.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.text).toBe(content.toString('utf8'));
+    });
+
+    it('forwards awaiting-scan when central is the one withholding', async () => {
+      const content = uniqueContent();
+      const attachment = await makeAttachment(hashOf(content), content.length);
+      ctx.blobCache.setTransferChannel({
+        availability: async () => ({ availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN }),
+      });
+
+      const result = await app.get(`/api/attachment/${attachment.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: attachment.id,
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN,
+      });
     });
   });
 

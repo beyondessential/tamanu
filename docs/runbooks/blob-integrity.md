@@ -42,10 +42,10 @@ is the distinction that decides how urgent the report is:
 A corrupt blob is **retained, never served, and never deleted automatically**,
 so the bad bytes stay available for investigation.
 
-Quarantine also takes the blob out of the scrub's verification pass, which is
+Recording a blob corrupt also takes it out of the scrub's verification pass, which is
 deliberate: re-hashing bytes already known to be bad every pass would spend the
 scrub's budget re-learning what is recorded. The consequence matters for the
-restores below. **The scrub will not notice good bytes placed under a quarantined
+restores below. **The scrub will not notice good bytes placed under a corrupt
 row on its own**, so clearing the state is an explicit step of the repair rather
 than something to wait for. An `absent` blob is the opposite case: it stays in the
 pass, and returning bytes are picked up and verified without anyone doing
@@ -95,10 +95,10 @@ backup cycle to draw from. It has two steps, and the second is what people miss:
    invisible to the server and never reclaimed.
 2. Return the row to `absent`, which puts the blob back in the scrub's
    verification pass (see §2). The next pass hashes the placed file and stamps it
-   `verified`, or re-quarantines it if the bytes are still wrong, so the state
+   `verified`, or records it corrupt again if the bytes are still wrong, so the state
    change is not taking anyone's word for the restore: the scrub still decides.
 
-Step 2 is the only case where writing to a quarantined row is right, and it is
+Step 2 is the only case where writing to a corrupt row is right, and it is
 safe precisely because step 1's bytes are independently re-checked. It does not
 license deleting the row (see §8).
 

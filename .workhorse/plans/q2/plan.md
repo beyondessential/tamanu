@@ -100,6 +100,18 @@ than deferred. All four are now carried by the spec.
    `awaiting-scan`, in the content-pending shape. Uploads are never rejected at the
    door: content is admitted and quarantined if the scan finds something.
 
+Two refinements after review, both narrowing what the posture governs:
+
+- A quarantine binds under every posture, `off` included. The first cut had `off`
+  serve everything, which read straight off the spec, but it meant a deployment
+  that had found malware and recorded it deployment-wide would keep serving it
+  until someone also changed the posture. `off` now means this server does not act
+  on its own verdicts, which is the bedding-in case it exists for; the deployment's
+  standing record of confirmed malware is not one of those verdicts.
+- The strict posture only judges content the server holds. Judging a blob it has
+  yet to fetch deadlocked it: the scan reads what is on disk, so withholding it
+  before the fetch meant it was never fetched, never scanned, and never served.
+
 The original framing of those questions, kept because the reasoning still applies:
 
 1. **Propagation mechanism.** How a known-bad verdict reaches other servers: a

@@ -52,16 +52,23 @@ is designed to accommodate it.
   behaviour is as if off.
 - [ ] The policy applies deployment-wide rather than per server, so a facility cannot
   serve what central withholds.
-- [ ] With the policy off, blobs are served subject only to access control. Verdicts
-  are still recorded, so a deployment can turn scanning on, watch what it finds, and
-  harden only once it trusts the result.
+- [ ] With the policy off, a server acts on no verdict of its own: content is served
+  subject to access control and to quarantine. Verdicts are still recorded, so a
+  deployment can turn scanning on, watch what it finds, and harden only once it
+  trusts the result.
+- [ ] A quarantine binds under every posture, off included. It is the deployment's
+  standing record of content confirmed to be malware rather than one server's
+  reading of its own content, and the posture governs the latter.
 - [ ] Serve-unless-known-bad, the default once scanning is enabled, serves any blob
   that does not have an infected verdict, including not-yet-scanned content.
 - [ ] Serve-only-when-known-good serves a blob only once it has a clean verdict;
   not-yet-scanned content is withheld until scanned.
-- [ ] Serve-only-when-known-good binds on a server that scans. A server that drives no
-  scanner holds no verdicts of its own and serves unless known-bad, which is how it
-  serves on central's verdict rather than withholding everything it holds.
+- [ ] Serve-only-when-known-good binds on a server that scans, over content it holds.
+  A server that drives no scanner holds no verdicts of its own and serves unless
+  known-bad, which is how it serves on central's verdict rather than withholding
+  everything it holds. Content a server has yet to hold is resolved rather than
+  withheld: a scan reads stored content, so withholding a blob before it arrives
+  would keep it from ever arriving or being scanned.
 - [ ] Content withheld for want of a verdict is answered as awaiting its check, in
   the same shape as a content-pending reference (see `transfer.md`), so a client can
   tell content that is coming from content that is gone.

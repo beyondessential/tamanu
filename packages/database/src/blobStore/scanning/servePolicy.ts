@@ -21,9 +21,11 @@ export interface ServeDecisionInput {
 /**
  * Why a blob this server holds is not being served, or null when it serves.
  *
- * Off records verdicts without acting on them, which is what lets a deployment
- * bed scanning in and watch what it flags before a false positive can take a
- * clinical file offline.
+ * Off records this server's verdicts without acting on them, which is what lets
+ * a deployment bed scanning in and watch what it flags before a false positive
+ * can take a clinical file offline. A quarantine is not one of those verdicts:
+ * it is the deployment's standing record of confirmed malware, and it binds
+ * under every posture.
  *
  * Serve-only-when-known-good binds only where this server scans. A server
  * without a scanner of its own holds no verdicts, so the posture would withhold
@@ -37,10 +39,16 @@ export function blobWithholdReason({
   policy,
   scans,
 }: ServeDecisionInput): BlobAvailabilityState | null {
+  // A quarantine binds whatever the posture. Off governs whether this server
+  // acts on its own verdicts; it does not license serving content the
+  // deployment has already recorded as malware.
+  if (quarantined) {
+    return BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED;
+  }
   if (policy === BLOB_SERVE_POLICIES.OFF) {
     return null;
   }
-  if (quarantined || scanVerdict === BLOB_SCAN_VERDICTS.INFECTED) {
+  if (scanVerdict === BLOB_SCAN_VERDICTS.INFECTED) {
     return BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED;
   }
   if (policy === BLOB_SERVE_POLICIES.ONLY_KNOWN_GOOD && scans) {

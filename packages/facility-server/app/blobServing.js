@@ -16,6 +16,10 @@ export async function blobServeGate({ settings, models }, hash, stat) {
     scanVerdict: stat?.scanVerdict ?? null,
     quarantined,
     policy: servePolicy,
-    scans: scanner !== BLOB_SCANNERS.NONE,
+    // Content this server does not hold has no verdict of its own to judge, and
+    // waiting for one would never end: the scan runs over what is on disk, so a
+    // blob withheld before it is fetched is never fetched and so never scanned.
+    // The quarantine still applies, naming the hash rather than any copy of it.
+    scans: Boolean(stat) && scanner !== BLOB_SCANNERS.NONE,
   });
 }

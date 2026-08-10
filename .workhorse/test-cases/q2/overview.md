@@ -43,8 +43,10 @@ and `servePolicy.test.ts`, and in the quarantine case in
 
 ## Serve postures
 
-- [x] Off serves unscanned, clean, infected and quarantined content alike, so a
-  deployment can record verdicts before acting on them (verifies spec: AV)
+- [x] Off serves unscanned, clean and infected content alike, so a deployment can
+  record verdicts before acting on them (verifies spec: AV)
+- [x] Off still withholds quarantined content, since a quarantine is the
+  deployment's record rather than this server's verdict (verifies spec: AV)
 - [x] Serve-unless-known-bad serves unscanned content and withholds infected
 - [x] Serve-only-when-known-good serves only content scanned clean, and reports
   not-yet-scanned content as awaiting its scan (verifies spec: AV)
@@ -56,6 +58,12 @@ and `servePolicy.test.ts`, and in the quarantine case in
   availability state
 - [x] The facility attachment route answers on its own quarantine records before
   asking central, so the answer is the same with the link down
+- [x] A facility scanning for itself withholds content it holds and has not
+  scanned, and serves it once its own scan passes
+- [x] Content a server has yet to hold is resolved rather than withheld, so the
+  strict posture cannot keep a blob from ever being fetched or scanned
+  (verifies spec: AV)
+- [x] Central's awaiting-scan is forwarded by the facility rather than swallowed
 
 ## Quarantine and propagation
 
@@ -67,7 +75,9 @@ and `servePolicy.test.ts`, and in the quarantine case in
 - [x] Central answers an offer of a quarantined hash without wanting the bytes
 - [x] Pushed bytes for a quarantined hash are not staged and do not clear it
 - [ ] A quarantined hash is not fetched by a facility or a device
-- [ ] Self-heal leaves a quarantined blob unrepaired on both central and a facility
-  (verifies spec: SCRUB, AV)
+- [x] Self-heal leaves a quarantined cache blob unrepaired on a facility rather
+  than dropping and refetching it (verifies spec: SCRUB, AV)
+- [ ] The same on central, whose repair arrives through the offer route rather
+  than through the healer
 - [ ] A verdict that lands after the content has been served stops it serving, and
   the referencing records stand

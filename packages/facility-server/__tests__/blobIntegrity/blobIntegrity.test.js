@@ -113,6 +113,22 @@ describe('facility blob integrity', () => {
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
 
+    // verifies spec: AV, SCRUB — every repair below ends in the same bytes being
+    // held again, which for content the deployment has recorded as malware is
+    // the one outcome to avoid. A cache copy would otherwise be dropped and
+    // refetched, which is exactly resurrecting it.
+    it('leaves a quarantined cache blob unrepaired rather than refetching it', async () => {
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await models.BlobQuarantine.create({ hash });
+      await corrupt(hash);
+
+      await makeScrubber().run();
+
+      // Neither dropped nor refetched: the healer declined to touch it.
+      expect(await models.Blob.findOne({ where: { hash } })).not.toBeNull();
+      await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
+    });
+
     it('marks an outbox blob whose bytes have gone as absent', async () => {
       const { hash } = await put(BLOB_TIERS.OUTBOX);
       await fs.rm(pathOf(hash));

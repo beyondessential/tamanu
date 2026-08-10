@@ -567,20 +567,20 @@ an `outbox` row may be the only copy of its content. See
 
 **[dev-OTS]** The one mutating statement in this section, and only as step 2 of the
 backup restore in `../runbooks/blob-integrity.md` §5, after good bytes have been
-placed in the blob's fan-out path. Quarantine takes a blob out of the scrub's
+placed in the blob's fan-out path. A `corrupt` row is taken out of the scrub's
 verification pass, so the placed file is not looked at until the row goes back to
 `absent`. The next pass then hashes the file and decides for itself: `verified` if
-the restore was good, quarantined again if it was not.
+the restore was good, `corrupt` again if it was not.
 
-Never run this to clear a quarantine count. Only `verified` content is served, so
+Never run this to clear a corrupt count. Only `verified` content is served, so
 this does not expose bad bytes, but without step 1 it converts a recorded fault
-into a blob that reads as content-pending until the next pass re-quarantines it,
-which loses the signal and the count that was tracking it.
+into a blob that reads as content-pending until the next pass records it corrupt
+again, which loses the signal and the count that was tracking it.
 
 ```sql
 UPDATE blobs
 SET integrity_state = 'absent', last_scrubbed_at = NULL
-WHERE hash = :hash AND integrity_state = 'quarantined';
+WHERE hash = :hash AND integrity_state = 'corrupt';
 ```
 
 ### Integrity state summary
