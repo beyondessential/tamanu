@@ -10,8 +10,13 @@ const HELLO_WORLD_HASH =
 
 export interface RegistryRow {
   tier: string;
-  lastAccessedAt: Date | string;
-  deletedAt: Date | string | null;
+  /**
+   * An instant, not a raw storage string: hosts store timestamps in their own
+   * formats, and SQLite's `datetime('now')` in particular reads back as a
+   * timezone-less string that parses as local time. Each harness normalises.
+   */
+  lastAccessedAt: Date | number;
+  deletedAt: Date | number | null;
 }
 
 /**
@@ -54,7 +59,7 @@ function assertEqual(actual: unknown, expected: unknown, message: string): void 
   assert(actual === expected, `${message} (got ${String(actual)}, expected ${String(expected)})`);
 }
 
-const timeOf = (value: Date | string) => new Date(value).getTime();
+const timeOf = (value: Date | number) => new Date(value).getTime();
 
 /**
  * The suite every host implementation must pass, so a divergence fails on the

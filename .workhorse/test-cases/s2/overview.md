@@ -86,16 +86,16 @@ each case asserts on the sequence of decisions rather than on bytes moved.
 One suite, run against every host implementation (the server's and mobile's), so a
 divergence fails on the host that diverged.
 
-- [ ] `hashFile` returns the algorithm-tagged hash of the bytes on disk (verifies spec: CAS)
-- [ ] `hashFile` of empty content returns the defined empty hash (verifies spec: CAS)
-- [ ] Registry upsert leaves a live row untouched, so content held as cache stays cache (verifies spec: CACHE)
-- [ ] Registry upsert resurrects a soft-deleted row with the incoming tier and reset recency (verifies spec: CAS)
-- [ ] Registry upsert is atomic under concurrent admission of the same content (verifies spec: CAS)
-- [ ] Recency update is a no-op within the coalesce window and applies outside it (verifies spec: CACHE)
-- [ ] Delete is hard, so the same hash can be re-admitted afterwards (verifies spec: CAS)
+- [x] `hashFile` returns the algorithm-tagged hash of the bytes on disk (verifies spec: CAS)
+- [x] `hashFile` of empty content returns the defined empty hash (verifies spec: CAS)
+- [x] Registry upsert leaves a live row untouched, so content held as cache stays cache (verifies spec: CACHE)
+- [x] Registry upsert resurrects a soft-deleted row with the incoming tier and reset recency (verifies spec: CAS)
+- [x] Registry upsert is atomic under concurrent admission of the same content (verifies spec: CAS)
+- [x] Recency update is a no-op within the coalesce window and applies outside it (verifies spec: CACHE)
+- [x] Delete is hard, so the same hash can be re-admitted afterwards (verifies spec: CAS)
 - [ ] Staging append at the wrong offset writes nothing and reports the real staged size (verifies spec: XFER)
 - [ ] Staging append refuses bytes beyond the declared remainder and discards the staging (verifies spec: XFER)
-- [ ] Placement into the fan-out path is atomic, so a reader never sees a partial blob (verifies spec: CAS)
+- [x] Placement into the fan-out path is atomic, so a reader never sees a partial blob (verifies spec: CAS)
 - [ ] Free-space reporting reflects the volume the store root sits on (verifies spec: CAP)
 
 ## Extraction is behaviour-preserving

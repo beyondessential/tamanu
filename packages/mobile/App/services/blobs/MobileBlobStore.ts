@@ -359,6 +359,25 @@ export class MobileBlobStore {
 
   // spec: XFER
   /** Ready the staging area for a fresh part download, clearing any leftover part. */
+  // spec: CACHE
+  /**
+   * Refresh a blob's recency, coalesced: a no-op while the recorded access is
+   * still within the window, so hot blobs don't rewrite the registry on every
+   * read. Losing the most recent refreshes degrades eviction ordering only.
+   */
+  async touch(hash: string, { coalesceSeconds }: { coalesceSeconds: number }): Promise<void> {
+    await this.#models.Blob.getRepository().query(
+      `
+        UPDATE blobs
+        SET lastAccessedAt = datetime('now')
+        WHERE hash = ?
+          AND deletedAt IS NULL
+          AND lastAccessedAt < datetime('now', ?)
+      `,
+      [hash, `-${coalesceSeconds} seconds`],
+    );
+  }
+
   async prepareStagingPart(hash: string): Promise<string> {
     const partPath = this.stagingPartPathFor(hash);
     await this.#mkdirs(dirname(partPath));

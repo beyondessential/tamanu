@@ -235,18 +235,7 @@ export class MobileBlobCache {
     return { evictedBytes, evictedCount };
   }
 
-  // Coalesced recency: a no-op while the recorded access is fresh, so hot
-  // blobs don't rewrite the registry on every read.
   async #touch(hash: string): Promise<void> {
-    await this.#models.Blob.getRepository().query(
-      `
-        UPDATE blobs
-        SET lastAccessedAt = datetime('now')
-        WHERE hash = ?
-          AND deletedAt IS NULL
-          AND lastAccessedAt < datetime('now', ?)
-      `,
-      [hash, `-${RECENCY_COALESCE_SECONDS} seconds`],
-    );
+    await this.#blobStore.touch(hash, { coalesceSeconds: RECENCY_COALESCE_SECONDS });
   }
 }

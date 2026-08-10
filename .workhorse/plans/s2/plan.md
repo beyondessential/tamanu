@@ -205,7 +205,8 @@ next one. The server's suites are the regression net throughout.
       stays with the cache tier, so it moves with the mobile host work
 - [x] Host contract suite written; the server harness is wired but unverified
       locally (the test database cannot migrate on this machine)
-- [ ] Mobile host implementation, run the same contract suite against it
+- [x] Mobile host implementation, running the same contract suite (9 cases green
+      on the device host; the server harness still needs a migratable test database)
 - [ ] `MobileBlobStore` / `MobileBlobCache` re-pointed at the package
 - [ ] Confirm the existing server suites pass unchanged, and that the package pulls
       in no node builtins
