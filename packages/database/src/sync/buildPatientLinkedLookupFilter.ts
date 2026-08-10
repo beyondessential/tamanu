@@ -8,9 +8,3 @@ export async function buildPatientLinkedLookupFilter(model: typeof Model) {
     }),
   };
 }
-
-export async function buildEncounterPatientIdSelect(model: typeof Model) {
-  return buildSyncLookupSelect(model, {
-    patientId: 'encounters.patient_id',
-  });
-}

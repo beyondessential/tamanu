@@ -14,7 +14,6 @@ import {
   TranslatedText,
   ViewChangeLogButton,
 } from '@tamanu/ui-components';
-import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseChangesQuery, useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
@@ -90,7 +89,7 @@ export const SurveyResponseDetailsModal = ({
     data: surveyDetails,
     isLoading,
     error,
-  } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
+  } = useSurveyResponseQuery(surveyResponseId);
   const isNotFound = error?.status === 404;
   const isPending = isLoading || !surveyDetails || error;
 

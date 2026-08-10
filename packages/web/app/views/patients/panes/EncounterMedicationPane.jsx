@@ -271,12 +271,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
           </ButtonGroup>
           <ButtonGroup>
             {canAccessMar && (
-              <StyledButton
-                disabled={disabled}
-                variant="outlined"
-                color="primary"
-                onClick={handleNavigateToMar}
-              >
+              <StyledButton variant="outlined" color="primary" onClick={handleNavigateToMar}>
                 <TranslatedText
                   stringId="medication.action.medicationAdminRecord"
                   fallback="Medication admin record"

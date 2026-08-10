@@ -40,12 +40,11 @@ const InfoColumn = styled.div`
   justify-content: flex-start;
 `;
 
-export const FormSeparatorVerticalLine = styled.hr`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+export const FormSeparatorVerticalLine = styled.div`
+  align-self: stretch;
+  width: 0;
   border-left: 1px solid ${Colors.outline};
-  margin: 22px;
+  margin: 0 22px;
 `;
 
 const Info = styled.div`

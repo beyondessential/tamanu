@@ -119,6 +119,17 @@ export class LabRequestPane {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
+  async clickFirstRow(): Promise<void> {
+    // Wait for a real data cell (row 0) before clicking — the table renders a
+    // loading/"no data" placeholder <tr> with no click handler until data arrives, so
+    // clicking `tr` directly can hit the placeholder and the details page never opens.
+    const firstDataCell = this.tableBody
+      .locator(`[data-testid^="${STYLED_TABLE_CELL_PREFIX}0-"]`)
+      .first();
+    await firstDataCell.waitFor({ state: 'visible' });
+    await firstDataCell.click();
+  }
+
   async getFirstRowTestDetails(): Promise<LabRequestTestDetails> {
     // Extract details from the first row using the existing helper methods
     const labTestId = await this.getTestIdCell(0).textContent() || '';

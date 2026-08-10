@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.62.0",
+  "version": "2.63.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -8,7 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
-    "prepare": "if [ -d node_modules/@react-pdf/textkit ]; then patch-package; fi",
+    "prepare": "node scripts/run-patch-package.mjs",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",

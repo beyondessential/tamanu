@@ -257,11 +257,13 @@ export const DataFetchingTable = memo(
         );
         return () => {
           isSuperseded = true;
+          if (loadingDelay) clearTimeout(loadingDelay);
           clearInterval(tableAutorefresh);
         };
       }
       return () => {
         isSuperseded = true;
+        if (loadingDelay) clearTimeout(loadingDelay);
       };
 
       // Needed to compare fetchOptions as a string instead of an object

@@ -1,6 +1,7 @@
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import { omit } from 'es-toolkit/compat';
+import React, { useMemo } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -9,7 +10,7 @@ import { OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { useApi } from '../../../api';
 import { VersionInfo } from './components/VersionInfo';
-import { ReportEditor } from './ReportEditor';
+import { ReportEditor, withParameterIds } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -26,16 +27,15 @@ const StyledButton = styled(OutlinedButton)`
 
 const getInitialValues = (version, report) => {
   const { query, status, queryOptions, advancedConfig, notes } = version;
-  const { dataSources, parameters, dateRangeLabel, defaultDateRange } = queryOptions;
+  const { dataSources, parameters, ...options } = queryOptions;
   const { name, dbSchema } = report;
   return {
     name,
     query,
     status,
     dbSchema,
-    parameters,
-    dateRangeLabel,
-    defaultDateRange,
+    ...options,
+    parameters: withParameterIds(parameters),
     dataSources,
     notes,
     advancedConfig: advancedConfig && Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
@@ -56,28 +56,22 @@ export const EditReportView = () => {
     },
   );
 
+  // Keyed once per fetched version: withParameterIds mints fresh ids each call,
+  // and enableReinitialize would reset the form on every render otherwise.
+  const initialValues = useMemo(
+    () => version && getInitialValues(version, version.reportDefinition),
+    [version],
+  );
+
   const handleBack = () => {
     navigate('/admin/reports');
   };
 
-  const handleSave = async ({
-    query,
-    status,
-    dbSchema,
-    notes,
-    parameters,
-    dateRangeLabel,
-    defaultDateRange,
-    dataSources,
-    advancedConfig = {},
-  }) => {
+  const handleSave = async values => {
+    const { query, status, dbSchema, notes, advancedConfig = {} } = values;
+    const { reportDefinition } = version;
     const payload = {
-      queryOptions: {
-        parameters,
-        dateRangeLabel,
-        defaultDateRange,
-        dataSources,
-      },
+      queryOptions: omit(values, ['name', 'query', 'status', 'dbSchema', 'notes', 'advancedConfig']),
       advancedConfig,
       query,
       status,
@@ -86,7 +80,6 @@ export const EditReportView = () => {
     };
 
     try {
-      const { reportDefinition } = version;
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
         <TranslatedText
@@ -137,7 +130,7 @@ export const EditReportView = () => {
             key={params.versionId}
             isEdit
             onSubmit={handleSave}
-            initialValues={getInitialValues(version, version.reportDefinition)}
+            initialValues={initialValues}
             data-testid="reporteditor-89qw"
           />
         </>

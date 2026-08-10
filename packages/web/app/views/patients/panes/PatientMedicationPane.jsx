@@ -707,6 +707,7 @@ export const PatientMedicationPane = ({ patient }) => {
           endpoint={`patient/${patient.id}/ongoing-prescriptions`}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
+          data-testid="ongoing-medications-table"
           rowStyle={rowStyle}
           noDataMessage={
             <NoDataContainer>

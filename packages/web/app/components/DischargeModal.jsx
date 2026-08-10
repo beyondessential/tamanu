@@ -96,7 +96,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       onClose={onClose}
       cornerExitButton={false}
       data-testid="formmodal-ti1m"
-      width="md"
+      width="lg"
     >
       <DischargeForm
         onSubmit={handleDischarge}

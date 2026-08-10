@@ -1655,7 +1655,7 @@ export const SettingInput = ({
     );
   const defaultHandleChange = e => handleChangeValue(e.target.value);
   const handleChangeSwitch = e => handleChangeValue(e.target.checked);
-  const handleChangeNumber = e => handleChangeValue(Number(e.target.value));
+  const handleChangeNumber = e => handleChangeValue(coerceNumericInput(e.target.value));
   const handleChangeJSON = e => handleChangeValue(e);
 
   const handleSecretChange = e => {
