@@ -30,6 +30,13 @@ the automatic repair has usually already been tried:
 - On a full read, by re-hashing as the content streams.
 - On a scheduled incremental scrub, which is what covers content nobody reads.
 
+Where error correction is enabled on the server, a repair from the blob's own
+parity is tried ahead of everything in the table below. A blob repaired that way is
+recorded `verified` and never reaches this runbook; it is counted as a correction
+instead, which is a signal about the disk rather than about the content — see
+`blob-correction-rate.md`. Corruption beyond what the parity can recover falls
+through to the table as though no parity were present.
+
 What happens next depends on whether the copy was the only durable one, and this
 is the distinction that decides how urgent the report is:
 

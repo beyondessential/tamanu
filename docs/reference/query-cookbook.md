@@ -618,6 +618,49 @@ FROM blobs
 WHERE deleted_at IS NULL;
 ```
 
+### Correction rate
+
+The basis of the `blob_correction_rate` check, and a **different signal from
+`blob_integrity`**: these are blobs the store repaired from their own parity, so no
+content was lost. What a rising figure means is that the disk underneath is
+starting to fail, so the response is to plan replacing the media rather than to
+recover anything. See `../runbooks/blob-correction-rate.md`. **[diagnose]**
+
+Read `blobs_corrected` (how much of the store is affected) alongside
+`corrections_total` (how many repairs). Many corrections spread over many blobs is
+failing media; repeated corrections on one blob is a single bad region.
+
+```sql
+SELECT count(*) FILTER (WHERE last_corrected_at > now() - interval '24 hours') AS corrected_24h,
+       count(*) FILTER (WHERE last_corrected_at > now() - interval '7 days') AS corrected_7d,
+       count(*) AS blobs_corrected,
+       sum(correction_count) AS corrections_total,
+       max(last_corrected_at) AS most_recent
+FROM blobs
+WHERE correction_count > 0 AND deleted_at IS NULL;
+```
+
+### Parity coverage
+
+Error correction is off by default. Once enabled, the scrub brings already-stored
+content under protection over a scrub cycle, so `unprotected` falls pass by pass
+rather than immediately. It never reaches zero: blobs under 32 KiB are skipped
+deliberately (a parity shard is at least one filesystem cluster, so the overhead
+outgrows the blob), and on a facility only un-pushed `outbox` blobs are covered.
+**[diagnose]**
+
+```sql
+SELECT tier,
+       count(*) AS blobs,
+       count(*) FILTER (WHERE has_parity) AS protected,
+       count(*) FILTER (WHERE NOT has_parity AND size >= 32768) AS unprotected,
+       pg_size_pretty(sum(size) FILTER (WHERE has_parity)) AS protected_bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY tier
+ORDER BY tier;
+```
+
 ## DHIS2 push log
 
 `logs.dhis2_pushes` has one row per failed or successful push to DHIS2.
