@@ -81,9 +81,9 @@ const OUTPATIENT_COLUMNS = [
   lastName,
   dateOfBirth,
   { ...sex, sortable: true },
-  locationGroup,
-  location,
-  department,
+  { ...locationGroup, sortable: true },
+  { ...location, sortable: true },
+  { ...department, sortable: true },
   { ...clinician, sortable: true },
 ];
 
@@ -93,9 +93,9 @@ const INPATIENT_COLUMNS = [
   lastName,
   dateOfBirth,
   inpatientSex,
-  locationGroup,
-  location,
-  department,
+  { ...locationGroup, sortable: true },
+  { ...location, sortable: true },
+  { ...department, sortable: true },
   { ...clinician, sortable: true },
   { ...diet, sortable: false },
 ];
