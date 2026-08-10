@@ -17,6 +17,7 @@ export const VitalChartsModal = React.memo(() => {
     dateRange,
     setDateRange,
     isInMultiChartsView,
+    isProgramRegistry,
   } = useVitalChartData();
 
   const ViewComponent = isInMultiChartsView ? MultiVitalChartsView : SingleVitalChartView;
@@ -36,6 +37,7 @@ export const VitalChartsModal = React.memo(() => {
         <DateTimeSelector
           dateRange={dateRange}
           setDateRange={setDateRange}
+          showProgramRegistryOptions={isProgramRegistry}
           data-testid="datetimeselector-6pwn"
         />
         {isInMultiChartsView && <VitalMultiChartFilter data-testid="vitalmultichartfilter-4l9z" />}

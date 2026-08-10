@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { isErrorUnknownAllow404s, useApi } from '../../api';
+import { useApi } from '../../api';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
 
 function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
@@ -15,7 +15,6 @@ function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
       await api.get(
         `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
         { patientId },
-        { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     {
       enabled: Boolean(patientId && dataElementCode),

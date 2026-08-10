@@ -6,6 +6,7 @@ import { useProgramRegistryChartsVisualisationConfigsQuery } from '../api/querie
 
 export const VitalChartDataContext = React.createContext({
   isVital: false,
+  isProgramRegistry: false,
   visualisationConfigs: [],
   allGraphedChartKeys: [],
   vitalChartModalOpen: false,
@@ -51,6 +52,7 @@ export const ProgramRegistryChartGraphDataProvider = ({ patientId, selectedChart
       visualisationConfigQueryFn={useProgramRegistryChartsVisualisationConfigsQuery}
       visualisationConfigQueryArgs={[patientId, selectedChartTypeId]}
       Context={VitalChartDataContext}
+      isProgramRegistry
     >
       {children}
     </GraphDataProviderFactory>

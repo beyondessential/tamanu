@@ -9,6 +9,7 @@
  *   recordId: ChangeLog['recordId'];
  *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'>;
+ *   componentConfig: import('@tamanu/database').SurveyScreenComponent['config'];
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];
  *   to: SurveyResponseAnswer['body'];

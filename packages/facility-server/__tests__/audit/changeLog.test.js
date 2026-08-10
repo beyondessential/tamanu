@@ -27,8 +27,8 @@ describe('Changelogs', () => {
   describe('Changelog Trigger Transactional Safety', () => {
     it('should not create changelog entries when transaction is rolled back', async () => {
       try {
-        await sequelize.transaction(async transaction => {
-          await models.Program.create(fake(models.Program), { transaction });
+        await sequelize.transaction(async () => {
+          await models.Program.create(fake(models.Program));
           throw new Error('Intentional rollback');
         });
       } catch (error) {
@@ -42,9 +42,9 @@ describe('Changelogs', () => {
     });
 
     it('should create changelog entries only when transaction commits', async () => {
-      const programIds = await sequelize.transaction(async transaction => {
-        const program1 = await models.Program.create(fake(models.Program), { transaction });
-        const program2 = await models.Program.create(fake(models.Program), { transaction });
+      const programIds = await sequelize.transaction(async () => {
+        const program1 = await models.Program.create(fake(models.Program));
+        const program2 = await models.Program.create(fake(models.Program));
         const ids = [program1.id, program2.id];
 
         const changesInTransaction = await sequelize.query(
@@ -52,7 +52,6 @@ describe('Changelogs', () => {
           {
             type: QueryTypes.SELECT,
             replacements: { programIds: ids },
-            transaction,
           },
         );
         expect(changesInTransaction).toEqual([]);
@@ -81,15 +80,14 @@ describe('Changelogs', () => {
       const program = await models.Program.create(fake(models.Program));
       await sequelize.query('DELETE FROM logs.changes');
       const updatedName = 'Updated Name';
-      await sequelize.transaction(async transaction => {
-        await program.update({ name: updatedName }, { transaction });
+      await sequelize.transaction(async () => {
+        await program.update({ name: updatedName });
 
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :programId',
           {
             type: QueryTypes.SELECT,
             replacements: { programId: program.id },
-            transaction,
           },
         );
         expect(changesInTransaction).toEqual([]);
@@ -113,15 +111,14 @@ describe('Changelogs', () => {
     });
 
     it('should defer trigger execution until end of transaction', async () => {
-      const programId = await sequelize.transaction(async transaction => {
-        const program = await models.Program.create(fake(models.Program), { transaction });
+      const programId = await sequelize.transaction(async () => {
+        const program = await models.Program.create(fake(models.Program));
 
         const changesBeforeCommit = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :id',
           {
             type: QueryTypes.SELECT,
             replacements: { id: program.id },
-            transaction,
           },
         );
 
@@ -164,9 +161,9 @@ describe('Changelogs', () => {
   describe('Pause Audit', () => {
     it('should pause audit for a transaction when pause key is true', async () => {
       const program1 = await models.Program.create(fake(models.Program));
-      const program2 = await sequelize.transaction(async transaction => {
+      const program2 = await sequelize.transaction(async () => {
         await pauseAudit(sequelize);
-        return models.Program.create(fake(models.Program), { transaction });
+        return models.Program.create(fake(models.Program));
       });
 
       const changes = await sequelize.query(
@@ -192,13 +189,13 @@ describe('Changelogs', () => {
       const program1 = await models.Program.create(fake(models.Program));
 
       // Paused transaction
-      const program2 = await sequelize.transaction(async transaction => {
+      const program2 = await sequelize.transaction(async () => {
         await pauseAudit(sequelize);
-        return models.Program.create(fake(models.Program), { transaction });
+        return models.Program.create(fake(models.Program));
       });
       // Unpaused transaction
-      const program3 = await sequelize.transaction(async transaction =>
-        models.Program.create(fake(models.Program), { transaction }),
+      const program3 = await sequelize.transaction(async () =>
+        models.Program.create(fake(models.Program)),
       );
 
       const changes = await sequelize.query(
@@ -216,6 +213,55 @@ describe('Changelogs', () => {
           expect.objectContaining({ record_id: program3.id, table_name: 'programs' }),
         ]),
       );
+    });
+  });
+
+  describe('Hard deletes', () => {
+    const changesFor = recordId =>
+      sequelize.query('SELECT * FROM logs.changes WHERE record_id = :recordId ORDER BY logged_at', {
+        type: QueryTypes.SELECT,
+        replacements: { recordId },
+      });
+
+    it('records the deleted row', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await program.destroy({ force: true });
+
+      const changes = await changesFor(program.id);
+      expect(changes).toHaveLength(2);
+      const deletion = changes.find(change => change.is_hard_delete);
+      expect(deletion).toMatchObject({
+        table_name: 'programs',
+        record_id: program.id,
+        is_hard_delete: true,
+      });
+      expect(deletion.record_data).toMatchObject({ id: program.id, name: program.name });
+    });
+
+    it('distinguishes a hard delete from a soft delete', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await program.destroy();
+
+      const changes = await changesFor(program.id);
+      expect(changes).toHaveLength(2);
+      expect(changes.every(change => change.is_hard_delete === false)).toBe(true);
+      const softDeletion = changes.find(change => change.record_deleted_at !== null);
+      expect(softDeletion).toBeDefined();
+    });
+
+    it('records nothing when the deleting transaction rolls back', async () => {
+      const program = await models.Program.create(fake(models.Program));
+      await sequelize.query('DELETE FROM logs.changes');
+
+      await expect(
+        sequelize.transaction(async () => {
+          await program.destroy({ force: true });
+          throw new Error('Intentional rollback');
+        }),
+      ).rejects.toThrow('Intentional rollback');
+
+      expect(await changesFor(program.id)).toEqual([]);
+      expect(await models.Program.findByPk(program.id)).not.toBeNull();
     });
   });
 });

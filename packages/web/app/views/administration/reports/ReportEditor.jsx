@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { omit } from 'es-toolkit/compat';
+import { generate } from 'shortid';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
@@ -42,15 +44,14 @@ const StatusField = styled(Field)`
 `;
 
 const generateDefaultParameter = () => ({
-  id: Math.random(),
+  id: generate(),
 });
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setFieldValue }) => {
   const { ability } = useAuth();
   const api = useApi();
   const setQuery = query => setValues({ ...values, query });
-  const params =
-    values.parameters.map(param => ({ ...generateDefaultParameter(), ...param })) || [];
+  const params = values.parameters ?? [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
 
@@ -230,11 +231,21 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
   );
 };
 
+// Parameter ids exist only to key the editor rows; they are not part of a report
+// definition and must not reach the saved queryOptions.
+export const withParameterIds = parameters =>
+  (parameters ?? []).map(parameter => ({ ...parameter, id: generate() }));
+
 export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
   const { getTranslation } = useTranslation();
+  const handleSubmit = ({ parameters, ...values }, formikHelpers) =>
+    onSubmit(
+      { ...values, parameters: parameters.map(parameter => omit(parameter, ['id'])) },
+      formikHelpers,
+    );
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       enableReinitialize
       validationSchema={yup.object().shape({
         name: yup

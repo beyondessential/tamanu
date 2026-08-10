@@ -456,9 +456,13 @@ Linux (grep in place — do **not** copy the log off the server; that is
 **sensitive-data**, see `../ruled-out-actions.md`):
 
 ```bash
-journalctl -u caddy -o cat \
-  | jq -c 'select(.request.uri | test("/fhir/mat/ServiceRequest")) | {ts:(.ts|todate), status, uri:.request.uri, ip:.request.remote_ip, ua:(.request.headers["User-Agent"]|first)}'
+jq -c 'select(.request.uri | test("/fhir/mat/ServiceRequest")) | {ts:(.ts|todate), status, uri:.request.uri, ip:.request.remote_ip, ua:(.request.headers["User-Agent"]|first)}' \
+  /var/log/caddy/access.log*
 ```
+
+On a host that has not yet moved its access log to a file, read the same entries
+from the journal instead (`journalctl -u caddy -o cat | jq -Rr 'fromjson? | …'`) —
+see `../sops/read-logs.md` for which applies where.
 
 Windows: search `C:\caddy\logs\server.log` for `/fhir/mat/ServiceRequest` and
 inspect the `status` field (see the PowerShell snippet in `../sops/read-logs.md`).

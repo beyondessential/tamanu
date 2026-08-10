@@ -16,6 +16,7 @@ export class ChangeLog extends Model {
   declare recordCreatedAt: Date;
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
+  declare isHardDelete: boolean;
   declare recordData: string;
   declare deviceId: string;
   declare version: string;
@@ -61,6 +62,11 @@ export class ChangeLog extends Model {
         recordDeletedAt: {
           type: DataTypes.DATE,
           allowNull: true,
+        },
+        isHardDelete: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
         recordData: {
           type: DataTypes.JSONB,

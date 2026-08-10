@@ -4,7 +4,6 @@ import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
@@ -20,16 +19,10 @@ import { reloadPatient } from '../../store';
 import { useEncounter } from '../../contexts/Encounter';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { DrugIcon } from '../../assets/icons/DrugIcon';
+import { StyledPriorityHighIcon, TaskNameContainer, PriorityIconSlot } from './TaskPriorityIcon';
 
 const Container = styled.div`
   height: calc(100% - 110px);
-`;
-
-const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
-  font-size: 16px;
-  position: absolute;
-  left: -6px;
 `;
 
 const StyledTable = styled(Table)`
@@ -226,15 +219,17 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
       }
       data-testid="styledtooltip-myk4"
     >
-      <span>
-        {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
+      <TaskNameContainer>
+        <PriorityIconSlot>
+          {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
+        </PriorityIconSlot>
         {taskType === TASK_TYPES.MEDICATION_DUE_TASK && (
           <Box display={'flex'} position={'absolute'} left={'-6px'} top={'13px'}>
             <DrugIcon aria-hidden />
           </Box>
         )}
         {taskName()}
-      </span>
+      </TaskNameContainer>
     </StyledToolTip>
   );
 };
@@ -306,11 +301,14 @@ const COLUMNS = [
   {
     key: 'name',
     title: (
-      <TranslatedText
-        stringId="dashboard.tasks.table.column.task"
-        fallback="Task"
-        data-testid="translatedtext-op9s"
-      />
+      <TaskNameContainer>
+        <PriorityIconSlot />
+        <TranslatedText
+          stringId="dashboard.tasks.table.column.task"
+          fallback="Task"
+          data-testid="translatedtext-op9s"
+        />
+      </TaskNameContainer>
     ),
     accessor: getTaskName,
   },

@@ -185,7 +185,10 @@ export const EncounterView = () => {
     fallbackEncounterTab,
   );
 
+  // The patient is loaded into the store asynchronously, so patient.id is null on the first
+  // render when this view is opened directly by URL. Only record the view once we have an id.
   useEffect(() => {
+    if (!patient.id) return;
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
 

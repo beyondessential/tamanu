@@ -21,7 +21,7 @@ const Container = styled.div`
   align-self: stretch;
 
   .MuiTextField-root {
-    max-width: 80px;
+    max-width: 110px;
   }
 `;
 
@@ -151,6 +151,7 @@ export const PriceCell = ({
                 <StyledField
                   name={`invoiceItems.${index}.manualEntryPrice`}
                   component={PriceField}
+                  step={1}
                   required
                   data-testid="field-05x9"
                 />
