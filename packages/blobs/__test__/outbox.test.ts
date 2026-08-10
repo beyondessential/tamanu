@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { BlobOutbox } from '../src/outbox';
-import type { BlobOutboxHost } from '../src/outbox';
+import { BlobOutbox, type BlobOutboxHost } from '../src/outbox';
 
 interface OutboxState {
   outbox: string[];
