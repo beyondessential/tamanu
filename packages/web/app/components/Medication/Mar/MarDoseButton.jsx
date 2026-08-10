@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 
 import { useDateTime } from '@tamanu/ui-components';
-import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
 import { WarningModal } from '../WarningModal';
@@ -14,6 +13,7 @@ import { getIsDueBeforePrescriptionStart } from './getShowDoseInfo';
 import useCanViewMedication from './useCanViewMedication';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
+import useMarDoses from './useMarDoses';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 
