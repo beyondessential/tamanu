@@ -45,10 +45,6 @@ export default function MarCell({
   const dosesPerSlot = getDosesPerSlot(medication?.frequency);
   const subSlots = getSubSlots(timeSlot, dosesPerSlot);
 
-  // A sub-divided cell hides its dose info overlay as soon as any dose shows an icon, so in the
-  // current window each dose gets its own indicator instead.
-  const showPending = isCurrentTimeSlot && dosesPerSlot > 1;
-
   return (
     <MarDataCell aria-current={isCurrentTimeSlot ? 'time' : undefined}>
       <DoseGrid>
@@ -66,7 +62,6 @@ export default function MarCell({
               nextMarInfo={nextMarInfo}
               medication={medication}
               pauseRecords={pauseRecords}
-              showPending={showPending}
               anchorEl={anchorEl}
               onAnchorElChange={onAnchorElChange}
             />
@@ -81,7 +76,6 @@ export default function MarCell({
         selectedDate={selectedDate}
         pauseRecords={pauseRecords}
         nextWindowMarInfos={nextWindowMarInfos}
-        showPending={showPending}
       />
     </MarDataCell>
   );

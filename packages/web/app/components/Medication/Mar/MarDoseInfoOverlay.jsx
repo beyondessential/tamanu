@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useDateTime } from '@tamanu/ui-components';
 import MarDoseInfoText from './MarDoseInfoText';
+import { MarDataCell, MarDoseSlot } from './components';
 import getShowDoseInfo, { hasVisibleMarStatusIcon } from './getShowDoseInfo';
 import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
@@ -16,6 +17,10 @@ const Div = styled.div`
   position: absolute;
   text-align: center;
   text-wrap: balance;
+  /* Each dose shows its own pending icon instead, per the matching rule in MarStatusIcon */
+  ${MarDataCell}[aria-current='time']:has(${MarDoseSlot}:nth-of-type(2)) & {
+    visibility: hidden;
+  }
 `;
 
 /**
@@ -27,7 +32,6 @@ const Div = styled.div`
  *   selectedDate: Date;
  *   pauseRecords?: { data?: any[] };
  *   nextWindowMarInfos?: any[] | null;
- *   showPending?: boolean;
  * }} props
  */
 export default function MarDoseInfoOverlay({
@@ -38,7 +42,6 @@ export default function MarDoseInfoOverlay({
   selectedDate,
   pauseRecords,
   nextWindowMarInfos,
-  showPending,
 }) {
   const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
@@ -100,7 +103,6 @@ export default function MarDoseInfoOverlay({
           toFacilityDateTime,
         }),
         isPrn,
-        showPending,
       });
     });
 

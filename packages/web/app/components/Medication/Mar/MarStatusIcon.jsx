@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import DashedCircleOutlineIcon from './DashedCircleOutline';
+import { MarDoseSlot } from './components';
 
 const styles = css`
   &,
@@ -32,9 +33,18 @@ const MissedIcon = styled(HelpOutlineIcon)`
   color: ${TAMANU_COLORS.darkOrange};
 `;
 
+/**
+ * Stand-in for the cell-level dose info overlay, which a subslot is too small to show in a sensible
+ * way. Only applies to a current time slot because past cells will have another status; and future
+ * cells show the dose info overlay at the table-cell level.
+ */
 const PendingIcon = styled(DashedCircleOutlineIcon)`
   ${styles}
   color: #b8b8b8;
+  display: none;
+  [aria-current='time']:has(${MarDoseSlot}:nth-of-type(2)) & {
+    display: block;
+  }
 `;
 
 const iconMapping = /** @type {const} */ ({

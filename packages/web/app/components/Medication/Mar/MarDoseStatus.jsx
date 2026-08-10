@@ -34,7 +34,6 @@ const StyledEditedOrnament = styled(EditedOrnament)`
  *   isPaused?: boolean;
  *   isPrn?: boolean;
  *   marInfo?: object | null;
- *   showPending?: boolean;
  * }} props
  */
 export default function MarDoseStatus({
@@ -45,7 +44,6 @@ export default function MarDoseStatus({
   isPaused,
   isPrn,
   marInfo,
-  showPending,
 }) {
   const { isEdited, status } = marInfo || {};
 
@@ -56,9 +54,7 @@ export default function MarDoseStatus({
     isPast,
     isPaused,
     isPrn,
-    showPending,
   });
-  // Without an icon, dose due info is rendered as a cell-level overlay in MarCell
   if (!variant) return null;
 
   return (

@@ -12,11 +12,9 @@ const base = {
   isPast: false,
   isPaused: false,
   isPrn: false,
-  showPending: false,
 };
 
 describe('hasVisibleMarStatusIcon', () => {
-
   it('is false when there is no marInfo', () => {
     expect(hasVisibleMarStatusIcon({ ...base, marInfo: null })).toBe(false);
   });
@@ -90,14 +88,9 @@ describe('hasVisibleMarStatusIcon', () => {
     ).toBe(false);
   });
 
-  it('is true for a pending dose in a sub-divided current-time cell', () => {
-    expect(
-      hasVisibleMarStatusIcon({
-        ...base,
-        showPending: true,
-        marInfo: { id: '1' },
-      }),
-    ).toBe(true);
+  it('does not count the pending icon, which CSS reveals only in the current time slot', () => {
+    expect(getMarStatusIconVariant({ ...base, marInfo: { id: '1' } })).toBe('pending');
+    expect(hasVisibleMarStatusIcon({ ...base, marInfo: { id: '1' } })).toBe(false);
   });
 });
 
@@ -121,53 +114,37 @@ describe('getMarStatusIconVariant', () => {
     expect(getMarStatusIconVariant({ ...base, isPast: true, marInfo: { id: '1' } })).toBe('missed');
   });
 
-  it('returns pending only when the cell shows pending doses', () => {
-    expect(getMarStatusIconVariant({ ...base, marInfo: { id: '1' } })).toBe(null);
-    expect(getMarStatusIconVariant({ ...base, showPending: true, marInfo: { id: '1' } })).toBe(
-      'pending',
-    );
+  it('returns pending for a due dose with no status', () => {
+    expect(getMarStatusIconVariant({ ...base, marInfo: { id: '1' } })).toBe('pending');
   });
 
-  it('prefers a recorded status over pending', () => {
-    expect(
-      getMarStatusIconVariant({
-        ...base,
-        showPending: true,
-        marInfo: { id: '1', status: ADMINISTRATION_STATUS.GIVEN },
-      }),
-    ).toBe(ADMINISTRATION_STATUS.GIVEN);
-  });
-
-  it('prefers missed over pending for a past sub-slot', () => {
+  it('prefers missed over pending for a past dose', () => {
     expect(
       getMarStatusIconVariant({
         ...base,
         isPast: true,
-        showPending: true,
         marInfo: { id: '1' },
       }),
     ).toBe('missed');
   });
 
-  it('returns no icon for a past PRN dose, even when pending doses are shown', () => {
+  it('returns no icon for a past PRN dose', () => {
     expect(
       getMarStatusIconVariant({
         ...base,
         isPast: true,
         isPrn: true,
-        showPending: true,
         marInfo: { id: '1' },
       }),
     ).toBe(null);
   });
 
-  it('returns no icon for inactive doses, even when pending doses are shown', () => {
+  it('returns no icon for inactive doses, rather than pending', () => {
     for (const flag of ['isEnd', 'isDiscontinued', 'isPaused']) {
       expect(
         getMarStatusIconVariant({
           ...base,
           [flag]: true,
-          showPending: true,
           marInfo: { id: '1' },
         }),
       ).toBe(null);
@@ -175,7 +152,7 @@ describe('getMarStatusIconVariant', () => {
   });
 
   it('returns no icon when there is no dose record', () => {
-    expect(getMarStatusIconVariant({ ...base, showPending: true, marInfo: null })).toBe(null);
+    expect(getMarStatusIconVariant({ ...base, marInfo: null })).toBe(null);
   });
 });
 
@@ -275,25 +252,6 @@ describe('multi-slot overlay hide signal', () => {
       isPaused: false,
       isPrn: false,
     });
-    expect(anyStatusIcon).toBe(true);
-  });
-
-  it('hides in the current window, where empty sub-slots show a pending icon', () => {
-    const subSlots = [
-      { marInfo: { id: '1' }, isPast: true },
-      { marInfo: { id: '2' }, isPast: false },
-    ];
-    const anyStatusIcon = subSlots.some(({ marInfo, isPast }) =>
-      hasVisibleMarStatusIcon({
-        marInfo,
-        isDiscontinued: false,
-        isEnd: false,
-        isPast,
-        isPaused: false,
-        isPrn: false,
-        showPending: true,
-      }),
-    );
     expect(anyStatusIcon).toBe(true);
   });
 });
