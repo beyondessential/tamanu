@@ -28,7 +28,7 @@ captured but not yet pushed.
 
 ## Capturing content
 
-- [ ] Content captured on the device, a survey photo among it, is admitted to the
+- [ ] Content captured on the device (like photos, uploads, etc) is admitted to the
   device's blob store at the outbox tier as part of the operation that creates its
   referencing record (see `facility-cache.md`).
 - [ ] Capture completes without connectivity. It does not depend on a capacity check

@@ -1,4 +1,9 @@
-import { BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM, type BlobTier } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_TIERS,
+  CURRENT_BLOB_HASH_ALGORITHM,
+  type BlobTier,
+} from '@tamanu/constants';
 import { BlobHashMismatchError, InsufficientStorageError, NotFoundError } from '@tamanu/errors';
 import { formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
 
@@ -23,7 +28,7 @@ export interface BlobAdmissionHost {
   removeFile(path: string): Promise<void>;
   pathFor(hash: string): string;
   stagingPathFor(hash: string): string;
-  stat(hash: string): Promise<{ size: number } | null>;
+  stat(hash: string): Promise<{ size: number; integrityState?: string } | null>;
   /**
    * Registry upsert. Contract, since hosts implement it in different dialects:
    * atomic against a concurrent admission of the same content; a live row is
@@ -38,6 +43,12 @@ export interface BlobAdmissionHost {
   reserveBytes(): Promise<number>;
   /** Asked to free at least bytesNeeded before the store refuses. */
   evict?(bytesNeeded: number): Promise<void>;
+  /**
+   * spec: SCRUB — bring a row that was quarantined or standing as absent back to
+   * verified, now that these bytes have verified. Hosts that don't track
+   * integrity state omit it.
+   */
+  markVerified?(hash: string, size: number): Promise<void>;
   /**
    * The refusal, when the host words it for its own audience (a device speaks
    * of its storage, a server of its volume). Defaults to an
@@ -108,7 +119,15 @@ export class BlobAdmission {
     const stagingPath = this.#host.stagingPathFor(hash);
 
     const existing = await this.#host.stat(hash);
-    if (existing) {
+    // spec: SCRUB — only a copy already verified counts as content held; the
+    // commit is a no-op against it. A quarantined copy is exactly what an
+    // incoming good copy is there to replace, so it falls through and its bytes
+    // and state are only settled once the replacement verifies below.
+    const heldAndTrusted =
+      existing &&
+      (existing.integrityState === undefined ||
+        existing.integrityState === BLOB_INTEGRITY_STATES.VERIFIED);
+    if (existing && heldAndTrusted) {
       await this.#host.removeFile(stagingPath);
       return { hash, size: existing.size, existed: true };
     }
@@ -127,8 +146,17 @@ export class BlobAdmission {
     }
 
     const size = await this.#host.fileSize(stagingPath);
+    if (existing) {
+      // spec: SCRUB — the replacement has verified, so the quarantined bytes go
+      // now. Removing them first is what lets the placement below land, since
+      // placement treats an occupied destination as content already won.
+      await this.#host.removeFile(this.#host.pathFor(hash));
+    }
     await this.#host.place(stagingPath, this.#host.pathFor(hash));
     await this.#host.register(hash, size, BLOB_TIERS.CACHE);
+    if (existing) {
+      await this.#host.markVerified?.(hash, size);
+    }
     return { hash, size, existed: false };
   }
 

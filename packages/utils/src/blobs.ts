@@ -48,3 +48,26 @@ export function blobPathSegments(hash: string): [string, string, string, string]
   const { algorithm, digest } = parseBlobHash(hash);
   return [algorithm, digest.slice(0, 2), digest.slice(2, 4), digest.slice(4)];
 }
+
+// spec: SCRUB
+// The inverse of blobPathSegments, for walking the store's own contents: the
+// hash a stored file's location encodes, or null where the path is not a blob's.
+// The store root also holds the staging and temp directories, so anything that
+// does not reconstruct into a valid hash is simply not content.
+export function blobHashFromPathSegments(segments: string[]): string | null {
+  if (segments.length !== 4) {
+    return null;
+  }
+  const [algorithm, firstByte, secondByte, remainder] = segments;
+  try {
+    const hash = formatBlobHash(algorithm, `${firstByte}${secondByte}${remainder}`);
+    // Round-trip rather than trusting the parse alone: it confirms the fan-out
+    // split itself is right, so a file misplaced under another blob's
+    // directories is rejected instead of being adopted under a hash its
+    // location does not actually encode.
+    parseBlobHash(hash);
+    return blobPathSegments(hash).join('/') === segments.join('/') ? hash : null;
+  } catch {
+    return null;
+  }
+}

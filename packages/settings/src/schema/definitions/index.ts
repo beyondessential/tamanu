@@ -7,6 +7,7 @@ export {
   cronExpressionSchema,
   scheduledTaskSchema,
   batchingProperties,
+  blobScrubProperties,
   limitProperty,
 } from './scheduledTask';
 export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields';

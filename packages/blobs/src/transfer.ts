@@ -126,9 +126,16 @@ export class BlobTransfer {
    * content already held skips the transfer. An interrupted download resumes
    * from the bytes already staged, including across calls and restarts, and the
    * complete content is verified against the hash before it is admitted.
+   *
+   * spec: SCRUB — `ignoreLocal` fetches even though the hash is occupied, for
+   * the self-heal path replacing a copy that failed verification. The bad bytes
+   * are only dropped once the replacement has verified.
    */
-  async fetch(hash: string): Promise<{ hash: string; size: number; existed?: boolean }> {
-    const held = await this.#host.stat(hash);
+  async fetch(
+    hash: string,
+    { ignoreLocal = false }: { ignoreLocal?: boolean } = {},
+  ): Promise<{ hash: string; size: number; existed?: boolean }> {
+    const held = ignoreLocal ? null : await this.#host.stat(hash);
     if (held) {
       return { hash, size: held.size, existed: true };
     }
