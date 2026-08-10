@@ -1,23 +1,28 @@
-import Box from '@mui/material/Box';
 import React from 'react';
 import styled from 'styled-components';
 
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import {
   DateDisplay,
+  ThemedTooltip,
   TranslatedEnum,
   TranslatedText,
   useDateTime,
   VisuallyHidden,
-  ConditionalTooltip,
 } from '@tamanu/ui-components';
+import { MarDoseSlot } from './components';
 
-const TooltipText = styled.div`
-  margin-block: 0;
+/**
+ * Phrasing content only, since this text is also rendered inside `MarCellButton`, which cannot
+ * contain flow content.
+ */
+const TooltipText = styled.span`
+  display: block;
   text-wrap: balance;
-  p {
-    margin-block: 0;
-  }
+`;
+
+const Span = styled.span`
+  display: block;
 `;
 
 const popperProps = /** @type {const} */ ({
@@ -99,36 +104,34 @@ const MarStatusTooltipContent = ({
       return (
         <>
           {isError && (
-            <p>
+            <Span>
               <TranslatedText stringId="medication.mar.error" fallback="Error." />
-            </p>
+            </Span>
           )}
           {isAlert && !isError && (
-            <p>
+            <Span>
               <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
-            </p>
+            </Span>
           )}
-          <p>
+          <Span>
             <TranslatedText stringId="medication.mar.notGiven" fallback="Not given" />
-          </p>
-          <p>{reasonNotGiven?.name}</p>
+          </Span>
+          <Span>{reasonNotGiven?.name}</Span>
         </>
       );
     case ADMINISTRATION_STATUS.GIVEN:
       return (
         <>
-          <Box>
+          <Span>
             {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
             {isAlert && !isError && (
-              <p>
-                <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
-              </p>
+              <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
             )}
-          </Box>
+          </Span>
           {marDoses?.map(
             dose =>
               !dose.isRemoved && (
-                <div key={dose?.id}>
+                <Span key={dose?.id}>
                   {dose?.doseAmount}&nbsp;
                   <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
                   <TranslatedText
@@ -136,7 +139,7 @@ const MarStatusTooltipContent = ({
                     fallback="given at :time"
                     replacements={{ time: formatTime(dose?.givenTime) }}
                   />
-                </div>
+                </Span>
               ),
           )}
         </>
@@ -170,18 +173,29 @@ const MarStatusTooltipContent = ({
   }
 };
 
-export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
-  const visible = hasMarStatusTooltip(tooltipProps);
-  const title = visible ? (
-    <TooltipText>
-      <MarStatusTooltipContent {...tooltipProps} />
-    </TooltipText>
+export const MarStatusLabel = props =>
+  hasMarStatusTooltip(props) ? (
+    <VisuallyHidden>
+      <TooltipText>
+        <MarStatusTooltipContent {...props} />
+      </TooltipText>
+    </VisuallyHidden>
   ) : null;
 
+export const MarStatusTooltip = ({ children, ...tooltipProps }) => {
+  const slot = <MarDoseSlot>{children}</MarDoseSlot>;
+  if (!hasMarStatusTooltip(tooltipProps)) return slot;
+
   return (
-    <ConditionalTooltip visible={visible} title={title} PopperProps={popperProps}>
-      {title && <VisuallyHidden>{title}</VisuallyHidden>}
-      {children}
-    </ConditionalTooltip>
+    <ThemedTooltip
+      title={
+        <TooltipText>
+          <MarStatusTooltipContent {...tooltipProps} />
+        </TooltipText>
+      }
+      PopperProps={popperProps}
+    >
+      {slot}
+    </ThemedTooltip>
   );
 };

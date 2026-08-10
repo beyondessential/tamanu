@@ -4,7 +4,7 @@ import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
 /**
- * Whether MarDoseStatusIcon would render a given / not-given / missed icon.
+ * Whether MarDoseStatus would render a given / not-given / missed icon.
  * Pending is intentionally excluded (not shown yet).
  *
  * @param {{

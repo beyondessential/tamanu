@@ -6,6 +6,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import MarDoseStatus from './MarDoseStatus';
+import { MarStatusLabel, MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import { MarCellButton } from './components';
 import useMarDoseAlerts from './useMarDoseAlerts';
@@ -40,16 +41,22 @@ export function MarDoseButton({
     pauseRecords,
   });
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
-  const { isDoseAmountNotMatch, isRecordedDuringPaused, isRecordedOutsideAdministrationSchedule } =
-    useMarDoseAlerts({
-      marInfo,
-      medication,
-      marDoses,
-      isPaused,
-      isPast,
-    });
+  const {
+    isAlert,
+    isDoseAmountNotMatch,
+    isError,
+    isRecordedDuringPaused,
+    isRecordedOutsideAdministrationSchedule,
+  } = useMarDoseAlerts({
+    marInfo,
+    medication,
+    marDoses,
+    isPaused,
+    isPast,
+  });
 
-  const { status } = marInfo || {};
+  const { dueAt, reasonNotGiven, status } = marInfo || {};
+  const { dosingUnit, endDate, isPrn } = medication || {};
 
   const { encounter } = useEncounter();
   const isEncounterDischarged = !!encounter?.endDate;
@@ -61,6 +68,14 @@ export function MarDoseButton({
   const buttonRef = useRef(null);
 
   const isInactive = isDiscontinued || isEnd || isPaused;
+  // Paused doses stay actionable, behind a warning modal
+  const isDisabled =
+    !canViewMedication ||
+    isNotDue ||
+    isDiscontinued ||
+    isEnd ||
+    !(canCreateMar || (status && canViewMar)) ||
+    isCreateBlockedByDischarge;
 
   const handleStatusPopperOpen = () => {
     setIsSelected(true);
@@ -88,15 +103,10 @@ export function MarDoseButton({
   };
 
   const onSelected = () => {
-    if (!canViewMedication || anchorEl || isDiscontinued || isNotDue || isEnd || !canViewMar)
-      return;
+    if (isDisabled || anchorEl) return;
 
     if (status) {
       handleOpenMarDetailsModal();
-      return;
-    }
-
-    if (!canCreateMar || isCreateBlockedByDischarge) {
       return;
     }
 
@@ -115,34 +125,41 @@ export function MarDoseButton({
     handleStatusPopperOpen();
   };
 
+  const marStatus = {
+    dosingUnit,
+    dueAt,
+    endDate,
+    isAlert,
+    isDiscontinued,
+    isEnd,
+    isError,
+    isNotDue,
+    isPast,
+    isPaused,
+    isPrn,
+    marDoses,
+    marInfo,
+    reasonNotGiven,
+    status,
+  };
+
   return (
     <>
-      <MarCellButton
-        ref={buttonRef}
-        aria-selected={isSelected || undefined}
-        data-discontinued={isDiscontinued || undefined}
-        data-ended={isEnd || undefined}
-        data-inactive={isInactive || undefined}
-        data-paused={isPaused || undefined}
-        disabled={
-          !canViewMedication ||
-          isNotDue ||
-          isInactive ||
-          !(canCreateMar || (status && canViewMar)) ||
-          isCreateBlockedByDischarge
-        }
-        onClick={onSelected}
-      >
-        <MarDoseStatus
-          isDiscontinued={isDiscontinued}
-          isEnd={isEnd}
-          isNotDue={isNotDue}
-          isPast={isPast}
-          isPaused={isPaused}
-          marInfo={marInfo}
-          medication={medication}
-        />
-      </MarCellButton>
+      <MarStatusTooltip {...marStatus}>
+        <MarCellButton
+          ref={buttonRef}
+          aria-selected={isSelected || undefined}
+          data-discontinued={isDiscontinued || undefined}
+          data-ended={isEnd || undefined}
+          data-inactive={isInactive || undefined}
+          data-paused={isPaused || undefined}
+          disabled={isDisabled}
+          onClick={onSelected}
+        >
+          <MarStatusLabel {...marStatus} />
+          <MarDoseStatus {...marStatus} />
+        </MarCellButton>
+      </MarStatusTooltip>
       <StatusPopper
         open={Boolean(anchorEl) && Boolean(buttonRef.current) && anchorEl === buttonRef.current}
         anchorEl={anchorEl}
