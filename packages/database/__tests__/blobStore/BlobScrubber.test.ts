@@ -4,6 +4,8 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { CENTRAL_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
+
 import { BLOB_FAULTS, BlobScrubber } from '../../src/blobStore/BlobScrubber';
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
@@ -18,6 +20,7 @@ interface FakeRow {
   tier: string;
   lastScrubbedAt: Date | null;
   createdAt: Date;
+  hasParity: boolean;
 }
 
 // In-memory Blob registry covering what the store and the scrubber ask of it:
@@ -88,6 +91,7 @@ function makeFakeBlobModel() {
             lastScrubbedAt: new Date(),
             // Distinct and increasing, so createdAt is a stable tiebreak.
             createdAt: new Date(inserted * 1000),
+            hasParity: false,
           });
         }
       },
@@ -123,6 +127,20 @@ describe('BlobScrubber', () => {
         }),
       findUndeliverableReferences,
       log: { info: () => {}, warn: () => {} },
+    });
+
+  // spec: FEC — a store with error correction switched on, for the retrofit pass.
+  const makeParityStore = ({ enabled = true } = {}) =>
+    new BlobStore({
+      root,
+      models: { Blob: fakeBlob as unknown as typeof Blob },
+      getFreeDiskReserveBytes: async () => 0,
+      statfs: async () => ({ bavail: 1_000_000_000, bsize: 1 }),
+      errorCorrection: {
+        coveredTiers: CENTRAL_PARITY_TIERS,
+        getSettings: async () => ({ enabled, proportion: 0.1 }),
+      },
+      log: { error: () => {}, warn: () => {} },
     });
 
   const corruptStoredBytes = async (hash: string, replacement: string) => {
@@ -419,6 +437,91 @@ describe('BlobScrubber', () => {
     it('is skipped where the server supplies no reference check', async () => {
       const result = await makeScrubber().run();
       expect(result.faults).toBe(0);
+    });
+  });
+  // spec: FEC
+  describe('parity pass', () => {
+    // A blob big enough to be covered: below the size floor parity is skipped.
+    const covered = Buffer.alloc(64 * 1024, 'c');
+    const sidecarOf = (hash: string) => {
+      const digest = hash.split(':')[1];
+      return path.join(
+        root,
+        'sha256',
+        digest.slice(0, 2),
+        digest.slice(2, 4),
+        `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
+      );
+    };
+
+    it('brings a store that predates error correction under protection', async () => {
+      // Admitted with error correction off, so the content is stored unprotected.
+      store = makeParityStore({ enabled: false });
+      const { hash } = await store.put(Readable.from(covered));
+      await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
+
+      // Switched on: the scrub retrofits what is already stored.
+      store = makeParityStore();
+      const result = await makeScrubber().run();
+
+      expect(result.protected).toBe(1);
+      await expect(fs.access(sidecarOf(hash))).resolves.toBeUndefined();
+      expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
+    });
+
+    it('does nothing on a second pass, having nothing left to protect', async () => {
+      store = makeParityStore();
+      await store.put(Readable.from(covered));
+
+      expect((await makeScrubber().run()).protected).toBe(0);
+    });
+
+    it('writes no parity while error correction is off', async () => {
+      store = makeParityStore({ enabled: false });
+      const { hash } = await store.put(Readable.from(covered));
+
+      const result = await makeScrubber().run();
+
+      expect(result.protected).toBe(0);
+      await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
+    });
+
+    it('skips a blob the size floor excludes', async () => {
+      store = makeParityStore({ enabled: false });
+      await store.put(Readable.from(Buffer.from('too small to be worth protecting')));
+
+      store = makeParityStore();
+      expect((await makeScrubber().run()).protected).toBe(0);
+    });
+
+    it('does not protect a blob whose bytes no longer match its hash', async () => {
+      store = makeParityStore({ enabled: false });
+      const { hash } = await store.put(Readable.from(covered));
+      await corruptStoredBytes(hash, 'rotted');
+
+      store = makeParityStore();
+      const result = await makeScrubber().run();
+
+      // The verification pass owns the fault; parity is never computed over bytes
+      // that would protect the corruption instead of the content.
+      expect(result.protected).toBe(0);
+      expect(result.faults).toBe(1);
+      await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
+    });
+
+    it('stops at the byte budget and picks the rest up next pass', async () => {
+      store = makeParityStore({ enabled: false });
+      for (let index = 0; index < 3; index++) {
+        await store.put(Readable.from(Buffer.alloc(64 * 1024, `p${index}`)));
+      }
+
+      store = makeParityStore();
+      // Enough for one blob's verify-then-encode, not for three.
+      const result = await makeScrubber({ maxBytes: 64 * 1024 }).run();
+
+      expect(result.protected).toBe(1);
+      expect(result.ratelimited).toBe(true);
+      expect([...fakeBlob.rows.values()].filter(row => row.hasParity)).toHaveLength(1);
     });
   });
 });
