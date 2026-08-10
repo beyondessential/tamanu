@@ -3,8 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { BLOB_AVAILABILITY_STATES, BLOB_OFFER_STATUSES } from '@tamanu/constants';
 import { BlobHashMismatchError, ForbiddenError, NotFoundError } from '@tamanu/errors';
 
-import { BlobTransfer, totalSizeFromHeaders } from '../src/transfer';
-import type { BlobTransferHost } from '../src/transfer';
+import { BlobTransfer, totalSizeFromHeaders, type BlobTransferHost } from '../src/transfer';
 
 const HASH = 'sha256:abc';
 
