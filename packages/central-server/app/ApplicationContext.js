@@ -125,8 +125,8 @@ export class ApplicationContext {
 
     // spec: SCRUB
     // Every copy central holds is authoritative, so the healer has no
-    // low-severity case: it quarantines and escalates, and repair arrives
-    // either opportunistically from a facility or from a backup.
+    // low-severity case: it records the blob corrupt and escalates, and repair
+    // arrives either opportunistically from a facility or from a backup.
     this.blobHealer = new CentralBlobHealer({ blobStore: this.blobStore });
     this.blobScrubber = new BlobScrubber({
       blobStore: this.blobStore,

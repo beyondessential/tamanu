@@ -29,12 +29,12 @@ export class FacilityBlobHealer {
    * hash repeatedly and concurrently.
    */
   async heal({ hash, fault, blob }) {
-    // spec: SCRUB — a quarantined blob is retained, never deleted. Reconciliation
-    // quarantines a corrupt orphan (unknown provenance, so not assumed to be a
+    // spec: SCRUB — a corrupt blob is retained, never deleted. Reconciliation
+    // records a corrupt orphan (unknown provenance, so not assumed to be a
     // refetchable replica) before handing it here; the cache path below would
-    // otherwise delete the very evidence the quarantine is meant to keep.
-    if (blob?.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
-      log.warn('FacilityBlobHealer: retaining a quarantined corrupt blob for investigation', {
+    // otherwise delete the very evidence retention is meant to keep.
+    if (blob?.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
+      log.warn('FacilityBlobHealer: retaining a corrupt blob for investigation', {
         hash,
         fault,
       });
@@ -70,7 +70,7 @@ export class FacilityBlobHealer {
     await this.#blobStore.recordIntegrityState(
       hash,
       fault === BLOB_FAULTS.CORRUPT
-        ? BLOB_INTEGRITY_STATES.QUARANTINED
+        ? BLOB_INTEGRITY_STATES.CORRUPT
         : BLOB_INTEGRITY_STATES.ABSENT,
     );
 
@@ -99,7 +99,7 @@ export class FacilityBlobHealer {
       return false;
     }
     try {
-      // ignoreLocal, or the fetch would see the quarantined copy still occupying
+      // ignoreLocal, or the fetch would see the corrupt copy still occupying
       // the hash and report the content already held.
       await this.#transferChannel.fetchFromCentral(hash, { ignoreLocal: true });
       return true;

@@ -12,18 +12,34 @@ export const CURRENT_BLOB_HASH_ALGORITHM: BlobHashAlgorithm = BLOB_HASH_ALGORITH
 
 // spec: SCRUB
 // A blob's standing against its hash. `verified` content matched when it was
-// last checked; `quarantined` content failed and is retained for investigation
-// but never served; `absent` is a registry entry whose bytes the store does not
+// last checked; `corrupt` content failed and is retained for investigation but
+// never served; `absent` is a registry entry whose bytes the store does not
 // hold, which the server acquires rather than offers.
+//
+// Infection is not a value here: infected content hashes correctly, so its
+// verdict is recorded separately (see BLOB_SCAN_VERDICTS and `antivirus.md`).
 export const BLOB_INTEGRITY_STATES = {
   VERIFIED: 'verified',
-  QUARANTINED: 'quarantined',
+  CORRUPT: 'corrupt',
   ABSENT: 'absent',
 } as const;
 
 export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLOB_INTEGRITY_STATES];
 
 export const BLOB_INTEGRITY_STATES_VALUES = Object.values(BLOB_INTEGRITY_STATES);
+
+// spec: AV
+// What a scan found in a blob's content. No verdict at all is the third case
+// and is not a value here: it is the absence of a recorded scan, which is
+// every blob on a deployment with no scanner configured.
+export const BLOB_SCAN_VERDICTS = {
+  CLEAN: 'clean',
+  INFECTED: 'infected',
+} as const;
+
+export type BlobScanVerdict = (typeof BLOB_SCAN_VERDICTS)[keyof typeof BLOB_SCAN_VERDICTS];
+
+export const BLOB_SCAN_VERDICTS_VALUES = Object.values(BLOB_SCAN_VERDICTS);
 
 // spec: CACHE
 // The durability tier of a blob on a facility or mobile server. An outbox blob

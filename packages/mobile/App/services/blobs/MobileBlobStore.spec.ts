@@ -88,17 +88,17 @@ describe('MobileBlobStore', () => {
   });
 
   describe('stat / has / servablePath', () => {
-    it('reports a held blob and refuses a quarantined one from serving', async () => {
+    it('reports a held blob and refuses a corrupt one from serving', async () => {
       fs.seed('/tmp/c.jpg', 'served');
       const { hash } = await store.putFile('/tmp/c.jpg');
 
       expect(await store.has(hash)).toBe(true);
       expect(await store.servablePath(hash)).toBe(store.pathFor(hash));
 
-      await store.quarantine(hash);
+      await store.markCorrupt(hash);
       // still present, never served
       expect(await store.has(hash)).toBe(true);
-      await expect(store.servablePath(hash)).rejects.toThrow(/quarantined/i);
+      await expect(store.servablePath(hash)).rejects.toThrow(/corrupt/i);
     });
 
     it('treats bytes without a registry row as not held', async () => {

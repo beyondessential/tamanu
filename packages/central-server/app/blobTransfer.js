@@ -99,10 +99,10 @@ export const buildBlobTransferRoutes = ctx => {
     });
 
   // spec: BLAC, SCRUB
-  // The store retains a quarantined blob but never serves it. On the read path
+  // The store retains a corrupt blob but never serves it. On the read path
   // it is therefore not held: availability and fetch answer as they would for
   // absent content, so neither advertises a blob fetch would refuse nor
-  // discloses the quarantine.
+  // discloses that it is corrupt.
   const servableStat = async hash => {
     const held = await blobStore.stat(hash);
     // Only verified content is servable. Stated as an allow-list rather than a
@@ -128,7 +128,7 @@ export const buildBlobTransferRoutes = ctx => {
   // spec: XFER
   // Availability without transferring bytes. The central server is the
   // authoritative store and never fetches, so absent bytes are always awaiting
-  // upload from their origin. Quarantine serving policy is the integrity
+  // upload from their origin. Whether corrupt content serves is the integrity
   // spec's concern (see specs/blob-storage/integrity.md).
   routes.get(
     '/:hash/availability',
@@ -163,7 +163,7 @@ export const buildBlobTransferRoutes = ctx => {
         throw pushNotExpected(hash);
       }
       // spec: SCRUB
-      // servableStat, so a quarantined copy is wanted rather than declined.
+      // servableStat, so a corrupt copy is wanted rather than declined.
       // This is central's peer healing: it cannot reach a facility on demand
       // and keeps no index of what facilities hold, so it takes a replacement
       // on the connection a facility makes anyway, whenever one happens to
@@ -198,7 +198,7 @@ export const buildBlobTransferRoutes = ctx => {
         throw pushNotExpected(hash);
       }
 
-      // spec: SCRUB — matches the offer: a quarantined copy is being replaced,
+      // spec: SCRUB — matches the offer: a corrupt copy is being replaced,
       // so the bytes are accepted rather than acknowledged against bad content.
       if (await servableStat(hash)) {
         res.send({ acknowledged: true, existed: true });

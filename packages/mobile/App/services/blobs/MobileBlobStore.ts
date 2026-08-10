@@ -92,7 +92,7 @@ export class MobileBlobStore {
   }
 
   /**
-   * Presence, not servability: a quarantined blob is present (has → true) but
+   * Presence, not servability: a corrupt blob is present (has → true) but
    * is never served. A malformed hash throws rather than reporting absent.
    */
   async has(hash: string): Promise<boolean> {
@@ -115,7 +115,7 @@ export class MobileBlobStore {
 
   /**
    * The on-disk path of a held blob, for reading or uploading. Refuses a
-   * quarantined blob: its bytes are retained for investigation, never served.
+   * corrupt blob: its bytes are retained for investigation, never served.
    * A caller that already holds the blob's stat passes it rather than paying
    * for a second lookup.
    */
@@ -124,8 +124,8 @@ export class MobileBlobStore {
     if (!stat) {
       throw new NotFoundError(`Blob not found: ${hash}`);
     }
-    if (stat.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
-      throw new NotFoundError(`Blob is quarantined: ${hash}`);
+    if (stat.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
+      throw new NotFoundError(`Blob is corrupt: ${hash}`);
     }
     return this.pathFor(hash);
   }
@@ -170,10 +170,10 @@ export class MobileBlobStore {
 
   // spec: SCRUB
   /** Retain a corrupt blob's bytes for investigation but never serve or offer it. */
-  async quarantine(hash: string): Promise<void> {
+  async markCorrupt(hash: string): Promise<void> {
     await this.#models.Blob.getRepository().update(
       { hash },
-      { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+      { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
     );
   }
 

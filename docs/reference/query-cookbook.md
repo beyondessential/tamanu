@@ -545,9 +545,9 @@ FROM blobs
 WHERE deleted_at IS NULL AND tier = 'outbox';
 ```
 
-### Quarantined blobs
+### Corrupt blobs
 
-A quarantined blob failed verification against its hash and is never served. On a
+A corrupt blob failed verification against its hash and is never served. On a
 facility this should self-correct by refetching; a count that persists means the
 repair path is not working. On central it is an authoritative copy needing repair
 from a peer or a backup, and is an escalation.
@@ -555,7 +555,7 @@ from a peer or a backup, and is an escalation.
 ```sql
 SELECT id, hash, size, tier, created_at, last_scrubbed_at
 FROM blobs
-WHERE deleted_at IS NULL AND integrity_state = 'quarantined'
+WHERE deleted_at IS NULL AND integrity_state = 'corrupt'
 ORDER BY created_at;
 ```
 
@@ -567,7 +567,7 @@ an `outbox` row may be the only copy of its content. See
 
 The shape of the store's health in one row, and the basis of the `blob_integrity`
 check. `absent` is a registry entry whose bytes the store no longer holds, as
-distinct from `quarantined` bytes that are held but no longer match their hash.
+distinct from `corrupt` bytes that are held but no longer match their hash.
 
 ```sql
 SELECT integrity_state,

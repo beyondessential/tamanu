@@ -386,16 +386,16 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: BLAC, SCRUB
-  // A quarantined blob is retained but never served, so on the channel it is
+  // A corrupt blob is retained but never served, so on the channel it is
   // indistinguishable from one central does not hold — availability and fetch
-  // agree, and neither discloses the quarantine.
-  describe('quarantined content', () => {
-    it('answers a quarantined hash as absent on availability and fetch', async () => {
-      const content = Buffer.from('quarantined content');
+  // agree, and neither discloses that it is corrupt.
+  describe('corrupt content', () => {
+    it('answers a corrupt hash as absent on availability and fetch', async () => {
+      const content = Buffer.from('corrupt content');
       const hash = await seedHeldBlob(content);
       await reference(hash);
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -405,20 +405,20 @@ describe('Blob transfer channel', () => {
       const fetched = await getBlob(hash);
       expect(fetched.status).toBe(404);
       expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD);
-      // and does not disclose the quarantine in the message
-      expect(JSON.stringify(fetched.body)).not.toContain('quarantine');
+      // and does not disclose the corruption in the message
+      expect(JSON.stringify(fetched.body)).not.toContain('corrupt');
     });
 
     // spec: SCRUB
     // Central's peer healing. It cannot reach a facility on demand and keeps no
     // index of what facilities hold, so a replacement is taken on a connection
     // the facility makes anyway, whenever one happens to offer the content.
-    it('wants a hash whose held copy is quarantined, rather than declining it', async () => {
+    it('wants a hash whose held copy is corrupt, rather than declining it', async () => {
       const content = Buffer.from('content central found to be bad');
       const hash = await seedHeldBlob(content);
       await reference(hash);
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -427,7 +427,7 @@ describe('Blob transfer channel', () => {
       expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.WANTED);
     });
 
-    it('replaces the quarantined copy once the pushed content verifies', async () => {
+    it('replaces the corrupt copy once the pushed content verifies', async () => {
       const content = Buffer.from('content central found to be bad, replaced');
       const hash = await seedHeldBlob(content);
       await reference(hash);
@@ -435,7 +435,7 @@ describe('Blob transfer channel', () => {
       // replacement is a real repair rather than a no-op over good content.
       await fs.writeFile(storedPath(hash), Buffer.from('rotted'));
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -466,7 +466,7 @@ describe('Blob transfer channel', () => {
 
   // spec: BLAC, SCRUB
   // Only verified content is servable, so an absent copy is withheld on the
-  // channel exactly as a quarantined one is: availability and fetch answer as
+  // channel exactly as a corrupt one is: availability and fetch answer as
   // for content central does not hold, and an offer is wanted so the bytes can
   // be restored.
   describe('absent content', () => {

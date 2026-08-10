@@ -75,7 +75,7 @@ export class MobileBlobCache {
    * read verifies the bytes against the hash — the device runs no scheduled
    * scrub, so receipt and read verification carry integrity. Corrupt cache
    * content is dropped and refetched within the same read; corrupt outbox
-   * content, the only copy of what the device captured, is quarantined and
+   * content, the only copy of what the device captured, is retained and
    * surfaced as a fault.
    */
   async open(hash: string): Promise<string> {
@@ -87,9 +87,9 @@ export class MobileBlobCache {
 
     if (!(await this.#verifiedForRead(hash, held?.tier))) {
       if (held?.tier === BLOB_TIERS.OUTBOX) {
-        await this.#blobStore.quarantine(hash);
+        await this.#blobStore.markCorrupt(hash);
         throw new BlobHashMismatchError(
-          `Captured content for ${hash} is corrupt on this device; quarantined`,
+          `Captured content for ${hash} is corrupt on this device; retained`,
         );
       }
       // Cache content is disposable: drop the corrupt copy and refetch.
