@@ -14,7 +14,6 @@ const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = (enumValues, value) => enumValues?.[value] ?? value;
 
 const basePrescription = {
-  units: 'Tablet',
   dosingUnit: 'Tablet',
   doseAmount: 1,
   frequency: 'Two times daily',
@@ -39,7 +38,7 @@ describe('buildLabelText', () => {
   it('prefixes the verb configured for the dosing unit and pluralises correctly', () => {
     expect(
       buildLabelText(
-        { units: 'Patch', doseAmount: 2, frequency: 'Daily', route: 'dermal' },
+        { dosingUnit: 'Patch', doseAmount: 2, frequency: 'Daily', route: 'dermal' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -49,7 +48,7 @@ describe('buildLabelText', () => {
   it('keeps invariant units of measurement unchanged when plural', () => {
     expect(
       buildLabelText(
-        { units: 'mg', doseAmount: 500, frequency: 'Daily' },
+        { dosingUnit: 'mg', doseAmount: 500, frequency: 'Daily' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -59,7 +58,7 @@ describe('buildLabelText', () => {
   it("prefixes 'Inhale' for puffs (inhaler/puffer)", () => {
     expect(
       buildLabelText(
-        { units: 'Puff', doseAmount: 2, frequency: 'Two times daily' },
+        { dosingUnit: 'Puff', doseAmount: 2, frequency: 'Two times daily' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -70,7 +69,7 @@ describe('buildLabelText', () => {
     // 'IU' must not become 'iU', and route 'IM' must not become 'iM'.
     expect(
       buildLabelText(
-        { units: 'IU', doseAmount: 2, frequency: 'Daily', route: 'intramuscular' },
+        { dosingUnit: 'IU', doseAmount: 2, frequency: 'Daily', route: 'intramuscular' },
         getTranslation,
         getEnumTranslation,
       ),

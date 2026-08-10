@@ -7,7 +7,7 @@ import {
   useField,
   useFormikContext,
 } from 'formik';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
@@ -52,17 +52,14 @@ export const Field = formikConnect(
       }
     }, [error, fieldValue, name, validateField]);
 
-    const baseOnChange = (...args) => {
-      setFieldTouched(name, true);
-      return field.onChange(...args);
-    };
-
-    const combinedOnChange = onChange
-      ? (...args) => {
-          onChange(...args);
-          return baseOnChange(...args);
-        }
-      : baseOnChange;
+    const augmentedOnChange = useCallback(
+      (...args) => {
+        onChange?.(...args);
+        setFieldTouched(name, true);
+        return field.onChange(...args);
+      },
+      [onChange, setFieldTouched, name, field.onChange],
+    );
 
     return (
       <FormikField
@@ -71,7 +68,7 @@ export const Field = formikConnect(
         error={error}
         helperText={message}
         name={name}
-        onChange={combinedOnChange}
+        onChange={augmentedOnChange}
       />
     );
   },

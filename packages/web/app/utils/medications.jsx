@@ -214,7 +214,7 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   if (!prescription) return '';
 
   const {
-    units,
+    dosingUnit,
     doseAmount,
     isVariableDose,
     frequency: prescriptionFrequency,
@@ -228,7 +228,7 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   const numericDose = Number(doseAmount);
   const isPlural = !isVariableDose && Number.isFinite(numericDose) && numericDose > 1;
   const unitEnum = isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS;
-  const unitText = units ? lowercaseFirstLetter(getEnumTranslation(unitEnum, units)) : '';
+  const unitText = dosingUnit ? lowercaseFirstLetter(getEnumTranslation(unitEnum, dosingUnit)) : '';
   const amountText = isVariableDose
     ? lowercaseFirstLetter(getTranslation('medication.table.variable', 'Variable'))
     : (doseAmount ?? '');
@@ -244,7 +244,8 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   // falls back to the raw value, so an unmapped unit would otherwise start the
   // sentence with the unit noun (e.g. 'Wafer 2 wafers...'); omitting it is safer
   // than assuming an (oral) default verb for a unit we don't recognise.
-  const verb = units && DRUG_UNIT_VERBS[units] ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
+  const verb =
+    dosingUnit && DRUG_UNIT_VERBS[dosingUnit] ? getEnumTranslation(DRUG_UNIT_VERBS, dosingUnit) : null;
 
   return assembleMedicationLine(
     {
