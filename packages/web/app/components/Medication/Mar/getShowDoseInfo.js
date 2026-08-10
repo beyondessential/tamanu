@@ -13,7 +13,6 @@ import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
  *   isPast?: boolean;
  *   isPaused?: boolean;
  *   isPrn?: boolean;
- *   showPending?: boolean;
  * }} props
  * @returns {typeof ADMINISTRATION_STATUS[keyof typeof ADMINISTRATION_STATUS] | 'missed' | 'pending' | null}
  */
@@ -24,7 +23,6 @@ export function getMarStatusIconVariant({
   isPast,
   isPaused,
   isPrn,
-  showPending,
 }) {
   const { status } = marInfo || {};
   if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
@@ -35,14 +33,18 @@ export function getMarStatusIconVariant({
 
   if (isPast) return isPrn ? null : 'missed';
 
-  return showPending ? 'pending' : null;
+  return 'pending';
 }
 
 /**
+ * Whether a dose renders an icon that the cell always shows. Pending is excluded: CSS reveals it
+ * only in a sub-divided current-time cell, where the same rule hides the dose info overlay anyway.
+ *
  * @param {Parameters<typeof getMarStatusIconVariant>[0]} props
  */
 export function hasVisibleMarStatusIcon(props) {
-  return getMarStatusIconVariant(props) !== null;
+  const variant = getMarStatusIconVariant(props);
+  return variant !== null && variant !== 'pending';
 }
 
 export default function getShowDoseInfo({
