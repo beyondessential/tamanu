@@ -110,14 +110,16 @@ describe('BlobScrubber', () => {
     maxBytes = 1_000_000,
     findUndeliverableReferences,
     heal,
+    blobStore = store,
   }: {
     maxBlobs?: number;
     maxBytes?: number;
     findUndeliverableReferences?: (limit: number) => Promise<string[]>;
     heal?: (report: { hash: string; fault: string }) => Promise<void>;
+    blobStore?: BlobStore;
   } = {}) =>
     new BlobScrubber({
-      blobStore: store,
+      blobStore,
       models: { Blob: fakeBlob as unknown as typeof Blob },
       getLimits: async () => ({ maxBlobs, maxBytes }),
       heal:
@@ -456,13 +458,11 @@ describe('BlobScrubber', () => {
 
     it('brings a store that predates error correction under protection', async () => {
       // Admitted with error correction off, so the content is stored unprotected.
-      store = makeParityStore({ enabled: false });
-      const { hash } = await store.put(Readable.from(covered));
+      const { hash } = await makeParityStore({ enabled: false }).put(Readable.from(covered));
       await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
 
       // Switched on: the scrub retrofits what is already stored.
-      store = makeParityStore();
-      const result = await makeScrubber().run();
+      const result = await makeScrubber({ blobStore: makeParityStore() }).run();
 
       expect(result.protected).toBe(1);
       await expect(fs.access(sidecarOf(hash))).resolves.toBeUndefined();
@@ -470,37 +470,35 @@ describe('BlobScrubber', () => {
     });
 
     it('does nothing on a second pass, having nothing left to protect', async () => {
-      store = makeParityStore();
-      await store.put(Readable.from(covered));
+      const enabled = makeParityStore();
+      await enabled.put(Readable.from(covered));
 
-      expect((await makeScrubber().run()).protected).toBe(0);
+      expect((await makeScrubber({ blobStore: enabled }).run()).protected).toBe(0);
     });
 
     it('writes no parity while error correction is off', async () => {
-      store = makeParityStore({ enabled: false });
-      const { hash } = await store.put(Readable.from(covered));
+      const disabled = makeParityStore({ enabled: false });
+      const { hash } = await disabled.put(Readable.from(covered));
 
-      const result = await makeScrubber().run();
+      const result = await makeScrubber({ blobStore: disabled }).run();
 
       expect(result.protected).toBe(0);
       await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
     });
 
     it('skips a blob the size floor excludes', async () => {
-      store = makeParityStore({ enabled: false });
-      await store.put(Readable.from(Buffer.from('too small to be worth protecting')));
+      await makeParityStore({ enabled: false }).put(
+        Readable.from(Buffer.from('too small to be worth protecting')),
+      );
 
-      store = makeParityStore();
-      expect((await makeScrubber().run()).protected).toBe(0);
+      expect((await makeScrubber({ blobStore: makeParityStore() }).run()).protected).toBe(0);
     });
 
     it('does not protect a blob whose bytes no longer match its hash', async () => {
-      store = makeParityStore({ enabled: false });
-      const { hash } = await store.put(Readable.from(covered));
+      const { hash } = await makeParityStore({ enabled: false }).put(Readable.from(covered));
       await corruptStoredBytes(hash, 'rotted');
 
-      store = makeParityStore();
-      const result = await makeScrubber().run();
+      const result = await makeScrubber({ blobStore: makeParityStore() }).run();
 
       // The verification pass owns the fault; parity is never computed over bytes
       // that would protect the corruption instead of the content.
@@ -510,14 +508,16 @@ describe('BlobScrubber', () => {
     });
 
     it('stops at the byte budget and picks the rest up next pass', async () => {
-      store = makeParityStore({ enabled: false });
+      const disabled = makeParityStore({ enabled: false });
       for (let index = 0; index < 3; index++) {
-        await store.put(Readable.from(Buffer.alloc(64 * 1024, `p${index}`)));
+        await disabled.put(Readable.from(Buffer.alloc(64 * 1024, `p${index}`)));
       }
 
-      store = makeParityStore();
       // Enough for one blob's verify-then-encode, not for three.
-      const result = await makeScrubber({ maxBytes: 64 * 1024 }).run();
+      const result = await makeScrubber({
+        blobStore: makeParityStore(),
+        maxBytes: 64 * 1024,
+      }).run();
 
       expect(result.protected).toBe(1);
       expect(result.ratelimited).toBe(true);

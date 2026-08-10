@@ -247,23 +247,67 @@ would force parity above the boundary.
 
 ## Build
 
-- [ ] Settings: per-server enable and parity proportion under the existing
+- [x] Settings: per-server enable and parity proportion under the existing
       `blobStorage` subtree in `central.ts` and `facility.ts`
-- [ ] GF(256) Reed-Solomon codec in `packages/blobs`: encode, reconstruct, and the
+- [x] GF(256) Reed-Solomon codec in `packages/blobs`: encode, reconstruct, and the
       shard geometry from blob size and proportion
-- [ ] Parity sidecar layout and read/write/delete helpers, sharing the blob's fan-out
+- [x] Parity sidecar layout and read/write/delete helpers, sharing the blob's fan-out
       path with a suffix that `blobHashFromPathSegments` rejects, so `storedHashes`
       keeps skipping it. Carries per-shard digests alongside the parity shards
-- [ ] Registry columns for parity presence and correction count/time, plus migration
+- [x] Registry columns for parity presence and correction count/time, plus migration
       and the dbt model regeneration
-- [ ] Write parity on admission for covered blobs above the 32 KiB floor, as a second
+- [x] Write parity on admission for covered blobs above the 32 KiB floor, as a second
       pass over the staged temp file; reserve 13% in `#ensureFloor`; discard it on
       delete and on outbox demotion
-- [ ] Correction attempt ahead of quarantine in both healers, recording a repair as
+- [x] Correction attempt ahead of quarantine in both healers, recording a repair as
       verified rather than escalating
-- [ ] Scrub pass generates parity for covered blobs that lack it, rate-limited the
+- [x] Scrub pass generates parity for covered blobs that lack it, rate-limited the
       same way the verification pass is
-- [ ] Correction-rate health signal: query-cookbook row, healthcheck, runbook
-- [ ] Tests: seeded corruption within and beyond the parity budget, retrofit over an
+- [x] Correction-rate health signal: query-cookbook row, healthcheck, runbook
+      - [x] `blob_correction_rate` and parity-coverage queries in the cookbook
+      - [x] `docs/runbooks/blob-correction-rate.md`, mapped in `healthchecks.md`
+      - [ ] The check itself is a **Canopy** change, not a Tamanu one (see below)
+- [x] Tests: seeded corruption within and beyond the parity budget, retrofit over an
       existing store, outbox demotion discarding parity, admission refused when blob
       plus parity would cross the free-disk reserve
+
+## Departures from the plan as written
+
+Each of these is a place the build did something other than what this document
+said. None of them changes a decision in "Decisions taken".
+
+- **`#ensureFloor` reserves the sidecar's exact size, not a flat 13%.** The 13%
+  figure is the worst case *at the default proportion*, and an operator who raises
+  the proportion to 50% would have the floor under-reserving by four times. The
+  geometry is known from the size hint, so the reserve is computed from it
+  (`paritySidecarByteCount`) and comes out at the same place at the default.
+- **The scrub's retrofit pass has its own byte budget** rather than sharing the
+  verification pass's counter. Once the store is covered, verification spends its
+  whole budget every pass, so a shared counter would have starved the retrofit
+  indefinitely — the feature's actual use case. Same limits, separate counters, and
+  the pass costs one indexed query once everything covered has parity.
+- **Shard digests are computed by the store, not the codec.** The sidecar's layout
+  stays in `packages/blobs`, but the 8-byte digests are hashed host-side with
+  `node:crypto`. `packages/blobs` is dependency-free and has no hashing primitive,
+  and SHA-256 is hardware-accelerated (measured 3.3 GB/s against the codec's
+  490 MB/s), so hashing in the package would have meant writing a checksum that was
+  both novel and slower than the one already available.
+- **The scrub's `faults` count still includes a blob that parity repaired.** It
+  counts detections; the ladder resolves them afterwards and `heal` reports no
+  outcome back. Not worth changing `heal`'s contract across both servers for a log
+  line, and the health signals read the registry, where a repaired blob is
+  `verified` with a correction recorded — so nothing operator-facing double-counts.
+
+## Not in this repo
+
+The `blob_correction_rate` **healthcheck itself has to be added in Canopy**, which
+is where every check's definition, thresholds and solve text live (`docs/healthchecks.md`
+is only a bridge). This card has done the Tamanu side: the columns the check reads,
+the cookbook query it is built from, the runbook it points at, and the row in the
+check-to-runbook map. The check will report nothing until the Canopy side lands, so
+that needs its own card.
+
+Thresholds are a judgement for whoever writes it, but the shape the runbook assumes
+is: warn on corrections spread across several distinct blobs, escalate on a count
+rising across successive scrub passes, and read it against the host disk checks
+rather than on its own.
