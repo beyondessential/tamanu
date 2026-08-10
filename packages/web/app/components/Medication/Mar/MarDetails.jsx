@@ -205,7 +205,7 @@ export const MarDetails = ({
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
 
-  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo.id);
+  const { data: marDoses = [] } = useMarDoses(marInfo.id);
   const { mutateAsync: updateMar } = useUpdateMarMutation(marInfo?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
