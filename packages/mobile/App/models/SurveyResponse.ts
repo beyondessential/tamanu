@@ -294,11 +294,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {
     const query = this.getRepository()
       .createQueryBuilder('survey_response')
-      .leftJoinAndSelect('survey_response.encounter', 'encounter')
-      .leftJoinAndSelect('survey_response.survey', 'survey')
-      .leftJoin('procedure_survey_responses', 'psr', 'psr.surveyResponseId = survey_response.id')
+      // the encounter is only here to filter by patient, so don't pay to hydrate it
+      .innerJoin('survey_response.encounter', 'encounter')
+      .innerJoinAndSelect('survey_response.survey', 'survey')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('psr.id IS NULL') // Exclude survey responses linked through procedure_survey_response
+      // Exclude survey responses linked through procedure_survey_response
+      .andWhere(
+        'NOT EXISTS (SELECT 1 FROM procedure_survey_responses psr WHERE psr.surveyResponseId = survey_response.id)',
+      )
       .orderBy('survey_response.endTime', 'DESC')
       .take(80);
 

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
-import { BLOB_TIERS } from '@tamanu/constants';
+import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { BlobStore } from '@tamanu/database/blobStore';
 
@@ -170,6 +170,26 @@ describe('facility blob outbox and LRU cache', () => {
 
     it('reports not-found on a local miss with no central connection', async () => {
       await expect(blobCache.open(hashOf('never anywhere'))).rejects.toThrow(/no central/);
+    });
+
+    // spec: SCRUB, CACHE — a copy the store will not serve is a miss, so the
+    // read resolves it from central instead of failing against the local copy.
+    it('refetches a corrupt local copy rather than failing the read', async () => {
+      const content = uniqueContent();
+      const { hash } = await blobStore.put(Readable.from(content));
+      await blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+      let fetched = 0;
+      blobCache.setTransferChannel({
+        fetchFromCentral: async wanted => {
+          fetched += 1;
+          await blobStore.stage(wanted, Readable.from(content), { offset: 0 });
+          return await blobStore.commitStaged(wanted);
+        },
+      });
+
+      const served = await readAll(await blobCache.open(hash));
+      expect(served.equals(content)).toBe(true);
+      expect(fetched).toBe(1);
     });
   });
 

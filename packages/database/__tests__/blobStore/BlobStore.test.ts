@@ -564,6 +564,26 @@ describe('BlobStore', () => {
     });
   });
 
+  // spec: SCRUB
+  describe('servableStat', () => {
+    it('reports a verified blob the same as stat', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(await store.servableStat(hash)).toEqual({ size: 11, integrityState: 'verified', scanVerdict: null });
+    });
+
+    it('withholds any state other than verified, so an unlisted one is not served by omission', async () => {
+      const store = makeStore();
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      for (const state of ['corrupt', 'absent', 'some-later-state']) {
+        fakeBlob.rows.get(hash)!.integrityState = state;
+        expect(await store.servableStat(hash)).toBeNull();
+      }
+    });
+  });
+
   // spec: XFER
   describe('staging', () => {
     it('accumulates appended content and commits it as a stored blob', async () => {

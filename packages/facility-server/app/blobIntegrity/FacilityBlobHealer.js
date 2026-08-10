@@ -106,9 +106,7 @@ export class FacilityBlobHealer {
       return false;
     }
     try {
-      // ignoreLocal, or the fetch would see the corrupt copy still occupying
-      // the hash and report the content already held.
-      await this.#transferChannel.fetchFromCentral(hash, { ignoreLocal: true });
+      await this.#transferChannel.fetchFromCentral(hash);
       return true;
     } catch (error) {
       log.debug('FacilityBlobHealer: central could not supply a replacement', {

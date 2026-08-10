@@ -64,23 +64,32 @@ export async function findUndeliverableReferences(sequelize, { limit, deliveredB
   const replacements = { limit, deliveredBefore };
   const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
     replacements[`recordType${index}`] = recordType;
+    // A deleted record references nothing, so its content is not undelivered.
+    // Both sides are checked: the lookup keeps `data` populated for a deleted
+    // row, and a source table may be tombstoned ahead of its lookup entry.
     return `
-      SELECT record.${hashColumn} AS hash
+      SELECT record.${hashColumn} AS hash, record.updated_at AS referenced_at
       FROM ${recordType} record
       JOIN sync_lookup
         ON sync_lookup.record_type = :recordType${index}
         AND sync_lookup.record_id = record.id::text
       WHERE record.${hashColumn} IS NOT NULL
+      AND record.deleted_at IS NULL
+      AND sync_lookup.is_deleted IS NOT TRUE
       AND sync_lookup.data IS NOT NULL
       AND record.updated_at < :deliveredBefore`;
   });
 
+  // Longest-undelivered first, so a backlog past the limit reports the same
+  // worst cases every pass rather than an arbitrary slice of itself.
   const [rows] = await sequelize.query(
     `
-      SELECT DISTINCT referenced.hash
+      SELECT referenced.hash
       FROM (${perSource.join(' UNION ALL ')}) referenced
       LEFT JOIN blobs ON blobs.hash = referenced.hash AND blobs.deleted_at IS NULL
       WHERE blobs.id IS NULL
+      GROUP BY referenced.hash
+      ORDER BY MIN(referenced.referenced_at)
       LIMIT :limit
     `,
     { replacements },

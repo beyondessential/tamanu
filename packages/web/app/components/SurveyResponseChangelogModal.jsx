@@ -125,6 +125,8 @@ function ChangeLogListItem({ change, ...props }) {
             <td>
               <SurveyAnswerResult
                 answer={change.from}
+                originalBody={change.from}
+                componentConfig={change.componentConfig}
                 dataElementId={change.programDataElement.id}
                 type={change.programDataElement.type}
               />
@@ -137,6 +139,8 @@ function ChangeLogListItem({ change, ...props }) {
             <td>
               <SurveyAnswerResult
                 answer={change.to}
+                originalBody={change.to}
+                componentConfig={change.componentConfig}
                 dataElementId={change.programDataElement.id}
                 type={change.programDataElement.type}
               />

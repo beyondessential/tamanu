@@ -1,6 +1,8 @@
 import { startCase } from 'es-toolkit/compat';
 import { Model } from 'sequelize';
 
+import { SHORTENED_TAB_NAMES } from '../../shortenedTabNames';
+
 const METADATA_COLUMNS = [
   'createdAt',
   'updatedAt',
@@ -27,7 +29,7 @@ export class ModelExporter {
   }
 
   getTabName() {
-    return this.customTabName() || startCase(this.dataType);
+    return this.customTabName() || SHORTENED_TAB_NAMES[this.dataType] || startCase(this.dataType);
   }
 
   formattedCell(header, value) {

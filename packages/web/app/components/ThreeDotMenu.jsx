@@ -60,6 +60,7 @@ export const ThreeDotMenu = ({ items, disabled, className }) => {
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
+                disableRipple
                 data-testid={`menuitem-${index}`}
               >
                 {item.label}

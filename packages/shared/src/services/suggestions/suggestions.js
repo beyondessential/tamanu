@@ -1020,11 +1020,16 @@ createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
   ({ endpoint, modelName, query, req }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-
     if (!query.patientId) {
+      const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
+
+    // A category that's no longer active (visibilityStatus !== current) should still be
+    // selectable here as long as the patient actually has a published lab request against
+    // it — skip the usual "current only" visibility filter and rely on the patient-scoped
+    // id filter below to do the real gating instead.
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName, skipVisibilityFilter: true });
 
     const idBaseFilter = {
       [Op.in]: Sequelize.literal(
@@ -1080,11 +1085,15 @@ createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
   ({ endpoint, modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-
     if (!query.patientId) {
-      return baseWhere;
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
+
+    // A panel that's no longer active (visibilityStatus !== current) should still be
+    // selectable here as long as the patient actually has a published lab request against
+    // it — skip the usual "current only" visibility filter and rely on the patient-scoped
+    // id filter below to do the real gating instead.
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName, skipVisibilityFilter: true });
 
     return {
       ...baseWhere,

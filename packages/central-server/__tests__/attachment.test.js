@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 
-import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
+import { BLOB_INTEGRITY_STATES, MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
 import { InsufficientStorageError } from '@tamanu/errors';
 
 import { createTestContext } from './utilities';
@@ -180,7 +180,10 @@ describe('Attachment (central-server)', () => {
     // Inline encoding holds the whole content in memory, so content past the
     // limit is refused that way and the caller directed to stream it.
     it('refuses to encode content past the inline limit', async () => {
-      jest.spyOn(ctx.blobStore, 'stat').mockResolvedValueOnce({ size: MAX_INLINE_BLOB_BYTES + 1 });
+      jest.spyOn(ctx.blobStore, 'servableStat').mockResolvedValueOnce({
+        size: MAX_INLINE_BLOB_BYTES + 1,
+        integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+      });
 
       const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
       expect(result).toHaveRequestError(422);
@@ -206,6 +209,27 @@ describe('Attachment (central-server)', () => {
         attachmentId: pending.id,
         availability: 'awaiting-upload',
       });
+    });
+
+    // spec: SCRUB
+    // A corrupt copy is retained but never served, and the transfer routes
+    // answer for it exactly as they do for content central does not hold. This
+    // route answers the same way, so reading an attachment neither serves the
+    // bad bytes nor discloses that it is corrupt.
+    it('presents a corrupt blob as awaiting content, without disclosing that it is corrupt', async () => {
+      const { hash, size } = await ctx.blobStore.put(
+        Readable.from([Buffer.from('bytes that later fail verification', 'utf8')]),
+      );
+      const corrupt = await models.Attachment.create({ type: 'text/plain', hash, size });
+      await ctx.blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+
+      const result = await app.get(`/api/attachment/${corrupt.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: corrupt.id,
+        availability: 'awaiting-upload',
+      });
+      expect(JSON.stringify(result.body)).not.toMatch(/corrupt/i);
     });
   });
 

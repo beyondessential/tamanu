@@ -21,15 +21,18 @@ export const attachment = express.Router();
 // process runs no sync runtime and so has no channel of its own; it builds one
 // from the same kind of connection this route already opens to read a legacy
 // attachment through.
-const transferChannelFor = ({ blobCache, blobStore, deviceId }) => {
+const transferChannelFor = ({ blobCache, blobHealer, blobStore, deviceId }) => {
   if (!blobCache.transferChannel) {
-    blobCache.setTransferChannel(
-      new BlobTransferChannel({
-        blobStore,
-        centralServer: new CentralServerConnection({ deviceId }),
-        facilityIds: getServerFacilityIds(),
-      }),
-    );
+    const channel = new BlobTransferChannel({
+      blobStore,
+      centralServer: new CentralServerConnection({ deviceId }),
+      facilityIds: getServerFacilityIds(),
+    });
+    blobCache.setTransferChannel(channel);
+    // spec: SCRUB — a read here can detect corruption, and the healer grades
+    // that fault in this process too. Without the channel it would reach the
+    // escalation rung with the peer rung untried.
+    blobHealer.setTransferChannel(channel);
   }
   return blobCache.transferChannel;
 };

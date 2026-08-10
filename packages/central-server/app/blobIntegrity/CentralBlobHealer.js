@@ -17,13 +17,21 @@ export class CentralBlobHealer {
     this.#blobStore = blobStore;
   }
 
-  async heal({ hash, fault }) {
-    await this.#blobStore.recordIntegrityState(
-      hash,
-      fault === BLOB_FAULTS.CORRUPT
-        ? BLOB_INTEGRITY_STATES.CORRUPT
-        : BLOB_INTEGRITY_STATES.ABSENT,
-    );
+  async heal({ hash, fault, blob }) {
+    if (!blob) {
+      // The referential pass: a synchronised record references content the
+      // registry does not name, so there is no row to stamp. Registering it
+      // absent records the fault where the state model and its monitoring can
+      // see it, instead of leaving it as a log line repeated every pass.
+      await this.#blobStore.recordAbsentReference(hash);
+    } else {
+      await this.#blobStore.recordIntegrityState(
+        hash,
+        fault === BLOB_FAULTS.CORRUPT
+          ? BLOB_INTEGRITY_STATES.CORRUPT
+          : BLOB_INTEGRITY_STATES.ABSENT,
+      );
+    }
     log.error('CentralBlobHealer: authoritative blob failed verification and needs repair', {
       hash,
       fault,

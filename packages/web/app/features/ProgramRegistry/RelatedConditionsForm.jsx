@@ -165,9 +165,10 @@ export const RelatedConditionsForm = ({
 
   const handleConfirmedSubmit = async data => {
     const updatedConditions = Object.values(data.conditions)
-      .flatMap(group => group)
-      .filter(({ conditionId }) => conditionId)
+      .flat()
       .filter(condition => {
+        if (!condition.conditionId) return false;
+
         // Find the matching condition in the initial values
         const initialCondition = conditions.find(
           initialCondition => initialCondition.id === condition.id,
