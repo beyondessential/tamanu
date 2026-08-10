@@ -423,3 +423,33 @@ describe('totalSizeFromHeaders', () => {
     );
   });
 });
+
+describe('hosts that cannot learn the total from the response', () => {
+  it('probes before fetching and uses the probed total', async () => {
+    const { host, state } = createHost({
+      async fetchInto(hash, { offset }) {
+        state.calls.push(`fetchInto:${hash}@${offset}`);
+        state.staged.set(hash, 120);
+        return {};
+      },
+    });
+    state.remote.set(HASH, 120);
+
+    const result = await new BlobTransfer(host, { probeTotalSize: 'always' }).fetch(HASH);
+
+    expect(state.calls[1]).toBe(`remoteAvailability:${HASH}`);
+    expect(result).toEqual({ hash: HASH, size: 120 });
+  });
+
+  it('raises the host’s awaiting-upload error when the source lacks the content', async () => {
+    class AwaitingUpload extends Error {}
+    const { host, state } = createHost({
+      awaitingUploadError: () => new AwaitingUpload('not pushed yet'),
+    });
+
+    await expect(
+      new BlobTransfer(host, { probeTotalSize: 'always' }).fetch(HASH),
+    ).rejects.toBeInstanceOf(AwaitingUpload);
+    expect(fetchCalls(state)).toEqual([]);
+  });
+});

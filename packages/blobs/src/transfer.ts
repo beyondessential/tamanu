@@ -57,12 +57,23 @@ export interface BlobTransferHost {
   sleep(milliseconds: number): Promise<void>;
   /** Diagnostics for an attempt that made no progress. */
   onStall?(details: { hash: string; position: number; stalledAttempts: number }): void;
+  /**
+   * The error for content the source does not hold yet: content-pending at its
+   * origin, not a transfer fault. Defaults to a NotFoundError.
+   */
+  awaitingUploadError?(hash: string): Error;
 }
 
 export interface BlobTransferOptions {
   pushChunkBytes?: number;
   stalledAttempts?: number;
   retryBaseMs?: number;
+  /**
+   * When the total size is learned. `when-resuming` (the default) reads it from
+   * the response and only probes to resolve staged bytes; `always` probes
+   * first, for a host whose transfer API does not report the total.
+   */
+  probeTotalSize?: 'when-resuming' | 'always';
 }
 
 // spec: XFER
@@ -81,12 +92,14 @@ export class BlobTransfer {
   #pushChunkBytes: number;
   #stalledAttemptLimit: number;
   #retryBaseMs: number;
+  #probeTotalSize: 'when-resuming' | 'always';
 
   constructor(host: BlobTransferHost, options: BlobTransferOptions = {}) {
     this.#host = host;
     this.#pushChunkBytes = options.pushChunkBytes ?? DEFAULT_PUSH_CHUNK_BYTES;
     this.#stalledAttemptLimit = options.stalledAttempts ?? DEFAULT_STALLED_ATTEMPTS;
     this.#retryBaseMs = options.retryBaseMs ?? DEFAULT_RETRY_BASE_MS;
+    this.#probeTotalSize = options.probeTotalSize ?? 'when-resuming';
   }
 
   // spec: XFER
@@ -126,10 +139,14 @@ export class BlobTransfer {
     // byte and committing, where re-requesting from that offset would only ever
     // earn a range-not-satisfiable refusal.
     let knownSize: number | undefined;
-    if ((await this.#host.stagedSize(hash)) > 0) {
+    if (this.#probeTotalSize === 'always' || (await this.#host.stagedSize(hash)) > 0) {
       const remote = await this.#host.remoteAvailability(hash);
       if (remote.availability === BLOB_AVAILABILITY_STATES.AVAILABLE) {
         knownSize = remote.size;
+      } else if (this.#probeTotalSize === 'always') {
+        // The probe is this host's only source of the total, so content the
+        // source does not hold cannot be fetched at all.
+        throw this.#host.awaitingUploadError?.(hash) ?? new NotFoundError(hash);
       }
     }
 
