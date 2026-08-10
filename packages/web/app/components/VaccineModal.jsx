@@ -49,7 +49,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
 
       await api.post(`patient/${patientId}/administeredVaccine`, body);
       queryClient.invalidateQueries([AI_PATIENT_SUMMARY_QUERY_KEY, patientId]);
-      queryClient.invalidateQueries(['patientDetails', patientId]);
+      onClose();
     },
     [
       api,
@@ -59,6 +59,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
       countrySuggester,
       facilityId,
       queryClient,
+      onClose,
     ],
   );
 

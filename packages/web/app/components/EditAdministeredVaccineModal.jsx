@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { VACCINE_RECORDING_TYPES, VACCINE_STATUS } from '@tamanu/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
@@ -9,7 +8,6 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
-  const queryClient = useQueryClient();
   const countrySuggester = useSuggester('country');
 
   const handleUpdateVaccine = useCallback(
@@ -30,9 +28,9 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           ? newData.circumstanceIds
           : JSON.parse(newData.circumstanceIds),
       });
-      queryClient.invalidateQueries(['patientDetails', patientId]);
+      onClose();
     },
-    [api, queryClient, patientId, vaccineRecord, countrySuggester],
+    [api, patientId, vaccineRecord, countrySuggester, onClose],
   );
 
   if (!vaccineRecord) return null;

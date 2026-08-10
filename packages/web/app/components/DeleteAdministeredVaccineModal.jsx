@@ -2,21 +2,19 @@ import React, { useCallback } from 'react';
 import { VACCINE_STATUS } from '@tamanu/constants';
 import { DeleteButton } from '@tamanu/ui-components';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
-  const queryClient = useQueryClient();
 
   const onMarkRecordedInError = useCallback(async () => {
     await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
       status: VACCINE_STATUS.RECORDED_IN_ERROR,
     });
-    queryClient.invalidateQueries(['patientDetails', patientId]);
-  }, [patientId, vaccineRecord, queryClient, api]);
+    onClose();
+  }, [patientId, vaccineRecord, api, onClose]);
 
   if (!vaccineRecord) return null;
 
