@@ -8,7 +8,7 @@ import styled, { css } from 'styled-components';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import DashedCircleOutlineIcon from './DashedCircleOutline';
-import { MarDoseSlot } from './components';
+import { MarDataCell, MarDoseSlot } from './components';
 
 const styles = css`
   &,
@@ -35,14 +35,14 @@ const MissedIcon = styled(HelpOutlineIcon)`
 
 /**
  * Stand-in for the cell-level dose info overlay, which a subslot is too small to show in a sensible
- * way. Only applies to a current time slot because past cells will have another status; and future
- * cells show the dose info overlay at the table-cell level.
+ * way. Only shown in a sub-divided cell once the dose info overlay is gone — i.e. once some dose in
+ * the cell has been recorded or missed (see the hidden computation in MarDoseInfoOverlay).
  */
 const PendingIcon = styled(DashedCircleOutlineIcon)`
   ${styles}
   color: #b8b8b8;
   display: none;
-  [aria-current='time']:has(${MarDoseSlot}:nth-of-type(2)) & {
+  ${MarDataCell}:not(:has([data-overlay-visible])):has(${MarDoseSlot}:nth-of-type(2)) & {
     display: block;
   }
 `;

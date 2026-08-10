@@ -4,11 +4,37 @@ import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
 /**
+ * Whether a record's due time falls before the prescription actually starts. The server generates
+ * a record for an ideal time earlier than the prescription start when both fall within the same
+ * administration window, so a dose can still be logged against it — but no dose is due, so the
+ * sub-slot should stay empty until a status is recorded.
+ *
+ * @param {{
+ *   dueAt?: string;
+ *   startDate?: string;
+ *   storedDateTimeToEpochMilliseconds: (date: string) => number | null | undefined;
+ * }} props
+ */
+export function getIsDueBeforePrescriptionStart({
+  dueAt,
+  startDate,
+  storedDateTimeToEpochMilliseconds,
+}) {
+  if (!dueAt || !startDate) return false;
+  const dueAtMs = storedDateTimeToEpochMilliseconds(dueAt);
+  const startDateMs = storedDateTimeToEpochMilliseconds(startDate);
+  // Fail-open: if dates can't be parsed, treat the dose as due rather than silently hiding it
+  if (dueAtMs == null || startDateMs == null) return false;
+  return dueAtMs < startDateMs;
+}
+
+/**
  * Which icon MarDoseStatus renders for a dose, if any.
  *
  * @param {{
  *   marInfo?: object | null;
  *   isDiscontinued?: boolean;
+ *   isDueBeforePrescriptionStart?: boolean;
  *   isEnd?: boolean;
  *   isPast?: boolean;
  *   isPaused?: boolean;
@@ -19,6 +45,7 @@ import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 export function getMarStatusIconVariant({
   marInfo,
   isDiscontinued,
+  isDueBeforePrescriptionStart,
   isEnd,
   isPast,
   isPaused,
@@ -31,14 +58,18 @@ export function getMarStatusIconVariant({
     return status;
   }
 
+  // No dose is actually due yet, so the sub-slot is neither missed nor pending
+  if (isDueBeforePrescriptionStart) return null;
+
   if (isPast) return isPrn ? null : 'missed';
 
   return 'pending';
 }
 
 /**
- * Whether a dose renders an icon that the cell always shows. Pending is excluded: CSS reveals it
- * only in a sub-divided current-time cell, where the same rule hides the dose info overlay anyway.
+ * Whether a dose renders an icon that the cell always shows. Pending is excluded: the dose info
+ * overlay stays visible over pending-only cells, and CSS reveals pending icons only once the
+ * overlay is hidden (see the data-overlay-visible attribute in MarDoseInfoOverlay).
  *
  * @param {Parameters<typeof getMarStatusIconVariant>[0]} props
  */

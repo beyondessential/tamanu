@@ -29,6 +29,7 @@ const StyledEditedOrnament = styled(EditedOrnament)`
  * @param {{
  *   isAlert?: boolean;
  *   isDiscontinued?: boolean;
+ *   isDueBeforePrescriptionStart?: boolean;
  *   isEnd?: boolean;
  *   isPast?: boolean;
  *   isPaused?: boolean;
@@ -39,6 +40,7 @@ const StyledEditedOrnament = styled(EditedOrnament)`
 export default function MarDoseStatus({
   isAlert,
   isDiscontinued,
+  isDueBeforePrescriptionStart,
   isEnd,
   isPast,
   isPaused,
@@ -50,6 +52,7 @@ export default function MarDoseStatus({
   const variant = getMarStatusIconVariant({
     marInfo,
     isDiscontinued,
+    isDueBeforePrescriptionStart,
     isEnd,
     isPast,
     isPaused,

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import getShowDoseInfo, {
+  getIsDueBeforePrescriptionStart,
   getMarStatusIconVariant,
   hasVisibleMarStatusIcon,
 } from '../../../../app/components/Medication/Mar/getShowDoseInfo';
@@ -88,9 +89,20 @@ describe('hasVisibleMarStatusIcon', () => {
     ).toBe(false);
   });
 
-  it('does not count the pending icon, which CSS reveals only in the current time slot', () => {
+  it('does not count the pending icon, which CSS reveals only once the overlay is hidden', () => {
     expect(getMarStatusIconVariant({ ...base, marInfo: { id: '1' } })).toBe('pending');
     expect(hasVisibleMarStatusIcon({ ...base, marInfo: { id: '1' } })).toBe(false);
+  });
+
+  it('is false for a passed-by sub-slot due before the prescription start (no missed icon)', () => {
+    expect(
+      hasVisibleMarStatusIcon({
+        ...base,
+        isPast: true,
+        isDueBeforePrescriptionStart: true,
+        marInfo: { id: '1' },
+      }),
+    ).toBe(false);
   });
 });
 
@@ -153,6 +165,100 @@ describe('getMarStatusIconVariant', () => {
 
   it('returns no icon when there is no dose record', () => {
     expect(getMarStatusIconVariant({ ...base, marInfo: null })).toBe(null);
+  });
+
+  it('returns no icon for an unrecorded dose due before the prescription start', () => {
+    expect(
+      getMarStatusIconVariant({
+        ...base,
+        isDueBeforePrescriptionStart: true,
+        marInfo: { id: '1' },
+      }),
+    ).toBe(null);
+    expect(
+      getMarStatusIconVariant({
+        ...base,
+        isDueBeforePrescriptionStart: true,
+        isPast: true,
+        marInfo: { id: '1' },
+      }),
+    ).toBe(null);
+  });
+
+  it('still returns a recorded status for a dose due before the prescription start', () => {
+    expect(
+      getMarStatusIconVariant({
+        ...base,
+        isDueBeforePrescriptionStart: true,
+        marInfo: { id: '1', status: ADMINISTRATION_STATUS.GIVEN },
+      }),
+    ).toBe(ADMINISTRATION_STATUS.GIVEN);
+    expect(
+      getMarStatusIconVariant({
+        ...base,
+        isDueBeforePrescriptionStart: true,
+        isPast: true,
+        marInfo: { id: '1', status: ADMINISTRATION_STATUS.NOT_GIVEN },
+      }),
+    ).toBe(ADMINISTRATION_STATUS.NOT_GIVEN);
+  });
+});
+
+describe('getIsDueBeforePrescriptionStart', () => {
+  const toMs = date => {
+    const ms = new Date(date).getTime();
+    return Number.isNaN(ms) ? null : ms;
+  };
+
+  it('is true when dueAt is before the prescription start', () => {
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: '2026-07-23 14:00:00',
+        startDate: '2026-07-23 14:30:00',
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(true);
+  });
+
+  it('is false when dueAt is at or after the prescription start', () => {
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: '2026-07-23 14:30:00',
+        startDate: '2026-07-23 14:30:00',
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(false);
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: '2026-07-23 15:00:00',
+        startDate: '2026-07-23 14:30:00',
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(false);
+  });
+
+  it('fails open when either date is missing or unparseable', () => {
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: undefined,
+        startDate: '2026-07-23 14:30:00',
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(false);
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: '2026-07-23 14:00:00',
+        startDate: undefined,
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(false);
+    expect(
+      getIsDueBeforePrescriptionStart({
+        dueAt: 'not-a-date',
+        startDate: '2026-07-23 14:30:00',
+        storedDateTimeToEpochMilliseconds: toMs,
+      }),
+    ).toBe(false);
   });
 });
 

@@ -39,6 +39,7 @@ const popperProps = /** @type {const} */ ({
 
 export const hasMarStatusTooltip = ({
   isDiscontinued,
+  isDueBeforePrescriptionStart,
   isEnd,
   isPaused,
   isPast,
@@ -51,6 +52,8 @@ export const hasMarStatusTooltip = ({
   if (status === ADMINISTRATION_STATUS.NOT_GIVEN || status === ADMINISTRATION_STATUS.GIVEN) {
     return true;
   }
+  // No dose is due in this sub-slot, so it renders empty and gets no due/missed tooltip
+  if (isDueBeforePrescriptionStart) return false;
   return !(isPast && isPrn);
 };
 

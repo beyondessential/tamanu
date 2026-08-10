@@ -3,8 +3,10 @@ import styled from 'styled-components';
 
 import { useDateTime } from '@tamanu/ui-components';
 import MarDoseInfoText from './MarDoseInfoText';
-import { MarDataCell, MarDoseSlot } from './components';
-import getShowDoseInfo, { hasVisibleMarStatusIcon } from './getShowDoseInfo';
+import getShowDoseInfo, {
+  getIsDueBeforePrescriptionStart,
+  hasVisibleMarStatusIcon,
+} from './getShowDoseInfo';
 import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
@@ -17,10 +19,6 @@ const Div = styled.div`
   position: absolute;
   text-align: center;
   text-wrap: balance;
-  /* Each dose shows its own pending icon instead, per the matching rule in MarStatusIcon */
-  ${MarDataCell}[aria-current='time']:has(${MarDoseSlot}:nth-of-type(2)) & {
-    visibility: hidden;
-  }
 `;
 
 /**
@@ -46,7 +44,7 @@ export default function MarDoseInfoOverlay({
   const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
   const facilityNow = getFacilityNowDate();
-  const { doseAmount, dosingUnit, isVariableDose, isPrn, discontinuedDate, endDate } =
+  const { doseAmount, dosingUnit, isVariableDose, isPrn, discontinuedDate, endDate, startDate } =
     medication || {};
 
   const showDoseInfo = marInfos.some((marInfo, index) => {
@@ -77,6 +75,11 @@ export default function MarDoseInfoOverlay({
 
       return hasVisibleMarStatusIcon({
         marInfo,
+        isDueBeforePrescriptionStart: getIsDueBeforePrescriptionStart({
+          dueAt,
+          startDate,
+          storedDateTimeToEpochMilliseconds,
+        }),
         isDiscontinued: getIsDiscontinued({
           discontinuedDate,
           dueAt,
@@ -107,7 +110,11 @@ export default function MarDoseInfoOverlay({
     });
 
   return (
-    <Div style={hidden ? { visibility: 'hidden' } : undefined}>
+    // data-overlay-visible lets MarStatusIcon's PendingIcon show only when this overlay doesn't
+    <Div
+      data-overlay-visible={hidden ? undefined : true}
+      style={hidden ? { visibility: 'hidden' } : undefined}
+    >
       <MarDoseInfoText
         doseAmount={doseAmount}
         dosingUnit={dosingUnit}
