@@ -38,6 +38,16 @@ export interface BlobAdmissionHost {
   reserveBytes(): Promise<number>;
   /** Asked to free at least bytesNeeded before the store refuses. */
   evict?(bytesNeeded: number): Promise<void>;
+  /**
+   * The refusal, when the host words it for its own audience (a device speaks
+   * of its storage, a server of its volume). Defaults to an
+   * InsufficientStorageError.
+   */
+  insufficientStorageError?(details: {
+    free: number;
+    reserve: number;
+    bytesNeeded: number;
+  }): Error;
 }
 
 // spec: CAS, CAP
@@ -130,17 +140,24 @@ export class BlobAdmission {
    * reserve.
    */
   async ensureFloor(bytesNeeded: number): Promise<void> {
-    const reserve = await this.#host.reserveBytes();
+    let reserve = await this.#host.reserveBytes();
     let free = await this.#host.freeBytes();
     if (free - bytesNeeded >= reserve) {
       return;
     }
     if (this.#host.evict) {
       await this.#host.evict(reserve + bytesNeeded - free);
+      // Both are re-read: a host may derive its reserve from the same storage
+      // figures the eviction just changed.
       free = await this.#host.freeBytes();
+      reserve = await this.#host.reserveBytes();
       if (free - bytesNeeded >= reserve) {
         return;
       }
+    }
+    const refusal = this.#host.insufficientStorageError?.({ free, reserve, bytesNeeded });
+    if (refusal) {
+      throw refusal;
     }
     throw new InsufficientStorageError(
       `Blob store refused new content: ${free} bytes free on volume, ${

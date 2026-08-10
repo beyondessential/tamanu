@@ -1,6 +1,7 @@
 import RNFS from 'react-native-fs';
 import { v4 as uuidv4 } from 'uuid';
 
+import { BlobAdmission } from '@tamanu/blobs';
 import { BLOB_INTEGRITY_STATES, BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM } from '@tamanu/constants';
 import {
   BlobHashMismatchError,
@@ -79,12 +80,41 @@ export class MobileBlobStore {
   readonly #evictCache?: (bytesNeeded: number) => Promise<unknown>;
   readonly #fs: BlobFileSystem;
 
+  readonly #admission: BlobAdmission;
+
   constructor({ root, models, getFreeDiskReserveBytes, evictCache, fs }: MobileBlobStoreOptions) {
     this.root = root;
     this.#models = models;
     this.#getFreeDiskReserveBytes = getFreeDiskReserveBytes;
     this.#evictCache = evictCache;
     this.#fs = fs ?? (RNFS as unknown as BlobFileSystem);
+    this.#admission = new BlobAdmission({
+      hashFile: async (path, algorithm) => (await this.#fs.hash(path, algorithm)).toLowerCase(),
+      fileExists: path => this.#fs.exists(path),
+      fileSize: async path => Number((await this.#fs.stat(path)).size),
+      place: async (fromPath, toPath) => {
+        await this.#mkdirs(dirname(toPath));
+        await this.#fs.moveFile(fromPath, toPath);
+      },
+      removeFile: async path => {
+        if (await this.#fs.exists(path)) {
+          await this.#fs.unlink(path);
+        }
+      },
+      pathFor: hash => this.pathFor(hash),
+      stagingPathFor: hash => this.#stagingPathFor(hash),
+      stat: hash => this.stat(hash),
+      register: (hash, size, tier) => this.#register(hash, size, tier),
+      freeBytes: async () => (await this.#fs.getFSInfo()).freeSpace,
+      reserveBytes: async () => this.#getFreeDiskReserveBytes(await this.#fs.getFSInfo()),
+      ...(evictCache ? { evict: async (bytes: number) => void (await evictCache(bytes)) } : {}),
+      insufficientStorageError: ({ free, reserve, bytesNeeded }) =>
+        new InsufficientStorageError(
+          `Device storage is too full to store new content: ${free} bytes free, ${
+            bytesNeeded ? `${bytesNeeded} needed, ` : ''
+          }${reserve} reserved for the device's system and database`,
+        ),
+    });
   }
 
   pathFor(hash: string): string {
@@ -188,31 +218,8 @@ export class MobileBlobStore {
    * space is already below the reserve; the source file is left for the caller
    * to clean up with the rest of the failed operation.
    */
-  async putFile(
-    sourcePath: string,
-    { tier }: { tier?: string } = {},
-  ): Promise<PutResult> {
-    await this.ensureFloor(0);
-
-    const digest = (await this.#fs.hash(sourcePath, CURRENT_BLOB_HASH_ALGORITHM)).toLowerCase();
-    const hash = formatBlobHash(CURRENT_BLOB_HASH_ALGORITHM, digest);
-    const size = Number((await this.#fs.stat(sourcePath)).size);
-
-    const finalPath = this.pathFor(hash);
-    const existed = await this.#fs.exists(finalPath);
-    if (existed) {
-      await this.#fs.unlink(sourcePath);
-    } else {
-      await this.#mkdirs(dirname(finalPath));
-      await this.#fs.moveFile(sourcePath, finalPath);
-    }
-
-    // Register after placement: a crash in between leaves an orphan file that
-    // the next put of the same content adopts, never a registry row pointing
-    // at missing bytes.
-    await this.#register(hash, size, tier);
-
-    return { hash, size, existed };
+  async putFile(sourcePath: string, { tier }: { tier?: string } = {}): Promise<PutResult> {
+    return await this.#admission.admitFile(sourcePath, { tier: tier ?? BLOB_TIERS.CACHE });
   }
 
   // spec: XFER
@@ -271,32 +278,7 @@ export class MobileBlobStore {
    * drops the staging.
    */
   async commitStaged(hash: string): Promise<PutResult> {
-    const { algorithm, digest } = parseBlobHash(hash);
-    const existing = await this.stat(hash);
-    if (existing) {
-      await this.discardStaged(hash);
-      return { hash, size: existing.size, existed: true };
-    }
-
-    const stagingPath = this.#stagingPathFor(hash);
-    if (!(await this.#fs.exists(stagingPath))) {
-      throw new NotFoundError(`Nothing staged for blob: ${hash}`);
-    }
-
-    const actualDigest = (await this.#fs.hash(stagingPath, algorithm)).toLowerCase();
-    if (actualDigest !== digest) {
-      await this.#fs.unlink(stagingPath);
-      throw new BlobHashMismatchError(
-        `Staged content for ${hash} hashed to ${algorithm}:${actualDigest}; content discarded`,
-      );
-    }
-
-    const size = Number((await this.#fs.stat(stagingPath)).size);
-    const finalPath = this.pathFor(hash);
-    await this.#mkdirs(dirname(finalPath));
-    await this.#fs.moveFile(stagingPath, finalPath);
-    await this.#register(hash, size);
-    return { hash, size, existed: false };
+    return await this.#admission.commitStaged(hash);
   }
 
   // spec: XFER
@@ -325,24 +307,7 @@ export class MobileBlobStore {
    * than cross into the reserve.
    */
   async ensureFloor(bytesNeeded: number): Promise<void> {
-    let info = await this.#fs.getFSInfo();
-    let reserve = this.#getFreeDiskReserveBytes(info);
-    if (info.freeSpace - bytesNeeded >= reserve) {
-      return;
-    }
-    if (this.#evictCache) {
-      await this.#evictCache(reserve + bytesNeeded - info.freeSpace);
-      info = await this.#fs.getFSInfo();
-      reserve = this.#getFreeDiskReserveBytes(info);
-      if (info.freeSpace - bytesNeeded >= reserve) {
-        return;
-      }
-    }
-    throw new InsufficientStorageError(
-      `Device storage is too full to store new content: ${info.freeSpace} bytes free, ${
-        bytesNeeded ? `${bytesNeeded} needed, ` : ''
-      }${reserve} reserved for the device's system and database`,
-    );
+    await this.#admission.ensureFloor(bytesNeeded);
   }
 
   #stagingPathFor(hash: string): string {
