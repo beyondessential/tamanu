@@ -79,13 +79,14 @@ export class MobileBlobCache {
    * surfaced as a fault.
    */
   async open(hash: string): Promise<string> {
-    if (!(await this.#blobStore.stat(hash))) {
+    let held = await this.#blobStore.stat(hash);
+    if (!held) {
       await this.#fetchIntoCache(hash);
+      held = await this.#blobStore.stat(hash);
     }
 
-    if (!(await this.#verifiedForRead(hash))) {
-      const row = await this.#models.Blob.findOne({ where: { hash } });
-      if (row?.tier === BLOB_TIERS.OUTBOX) {
+    if (!(await this.#verifiedForRead(hash, held?.tier))) {
+      if (held?.tier === BLOB_TIERS.OUTBOX) {
         await this.#blobStore.quarantine(hash);
         throw new BlobHashMismatchError(
           `Captured content for ${hash} is corrupt on this device; quarantined`,
@@ -97,10 +98,11 @@ export class MobileBlobCache {
       if (!(await this.#blobStore.verify(hash))) {
         throw new BlobHashMismatchError(`Refetched content for ${hash} failed verification`);
       }
+      held = await this.#blobStore.stat(hash);
     }
 
     await this.#touch(hash);
-    return await this.#blobStore.servablePath(hash);
+    return await this.#blobStore.servablePath(hash, held);
   }
 
   /** Read-through to the blob's content as base64, for inline display. */
@@ -117,9 +119,8 @@ export class MobileBlobCache {
    * than the coalescing window, so repeated reads of the same photo do not each
    * re-hash the whole file on a constrained device.
    */
-  async #verifiedForRead(hash: string): Promise<boolean> {
-    const row = await this.#models.Blob.findOne({ where: { hash } });
-    if (row?.tier !== BLOB_TIERS.OUTBOX) {
+  async #verifiedForRead(hash: string, tier?: string): Promise<boolean> {
+    if (tier !== BLOB_TIERS.OUTBOX) {
       if (await this.#blobStore.verifiedWithin(hash, VERIFICATION_COALESCE_SECONDS)) {
         return true;
       }

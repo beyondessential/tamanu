@@ -61,6 +61,7 @@ export interface PutResult {
 export interface BlobStat {
   size: number;
   integrityState: string;
+  tier: string;
 }
 
 // spec: CAS, CAP
@@ -105,15 +106,21 @@ export class MobileBlobStore {
     if (!registered || !(await this.#fs.exists(this.pathFor(hash)))) {
       return null;
     }
-    return { size: Number(registered.size), integrityState: registered.integrityState };
+    return {
+      size: Number(registered.size),
+      integrityState: registered.integrityState,
+      tier: registered.tier,
+    };
   }
 
   /**
    * The on-disk path of a held blob, for reading or uploading. Refuses a
    * quarantined blob: its bytes are retained for investigation, never served.
+   * A caller that already holds the blob's stat passes it rather than paying
+   * for a second lookup.
    */
-  async servablePath(hash: string): Promise<string> {
-    const stat = await this.stat(hash);
+  async servablePath(hash: string, known?: BlobStat | null): Promise<string> {
+    const stat = known ?? (await this.stat(hash));
     if (!stat) {
       throw new NotFoundError(`Blob not found: ${hash}`);
     }
