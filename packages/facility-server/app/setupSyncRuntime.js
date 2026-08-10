@@ -49,6 +49,9 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
     facilityIds: getServerFacilityIds() ?? [],
   });
   context.blobCache.setTransferChannel(context.blobTransferChannel);
+  // spec: SCRUB — central is the peer rung of the self-heal ladder, so the
+  // healer can only reach it once the sync runtime is up.
+  context.blobHealer.setTransferChannel(context.blobTransferChannel);
   context.blobOutboxPusher = new BlobOutboxPusher({
     models: context.models,
     transferChannel: context.blobTransferChannel,

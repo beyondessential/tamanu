@@ -20,6 +20,16 @@ function makeFakeBlobModel() {
     async findOne({ where: { hash } }) {
       return rows.get(hash) ?? null;
     },
+    async update(values, { where }) {
+      const row = rows.get(where.hash);
+      if (!row) return;
+      // The only operator the store uses here is Op.ne on integrityState.
+      const excluded = where.integrityState
+        ? Object.getOwnPropertySymbols(where.integrityState).map(s => where.integrityState[s])
+        : [];
+      if (excluded.includes(row.integrityState)) return;
+      Object.assign(row, values);
+    },
     async destroy({ where: { hash } }) {
       rows.delete(hash);
     },

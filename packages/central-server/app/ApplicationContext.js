@@ -3,7 +3,7 @@ import { omit } from 'es-toolkit/compat';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
-import { BlobStore } from '@tamanu/database/blobStore';
+import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -13,9 +13,10 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
+import { CentralBlobHealer } from './blobIntegrity';
+import { findUndeliverableReferences, registerBlobReferenceSource } from './blobReferences';
 import { EmailService } from './services/EmailService';
 
-import { registerBlobReferenceSource } from './blobReferences';
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { AIService } from './services/AIService';
@@ -23,6 +24,12 @@ import { defineSingletonTelegramBotService } from './services/TelegramBotService
 import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
+
+// spec: SCRUB
+// How long after a record syncs its blob is still expected to be on its way.
+// Push is sync-first, so every reference is briefly ahead of its bytes; only a
+// reference older than this counts as content central should already hold.
+const UNDELIVERED_REFERENCE_GRACE_MS = 24 * 60 * 60 * 1000;
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -61,6 +68,12 @@ export class ApplicationContext {
   /** @type {BlobStore | null} */
   blobStore = null;
 
+  /** @type {CentralBlobHealer | null} */
+  blobHealer = null;
+
+  /** @type {BlobScrubber | null} */
+  blobScrubber = null;
+
   /** @type {string | null} */
   deviceId = null;
 
@@ -98,6 +111,43 @@ export class ApplicationContext {
       models: this.store.models,
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+      // spec: SCRUB — a whole-blob read that fails verification heals by the
+      // same ladder the scrub uses.
+      onCorruptionDetected: async hash => {
+        await this.blobHealer?.heal({
+          hash,
+          fault: BLOB_FAULTS.CORRUPT,
+          blob: await this.store.models.Blob.findOne({ where: { hash } }),
+        });
+      },
+      log,
+    });
+
+    // spec: SCRUB
+    // Every copy central holds is authoritative, so the healer has no
+    // low-severity case: it quarantines and escalates, and repair arrives
+    // either opportunistically from a facility or from a backup.
+    this.blobHealer = new CentralBlobHealer({ blobStore: this.blobStore });
+    this.blobScrubber = new BlobScrubber({
+      blobStore: this.blobStore,
+      models: this.store.models,
+      getLimits: async () => {
+        const scrub = await this.settings.get('schedules.blobIntegrityScrub');
+        return {
+          maxBlobs: scrub.maxBlobsPerPass,
+          maxBytes: scrub.maxGigabytesPerPass * 1024 ** 3,
+        };
+      },
+      heal: report => this.blobHealer.heal(report),
+      findUndeliverableReferences: async limit =>
+        await findUndeliverableReferences(this.store.sequelize, {
+          limit,
+          // A reference is only undelivered once its record has been synced
+          // long enough for the push to have happened; before that it is
+          // ordinary content-pending, since push is sync-first.
+          deliveredBefore: new Date(Date.now() - UNDELIVERED_REFERENCE_GRACE_MS),
+        }),
+      log,
     });
     // spec: ATCH
     // Model and shared route code admits attachment content through this, so it

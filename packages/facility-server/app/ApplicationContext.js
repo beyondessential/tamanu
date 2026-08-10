@@ -1,7 +1,7 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
-import { BlobStore } from '@tamanu/database/blobStore';
+import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { facilityDefaults } from '@tamanu/settings';
@@ -13,6 +13,7 @@ import {
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { FacilityBlobCache, makeSyncedReferenceResolver } from './blobCache';
+import { FacilityBlobHealer } from './blobIntegrity';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -41,6 +42,12 @@ export class ApplicationContext {
 
   /** @type {FacilityBlobCache | null} */
   blobCache = null;
+
+  /** @type {FacilityBlobHealer | null} */
+  blobHealer = null;
+
+  /** @type {BlobScrubber | null} */
+  blobScrubber = null;
 
   reportSchemaStores = null;
 
@@ -93,6 +100,16 @@ export class ApplicationContext {
       evictCache: async bytesNeeded => {
         await this.blobCache?.evictBytes(bytesNeeded);
       },
+      // spec: SCRUB — a whole-blob read that fails verification heals by the
+      // same ladder the scrub uses. Late-bound for the same reason as above.
+      onCorruptionDetected: async hash => {
+        await this.blobHealer?.heal({
+          hash,
+          fault: BLOB_FAULTS.CORRUPT,
+          blob: await this.models.Blob.findOne({ where: { hash } }),
+        });
+      },
+      log,
     });
 
     // spec: CACHE
@@ -118,6 +135,27 @@ export class ApplicationContext {
     // delivers it once the referencing record has synchronised.
     this.sequelize.admitAttachmentBlob = (source, options) =>
       this.blobCache.putOutbox(source, options);
+
+    // spec: SCRUB
+    // Detection is server-agnostic; grading and repair are not. The facility
+    // grades on the cache/outbox tier, since that already records whether a
+    // copy is the only durable one.
+    this.blobHealer = new FacilityBlobHealer({ blobStore: this.blobStore, models: this.models });
+    this.blobScrubber = new BlobScrubber({
+      blobStore: this.blobStore,
+      models: this.models,
+      getLimits: async () => {
+        const scrub = primaryFacilityId
+          ? await this.settings[primaryFacilityId].get('schedules.blobIntegrityScrub')
+          : facilityDefaults.schedules.blobIntegrityScrub;
+        return {
+          maxBlobs: scrub.maxBlobsPerPass,
+          maxBytes: scrub.maxGigabytesPerPass * 1024 ** 3,
+        };
+      },
+      heal: report => this.blobHealer.heal(report),
+      log,
+    });
 
     // spec: CACHE — consumers (attachments, assets) append their synced-record
     // resolvers here so their blobs become eligible for push.

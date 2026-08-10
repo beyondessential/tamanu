@@ -105,7 +105,10 @@ export const buildBlobTransferRoutes = ctx => {
   // discloses the quarantine.
   const servableStat = async hash => {
     const held = await blobStore.stat(hash);
-    if (!held || held.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+    // Only verified content is servable. Stated as an allow-list rather than a
+    // list of states to exclude, so a state added later is withheld until it is
+    // deliberately allowed rather than served by omission.
+    if (!held || held.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
       return null;
     }
     return held;
@@ -159,11 +162,13 @@ export const buildBlobTransferRoutes = ctx => {
       if (!(await hashInScope(req, hash))) {
         throw pushNotExpected(hash);
       }
-      // Plain stat, not servableStat: a quarantined copy still occupies the
-      // hash, so re-pushing it would no-op against the retained bytes. Pushing
-      // a good replacement over a quarantined copy is the self-heal path, which
-      // belongs to the integrity spec (see specs/blob-storage/integrity.md).
-      if (await blobStore.stat(hash)) {
+      // spec: SCRUB
+      // servableStat, so a quarantined copy is wanted rather than declined.
+      // This is central's peer healing: it cannot reach a facility on demand
+      // and keeps no index of what facilities hold, so it takes a replacement
+      // on the connection a facility makes anyway, whenever one happens to
+      // offer content central has found to be bad.
+      if (await servableStat(hash)) {
         res.send({ status: BLOB_OFFER_STATUSES.ALREADY_STORED });
         return;
       }
@@ -193,7 +198,9 @@ export const buildBlobTransferRoutes = ctx => {
         throw pushNotExpected(hash);
       }
 
-      if (await blobStore.stat(hash)) {
+      // spec: SCRUB — matches the offer: a quarantined copy is being replaced,
+      // so the bytes are accepted rather than acknowledged against bad content.
+      if (await servableStat(hash)) {
         res.send({ acknowledged: true, existed: true });
         return;
       }
