@@ -1,16 +1,15 @@
 import React, { useCallback } from 'react';
 import { VACCINE_RECORDING_TYPES, VACCINE_STATUS } from '@tamanu/constants';
-import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';
-import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const countrySuggester = useSuggester('country');
 
   const handleUpdateVaccine = useCallback(
@@ -31,9 +30,9 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           ? newData.circumstanceIds
           : JSON.parse(newData.circumstanceIds),
       });
-      dispatch(reloadPatient(patientId));
+      queryClient.invalidateQueries(['patientDetails', patientId]);
     },
-    [api, dispatch, patientId, vaccineRecord, countrySuggester],
+    [api, queryClient, patientId, vaccineRecord, countrySuggester],
   );
 
   if (!vaccineRecord) return null;

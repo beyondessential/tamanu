@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
@@ -8,7 +8,6 @@ import { FormModal } from './FormModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { SegmentTabDisplay } from './SegmentTabDisplay';
 import { useApi, useSuggester } from '../api';
-import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -21,7 +20,6 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const queryClient = useQueryClient();
   const { facilityId } = useAuth();
   const countrySuggester = useSuggester('country');
-  const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
 
   const handleCreateVaccine = useCallback(
@@ -51,12 +49,10 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
 
       await api.post(`patient/${patientId}/administeredVaccine`, body);
       queryClient.invalidateQueries([AI_PATIENT_SUMMARY_QUERY_KEY, patientId]);
-      console.log('invalidated ai patient summary query', patientId);
-      dispatch(reloadPatient(patientId));
+      queryClient.invalidateQueries(['patientDetails', patientId]);
     },
     [
       api,
-      dispatch,
       patientId,
       currentUser.id,
       currentTabKey,

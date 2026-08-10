@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { getAnswersFromData, SelectInput, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
 import { SurveyView } from './SurveyView';
 import { SurveySelector } from './SurveySelector';
@@ -33,7 +32,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
@@ -138,12 +136,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: await getAnswersFromData(data, survey),
       facilityId,
     });
-    dispatch(reloadPatient(patient.id));
+    queryClient.invalidateQueries(['patientDetails', patient.id]);
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
       queryClient.resetQueries(['patientFields', patient.id]);
-      await dispatch(reloadPatient(patient.id));
+      await queryClient.invalidateQueries(['patientDetails', patient.id]);
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };
@@ -193,13 +191,13 @@ const SurveyFlow = ({ patient, currentUser }) => {
     { surveyResponseId, survey: surveyForEdit },
     {
       onSuccess: async () => {
-        dispatch(reloadPatient(patient.id));
+        queryClient.invalidateQueries(['patientDetails', patient.id]);
         queryClient.invalidateQueries(['surveyResponseAnswer', 'latest-answer', patient.id]);
         if (params?.encounterId) {
           navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
         } else {
           queryClient.resetQueries(['patientFields', patient.id]);
-          await dispatch(reloadPatient(patient.id));
+          await queryClient.invalidateQueries(['patientDetails', patient.id]);
           navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
         }
       },
@@ -339,16 +337,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 };
 
 export const ProgramsView = () => {
-  const dispatch = useDispatch();
   const { patient } = usePatient();
   const currentUser = useSelector(getCurrentUser);
   if (!patient?.id) {
-    return (
-      <PatientListingView
-        onViewPatient={id => dispatch(reloadPatient(id))}
-        data-testid="patientlistingview-cqsa"
-      />
-    );
+    return <PatientListingView data-testid="patientlistingview-cqsa" />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} data-testid="surveyflow-b2d8" />;
