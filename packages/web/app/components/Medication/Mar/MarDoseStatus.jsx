@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { EditedOrnament } from '@tamanu/ui-components';
 import AlertOrnament from './AlertOrnament';
 import MarStatusIcon from './MarStatusIcon';
 import { MarDataCell, MarDoseSlot } from './components';
+import { getMarStatusIconVariant } from './getShowDoseInfo';
 
 /** `span` rather than `div`: `MarCellButton` cannot contain flow content. */
 const IconWrapper = styled.span`
@@ -34,6 +34,7 @@ const StyledEditedOrnament = styled(EditedOrnament)`
  *   isPaused?: boolean;
  *   isPrn?: boolean;
  *   marInfo?: object | null;
+ *   showPending?: boolean;
  * }} props
  */
 export default function MarDoseStatus({
@@ -44,38 +45,27 @@ export default function MarDoseStatus({
   isPaused,
   isPrn,
   marInfo,
+  showPending,
 }) {
   const { isEdited, status } = marInfo || {};
 
-  if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
+  const variant = getMarStatusIconVariant({
+    marInfo,
+    isDiscontinued,
+    isEnd,
+    isPast,
+    isPaused,
+    isPrn,
+    showPending,
+  });
+  // Without an icon, dose due info is rendered as a cell-level overlay in MarCell
+  if (!variant) return null;
 
-  switch (status) {
-    case ADMINISTRATION_STATUS.GIVEN:
-      return (
-        <IconWrapper>
-          <MarStatusIcon variant={ADMINISTRATION_STATUS.GIVEN} />
-          {isAlert && <AlertOrnament />}
-          {isEdited && <StyledEditedOrnament />}
-        </IconWrapper>
-      );
-    case ADMINISTRATION_STATUS.NOT_GIVEN:
-      return (
-        <IconWrapper>
-          <MarStatusIcon variant={ADMINISTRATION_STATUS.NOT_GIVEN} />
-          {isAlert && <AlertOrnament />}
-          {isEdited && <StyledEditedOrnament />}
-        </IconWrapper>
-      );
-    default: {
-      if (isPast) {
-        return isPrn ? null : (
-          <IconWrapper>
-            <MarStatusIcon variant="missed" />
-          </IconWrapper>
-        );
-      }
-      // Dose due info is rendered as a cell-level overlay in MarCell
-      return null;
-    }
-  }
+  return (
+    <IconWrapper>
+      <MarStatusIcon variant={variant} />
+      {status && isAlert && <AlertOrnament />}
+      {status && isEdited && <StyledEditedOrnament />}
+    </IconWrapper>
+  );
 }
