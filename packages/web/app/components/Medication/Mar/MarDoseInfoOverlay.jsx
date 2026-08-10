@@ -27,6 +27,7 @@ const Div = styled.div`
  *   selectedDate: Date;
  *   pauseRecords?: { data?: any[] };
  *   nextWindowMarInfos?: any[] | null;
+ *   showPending?: boolean;
  * }} props
  */
 export default function MarDoseInfoOverlay({
@@ -37,6 +38,7 @@ export default function MarDoseInfoOverlay({
   selectedDate,
   pauseRecords,
   nextWindowMarInfos,
+  showPending,
 }) {
   const { getFacilityNowDate, toFacilityDateTime, storedDateTimeToEpochMilliseconds } =
     useDateTime();
@@ -98,6 +100,7 @@ export default function MarDoseInfoOverlay({
           toFacilityDateTime,
         }),
         isPrn,
+        showPending,
       });
     });
 

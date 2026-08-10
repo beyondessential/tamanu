@@ -4,8 +4,7 @@ import { getIsPast } from './useMarDoseTiming';
 import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
 
 /**
- * Whether MarDoseStatus would render a given / not-given / missed icon.
- * Pending is intentionally excluded (not shown yet).
+ * Which icon MarDoseStatus renders for a dose, if any.
  *
  * @param {{
  *   marInfo?: object | null;
@@ -14,26 +13,36 @@ import { getIsDiscontinued, getIsEnd, getIsPaused } from './useMarStatusFlags';
  *   isPast?: boolean;
  *   isPaused?: boolean;
  *   isPrn?: boolean;
+ *   showPending?: boolean;
  * }} props
+ * @returns {typeof ADMINISTRATION_STATUS[keyof typeof ADMINISTRATION_STATUS] | 'missed' | 'pending' | null}
  */
-export function hasVisibleMarStatusIcon({
+export function getMarStatusIconVariant({
   marInfo,
   isDiscontinued,
   isEnd,
   isPast,
   isPaused,
   isPrn,
+  showPending,
 }) {
   const { status } = marInfo || {};
-  if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return false;
+  if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
 
   if (status === ADMINISTRATION_STATUS.GIVEN || status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-    return true;
+    return status;
   }
 
-  if (!status && isPast && !isPrn) return true;
+  if (isPast) return isPrn ? null : 'missed';
 
-  return false;
+  return showPending ? 'pending' : null;
+}
+
+/**
+ * @param {Parameters<typeof getMarStatusIconVariant>[0]} props
+ */
+export function hasVisibleMarStatusIcon(props) {
+  return getMarStatusIconVariant(props) !== null;
 }
 
 export default function getShowDoseInfo({

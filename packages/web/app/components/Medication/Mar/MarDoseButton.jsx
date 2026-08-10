@@ -23,6 +23,7 @@ export function MarDoseButton({
   nextMarInfo,
   medication,
   pauseRecords,
+  showPending,
   anchorEl,
   onAnchorElChange,
 }) {
@@ -157,7 +158,7 @@ export function MarDoseButton({
           onClick={onSelected}
         >
           <MarStatusLabel {...marStatus} />
-          <MarDoseStatus {...marStatus} />
+          <MarDoseStatus {...marStatus} showPending={showPending} />
         </MarCellButton>
       </MarStatusTooltip>
       <StatusPopper
