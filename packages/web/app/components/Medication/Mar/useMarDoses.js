@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../useApi';
+import { useApi } from '../../../api/useApi';
 
-export const useMarDoses = marId => {
+export default function useMarDoses(marId) {
   const api = useApi();
   return useQuery({
     queryKey: ['marDoses', marId],
@@ -15,4 +15,4 @@ export const useMarDoses = marId => {
     /** MAR hits this endpoint a lot, so rely on proper cache invalidation when data is mutated */
     staleTime: 600_000,
   });
-};
+}

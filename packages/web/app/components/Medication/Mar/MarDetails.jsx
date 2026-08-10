@@ -31,7 +31,6 @@ import {
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
-import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
@@ -50,6 +49,7 @@ import DoseEntry, { DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 import RemoveAdditionalDoseModal from './RemoveAdditionalDoseModal';
+import useMarDoses from './useMarDoses';
 
 const Container = styled.div`
   display: flex;
