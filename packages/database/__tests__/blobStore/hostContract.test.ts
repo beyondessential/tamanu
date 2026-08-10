@@ -108,8 +108,12 @@ describe('blob host contract (server)', () => {
     async stagedSize(hash) {
       return await store.stagedSize(hash);
     },
-    async stageAppend(hash, content, options) {
-      return await store.stage(hash, Readable.from([Buffer.from(content)]), options);
+    async stageAppendPart(hash, content) {
+      const offset = await store.stagedSize(hash);
+      const { stagedSize } = await store.stage(hash, Readable.from([Buffer.from(content)]), {
+        offset,
+      });
+      return stagedSize;
     },
     async discardStaged(hash) {
       await store.discardStaged(hash);

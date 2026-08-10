@@ -34,11 +34,8 @@ export interface BlobHostUnderTest {
   touch(hash: string, options: { coalesceSeconds: number }): Promise<void>;
   setLastAccessedAt(hash: string, when: Date): Promise<void>;
   stagedSize(hash: string): Promise<number>;
-  stageAppend(
-    hash: string,
-    content: string,
-    options: { offset: number; maxBytes?: number },
-  ): Promise<{ stagedSize: number }>;
+  /** Appends a received part to the staging, returning the new staged size. */
+  stageAppendPart(hash: string, content: string): Promise<number>;
   discardStaged(hash: string): Promise<void>;
 }
 
@@ -201,34 +198,19 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
   },
   {
     // spec: XFER
-    name: 'staging append at the wrong offset writes nothing and reports the real staged size',
+    name: 'staging accumulates appended parts and reports the size a resume starts from',
     async run(host) {
-      const { stagedSize } = await host.stageAppend(HELLO_WORLD_HASH, 'hello', { offset: 0 });
-      assertEqual(stagedSize, 5, 'staged size after the first append');
+      assertEqual(await host.stagedSize(HELLO_WORLD_HASH), 0, 'staged size before any part');
 
-      let refused = false;
-      try {
-        await host.stageAppend(HELLO_WORLD_HASH, ' world', { offset: 0 });
-      } catch {
-        refused = true;
-      }
-      assert(refused, 'an append at a stale offset is refused');
-      assertEqual(await host.stagedSize(HELLO_WORLD_HASH), 5, 'staged size after the refusal');
+      const afterFirst = await host.stageAppendPart(HELLO_WORLD_HASH, 'hello');
+      assertEqual(afterFirst, 5, 'staged size after the first part');
+      assertEqual(await host.stagedSize(HELLO_WORLD_HASH), 5, 'staged size as read back');
+
+      const afterSecond = await host.stageAppendPart(HELLO_WORLD_HASH, ' world');
+      assertEqual(afterSecond, 11, 'staged size after the second part');
+
       await host.discardStaged(HELLO_WORLD_HASH);
-    },
-  },
-  {
-    // spec: XFER
-    name: 'staging append refuses bytes beyond the declared remainder and discards the staging',
-    async run(host) {
-      let refused = false;
-      try {
-        await host.stageAppend(HELLO_WORLD_HASH, HELLO_WORLD, { offset: 0, maxBytes: 5 });
-      } catch {
-        refused = true;
-      }
-      assert(refused, 'an append beyond the declared remainder is refused');
-      assertEqual(await host.stagedSize(HELLO_WORLD_HASH), 0, 'staging after an overrun');
+      assertEqual(await host.stagedSize(HELLO_WORLD_HASH), 0, 'staged size after discarding');
     },
   },
 ];
