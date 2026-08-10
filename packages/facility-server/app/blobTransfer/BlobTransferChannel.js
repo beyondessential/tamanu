@@ -151,6 +151,8 @@ export class BlobTransferChannel {
     });
   }
 
+  // Per chunk rather than one handle held across the push: a push runs for as
+  // long as the upload takes, and an open handle blocks delete on Windows.
   async #readChunk(hash, offset, length) {
     if (length === 0) {
       return Buffer.alloc(0);
