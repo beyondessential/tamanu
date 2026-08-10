@@ -4,7 +4,6 @@ import * as yup from 'yup';
 
 import {
   BLOB_AVAILABILITY_STATES,
-  BLOB_INTEGRITY_STATES,
   BLOB_OFFER_STATUSES,
   DEVICE_SCOPES,
 } from '@tamanu/constants';
@@ -103,16 +102,7 @@ export const buildBlobTransferRoutes = ctx => {
   // it is therefore not held: availability and fetch answer as they would for
   // absent content, so neither advertises a blob fetch would refuse nor
   // discloses the quarantine.
-  const servableStat = async hash => {
-    const held = await blobStore.stat(hash);
-    // Only verified content is servable. Stated as an allow-list rather than a
-    // list of states to exclude, so a state added later is withheld until it is
-    // deliberately allowed rather than served by omission.
-    if (!held || held.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
-      return null;
-    }
-    return held;
-  };
+  const servableStat = async hash => await blobStore.servableStat(hash);
 
   // Identical for a hash that is genuinely not held and one outside the
   // requester's scope: the two must be indistinguishable.

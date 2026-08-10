@@ -69,7 +69,11 @@ export class FacilityBlobCache {
     // hard-delete the blob and turn a refetchable read into a not-found.
     this.#retainRead(hash);
     try {
-      if (!(await this.#blobStore.stat(hash))) {
+      // spec: SCRUB — servableStat, so a local copy the store will not serve
+      // (quarantined, or absent bytes under a live row) is a miss and resolves
+      // from central like any other, rather than failing the read against the
+      // copy it already has.
+      if (!(await this.#blobStore.servableStat(hash))) {
         if (!this.#transferChannel) {
           throw new NotFoundError(
             `Blob not held locally and no central connection to fetch it: ${hash}`,

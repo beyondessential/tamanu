@@ -62,7 +62,7 @@ export class BlobTransferChannel {
   // are available; bytes central holds are awaiting our fetch; bytes central
   // lacks are awaiting upload from their origin.
   async availability(hash) {
-    const local = await this.#blobStore.stat(hash);
+    const local = await this.#blobStore.servableStat(hash);
     if (local) {
       return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: local.size };
     }
@@ -81,10 +81,10 @@ export class BlobTransferChannel {
    * server first when they are not held locally.
    */
   async open(hash, { start, end } = {}) {
-    let stat = await this.#blobStore.stat(hash);
+    let stat = await this.#blobStore.servableStat(hash);
     if (!stat) {
       await this.fetchFromCentral(hash);
-      stat = await this.#blobStore.stat(hash);
+      stat = await this.#blobStore.servableStat(hash);
     }
     // Pass the stat so get does not re-query the registry for the same hash.
     return await this.#blobStore.get(hash, { start, end, stat });
@@ -98,12 +98,12 @@ export class BlobTransferChannel {
    * and restarts, and the complete content is verified against the hash
    * before it is admitted.
    *
-   * spec: SCRUB — `ignoreLocal` fetches even though the hash is occupied, for
-   * the self-heal path replacing a copy that failed verification. The bad bytes
-   * are only dropped once the replacement has verified.
+   * spec: SCRUB — a copy the store will not serve does not count as held, so a
+   * hash occupied by one is fetched rather than skipped; the bad bytes are only
+   * dropped once the replacement has verified.
    */
-  async fetchFromCentral(hash, { ignoreLocal = false } = {}) {
-    const held = ignoreLocal ? null : await this.#blobStore.stat(hash);
+  async fetchFromCentral(hash) {
+    const held = await this.#blobStore.servableStat(hash);
     if (held) {
       return { hash, size: held.size, existed: true };
     }
@@ -197,7 +197,10 @@ export class BlobTransferChannel {
    * interrupted push resumes from the bytes central has already staged.
    */
   async pushToCentral(hash) {
-    const held = await this.#blobStore.stat(hash);
+    // spec: SCRUB — bytes the store will not serve are not deliverable either:
+    // refuse before the offer, or every attempt spends a round of offers and
+    // backoff to reach the same refusal from the read that feeds it.
+    const held = await this.#blobStore.servableStat(hash);
     if (!held) {
       throw new NotFoundError(`Cannot push a blob not held locally: ${hash}`);
     }

@@ -163,3 +163,81 @@ redundancy, chiefly NTFS bare metal, so a single isolated copy can self-repair
 limited corruption before falling through to peer or backup. Correction-rate
 telemetry doubles as an early warning of failing media. Shares the scrub's
 detect-and-repair path.
+
+## Epic review follow-ups
+
+Verification of a stashed reviewer finder-pass (2026-08-10) against the merged
+stack, 2026-08-11. Findings the finders got wrong are recorded too, so the same
+ground isn't re-walked.
+
+### Fixed on the epic branch
+
+**The facility read path had no servable-state gate.** Central grades a copy with
+`servableStat` (only `verified` is servable) and answers for a quarantined blob
+exactly as for content it does not hold. The facility used bare `stat()`
+truthiness at every equivalent gate, so a quarantined local copy was
+simultaneously advertised as available, never refetched, and refused at `get()` —
+a permanent 404 for content central often still holds, with no automated or
+documented way back. `servableStat` now lives on `BlobStore` and is used by both
+servers: the cache's read-through treats an unservable copy as a miss and resolves
+it from central, `availability()` stops advertising it, `pushToCentral` refuses it
+before the offer (each attempt previously spent ~6 offer round-trips and ~5s of
+backoff per pass to reach the same refusal from the read that feeds it), and
+central's attachment route answers 202 awaiting-content rather than a 404 whose
+message disclosed the quarantine. `fetchFromCentral`'s `ignoreLocal` option went
+with it: the servable check is what the self-heal path needed it for.
+
+**The API process never wired the transfer channel onto the healer.** The API
+branch of `startApp` runs `setupApiRuntime`, not `setupSyncRuntime`, so only the
+attachment route's own lazily built channel exists in that process — and it was
+set on the cache alone. A read-path corruption graded there reached the escalation
+rung with the peer rung untried.
+
+### Open, needing a decision rather than a patch
+
+- **Orphan adoption defaults to the evictable cache tier** (`BlobStore.adopt` →
+  `#register` with no tier). The facility restore runbook has the store captured
+  *after* the database, so a restored facility routinely has blob files its
+  registry does not name — including un-pushed outbox content. Reconciliation
+  adopts those as cache: never pushed (the pusher filters `tier=OUTBOX`) and
+  evictable, so the only durable copy can be destroyed silently, while the outbox
+  depth query shows nothing wrong. The scrubber cannot infer the tier from a file;
+  it would need a server-supplied hook, the way it already takes `heal` and
+  `findUndeliverableReferences`. Highest-severity item outstanding.
+- **The runbook's file-drop restore never clears a quarantine.** §5 and §6 both
+  promise that placing good bytes in the fan-out path is verified and registered on
+  the next pass. Verification excludes quarantined rows and reconciliation skips
+  registered hashes, so a quarantined hash matches neither: only the `absent` case
+  works as documented. Either the scrub re-checks a quarantined blob whose bytes
+  changed, or the runbook stops promising it.
+- **Central's referential faults are never persisted.** They have no `blobs` row,
+  so `recordIntegrityState` is a zero-row update: invisible to anything querying
+  the registry, and re-logged at `log.error` every hourly pass with no dedup.
+  `findUndeliverableReferences` also has `LIMIT` with no `ORDER BY`, so a backlog
+  past the limit returns an arbitrary subset each pass, and it filters neither
+  `record.deleted_at` nor `sync_lookup.is_deleted`, so deleted attachments whose
+  blobs never pushed hold the limit budget ahead of live ones forever.
+- **Rollback halted permanently by one corrupt blob** (M2). Recorded in the P2
+  plan; needs a product call on skip-and-report vs abort.
+
+### Lower severity, recorded not fixed
+
+- `heal()` grades severity on the registry row as it stood at scrub-pass start, so
+  a blob demoted outbox→cache mid-pass is graded outbox. Self-corrects via the
+  refetch in the common case, since the demotion means central holds it.
+- `#healCache` calls `blobStore.delete()` directly, bypassing the cache's
+  `#activeReads` retain map; an in-flight read gets a 404 instead of the refetch
+  path. Next read recovers.
+- `delete()` swallows Windows EPERM/EBUSY unlink failures by design (the row is
+  gone, so the file is an adoptable orphan), which means reconciliation can
+  re-adopt a file the healer just dropped, or un-free evicted budget.
+
+### Ruled out — the finders were wrong
+
+- Ranged reads serving corrupt bytes: `get()` refuses a quarantined blob up front
+  regardless of range.
+- Central 404ing an absent-state blob instead of 202: `stat()` is already null when
+  the bytes are gone, so that path returns 202 today.
+- Same-size corruption delivered as a byte-complete 200: `verifyingStream` errors
+  at flush before the stream ends, which is the inherent best case for whole-blob
+  streaming.

@@ -29,6 +29,14 @@ Automated coverage lives in `packages/database/__tests__/blobStore/`,
 - [x] A blob quarantined on the read path mid-pass stays quarantined when the
   end-of-pass verified batch flushes, so known-bad bytes are never re-served
   (verifies spec: SCRUB)
+- [x] Only a verified copy is servable, so a state added later is withheld until
+  it is deliberately allowed rather than served by omission
+- [x] A facility read of a quarantined local copy resolves from central instead of
+  failing against the copy it holds, and the replacement serves
+- [x] A quarantined local copy is not advertised as available, and is refused for
+  push before it is offered
+- [x] Central's attachment route answers for a quarantined blob as it does for
+  content it does not hold, disclosing no quarantine
 - [ ] A scrub pass on a store of realistic size stays within its byte budget and
   does not starve clinical IO — needs a volume test, not a unit test
 
@@ -81,4 +89,8 @@ Automated coverage lives in `packages/database/__tests__/blobStore/`,
 - [ ] The `blob_integrity` Canopy check reads the documented queries and reports
   the states they distinguish — Canopy-side, outside this repo
 - [ ] The runbook's outbox-restore path works end to end: a blob placed in its
-  fan-out path by hand is adopted by the next scrub pass
+  fan-out path by hand is adopted by the next scrub pass — verified by hand
+  2026-08-11 and it does **not** hold for a quarantined row, only for an absent
+  one. Verification excludes quarantined rows and reconciliation skips registered
+  hashes, so the placed file matches neither pass. Open in the epic review
+  follow-ups (`.workhorse/plans/b2/card-plan.md`)
