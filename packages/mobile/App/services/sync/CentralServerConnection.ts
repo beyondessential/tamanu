@@ -157,6 +157,27 @@ export class CentralServerConnection {
     return this.fetch(path, query, { ...options, method: 'GET' }) as Promise<T>;
   }
 
+  /**
+   * The absolute URL for an API path, for transfers that go through the
+   * filesystem (react-native-fs download/upload) rather than this class's
+   * fetch. Query values are encoded here since those APIs take a plain URL.
+   */
+  apiUrl(path: string, query: Record<string, string | number> = {}): string {
+    const queryString = Object.entries(query)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    return `${this.host}/${API_PREFIX}/${path}${queryString ? `?${queryString}` : ''}`;
+  }
+
+  /** The auth and client headers fetch sends, for filesystem-based transfers. */
+  authHeaders(): Record<string, string> {
+    return {
+      Authorization: `Bearer ${this.token}`,
+      'X-Tamanu-Client': 'Tamanu Mobile',
+      'X-Version': version,
+    };
+  }
+
   async post<T>(
     path: string,
     query: Record<string, string | number>,

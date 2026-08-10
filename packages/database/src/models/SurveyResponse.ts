@@ -31,6 +31,23 @@ import type { ProgramDataElement } from './ProgramDataElement';
 import type { Survey } from './Survey';
 import type { User } from './User';
 
+// spec: ATCH
+// An attachment carries the patient linkage of the record it is created for. A
+// caller that knows only the encounter has the patient resolved here, so a photo
+// attachment is scoped the same way the scope backfill scopes existing rows —
+// both columns populated, rather than leaving readers to reach the patient
+// through the encounter.
+async function resolveAttachmentScope(
+  models: Models,
+  { encounterId, patientId }: { encounterId?: string; patientId?: string },
+) {
+  if (patientId || !encounterId) {
+    return { encounterId, patientId };
+  }
+  const encounter = await models.Encounter.findByPk(encounterId, { attributes: ['patientId'] });
+  return { encounterId, patientId: encounter.patientId };
+}
+
 /** @internal Use {@link SurveyResponse.createPatientIssues} instead. */
 async function _createPatientIssues(
   models: Models,
@@ -511,7 +528,7 @@ export class SurveyResponse extends Model {
         type: 'image/jpeg',
         hash,
         size: storedSize,
-        ...scope,
+        ...(await resolveAttachmentScope(models, scope)),
       });
 
       return attachmentId; // Store attachment ID as answer body

@@ -259,13 +259,22 @@ export class FhirDiagnosticReport extends FhirResource {
     });
     // spec: ATCH
     // The report PDF is admitted to the central store and the attachment records
-    // only its hash, scoped to the lab request's encounter so it synchronises
-    // with the records that reference it.
+    // only its hash, scoped to the lab request's patient and encounter so it
+    // synchronises with the records that reference it.
     const { hash, size } = await this.sequelize.admitAttachmentBlob(Readable.from([data]));
+    const encounter = await this.sequelize.models.Encounter.findByPk(labRequest.encounterId, {
+      attributes: ['patientId'],
+    });
+    if (!encounter) {
+      throw new InvalidOperationError(
+        `Lab request ${labRequest.id} has no encounter to scope its report attachment to`,
+      );
+    }
     const attachment = await Attachment.create({
       type,
       hash,
       size,
+      patientId: encounter.patientId,
       encounterId: labRequest.encounterId,
     });
     const lastAttachment = await labRequest.getLatestAttachment();

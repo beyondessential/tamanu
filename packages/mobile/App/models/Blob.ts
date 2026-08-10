@@ -31,6 +31,13 @@ export class Blob extends BaseModel {
   @Column({ type: 'datetime', nullable: false, default: () => "datetime('now')" })
   lastAccessedAt: Date;
 
+  // spec: SCRUB
+  // When the content was last confirmed to match its hash. Set at admission,
+  // where the content is hashed anyway, and refreshed by read verification. Null
+  // means never confirmed, so the next read verifies.
+  @Column({ type: 'datetime', nullable: true })
+  lastVerifiedAt: Date;
+
   // spec: CAP
   // The push cursor when this blob first became eligible for push; null until
   // then, cleared on demotion to cache. The outbox dysfunction measure compares

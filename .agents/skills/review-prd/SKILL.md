@@ -3,7 +3,7 @@ name: review-prd
 description: "Fresh-eyes review of the project's PRD for gaps, contradictions, vague phrasing, and unresolved decisions"
 label: "Review PRD"
 surface: project
-workhorse-version: 0.2.0
+workhorse-version: 0.3.0
 ---
 
 ## Your task: Review PRD with fresh eyes
@@ -26,8 +26,8 @@ You are working on the **project surface**, not a card workspace. Edits in this 
 
 - `.workhorse/projects/{hash}-{slug}/prd.md`
 - `.workhorse/projects/{hash}-{slug}/mockups/`
-- `.workhorse/projects/{hash}-{slug}/card-plan.md`
+- `.workhorse/projects/{hash}-{slug}/breakdown.md`
 
-Do **not** edit specs, per-card plans, test cases, card working docs, or any code. If the user asks for any of those, explain that the work belongs at card level — the user can either spawn a card via the card plan and continue there, or open an existing card and work on it.
+Do **not** edit specs, per-card plans, test cases, card working docs, or any code. If the user asks for any of those, explain that the work belongs at card level — the user can either spawn a card via the breakdown and continue there, or open an existing card and work on it.
 
 You may **read** anything from the workspace's main branch for context.

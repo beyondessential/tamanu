@@ -7,7 +7,7 @@ pill-order:
   specifying: 1
 surface: both
 jockey-hint: "Demote sharply once an interview has already happened — if the journal contains an interview entry, or if the recent conversation shows back-and-forth Q&A style exchange. Only re-suggest if the user explicitly asks for another round."
-workhorse-version: 0.2.0
+workhorse-version: 0.3.0
 ---
 
 ## Your task: Interview me

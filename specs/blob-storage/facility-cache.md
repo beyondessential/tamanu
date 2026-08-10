@@ -53,6 +53,12 @@ anything it has dropped.
 - [ ] The cache tier is bounded by a size budget; on a facility server the budget
   is an administrator setting scoped to the facility. When the cache exceeds its
   budget, the least-recently-used blobs are evicted first.
+- [ ] On a mobile device the budget is derived from the device's own storage rather
+  than configured, since device capacity varies widely across a deployment's fleet
+  and no single figure suits them all.
+- [ ] A device's budget is re-derived as its storage changes, so a device filling up
+  with unrelated data gives cache space back rather than holding to a budget it can
+  no longer afford.
 - [ ] The budget is a target, not a hard limit: a blob needed now is admitted even
   when it alone exceeds the budget. The hard bound on disk usage is the free-disk
   floor (see `capacity.md`).

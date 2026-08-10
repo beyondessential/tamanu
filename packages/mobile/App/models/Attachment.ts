@@ -1,43 +1,46 @@
-import { AfterLoad, Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
-import { readFileInDocuments } from '../ui/helpers/file';
+import { Patient } from './Patient';
+import { Encounter } from './Encounter';
 
+// spec: MOB
+// An attachment record carries the hash of its content and never the bytes; the
+// bytes live in the device's blob store and are reached through the hash. Records
+// synchronise in both directions and are retained after their bytes reach the
+// central server — the record is what makes its content refetchable.
 @Entity('attachments')
 export class Attachment extends BaseModel {
-  static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ nullable: true })
-  size?: number; //size in bytes
+  size?: number; // size in bytes, as admitted to the blob store
 
   @Column({ type: 'varchar' })
   type: string;
 
-  @Column({ type: 'blob', nullable: true })
-  data: Buffer;
+  @Column({ type: 'varchar', nullable: true })
+  hash?: string;
 
-  @Column()
-  filePath: string; // will not be synced up, only for local usage
+  // Legacy pointer to a pre-blob-store file in the documents directory. Local
+  // only, never synced; consumed and cleared by the startup adoption pass (see
+  // services/blobs/reconcileAttachments).
+  @Column({ type: 'varchar', nullable: true })
+  filePath?: string;
 
-  static uploadLimit = 1;
+  // spec: ATCH
+  // The patient linkage of the record the attachment was created for, copied on
+  // at creation so the attachment's synchronisation scope matches its owning
+  // record's.
+  @ManyToOne(() => Patient)
+  patient?: Patient;
+  @RelationId(({ patient }) => patient)
+  patientId?: string;
 
-  @AfterLoad()
-  async populateDataFromPath(): Promise<void> {
-    // Sqlite cannot handle select query with very large blob.
-    // So this is a work around to avoid that.
-    // 'data' will also be synced up.
-    // Ideally, with file compressing, attachments should not
-    // be too large, but this is just in case.
-    if (this.filePath) {
-      const base64 = await readFileInDocuments(this.filePath);
-      this.data = Buffer.from(base64, 'base64');
-    }
-  }
-
-  // TODOs
-  // - only sync attachments that are actually associated with a survey response, not orphans
-  // - clean up attachments after they've been synced to the central server
-  // for original code, see https://github.com/beyondessential/tamanu/commit/c8f5891159733b8da5571ca301dead1fbd52ac1e
+  @ManyToOne(() => Encounter)
+  encounter?: Encounter;
+  @RelationId(({ encounter }) => encounter)
+  encounterId?: string;
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'filePath'];
 }

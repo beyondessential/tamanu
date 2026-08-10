@@ -9,6 +9,7 @@ import { theme } from '/styled/theme';
 import { StyledImage, StyledText, StyledView } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
+import { BlobAwaitingUploadError } from '~/services/blobs';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
@@ -37,41 +38,68 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   const [imageData, setImageData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const { centralServer, models } = useBackend();
+  const { centralServer, models, blobCache } = useBackend();
   const netInfo = useNetInfo();
   const openModalCallback = useCallback(async () => {
     setLoading(true);
     setShowModal(true);
-    const image = await models.Attachment.findOne({ where: { id: imageId } });
-    // Use local image if it still exist locally and has not been synced up
-    if (image) {
-      const localImageData = image.data.toString('base64');
-      setImageData(localImageData);
-      setLoading(false);
-      setErrorMessage(null);
-      return;
-    }
-
-    if (!netInfo.isInternetReachable) {
-      setImageData(null);
-      setLoading(false);
-      setErrorMessage(
-        'You do not currently have an internet connection.\n Images require live internet for viewing.',
-      );
-      return;
-    }
+    setImageData(null);
+    setErrorMessage(null);
 
     try {
-      const { data } = await centralServer.get(`attachment/${imageId}`, {
+      const attachment = await models.Attachment.findOne({ where: { id: imageId } });
+
+      if (attachment?.hash) {
+        // spec: MOB
+        // The read resolves the record's hash against the device's blob store.
+        // Content the device holds displays without connectivity; content it
+        // does not hold is fetched by hash and admitted to the cache, so a
+        // later read needs no connectivity.
+        try {
+          setImageData(await blobCache.readBase64(attachment.hash));
+          return;
+        } catch (error) {
+          // spec: MOB, XFER — an existing file awaiting its content, with the
+          // awaiting-upload and awaiting-fetch cases distinguished
+          if (error instanceof BlobAwaitingUploadError) {
+            setErrorMessage(
+              'This image has not finished uploading from the device that captured it.\nTry again later.',
+            );
+          } else if (!netInfo.isInternetReachable) {
+            setErrorMessage(
+              'This image is not on this device yet.\nConnect to the internet to fetch it.',
+            );
+          } else {
+            setErrorMessage(error.message);
+          }
+          return;
+        }
+      }
+
+      // No hash: a legacy attachment served from the central server by id, or
+      // a record this device does not hold at all. Both need live internet.
+      if (!netInfo.isInternetReachable) {
+        setErrorMessage(
+          'You do not currently have an internet connection.\n Images require live internet for viewing.',
+        );
+        return;
+      }
+
+      const response = await centralServer.get<{ data?: string }>(`attachment/${imageId}`, {
         base64: true,
       });
-      setImageData(data);
-      setLoading(false);
-      setErrorMessage(null);
+      if (response?.data) {
+        setImageData(response.data);
+      } else {
+        // Central holds the record but its bytes have not arrived there yet.
+        setErrorMessage(
+          'This image has not finished uploading from the device that captured it.\nTry again later.',
+        );
+      }
     } catch (error) {
-      setImageData(null);
-      setLoading(false);
       setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   }, [netInfo]);
 

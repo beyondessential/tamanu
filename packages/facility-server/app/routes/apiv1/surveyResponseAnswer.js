@@ -336,6 +336,22 @@ surveyResponseAnswer.put(
     // emptied attachment stays hash-backed and synchronises.
     const { hash, size } = await req.blobCache.putOutbox(Readable.from([Buffer.from([])]));
 
+    // spec: ATCH, BLAC
+    // The upsert may be creating the row, since the attachment need not exist on
+    // this facility. It carries the answer's patient and encounter so a created
+    // row is scoped like any other attachment: an unscoped row sits outside every
+    // facility's scope, which leaves its blob unpushable and stranded in the
+    // outbox.
+    const { encounterId } = answerObject.surveyResponse;
+    const encounter = await models.Encounter.findByPk(encounterId, {
+      attributes: ['patientId'],
+    });
+    if (!encounter) {
+      throw new InvalidOperationError(
+        `Survey response ${answerObject.surveyResponse.id} has no encounter to scope its attachment to`,
+      );
+    }
+
     await db.transaction(async () => {
       // We need to upsert because the record might not exist on facility server.
       await Attachment.upsert({
@@ -344,6 +360,8 @@ surveyResponseAnswer.put(
         data: null,
         type: 'image/jpeg',
         size,
+        patientId: encounter.patientId,
+        encounterId,
       });
 
       // Update answer to empty string (needed for logs and table display)
