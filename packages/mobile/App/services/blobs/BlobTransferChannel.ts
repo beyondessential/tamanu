@@ -1,7 +1,6 @@
 import RNFS from 'react-native-fs';
 
 import { BlobTransfer } from '@tamanu/blobs';
-import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { BlobHashMismatchError, NotFoundError, Problem, RemoteCallError } from '@tamanu/errors';
 
 import { CentralServerConnection } from '~/services/sync/CentralServerConnection';
