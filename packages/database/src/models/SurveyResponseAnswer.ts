@@ -155,7 +155,7 @@ export class SurveyResponseAnswer extends Model {
 
   // To be called after creating/updating a vitals survey response answer. Checks if
   // said answer is used in calculated questions and updates them accordingly.
-  async upsertCalculatedQuestions(data: { reasonForChange: string }) {
+  async upsertCalculatedQuestions(data: { reasonForChange?: string }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
     }
@@ -236,7 +236,7 @@ export class SurveyResponseAnswer extends Model {
     return this.create(values);
   }
 
-  async updateWithReasonForChange(newValue: string, reasonForChange: string) {
+  async updateWithReasonForChange(newValue: string, reasonForChange?: string) {
     await setReasonForChange(this.sequelize, reasonForChange);
     await this.update({ body: newValue });
     return this;
