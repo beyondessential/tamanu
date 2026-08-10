@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { MarDoseButton } from './MarDoseButton';
 import MarDoseInfoOverlay from './MarDoseInfoOverlay';
 import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
-import { MarDataCell, MarCellButton } from './components';
+import { MarDataCell, MarDoseSlot } from './components';
 import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
 const DoseGrid = styled.div`
@@ -17,10 +17,10 @@ const DoseGrid = styled.div`
   grid-template-columns: 1fr;
   inline-size: 100%;
   row-rule: var(--mar-cell-gap-rule);
-  &:has(> ${MarCellButton}:nth-of-type(2)) {
+  &:has(> ${MarDoseSlot}:nth-of-type(2)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  &:has(> ${MarCellButton}:nth-of-type(4)) {
+  &:has(> ${MarDoseSlot}:nth-of-type(4)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }

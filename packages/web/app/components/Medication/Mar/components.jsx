@@ -49,13 +49,24 @@ export const MarHeaderCellButton = styled(MarCellButton)`
   }
 `;
 
+/**
+ * Semantically meaningless wrapper which anchors the dose tooltip. Would otherwise target
+ * {@link MarCellButton}; but we want tooltips on some `<MarCellButton disabled>` instances, so we
+ * use this to ensure the tooltip has pointer events to listen.
+ */
+export const MarDoseSlot = styled.div`
+  block-size: 100%;
+  display: grid;
+  inline-size: 100%;
+`;
+
 export const MarDataCell = styled.td`
   position: relative;
-  &:has(${MarCellButton}:nth-of-type(2)) {
+  &:has(${MarDoseSlot}:nth-of-type(2)) {
     /* <table> sets horizontal borders are set on <tr>, so fully define border style */
     border-block: 1px solid ${p => p.theme.palette.text.secondary};
   }
-  &:has(${MarCellButton}:nth-of-type(2)):not([aria-current='time']) {
+  &:has(${MarDoseSlot}:nth-of-type(2)):not([aria-current='time']) {
     /* <table> sets vertical borders on <td>, so just override color */
     border-inline-color: ${p => p.theme.palette.text.secondary};
   }
