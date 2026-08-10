@@ -58,8 +58,6 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
       - If a lab request contains multiple panels with the same individual test, is it possible for SENAITE to send the same result back to each of these individual tests? And also only display the result once within the patient result table (e.g. don't display the same result with 2 different timestamps)? 
 - Remove the current validation behavior when no tests have been selected yet but the user tries to click next. And instead just disable the 'Next' button until one item has been selected.
   
-Testing note: 
-- Reflex test???
 ---
 
 ### 2. Merge multiple lab requests into a single request
