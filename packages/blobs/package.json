@@ -1,0 +1,34 @@
+{
+  "name": "@tamanu/blobs",
+  "version": "2.62.0",
+  "private": true,
+  "description": "Blob store admission, transfer and cache policy, shared by the servers and mobile",
+  "main": "./src/index",
+  "exports": {
+    ".": "./src",
+    "./*": "./src/*"
+  },
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "BES International Limited",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "clean": "rimraf -- dist",
+    "clean:deps": "rimraf -- node_modules",
+    "test": "vitest run",
+    "test:watch": "vitest --watch"
+  },
+  "devDependencies": {
+    "@tamanu/build-tooling": "*",
+    "@types/node": "^20.9.0",
+    "concurrently": "^9.2.1",
+    "rimraf": "^6.1.3",
+    "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/errors": "*",
+    "@tamanu/utils": "*"
+  },
+  "type": "module"
+}

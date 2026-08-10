@@ -183,3 +183,27 @@ with no node builtins. Mobile already depends on all three, so the dependency fl
 is established. `@tamanu/utils/blobs` keeps the pure hash and fan-out helpers where
 they are rather than being absorbed, which avoids churning every existing import for
 no gain.
+
+## Checklist
+
+Ordered so each step lands with the behaviour it moved still covered: extract a state
+machine with its fake-host tests, re-point the server at it, and only then take the
+next one. The server's suites are the regression net throughout.
+
+- [x] Scaffold `@tamanu/blobs`: source-exported like `@tamanu/utils`, vitest, `lib`
+      without DOM so a node builtin or a browser global fails the build rather than
+      the device
+- [x] Transfer state machines (fetch, push, availability) against injected ports,
+      plus the `content-range` / `content-length` helper the server needs
+- [ ] Re-point `BlobTransferChannel` at the package: it becomes the server host
+      (ranged GET, offer POST, offset-addressed PUT, store reads), keeping
+      `facilityIds` and the api-client conventions on the server side
+- [ ] Outbox pusher policy into the package, `BlobOutboxPusher` re-pointed
+- [ ] Eviction policy into the package, `FacilityBlobCache` re-pointed
+- [ ] Store admission ordering into the package, `BlobStore` re-pointed, with the
+      registry upsert and recency coalescing as port contracts rather than SQL
+- [ ] Host contract suite, run against the server host
+- [ ] Mobile host implementation, run the same contract suite against it
+- [ ] `MobileBlobStore` / `MobileBlobCache` re-pointed at the package
+- [ ] Confirm the existing server suites pass unchanged, and that the package pulls
+      in no node builtins

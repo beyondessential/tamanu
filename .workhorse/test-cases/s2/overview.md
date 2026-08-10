@@ -16,34 +16,35 @@ each case asserts on the sequence of decisions rather than on bytes moved.
 
 ### Fetch state machine
 
-- [ ] A fetch of unheld content requests from offset zero and commits once the total arrives (verifies spec: XFER)
-- [ ] An interrupted fetch resumes from the host's reported staged size, not from zero (verifies spec: XFER)
-- [ ] Staged bytes already covering the known size commit without a further request (verifies spec: XFER)
-- [ ] A total size learned from a previous response is not re-probed on the next pass (verifies spec: XFER)
-- [ ] An attempt delivering new bytes resets the stalled counter (verifies spec: XFER)
-- [ ] Consecutive attempts delivering no new bytes give up after the configured limit (verifies spec: XFER)
-- [ ] A body that ends early without erroring is retried with the same backoff as an error (verifies spec: XFER)
-- [ ] Content the host already holds skips the transfer entirely (verifies spec: XFER)
-- [ ] A not-found from the source is terminal, not retried (verifies spec: XFER)
-- [ ] Backoff grows with consecutive stalled attempts (verifies spec: XFER)
+- [x] A fetch of unheld content requests from offset zero and commits once the total arrives (verifies spec: XFER)
+- [x] An interrupted fetch resumes from the host's reported staged size, not from zero (verifies spec: XFER)
+- [x] Staged bytes already covering the known size commit without a further request (verifies spec: XFER)
+- [x] A total size learned from a previous response is not re-probed on the next pass (verifies spec: XFER)
+- [x] An attempt delivering new bytes resets the stalled counter (verifies spec: XFER)
+- [x] Consecutive attempts delivering no new bytes give up after the configured limit (verifies spec: XFER)
+- [x] A body that ends early without erroring is retried with the same backoff as an error (verifies spec: XFER)
+- [x] Content the host already holds skips the transfer entirely (verifies spec: XFER)
+- [x] A not-found from the source is terminal, not retried (verifies spec: XFER)
+- [x] Backoff grows with consecutive stalled attempts (verifies spec: XFER)
 
 ### Push state machine
 
-- [ ] An offer answered already-stored acknowledges without moving bytes (verifies spec: XFER)
-- [ ] An offer answered wanted pushes from the receiver's reported staged count (verifies spec: XFER)
-- [ ] Chunk boundaries follow the host-supplied chunk size, not a package constant (verifies spec: XFER)
-- [ ] A failed chunk re-offers to relearn the receiver's position and resumes from it (verifies spec: XFER)
-- [ ] A re-offer that itself fails counts as a stalled attempt and preserves the original error (verifies spec: XFER)
-- [ ] A hash mismatch from the receiver is terminal, not retried (verifies spec: XFER)
-- [ ] A refusal from the receiver is terminal, so the pusher moves to the next blob (verifies spec: BLAC)
-- [ ] A zero-byte blob completes with one empty delivery (verifies spec: CAS)
-- [ ] Every byte delivered without an acknowledgement is an error, not a silent success (verifies spec: XFER)
+- [x] An offer answered already-stored acknowledges without moving bytes (verifies spec: XFER)
+- [x] An offer answered wanted pushes from the receiver's reported staged count (verifies spec: XFER)
+- [x] Chunk boundaries follow the host-supplied chunk size, not a package constant (verifies spec: XFER)
+- [x] A failed chunk re-offers to relearn the receiver's position and resumes from it (verifies spec: XFER)
+- [x] A re-offer that itself fails counts as a stalled attempt and preserves the original error (verifies spec: XFER)
+- [x] A hash mismatch from the receiver is terminal, not retried (verifies spec: XFER)
+- [x] A refusal from the receiver is terminal, so the pusher moves to the next blob (verifies spec: BLAC)
+- [x] A zero-byte blob completes with one empty delivery (verifies spec: CAS)
+- [x] Every byte delivered without an acknowledgement is an error, not a silent success (verifies spec: XFER)
+- [x] A push of content the host does not hold fails rather than offering it (verifies spec: XFER)
 
 ### Availability
 
-- [ ] Bytes held locally report available (verifies spec: XFER)
-- [ ] Bytes the source holds but the host does not report awaiting-fetch (verifies spec: XFER)
-- [ ] Bytes neither holds report awaiting-upload (verifies spec: XFER)
+- [x] Bytes held locally report available (verifies spec: XFER)
+- [x] Bytes the source holds but the host does not report awaiting-fetch (verifies spec: XFER)
+- [x] Bytes neither holds report awaiting-upload (verifies spec: XFER)
 
 ### Outbox pusher policy
 
