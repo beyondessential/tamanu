@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest';
 
 import { BLOB_HOST_CONTRACT, type BlobHostUnderTest } from '@tamanu/blobs';
 
@@ -74,12 +74,11 @@ describe('blob host contract (server)', () => {
       await fs.mkdir(path.dirname(toPath), { recursive: true });
       await fs.rename(fromPath, toPath);
     },
-    async register(hash, size, tier) {
+    async register(content, tier) {
       // Admission through the store itself, so the contract drives the same
-      // upsert production does.
-      await fs.mkdir(path.dirname(this.pathFor(hash)), { recursive: true });
-      await store.put(Readable.from([Buffer.from('hello world')]), { tier });
-      expect(size).toBe(11);
+      // upsert production does. The store hashes the content it is given, so the
+      // stored identity is the content's real hash rather than a fixed one.
+      await store.put(Readable.from([Buffer.from(content)]), { tier });
     },
     async row(hash) {
       const found = await models.Blob.findOne({ where: { hash }, paranoid: false });

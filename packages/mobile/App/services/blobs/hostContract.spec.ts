@@ -55,12 +55,10 @@ describe('blob host contract (mobile)', () => {
       await fs.mkdir(toPath.slice(0, toPath.lastIndexOf('/')));
       await fs.moveFile(fromPath, toPath);
     },
-    async register(hash, size, tier) {
+    async register(content, tier) {
       const path = `/tmp/register-${(scratchCount += 1)}`;
-      fs.seed(path, 'hello world');
-      const result = await store.putFile(path, { tier });
-      expect(result.hash).toBe(hash);
-      expect(result.size).toBe(size);
+      fs.seed(path, content);
+      await store.putFile(path, { tier });
     },
     async row(hash) {
       const [found] = await Database.models.Blob.getRepository().query(

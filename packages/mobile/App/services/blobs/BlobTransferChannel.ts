@@ -74,7 +74,18 @@ export class BlobTransferChannel {
         fetchInto: (hash, { offset }) => this.#fetchInto(hash, offset),
         remoteAvailability: hash => this.#probeCentral(hash),
         offer: (hash, { size }) => this.#offer(hash, size),
-        pushChunk: (hash, { offset, totalSize }) => this.#pushFrom(hash, totalSize, offset),
+        pushChunk: (hash, { offset, length, totalSize }) => {
+          // The device uploads whole files (pushChunkBytes is unbounded), so a
+          // chunk must always be the entire remainder. Assert it rather than
+          // silently sending offset-to-end: if pushChunkBytes is ever lowered,
+          // this fails loudly instead of over-delivering past what central staged.
+          if (length !== totalSize - offset) {
+            throw new Error(
+              `Mobile blob push delivers whole files; expected length ${totalSize - offset} at offset ${offset}, got ${length}`,
+            );
+          }
+          return this.#pushFrom(hash, totalSize, offset);
+        },
         sleep: sleepAsync,
         awaitingUploadError: hash => new BlobAwaitingUploadError(hash),
       },

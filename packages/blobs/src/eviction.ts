@@ -15,7 +15,12 @@ export interface CacheRow {
 }
 
 export interface BlobEvictionHost {
-  budgetBytes(): Promise<number>;
+  /**
+   * The cache size budget in bytes. Receives the current cache size so a host
+   * whose budget is derived from it (the device store) reuses the one read
+   * enforceBudget already made, rather than issuing a second SUM.
+   */
+  budgetBytes(cacheSizeBytes: number): Promise<number>;
   cacheSizeBytes(): Promise<number>;
   /** Cache rows least-recently-used first, at most `limit`. */
   cacheRowsLruFirst(limit: number): Promise<CacheRow[]>;
@@ -64,14 +69,17 @@ export class BlobEviction {
    * and refetch.
    */
   async enforceBudget(): Promise<EvictionResult> {
-    const budget = await this.#host.budgetBytes();
+    // Read the cache size once and hand it to budgetBytes: a host whose budget
+    // derives from the cache size would otherwise SUM the blobs table twice.
+    const cacheSize = await this.#host.cacheSizeBytes();
+    const budget = await this.#host.budgetBytes(cacheSize);
     if (!Number.isFinite(budget)) {
       // A misconfigured or unset budget must not be read as "evict everything";
       // leave the cache untouched and let the periodic task retry once fixed.
       this.#host.onWarning?.('cache size budget is not a finite number', { budget });
       return { evictedBytes: 0, evictedCount: 0 };
     }
-    const excess = (await this.#host.cacheSizeBytes()) - budget;
+    const excess = cacheSize - budget;
     if (excess <= 0) {
       return { evictedBytes: 0, evictedCount: 0 };
     }

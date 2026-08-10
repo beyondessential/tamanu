@@ -52,7 +52,8 @@ export class MobileBlobCache {
     this.#models = models;
     this.#fs = fs ?? (RNFS as unknown as BlobFileSystem);
     this.#eviction = new BlobEviction({
-      budgetBytes: async () => deriveCacheBudgetBytes(await this.#fs.getFSInfo(), await this.cacheSizeBytes()),
+      budgetBytes: async cacheSizeBytes =>
+        deriveCacheBudgetBytes(await this.#fs.getFSInfo(), cacheSizeBytes),
       cacheSizeBytes: () => this.cacheSizeBytes(),
       cacheRowsLruFirst: limit => this.#cacheRowsLruFirst(limit),
       mostRecentlyUsedHash: () => this.#mostRecentlyUsedCacheHash(),

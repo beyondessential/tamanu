@@ -32,7 +32,13 @@ export interface BlobHostUnderTest {
   fileExists(path: string): Promise<boolean>;
   pathFor(hash: string): string;
   place(fromPath: string, toPath: string): Promise<void>;
-  register(hash: string, size: number, tier: BlobTier): Promise<void>;
+  /**
+   * Admits the given content under the tier, storing it so its computed hash is
+   * the one the suite then looks up. Takes the content rather than a hash so the
+   * stored identity genuinely matches, instead of the host faking admission with
+   * fixed bytes that only happen to hash to what each case expects.
+   */
+  register(content: string, tier: BlobTier): Promise<void>;
   row(hash: string): Promise<RegistryRow | null>;
   softDelete(hash: string): Promise<void>;
   delete(hash: string): Promise<void>;
@@ -98,11 +104,11 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
     // spec: CACHE
     name: 'registry upsert leaves a live row untouched, so cache stays cache',
     async run(host) {
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.CACHE);
+      await host.register(HELLO_WORLD, BLOB_TIERS.CACHE);
       const before = await host.row(HELLO_WORLD_HASH);
       assert(before, 'row exists after first register');
 
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.OUTBOX);
+      await host.register(HELLO_WORLD, BLOB_TIERS.OUTBOX);
       const after = await host.row(HELLO_WORLD_HASH);
 
       assertEqual(after?.tier, BLOB_TIERS.CACHE, 'tier of a live row after re-admission');
@@ -117,11 +123,11 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
     // spec: CAS
     name: 'registry upsert resurrects a soft-deleted row with the incoming tier and reset recency',
     async run(host) {
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.CACHE);
+      await host.register(HELLO_WORLD, BLOB_TIERS.CACHE);
       await host.setLastAccessedAt(HELLO_WORLD_HASH, new Date(Date.now() - 60 * 60 * 1000));
       await host.softDelete(HELLO_WORLD_HASH);
 
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.OUTBOX);
+      await host.register(HELLO_WORLD, BLOB_TIERS.OUTBOX);
       const row = await host.row(HELLO_WORLD_HASH);
 
       assert(row, 'row exists after resurrection');
@@ -138,7 +144,7 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
     name: 'registry upsert is atomic under concurrent admission of the same content',
     async run(host) {
       await Promise.all(
-        Array.from({ length: 5 }, () => host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.CACHE)),
+        Array.from({ length: 5 }, () => host.register(HELLO_WORLD, BLOB_TIERS.CACHE)),
       );
       const row = await host.row(HELLO_WORLD_HASH);
       assert(row, 'exactly one row survives concurrent admission');
@@ -148,7 +154,7 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
     // spec: CACHE
     name: 'recency update is a no-op within the coalesce window and applies outside it',
     async run(host) {
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.CACHE);
+      await host.register(HELLO_WORLD, BLOB_TIERS.CACHE);
       const fresh = await host.row(HELLO_WORLD_HASH);
 
       await host.touch(HELLO_WORLD_HASH, { coalesceSeconds: 60 });
@@ -173,11 +179,11 @@ export const BLOB_HOST_CONTRACT: ContractCase[] = [
     // spec: CAS
     name: 'delete is hard, so the same hash can be re-admitted afterwards',
     async run(host) {
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.CACHE);
+      await host.register(HELLO_WORLD, BLOB_TIERS.CACHE);
       await host.delete(HELLO_WORLD_HASH);
       assertEqual(await host.row(HELLO_WORLD_HASH), null, 'row after delete');
 
-      await host.register(HELLO_WORLD_HASH, 11, BLOB_TIERS.OUTBOX);
+      await host.register(HELLO_WORLD, BLOB_TIERS.OUTBOX);
       const row = await host.row(HELLO_WORLD_HASH);
       assertEqual(row?.tier, BLOB_TIERS.OUTBOX, 'tier after re-admission');
     },
