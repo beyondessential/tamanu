@@ -45,7 +45,7 @@ const LISTING_COLUMNS = [
   lastName,
   culturalName,
   dateOfBirth,
-  sex,
+  { ...sex, sortable: true },
   village,
   status,
 ];
@@ -74,19 +74,31 @@ const locationGroup = {
   accessor: LocationGroupCell,
 };
 
-const OUTPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, location, department, clinician].map(column => ({
-    ...column,
-    sortable: false,
-  })),
-);
+const OUTPATIENT_COLUMNS = [
+  markedForSync,
+  displayId,
+  firstName,
+  lastName,
+  dateOfBirth,
+  { ...sex, sortable: true },
+  locationGroup,
+  location,
+  department,
+  { ...clinician, sortable: true },
+];
 
-const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatientSex].concat(
-  [locationGroup, location, department, clinician, diet].map(column => ({
-    ...column,
-    sortable: false,
-  })),
-);
+const INPATIENT_COLUMNS = [
+  displayId,
+  firstName,
+  lastName,
+  dateOfBirth,
+  inpatientSex,
+  locationGroup,
+  location,
+  department,
+  { ...clinician, sortable: true },
+  { ...diet, sortable: false },
+];
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
