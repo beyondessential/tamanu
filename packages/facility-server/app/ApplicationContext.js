@@ -2,6 +2,7 @@ import config from 'config';
 import { omit } from 'es-toolkit/compat';
 
 import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
+import { FACILITY_PARITY_TIERS } from '@tamanu/blobs';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { facilityDefaults } from '@tamanu/settings';
@@ -108,6 +109,20 @@ export class ApplicationContext {
           fault: BLOB_FAULTS.CORRUPT,
           blob: await this.models.Blob.findOne({ where: { hash } }),
         });
+      },
+      // spec: FEC — the outbox is this server's only durable content; a cache
+      // copy is durable on central and costs a refetch.
+      errorCorrection: {
+        coveredTiers: FACILITY_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = facilityIds.length
+            ? await this.settings[facilityIds[0]].get('blobStorage.errorCorrection')
+            : facilityDefaults.blobStorage.errorCorrection;
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
       },
       log,
     });

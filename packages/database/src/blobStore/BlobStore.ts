@@ -6,6 +6,7 @@ import { Transform, type Readable } from 'node:stream';
 import { Op } from 'sequelize';
 
 import { BlobAdmission } from '@tamanu/blobs';
+import { BlobParity, type ErrorCorrectionSettings } from './BlobParity';
 import {
   BLOB_HASH_ALGORITHMS,
   BLOB_INTEGRITY_STATES,
@@ -71,7 +72,18 @@ export interface BlobStoreOptions {
    * severity grading and the repair ladder.
    */
   onCorruptionDetected?: (hash: string) => Promise<void>;
-  log?: { error: (message: string, meta?: object) => void };
+  /**
+   * Error correction (spec: FEC): the per-server settings and the tiers this
+   * server's coverage includes. Absent on a server that carries no parity.
+   */
+  errorCorrection?: {
+    getSettings: () => Promise<ErrorCorrectionSettings>;
+    coveredTiers: readonly BlobTier[];
+  };
+  log?: {
+    error: (message: string, meta?: object) => void;
+    warn?: (message: string, meta?: object) => void;
+  };
   /** Injectable for tests; defaults to fs.statfs on the store root. */
   statfs?: (root: string) => Promise<VolumeStats>;
 }
@@ -109,10 +121,11 @@ export class BlobStore {
   readonly #models: { Blob: typeof Blob };
   readonly #getFreeDiskReserveBytes: () => Promise<number>;
   readonly #onCorruptionDetected?: (hash: string) => Promise<void>;
-  readonly #log?: { error: (message: string, meta?: object) => void };
+  readonly #log?: BlobStoreOptions['log'];
   readonly #statfs: (root: string) => Promise<VolumeStats>;
   readonly #stagingLocks = new Map<string, Promise<unknown>>();
   readonly #admission: BlobAdmission;
+  readonly #parity?: BlobParity;
 
   constructor({
     root,
@@ -120,6 +133,7 @@ export class BlobStore {
     getFreeDiskReserveBytes,
     evictCache,
     onCorruptionDetected,
+    errorCorrection,
     log,
     statfs,
   }: BlobStoreOptions) {
@@ -154,6 +168,15 @@ export class BlobStore {
         );
       },
     });
+    if (errorCorrection) {
+      this.#parity = new BlobParity({
+        ...errorCorrection,
+        pathFor: hash => this.#pathFor(hash),
+        createTempPath: () => this.#createTempPath(),
+        place: (fromPath, toPath) => this.#placeAtFinalPath(fromPath, toPath, { replace: true }),
+        onWarning: (message, details) => this.#log?.warn?.(`BlobStore: ${message}`, details),
+      });
+    }
   }
 
   /**
@@ -271,6 +294,133 @@ export class BlobStore {
 
     const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
     return { held: true, matches: actualHash === hash, size, actualHash };
+  }
+
+  // spec: FEC
+  /** Whether error correction is on for this server at all. */
+  async parityEnabled(): Promise<boolean> {
+    return (await this.#parity?.enabled()) ?? false;
+  }
+
+  // spec: FEC
+  /** Whether this server carries parity for a blob, by its tier and its size. */
+  async coversWithParity(blob: { size: number; tier: BlobTier }): Promise<boolean> {
+    return (await this.#parity?.covers(blob)) ?? false;
+  }
+
+  // spec: FEC
+  /**
+   * Compute and store parity for a covered blob the store already holds — the
+   * scrub's retrofit, which is what brings content admitted before error
+   * correction was enabled under protection. Returns whether parity now exists.
+   */
+  async writeParity({
+    hash,
+    size,
+    tier,
+  }: {
+    hash: string;
+    size: number;
+    tier: BlobTier;
+  }): Promise<boolean> {
+    if (!this.#parity || !(await this.#parity.covers({ size, tier }))) {
+      return false;
+    }
+    try {
+      await this.#parity.write(hash, this.#pathFor(hash), size);
+    } catch (error) {
+      this.#log?.error('BlobStore: parity write failed, blob remains unprotected', {
+        hash,
+        error: (error as Error).message,
+      });
+      return false;
+    }
+    await this.#recordParityPresence(hash, true);
+    return true;
+  }
+
+  // spec: FEC
+  /**
+   * Drop a blob's parity. Parity is derived from content this server no longer
+   * needs to protect: the blob has gone, or it has been demoted out of the outbox
+   * and is now durable on central.
+   */
+  async discardParity(hash: string): Promise<void> {
+    if (!this.#parity) {
+      return;
+    }
+    await this.#parity.remove(hash);
+    await this.#recordParityPresence(hash, false);
+  }
+
+  // spec: FEC
+  /**
+   * Repair a blob from its parity, correcting the bytes on disk rather than only
+   * the bytes served. Returns whether the blob is now whole.
+   *
+   * The reconstruction is verified against the blob's hash unconditionally, and
+   * one that does not match is discarded: locating the damaged region is part of
+   * the repair, and a region located wrongly reconstructs "successfully" into
+   * different bytes, which the hash is the only check that detects.
+   */
+  async repairFromParity(hash: string): Promise<boolean> {
+    if (!this.#parity) {
+      return false;
+    }
+    const { algorithm } = parseBlobHash(hash);
+    const tempPath = await this.#createTempPath();
+    try {
+      if (!(await this.#parity.reconstruct(hash, tempPath))) {
+        return false;
+      }
+      const digest = await hashFile(tempPath, algorithm);
+      if (formatBlobHash(algorithm, digest) !== hash) {
+        this.#log?.error('BlobStore: reconstruction from parity did not match the blob hash', {
+          hash,
+        });
+        return false;
+      }
+      // Placed by the same atomic move admission uses, replacing the damaged
+      // bytes, so a reader never observes a partially repaired blob.
+      await this.#placeAtFinalPath(tempPath, this.#pathFor(hash), { replace: true });
+    } catch (error) {
+      this.#log?.error('BlobStore: repair from parity failed', {
+        hash,
+        error: (error as Error).message,
+      });
+      return false;
+    } finally {
+      await fs.rm(tempPath, { force: true });
+    }
+
+    await this.#recordCorrection(hash);
+    return true;
+  }
+
+  // spec: FEC
+  // A repair is recorded against the blob so the rate of correction over a period
+  // can be derived: a rising rate is failing media, which calls for replacing the
+  // disk rather than for recovering content.
+  //
+  // The blob is recorded verified — the reconstruction was checked against its
+  // hash — and so is neither quarantined nor escalated.
+  async #recordCorrection(hash: string): Promise<void> {
+    await this.#models.Blob.sequelize.query(
+      `
+        UPDATE blobs
+        SET integrity_state = $integrityState,
+            correction_count = correction_count + 1,
+            last_corrected_at = now(),
+            last_scrubbed_at = now(),
+            updated_at = now()
+        WHERE hash = $hash
+      `,
+      { bind: { hash, integrityState: BLOB_INTEGRITY_STATES.VERIFIED } },
+    );
+  }
+
+  async #recordParityPresence(hash: string, hasParity: boolean): Promise<void> {
+    await this.#models.Blob.update({ hasParity }, { where: { hash } });
   }
 
   // spec: SCRUB
@@ -433,11 +583,10 @@ export class BlobStore {
     source: Readable,
     { sizeHint, tier }: { sizeHint?: number; tier?: BlobTier },
   ): Promise<PutResult> {
-    const tempDir = path.join(this.root, TEMP_DIR);
-    await fs.mkdir(tempDir, { recursive: true });
-    await this.#ensureFloor(sizeHint ?? 0);
+    const admittedTier = tier ?? BLOB_TIERS.CACHE;
+    const tempPath = await this.#createTempPath();
+    await this.#ensureFloor(await this.#admissionBytesNeeded(sizeHint ?? 0, admittedTier));
 
-    const tempPath = path.join(tempDir, randomUUID());
     try {
       await this.#writeTemp(source, tempPath);
     } catch (error) {
@@ -445,12 +594,64 @@ export class BlobStore {
       throw error;
     }
 
+    let result;
     try {
-      return await this.#admission.admitFile(tempPath, { tier: tier ?? BLOB_TIERS.CACHE });
+      result = await this.#admission.admitFile(tempPath, { tier: admittedTier });
     } catch (error) {
       await fs.rm(tempPath, { force: true });
       throw error;
     }
+
+    await this.#writeParityOnAdmission(result, admittedTier);
+    return result;
+  }
+
+  // spec: CAP
+  /**
+   * What admission has to fit: the blob, plus the parity it will carry where this
+   * server covers it. Reserving only the blob would let a covered admission take
+   * the volume into the reserve by the size of its sidecar.
+   */
+  async #admissionBytesNeeded(sizeHint: number, tier: BlobTier): Promise<number> {
+    if (sizeHint === 0 || !(await this.#parity?.covers({ size: sizeHint, tier }))) {
+      return sizeHint;
+    }
+    return sizeHint + (await this.#parity!.sidecarBytesFor(sizeHint));
+  }
+
+  // spec: FEC
+  /**
+   * Parity for freshly admitted content, computed as a second pass now the size
+   * is known. Content that was already stored keeps whatever parity it has; the
+   * scrub is what brings an uncovered blob under protection.
+   *
+   * A failure here does not fail the admission. Storing the content is the
+   * guarantee and parity is a protection over it, so the blob stands unprotected
+   * and the scrub generates its parity later.
+   */
+  async #writeParityOnAdmission({ hash, size, existed }: PutResult, tier: BlobTier): Promise<void> {
+    if (existed || !this.#parity) {
+      return;
+    }
+    try {
+      if (!(await this.#parity.covers({ size, tier }))) {
+        return;
+      }
+      await this.#ensureFloor(await this.#parity.sidecarBytesFor(size));
+      await this.#parity.write(hash, this.#pathFor(hash), size);
+      await this.#recordParityPresence(hash, true);
+    } catch (error) {
+      this.#log?.error('BlobStore: parity write failed, blob is stored unprotected', {
+        hash,
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  async #createTempPath(): Promise<string> {
+    const tempDir = path.join(this.root, TEMP_DIR);
+    await fs.mkdir(tempDir, { recursive: true });
+    return path.join(tempDir, randomUUID());
   }
 
   // spec: XFER
@@ -599,6 +800,9 @@ export class BlobStore {
 
   async delete(hash: string): Promise<void> {
     const filePath = this.#pathFor(hash);
+    // spec: FEC — parity dies with its blob. Before the row goes, since the
+    // registry is what records that the sidecar exists.
+    await this.discardParity(hash);
     // Hard delete: a soft-deleted row would shadow re-admission of the same
     // hash. Registry first, so a crash leaves an adoptable orphan file.
     await this.#models.Blob.destroy({ where: { hash }, force: true });
@@ -670,7 +874,17 @@ export class BlobStore {
     }
   }
 
-  async #placeAtFinalPath(tempPath: string, finalPath: string): Promise<void> {
+  /**
+   * `replace` is for content that must land even where the destination is
+   * occupied — a repair over damaged bytes, or a regenerated sidecar. POSIX
+   * renames over the destination atomically; Windows refuses, so the occupant is
+   * removed and the rename retried.
+   */
+  async #placeAtFinalPath(
+    tempPath: string,
+    finalPath: string,
+    { replace = false }: { replace?: boolean } = {},
+  ): Promise<void> {
     await fs.mkdir(path.dirname(finalPath), { recursive: true });
 
     for (let attempt = 1; ; attempt++) {
@@ -684,10 +898,17 @@ export class BlobStore {
           throw error;
         }
         if (await fileExists(finalPath)) {
-          // A concurrent put of the same content won the rename; the stored
-          // bytes are identical by content addressing, so ours is redundant.
-          await fs.rm(tempPath, { force: true });
-          return;
+          if (replace) {
+            // A destination that cannot be removed yet (a reader still holds it
+            // open on Windows) fails the next rename, so the retry cap below is
+            // what bounds the wait.
+            await fs.rm(finalPath, { force: true }).catch(() => {});
+          } else {
+            // A concurrent put of the same content won the rename; the stored
+            // bytes are identical by content addressing, so ours is redundant.
+            await fs.rm(tempPath, { force: true });
+            return;
+          }
         }
         if (attempt >= RENAME_ATTEMPTS) {
           await fs.rm(tempPath, { force: true });

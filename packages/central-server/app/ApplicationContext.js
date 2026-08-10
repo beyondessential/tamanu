@@ -4,6 +4,7 @@ import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
 import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
+import { CENTRAL_PARITY_TIERS } from '@tamanu/blobs';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -119,6 +120,18 @@ export class ApplicationContext {
           fault: BLOB_FAULTS.CORRUPT,
           blob: await this.store.models.Blob.findOne({ where: { hash } }),
         });
+      },
+      // spec: FEC — every blob central holds is a durable copy, so coverage is
+      // not narrowed by tier.
+      errorCorrection: {
+        coveredTiers: CENTRAL_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = await this.settings.get('blobStorage.errorCorrection');
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
       },
       log,
     });
