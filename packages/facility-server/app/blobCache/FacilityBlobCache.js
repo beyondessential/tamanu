@@ -157,17 +157,7 @@ export class FacilityBlobCache {
   }
 
   async #touch(hash) {
-    // Coalesced recency: a no-op while the recorded access is fresh, so hot
-    // blobs don't rewrite the registry on every read.
-    await this.#models.Blob.sequelize.query(
-      `
-        UPDATE blobs
-        SET last_accessed_at = now()
-        WHERE hash = $hash
-          AND last_accessed_at < now() - make_interval(secs => $coalesceSeconds)
-      `,
-      { bind: { hash, coalesceSeconds: RECENCY_COALESCE_SECONDS } },
-    );
+    await this.#blobStore.touch(hash, { coalesceSeconds: RECENCY_COALESCE_SECONDS });
   }
 
   #retainRead(hash) {

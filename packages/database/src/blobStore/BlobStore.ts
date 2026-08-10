@@ -327,6 +327,24 @@ export class BlobStore {
     await fs.rm(this.#stagingPathFor(hash), { force: true });
   }
 
+  // spec: CACHE
+  /**
+   * Refresh a blob's recency, coalesced: a no-op while the recorded access is
+   * still within the window, so hot blobs don't rewrite the registry on every
+   * read. Losing the most recent refreshes degrades eviction ordering only.
+   */
+  async touch(hash: string, { coalesceSeconds }: { coalesceSeconds: number }): Promise<void> {
+    await this.#models.Blob.sequelize.query(
+      `
+        UPDATE blobs
+        SET last_accessed_at = now()
+        WHERE hash = $hash
+          AND last_accessed_at < now() - make_interval(secs => $coalesceSeconds)
+      `,
+      { bind: { hash, coalesceSeconds } },
+    );
+  }
+
   async delete(hash: string): Promise<void> {
     const filePath = this.#pathFor(hash);
     // Hard delete: a soft-deleted row would shadow re-admission of the same
