@@ -598,6 +598,51 @@ FROM blobs
 WHERE deleted_at IS NULL;
 ```
 
+## Blob antivirus
+
+Only where the deployment has turned scanning on. See
+`../runbooks/blob-antivirus.md`.
+
+### Quarantined content
+
+Content found to be malware, named by hash. Written on central and synchronised
+everywhere, so the same rows appear on a facility. Quarantined content is
+retained, never served, never fetched and never repaired. **[diagnose]**
+
+```sql
+SELECT q.hash, q.created_at, q.scanner_version, q.signature_version,
+       b.size, b.tier
+FROM blob_quarantines q
+LEFT JOIN blobs b ON b.hash = q.hash AND b.deleted_at IS NULL
+WHERE q.deleted_at IS NULL
+ORDER BY q.created_at DESC;
+```
+
+A row with no matching blob is normal: the quarantine names content, not a copy
+of it, so it stands on servers that never held the bytes.
+
+### Scan coverage
+
+What the scanner has got through. Under the `only-known-good` posture unscanned
+content is withheld, so a large `unscanned` figure there is content clinicians
+cannot open. Falling means the pass is working through a backlog; flat means the
+scanner is not being reached, or nothing is scheduled to run. **[diagnose]**
+
+```sql
+SELECT count(*) AS blobs,
+       count(*) FILTER (WHERE scan_verdict IS NULL) AS unscanned,
+       count(*) FILTER (WHERE scan_verdict = 'clean') AS clean,
+       count(*) FILTER (WHERE scan_verdict = 'infected') AS infected,
+       max(scanned_at) AS newest_scan,
+       max(signature_version) AS newest_signatures
+FROM blobs
+WHERE deleted_at IS NULL AND integrity_state = 'verified';
+```
+
+Content above `blobStorage.antivirus.maxScanMB` is never sent to the scanner and
+stays unscanned by design, so a residual count that never clears is expected;
+compare it against the large blobs in the store before treating it as a stall.
+
 ## DHIS2 push log
 
 `logs.dhis2_pushes` has one row per failed or successful push to DHIS2.

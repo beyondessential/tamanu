@@ -8,6 +8,8 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  blobAntivirusProperties,
+  blobScanProperties,
   blobScrubProperties,
   emailSchema,
   letterheadProperties,
@@ -45,6 +47,7 @@ export const facilitySettings = {
           defaultValue: 20,
           unit: 'GB',
         },
+        ...blobAntivirusProperties(),
       },
     },
     appointments: {
@@ -247,6 +250,12 @@ export const facilitySettings = {
         blobIntegrityScrub: scheduledTaskSchema(
           { schedule: '41 * * * *', jitterTime: '5m' },
           blobScrubProperties(),
+        ),
+        // spec: AV — a facility scans only what it holds, and only where it has
+        // a scanner of its own; without one it serves on central's verdict
+        blobAntivirusScan: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', jitterTime: '2m' },
+          blobScanProperties(),
         ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
         // Enabled even where the FHIR worker is not: a facility that once ran one

@@ -11,6 +11,7 @@ import {
   BLOB_TIERS,
   CURRENT_BLOB_HASH_ALGORITHM,
   type BlobIntegrityState,
+  type BlobScanVerdict,
   type BlobTier,
 } from '@tamanu/constants';
 import {
@@ -87,6 +88,8 @@ export interface PutResult {
 export interface BlobStat {
   size: number;
   integrityState: string;
+  /** What a scan found, or null when the blob has not been scanned. */
+  scanVerdict: BlobScanVerdict | null;
 }
 
 export interface VerifyResult {
@@ -341,7 +344,32 @@ export class BlobStore {
     if (!registered || !(await fileExists(this.#pathFor(hash)))) {
       return null;
     }
-    return { size: registered.size, integrityState: registered.integrityState };
+    return {
+      size: registered.size,
+      integrityState: registered.integrityState,
+      scanVerdict: registered.scanVerdict ?? null,
+    };
+  }
+
+  // spec: AV
+  /**
+   * Record what a scan found, with the scanner and signatures that found it.
+   * Written together because a verdict without the versions behind it cannot be
+   * aged: a re-scan is decided by comparing the recorded signature version
+   * against the scanner's current one.
+   */
+  async recordScanVerdict(
+    hash: string,
+    {
+      verdict,
+      scannerVersion,
+      signatureVersion,
+    }: { verdict: BlobScanVerdict; scannerVersion: string; signatureVersion: string },
+  ): Promise<void> {
+    await this.#models.Blob.update(
+      { scanVerdict: verdict, scannedAt: new Date(), scannerVersion, signatureVersion },
+      { where: { hash } },
+    );
   }
 
   /**

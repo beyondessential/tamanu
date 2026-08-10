@@ -29,6 +29,13 @@ export class FacilityBlobHealer {
    * hash repeatedly and concurrently.
    */
   async heal({ hash, fault, blob }) {
+    // spec: AV — self-heal never resurrects known-bad content. Every repair
+    // below ends in the same bytes being held again, and for a hash the
+    // deployment has found to be malware that is the one outcome to avoid.
+    if (await this.#models.BlobQuarantine.findOne({ where: { hash } })) {
+      log.warn('FacilityBlobHealer: leaving quarantined content unrepaired', { hash, fault });
+      return;
+    }
     // spec: SCRUB — a corrupt blob is retained, never deleted. Reconciliation
     // records a corrupt orphan (unknown provenance, so not assumed to be a
     // refetchable replica) before handing it here; the cache path below would

@@ -1,9 +1,16 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
+import ms from 'ms';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
-import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
+import {
+  BLOB_FAULTS,
+  BlobScanner,
+  BlobScrubber,
+  BlobStore,
+  createScannerDriver,
+} from '@tamanu/database/blobStore';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -14,6 +21,7 @@ import {
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { CentralBlobHealer } from './blobIntegrity';
+import { quarantineBlob } from './blobServing';
 import { findUndeliverableReferences, registerBlobReferenceSource } from './blobReferences';
 import { EmailService } from './services/EmailService';
 
@@ -73,6 +81,9 @@ export class ApplicationContext {
 
   /** @type {BlobScrubber | null} */
   blobScrubber = null;
+
+  /** @type {BlobScanner | null} */
+  blobScanner = null;
 
   /** @type {string | null} */
   deviceId = null;
@@ -149,6 +160,37 @@ export class ApplicationContext {
         }),
       log,
     });
+
+    // spec: AV
+    // Central scans every blob it holds and its verdict is authoritative, so an
+    // infected hash is quarantined here and pulled from here. No scanner
+    // configured means no driver, which means no pass and no verdicts: the
+    // ingest path, the serve path and the scrub all run as they would have.
+    const antivirus = await this.settings.get('blobStorage.antivirus');
+    const scannerDriver = createScannerDriver({
+      scanner: antivirus.scanner,
+      address: antivirus.address,
+      timeoutMs: ms(antivirus.timeout),
+    });
+    this.blobScanner =
+      scannerDriver &&
+      new BlobScanner({
+        blobStore: this.blobStore,
+        models: this.store.models,
+        driver: scannerDriver,
+        getLimits: async () => {
+          const scan = await this.settings.get('schedules.blobAntivirusScan');
+          const { maxScanMB } = await this.settings.get('blobStorage.antivirus');
+          return {
+            maxBlobs: scan.maxBlobsPerPass,
+            maxBytes: scan.maxGigabytesPerPass * 1024 ** 3,
+            maxScanBytes: maxScanMB * 1024 ** 2,
+          };
+        },
+        onInfected: (hash, versions) => quarantineBlob(this.store.models, hash, versions),
+        log,
+      });
+
     // spec: ATCH
     // Model and shared route code admits attachment content through this, so it
     // reaches the store from deep in an upstream write (a FHIR DiagnosticReport's

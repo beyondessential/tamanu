@@ -8,6 +8,8 @@ import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
 import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
+import { blobServeGate } from './blobServing';
+
 export const attachmentRoutes = express.Router();
 
 //TODO: Remove when permission check are implemented in all central server routes
@@ -45,6 +47,19 @@ attachmentRoutes.get(
           attachmentId: id,
           availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
         });
+        return;
+      }
+      // spec: AV
+      // Content the server holds but will not serve answers in the same shape,
+      // so a client tells "wait" from "gone" without a second request. Infected
+      // content says so rather than presenting as pending: it is never coming.
+      const withheld = await blobServeGate(
+        { settings: req.settings, models: req.store.models },
+        attachment.hash,
+        stat,
+      );
+      if (withheld) {
+        res.status(202).send({ attachmentId: id, availability: withheld });
         return;
       }
       if (base64 === 'true') {

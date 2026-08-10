@@ -1,7 +1,14 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
+import ms from 'ms';
 
-import { BLOB_FAULTS, BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
+import {
+  BLOB_FAULTS,
+  BlobScanner,
+  BlobScrubber,
+  BlobStore,
+  createScannerDriver,
+} from '@tamanu/database/blobStore';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { facilityDefaults } from '@tamanu/settings';
@@ -48,6 +55,9 @@ export class ApplicationContext {
 
   /** @type {BlobScrubber | null} */
   blobScrubber = null;
+
+  /** @type {BlobScanner | null} */
+  blobScanner = null;
 
   reportSchemaStores = null;
 
@@ -156,6 +166,47 @@ export class ApplicationContext {
       heal: report => this.blobHealer.heal(report),
       log,
     });
+
+    // spec: AV
+    // A facility scans only where it has a scanner of its own. Without one it
+    // records no verdicts and serves on central's, which reach it as quarantine
+    // records rather than as verdicts of its own.
+    const antivirusSettings = async () =>
+      primaryFacilityId
+        ? await this.settings[primaryFacilityId].get('blobStorage.antivirus')
+        : facilityDefaults.blobStorage.antivirus;
+    const antivirus = await antivirusSettings();
+    const scannerDriver = createScannerDriver({
+      scanner: antivirus.scanner,
+      address: antivirus.address,
+      timeoutMs: ms(antivirus.timeout),
+    });
+    this.blobScanner =
+      scannerDriver &&
+      new BlobScanner({
+        blobStore: this.blobStore,
+        models: this.models,
+        driver: scannerDriver,
+        getLimits: async () => {
+          const scan = primaryFacilityId
+            ? await this.settings[primaryFacilityId].get('schedules.blobAntivirusScan')
+            : facilityDefaults.schedules.blobAntivirusScan;
+          const { maxScanMB } = await antivirusSettings();
+          return {
+            maxBlobs: scan.maxBlobsPerPass,
+            maxBytes: scan.maxGigabytesPerPass * 1024 ** 3,
+            maxScanBytes: maxScanMB * 1024 ** 2,
+          };
+        },
+        // The deployment-wide record is central's to write, and it is pulled
+        // here rather than pushed from here. A facility's own finding stops it
+        // serving the content locally; central reaches the same verdict when the
+        // content is pushed to it.
+        onInfected: async hash => {
+          log.warn('BlobScanner: infected content held by this facility', { hash });
+        },
+        log,
+      });
 
     // spec: CACHE — consumers (attachments, assets) append their synced-record
     // resolvers here so their blobs become eligible for push.

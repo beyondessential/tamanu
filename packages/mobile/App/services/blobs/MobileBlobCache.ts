@@ -79,6 +79,11 @@ export class MobileBlobCache {
    * surfaced as a fault.
    */
   async open(hash: string): Promise<string> {
+    // spec: AV — checked before the fetch, so known-bad content is never pulled
+    // onto the device in the first place, not merely refused once it is here.
+    if (await this.#blobStore.isQuarantined(hash)) {
+      throw new NotFoundError(`Blob is quarantined: ${hash}`);
+    }
     let held = await this.#blobStore.stat(hash);
     if (!held) {
       await this.#fetchIntoCache(hash);

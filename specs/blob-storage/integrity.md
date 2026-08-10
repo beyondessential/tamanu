@@ -95,3 +95,6 @@ pass walks the store.
   hold; a backup remains its dependable source.
 - [ ] A blob recorded corrupt is retained rather than deleted, so it remains available
   for investigation and is never served.
+- [ ] Content known to be malware is never repaired: every repair above ends in the
+  same bytes being held again, which for known-bad content is the one outcome to avoid
+  (see `antivirus.md`).

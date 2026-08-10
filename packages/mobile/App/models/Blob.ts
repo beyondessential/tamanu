@@ -44,20 +44,4 @@ export class Blob extends BaseModel {
   // it against the current push cursor.
   @Column({ type: 'bigint', nullable: true })
   eligibleSinceTick: number;
-
-  // spec: AV
-  // The antivirus verdict held against this content, and the scanner it came
-  // from. Null verdict is not-yet-scanned. Infected content matches its hash,
-  // so this is orthogonal to integrityState.
-  @Column({ nullable: true })
-  scanVerdict: string;
-
-  @Column({ type: 'datetime', nullable: true })
-  scannedAt: Date;
-
-  @Column({ nullable: true })
-  scannerVersion: string;
-
-  @Column({ nullable: true })
-  signatureVersion: string;
 }

@@ -118,6 +118,10 @@ export class MobileBlobStore {
    * corrupt blob: its bytes are retained for investigation, never served.
    * A caller that already holds the blob's stat passes it rather than paying
    * for a second lookup.
+   *
+   * spec: AV — refuses known-bad content too. The device runs no scanner, so
+   * the quarantine record pulled from central is all it knows, and it is enough
+   * to refuse whether or not the device can reach central right now.
    */
   async servablePath(hash: string, known?: BlobStat | null): Promise<string> {
     const stat = known ?? (await this.stat(hash));
@@ -127,7 +131,16 @@ export class MobileBlobStore {
     if (stat.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
       throw new NotFoundError(`Blob is corrupt: ${hash}`);
     }
+    if (await this.isQuarantined(hash)) {
+      throw new NotFoundError(`Blob is quarantined: ${hash}`);
+    }
     return this.pathFor(hash);
+  }
+
+  // spec: AV
+  /** Whether the deployment has found this content to be malware. */
+  async isQuarantined(hash: string): Promise<boolean> {
+    return Boolean(await this.#models.BlobQuarantine.findOne({ where: { hash } }));
   }
 
   // spec: SCRUB

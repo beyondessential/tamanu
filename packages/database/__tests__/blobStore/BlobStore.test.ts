@@ -539,11 +539,15 @@ describe('BlobStore', () => {
   });
 
   describe('stat', () => {
-    it('reports size and integrity state for a held blob', async () => {
+    it('reports size, integrity state and scan verdict for a held blob', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
 
-      expect(await store.stat(hash)).toEqual({ size: 11, integrityState: 'verified' });
+      expect(await store.stat(hash)).toEqual({
+        size: 11,
+        integrityState: 'verified',
+        scanVerdict: null,
+      });
     });
 
     it('reports null for an absent blob', async () => {

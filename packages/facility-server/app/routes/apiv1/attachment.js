@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
+import { blobServeGate } from '../../blobServing';
 import { BlobTransferChannel } from '../../blobTransfer';
 import { getServerFacilityIds } from '../../serverConfig';
 import { CentralServerConnection } from '../../sync';
@@ -51,17 +52,31 @@ attachment.get(
     // as a use.
     if (localAttachment?.hash) {
       const { hash, type } = localAttachment;
+
+      // spec: AV
+      // Asked of this server before central, so a facility with the link down
+      // still withholds content the deployment has found to be malware: the
+      // quarantine record reached it by sync and does not need central to be
+      // reachable to apply.
+      const withheldLocally = await blobServeGate(
+        { settings: req.settings[getServerFacilityIds()[0]], models: req.models },
+        hash,
+        await req.blobStore.stat(hash),
+      );
+      if (withheldLocally) {
+        res.status(202).send({ attachmentId: id, availability: withheldLocally });
+        return;
+      }
+
       const channel = transferChannelFor(req);
       const { availability, size } = await channel.availability(hash);
 
-      // spec: ATCH
-      // Content central does not hold either cannot be resolved by fetching, so
-      // it presents as an existing file awaiting its content. The response
-      // carries which way it is pending — awaiting upload from its origin, or
-      // awaiting this server's fetch — so the presentation can distinguish them
-      // without another request. Content central holds is fetched below and
-      // served, not reported pending.
-      if (availability === BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD) {
+      // spec: ATCH, AV
+      // Anything short of available presents as an existing file that is not
+      // being served yet, carrying the reason: awaiting upload from its origin,
+      // awaiting a scan central has not run, or withheld as infected. Content
+      // central holds and will serve is fetched below.
+      if (availability !== BLOB_AVAILABILITY_STATES.AVAILABLE) {
         res.status(202).send({ attachmentId: id, availability });
         return;
       }

@@ -26,6 +26,7 @@ describe('MobileBlobStore', () => {
 
   beforeEach(async () => {
     await Database.models.Blob.getRepository().clear();
+    await Database.models.BlobQuarantine.getRepository().clear();
     fs = new FakeBlobFileSystem();
     store = buildStore(fs);
   });
@@ -105,6 +106,19 @@ describe('MobileBlobStore', () => {
       const orphanHash = sha256Hash('orphan');
       fs.seed(store.pathFor(orphanHash), 'orphan');
       expect(await store.has(orphanHash)).toBe(false);
+    });
+
+    // verifies spec: AV — quarantine propagates from central, so a device that
+    // runs no scanner still refuses content the deployment found to be malware,
+    // and refuses it whether or not it can reach central
+    it('refuses a quarantined hash from serving, though the bytes verify', async () => {
+      fs.seed('/tmp/d.jpg', 'infected');
+      const { hash } = await store.putFile('/tmp/d.jpg');
+      await Database.models.BlobQuarantine.createAndSaveOne({ hash });
+
+      expect(await store.verify(hash)).toBe(true);
+      expect(await store.has(hash)).toBe(true);
+      await expect(store.servablePath(hash)).rejects.toThrow(/quarantined/i);
     });
   });
 

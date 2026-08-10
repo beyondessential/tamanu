@@ -72,9 +72,35 @@ Consequences to build:
   revocable: the reference stays, the content stops serving, and the known-bad fact
   propagates
 
-## Open questions
+## Questions, and how they were answered
 
-Blocking, in order:
+Taken 2026-08-11 by the card owner, who asked for the calls to be made rather
+than deferred. All four are now carried by the spec.
+
+1. **Propagation.** A hash-keyed `blob_quarantines` record, written on central and
+   `PULL_FROM_CENTRAL` to facilities and devices. Chosen over a refusal reason on
+   the fetch subprotocol or a check at fetch time because it is the only one that
+   survives an offline facility, which is the case that matters: a cached copy of
+   known-bad content has to stay refused with the link down. Verdicts themselves
+   stay local to the server that reached them, so the sync volume is one row per
+   known-bad hash rather than one per blob.
+2. **Scanner configuration.** A server opts in by naming a scanner
+   (`blobStorage.antivirus.scanner`, default `none`), with an address, a timeout
+   and a size cap. Content over the cap is left unscanned rather than sent, so
+   clamd's stream limit cannot stall the pass; the posture then decides what
+   unscanned content does.
+3. **Re-scan trigger.** Scanner-reported signature version, compared against the
+   version recorded on each blob, on its own schedule and budget
+   (`schedules.blobAntivirusScan`) rather than sharing the scrub's. Scanning is
+   bound by the scanner's throughput and scrubbing by disk reads, and a signature
+   update makes the whole store due at once.
+4. **User-visible behaviour.** Infected content is answered as its own state
+   (`withheld-infected`) rather than as pending, so a clinician is told the content
+   is not coming. Unscanned content withheld under the strict posture answers
+   `awaiting-scan`, in the content-pending shape. Uploads are never rejected at the
+   door: content is admitted and quarantined if the scan finds something.
+
+The original framing of those questions, kept because the reasoning still applies:
 
 1. **Propagation mechanism.** How a known-bad verdict reaches other servers: a
    synced hash-keyed record, a refusal reason on the fetch-by-hash subprotocol, or
@@ -96,15 +122,7 @@ Lower priority: whether a quarantined blob is ever reclaimed once unreferenced,
 whether facilities evict infected cache copies, and how the backfill's legacy
 backlog is scanned without swamping the scanner.
 
-The mobile registry now carries the same four scan columns as the server, which
-is what the repo asks of a schema change. A device runs no scanner, so what it
-should hold is a verdict it was told, not a scan it performed, and only
-`scanVerdict` obviously survives that. Which of the four the device keeps falls
-out of question 1.
-
 ## Steps
-
-The first two are done; the rest wait on the open questions above.
 
 - [x] Rename the `quarantined` integrity state to `corrupt` across constants, the
   model default, the mobile migration, both healers, and `integrity.md`
@@ -114,22 +132,38 @@ The first two are done; the rest wait on the open questions above.
     `docs/reference/query-cookbook.md`, whose query matches on the value) and the
     dbt column doc
   - `MobileBlobStore.quarantine()` is now `markCorrupt()`, so the word is free
-- [x] Add scan columns to `blobs` plus the mobile counterpart, and the dbt models
+- [x] Add scan columns to `blobs` and the dbt models
   - `scan_verdict`, `scanned_at`, `scanner_version`, `signature_version`, all
     nullable; a null verdict is not-yet-scanned
-  - `BLOB_SCAN_VERDICTS` (clean, infected) names the verdict domain; nothing reads
-    the columns yet
-  - No index: the scan task's scan order follows from open question 3, so the
-    index that serves it lands with the task
+  - `BLOB_SCAN_VERDICTS` (clean, infected) names the verdict domain
+  - No mobile counterpart in the end: with question 1 answered by a propagating
+    record, a device holds a quarantine it was told, not a scan it performed, so
+    the four columns would have been dead there. It gets `blob_quarantines`
+    instead
   - The dbt `.yml` was hand-edited to match the generator's shape rather than
     regenerated, which needs a migrated local database
-- [ ] Settings for the scanner and the serve policy (open question 2)
-- [ ] Scanner driver behind one interface, with clamd first and the others left as
+- [x] Settings for the scanner and the serve policy
+  - `blobStorage.antivirus.servePolicy` is global (deployment-wide posture);
+    scanner, address, timeout and size cap are per-server, in central and facility
+    scope alongside `blobStorage.root`
+  - `schedules.blobAntivirusScan` on both servers, with its own per-pass bounds
+- [x] Scanner driver behind one interface, with clamd first and the others left as
   seams
-- [ ] Queued scan task, sharing the scrub's rate-limiting shape
-- [ ] Serve policy enforcement on the read path, including the not-yet-scanned
-  answer
-- [ ] Known-bad propagation and self-heal suppression (open question 1)
-- [ ] Re-scan on signature update (open question 3)
-- [ ] Runbook, healthcheck map entry, and query cookbook entries, as P2 did
-- [ ] Tests across store, scan task, both servers, and the serve postures
+  - clamd over INSTREAM rather than SCAN-by-path, so the daemon needs no access to
+    the store's filesystem and can run in its own container. The size cap is the
+    cost of that choice
+- [x] Queued scan task, on its own budget rather than the scrub's
+- [x] Serve policy enforcement on the read path, including the not-yet-scanned
+  answer, on central and facility attachment routes and the transfer channel
+- [x] Known-bad propagation and self-heal suppression
+  - `blob_quarantines`, written on central, `PULL_FROM_CENTRAL` everywhere else
+  - Suppressed in four places the epic already shipped: central's offer answers
+    already-stored rather than wanted, pushed bytes are not staged, the facility
+    healer leaves it unrepaired, and the device refuses to fetch or serve it
+- [x] Re-scan on signature update, by comparing the scanner's reported signature
+  version against the one recorded on each blob
+- [x] Runbook, healthcheck map entry, and query cookbook entries, as P2 did
+- [x] Tests across the store, the scan pass, the serve postures, and the device
+  - Unit coverage is in `@tamanu/database` and mobile, both runnable here
+  - The central and facility endpoint tests need a database, so they are listed
+    unticked in the test cases rather than written blind
