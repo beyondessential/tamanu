@@ -203,10 +203,9 @@ next one. The server's suites are the regression net throughout.
 - [x] Store admission ordering into the package, `BlobStore` re-pointed, with the
       registry upsert stated as a port contract rather than SQL. Recency coalescing
       stays with the cache tier, so it moves with the mobile host work
-- [x] Host contract suite written; the server harness is wired but unverified
-      locally (the test database cannot migrate on this machine)
-- [x] Mobile host implementation, running the same contract suite (9 cases green
-      on the device host; the server harness still needs a migratable test database)
+- [x] Host contract suite, run against the server host
+- [x] Mobile host implementation, running the same contract suite (9 cases green on
+      both hosts)
 - [x] `MobileBlobStore`, `MobileBlobCache` and the device outbox pusher re-pointed
 - [ ] Confirm the existing server suites pass unchanged, and that the package pulls
       in no node builtins
