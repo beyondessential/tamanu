@@ -134,17 +134,17 @@ consumes; the `data` blob column was never written on device and is dropped.
 
 ## Open performance questions from review
 
-Two review findings are real but were left unfixed, because each needs a decision
-rather than a code tweak:
+**Verification cost on every read — resolved.** Read verification is now coalesced:
+outbox content, the device's sole copy, is verified on every read, while cache
+content is served on a recorded verification within a window and re-hashed only
+once that lapses. Admission counts as a verification, since the content is hashed
+on the way in, so a freshly captured or fetched blob is not immediately re-hashed.
+This carries a `lastVerifiedAt` column on the device `blobs` table and an amendment
+to `integrity.md`. The remaining double-read in `readBase64` (hash pass, then read
+pass) only occurs on a read that actually verifies.
 
-- **Verification cost on every read.** `MobileBlobCache.open` hashes the whole file
-  on each read, and `readBase64` then reads it again, so viewing a 5 MB photo is
-  two full passes over the file on a low-end device. The only lever is verifying
-  less often, which is exactly what `integrity.md` currently promises ("verification
-  at receipt and on read"). The proposal worth costing: keep always-verify for
-  outbox content (the device holds the sole copy) and coalesce cache verification
-  within a time window the way recency is coalesced, which needs a `lastVerifiedAt`
-  column on `blobs` plus a spec amendment. Not a silent change — decide first.
+One finding is left open, pending a check the user is running:
+
 - **Temp copy when resuming a push.** `#pushFrom` copies the blob's remainder into
   a temporary file before uploading, because the upload API sends whole files; a
   connection that drops early therefore duplicates nearly the whole blob on disk.

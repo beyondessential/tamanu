@@ -93,6 +93,11 @@ scoping is J2's.
   SCRUB, MOB)
 - [ ] Confirm the device runs no scheduled scrub and does no background hashing pass
   while idle (verifies spec: SCRUB)
+- [x] View a cached photo repeatedly in quick succession; the file is hashed once
+  rather than on every view, while outbox content is verified on each read (verifies
+  spec: SCRUB)
+- [ ] View a large cached photo on a low-end device after its verification window has
+  lapsed; the re-verification does not make the view feel slow (verifies spec: SCRUB)
 - [x] Deliver bytes that do not match the requested hash; the device rejects them and
   does not admit them to the store (verifies spec: XFER, SCRUB)
 

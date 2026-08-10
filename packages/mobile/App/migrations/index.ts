@@ -94,6 +94,7 @@ import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-
 import { addBlobsTable1785810000000 } from './1785810000000-addBlobsTable';
 import { addBlobCacheTierColumns1785820000000 } from './1785820000000-addBlobCacheTierColumns';
 import { reshapeAttachmentsForBlobStore1785850000000 } from './1785850000000-reshapeAttachmentsForBlobStore';
+import { addBlobLastVerifiedAt1785910000000 } from './1785910000000-addBlobLastVerifiedAt';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -191,4 +192,5 @@ export const migrationList = [
   addBlobsTable1785810000000,
   addBlobCacheTierColumns1785820000000,
   reshapeAttachmentsForBlobStore1785850000000,
+  addBlobLastVerifiedAt1785910000000,
 ];

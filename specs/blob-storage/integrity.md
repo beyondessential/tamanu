@@ -28,11 +28,18 @@ be found.
 - [ ] The scrub runs on every server that stores blobs, central and facilities
   alike.
 - [ ] A mobile device runs no scheduled scrub, since it is battery-powered and
-  intermittently awake. It relies on verification at receipt and on read, and its
-  cache refetches on demand.
-- [ ] A device verifies an outbox blob against its hash before offering it, so
-  corruption of content the device alone holds is detected and surfaced on the
-  device rather than as a repeatedly refused push.
+  intermittently awake. Verification at receipt and on read carries its integrity,
+  and its cache refetches on demand.
+- [ ] A device verifies content it alone holds — an outbox blob — on every read and
+  again before offering it for push, so corruption of content with no other copy is
+  detected and surfaced on the device rather than as a repeatedly refused push.
+- [ ] Verification of a device's cache content on read is coalesced: a blob verified
+  within a recency interval is served without re-hashing, and one that is not is
+  verified before it is served. Hashing a whole file is costly on a constrained
+  device, and a corrupt cache blob is recoverable by refetching, so repeated reads of
+  the same content do not each pay for it.
+- [ ] A device records each blob's verification time in its local registry, and
+  counts admission as a verification, since content is hashed as it is admitted.
 - [ ] The scrub also checks referential integrity for content that must be durably
   present on the server: every referenced, delivered blob on the central server, and
   every outbox blob on a facility. A blob absent in these cases is reported the same

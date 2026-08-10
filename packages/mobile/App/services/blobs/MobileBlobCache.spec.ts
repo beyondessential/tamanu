@@ -94,6 +94,34 @@ describe('MobileBlobCache', () => {
       expect(path).toBe(store.pathFor(hash));
     });
 
+    // verifies spec: SCRUB — cache verification is coalesced across reads
+    it('does not re-hash recently verified cache content on a second read', async () => {
+      const hash = sha256Hash('cache content');
+      fs.seed(store.pathFor(hash), 'cache content');
+      await insertVerified(hash, 'cache content', BLOB_TIERS.CACHE);
+      cache.setTransferChannel({ fetchFromCentral: jest.fn() } as any);
+
+      const hashSpy = jest.spyOn(fs, 'hash');
+      await cache.open(hash);
+      expect(hashSpy).toHaveBeenCalledTimes(1);
+      await cache.open(hash);
+      // second read is served on the recorded verification, not a fresh hash
+      expect(hashSpy).toHaveBeenCalledTimes(1);
+      hashSpy.mockRestore();
+    });
+
+    // verifies spec: SCRUB — content the device alone holds is verified every read
+    it('re-hashes outbox content on every read', async () => {
+      fs.seed('/tmp/captured.jpg', 'captured bytes');
+      const { hash } = await cache.putOutbox('/tmp/captured.jpg');
+
+      const hashSpy = jest.spyOn(fs, 'hash');
+      await cache.open(hash);
+      await cache.open(hash);
+      expect(hashSpy).toHaveBeenCalledTimes(2);
+      hashSpy.mockRestore();
+    });
+
     // verifies spec: SCRUB, MOB — corrupt outbox content is quarantined and surfaced
     it('quarantines corrupt outbox content instead of refetching', async () => {
       const hash = sha256Hash('captured content');

@@ -124,11 +124,41 @@ export class MobileBlobStore {
   }
 
   // spec: SCRUB
-  /** Whether the stored bytes still hash to the blob's name. */
+  /**
+   * Whether the stored bytes still hash to the blob's name. Reads the whole file,
+   * so callers on the read path should consult verifiedWithin first.
+   */
   async verify(hash: string): Promise<boolean> {
     const { algorithm, digest } = parseBlobHash(hash);
     const actual = await this.#fs.hash(this.pathFor(hash), algorithm);
-    return actual.toLowerCase() === digest;
+    const matches = actual.toLowerCase() === digest;
+    if (matches) {
+      await this.#models.Blob.getRepository().query(
+        `UPDATE blobs SET lastVerifiedAt = datetime('now') WHERE hash = ?`,
+        [hash],
+      );
+    }
+    return matches;
+  }
+
+  // spec: SCRUB
+  /**
+   * Whether the blob's content was confirmed to match its hash within the given
+   * window. Compared in the database so the stored time needs no timezone
+   * interpretation on the way out.
+   */
+  async verifiedWithin(hash: string, seconds: number): Promise<boolean> {
+    const [row] = await this.#models.Blob.getRepository().query(
+      `
+        SELECT 1 AS ok FROM blobs
+        WHERE hash = ?
+          AND deletedAt IS NULL
+          AND lastVerifiedAt IS NOT NULL
+          AND lastVerifiedAt > datetime('now', ?)
+      `,
+      [hash, `-${seconds} seconds`],
+    );
+    return Boolean(row);
   }
 
   // spec: SCRUB
@@ -345,14 +375,17 @@ export class MobileBlobStore {
     // soft-deleted row still occupies the unique index and would otherwise
     // shadow re-admission forever, so resurrect it as the fresh admission it
     // is: take the incoming tier and reset recency to now.
+    // spec: SCRUB — admission hashes the content, so it counts as a verification
+    // and a first read of freshly admitted content need not re-hash it.
     await this.#models.Blob.getRepository().query(
       `
-        INSERT INTO blobs (id, hash, size, integrityState, tier, lastAccessedAt)
-        VALUES (?, ?, ?, ?, ?, datetime('now'))
+        INSERT INTO blobs (id, hash, size, integrityState, tier, lastAccessedAt, lastVerifiedAt)
+        VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         ON CONFLICT (hash) DO UPDATE
           SET deletedAt = NULL,
               updatedAt = datetime('now'),
               lastAccessedAt = datetime('now'),
+              lastVerifiedAt = datetime('now'),
               tier = excluded.tier
           WHERE blobs.deletedAt IS NOT NULL
       `,

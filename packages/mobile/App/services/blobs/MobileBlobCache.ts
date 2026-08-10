@@ -13,6 +13,13 @@ import type { BlobTransferChannel } from './BlobTransferChannel';
 // refreshes degrades eviction ordering only.
 const RECENCY_COALESCE_SECONDS = 60;
 
+// spec: SCRUB
+// Cache content confirmed to match its hash within this window is served without
+// re-hashing. Long enough that browsing back and forth over a patient's photos
+// hashes each file once, short enough that a corrupt cache copy is caught on a
+// later visit. Outbox content is exempt and verified on every read.
+const VERIFICATION_COALESCE_SECONDS = 60 * 60;
+
 // Upper bound on cache rows scanned per eviction pass; a cache bigger than this
 // is trimmed across successive passes.
 const EVICTION_SCAN_LIMIT = 1000;
@@ -76,7 +83,7 @@ export class MobileBlobCache {
       await this.#fetchIntoCache(hash);
     }
 
-    if (!(await this.#blobStore.verify(hash))) {
+    if (!(await this.#verifiedForRead(hash))) {
       const row = await this.#models.Blob.findOne({ where: { hash } });
       if (row?.tier === BLOB_TIERS.OUTBOX) {
         await this.#blobStore.quarantine(hash);
@@ -100,6 +107,24 @@ export class MobileBlobCache {
   async readBase64(hash: string): Promise<string> {
     const path = await this.open(hash);
     return await this.#fs.readFile(path, 'base64');
+  }
+
+  // spec: SCRUB
+  /**
+   * Whether the content may be served as matching its hash. Content the device
+   * alone holds is verified on every read, since corruption of it is unrecoverable
+   * and must surface. Cache content, being refetchable, is verified no more often
+   * than the coalescing window, so repeated reads of the same photo do not each
+   * re-hash the whole file on a constrained device.
+   */
+  async #verifiedForRead(hash: string): Promise<boolean> {
+    const row = await this.#models.Blob.findOne({ where: { hash } });
+    if (row?.tier !== BLOB_TIERS.OUTBOX) {
+      if (await this.#blobStore.verifiedWithin(hash, VERIFICATION_COALESCE_SECONDS)) {
+        return true;
+      }
+    }
+    return await this.#blobStore.verify(hash);
   }
 
   async #fetchIntoCache(hash: string): Promise<void> {
