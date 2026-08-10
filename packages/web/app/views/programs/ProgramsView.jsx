@@ -16,6 +16,7 @@ import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
+import { usePatient } from '../../contexts/Patient';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -339,9 +340,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
 export const ProgramsView = () => {
   const dispatch = useDispatch();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  if (!patient.id) {
+  if (!patient?.id) {
     return (
       <PatientListingView
         onViewPatient={id => dispatch(reloadPatient(id))}

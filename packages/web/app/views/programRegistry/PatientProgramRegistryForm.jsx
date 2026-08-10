@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
-import { useSelector } from 'react-redux';
 import { Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import {
@@ -22,6 +21,7 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 import { useTranslation } from '../../contexts/Translation';
 
 const RelatedConditionFieldsContainer = styled.div`
@@ -45,14 +45,14 @@ const RelatedConditionFieldsContainer = styled.div`
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
   const { getCurrentDate } = useDateTime();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
-    baseQueryParameters: { patientId: patient.id },
+    baseQueryParameters: { patientId: patient?.id },
   });
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: program ? program.id : null },
@@ -106,7 +106,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               data.conditions.filter(condition => condition?.conditionId)
             : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          patientId: patient.id,
+          patientId: patient?.id,
         });
       }}
       render={({ submitForm, values, setValues }) => {

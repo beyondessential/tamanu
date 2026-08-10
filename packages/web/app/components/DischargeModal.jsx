@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { useSettings, useSuggester } from '@tamanu/ui-components';
 import { PATIENT_STATUS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { DischargeForm } from '../forms/DischargeForm';
 import { reloadPatient } from '../store/patient';
 import { getPatientStatus } from '../utils/getPatientStatus';
@@ -17,7 +18,7 @@ const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const { getSetting } = useSettings();
   const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
@@ -80,13 +81,13 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         };
       }
       await writeAndViewEncounter(encounter.id, data);
-      await dispatch(reloadPatient(patient.id));
+      await dispatch(reloadPatient(patient?.id));
       if (!data.dischargeDraft) {
-        navigateToPatient(patient.id);
+        navigateToPatient(patient?.id);
       }
       onClose();
     },
-    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, navigateToPatient],
+    [writeAndViewEncounter, encounter.id, dispatch, patient?.id, onClose, navigateToPatient],
   );
 
   return (

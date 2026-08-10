@@ -16,6 +16,7 @@ import { getCurrentUser } from '../../store';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
@@ -118,10 +119,10 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const currentUser = useSelector(getCurrentUser);
   const dispatch = useDispatch();
-  if (!patient.id) {
+  if (!patient?.id) {
     return (
       <PatientListingView
         onViewPatient={id => {

@@ -8,7 +8,6 @@ import { capitalize } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -70,6 +69,7 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
 import {
@@ -642,8 +642,8 @@ export const MedicationForm = ({
     enabled: isEditing,
   });
 
-  const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
+  const { patient } = usePatient();
+  const age = getAgeDurationFromDate(patient?.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
 
@@ -711,7 +711,7 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
+        ? api.post(`medication/patientOngoingPrescription/${patient?.id}`, payload)
         : api.post(`medication/encounterPrescription/${encounterId}`, payload));
       // The return from the post doesn't include the joined tables like medication and prescriber
       const newMedication = await api.get(`medication/${medicationSubmission.id}`);
