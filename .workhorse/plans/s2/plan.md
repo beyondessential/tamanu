@@ -200,8 +200,9 @@ next one. The server's suites are the regression net throughout.
       `facilityIds` and the api-client conventions on the server side
 - [x] Outbox pusher policy into the package, `BlobOutboxPusher` re-pointed
 - [x] Eviction policy into the package, `FacilityBlobCache` re-pointed
-- [ ] Store admission ordering into the package, `BlobStore` re-pointed, with the
-      registry upsert and recency coalescing as port contracts rather than SQL
+- [x] Store admission ordering into the package, `BlobStore` re-pointed, with the
+      registry upsert stated as a port contract rather than SQL. Recency coalescing
+      stays with the cache tier, so it moves with the mobile host work
 - [ ] Host contract suite, run against the server host
 - [ ] Mobile host implementation, run the same contract suite against it
 - [ ] `MobileBlobStore` / `MobileBlobCache` re-pointed at the package

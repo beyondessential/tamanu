@@ -1,0 +1,151 @@
+import { BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM, type BlobTier } from '@tamanu/constants';
+import { BlobHashMismatchError, InsufficientStorageError, NotFoundError } from '@tamanu/errors';
+import { formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
+
+export interface AdmissionResult {
+  hash: string;
+  size: number;
+  /** True when identical content was already stored, making this admission a no-op. */
+  existed: boolean;
+}
+
+/**
+ * The store IO the admission ordering drives. Paths are opaque strings the host
+ * hands back to itself; the package decides the sequence, never the bytes.
+ */
+export interface BlobAdmissionHost {
+  /** Hex digest of the file's bytes under the named algorithm. */
+  hashFile(path: string, algorithm: string): Promise<string>;
+  fileExists(path: string): Promise<boolean>;
+  fileSize(path: string): Promise<number>;
+  /** Atomic placement: after this returns, a reader sees whole content or none. */
+  place(fromPath: string, toPath: string): Promise<void>;
+  removeFile(path: string): Promise<void>;
+  pathFor(hash: string): string;
+  stagingPathFor(hash: string): string;
+  stat(hash: string): Promise<{ size: number } | null>;
+  /**
+   * Registry upsert. Contract, since hosts implement it in different dialects:
+   * atomic against a concurrent admission of the same content; a live row is
+   * left entirely alone (content already held as cache stays cache); a
+   * soft-deleted row is resurrected with the incoming tier and its recency reset
+   * to now.
+   */
+  register(hash: string, size: number, tier: BlobTier): Promise<void>;
+  /** Free space on the volume the store root sits on. */
+  freeBytes(): Promise<number>;
+  /** Free space the store must leave available. */
+  reserveBytes(): Promise<number>;
+  /** Asked to free at least bytesNeeded before the store refuses. */
+  evict?(bytesNeeded: number): Promise<void>;
+}
+
+// spec: CAS, CAP
+/**
+ * The content-addressed store's admission ordering: hash the written bytes,
+ * place them at their fan-out path, and only then register, so a crash leaves an
+ * adoptable orphan rather than a row pointing at missing bytes.
+ */
+export class BlobAdmission {
+  #host: BlobAdmissionHost;
+
+  constructor(host: BlobAdmissionHost) {
+    this.#host = host;
+  }
+
+  // spec: CAS
+  /**
+   * Admit content the host has already written to `tempPath`. The hash comes
+   * from the bytes on disk, never from one a caller supplied, so what is
+   * recorded is provably what is stored. Idempotent: identical content resolves
+   * to the one stored blob, keeping its existing tier.
+   */
+  async admitFile(
+    tempPath: string,
+    { tier = BLOB_TIERS.CACHE }: { tier?: BlobTier } = {},
+  ): Promise<AdmissionResult> {
+    await this.ensureFloor(0);
+
+    const digest = await this.#host.hashFile(tempPath, CURRENT_BLOB_HASH_ALGORITHM);
+    const hash = formatBlobHash(CURRENT_BLOB_HASH_ALGORITHM, digest);
+    const size = await this.#host.fileSize(tempPath);
+
+    const finalPath = this.#host.pathFor(hash);
+    const existed = await this.#host.fileExists(finalPath);
+    if (existed) {
+      await this.#host.removeFile(tempPath);
+    } else {
+      await this.#host.place(tempPath, finalPath);
+    }
+
+    // Register after placement: a crash in between leaves an orphan file that
+    // the next admission of the same content adopts, never a registry row
+    // pointing at missing bytes.
+    await this.#host.register(hash, size, tier);
+
+    return { hash, size, existed };
+  }
+
+  // spec: XFER
+  /**
+   * Verify staged content against its hash and admit it. Verification covers the
+   * complete staged file, including bytes delivered before an interruption. On
+   * mismatch the staging is discarded, so the next attempt starts clean.
+   * Idempotent: a hash the store already holds commits as a no-op.
+   */
+  async commitStaged(hash: string): Promise<AdmissionResult> {
+    const { algorithm } = parseBlobHash(hash);
+    const stagingPath = this.#host.stagingPathFor(hash);
+
+    const existing = await this.#host.stat(hash);
+    if (existing) {
+      await this.#host.removeFile(stagingPath);
+      return { hash, size: existing.size, existed: true };
+    }
+
+    if (!(await this.#host.fileExists(stagingPath))) {
+      throw new NotFoundError(`Nothing staged for blob: ${hash}`);
+    }
+
+    const digest = await this.#host.hashFile(stagingPath, algorithm);
+    const actualHash = formatBlobHash(algorithm, digest);
+    if (actualHash !== hash) {
+      await this.#host.removeFile(stagingPath);
+      throw new BlobHashMismatchError(
+        `Staged content for ${hash} hashed to ${actualHash}; content discarded`,
+      );
+    }
+
+    const size = await this.#host.fileSize(stagingPath);
+    await this.#host.place(stagingPath, this.#host.pathFor(hash));
+    await this.#host.register(hash, size, BLOB_TIERS.CACHE);
+    return { hash, size, existed: false };
+  }
+
+  // spec: CAP
+  /**
+   * Keep the volume's free space above the reserve, measured against actual free
+   * space so growth in the database or other consumers is accounted for. Evict
+   * cache first where a hook is available; refuse rather than cross into the
+   * reserve.
+   */
+  async ensureFloor(bytesNeeded: number): Promise<void> {
+    const reserve = await this.#host.reserveBytes();
+    let free = await this.#host.freeBytes();
+    if (free - bytesNeeded >= reserve) {
+      return;
+    }
+    if (this.#host.evict) {
+      await this.#host.evict(reserve + bytesNeeded - free);
+      free = await this.#host.freeBytes();
+      if (free - bytesNeeded >= reserve) {
+        return;
+      }
+    }
+    throw new InsufficientStorageError(
+      `Blob store refused new content: ${free} bytes free on volume, ${
+        bytesNeeded ? `${bytesNeeded} needed, ` : ''
+      }${reserve} reserved for the system`,
+    );
+  }
+}

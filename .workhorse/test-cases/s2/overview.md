@@ -73,11 +73,13 @@ each case asserts on the sequence of decisions rather than on bytes moved.
 
 ### Admission ordering
 
-- [ ] Content is placed at its fan-out path before it is registered (verifies spec: CAS)
-- [ ] A crash between placement and registration leaves an adoptable orphan, never a row pointing at missing bytes (verifies spec: CAS)
-- [ ] Admission of content already stored is a no-op that shares the existing blob (verifies spec: CAS)
+- [x] Content is placed at its fan-out path before it is registered (verifies spec: CAS)
+- [x] A crash between placement and registration leaves an adoptable orphan, never a row pointing at missing bytes (verifies spec: CAS)
+- [x] Admission of content already stored is a no-op that shares the existing blob (verifies spec: CAS)
 - [ ] The free-disk floor is rechecked periodically while writing content of unknown size (verifies spec: CAP)
-- [ ] The store refuses rather than cross into the reserve, after asking the host to evict (verifies spec: CAP)
+- [x] The store refuses rather than cross into the reserve, after asking the host to evict (verifies spec: CAP)
+- [x] Staged content that hashes to something else is discarded rather than admitted (verifies spec: CAS)
+- [x] Committing with nothing staged reports not-found rather than hashing a missing file (verifies spec: XFER)
 
 ## Host contract tests
 
@@ -98,8 +100,8 @@ divergence fails on the host that diverged.
 
 ## Extraction is behaviour-preserving
 
-- [ ] The existing BlobStore, transfer channel, cache and central endpoint suites pass unchanged against the extracted package (verifies spec: XFER, CACHE, CAS)
-- [ ] The package imports no node builtins, so it loads under React Native (verifies spec: CAS)
+- [x] The existing BlobStore, transfer channel, cache and central endpoint suites pass unchanged against the extracted package (verifies spec: XFER, CACHE, CAS)
+- [x] The package imports no node builtins, so it loads under React Native (verifies spec: CAS)
 - [ ] A blob pushed by a server is fetchable by mobile and the reverse, over the same wire protocol
 
 ## Manual

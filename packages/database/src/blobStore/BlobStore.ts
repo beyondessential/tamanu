@@ -3,19 +3,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
 
-import {
-  BLOB_INTEGRITY_STATES,
-  BLOB_TIERS,
-  CURRENT_BLOB_HASH_ALGORITHM,
-  type BlobTier,
-} from '@tamanu/constants';
-import {
-  BlobHashMismatchError,
-  InsufficientStorageError,
-  InvalidParameterError,
-  NotFoundError,
-} from '@tamanu/errors';
-import { blobPathSegments, formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
+import { BlobAdmission } from '@tamanu/blobs';
+import { BLOB_INTEGRITY_STATES, BLOB_TIERS, type BlobTier } from '@tamanu/constants';
+import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
+import { blobPathSegments, parseBlobHash } from '@tamanu/utils/blobs';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import type { Blob } from '../models/Blob';
@@ -84,16 +75,29 @@ export class BlobStore {
 
   readonly #models: { Blob: typeof Blob };
   readonly #getFreeDiskReserveBytes: () => Promise<number>;
-  readonly #evictCache?: (bytesNeeded: number) => Promise<void>;
   readonly #statfs: (root: string) => Promise<VolumeStats>;
   readonly #stagingLocks = new Map<string, Promise<unknown>>();
+  readonly #admission: BlobAdmission;
 
   constructor({ root, models, getFreeDiskReserveBytes, evictCache, statfs }: BlobStoreOptions) {
     this.root = root;
     this.#models = models;
     this.#getFreeDiskReserveBytes = getFreeDiskReserveBytes;
-    this.#evictCache = evictCache;
     this.#statfs = statfs ?? (r => fs.statfs(r));
+    this.#admission = new BlobAdmission({
+      hashFile: (filePath, algorithm) => hashFile(filePath, algorithm),
+      fileExists,
+      fileSize: async filePath => (await fs.stat(filePath)).size,
+      place: (fromPath, toPath) => this.#placeAtFinalPath(fromPath, toPath),
+      removeFile: filePath => fs.rm(filePath, { force: true }),
+      pathFor: hash => this.#pathFor(hash),
+      stagingPathFor: hash => this.#stagingPathFor(hash),
+      stat: hash => this.stat(hash),
+      register: (hash, size, tier) => this.#register(hash, size, tier),
+      freeBytes: () => this.#volumeFreeBytes(),
+      reserveBytes: () => this.#getFreeDiskReserveBytes(),
+      ...(evictCache ? { evict: evictCache } : {}),
+    });
   }
 
   /**
@@ -149,9 +153,9 @@ export class BlobStore {
   }
 
   /**
-   * Admit content into the store: hash it while streaming to a temporary file
-   * within the store, then atomically rename into the fan-out path and record
-   * it in the registry. Idempotent — identical content resolves to the one
+   * Admit content into the store: stream it to a temporary file within the
+   * store, hash what landed there, then atomically rename into the fan-out path
+   * and record it in the registry. Idempotent — identical content resolves to the one
    * stored blob, keeping its existing tier (spec: CACHE — content already held
    * as cache stays cache). Refuses (InsufficientStorageError) rather than take
    * the volume's free space below the configured reserve. On any failure the
@@ -182,31 +186,19 @@ export class BlobStore {
     await this.#ensureFloor(sizeHint ?? 0);
 
     const tempPath = path.join(tempDir, randomUUID());
-    let size: number;
-    let digest: string;
     try {
-      ({ size, digest } = await this.#writeAndHash(source, tempPath));
-      await this.#ensureFloor(0);
+      await this.#writeTemp(source, tempPath);
     } catch (error) {
       await fs.rm(tempPath, { force: true });
       throw error;
     }
 
-    const hash = formatBlobHash(CURRENT_BLOB_HASH_ALGORITHM, digest);
-    const finalPath = this.#pathFor(hash);
-    const existed = await fileExists(finalPath);
-    if (existed) {
+    try {
+      return await this.#admission.admitFile(tempPath, { tier: tier ?? BLOB_TIERS.CACHE });
+    } catch (error) {
       await fs.rm(tempPath, { force: true });
-    } else {
-      await this.#placeAtFinalPath(tempPath, finalPath);
+      throw error;
     }
-
-    // Register after placement: a crash in between leaves an orphan file that
-    // the next put of the same content adopts, never a registry row pointing
-    // at missing bytes.
-    await this.#register(hash, size, tier);
-
-    return { hash, size, existed };
   }
 
   // spec: XFER
@@ -323,47 +315,7 @@ export class BlobStore {
   }
 
   async #commitStagedLocked(hash: string): Promise<PutResult> {
-    const existing = await this.stat(hash);
-    if (existing) {
-      await this.#removeStagingFile(hash);
-      return { hash, size: existing.size, existed: true };
-    }
-
-    const { algorithm } = parseBlobHash(hash);
-    const stagingPath = this.#stagingPathFor(hash);
-    let handle;
-    try {
-      handle = await fs.open(stagingPath, 'r');
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        throw new NotFoundError(`Nothing staged for blob: ${hash}`);
-      }
-      throw error;
-    }
-
-    const hasher = createHash(algorithm);
-    let size = 0;
-    try {
-      for await (const chunk of handle.createReadStream({ autoClose: false })) {
-        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-        hasher.update(buffer);
-        size += buffer.length;
-      }
-    } finally {
-      await handle.close();
-    }
-
-    const actualHash = formatBlobHash(algorithm, hasher.digest('hex'));
-    if (actualHash !== hash) {
-      await this.#removeStagingFile(hash);
-      throw new BlobHashMismatchError(
-        `Staged content for ${hash} hashed to ${actualHash}; content discarded`,
-      );
-    }
-
-    await this.#placeAtFinalPath(stagingPath, this.#pathFor(hash));
-    await this.#register(hash, size);
-    return { hash, size, existed: false };
+    return await this.#admission.commitStaged(hash);
   }
 
   // spec: XFER
@@ -425,12 +377,7 @@ export class BlobStore {
     return path.join(this.root, STAGING_DIR, `${algorithm}-${digest}`);
   }
 
-  async #writeAndHash(
-    source: Readable,
-    tempPath: string,
-  ): Promise<{ size: number; digest: string }> {
-    const hasher = createHash(CURRENT_BLOB_HASH_ALGORITHM);
-    let size = 0;
+  async #writeTemp(source: Readable, tempPath: string): Promise<void> {
     let bytesSinceFloorCheck = 0;
 
     // Written through the handle, not a write stream from it: such a stream
@@ -439,8 +386,6 @@ export class BlobStore {
     try {
       for await (const chunk of source) {
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-        hasher.update(buffer);
-        size += buffer.length;
         bytesSinceFloorCheck += buffer.length;
         await writeAll(handle, buffer);
         if (bytesSinceFloorCheck >= FLOOR_CHECK_INTERVAL_BYTES) {
@@ -453,8 +398,6 @@ export class BlobStore {
     } finally {
       await handle.close();
     }
-
-    return { size, digest: hasher.digest('hex') };
   }
 
   async #placeAtFinalPath(tempPath: string, finalPath: string): Promise<void> {
@@ -532,29 +475,8 @@ export class BlobStore {
     );
   }
 
-  // spec: CAP
-  // Keep the volume's free space above the configured reserve, measured
-  // against actual free space so growth in the database or other consumers is
-  // accounted for. Evict cache first where a hook is available; refuse rather
-  // than cross into the reserve.
   async #ensureFloor(bytesNeeded: number): Promise<void> {
-    const reserve = await this.#getFreeDiskReserveBytes();
-    let free = await this.#volumeFreeBytes();
-    if (free - bytesNeeded >= reserve) {
-      return;
-    }
-    if (this.#evictCache) {
-      await this.#evictCache(reserve + bytesNeeded - free);
-      free = await this.#volumeFreeBytes();
-      if (free - bytesNeeded >= reserve) {
-        return;
-      }
-    }
-    throw new InsufficientStorageError(
-      `Blob store refused new content: ${free} bytes free on volume, ${
-        bytesNeeded ? `${bytesNeeded} needed, ` : ''
-      }${reserve} reserved for the system`,
-    );
+    await this.#admission.ensureFloor(bytesNeeded);
   }
 
   async #volumeFreeBytes(): Promise<number> {
@@ -575,6 +497,19 @@ async function writeAll(handle: fs.FileHandle, buffer: Buffer): Promise<void> {
     }
     offset += bytesWritten;
   }
+}
+
+async function hashFile(filePath: string, algorithm: string): Promise<string> {
+  const handle = await fs.open(filePath, 'r');
+  const hasher = createHash(algorithm);
+  try {
+    for await (const chunk of handle.createReadStream({ autoClose: false })) {
+      hasher.update(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+  } finally {
+    await handle.close();
+  }
+  return hasher.digest('hex');
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
