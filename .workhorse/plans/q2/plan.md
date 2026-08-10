@@ -10,8 +10,8 @@ not turned it on.
 
 ## Decisions
 
-Taken 2026-08-10. The AV spec has not yet been amended to carry them; until it
-is, this section is the record.
+Taken 2026-08-10 and now carried by `specs/blob-storage/antivirus.md`. This
+section keeps the reasoning behind them, which the spec does not.
 
 ### Scan state is separate from integrity state
 
@@ -96,14 +96,33 @@ Lower priority: whether a quarantined blob is ever reclaimed once unreferenced,
 whether facilities evict infected cache copies, and how the backfill's legacy
 backlog is scanned without swamping the scanner.
 
+The mobile registry now carries the same four scan columns as the server, which
+is what the repo asks of a schema change. A device runs no scanner, so what it
+should hold is a verdict it was told, not a scan it performed, and only
+`scanVerdict` obviously survives that. Which of the four the device keeps falls
+out of question 1.
+
 ## Steps
 
-Not started. The first two are unblocked; the rest wait on the open questions
-above.
+The first two are done; the rest wait on the open questions above.
 
-- [ ] Rename the `quarantined` integrity state to `corrupt` across constants, the
+- [x] Rename the `quarantined` integrity state to `corrupt` across constants, the
   model default, the mobile migration, both healers, and `integrity.md`
-- [ ] Add scan columns to `blobs` plus the mobile counterpart, and the dbt models
+  - No migration: the value is only ever written at runtime, both column defaults
+    are `verified`, and B2 is not on main, so no stored row holds the old value
+  - Also swept the support pack (`docs/runbooks/blob-integrity.md`,
+    `docs/reference/query-cookbook.md`, whose query matches on the value) and the
+    dbt column doc
+  - `MobileBlobStore.quarantine()` is now `markCorrupt()`, so the word is free
+- [x] Add scan columns to `blobs` plus the mobile counterpart, and the dbt models
+  - `scan_verdict`, `scanned_at`, `scanner_version`, `signature_version`, all
+    nullable; a null verdict is not-yet-scanned
+  - `BLOB_SCAN_VERDICTS` (clean, infected) names the verdict domain; nothing reads
+    the columns yet
+  - No index: the scan task's scan order follows from open question 3, so the
+    index that serves it lands with the task
+  - The dbt `.yml` was hand-edited to match the generator's shape rather than
+    regenerated, which needs a migrated local database
 - [ ] Settings for the scanner and the serve policy (open question 2)
 - [ ] Scanner driver behind one interface, with clamd first and the others left as
   seams
