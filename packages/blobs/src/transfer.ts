@@ -55,6 +55,8 @@ export interface BlobTransferHost {
     options: { offset: number; length: number; totalSize: number },
   ): Promise<PushOutcome>;
   sleep(milliseconds: number): Promise<void>;
+  /** Diagnostics for an attempt that made no progress. */
+  onStall?(details: { hash: string; position: number; stalledAttempts: number }): void;
 }
 
 export interface BlobTransferOptions {
@@ -243,6 +245,7 @@ export class BlobTransfer {
         if (stalledAttempts >= this.#stalledAttemptLimit) {
           throw error;
         }
+        this.#host.onStall?.({ hash, position: receiverOffset, stalledAttempts });
         offset = receiverOffset;
         await this.#host.sleep(this.#retryBaseMs * stalledAttempts);
       }
@@ -291,6 +294,7 @@ export class BlobTransfer {
     if (stalled >= this.#stalledAttemptLimit) {
       throw error;
     }
+    this.#host.onStall?.({ hash, position: staged, stalledAttempts: stalled });
     await this.#host.sleep(this.#retryBaseMs * stalled);
     return stalled;
   }
