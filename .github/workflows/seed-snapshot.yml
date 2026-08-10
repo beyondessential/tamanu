@@ -184,6 +184,7 @@ jobs:
           }
 
           settle_deadline=
+          list_errors=0
           hard_deadline=$((SECONDS + START_TIMEOUT_SECONDS + SETTLE_SECONDS))
           while (( SECONDS < hard_deadline )); do
             if [[ "$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" \
@@ -193,10 +194,20 @@ jobs:
             fi
 
             # `items[*]` rather than `items[0]`: the latter errors while the Job is still
-            # suspended and no pod exists.
-            pod=$(kubectl get pods -n "$SEED_NAMESPACE" \
+            # suspended and no pod exists. A query that cannot run at all must not read as
+            # "no pod yet", or the watch sits here for the whole timeout saying nothing.
+            if ! pod=$(kubectl get pods -n "$SEED_NAMESPACE" \
               -l "batch.kubernetes.io/job-name=$JOB_NAME" \
-              -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | awk '{print $1}')
+              -o jsonpath='{.items[*].metadata.name}'); then
+              list_errors=$((list_errors + 1))
+              if (( list_errors >= 3 )); then
+                fail "" "Cannot list pods in $SEED_NAMESPACE; no snapshot for $VERSION."
+              fi
+              sleep 10
+              continue
+            fi
+            list_errors=0
+            pod=${pod%% *}
 
             status=
             if [[ -n "$pod" ]]; then
