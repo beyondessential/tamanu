@@ -34,7 +34,10 @@ attachmentRoutes.get(
 
     if (attachment.hash) {
       const { blobStore } = req.ctx;
-      const stat = await blobStore.stat(attachment.hash);
+      // spec: SCRUB — servableStat, so a copy the store retains but will not
+      // serve reads as content pending rather than as a failure that discloses
+      // the quarantine. Matches how the transfer routes answer for it.
+      const stat = await blobStore.servableStat(attachment.hash);
       // spec: ATCH
       // Central holds the record but its origin may not have pushed the bytes
       // yet: present it as an existing file awaiting its content rather than

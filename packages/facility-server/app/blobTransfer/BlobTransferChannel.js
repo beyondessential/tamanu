@@ -52,10 +52,10 @@ export class BlobTransferChannel {
    * server first when they are not held locally.
    */
   async open(hash, { start, end } = {}) {
-    let stat = await this.#blobStore.stat(hash);
+    let stat = await this.#blobStore.servableStat(hash);
     if (!stat) {
       await this.fetchFromCentral(hash);
-      stat = await this.#blobStore.stat(hash);
+      stat = await this.#blobStore.servableStat(hash);
     }
     // Pass the stat so get does not re-query the registry for the same hash.
     return await this.#blobStore.get(hash, { start, end, stat });
@@ -68,12 +68,12 @@ export class BlobTransferChannel {
    * and restarts, and the complete content is verified against the hash
    * before it is admitted.
    *
-   * spec: SCRUB — `ignoreLocal` fetches even though the hash is occupied, for
-   * the self-heal path replacing a copy that failed verification. The bad bytes
-   * are only dropped once the replacement has verified.
+   * spec: SCRUB — a copy the store will not serve does not count as held, so a
+   * hash occupied by one is fetched rather than skipped; the bad bytes are only
+   * dropped once the replacement has verified.
    */
-  async fetchFromCentral(hash, { ignoreLocal = false } = {}) {
-    return await this.#transfer.fetch(hash, { ignoreLocal });
+  async fetchFromCentral(hash) {
+    return await this.#transfer.fetch(hash);
   }
 
   /**
@@ -90,7 +90,10 @@ export class BlobTransferChannel {
   #host() {
     const blobStore = this.#blobStore;
     return {
-      stat: hash => blobStore.stat(hash),
+      // spec: SCRUB — bytes the store will not serve are not held for transfer
+      // either: a quarantined copy is what an incoming good copy replaces, and
+      // is not deliverable to central.
+      stat: hash => blobStore.servableStat(hash),
       stagedSize: hash => blobStore.stagedSize(hash),
       commitStaged: hash => blobStore.commitStaged(hash),
       remoteAvailability: hash => this.#remoteAvailability(hash),

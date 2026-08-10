@@ -29,6 +29,7 @@ import { setFhirRefreshTriggers } from '@tamanu/database';
 import { BlobStore } from '@tamanu/database/blobStore';
 
 import { FacilityBlobCache } from '../app/blobCache';
+import { FacilityBlobHealer } from '../app/blobIntegrity';
 import { createApiApp } from '../app/createApiApp';
 import { buildToken } from '../app/middleware/auth';
 import { initDatabase } from '../app/database';
@@ -164,6 +165,7 @@ class MockApplicationContext extends ApplicationContext {
     });
     this.sequelize.admitAttachmentBlob = (source, options) =>
       this.blobCache.putOutbox(source, options);
+    this.blobHealer = new FacilityBlobHealer({ blobStore: this.blobStore, models: this.models });
     this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     // Reporting reads its per-server secret from local_system_facts, so init it

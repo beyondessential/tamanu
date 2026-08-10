@@ -365,6 +365,24 @@ export class BlobStore {
     return { size: registered.size, integrityState: registered.integrityState };
   }
 
+  // spec: SCRUB
+  /**
+   * The registry's record of a blob this store can serve. A quarantined or
+   * absent copy is retained but never served, so every read path treats it as
+   * not held: that is what withholds the bad bytes, keeps the state itself
+   * undisclosed, and on a facility lets a refetch replace the copy rather than
+   * the read failing against it.
+   */
+  async servableStat(hash: string): Promise<BlobStat | null> {
+    const held = await this.stat(hash);
+    // An allow-list, so a state added later is withheld until it is
+    // deliberately allowed rather than served by omission.
+    if (held?.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
+      return null;
+    }
+    return held;
+  }
+
   /**
    * Admit content into the store: stream it to a temporary file within the
    * store, hash what landed there, then atomically rename into the fan-out path
