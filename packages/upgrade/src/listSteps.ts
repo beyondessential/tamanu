@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs';
 import { basename, extname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import toposort from 'toposort';
 import type { MigrationStr, Step, Steps, StepStr } from './step.ts';
 import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
@@ -115,7 +116,9 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
 
 async function readStep(file: string) {
   const stepfile = basename(file, extname(file));
-  const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
+  // file:// URL rather than the bare path, as ESM rejects a Windows `C:\…` path (see the
+  // migration resolver in @tamanu/database for the same constraint).
+  const { STEPS }: { STEPS: Steps } = await import(pathToFileURL(join(STEPS_DIR, file)).href);
   return STEPS.map((step, i) => ({
     id: `upgrade/${stepfile}/${i}` as StepStr,
     file,
