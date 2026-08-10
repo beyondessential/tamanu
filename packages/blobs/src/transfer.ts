@@ -345,3 +345,19 @@ export function totalSizeFromHeaders({
   }
   return undefined;
 }
+
+/**
+ * The transfer subprotocol's endpoints, relative to a server's API root. Both
+ * hosts address them, so they live here rather than being spelled out twice.
+ */
+export const blobEndpoints = {
+  content: (hash: string) => `blob/${encodeURIComponent(hash)}`,
+  availability: (hash: string) => `blob/${encodeURIComponent(hash)}/availability`,
+  offer: (hash: string) => `blob/${encodeURIComponent(hash)}/offer`,
+  upload: (hash: string) => `blob/${encodeURIComponent(hash)}/content`,
+};
+
+/** The range header for a resume, or nothing when starting from the beginning. */
+export function rangeHeader(offset: number): Record<string, string> {
+  return offset > 0 ? { range: `bytes=${offset}-` } : {};
+}

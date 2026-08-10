@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 
-import { BlobTransfer, totalSizeFromHeaders } from '@tamanu/blobs';
+import { BlobTransfer, blobEndpoints, rangeHeader, totalSizeFromHeaders } from '@tamanu/blobs';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -99,7 +99,7 @@ export class BlobTransferChannel {
   }
 
   async #remoteAvailability(hash) {
-    return await this.#centralServer.fetch(`blob/${encodeURIComponent(hash)}/availability`, {
+    return await this.#centralServer.fetch(blobEndpoints.availability(hash), {
       query: { facilityIds: this.#facilityIds },
     });
   }
@@ -109,12 +109,12 @@ export class BlobTransferChannel {
       // Three-argument api-client form: the second positional argument is
       // the query (facilityIds go through as query params), the third is
       // the request config. See CentralServerConnection.fetch.
-      `blob/${encodeURIComponent(hash)}`,
+      blobEndpoints.content(hash),
       { facilityIds: this.#facilityIds },
       {
         returnResponse: true,
         retryAuth: true,
-        headers: offset > 0 ? { range: `bytes=${offset}-` } : {},
+        headers: rangeHeader(offset),
       },
     );
     const totalSize = totalSizeFromHeaders({
@@ -128,7 +128,7 @@ export class BlobTransferChannel {
   }
 
   async #offer(hash, size) {
-    return await this.#centralServer.fetch(`blob/${encodeURIComponent(hash)}/offer`, {
+    return await this.#centralServer.fetch(blobEndpoints.offer(hash), {
       method: 'POST',
       query: { facilityIds: this.#facilityIds },
       body: { size },
@@ -136,7 +136,7 @@ export class BlobTransferChannel {
   }
 
   async #pushChunk(hash, { offset, length, totalSize }) {
-    return await this.#centralServer.fetch(`blob/${encodeURIComponent(hash)}/content`, {
+    return await this.#centralServer.fetch(blobEndpoints.upload(hash), {
       method: 'PUT',
       query: { offset, totalSize, facilityIds: this.#facilityIds },
       body: await this.#readChunk(hash, offset, length),

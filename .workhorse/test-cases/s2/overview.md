@@ -102,7 +102,7 @@ divergence fails on the host that diverged.
 
 - [x] The existing BlobStore, transfer channel, cache and central endpoint suites pass unchanged against the extracted package (verifies spec: XFER, CACHE, CAS)
 - [x] The package imports no node builtins, so it loads under React Native (verifies spec: CAS)
-- [ ] A blob pushed by a server is fetchable by mobile and the reverse, over the same wire protocol
+- [x] A blob pushed by a server is fetchable by mobile and the reverse, over the same wire protocol
 
 ## Manual
 

@@ -1,6 +1,6 @@
 import RNFS from 'react-native-fs';
 
-import { BlobTransfer } from '@tamanu/blobs';
+import { BlobTransfer, blobEndpoints, rangeHeader } from '@tamanu/blobs';
 import { BlobHashMismatchError, NotFoundError, Problem, RemoteCallError } from '@tamanu/errors';
 
 import { CentralServerConnection } from '~/services/sync/CentralServerConnection';
@@ -146,13 +146,13 @@ export class BlobTransferChannel {
     let statusCode: number | undefined;
     try {
       ({ statusCode } = await this.#fs.downloadFile({
-        fromUrl: this.#centralServer.apiUrl(`blob/${encodeURIComponent(hash)}`, {
+        fromUrl: this.#centralServer.apiUrl(blobEndpoints.content(hash), {
           facilityIds: await this.#getFacilityId(),
         }),
         toFile: partPath,
         headers: {
           ...this.#centralServer.authHeaders(),
-          ...(offset > 0 ? { range: `bytes=${offset}-` } : {}),
+          ...rangeHeader(offset),
         },
       }).promise);
     } catch (error) {
@@ -186,7 +186,7 @@ export class BlobTransferChannel {
   }
 
   async #probeCentral(hash: string): Promise<{ availability: string; size?: number }> {
-    return await this.#centralServer.get(`blob/${encodeURIComponent(hash)}/availability`, {
+    return await this.#centralServer.get(blobEndpoints.availability(hash), {
       facilityIds: await this.#getFacilityId(),
     });
   }
@@ -196,7 +196,7 @@ export class BlobTransferChannel {
     size: number,
   ): Promise<{ status: string; receivedBytes?: number }> {
     return await this.#centralServer.post(
-      `blob/${encodeURIComponent(hash)}/offer`,
+      blobEndpoints.offer(hash),
       { facilityIds: await this.#getFacilityId() },
       { size },
     );
@@ -228,7 +228,7 @@ export class BlobTransferChannel {
 
     try {
       const { statusCode, body } = await this.#fs.uploadFiles({
-        toUrl: this.#centralServer.apiUrl(`blob/${encodeURIComponent(hash)}/content`, {
+        toUrl: this.#centralServer.apiUrl(blobEndpoints.upload(hash), {
           offset,
           totalSize: size,
           facilityIds: await this.#getFacilityId(),

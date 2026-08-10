@@ -670,5 +670,43 @@ describe('Blob transfer channel', () => {
         expect(row).toMatchObject({ size: content.length });
       });
     });
+    // The device speaks the same subprotocol as a facility server, with two
+    // differences worth pinning down: it declares one facility as a scalar
+    // rather than a list, and it always resumes with an open-ended range.
+    describe('device-shaped requests', () => {
+      const asDevice = () => ({ token: tokenA, facilityIds: facilityA.id });
+
+      it('accepts a push that declares a single facility as a scalar', async () => {
+        const content = Buffer.from('captured on a phone');
+        const hash = hashOf(content);
+        await reference(hash, { patientId: patientAtA.id });
+
+        const offered = await offer(hash, content.length, asDevice());
+        expect(offered.body).toEqual({ status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 0 });
+
+        const put = await putChunk(hash, content, 0, content.length, asDevice());
+        expect(put.body).toEqual({ acknowledged: true, existed: false, size: content.length });
+      });
+
+      it('serves content pushed by a device back to a device resuming with a range', async () => {
+        const content = Buffer.from('round trips both ways');
+        const hash = hashOf(content);
+        await reference(hash, { patientId: patientAtA.id });
+        await offer(hash, content.length, asDevice());
+        await putChunk(hash, content, 0, content.length, asDevice());
+
+        const reported = await availability(hash, asDevice());
+        expect(reported.body).toEqual({
+          availability: BLOB_AVAILABILITY_STATES.AVAILABLE,
+          size: content.length,
+        });
+
+        const resumed = await getBlob(hash, asDevice()).set('range', 'bytes=8-').buffer(true);
+        expect(resumed.status).toBe(206);
+        expect(resumed.headers['content-range']).toBe(`bytes 8-${content.length - 1}/${content.length}`);
+        expect(Buffer.from(resumed.body)).toEqual(content.subarray(8));
+      });
+    });
+
   });
 });
