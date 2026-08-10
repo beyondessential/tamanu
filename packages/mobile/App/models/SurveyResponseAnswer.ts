@@ -54,7 +54,8 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
 
   /**
    * Returns map of question code -> most recent answer body for a patient.
-   * Fetches all matching codes in a single query, picking the latest per code.
+   * The latest answer per code is picked in SQL so we never materialise the
+   * patient's full answer history.
    */
   static async getLastAnswerValuesByQuestionCodes(
     patientId: string,
@@ -65,29 +66,36 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
     const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
     const rows: { code: string; body: string }[] = await this.getRepository().query(
       `
-      SELECT pde.code, answer.body
-      FROM survey_response_answers answer
-      INNER JOIN survey_responses response
-        ON response.id = answer.responseId
-      INNER JOIN encounters encounter
-        ON encounter.id = response.encounterId
-      INNER JOIN program_data_elements pde
-        ON pde.id = answer.dataElementId
-      WHERE encounter.patientId = $1
-        AND pde.code IN (${codePlaceholders})
-        AND answer.body IS NOT NULL
-        AND answer.body != ''
-        AND answer.deletedAt IS NULL
-      ORDER BY response.startTime DESC
+      SELECT code, body
+      FROM (
+        SELECT
+          pde.code AS code,
+          answer.body AS body,
+          ROW_NUMBER() OVER (
+            PARTITION BY pde.code
+            ORDER BY response.startTime DESC, answer.id DESC
+          ) AS rn
+        FROM survey_response_answers answer
+        INNER JOIN survey_responses response
+          ON response.id = answer.responseId
+        INNER JOIN encounters encounter
+          ON encounter.id = response.encounterId
+        INNER JOIN program_data_elements pde
+          ON pde.id = answer.dataElementId
+        WHERE encounter.patientId = $1
+          AND pde.code IN (${codePlaceholders})
+          AND answer.body IS NOT NULL
+          AND answer.body <> ''
+          AND answer.deletedAt IS NULL
+      ) ranked_answers
+      WHERE rn = 1
     `,
       [patientId, ...questionCodes],
     );
 
     const valuesByCode: Record<string, string> = {};
     for (const row of rows) {
-      if (valuesByCode[row.code] === undefined) {
-        valuesByCode[row.code] = row.body ?? '';
-      }
+      valuesByCode[row.code] = row.body ?? '';
     }
     return valuesByCode;
   }

@@ -22,7 +22,7 @@ test.describe('Results', () => {
     await labRequestPane.newLabRequestButton.click();
     await labRequestModal.individualModal.createBasicIndividualLabRequest(['ALT']);
     await labRequestPane.waitForTableToLoad();
-    await labRequestPane.tableRows.first().click();
+    await labRequestPane.clickFirstRow();
 
     const labRequestDetailsPage = new LabRequestDetailsPage(page);
     await labRequestDetailsPage.waitForPageToLoad();

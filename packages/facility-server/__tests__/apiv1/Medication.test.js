@@ -10,6 +10,7 @@ import {
   INVOICE_STATUSES,
   NOTIFICATION_TYPES,
   PHARMACY_ENCOUNTER_FEE_CODE,
+  PHARMACY_PRESCRIPTION_TYPES,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SETTINGS_SCOPES,
@@ -536,6 +537,176 @@ describe('Medication', () => {
     });
   });
 
+  describe('POST /api/medication/encounterPrescription/:encounterId send to pharmacy', () => {
+    // The route rejects a prescription starting before its encounter, so pin the encounter's start
+    // date rather than letting `fake` pick one that may land in the future.
+    const createOpenEncounter = () =>
+      models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          startDate: '2025-01-01 00:00:00',
+          endDate: null,
+        }),
+      );
+
+    const prescriptionPayload = (medicationId, overrides = {}) => ({
+      medicationId,
+      prescriberId: app.user.id,
+      doseAmount: 1,
+      frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+      route: DRUG_ROUTES.oral,
+      date: '2025-01-01',
+      startDate: getCurrentDateTimeString(),
+      ...overrides,
+    });
+
+    const getPharmacyOrderFor = prescriptionId =>
+      models.PharmacyOrderPrescription.findOne({
+        where: { prescriptionId },
+        include: [{ model: models.PharmacyOrder, as: 'pharmacyOrder' }],
+      });
+
+    it('raises a pharmacy order for the new prescription', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app.post(`/api/medication/encounterPrescription/${encounter.id}`).send(
+        prescriptionPayload(medication.id, {
+          quantity: 12,
+          repeats: 2,
+          sendToPharmacy: true,
+          prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+        }),
+      );
+
+      expect(result).toHaveSucceeded();
+
+      const orderPrescription = await getPharmacyOrderFor(result.body.id);
+      expect(orderPrescription).toBeTruthy();
+      expect(orderPrescription.quantity).toBe(12);
+      expect(orderPrescription.repeats).toBe(2);
+      expect(orderPrescription.pharmacyOrder.encounterId).toBe(encounter.id);
+      expect(orderPrescription.pharmacyOrder.orderingClinicianId).toBe(app.user.id);
+      expect(orderPrescription.pharmacyOrder.facilityId).toBe(facilityId);
+      expect(orderPrescription.pharmacyOrder.isDischargePrescription).toBe(false);
+    });
+
+    it('marks the order as a discharge prescription for an outpatient/discharge type', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app.post(`/api/medication/encounterPrescription/${encounter.id}`).send(
+        prescriptionPayload(medication.id, {
+          quantity: 5,
+          sendToPharmacy: true,
+          prescriptionType: PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+        }),
+      );
+
+      expect(result).toHaveSucceeded();
+
+      const orderPrescription = await getPharmacyOrderFor(result.body.id);
+      expect(orderPrescription.pharmacyOrder.isDischargePrescription).toBe(true);
+    });
+
+    it('does not raise an order when send to pharmacy is not requested', async () => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/encounterPrescription/${encounter.id}`)
+        .send(prescriptionPayload(medication.id, { quantity: 12, sendToPharmacy: false }));
+
+      expect(result).toHaveSucceeded();
+      expect(await getPharmacyOrderFor(result.body.id)).toBeNull();
+    });
+
+    it.each([
+      ['no prescription type', { quantity: 12 }],
+      ['no dispensing quantity', { prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT }],
+      [
+        'a dispensing quantity of zero',
+        { quantity: 0, prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT },
+      ],
+    ])('rejects sending to pharmacy with %s', async (_label, overrides) => {
+      const encounter = await createOpenEncounter();
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/encounterPrescription/${encounter.id}`)
+        .send(prescriptionPayload(medication.id, { sendToPharmacy: true, ...overrides }));
+
+      expect(result).toHaveRequestError();
+      expect(await models.PharmacyOrder.count({ where: { encounterId: encounter.id } })).toBe(0);
+    });
+
+    it('ignores send to pharmacy on an ongoing prescription, which has its own flow', async () => {
+      const { medication } = await createDrug();
+
+      const result = await app
+        .post(`/api/medication/patientOngoingPrescription/${patient.id}`)
+        .send(
+          prescriptionPayload(medication.id, {
+            isOngoing: true,
+            quantity: 12,
+            sendToPharmacy: true,
+            prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+          }),
+        );
+
+      expect(result).toHaveSucceeded();
+      expect(await getPharmacyOrderFor(result.body.id)).toBeNull();
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects sending to pharmacy without permission to create a medication request', async () => {
+        const limitedApp = await baseApp.asNewRole([
+          ['create', 'Medication'],
+          ['read', 'Medication'],
+        ]);
+        const encounter = await createOpenEncounter();
+        const { medication } = await createDrug();
+
+        const result = await limitedApp
+          .post(`/api/medication/encounterPrescription/${encounter.id}`)
+          .send({
+            ...prescriptionPayload(medication.id, {
+              quantity: 12,
+              sendToPharmacy: true,
+              prescriptionType: PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+            }),
+            prescriberId: limitedApp.user.id,
+          });
+
+        expect(result).toBeForbidden();
+        expect(await models.PharmacyOrder.count({ where: { encounterId: encounter.id } })).toBe(0);
+      });
+
+      it('allows a prescription without send to pharmacy for the same user', async () => {
+        const limitedApp = await baseApp.asNewRole([
+          ['create', 'Medication'],
+          ['read', 'Medication'],
+        ]);
+        const encounter = await createOpenEncounter();
+        const { medication } = await createDrug();
+
+        const result = await limitedApp
+          .post(`/api/medication/encounterPrescription/${encounter.id}`)
+          .send({
+            ...prescriptionPayload(medication.id, { quantity: 12 }),
+            prescriberId: limitedApp.user.id,
+          });
+
+        expect(result).toHaveSucceeded();
+      });
+    });
+  });
+
   describe('POST /api/medication/dispense', () => {
     it('should dispense medication successfully', async () => {
       const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
@@ -854,6 +1025,48 @@ describe('Medication', () => {
       expect(afterRow.latestModifiedDispense.id).toBe(dispenseResult.body[0].id);
       expect(afterRow.latestModifiedDispense.modifiedAt).toBeTruthy();
       expect(afterRow.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
+    });
+
+    it('should expose the latest modified fill on the single medication endpoint', async () => {
+      const { pharmacyOrderPrescription, prescription } =
+        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+      const modifyReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON }),
+      );
+
+      const before = await app.get(`/api/medication/${prescription.id}`);
+      expect(before).toHaveSucceeded();
+      expect(before.body.latestModifiedDispense).toBeNull();
+
+      const dispenseResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Modified label',
+            modification: buildModification({
+              medicationId: prescription.medicationId,
+              modifiedReasonId: modifyReason.id,
+              modifiedById: app.user.id,
+            }),
+          },
+        ],
+      });
+      expect(dispenseResult).toHaveSucceeded();
+
+      const after = await app.get(`/api/medication/${prescription.id}`);
+      expect(after).toHaveSucceeded();
+      expect(after.body.latestModifiedDispense.id).toBe(dispenseResult.body[0].id);
+      expect(after.body.latestModifiedDispense.pharmacyNotes).toBe(
+        'This prescription has been modified by pharmacy when dispensing.',
+      );
+      expect(after.body.latestModifiedDispense.displayPharmacyNotesInMar).toBe(true);
+
+      // The prescription's own pharmacyNotes must remain untouched
+      const reloaded = await models.Prescription.findByPk(prescription.id);
+      expect(reloaded.pharmacyNotes ?? null).toBe(prescription.pharmacyNotes ?? null);
     });
 
     it('should reject a modification with a duration value but no unit', async () => {
@@ -1475,6 +1688,131 @@ describe('Medication', () => {
     });
   });
 
+  // Last-sent state on this listing is resolved through
+  // pharmacy_order_prescriptions.ongoing_prescription_id (getLastOrderedAtForOngoingPrescriptions),
+  // which is a separate query to the one the encounter medication listing uses.
+  describe('GET /api/patient/:id/ongoing-prescriptions', () => {
+    const arrangeOngoingPrescription = async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: localPatient.id,
+        prescriberId: app.user.id,
+      });
+      // The listing hides sensitive drugs from users without `list SensitiveMedication`, and its
+      // filter needs a reference drug row to match against — so give the drug an explicit
+      // non-sensitive one rather than leaning on the test role's permissions.
+      await models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, {
+          referenceDataId: ongoingPrescription.medicationId,
+          isSensitive: false,
+        }),
+      );
+      return { localPatient, ongoingPrescription };
+    };
+
+    const fetchOngoingPrescription = async ({ localPatient, ongoingPrescription }) => {
+      const result = await app.get(`/api/patient/${localPatient.id}/ongoing-prescriptions`);
+      expect(result).toHaveSucceeded();
+
+      const row = result.body.data.find(p => p.id === ongoingPrescription.id);
+      expect(row).toBeDefined();
+      return row;
+    };
+
+    const sendToPharmacy = async ({ localPatient, ongoingPrescription }) => {
+      const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
+        patientId: localPatient.id,
+        orderingClinicianId: app.user.id,
+        facilityId,
+        prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+      });
+      expect(result).toHaveSucceeded();
+
+      const orderPrescriptions = await models.PharmacyOrderPrescription.findAll({
+        where: { pharmacyOrderId: result.body.pharmacyOrderId },
+      });
+      expect(orderPrescriptions).toHaveLength(1);
+      return orderPrescriptions[0];
+    };
+
+    it('reports no last-sent state for a prescription that has never been sent to pharmacy', async () => {
+      const arranged = await arrangeOngoingPrescription();
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeFalsy();
+      expect(row.isLastOrderDispensed).toBeNull();
+    });
+
+    it('reports an active request once the prescription has been sent to pharmacy', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      await sendToPharmacy(arranged);
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeTruthy();
+      expect(row.isLastOrderDispensed).toBe(false);
+    });
+
+    it('reports dispensed once the request has been dispensed', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const orderPrescription = await sendToPharmacy(arranged);
+
+      // Completed directly rather than through /api/medication/dispense: this asserts how the
+      // listing reads is_completed, and dispensing already has its own coverage above.
+      await orderPrescription.update({ isCompleted: true });
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeTruthy();
+      expect(row.isLastOrderDispensed).toBe(true);
+    });
+
+    it('follows the most recent order when the prescription has been sent more than once', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const { localPatient, ongoingPrescription } = arranged;
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: localPatient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
+      // Built directly so the order dates are explicit and distinct — two sends through the endpoint
+      // would land in the same second and leave which one is "most recent" up to a tiebreak.
+      const orderOn = async (date, isCompleted) => {
+        const pharmacyOrder = await models.PharmacyOrder.create(
+          fake(models.PharmacyOrder, {
+            orderingClinicianId: app.user.id,
+            encounterId: encounter.id,
+            date,
+            facilityId,
+          }),
+        );
+        await models.PharmacyOrderPrescription.create({
+          ...fake(models.PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: ongoingPrescription.id,
+            ongoingPrescriptionId: ongoingPrescription.id,
+            quantity: 10,
+            isCompleted,
+          }),
+          id: crypto.randomUUID(),
+        });
+      };
+      await orderOn('2024-10-20 09:00:00', true);
+      await orderOn('2024-10-22 09:00:00', false);
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      // The newest order is still outstanding, so an earlier dispensed one must not win.
+      expect(row.lastOrderedAt).toBe('2024-10-22 09:00:00');
+      expect(row.isLastOrderDispensed).toBe(false);
+    });
+  });
+
   describe('GET /api/medication/dispensable-medications', () => {
     // Builds an outstanding (not-yet-dispensed) pharmacy order prescription for the patient, with
     // the prescription fields the dispensing autocalculation relies on set to known values.
@@ -1944,6 +2282,238 @@ describe('findPatientOngoingPrescriptionWithSameDetails', () => {
       const reloadedMar = await models.MedicationAdministrationRecord.findByPk(mar.id);
       expect(reloadedMar.isError).toBe(true);
       expect(reloadedMar.errorNotes).toBe('Recorded against the wrong patient');
+    });
+  });
+
+  describe('Discharge guards on medication-administration-record given/not-given routes', () => {
+    let notGivenReason;
+
+    beforeAll(async () => {
+      notGivenReason = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON }),
+      );
+    });
+
+    const createEncounter = async ({ endDate = null } = {}) =>
+      models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate,
+        }),
+      );
+
+    const createPrescriptionForEncounter = async encounter => {
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+      return prescription;
+    };
+
+    it('rejects creating a GIVEN MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+
+      const result = await app.post('/api/medication/medication-administration-record/given').send({
+        dueAt: getCurrentDateTimeString(),
+        prescriptionId: prescription.id,
+        dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects marking an existing MAR as GIVEN once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/given`)
+        .send({
+          dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects creating a NOT_GIVEN MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+
+      const result = await app
+        .post('/api/medication/medication-administration-record/not-given')
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+          dueAt: getCurrentDateTimeString(),
+          prescriptionId: prescription.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects marking an existing MAR as NOT_GIVEN once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/not-given`)
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects editing not-given info on an existing MAR once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+          reasonNotGivenId: notGivenReason.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/not-given-info`)
+        .send({
+          reasonNotGivenId: notGivenReason.id,
+          recordedByUserId: app.user.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('still allows marking a MAR as GIVEN when the encounter is not discharged', async () => {
+      const encounter = await createEncounter();
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.NOT_GIVEN,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}/given`)
+        .send({
+          dose: { doseAmount: 1, givenTime: getCurrentDateTimeString() },
+        });
+
+      expect(result).toHaveSucceeded();
+    });
+
+    it('rejects marking a MAR with error once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/${mar.id}`)
+        .send({ isError: true, errorNotes: 'Recorded against the wrong patient' });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects updating a dose once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+      const dose = await models.MedicationAdministrationRecordDose.create(
+        fake(models.MedicationAdministrationRecordDose, {
+          marId: mar.id,
+          doseIndex: 0,
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app
+        .put(`/api/medication/medication-administration-record/doses/${dose.id}`)
+        .send({
+          doseAmount: 2,
+          givenTime: getCurrentDateTimeString(),
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
+    });
+
+    it('rejects removing an additional dose once the encounter is discharged', async () => {
+      const encounter = await createEncounter({ endDate: getCurrentDateTimeString() });
+      const prescription = await createPrescriptionForEncounter(encounter);
+      const mar = await models.MedicationAdministrationRecord.create(
+        fake(models.MedicationAdministrationRecord, {
+          prescriptionId: prescription.id,
+          status: ADMINISTRATION_STATUS.GIVEN,
+          recordedByUserId: app.user.id,
+        }),
+      );
+      const additionalDose = await models.MedicationAdministrationRecordDose.create(
+        fake(models.MedicationAdministrationRecordDose, {
+          marId: mar.id,
+          doseIndex: 1,
+          givenByUserId: app.user.id,
+          recordedByUserId: app.user.id,
+        }),
+      );
+
+      const result = await app.delete(
+        `/api/medication/medication-administration-record/doses/${additionalDose.id}`,
+      );
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toMatch(/is discharged/);
     });
   });
 });

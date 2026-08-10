@@ -5,10 +5,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import {
-  PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
-  PHARMACY_PRESCRIPTION_TYPES,
-} from '@tamanu/constants';
+import { PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import {
   AutocompleteInput,
   BaseModal,
@@ -24,9 +21,9 @@ import {
 } from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
-import { Colors, PATIENT_STATUS } from '../../constants';
+import { Colors } from '../../constants';
 import { notifyError } from '../../utils';
-import { getPatientStatus } from '../../utils/getPatientStatus';
+import { getDefaultPrescriptionType } from '../../utils/getDefaultPrescriptionType';
 import { BodyText } from '../Typography';
 import { COLUMN_KEYS, PharmacyOrderMedicationTable } from './PharmacyOrderMedicationTable';
 
@@ -177,9 +174,8 @@ export const PharmacyOrderModal = React.memo(
     );
 
     const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
-    const defaultPrescriptionType = getSetting(
+    const defaultPrescriptionTypeMode = getSetting(
       'medications.pharmacyOrder.defaultPrescriptionType',
-      PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
     );
 
     // Permission to edit repeats (only relevant for ongoing mode)
@@ -244,24 +240,10 @@ export const PharmacyOrderModal = React.memo(
     useEffect(() => {
       if (!open || !encounter?.encounterType || isOngoingMode) return;
 
-      if (
-        defaultPrescriptionType ===
-        PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE
-      ) {
-        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
-        return;
-      }
-      if (defaultPrescriptionType === PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.INPATIENT) {
-        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
-        return;
-      }
-
-      if (getPatientStatus(encounter.encounterType) === PATIENT_STATUS.OUTPATIENT) {
-        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
-      } else {
-        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
-      }
-    }, [open, encounter?.encounterType, isOngoingMode, defaultPrescriptionType]);
+      setPrescriptionType(
+        getDefaultPrescriptionType(defaultPrescriptionTypeMode, encounter.encounterType),
+      );
+    }, [open, encounter?.encounterType, isOngoingMode, defaultPrescriptionTypeMode]);
 
     const handleSelectAll = useCallback(event => {
       const checked = event.target.checked;

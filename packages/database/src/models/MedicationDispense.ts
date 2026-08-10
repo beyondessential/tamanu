@@ -3,11 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  buildEncounterPatientIdSelect,
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync';
+import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
 
 export class MedicationDispense extends Model {
   declare id: string;
@@ -119,15 +115,11 @@ export class MedicationDispense extends Model {
   }
 
   static async buildSyncLookupQueryDetails() {
-    return {
-      select: await buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([
-        this.tableName,
-        'pharmacy_order_prescriptions',
-        'pharmacy_orders',
-        'encounters',
-      ]),
-    };
+    return buildEncounterLinkedLookupFilter(this, [
+      'pharmacy_order_prescriptions',
+      'pharmacy_orders',
+      'encounters',
+    ]);
   }
 }
 

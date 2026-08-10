@@ -8,6 +8,7 @@
  *   recordId: ChangeLog['recordId'];
  *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'>;
+ *   componentConfig: import('@tamanu/database').SurveyScreenComponent['config'];
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];
  *   to: SurveyResponseAnswer['body'];
@@ -71,6 +72,7 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
           'name', pde.name,
           'type', pde.type
         ) AS "programDataElement",
+        ssc.config AS "componentConfig",
         jsonb_build_object(
           'id', c.updated_by_user_id::text,
           'displayName', u.display_name
@@ -79,6 +81,8 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
         logs.changes c
         LEFT JOIN users u ON u.id = c.updated_by_user_id
         LEFT JOIN program_data_elements pde ON pde.id = (c.record_data ->> 'data_element_id')
+        LEFT JOIN survey_screen_components ssc
+          ON ssc.data_element_id = pde.id AND ssc.survey_id = :surveyId
       WHERE
         c.migration_context IS NULL
         AND c.table_name = 'survey_response_answers'
@@ -88,7 +92,7 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
         c.id
     `,
     {
-      replacements: { surveyResponseId: params.id },
+      replacements: { surveyResponseId: params.id, surveyId: survey.id },
       type: QueryTypes.SELECT,
     },
   );
