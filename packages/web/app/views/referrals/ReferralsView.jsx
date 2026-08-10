@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import { SurveyView } from '../programs/SurveyView';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
@@ -121,16 +120,8 @@ const ReferralFlow = ({ patient, currentUser }) => {
 export const ReferralsView = () => {
   const { patient } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  const dispatch = useDispatch();
   if (!patient?.id) {
-    return (
-      <PatientListingView
-        onViewPatient={id => {
-          dispatch(reloadPatient(id));
-        }}
-        data-testid="patientlistingview-o7jr"
-      />
-    );
+    return <PatientListingView data-testid="patientlistingview-o7jr" />;
   }
 
   return (
