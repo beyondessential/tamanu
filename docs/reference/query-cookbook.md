@@ -563,6 +563,26 @@ On a facility, `tier` decides how urgent this is: a `cache` row is self-correcti
 an `outbox` row may be the only copy of its content. See
 `../runbooks/blob-integrity.md`.
 
+### Return a restored blob to the scrub (dev-OTS)
+
+**[dev-OTS]** The one mutating statement in this section, and only as step 2 of the
+backup restore in `../runbooks/blob-integrity.md` §5, after good bytes have been
+placed in the blob's fan-out path. Quarantine takes a blob out of the scrub's
+verification pass, so the placed file is not looked at until the row goes back to
+`absent`. The next pass then hashes the file and decides for itself: `verified` if
+the restore was good, quarantined again if it was not.
+
+Never run this to clear a quarantine count. Only `verified` content is served, so
+this does not expose bad bytes, but without step 1 it converts a recorded fault
+into a blob that reads as content-pending until the next pass re-quarantines it,
+which loses the signal and the count that was tracking it.
+
+```sql
+UPDATE blobs
+SET integrity_state = 'absent', last_scrubbed_at = NULL
+WHERE hash = :hash AND integrity_state = 'quarantined';
+```
+
 ### Integrity state summary
 
 The shape of the store's health in one row, and the basis of the `blob_integrity`
