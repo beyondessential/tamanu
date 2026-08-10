@@ -269,9 +269,9 @@ describe(`FHIR reference resolution`, () => {
           transaction: blockingTransaction,
         });
 
-        await expect(
-          FhirServiceRequest.resolveUpstreams({ lockTimeoutMs: 100 }),
-        ).rejects.toThrow(/lock timeout/i);
+        await expect(FhirServiceRequest.resolveUpstreams({ lockTimeoutMs: 100 })).rejects.toThrow(
+          /lock timeout/i,
+        );
       } finally {
         await blockingTransaction.rollback();
       }
