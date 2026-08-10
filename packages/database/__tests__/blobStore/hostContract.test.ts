@@ -4,7 +4,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest';
 
-import { BLOB_HOST_CONTRACT, type BlobHostUnderTest } from '@tamanu/blobs';
+import { BLOB_HOST_CONTRACT, type BlobHostUnderTest } from '@tamanu/blobs/contract';
 
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import { closeDatabase, createTestDatabase } from '../utilities';

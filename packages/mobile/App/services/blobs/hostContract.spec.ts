@@ -1,4 +1,4 @@
-import { BLOB_HOST_CONTRACT, BlobHostUnderTest } from '@tamanu/blobs';
+import { BLOB_HOST_CONTRACT, BlobHostUnderTest } from '@tamanu/blobs/contract';
 import { blobPathSegments } from '@tamanu/utils';
 
 import { Database } from '~/infra/db';
