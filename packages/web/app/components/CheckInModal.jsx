@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
+import { invalidatePatientDataQueries } from '../utils';
 
 import { FormModal } from './FormModal';
 import { EncounterForm } from '../forms/EncounterForm';
@@ -66,7 +67,7 @@ export const CheckInModal = React.memo(
 
         onClose();
 
-        queryClient.invalidateQueries(['patientDetails', patientId]);
+        invalidatePatientDataQueries(queryClient, patientId);
       },
       [queryClient, patientId, api, createEncounter, onSubmitEncounter, onClose, referral, facilityId],
     );
