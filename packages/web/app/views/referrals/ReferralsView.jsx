@@ -5,7 +5,6 @@ import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components
 
 import { useApi } from '../../api';
 import { SurveyView } from '../programs/SurveyView';
-import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -118,10 +117,10 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const { patient } = usePatient();
+  const { patient, isLoading } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  if (!patient?.id) {
-    return <PatientListingView data-testid="patientlistingview-o7jr" />;
+  if (isLoading || !patient) {
+    return <LoadingIndicator data-testid="loadingindicator-o7jr" />;
   }
 
   return (

@@ -9,7 +9,6 @@ import { SurveyView } from './SurveyView';
 import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientListingView } from '..';
 import { useSurveyResponseEditMutation } from './useSurveyResponseEditMutation';
 import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
@@ -337,10 +336,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 };
 
 export const ProgramsView = () => {
-  const { patient } = usePatient();
+  const { patient, isLoading } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  if (!patient?.id) {
-    return <PatientListingView data-testid="patientlistingview-cqsa" />;
+  if (isLoading || !patient) {
+    return <LoadingIndicator data-testid="loadingindicator-cqsa" />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} data-testid="surveyflow-b2d8" />;
