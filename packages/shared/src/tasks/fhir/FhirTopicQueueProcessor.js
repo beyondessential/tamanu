@@ -118,6 +118,7 @@ export class FhirTopicQueueProcessor {
                   log: this.manager.log.child({ topic: this.topic, jobId: job.id }),
                   models: this.manager.models,
                   sequelize: this.manager.sequelize,
+                  settings: this.manager.settings,
                 }),
               );
             } catch (workErr) {
