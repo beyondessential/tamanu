@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { BLOB_TIERS } from '@tamanu/constants';
+import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
 import { BlobHashMismatchError, InsufficientStorageError, NotFoundError } from '@tamanu/errors';
 
 import { BlobAdmission, type BlobAdmissionHost } from '../src/admission';
@@ -13,7 +13,7 @@ const hashOf = (content: string) => `sha256:${digestOf(content)}`;
 const ABC = hashOf('abc');
 interface AdmissionState {
   files: Map<string, string>;
-  registry: Map<string, { size: number; tier: string }>;
+  registry: Map<string, { size: number; tier: string; integrityState?: string }>;
   free: number;
   reserve: number;
   calls: string[];
@@ -60,7 +60,17 @@ function createHost(overrides: Partial<BlobAdmissionHost> = {}) {
     },
     async stat(hash) {
       const row = state.registry.get(hash);
-      return row && state.files.has(`store/${hash}`) ? { size: row.size } : null;
+      // Bytes gone means nothing held, however the row still reads.
+      return row && state.files.has(`store/${hash}`)
+        ? { size: row.size, ...(row.integrityState ? { integrityState: row.integrityState } : {}) }
+        : null;
+    },
+    async markVerified(hash, size) {
+      state.calls.push(`markVerified:${hash}`);
+      const row = state.registry.get(hash);
+      if (row && row.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
+        state.registry.set(hash, { ...row, size, integrityState: BLOB_INTEGRITY_STATES.VERIFIED });
+      }
     },
     async register(hash, size, tier) {
       state.calls.push(`register:${hash}`);
@@ -160,6 +170,8 @@ describe('committing staged content', () => {
       `hashFile:staging/${ABC}`,
       `place:staging/${ABC}->store/${ABC}`,
       `register:${ABC}`,
+      // Fires on every commit; the host's own update leaves a verified row alone.
+      `markVerified:${ABC}`,
     ]);
     expect(result).toEqual({ hash: ABC, size: 3, existed: false });
   });
@@ -185,6 +197,40 @@ describe('committing staged content', () => {
 
     expect(result).toEqual({ hash: ABC, size: 3, existed: true });
     expect(state.files.has(`staging/${ABC}`)).toBe(false);
+  });
+
+  it('heals a row standing as absent, whose bytes had gone', async () => {
+    const { host, state } = createHost();
+    // The row survives, its bytes do not: what a refetch arrives to heal.
+    state.registry.set(ABC, {
+      size: 3,
+      tier: BLOB_TIERS.CACHE,
+      integrityState: BLOB_INTEGRITY_STATES.ABSENT,
+    });
+    state.files.set(`staging/${ABC}`, 'abc');
+
+    const result = await new BlobAdmission(host).commitStaged(ABC);
+
+    expect(result.existed).toBe(false);
+    expect(state.calls).toContain(`markVerified:${ABC}`);
+    expect(state.registry.get(ABC)?.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
+  });
+
+  it('heals a quarantined row by replacing its bytes', async () => {
+    const { host, state } = createHost();
+    state.files.set(`store/${ABC}`, 'dec');
+    state.registry.set(ABC, {
+      size: 3,
+      tier: BLOB_TIERS.CACHE,
+      integrityState: BLOB_INTEGRITY_STATES.QUARANTINED,
+    });
+    state.files.set(`staging/${ABC}`, 'abc');
+
+    const result = await new BlobAdmission(host).commitStaged(ABC);
+
+    expect(result.existed).toBe(false);
+    expect(state.files.get(`store/${ABC}`)).toBe('abc');
+    expect(state.registry.get(ABC)?.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
   });
 
   it('reports nothing staged rather than hashing a missing file', async () => {

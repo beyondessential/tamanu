@@ -45,7 +45,8 @@ export interface BlobAdmissionHost {
   evict?(bytesNeeded: number): Promise<void>;
   /**
    * spec: SCRUB — bring a row that was quarantined or standing as absent back to
-   * verified, now that these bytes have verified. Hosts that don't track
+   * verified, now that these bytes have verified. Called after every commit, so
+   * it must leave an already-verified row alone. Hosts that don't track
    * integrity state omit it.
    */
   markVerified?(hash: string, size: number): Promise<void>;
@@ -154,9 +155,12 @@ export class BlobAdmission {
     }
     await this.#host.place(stagingPath, this.#host.pathFor(hash));
     await this.#host.register(hash, size, BLOB_TIERS.CACHE);
-    if (existing) {
-      await this.#host.markVerified?.(hash, size);
-    }
+    // spec: SCRUB — these bytes just verified, so a row still standing as
+    // quarantined or absent is now out of date. Unconditional because the row a
+    // refetch heals is one whose bytes had gone, which reads as nothing held at
+    // all; registration leaves a live row's state alone, so nothing else would
+    // clear it.
+    await this.#host.markVerified?.(hash, size);
     return { hash, size, existed: false };
   }
 

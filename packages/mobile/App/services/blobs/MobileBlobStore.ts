@@ -102,6 +102,19 @@ export class MobileBlobStore {
       freeBytes: async () => (await this.#fs.getFSInfo()).freeSpace,
       reserveBytes: async () => this.#getFreeDiskReserveBytes(await this.#fs.getFSInfo()),
       ...(evictCache ? { evict: async (bytes: number) => void (await evictCache(bytes)) } : {}),
+      // spec: SCRUB — a row left quarantined, or standing as absent after its
+      // bytes went, is out of date once a replacement verifies. A row already
+      // verified is left alone.
+      markVerified: async (hash, size) => {
+        await this.#models.Blob.getRepository().query(
+          `
+            UPDATE blobs
+            SET integrityState = ?, size = ?, lastVerifiedAt = datetime('now')
+            WHERE hash = ? AND integrityState != ?
+          `,
+          [BLOB_INTEGRITY_STATES.VERIFIED, size, hash, BLOB_INTEGRITY_STATES.VERIFIED],
+        );
+      },
       insufficientStorageError: ({ free, reserve, bytesNeeded }) =>
         new InsufficientStorageError(
           `Device storage is too full to store new content: ${free} bytes free, ${
