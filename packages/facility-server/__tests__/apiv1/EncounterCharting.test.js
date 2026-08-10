@@ -286,6 +286,40 @@ describe('EncounterCharting', () => {
       expect(Math.abs(new Date(logs[0].date) - new Date(submissionDate))).toBeLessThan(120_000);
     });
 
+    it('should record the reason when a chart answer is created against an existing reading', async () => {
+      await models.Setting.set('features.enableChartingEdit', true);
+      const surveyId = 'simple-chart-survey-0';
+      const submissionDate = getCurrentDateTimeString();
+      await app.post('/api/surveyResponse').send({
+        surveyId,
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneA': 321,
+        },
+        facilityId,
+      });
+
+      const result = await app.post('/api/surveyResponseAnswer/chart').send({
+        reasonForChange: 'entered-in-error',
+        newValue: 456,
+        surveyId,
+        dataElementId: 'pde-ChartQuestionTwoA',
+        encounterId: chartsEncounter.id,
+        recordedDate: submissionDate,
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const entry = await models.ChangeLog.findOne({
+        where: { tableName: 'survey_response_answers', recordId: result.body.id },
+      });
+      expect(entry).toHaveProperty('reason', 'entered-in-error');
+      expect(entry.recordData.body).toBe('456');
+    });
+
     it('reads the original recording from the response when its insert entry came from a sync', async () => {
       const surveyId = 'simple-chart-survey-0';
       // Fixed so it cannot collide with the current-time keys the other tests use.
