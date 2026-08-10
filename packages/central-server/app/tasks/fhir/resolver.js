@@ -51,7 +51,13 @@ export async function resolver(_, { log, models }) {
   // bulk update) would otherwise sit in 'Started' forever: its worker keeps
   // heartbeating, so no other worker reclaims the job and it never errors. Bound
   // each record's lock waits so the job fails (and retries) instead of stalling.
-  const lockTimeoutMs = ms(await models.Setting.get('fhir.worker.resolverLockTimeout'));
+  //
+  // models.Setting.get() reads the settings table directly and returns undefined
+  // when the value has never been explicitly set - apply the same default (2
+  // minutes) the settings schema declares, inline.
+  const lockTimeoutMs = ms(
+    (await models.Setting.get('fhir.worker.resolverLockTimeout')) || '2 minutes',
+  );
 
   log.debug('Starting resolve');
   // Resources are resolved in dependency order so referenced resources are
