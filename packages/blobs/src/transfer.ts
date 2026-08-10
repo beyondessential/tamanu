@@ -3,7 +3,8 @@ import { ERROR_TYPE, NotFoundError, RemoteCallError } from '@tamanu/errors';
 
 // Bytes per push request. Bounded so a large blob is never held in memory
 // whole, while each request stays big enough that per-request overhead doesn't
-// dominate. Hosts override it: mobile's viable chunk is far smaller.
+// dominate. Hosts override it: mobile's upload API sends whole files, so it
+// raises the bound past any blob's size and delivers the remainder in one.
 export const DEFAULT_PUSH_CHUNK_BYTES = 8 * 1024 * 1024;
 
 // Consecutive attempts that deliver no new bytes before a transfer gives up.
