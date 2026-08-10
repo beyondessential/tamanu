@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { BLOB_HOST_CONTRACT, type BlobHostUnderTest } from '@tamanu/blobs';
 
@@ -30,10 +30,13 @@ describe('blob host contract (server)', () => {
     await closeDatabase();
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     if (root) {
       await fs.rm(root, { recursive: true, force: true });
     }
+  });
+
+  beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-contract-'));
     scratchDir = path.join(root, 'scratch');
     await fs.mkdir(scratchDir, { recursive: true });
