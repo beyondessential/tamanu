@@ -1,3 +1,4 @@
+import { BlobEviction } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -6,13 +7,6 @@ import { log } from '@tamanu/shared/services/logging';
 // spec: CACHE — recency updates may be coalesced; losing the most recent
 // refreshes degrades eviction ordering only.
 const RECENCY_COALESCE_SECONDS = 60;
-
-// Upper bound on cache rows scanned per eviction pass, so a facility with a very
-// large cache population never materialises the whole tier in memory. A cache
-// bigger than this is trimmed across successive passes (the periodic evictor and
-// admission-time enforcement), which is fine — eviction need not converge in one
-// pass.
-const EVICTION_SCAN_LIMIT = 10000;
 
 // spec: CACHE
 // The facility store's two durability tiers over the blob store primitive: the
@@ -26,13 +20,21 @@ export class FacilityBlobCache {
   #models;
   #transferChannel = null;
   #getCacheBudgetBytes;
-  /** hash -> count of reads currently streaming, so eviction defers removal. */
-  #activeReads = new Map();
+  #eviction;
 
   constructor({ blobStore, models, getCacheBudgetBytes }) {
     this.#blobStore = blobStore;
     this.#models = models;
     this.#getCacheBudgetBytes = getCacheBudgetBytes;
+    this.#eviction = new BlobEviction({
+      budgetBytes: () => this.#getCacheBudgetBytes(),
+      cacheSizeBytes: () => this.cacheSizeBytes(),
+      cacheRowsLruFirst: limit => this.#cacheRowsLruFirst(limit),
+      mostRecentlyUsedHash: () => this.#mostRecentlyUsedCacheHash(),
+      delete: hash => this.#blobStore.delete(hash),
+      onWarning: (message, details) => log.warn(`FacilityBlobCache: ${message}`, details),
+      onEvicted: summary => log.info('FacilityBlobCache: evicted cache blobs', summary),
+    });
   }
 
   /** Wired once the sync runtime is up; reads work local-only without it. */
@@ -116,59 +118,30 @@ export class FacilityBlobCache {
     return Number(total ?? 0);
   }
 
-  // spec: CACHE
-  /**
-   * Evict least-recently-used cache blobs until the cache fits its size
-   * budget. The budget is a target, not a hard limit: the single most
-   * recently used blob is never evicted merely to satisfy it, so a blob
-   * larger than the whole budget serves reads while it is in use rather than
-   * cycling through eviction and refetch.
-   */
   async enforceBudget() {
-    const budget = await this.#getCacheBudgetBytes();
-    if (!Number.isFinite(budget)) {
-      // A misconfigured or unset budget must not be read as "evict everything";
-      // leave the cache untouched and let the periodic task retry once fixed.
-      log.warn('FacilityBlobCache.enforceBudget: cache size budget is not a finite number', {
-        budget,
-      });
-      return { evictedBytes: 0, evictedCount: 0 };
-    }
-    const excess = (await this.cacheSizeBytes()) - budget;
-    if (excess <= 0) {
-      return { evictedBytes: 0, evictedCount: 0 };
-    }
-    // Withhold the single most-recently-used cache blob from budget eviction so
-    // an oversized in-use blob isn't thrashed. Identified explicitly (rather
-    // than as the tail of the scanned rows) because the scan is a bounded
-    // oldest-first batch that need not contain the newest blob.
-    const protectHash = await this.#mostRecentlyUsedCacheHash();
-    return await this.#evictRows(await this.#cacheRowsLruFirst(), excess, { protectHash });
+    return await this.#eviction.enforceBudget();
   }
 
-  // spec: CAP
-  /**
-   * Free at least bytesNeeded for the free-disk floor. The floor is the hard
-   * bound, so unlike budget enforcement every cache blob is a candidate —
-   * only outbox blobs and blobs with a read in progress are untouchable.
-   */
   async evictBytes(bytesNeeded) {
-    return await this.#evictRows(await this.#cacheRowsLruFirst(), bytesNeeded);
+    return await this.#eviction.evictBytes(bytesNeeded);
   }
 
   // The least-recently-used cache blobs, bounded so memory stays flat regardless
-  // of cache population. Eviction stops once its byte target is met, so a scan
-  // that reaches the limit without meeting it simply continues next pass.
-  async #cacheRowsLruFirst() {
-    return await this.#models.Blob.findAll({
+  // of cache population. Outbox blobs are absent by construction: they are the
+  // only durable copy and are never eviction candidates.
+  async #cacheRowsLruFirst(limit) {
+    const rows = await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.CACHE },
       order: [
         ['lastAccessedAt', 'ASC'],
         ['createdAt', 'ASC'],
       ],
       attributes: ['hash', 'size'],
-      limit: EVICTION_SCAN_LIMIT,
+      limit,
     });
+    // size arrives via the model's BIGINT getter as a number, but coerce
+    // defensively so the accumulator can never become a string.
+    return rows.map(({ hash, size }) => ({ hash, size: Number(size) }));
   }
 
   async #mostRecentlyUsedCacheHash() {
@@ -181,40 +154,6 @@ export class FacilityBlobCache {
       attributes: ['hash'],
     });
     return row?.hash ?? null;
-  }
-
-  async #evictRows(rows, bytesTarget, { protectHash = null } = {}) {
-    let evictedBytes = 0;
-    let evictedCount = 0;
-    for (const { hash, size } of rows) {
-      if (evictedBytes >= bytesTarget) break;
-      if (hash === protectHash) {
-        // spec: CACHE — the most-recently-used blob is withheld from budget
-        // eviction (not from the free-disk floor, which passes no protectHash).
-        continue;
-      }
-      if (this.#activeReads.has(hash)) {
-        // spec: CACHE — a blob with a read in progress is removed only once
-        // that read completes; it stays a candidate for a later pass.
-        continue;
-      }
-      try {
-        await this.#blobStore.delete(hash);
-        // size arrives via the model's BIGINT getter as a number, but coerce
-        // defensively so the accumulator can never become a string.
-        evictedBytes += Number(size);
-        evictedCount += 1;
-      } catch (error) {
-        log.warn('FacilityBlobCache: eviction of blob failed, skipping', {
-          hash,
-          error: error.message,
-        });
-      }
-    }
-    if (evictedCount > 0) {
-      log.info('FacilityBlobCache: evicted cache blobs', { evictedCount, evictedBytes });
-    }
-    return { evictedBytes, evictedCount };
   }
 
   async #touch(hash) {
@@ -232,16 +171,11 @@ export class FacilityBlobCache {
   }
 
   #retainRead(hash) {
-    this.#activeReads.set(hash, (this.#activeReads.get(hash) ?? 0) + 1);
+    this.#eviction.retainRead(hash);
   }
 
   #releaseRead(hash) {
-    const count = this.#activeReads.get(hash) ?? 0;
-    if (count <= 1) {
-      this.#activeReads.delete(hash);
-    } else {
-      this.#activeReads.set(hash, count - 1);
-    }
+    this.#eviction.releaseRead(hash);
   }
 
   #releaseReadOnClose(hash, stream) {

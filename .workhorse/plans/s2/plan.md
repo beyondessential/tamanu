@@ -195,11 +195,11 @@ next one. The server's suites are the regression net throughout.
       the device
 - [x] Transfer state machines (fetch, push, availability) against injected ports,
       plus the `content-range` / `content-length` helper the server needs
-- [ ] Re-point `BlobTransferChannel` at the package: it becomes the server host
+- [x] Re-point `BlobTransferChannel` at the package: it becomes the server host
       (ranged GET, offer POST, offset-addressed PUT, store reads), keeping
       `facilityIds` and the api-client conventions on the server side
-- [ ] Outbox pusher policy into the package, `BlobOutboxPusher` re-pointed
-- [ ] Eviction policy into the package, `FacilityBlobCache` re-pointed
+- [x] Outbox pusher policy into the package, `BlobOutboxPusher` re-pointed
+- [x] Eviction policy into the package, `FacilityBlobCache` re-pointed
 - [ ] Store admission ordering into the package, `BlobStore` re-pointed, with the
       registry upsert and recency coalescing as port contracts rather than SQL
 - [ ] Host contract suite, run against the server host

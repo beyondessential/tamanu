@@ -61,13 +61,15 @@ each case asserts on the sequence of decisions rather than on bytes moved.
 
 ### Eviction policy
 
-- [ ] Cache over budget evicts least-recently-used first (verifies spec: CACHE)
-- [ ] The most-recently-used blob is withheld from budget eviction (verifies spec: CACHE)
-- [ ] A blob with a read in progress is not evicted, and stays a candidate for a later pass (verifies spec: CACHE)
+- [x] Cache over budget evicts least-recently-used first (verifies spec: CACHE)
+- [x] The most-recently-used blob is withheld from budget eviction (verifies spec: CACHE)
+- [x] A blob with a read in progress is not evicted, and stays a candidate for a later pass (verifies spec: CACHE)
 - [ ] Outbox blobs are never evicted and count against neither budget nor eviction (verifies spec: CACHE)
-- [ ] Free-disk-floor eviction has no protected blob, unlike budget eviction (verifies spec: CAP)
-- [ ] A non-finite budget evicts nothing rather than everything (verifies spec: CACHE)
-- [ ] Eviction stops once its byte target is met (verifies spec: CACHE)
+- [x] Free-disk-floor eviction has no protected blob, unlike budget eviction (verifies spec: CAP)
+- [x] A non-finite budget evicts nothing rather than everything (verifies spec: CACHE)
+- [x] Eviction stops once its byte target is met (verifies spec: CACHE)
+- [x] A blob whose deletion fails is skipped and the pass continues (verifies spec: CACHE)
+- [x] Concurrent reads of one blob hold the deferral until the last releases (verifies spec: CACHE)
 
 ### Admission ordering
 
