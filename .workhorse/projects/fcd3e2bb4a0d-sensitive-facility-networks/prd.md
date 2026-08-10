@@ -120,6 +120,5 @@ This mirrors the existing `patient_facilities` mechanism in `packages/central-se
 
 ## Open questions
 
-- Do any sensitive facilities exist in production today? This decides whether the requirement 1 backfill runs automatically or is left to manual reference data configuration.
 - Is `is_sensitive` dropped outright, or kept as a derived value (`sensitive_network_id IS NOT NULL`)? Dropping it is cleaner but touches every reader of the column.
 - For change detection in requirement 4, `LocalSystemFact` versus a stored last-known network per device. Both are viable; pick during card shaping.
