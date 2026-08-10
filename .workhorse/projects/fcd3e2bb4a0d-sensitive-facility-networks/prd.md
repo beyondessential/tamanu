@@ -119,5 +119,3 @@ This mirrors the existing `patient_facilities` mechanism in `packages/central-se
 ---
 
 ## Open questions
-
-- For change detection in requirement 4, `LocalSystemFact` versus a stored last-known network per device. Both are viable; pick during card shaping.
