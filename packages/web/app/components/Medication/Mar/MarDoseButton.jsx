@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { useDateTime } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { useEncounter } from '../../../contexts/Encounter';
@@ -13,6 +14,7 @@ import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
 import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
+import { getIsDueBeforePrescriptionStart } from './getShowDoseInfo';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 
 export function MarDoseButton({
@@ -56,7 +58,14 @@ export function MarDoseButton({
   });
 
   const { dueAt, reasonNotGiven, status } = marInfo || {};
-  const { dosingUnit, endDate, isPrn } = medication || {};
+  const { dosingUnit, endDate, isPrn, startDate } = medication || {};
+
+  const { storedDateTimeToEpochMilliseconds } = useDateTime();
+  const isDueBeforePrescriptionStart = getIsDueBeforePrescriptionStart({
+    dueAt,
+    startDate,
+    storedDateTimeToEpochMilliseconds,
+  });
 
   const { encounter } = useEncounter();
   const isEncounterDischarged = !!encounter?.endDate;
@@ -131,6 +140,7 @@ export function MarDoseButton({
     endDate,
     isAlert,
     isDiscontinued,
+    isDueBeforePrescriptionStart,
     isEnd,
     isError,
     isNotDue,
