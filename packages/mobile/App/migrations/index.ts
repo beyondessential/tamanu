@@ -95,6 +95,7 @@ import { addBlobsTable1785810000000 } from './1785810000000-addBlobsTable';
 import { addBlobCacheTierColumns1785820000000 } from './1785820000000-addBlobCacheTierColumns';
 import { reshapeAttachmentsForBlobStore1785850000000 } from './1785850000000-reshapeAttachmentsForBlobStore';
 import { addBlobLastVerifiedAt1785910000000 } from './1785910000000-addBlobLastVerifiedAt';
+import { addBlobScanColumns1785920000000 } from './1785920000000-addBlobScanColumns';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -193,4 +194,5 @@ export const migrationList = [
   addBlobCacheTierColumns1785820000000,
   reshapeAttachmentsForBlobStore1785850000000,
   addBlobLastVerifiedAt1785910000000,
+  addBlobScanColumns1785920000000,
 ];
