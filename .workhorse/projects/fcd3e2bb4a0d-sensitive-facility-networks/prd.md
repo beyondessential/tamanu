@@ -115,7 +115,3 @@ This mirrors the existing `patient_facilities` mechanism in `packages/central-se
 1. **Detect.** During pull setup, work out whether the requesting facility's `sensitive_network_id` has changed or was recently set. Either track it via a `LocalSystemFact` or compare the facility's current network against a stored last-known network for the device
 2. **Full resync.** On a detected change, run an additional snapshot pass with `since = -1` scoped to `sensitive_network_id = :newNetworkId` across all encounter-linked models
 3. **Additions only.** Removal is blocked by requirement 2, so only additions reach this path
-
----
-
-## Open questions
