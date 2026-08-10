@@ -79,11 +79,8 @@ function createHost(overrides: Partial<BlobAdmissionHost> = {}) {
         state.registry.set(hash, { size, tier });
       }
     },
-    async freeBytes() {
-      return state.free;
-    },
-    async reserveBytes() {
-      return state.reserve;
+    async storage() {
+      return { free: state.free, reserve: state.reserve };
     },
     ...overrides,
   };

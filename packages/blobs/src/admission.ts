@@ -37,10 +37,12 @@ export interface BlobAdmissionHost {
    * to now.
    */
   register(hash: string, size: number, tier: BlobTier): Promise<void>;
-  /** Free space on the volume the store root sits on. */
-  freeBytes(): Promise<number>;
-  /** Free space the store must leave available. */
-  reserveBytes(): Promise<number>;
+  /**
+   * Free space on the volume the store root sits on, and the free space the
+   * store must leave available on it. Read together, since a host may derive
+   * both from one look at its storage.
+   */
+  storage(): Promise<{ free: number; reserve: number }>;
   /** Asked to free at least bytesNeeded before the store refuses. */
   evict?(bytesNeeded: number): Promise<void>;
   /**
@@ -172,17 +174,13 @@ export class BlobAdmission {
    * reserve.
    */
   async ensureFloor(bytesNeeded: number): Promise<void> {
-    let reserve = await this.#host.reserveBytes();
-    let free = await this.#host.freeBytes();
+    let { free, reserve } = await this.#host.storage();
     if (free - bytesNeeded >= reserve) {
       return;
     }
     if (this.#host.evict) {
       await this.#host.evict(reserve + bytesNeeded - free);
-      // Both are re-read: a host may derive its reserve from the same storage
-      // figures the eviction just changed.
-      free = await this.#host.freeBytes();
-      reserve = await this.#host.reserveBytes();
+      ({ free, reserve } = await this.#host.storage());
       if (free - bytesNeeded >= reserve) {
         return;
       }

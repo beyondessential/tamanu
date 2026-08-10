@@ -99,8 +99,10 @@ export class MobileBlobStore {
       stagingPathFor: hash => this.#stagingPathFor(hash),
       stat: hash => this.stat(hash),
       register: (hash, size, tier) => this.#register(hash, size, tier),
-      freeBytes: async () => (await this.#fs.getFSInfo()).freeSpace,
-      reserveBytes: async () => this.#getFreeDiskReserveBytes(await this.#fs.getFSInfo()),
+      storage: async () => {
+        const info = await this.#fs.getFSInfo();
+        return { free: info.freeSpace, reserve: this.#getFreeDiskReserveBytes(info) };
+      },
       ...(evictCache ? { evict: async (bytes: number) => void (await evictCache(bytes)) } : {}),
       // spec: SCRUB — a row left quarantined, or standing as absent after its
       // bytes went, is out of date once a replacement verifies. A row already

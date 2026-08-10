@@ -139,8 +139,10 @@ export class BlobStore {
       stagingPathFor: hash => this.#stagingPathFor(hash),
       stat: hash => this.stat(hash),
       register: (hash, size, tier) => this.#register(hash, size, { tier }),
-      freeBytes: () => this.#volumeFreeBytes(),
-      reserveBytes: () => this.#getFreeDiskReserveBytes(),
+      storage: async () => ({
+        free: await this.#volumeFreeBytes(),
+        reserve: await this.#getFreeDiskReserveBytes(),
+      }),
       ...(evictCache ? { evict: evictCache } : {}),
       // spec: SCRUB — these bytes just verified, so a row still standing as
       // quarantined or absent is now out of date. A row already verified is
