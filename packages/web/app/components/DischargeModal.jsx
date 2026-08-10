@@ -89,6 +89,8 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
     [writeAndViewEncounter, encounter.id, queryClient, patient?.id, onClose, navigateToPatient],
   );
 
+  if (!patient) return null;
+
   return (
     <FormModal
       title={title}

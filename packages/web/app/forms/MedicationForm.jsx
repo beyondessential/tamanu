@@ -689,6 +689,8 @@ export const MedicationForm = ({
     })();
   }, [awaitingPrint, submittedMedication]);
 
+  if (!patient) return null;
+
   const onSubmit = async data => {
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
@@ -711,7 +713,7 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient?.id}`, payload)
+        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
         : api.post(`medication/encounterPrescription/${encounterId}`, payload));
       // The return from the post doesn't include the joined tables like medication and prescriber
       const newMedication = await api.get(`medication/${medicationSubmission.id}`);
