@@ -346,6 +346,11 @@ surveyResponseAnswer.put(
     const encounter = await models.Encounter.findByPk(encounterId, {
       attributes: ['patientId'],
     });
+    if (!encounter) {
+      throw new InvalidOperationError(
+        `Survey response ${answerObject.surveyResponse.id} has no encounter to scope its attachment to`,
+      );
+    }
 
     await db.transaction(async () => {
       // We need to upsert because the record might not exist on facility server.

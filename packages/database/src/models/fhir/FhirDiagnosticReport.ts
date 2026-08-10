@@ -265,6 +265,11 @@ export class FhirDiagnosticReport extends FhirResource {
     const encounter = await this.sequelize.models.Encounter.findByPk(labRequest.encounterId, {
       attributes: ['patientId'],
     });
+    if (!encounter) {
+      throw new InvalidOperationError(
+        `Lab request ${labRequest.id} has no encounter to scope its report attachment to`,
+      );
+    }
     const attachment = await Attachment.create({
       type,
       hash,
