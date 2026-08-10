@@ -164,7 +164,7 @@ describe('fetch', () => {
     const result = await new BlobTransfer(host).fetch(HASH);
 
     expect(result).toEqual({ hash: HASH, size: 120 });
-    expect(state.sleeps).toEqual([0]);
+    expect(state.sleeps).toEqual([]);
   });
 
   it('gives up after the configured run of attempts that deliver nothing', async () => {
@@ -198,7 +198,7 @@ describe('fetch', () => {
     const result = await transfer.fetch(HASH);
 
     expect(fetchCalls(state)).toEqual([`fetchInto:${HASH}@0`, `fetchInto:${HASH}@60`]);
-    expect(state.sleeps).toEqual([0]);
+    expect(state.sleeps).toEqual([]);
     expect(result).toEqual({ hash: HASH, size: 120 });
   });
 

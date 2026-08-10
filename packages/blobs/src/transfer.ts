@@ -311,8 +311,13 @@ export class BlobTransfer {
     if (stalled >= this.#stalledAttemptLimit) {
       throw error;
     }
-    this.#host.onStall?.({ hash, position: staged, stalledAttempts: stalled });
-    await this.#host.sleep(this.#retryBaseMs * stalled);
+    if (stalled > 0) {
+      // An attempt that moved bytes earns no backoff: pacing is for a peer that
+      // is delivering nothing, and a zero-length sleep is a trap for a host
+      // whose tests run on fake timers.
+      this.#host.onStall?.({ hash, position: staged, stalledAttempts: stalled });
+      await this.#host.sleep(this.#retryBaseMs * stalled);
+    }
     return stalled;
   }
 }
