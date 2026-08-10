@@ -1,3 +1,4 @@
+import { BlobOutbox, OutboxCounts } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 
 import { MODELS_MAP } from '~/models/modelsMap';
@@ -35,79 +36,84 @@ export class BlobOutboxPusher {
   #transferChannel: BlobTransferChannel;
   #blobCache: MobileBlobCache;
   #running = false;
+  #outbox: BlobOutbox;
 
   constructor({ models, transferChannel, blobCache }: BlobOutboxPusherOptions) {
     this.#models = models;
     this.#transferChannel = transferChannel;
     this.#blobCache = blobCache;
+    this.#outbox = new BlobOutbox(
+      {
+        listOutbox: limit => this.#listOutbox(limit),
+        push: hash => this.#transferChannel.pushToCentral(hash),
+        demote: hash => this.#blobCache.demote(hash),
+        onWarning: (message, details) =>
+          console.warn(`BlobOutboxPusher: ${message} (${JSON.stringify(details)})`),
+      },
+      {
+        resolvers: [hashes => this.#syncedAttachmentHashes(hashes)],
+        scanLimit: OUTBOX_SCAN_LIMIT,
+      },
+    );
+  }
+
+  // spec: CACHE
+  /** Which outbox blobs are eligible for push, oldest-first among those scanned. */
+  async eligibleOutboxHashes(): Promise<string[]> {
+    const outbox = await this.#listOutbox(OUTBOX_SCAN_LIMIT);
+    const eligible = await this.#outbox.eligibleHashes(outbox);
+    return outbox.filter(hash => eligible.has(hash));
+  }
+
+  async #listOutbox(limit: number): Promise<string[]> {
+    const rows: { hash: string }[] = await this.#models.Blob.getRepository().query(
+      `
+        SELECT hash
+        FROM blobs
+        WHERE tier = ?
+          AND deletedAt IS NULL
+        ORDER BY createdAt ASC
+        LIMIT ?
+      `,
+      [BLOB_TIERS.OUTBOX, limit],
+    );
+    return rows.map(row => row.hash);
   }
 
   // spec: CACHE
   /**
-   * Which outbox blobs are eligible for push: a live attachment record carries
-   * the hash and has itself reached the central server — its sync tick is at
-   * or behind the push cursor, or it arrived through sync in the first place.
+   * The device's one reference resolver: a live attachment record carries the
+   * hash and has itself reached the central server — its sync tick is at or
+   * behind the push cursor, or it arrived through sync in the first place.
    */
-  async eligibleOutboxHashes(): Promise<string[]> {
+  async #syncedAttachmentHashes(hashes: string[]): Promise<string[]> {
     const lastPush = await getSyncTick(this.#models, LAST_SUCCESSFUL_PUSH);
-    const rows: { hash: string }[] = await this.#models.Blob.getRepository().query(
+    const rows: { hash: string }[] = await this.#models.Attachment.getRepository().query(
       `
-        SELECT blobs.hash AS hash
-        FROM blobs
-        WHERE blobs.tier = ?
-          AND blobs.deletedAt IS NULL
-          AND EXISTS (
-            SELECT 1 FROM attachments
-            WHERE attachments.hash = blobs.hash
-              AND attachments.deletedAt IS NULL
-              AND CAST(attachments.updatedAtSyncTick AS INTEGER) <= ?
-          )
-        ORDER BY blobs.createdAt ASC
-        LIMIT ?
+        SELECT hash
+        FROM attachments
+        WHERE deletedAt IS NULL
+          AND CAST(updatedAtSyncTick AS INTEGER) <= ?
+          AND hash IN (${hashes.map(() => '?').join(', ')})
       `,
-      [BLOB_TIERS.OUTBOX, lastPush, OUTBOX_SCAN_LIMIT],
+      [lastPush, ...hashes],
     );
     return rows.map(row => row.hash);
   }
 
   /** One pass over the outbox; run after each successful sync cycle. */
-  async runOnce(): Promise<{ pushed: number; failed: number; skipped: number }> {
-    const counts = { pushed: 0, failed: 0, skipped: 0 };
+  async runOnce(): Promise<OutboxCounts> {
     if (this.#running) {
-      return counts;
+      // The device runs this off sync cycles, which can overlap when one runs
+      // long; a second pass would offer blobs the first is still pushing.
+      return { pushed: 0, failed: 0, skipped: 0, ineligible: 0, inFlight: 0 };
     }
     this.#running = true;
     try {
-      for (const hash of await this.eligibleOutboxHashes()) {
-        try {
-          const result = await this.#transferChannel.pushToCentral(hash);
-          if (!result?.acknowledged) {
-            // Neither thrown nor acknowledged: leave it in the outbox and try
-            // again after a later sync.
-            counts.skipped += 1;
-            continue;
-          }
-          // spec: XFER — acknowledgement means the bytes are verified and
-          // durably stored on central, so the push is done even if the local
-          // demotion fails; a later idempotent re-offer will re-demote.
-          counts.pushed += 1;
-          try {
-            await this.#blobCache.demote(hash);
-          } catch (error) {
-            console.warn(
-              `BlobOutboxPusher: pushed ${hash} but local demotion failed, will re-demote: ${error.message}`,
-            );
-          }
-        } catch (error) {
-          // spec: CACHE — a refused or failed offer does not block the queue
-          counts.failed += 1;
-          console.warn(`BlobOutboxPusher: push of ${hash} failed, continuing: ${error.message}`);
-        }
-      }
+      return await this.#outbox.runOnce();
     } finally {
       this.#running = false;
     }
-    return counts;
   }
 
   // spec: CAP

@@ -1,23 +1,11 @@
 import RNFS from 'react-native-fs';
 
-import { BLOB_AVAILABILITY_STATES, BLOB_OFFER_STATUSES } from '@tamanu/constants';
-import {
-  BlobHashMismatchError,
-  ERROR_TYPE,
-  NotFoundError,
-  Problem,
-  RemoteCallError,
-} from '@tamanu/errors';
+import { BlobTransfer, blobEndpoints, rangeHeader } from '@tamanu/blobs';
+import { BlobHashMismatchError, NotFoundError, Problem, RemoteCallError } from '@tamanu/errors';
 
 import { CentralServerConnection } from '~/services/sync/CentralServerConnection';
 import { sleepAsync } from '~/services/sync/utils';
 import { MobileBlobStore, BlobFileSystem, FILE_COPY_CHUNK_BYTES, PutResult } from './MobileBlobStore';
-
-// Consecutive attempts that deliver no new bytes before a transfer gives up.
-// Attempts that make progress don't count: a transfer that keeps inching
-// forward over a poor link is working as intended.
-const STALLED_ATTEMPTS = 5;
-const RETRY_BASE_MS = 500;
 
 // spec: XFER
 // A referenced blob whose bytes have not reached the central server yet: the
@@ -71,12 +59,45 @@ export class BlobTransferChannel {
   #centralServer: CentralServerConnection;
   #getFacilityId: () => Promise<string>;
   #fs: TransferFileSystem;
+  #transfer: BlobTransfer;
 
   constructor({ blobStore, centralServer, getFacilityId, fs }: BlobTransferChannelOptions) {
     this.#blobStore = blobStore;
     this.#centralServer = centralServer;
     this.#getFacilityId = getFacilityId;
     this.#fs = fs ?? (RNFS as unknown as TransferFileSystem);
+    this.#transfer = new BlobTransfer(
+      {
+        stat: hash => this.#blobStore.stat(hash),
+        stagedSize: hash => this.#blobStore.stagedSize(hash),
+        commitStaged: hash => this.#blobStore.commitStaged(hash),
+        fetchInto: (hash, { offset }) => this.#fetchInto(hash, offset),
+        remoteAvailability: hash => this.#probeCentral(hash),
+        offer: (hash, { size }) => this.#offer(hash, size),
+        pushChunk: (hash, { offset, length, totalSize }) => {
+          // The device uploads whole files (pushChunkBytes is unbounded), so a
+          // chunk must always be the entire remainder. Assert it rather than
+          // silently sending offset-to-end: if pushChunkBytes is ever lowered,
+          // this fails loudly instead of over-delivering past what central staged.
+          if (length !== totalSize - offset) {
+            throw new Error(
+              `Mobile blob push delivers whole files; expected length ${totalSize - offset} at offset ${offset}, got ${length}`,
+            );
+          }
+          return this.#pushFrom(hash, totalSize, offset);
+        },
+        sleep: sleepAsync,
+        awaitingUploadError: hash => new BlobAwaitingUploadError(hash),
+      },
+      {
+        // The upload API sends whole files, so the remainder goes in one
+        // delivery rather than in chunks.
+        pushChunkBytes: Number.MAX_SAFE_INTEGER,
+        // downloadFile reports bytes written, not the content's total, so the
+        // size has to come from the availability probe.
+        probeTotalSize: 'always',
+      },
+    );
   }
 
   // spec: XFER
@@ -84,15 +105,7 @@ export class BlobTransferChannel {
   // are available; bytes central holds are awaiting our fetch; bytes central
   // lacks are awaiting upload from their origin.
   async availability(hash: string): Promise<{ availability: string; size?: number }> {
-    const local = await this.#blobStore.stat(hash);
-    if (local) {
-      return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: local.size };
-    }
-    const central = await this.#probeCentral(hash);
-    if (central.availability === BLOB_AVAILABILITY_STATES.AVAILABLE) {
-      return { availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH, size: central.size };
-    }
-    return { availability: central.availability };
+    return await this.#transfer.availability(hash);
   }
 
   // spec: XFER
@@ -106,93 +119,7 @@ export class BlobTransferChannel {
    * source, not a transfer fault.
    */
   async fetchFromCentral(hash: string): Promise<PutResult> {
-    const held = await this.#blobStore.stat(hash);
-    if (held) {
-      return { hash, size: held.size, existed: true };
-    }
-
-    const central = await this.#probeCentral(hash);
-    if (central.availability !== BLOB_AVAILABILITY_STATES.AVAILABLE) {
-      throw new BlobAwaitingUploadError(hash);
-    }
-    const size = central.size;
-
-    let stalledAttempts = 0;
-    for (;;) {
-      const offset = await this.#blobStore.stagedSize(hash);
-      if (offset >= size) {
-        // Everything is staged; commit verifies it. Over-staged content fails
-        // verification there and is discarded, so the next call starts clean.
-        break;
-      }
-
-      const partPath = await this.#blobStore.prepareStagingPart(hash);
-      let statusCode: number | undefined;
-      try {
-        ({ statusCode } = await this.#fs.downloadFile({
-          fromUrl: this.#centralServer.apiUrl(`blob/${encodeURIComponent(hash)}`, {
-            facilityIds: await this.#getFacilityId(),
-          }),
-          toFile: partPath,
-          headers: {
-            ...this.#centralServer.authHeaders(),
-            ...(offset > 0 ? { range: `bytes=${offset}-` } : {}),
-          },
-        }).promise);
-      } catch (error) {
-        // The connection dropped with no status; whatever bytes arrived are
-        // still progress, so salvage them before retrying. If the interrupted
-        // response wasn't the content after all, commit's verification
-        // discards the staging and the next fetch starts clean.
-        await this.#salvagePart(hash, partPath, offset);
-        stalledAttempts = await this.#countStall(hash, offset, stalledAttempts);
-        if (stalledAttempts >= STALLED_ATTEMPTS) {
-          throw error;
-        }
-        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
-        continue;
-      }
-
-      if (statusCode === 401) {
-        // Token expired mid-transfer: refresh and go again from the same offset.
-        // Counted as a stalled attempt like any other response that delivered no
-        // bytes, so a refresh that doesn't clear the rejection (revoked
-        // credentials, a misconfigured server) gives up instead of spinning the
-        // request loop on a battery-powered device.
-        await this.#centralServer.refresh();
-        stalledAttempts = await this.#countStall(hash, offset, stalledAttempts);
-        if (stalledAttempts >= STALLED_ATTEMPTS) {
-          throw new RemoteCallError(
-            `Blob fetch of ${hash} was refused as unauthenticated after re-authentication`,
-          );
-        }
-        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
-        continue;
-      }
-      if (statusCode === 404) {
-        throw new BlobAwaitingUploadError(hash);
-      }
-      if (statusCode === 200) {
-        await this.#blobStore.replaceStagedWithFile(hash, partPath);
-      } else if (statusCode === 206) {
-        await this.#blobStore.appendStagedFromFile(hash, partPath);
-      } else {
-        throw new RemoteCallError(`Blob fetch of ${hash} failed with status ${statusCode}`);
-      }
-
-      stalledAttempts = await this.#countStall(hash, offset, stalledAttempts);
-      if (stalledAttempts >= STALLED_ATTEMPTS) {
-        throw new RemoteCallError(`Fetch of ${hash} stalled at ${offset} of ${size} bytes`);
-      }
-      if (stalledAttempts > 0) {
-        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
-      }
-    }
-
-    // Verifies the complete content, including bytes staged before any
-    // interruption; a mismatch discards the staging so the next attempt
-    // starts clean.
-    return await this.#blobStore.commitStaged(hash);
+    return await this.#transfer.fetch(hash);
   }
 
   // spec: XFER
@@ -219,64 +146,58 @@ export class BlobTransferChannel {
         `Captured content for ${hash} is corrupt on this device; quarantined instead of offered`,
       );
     }
-    const { size } = held;
+    return await this.#transfer.push(hash);
+  }
 
-    const offer = await this.#offer(hash, size);
-    if (offer.status === BLOB_OFFER_STATUSES.ALREADY_STORED) {
-      return { acknowledged: true, existed: true };
+  // One download attempt from `offset`, appending whatever arrives to the
+  // staging. Whatever bytes landed are progress even when the attempt fails:
+  // the caller counts a stall only when the staged size did not move.
+  async #fetchInto(hash: string, offset: number): Promise<{ totalSize?: number }> {
+    const partPath = await this.#blobStore.prepareStagingPart(hash);
+    let statusCode: number | undefined;
+    try {
+      ({ statusCode } = await this.#fs.downloadFile({
+        fromUrl: this.#centralServer.apiUrl(blobEndpoints.content(hash), {
+          facilityIds: await this.#getFacilityId(),
+        }),
+        toFile: partPath,
+        headers: {
+          ...this.#centralServer.authHeaders(),
+          ...rangeHeader(offset),
+        },
+      }).promise);
+    } catch (error) {
+      // The connection dropped with no status; whatever bytes arrived are
+      // still progress, so salvage them before the retry. If the interrupted
+      // response wasn't the content after all, commit's verification discards
+      // the staging and the next fetch starts clean.
+      await this.#salvagePart(hash, partPath, offset);
+      throw error;
     }
 
-    let offset = offer.receivedBytes ?? 0;
-    let stalledAttempts = 0;
-    for (;;) {
-      try {
-        return await this.#pushFrom(hash, size, offset);
-      } catch (error) {
-        if (error?.type === ERROR_TYPE.BLOB_HASH_MISMATCH) {
-          // Central discarded the staged content: what we sent doesn't match
-          // the hash we hold it under. Local integrity's problem, not a
-          // transfer retry's.
-          throw error;
-        }
-        if (error?.type === ERROR_TYPE.FORBIDDEN) {
-          // spec: BLAC
-          // Central refuses the push: the blob's referencing record hasn't
-          // synchronised there yet. Retrying without a sync in between cannot
-          // change the answer, so fail now and let the pusher retry after the
-          // next sync cycle.
-          throw error;
-        }
-        // Learn where central actually got to and resume from there — covers
-        // a connection dropped mid-body, where central staged part of what we
-        // sent. A re-offer that itself fails is just another transient fault:
-        // count it as a stalled attempt and retry from the same offset.
-        let reoffer;
-        try {
-          reoffer = await this.#offer(hash, size);
-        } catch {
-          stalledAttempts += 1;
-          if (stalledAttempts >= STALLED_ATTEMPTS) {
-            throw error;
-          }
-          await sleepAsync(RETRY_BASE_MS * stalledAttempts);
-          continue;
-        }
-        if (reoffer.status === BLOB_OFFER_STATUSES.ALREADY_STORED) {
-          return { acknowledged: true, existed: true };
-        }
-        const serverOffset = reoffer.receivedBytes ?? 0;
-        stalledAttempts = serverOffset > offset ? 0 : stalledAttempts + 1;
-        if (stalledAttempts >= STALLED_ATTEMPTS) {
-          throw error;
-        }
-        offset = serverOffset;
-        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
-      }
+    if (statusCode === 401) {
+      // Token expired mid-transfer: refresh so the retry from the same offset
+      // carries fresh credentials. A refresh that doesn't clear the rejection
+      // stalls out like any other attempt that delivered nothing, instead of
+      // spinning the request loop on a battery-powered device.
+      await this.#centralServer.refresh();
+      throw new RemoteCallError(`Blob fetch of ${hash} was refused as unauthenticated`);
     }
+    if (statusCode === 404) {
+      throw new BlobAwaitingUploadError(hash);
+    }
+    if (statusCode === 200) {
+      await this.#blobStore.replaceStagedWithFile(hash, partPath);
+    } else if (statusCode === 206) {
+      await this.#blobStore.appendStagedFromFile(hash, partPath);
+    } else {
+      throw new RemoteCallError(`Blob fetch of ${hash} failed with status ${statusCode}`);
+    }
+    return {};
   }
 
   async #probeCentral(hash: string): Promise<{ availability: string; size?: number }> {
-    return await this.#centralServer.get(`blob/${encodeURIComponent(hash)}/availability`, {
+    return await this.#centralServer.get(blobEndpoints.availability(hash), {
       facilityIds: await this.#getFacilityId(),
     });
   }
@@ -286,7 +207,7 @@ export class BlobTransferChannel {
     size: number,
   ): Promise<{ status: string; receivedBytes?: number }> {
     return await this.#centralServer.post(
-      `blob/${encodeURIComponent(hash)}/offer`,
+      blobEndpoints.offer(hash),
       { facilityIds: await this.#getFacilityId() },
       { size },
     );
@@ -318,7 +239,7 @@ export class BlobTransferChannel {
 
     try {
       const { statusCode, body } = await this.#fs.uploadFiles({
-        toUrl: this.#centralServer.apiUrl(`blob/${encodeURIComponent(hash)}/content`, {
+        toUrl: this.#centralServer.apiUrl(blobEndpoints.upload(hash), {
           offset,
           totalSize: size,
           facilityIds: await this.#getFacilityId(),
@@ -374,10 +295,6 @@ export class BlobTransferChannel {
     }
   }
 
-  async #countStall(hash: string, previousOffset: number, stalledAttempts: number): Promise<number> {
-    const staged = await this.#blobStore.stagedSize(hash);
-    return staged > previousOffset ? 0 : stalledAttempts + 1;
-  }
 }
 
 function parseJsonBody(body: string): any {
