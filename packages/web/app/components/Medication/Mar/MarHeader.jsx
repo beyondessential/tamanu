@@ -1,6 +1,10 @@
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import IconButton from '@mui/material/IconButton';
+import { addDays, isSameDay, subDays } from 'date-fns';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import {
   ButtonWithPermissionCheck,
   ConditionalTooltip,
@@ -8,12 +12,9 @@ import {
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { addDays, isSameDay, subDays } from 'date-fns';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { Heading3 } from '../../Typography';
 import { MedicationModal } from '../MedicationModal';
@@ -79,7 +80,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
     isSameDay(addDays(facilityNow, 2), selectedDate) ||
     (encounterEnd && isSameDay(encounterEnd, selectedDate));
 
-  const isEncounterDischarged = !!encounter?.endDate;
+  const isEncounterDischarged = useIsEncounterDischarged();
 
   return (
     <Header>

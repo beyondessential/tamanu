@@ -36,6 +36,7 @@ import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { CheckField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
@@ -212,7 +213,7 @@ export const MarDetails = ({
     },
   });
 
-  const isEncounterDischarged = !!encounter?.endDate;
+  const isEncounterDischarged = useIsEncounterDischarged();
   const canEditMar = ability.can('write', 'MedicationAdministration') && !isEncounterDischarged;
 
   const onSubmit = async (data, { setFieldValue }) => {

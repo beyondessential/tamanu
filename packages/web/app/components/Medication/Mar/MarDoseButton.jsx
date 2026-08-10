@@ -3,18 +3,18 @@ import React, { useRef, useState } from 'react';
 import { useDateTime } from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { useEncounter } from '../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
 import { WarningModal } from '../WarningModal';
 import { MarDetails } from './MarDetails';
 import MarDoseStatus from './MarDoseStatus';
 import { MarStatusLabel, MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
 import { MarCellButton } from './components';
+import { getIsDueBeforePrescriptionStart } from './getShowDoseInfo';
+import useCanViewMedication from './useCanViewMedication';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
-import useCanViewMedication from './useCanViewMedication';
 import useMarPermissions from './useMarPermissions';
-import { getIsDueBeforePrescriptionStart } from './getShowDoseInfo';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 
 export function MarDoseButton({
@@ -67,9 +67,7 @@ export function MarDoseButton({
     storedDateTimeToEpochMilliseconds,
   });
 
-  const { encounter } = useEncounter();
-  const isEncounterDischarged = !!encounter?.endDate;
-  const isCreateBlockedByDischarge = isEncounterDischarged && !marInfo?.status;
+  const isCreateBlockedByDischarge = useIsEncounterDischarged() && !marInfo?.status;
 
   const [isSelected, setIsSelected] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState('');
