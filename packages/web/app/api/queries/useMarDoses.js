@@ -6,10 +6,13 @@ export const useMarDoses = marId => {
   return useQuery({
     queryKey: ['marDoses', marId],
     queryFn: async () =>
-      await api.get(
-        `medication/medication-administration-record/${encodeURIComponent(marId)}/doses`,
-      ),
+      (
+        await api.get(
+          `medication/medication-administration-record/${encodeURIComponent(marId)}/doses`,
+        )
+      ).data,
     enabled: Boolean(marId),
-    staleTime: 60_000,
+    /** MAR hits this endpoint a lot, so rely on proper cache invalidation when data is mutated */
+    staleTime: 600_000,
   });
 };

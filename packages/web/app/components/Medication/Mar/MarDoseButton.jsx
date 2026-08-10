@@ -42,7 +42,7 @@ export function MarDoseButton({
     selectedDate,
     pauseRecords,
   });
-  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
+  const { data: marDoses = [] } = useMarDoses(marInfo?.id);
   const {
     isAlert,
     isDoseAmountNotMatch,
