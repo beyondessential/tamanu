@@ -252,6 +252,36 @@ describe(`Materialised FHIR - Encounter`, () => {
       });
       expect(response).toHaveSucceeded();
     });
+
+    it('a survey response encounter', async () => {
+      // arrange
+      const [, mat] = await makeEncounter({
+        encounterType: 'surveyResponse',
+      });
+
+      // act
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Encounter',
+        id: expect.any(String),
+        status: 'in-progress',
+        class: [
+          {
+            coding: [
+              {
+                code: 'FLD',
+                display: 'field',
+                system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+              },
+            ],
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
   });
 
   describe('search', () => {
