@@ -43,4 +43,12 @@ export class BlobQuarantine extends Model {
       },
     );
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static async buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }
