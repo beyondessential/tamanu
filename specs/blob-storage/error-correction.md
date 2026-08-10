@@ -23,6 +23,9 @@ bare-metal central whose restore is a human action with downtime.
   the cache on a successful push has its parity discarded.
 - [ ] A mobile device carries no parity: its durable content is small and its hashing
   budget is constrained by battery (see `mobile.md`).
+- [ ] Blobs below a small size threshold carry no parity. A parity shard is at least
+  one filesystem cluster, so at very small sizes the overhead grows out of proportion
+  to the blob it protects. Those blobs rely on the rest of the self-heal ladder.
 
 ## Parity
 
@@ -60,6 +63,11 @@ bare-metal central whose restore is a human action with downtime.
   reconstruction against the blob's hash, and moves it into place by the same atomic
   placement that admission uses, so a reader never observes a partially repaired blob
   and the corruption is corrected on disk rather than only in the bytes served.
+- [ ] The reconstruction is verified against the blob's hash unconditionally, and one
+  that does not match is discarded and the blob treated as unrepaired. Correcting a
+  blob requires first locating the damaged region within it, and a region located
+  wrongly yields a reconstruction that reports success while emitting different bytes;
+  the hash is the only check that detects this.
 - [ ] A blob repaired from parity is recorded verified, and is neither quarantined nor
   escalated: the content was never at risk.
 - [ ] Corruption beyond what the parity can recover falls through to the rest of the

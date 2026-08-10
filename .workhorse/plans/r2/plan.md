@@ -64,16 +64,20 @@ Build without it. Cache copies are uncovered, as the spec says.
 
 The argument for covering them is clinical rather than technical: a facility offline
 for a long stretch, holding a corrupt cache copy, cannot show a clinician that
-attachment until it can refetch, and parity would repair it locally. The argument
-against is that it roughly doubles the covered population on a facility and competes
-with the cache budget for exactly the content that is cheapest to replace. Genuinely
-close, and not resolvable from first principles, so it is deferred rather than argued
-further.
+attachment until it can refetch, and parity would repair it locally.
 
-Revisit if a deployment reports attachments unavailable at a facility through a long
-disconnection, or if the spike's overhead numbers come in low enough that the disk cost
-stops mattering. Coverage is a predicate over the blob's tier, so widening it later is
-a one-line change plus a retrofit pass the scrub already performs — not a redesign.
+The argument against was disk cost, and the spike has largely dissolved it. Covering
+cache costs about a tenth of the cache budget, not the near-doubling this section
+originally assumed, and the encode is a second pass over a page-cache-warm temp file
+rather than anything a facility would feel. What is left against it is that cache
+content is the cheapest content in the system to replace, so the protection is worth
+least exactly where it is being spent.
+
+Still deferred, but the balance has moved and it is now a thinner call than when it was
+set aside. Revisit before build starts rather than waiting on a deployment to report
+attachments unavailable through a long disconnection. Coverage is a predicate over the
+blob's tier, so widening it is a one-line change plus the retrofit pass the scrub
+already performs.
 
 ## Spike: parity codec (gate)
 
