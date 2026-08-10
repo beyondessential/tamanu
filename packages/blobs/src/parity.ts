@@ -30,6 +30,10 @@ const MAX_SHARD_SIZE = 1024 * 1024;
 // how the data shards divide up.
 const MAX_SHARDS_PER_GROUP = 32;
 
+// Indices in this module are in range by construction — the tables are exactly
+// FIELD_SIZE wide and every subscript is a byte or a bounded shard index — so the
+// non-null assertions below are what noUncheckedIndexedAccess needs, not a
+// judgement that a read might be absent.
 const FIELD_SIZE = 256;
 // x^8 + x^4 + x^3 + x^2 + 1, for which 2 is a primitive root.
 const FIELD_POLYNOMIAL = 0x11d;
@@ -48,11 +52,11 @@ for (let power = 0, value = 1; power < FIELD_SIZE - 1; power++) {
 }
 // Wrapped copy, so a sum of two logarithms indexes without a modulo.
 for (let power = FIELD_SIZE - 1; power < EXPONENTIALS.length; power++) {
-  EXPONENTIALS[power] = EXPONENTIALS[power - (FIELD_SIZE - 1)];
+  EXPONENTIALS[power] = EXPONENTIALS[power - (FIELD_SIZE - 1)]!;
 }
 for (let left = 1; left < FIELD_SIZE; left++) {
   for (let right = 1; right < FIELD_SIZE; right++) {
-    PRODUCTS[left * FIELD_SIZE + right] = EXPONENTIALS[LOGARITHMS[left] + LOGARITHMS[right]];
+    PRODUCTS[left * FIELD_SIZE + right] = EXPONENTIALS[LOGARITHMS[left]! + LOGARITHMS[right]!]!;
   }
 }
 
@@ -63,7 +67,7 @@ function divide(dividend: number, divisor: number): number {
   if (dividend === 0) {
     return 0;
   }
-  return EXPONENTIALS[LOGARITHMS[dividend] - LOGARITHMS[divisor] + (FIELD_SIZE - 1)];
+  return EXPONENTIALS[LOGARITHMS[dividend]! - LOGARITHMS[divisor]! + (FIELD_SIZE - 1)]!;
 }
 
 // The 256 products of one coefficient, so an inner loop over bytes is a lookup
@@ -207,10 +211,10 @@ export class ParityEncoder {
       throw new Error(`Parity codec: data shard ${index} is outside a group of ${dataShards}`);
     }
     for (let parity = 0; parity < parityShards; parity++) {
-      const products = productsOf(this.#matrix[(dataShards + parity) * dataShards + index]);
-      const accumulator = this.#parity[parity];
+      const products = productsOf(this.#matrix[(dataShards + parity) * dataShards + index]!);
+      const accumulator = this.#parity[parity]!;
       for (let offset = 0; offset < bytes.length; offset++) {
-        accumulator[offset] ^= products[bytes[offset]];
+        accumulator[offset] = accumulator[offset]! ^ products[bytes[offset]!]!;
       }
     }
   }
@@ -284,16 +288,16 @@ export class ParityDecoder {
     const columns = this.#presentShards.length;
     const recovered = this.#erasedDataShards.map(() => new Uint8Array(length));
     for (let row = 0; row < recovered.length; row++) {
-      const output = recovered[row];
+      const output = recovered[row]!;
       for (let column = 0; column < columns; column++) {
-        const coefficient = this.#recovery[row * columns + column];
+        const coefficient = this.#recovery[row * columns + column]!;
         if (coefficient === 0) {
           continue;
         }
         const products = productsOf(coefficient);
-        const slice = presentSlices[column];
+        const slice = presentSlices[column]!;
         for (let offset = 0; offset < length; offset++) {
-          output[offset] ^= products[slice[offset]];
+          output[offset] = output[offset]! ^ products[slice[offset]!]!;
         }
       }
     }
@@ -335,7 +339,7 @@ function invert(matrix: Uint8Array, order: number): Uint8Array {
       swapRows(inverse, pivot, column, order);
     }
 
-    const leading = work[column * order + column];
+    const leading = work[column * order + column]!;
     if (leading !== 1) {
       const products = productsOf(divide(1, leading));
       scaleRow(work, column, products, order);
@@ -343,7 +347,7 @@ function invert(matrix: Uint8Array, order: number): Uint8Array {
     }
 
     for (let row = 0; row < order; row++) {
-      const factor = work[row * order + column];
+      const factor = work[row * order + column]!;
       if (row === column || factor === 0) {
         continue;
       }
@@ -363,7 +367,7 @@ function swapRows(matrix: Uint8Array, left: number, right: number, order: number
 
 function scaleRow(matrix: Uint8Array, row: number, products: Uint8Array, order: number): void {
   for (let column = 0; column < order; column++) {
-    matrix[row * order + column] = products[matrix[row * order + column]];
+    matrix[row * order + column] = products[matrix[row * order + column]!]!;
   }
 }
 
@@ -375,6 +379,7 @@ function subtractRow(
   order: number,
 ): void {
   for (let column = 0; column < order; column++) {
-    matrix[row * order + column] ^= products[matrix[from * order + column]];
+    matrix[row * order + column] =
+      matrix[row * order + column]! ^ products[matrix[from * order + column]!]!;
   }
 }
