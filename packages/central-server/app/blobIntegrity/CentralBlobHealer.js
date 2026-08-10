@@ -18,6 +18,15 @@ export class CentralBlobHealer {
   }
 
   async heal({ hash, fault, blob }) {
+    // spec: FEC — error correction is the first rung of the ladder: repair from
+    // parity before falling through to a peer or a backup. The reconstruction is
+    // checked against the blob's hash, so a repair means the content was never at
+    // risk and is neither quarantined nor escalated.
+    if (fault === BLOB_FAULTS.CORRUPT && (await this.#blobStore.repairFromParity(hash))) {
+      log.info('CentralBlobHealer: repaired a corrupt blob from its parity', { hash });
+      return;
+    }
+
     if (!blob) {
       // The referential pass: a synchronised record references content the
       // registry does not name, so there is no row to stamp. Registering it

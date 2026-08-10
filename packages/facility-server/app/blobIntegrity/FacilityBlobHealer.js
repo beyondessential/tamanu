@@ -29,6 +29,15 @@ export class FacilityBlobHealer {
    * hash repeatedly and concurrently.
    */
   async heal({ hash, fault, blob }) {
+    // spec: FEC — error correction is the first rung of the ladder, ahead of
+    // dropping a cache copy or quarantining an outbox one. The reconstruction is
+    // checked against the blob's hash, so a repair means the content was never at
+    // risk: it is recorded verified, and neither quarantined nor escalated.
+    if (fault === BLOB_FAULTS.CORRUPT && (await this.#blobStore.repairFromParity(hash))) {
+      log.info('FacilityBlobHealer: repaired a corrupt blob from its parity', { hash });
+      return;
+    }
+
     // spec: SCRUB — a quarantined blob is retained, never deleted. Reconciliation
     // quarantines a corrupt orphan (unknown provenance, so not assumed to be a
     // refetchable replica) before handing it here; the cache path below would
@@ -81,6 +90,8 @@ export class FacilityBlobHealer {
         { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
         { where: { hash } },
       );
+      // spec: FEC — now a cache copy, which this server does not cover.
+      await this.#blobStore.discardParity(hash);
       log.warn('FacilityBlobHealer: repaired a faulty outbox blob from central', { hash, fault });
       return;
     }
