@@ -154,8 +154,19 @@ export class BlobTransferChannel {
       }
 
       if (statusCode === 401) {
-        // Token expired mid-transfer; refresh and go again from the same offset.
+        // Token expired mid-transfer: refresh and go again from the same offset.
+        // Counted as a stalled attempt like any other response that delivered no
+        // bytes, so a refresh that doesn't clear the rejection (revoked
+        // credentials, a misconfigured server) gives up instead of spinning the
+        // request loop on a battery-powered device.
         await this.#centralServer.refresh();
+        stalledAttempts = await this.#countStall(hash, offset, stalledAttempts);
+        if (stalledAttempts >= STALLED_ATTEMPTS) {
+          throw new RemoteCallError(
+            `Blob fetch of ${hash} was refused as unauthenticated after re-authentication`,
+          );
+        }
+        await sleepAsync(RETRY_BASE_MS * stalledAttempts);
         continue;
       }
       if (statusCode === 404) {

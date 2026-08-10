@@ -139,6 +139,31 @@ describe('BlobTransferChannel', () => {
       expect(result.existed).toBe(true);
       expect(centralServer.get).not.toHaveBeenCalled();
     });
+
+    // A refresh that doesn't clear the rejection must give up rather than spin the
+    // request loop forever on a battery-powered device. Uses real timers because
+    // the give-up path backs off between attempts.
+    it('gives up on repeated unauthenticated responses instead of looping', async () => {
+      jest.useRealTimers();
+      try {
+        const hash = sha256Hash('never arrives');
+        centralServer.get.mockResolvedValue({
+          availability: BLOB_AVAILABILITY_STATES.AVAILABLE,
+          size: 13,
+        });
+        let downloads = 0;
+        fs.onDownload = async () => {
+          downloads += 1;
+          return { statusCode: 401, bytesWritten: 0 };
+        };
+
+        await expect(channel.fetchFromCentral(hash)).rejects.toThrow(/unauthenticated/i);
+        expect(downloads).toBeLessThanOrEqual(5);
+        expect(centralServer.refresh).toHaveBeenCalled();
+      } finally {
+        jest.useFakeTimers();
+      }
+    }, 20000);
   });
 
   describe('pushToCentral', () => {

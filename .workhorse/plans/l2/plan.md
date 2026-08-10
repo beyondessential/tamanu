@@ -132,6 +132,27 @@ consumes; the `data` blob column was never written on device and is dropped.
       repo-wide breakage that already accounts for the base branch's 609 errors
       and is not gated by CI (the mobile job runs jest alone)
 
+## Open performance questions from review
+
+Two review findings are real but were left unfixed, because each needs a decision
+rather than a code tweak:
+
+- **Verification cost on every read.** `MobileBlobCache.open` hashes the whole file
+  on each read, and `readBase64` then reads it again, so viewing a 5 MB photo is
+  two full passes over the file on a low-end device. The only lever is verifying
+  less often, which is exactly what `integrity.md` currently promises ("verification
+  at receipt and on read"). The proposal worth costing: keep always-verify for
+  outbox content (the device holds the sole copy) and coalesce cache verification
+  within a time window the way recency is coalesced, which needs a `lastVerifiedAt`
+  column on `blobs` plus a spec amendment. Not a silent change — decide first.
+- **Temp copy when resuming a push.** `#pushFrom` copies the blob's remainder into
+  a temporary file before uploading, because the upload API sends whole files; a
+  connection that drops early therefore duplicates nearly the whole blob on disk.
+  Whether this is avoidable depends on whether react-native-fs can upload from a
+  byte offset, which needs checking against its docs/source. A partial mitigation
+  that needs no such answer: reuse the temp file across retries whose resume offset
+  hasn't moved, instead of rebuilding it each iteration.
+
 ## Sharing with the server (S2)
 
 The mobile store, cache, transfer channel, and pusher are deliberate copies of the

@@ -73,6 +73,30 @@ describe('reconcileAttachments', () => {
     expect(row.filePath).toBeNull();
   });
 
+  // The batched walk advances its cursor past a row it could not adopt, so a
+  // permanently failing row cannot make the pass loop forever.
+  it('finishes the pass when a legacy attachment cannot be adopted', async () => {
+    fs.seed('/docs/unreadable.jpg', 'unreadable');
+    await seedLegacyAttachment('legacy-broken', '/docs/unreadable.jpg', 20);
+    fs.seed('/docs/fine.jpg', 'adoptable content');
+    await seedLegacyAttachment('legacy-fine', '/docs/fine.jpg', 20);
+    jest.spyOn(store, 'putFile').mockImplementation(async sourcePath => {
+      if (sourcePath === '/docs/unreadable.jpg') throw new Error('cannot read file');
+      return { hash: sha256Hash('adoptable content'), size: 17, existed: false };
+    });
+
+    await reconcileAttachments({ models: Database.models, blobStore: store, fs });
+
+    // the failed row keeps its pointer for a later start, the other is adopted
+    const broken = await Database.models.Attachment.findOne({
+      where: { id: 'att-legacy-broken' },
+    });
+    expect(broken.filePath).toBe('/docs/unreadable.jpg');
+    const fine = await Database.models.Attachment.findOne({ where: { id: 'att-legacy-fine' } });
+    expect(fine.filePath).toBeNull();
+    expect(fine.hash).toBe(sha256Hash('adoptable content'));
+  });
+
   // verifies spec: MOB, CACHE — a stranded outbox blob is demoted to reclaimable cache
   it('demotes an outbox blob with no referencing record to cache', async () => {
     const strandedHash = sha256Hash('stranded');

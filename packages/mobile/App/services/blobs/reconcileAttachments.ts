@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs';
-import { IsNull, Not } from 'typeorm';
+import { IsNull, MoreThan, Not } from 'typeorm';
 
 import { BLOB_TIERS } from '@tamanu/constants';
 
@@ -7,6 +7,9 @@ import { MODELS_MAP } from '~/models/modelsMap';
 import { getSyncTick } from '~/services/sync/utils';
 import { LAST_SUCCESSFUL_PUSH } from '~/services/sync/constants';
 import { MobileBlobStore, BlobFileSystem } from './MobileBlobStore';
+
+// Legacy rows adopted per query, bounding how many are held in memory at once.
+const LEGACY_ADOPTION_BATCH_SIZE = 50;
 
 export interface ReconcileAttachmentsOptions {
   models: typeof MODELS_MAP;
@@ -50,54 +53,66 @@ async function adoptLegacyAttachments({
   fs,
 }: Required<ReconcileAttachmentsOptions>): Promise<void> {
   const repository = models.Attachment.getRepository();
-  const legacyRows = await repository.find({
-    where: { filePath: Not(IsNull()) },
-    withDeleted: true,
-  });
-  if (legacyRows.length === 0) {
-    return;
-  }
-
   const lastPush = await getSyncTick(models, LAST_SUCCESSFUL_PUSH);
-  for (const row of legacyRows) {
-    try {
-      const filePath = row.filePath;
 
-      if (row.deletedAt || !(await fs.exists(filePath))) {
-        // A removed attachment's file is dead weight; a live row without its
-        // file has lost its content and presents as awaiting it.
-        if (await fs.exists(filePath)) {
-          await fs.unlink(filePath);
+  // Walked in id order with a cursor rather than loaded whole: a device that
+  // captured many photos before the upgrade can hold hundreds of legacy rows,
+  // and the work is sequential anyway since each row hashes a file. The cursor
+  // advances past a row that fails to adopt, which a plain limit would not — a
+  // failure leaves filePath set, so the same batch would be re-read forever.
+  let cursor = '';
+  for (;;) {
+    const legacyRows = await repository.find({
+      where: { filePath: Not(IsNull()), id: MoreThan(cursor) },
+      withDeleted: true,
+      order: { id: 'ASC' },
+      take: LEGACY_ADOPTION_BATCH_SIZE,
+    });
+    if (legacyRows.length === 0) {
+      return;
+    }
+    cursor = legacyRows[legacyRows.length - 1].id;
+
+    for (const row of legacyRows) {
+      try {
+        const filePath = row.filePath;
+
+        if (row.deletedAt || !(await fs.exists(filePath))) {
+          // A removed attachment's file is dead weight; a live row without its
+          // file has lost its content and presents as awaiting it.
+          if (await fs.exists(filePath)) {
+            await fs.unlink(filePath);
+          }
+          await repository.query(
+            `UPDATE attachments SET filePath = NULL, updatedAt = datetime('now') WHERE id = ?`,
+            [row.id],
+          );
+          continue;
         }
-        await repository.query(
-          `UPDATE attachments SET filePath = NULL, updatedAt = datetime('now') WHERE id = ?`,
-          [row.id],
-        );
-        continue;
-      }
 
-      const isPendingPush = Number(row.updatedAtSyncTick) > lastPush;
-      const { hash, size } = await blobStore.putFile(filePath, {
-        tier: isPendingPush ? BLOB_TIERS.OUTBOX : BLOB_TIERS.CACHE,
-      });
+        const isPendingPush = Number(row.updatedAtSyncTick) > lastPush;
+        const { hash, size } = await blobStore.putFile(filePath, {
+          tier: isPendingPush ? BLOB_TIERS.OUTBOX : BLOB_TIERS.CACHE,
+        });
 
-      if (isPendingPush) {
-        row.hash = hash;
-        row.size = size;
-        row.filePath = null;
-        await row.save();
-      } else {
-        await repository.query(
-          `UPDATE attachments SET hash = ?, size = ?, updatedAt = datetime('now'), filePath = NULL WHERE id = ?`,
-          [hash, size, row.id],
+        if (isPendingPush) {
+          row.hash = hash;
+          row.size = size;
+          row.filePath = null;
+          await row.save();
+        } else {
+          await repository.query(
+            `UPDATE attachments SET hash = ?, size = ?, updatedAt = datetime('now'), filePath = NULL WHERE id = ?`,
+            [hash, size, row.id],
+          );
+        }
+      } catch (error) {
+        // Likely insufficient storage or an unreadable file; leave the row for
+        // the next start rather than failing the rest of the pass.
+        console.warn(
+          `reconcileAttachments: could not adopt legacy attachment ${row.id}: ${error.message}`,
         );
       }
-    } catch (error) {
-      // Likely insufficient storage or an unreadable file; leave the row for
-      // the next start rather than failing the rest of the pass.
-      console.warn(
-        `reconcileAttachments: could not adopt legacy attachment ${row.id}: ${error.message}`,
-      );
     }
   }
 }
