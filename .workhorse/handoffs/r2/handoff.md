@@ -102,10 +102,11 @@ taken" in the plan, and are already written into the spec. The short version:
 - Correction rate is its own health signal, separate from `blob_integrity`
 - Parity is derived: never a fault, excluded from backups, dies with its blob
 
-One judgement call is deliberately left open (whether facility cache copies should be
-covered after all, a clinical-availability versus disk-cost trade). It is flagged in the
-plan and is the user's to settle. It does not block this spike, but if your findings
-change the disk-cost side of that argument, say so.
+One option is deliberately deferred rather than open: whether facility cache copies
+should be covered after all, a clinical-availability versus disk-cost trade that is too
+close to settle from first principles. The build proceeds without it. See "Deferred" in
+the plan. It does not block this spike, but your overhead numbers feed the disk-cost
+side of it, so call it out if they come in low.
 
 ## 5. Your task: the spike
 

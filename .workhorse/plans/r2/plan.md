@@ -58,15 +58,22 @@ Recorded here so they are not relitigated. Each is now written into the spec.
   verifies is regenerated. Store captures exclude it; a restored server regenerates it
   through the scrub. Parity dies with its blob on delete and on outbox demotion.
 
-## Open judgement call
+## Deferred: parity over facility cache copies
 
-**Should a facility cache copy carry parity?** Decided no, on disk cost. The argument
-for yes is clinical: a facility that is offline for a long stretch and holds a corrupt
-cache copy cannot show a clinician the attachment until it can refetch, and parity
-would fix that locally. Against: it roughly doubles the covered population on a
-facility and competes with the cache budget for exactly the content that is cheapest
-to replace. Worth a second opinion before build starts; changing it later is a
-coverage predicate, not a redesign.
+Build without it. Cache copies are uncovered, as the spec says.
+
+The argument for covering them is clinical rather than technical: a facility offline
+for a long stretch, holding a corrupt cache copy, cannot show a clinician that
+attachment until it can refetch, and parity would repair it locally. The argument
+against is that it roughly doubles the covered population on a facility and competes
+with the cache budget for exactly the content that is cheapest to replace. Genuinely
+close, and not resolvable from first principles, so it is deferred rather than argued
+further.
+
+Revisit if a deployment reports attachments unavailable at a facility through a long
+disconnection, or if the spike's overhead numbers come in low enough that the disk cost
+stops mattering. Coverage is a predicate over the blob's tier, so widening it later is
+a one-line change plus a retrofit pass the scrub already performs — not a redesign.
 
 ## Spike: parity codec (gate)
 
