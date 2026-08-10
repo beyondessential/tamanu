@@ -1,4 +1,4 @@
-import { BlobOutbox } from '@tamanu/blobs';
+import { BlobOutbox, OutboxCounts } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 
 import { MODELS_MAP } from '~/models/modelsMap';
@@ -44,52 +44,69 @@ export class BlobOutboxPusher {
     this.#blobCache = blobCache;
     this.#outbox = new BlobOutbox(
       {
-        // The listing query already filters to eligible blobs, so the pass has
-        // nothing further to resolve.
-        listOutbox: () => this.eligibleOutboxHashes(),
+        listOutbox: limit => this.#listOutbox(limit),
         push: hash => this.#transferChannel.pushToCentral(hash),
         demote: hash => this.#blobCache.demote(hash),
         onWarning: (message, details) =>
           console.warn(`BlobOutboxPusher: ${message} (${JSON.stringify(details)})`),
       },
-      { resolvers: [async hashes => hashes], scanLimit: OUTBOX_SCAN_LIMIT },
+      {
+        resolvers: [hashes => this.#syncedAttachmentHashes(hashes)],
+        scanLimit: OUTBOX_SCAN_LIMIT,
+      },
     );
   }
 
   // spec: CACHE
-  /**
-   * Which outbox blobs are eligible for push: a live attachment record carries
-   * the hash and has itself reached the central server — its sync tick is at
-   * or behind the push cursor, or it arrived through sync in the first place.
-   */
+  /** Which outbox blobs are eligible for push, oldest-first among those scanned. */
   async eligibleOutboxHashes(): Promise<string[]> {
-    const lastPush = await getSyncTick(this.#models, LAST_SUCCESSFUL_PUSH);
+    const outbox = await this.#listOutbox(OUTBOX_SCAN_LIMIT);
+    const eligible = await this.#outbox.eligibleHashes(outbox);
+    return outbox.filter(hash => eligible.has(hash));
+  }
+
+  async #listOutbox(limit: number): Promise<string[]> {
     const rows: { hash: string }[] = await this.#models.Blob.getRepository().query(
       `
-        SELECT blobs.hash AS hash
+        SELECT hash
         FROM blobs
-        WHERE blobs.tier = ?
-          AND blobs.deletedAt IS NULL
-          AND EXISTS (
-            SELECT 1 FROM attachments
-            WHERE attachments.hash = blobs.hash
-              AND attachments.deletedAt IS NULL
-              AND CAST(attachments.updatedAtSyncTick AS INTEGER) <= ?
-          )
-        ORDER BY blobs.createdAt ASC
+        WHERE tier = ?
+          AND deletedAt IS NULL
+        ORDER BY createdAt ASC
         LIMIT ?
       `,
-      [BLOB_TIERS.OUTBOX, lastPush, OUTBOX_SCAN_LIMIT],
+      [BLOB_TIERS.OUTBOX, limit],
+    );
+    return rows.map(row => row.hash);
+  }
+
+  // spec: CACHE
+  /**
+   * The device's one reference resolver: a live attachment record carries the
+   * hash and has itself reached the central server — its sync tick is at or
+   * behind the push cursor, or it arrived through sync in the first place.
+   */
+  async #syncedAttachmentHashes(hashes: string[]): Promise<string[]> {
+    const lastPush = await getSyncTick(this.#models, LAST_SUCCESSFUL_PUSH);
+    const rows: { hash: string }[] = await this.#models.Attachment.getRepository().query(
+      `
+        SELECT hash
+        FROM attachments
+        WHERE deletedAt IS NULL
+          AND CAST(updatedAtSyncTick AS INTEGER) <= ?
+          AND hash IN (${hashes.map(() => '?').join(', ')})
+      `,
+      [lastPush, ...hashes],
     );
     return rows.map(row => row.hash);
   }
 
   /** One pass over the outbox; run after each successful sync cycle. */
-  async runOnce(): Promise<{ pushed: number; failed: number; skipped: number }> {
+  async runOnce(): Promise<OutboxCounts> {
     if (this.#running) {
       // The device runs this off sync cycles, which can overlap when one runs
       // long; a second pass would offer blobs the first is still pushing.
-      return { pushed: 0, failed: 0, skipped: 0 };
+      return { pushed: 0, failed: 0, skipped: 0, ineligible: 0, inFlight: 0 };
     }
     this.#running = true;
     try {

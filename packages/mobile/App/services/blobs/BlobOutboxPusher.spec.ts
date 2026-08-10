@@ -49,6 +49,15 @@ describe('BlobOutboxPusher', () => {
     expect(blobCache.demote).toHaveBeenCalledWith(hash);
   });
 
+  // verifies spec: CACHE — a blob whose record has not synced is left in the outbox
+  it('counts a blob whose record is ahead of the push cursor as ineligible', async () => {
+    await seedOutboxAttachment('not-yet', 20);
+
+    const counts = await pusher.runOnce();
+    expect(counts).toMatchObject({ pushed: 0, ineligible: 1 });
+    expect(transferChannel.pushToCentral).not.toHaveBeenCalled();
+  });
+
   // verifies spec: BLAC — a forbidden offer does not block the queue
   it('continues past a refused push without demoting it', async () => {
     const forbidden = await seedOutboxAttachment('forbidden', 5);
