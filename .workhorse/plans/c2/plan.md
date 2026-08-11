@@ -6,14 +6,18 @@ Jest is the only place in the repo where swc defines **module semantics**. The s
 `node --import tsx app` with `"type": "module"`, while `@swc/jest` compiles the same source to
 CommonJS for tests. The suite therefore validates a build that ships nowhere.
 
-Two lines in `common.jest.config.mjs` exist only to prop that up, with no production counterpart:
+Three things in `common.jest.config.mjs` exist only to prop that up, with no production counterpart:
 
 - `moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' }`, rewriting the repo's `.js`-extension-on-`.ts`
   convention for jest's resolver, which tsx handles natively
 - `transformIgnorePatterns` whitelisting `lodash-es`, `es-toolkit`, `@tamanu`, needed only because
   CJS cannot consume ESM-only dependencies
+- `resolver: jest.resolver.cjs`, which strips the `file://` scheme off dynamic-import specifiers.
+  Production code must pass a file URL (`pathToFileURL(...).href`) because ESM rejects a bare
+  Windows `C:\…` path; swc then compiles that `import()` to a `require()`, which jest's default
+  resolver cannot follow. The whole file is a workaround for the CJS fiction
 
-Deleting those two hacks is the deliverable. Vitest's feature set (projects, module-graph watch,
+Deleting all three hacks is the deliverable. Vitest's feature set (projects, module-graph watch,
 merged coverage, `--typecheck`) is the second motivation.
 
 They are not deleted into nothing: vitest needs its own resolution setup, already proven in
@@ -33,7 +37,7 @@ in build-tooling and mobile. This card removes `@swc/jest` specifically.
 Already on vitest 4: `database`, `utils`, `upgrade`, `web`.
 
 Still on jest: `central-server` (180 test files), `facility-server` (100), `shared` (17),
-`settings` (6), `mobile` (48). `fake-data` has no tests of its own but is not merely config: its
+`settings` (6), `mobile` (49). `fake-data` has no tests of its own but is not merely config: its
 source reads the jest global (see the seed finding below).
 
 ## Decisions
@@ -131,6 +135,14 @@ compiles it to CJS, so it has to be rewritten as ESM. Both server packages also 
 `jest-expect-message`, central via `require` in the setup file and facility via a bare
 `import 'jest-expect-message'` at `__tests__/utilities.js:1`, on top of the `setupFilesAfterEnv`
 entries.
+
+**`jest.resolver.cjs` is deleted, not ported.** It exists because swc compiles
+`await import(pathToFileURL(path).href)` down to a `require()` that jest's resolver then chokes on.
+There are two such call sites, `packages/database/src/services/migrations/migrations.js:247` and
+`packages/upgrade/src/listSteps.ts`, and `upgrade` already runs the same pattern under vitest with
+no resolver of its own. Vitest keeps the `import()` as ESM, where a `file://` specifier is the
+correct thing to pass. Confirm against `packages/database`'s suite, which covers the migration
+resolver directly.
 
 **The canary does not cover the canary's purpose.** Shared and settings were chosen to surface
 CJS-to-ESM breakage cheaply, but their setup files are one line each and neither package has the
@@ -300,8 +312,9 @@ appearing in the project list) without conflating two different questions.
       all work unchanged): the `setupFilesAfterEnv` entries, central's `require` in
       `configureEnvironment.js`, and facility's bare import at `__tests__/utilities.js:1`
 - [ ] Remove deps: `jest`, `@jest/globals`, `@swc/jest`, `jest-expect-message`, `jest-extended`
-- [ ] Delete `common.jest.config.mjs` (as jest config) and the five in-scope `jest.config.mjs` files
-      (central, facility, shared, settings, fake-data). `packages/mobile/jest.config.js` stays
+- [ ] Delete `common.jest.config.mjs` (as jest config), `jest.resolver.cjs`, and the five in-scope
+      `jest.config.mjs` files (central, facility, shared, settings, fake-data).
+      `packages/mobile/jest.config.js` stays
 - [ ] Decide what root `npm test` becomes. `scripts/test-all.mjs` currently walks every workspace with
       a `test` script, so deleting it drops mobile (jest), `e2e-tests` (Playwright) and `scripts`
       (tape), and the root script's leading `npm run build` goes with it. Either keep a thin runner
