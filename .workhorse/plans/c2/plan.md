@@ -350,6 +350,24 @@ appearing in the project list) without conflating two different questions.
       globals narrowed to mobile (so a missing `import { ... } from 'vitest'` is a `no-undef` error
       rather than a runtime failure — this caught 9 files the codemod's detection missed), and the
       TypeScript plugin extended to repo-root `*.config.ts` so `npm run lint-all` still resolves
+- [x] Fix what the migration surfaced in central-server (6 files). Each was a difference jest's
+      CommonJS compilation hid, not a codemod slip, so each is worth knowing about for the
+      release-branch cherry-picks:
+      - vitest **errors** on access to an export a mock doesn't declare, where jest gave
+        `undefined`. Bit the partial mocks of `app/database` (via the setup file's
+        `closeDatabase` read) and of `xlsx` (via `set_fs`); both now spread the real module
+      - a mock called with `new` needs a `function` implementation, not an arrow (`cli-table3`,
+        and `CentralServerConnection` in four facility suites)
+      - `settings.get(models, 'new-database-key')` passed two arguments to a one-argument
+        method. Harmless while `es-toolkit`'s CommonJS build tolerated the bad path; the ESM
+        build throws
+      - two latent races, both timing-dependent rather than newly broken: the FHIR write-log
+        retry helper made ten queries in the same millisecond instead of polling, and
+        PatientMergeSync's flag-off case was racing the NOTIFY listener that re-stamps a merged
+        encounter's child records on another connection. **Worth a second opinion:** the fix
+        takes that listener out of the way for that file so each case observes what
+        `mergePatient` itself does, since with the listener registered the assertion only holds
+        until it catches up
 - [ ] Confirm collected test-file counts match the pre-migration numbers exactly
 - [ ] Sanity-check local Postgres connection limits against `maxWorkers`, since central and facility
       now run concurrently in one process where `test-all.mjs` serialised them

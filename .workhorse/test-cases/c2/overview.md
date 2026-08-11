@@ -35,7 +35,7 @@ a regression.
 These are the cases where jest's CommonJS compilation hid a difference, so each is a place the
 migration could pass lint and still be silently wrong.
 
-- [ ] A suite that mocks `config` gets its override honoured, not the real config: the factory
+- [x] A suite that mocks `config` gets its override honoured, not the real config: the factory
       has to replace the `default` export because consumers use `import config from 'config'`.
       Covered by the sync lookup-table and scheduled-task-config suites
 - [x] A mock of a default-export module (`shortid`, `cli-table3`, `read`) resolves to the mock
@@ -43,10 +43,13 @@ migration could pass lint and still be silently wrong.
 - [x] A mock used with `new` returns the stand-in: vitest only honours the return value when the
       implementation is a `function`, not an arrow (`CentralServerConnection` in the facility
       summary, user-auth and upload-attachment suites)
-- [ ] Dynamic `import()` of an absolute path passed as a `file://` URL still resolves, with
+- [x] Dynamic `import()` of an absolute path passed as a `file://` URL still resolves, with
       `jest.resolver.cjs` deleted. Covered by the migration resolver in `@tamanu/database`
-- [ ] `sequelize`, `@smithy/middleware-retry` and `@aws-sdk/client-s3` load natively rather than
+- [x] `sequelize`, `@smithy/middleware-retry` and `@aws-sdk/client-s3` load natively rather than
       being transformed, as the dropped `transformIgnorePatterns` whitelist required
+- [x] A partial mock does not break the graph on an export it doesn't declare: vitest errors
+      where jest gave `undefined`, so a partial mock has to spread the real module. Covered by
+      the `app/database` and `xlsx` mocks
 
 ## Mocking reach
 
