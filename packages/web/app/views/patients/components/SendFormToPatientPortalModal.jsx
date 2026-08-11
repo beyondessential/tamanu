@@ -8,7 +8,7 @@ import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientF
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { usePatientPortalSurveyAssignments, usePatientDataQuery } from '../../../api/queries';
 
-const RegisterAndSendFormModal = ({ onSubmit, open, onClose }) => (
+const RegisterAndSendFormModal = ({ onSubmit, open, onClose, defaultEmail }) => (
   <Modal
     open={open}
     onClose={onClose}
@@ -39,6 +39,7 @@ const RegisterAndSendFormModal = ({ onSubmit, open, onClose }) => (
     <EmailAddressConfirmationForm
       onCancel={onClose}
       onSubmit={onSubmit}
+      defaultEmail={defaultEmail}
       renderButtons={submitForm => (
         <ModalGenericButtonRow>
           <FormSubmitCancelRow
@@ -174,5 +175,12 @@ export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
     return <SendFormModal open={open} onClose={onClose} onSubmit={handleSubmit} />;
   }
 
-  return <RegisterAndSendFormModal open={open} onClose={onClose} onSubmit={handleSubmit} />;
+  return (
+    <RegisterAndSendFormModal
+      open={open}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      defaultEmail={patient?.email}
+    />
+  );
 };

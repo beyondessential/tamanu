@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import AssignmentLate from '@mui/icons-material/AssignmentLate';
@@ -24,6 +23,7 @@ import {
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { usePatient } from '../../contexts/Patient';
 import { useSettings } from '../../contexts/Settings';
 import {
   DateDisplay,
@@ -214,7 +214,7 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
 
   const handleRefreshLabTestTable = () => {
     setLabTestTableRefreshCount(oldVal => oldVal + 1);
@@ -229,7 +229,7 @@ export const LabRequestView = () => {
     setModalOpen(true);
   };
 
-  if (isLoading) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
+  if (isLoading || !patient) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');

@@ -2,13 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import {
   BedManagementSearchBar,
   ContentPane,
@@ -197,7 +195,6 @@ const DetailedDashboardItem = ({ api, facilityId }) => {
 
 export const BedManagement = () => {
   const api = useApi();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { facilityId } = useAuth();
 
@@ -253,11 +250,10 @@ export const BedManagement = () => {
     (row.locationMaxOccupancy !== 1 || !row.patientId) &&
     '&:hover { background-color: transparent; cursor: default; }';
 
-  const handleViewPatient = async row => {
+  const handleViewPatient = row => {
     if (row.locationMaxOccupancy === 1) {
       const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {
-        await dispatch(reloadPatient(patientId));
         navigate(`/patients/all/${patientId}`);
       }
     }
