@@ -127,9 +127,13 @@ export class ClamdScanner implements BlobScannerDriver {
 
   async #streamTo(socket: net.Socket, source: Readable): Promise<void> {
     for await (const chunk of chunked(source, STREAM_CHUNK_BYTES)) {
+      // A header per chunk rather than one reused across them: a queued write
+      // holds its buffer by reference, so a reused header can be rewritten
+      // before it reaches the socket.
       const header = Buffer.alloc(CHUNK_HEADER_BYTES);
       header.writeUInt32BE(chunk.length);
-      if (!socket.write(Buffer.concat([header, chunk]))) {
+      socket.write(header);
+      if (!socket.write(chunk)) {
         await new Promise<void>(drained => {
           socket.once('drain', () => drained());
         });
