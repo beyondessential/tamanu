@@ -57,6 +57,32 @@ describe('Attachment (central-server)', () => {
     expect(Buffer.isBuffer(result.body)).toBeTruthy();
   });
 
+  // spec: BKFL
+  // A row the backfill has not reached yet is served the same way a moved one is,
+  // so a reader cannot tell which form it got. Ranged reads are what a PDF viewer
+  // does, and they used to work only once the row had moved.
+  it('serves a requested byte range of a row still holding its bytes', async () => {
+    // Taken from the response rather than the row's `size`, which the store no
+    // longer trusts either: the extent has to come from the bytes themselves.
+    const whole = await app.get(`/api/attachment/${attachment.id}`);
+    const bytes = Buffer.from(whole.body);
+
+    const result = await app.get(`/api/attachment/${attachment.id}`).set('range', 'bytes=5-14');
+    expect(result.status).toBe(206);
+    expect(result.headers['content-range']).toBe(`bytes 5-14/${bytes.length}`);
+    expect(result.headers['accept-ranges']).toBe('bytes');
+    expect(Buffer.from(result.body)).toEqual(bytes.subarray(5, 15));
+  });
+
+  // The one difference that remains, and it has a reason: a row that still holds
+  // its bytes has no content hash, so there is nothing to validate against.
+  it('serves a row still holding its bytes without a validator', async () => {
+    const result = await app.get(`/api/attachment/${attachment.id}`);
+    expect(result).toHaveSucceeded();
+    expect(result.headers.etag).toBeUndefined();
+    expect(result.headers['cache-control']).toBeUndefined();
+  });
+
   it('should read an attachment as a base64 string', async () => {
     const result = await app.get(`/api/attachment/${attachment.id}?base64=true`);
     expect(result).toHaveSucceeded();
@@ -157,6 +183,19 @@ describe('Attachment (central-server)', () => {
       expect(result.headers['accept-ranges']).toBe('bytes');
       expect(result.headers['content-type']).toContain('text/plain');
       expect(result.text).toBe(CONTENT.toString('utf8'));
+    });
+
+    // spec: SERVE — a hash names immutable content, so a client that already holds
+    // it is told so rather than sent the bytes a second time.
+    it('sends no bytes to a client that already holds the content', async () => {
+      const first = await app.get(`/api/attachment/${stored.id}`);
+      expect(first.headers['cache-control']).toBe('private, max-age=31536000, immutable');
+
+      const repeat = await app
+        .get(`/api/attachment/${stored.id}`)
+        .set('if-none-match', first.headers.etag);
+      expect(repeat.status).toBe(304);
+      expect(repeat.text).toBeFalsy();
     });
 
     it('serves a requested byte range of the content', async () => {

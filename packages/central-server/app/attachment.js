@@ -84,11 +84,20 @@ attachmentRoutes.get(
 
     if (base64 === 'true') {
       res.send({ data: Buffer.from(attachment.data).toString('base64') });
-    } else {
-      res.setHeader('Content-Type', attachment.type);
-      res.setHeader('Content-Length', attachment.size);
-      res.send(Buffer.from(attachment.data));
+      return;
     }
+
+    // spec: BKFL — a row the backfill has not reached yet serves the same way a
+    // moved one does, so a reader cannot tell which form it got. The length comes
+    // from the bytes rather than the column, since the range arithmetic depends
+    // on it.
+    const bytes = Buffer.from(attachment.data);
+    await serveBlob(req, res, {
+      size: bytes.length,
+      contentType: attachment.type,
+      open: ({ start, end }) =>
+        Readable.from([start === undefined ? bytes : bytes.subarray(start, end + 1)]),
+    });
   }),
 );
 
