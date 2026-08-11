@@ -108,9 +108,15 @@ export class BlobTransfer {
    * Availability of a referenced hash as served from here: bytes held locally
    * are available; bytes the source holds are awaiting our fetch; bytes the
    * source lacks are awaiting upload from their origin.
+   *
+   * A caller that has already taken the local stat spends it here as `stat`
+   * rather than have the same hash looked up twice for the one answer.
    */
-  async availability(hash: string): Promise<RemoteAvailability> {
-    const local = await this.#host.stat(hash);
+  async availability(
+    hash: string,
+    { stat }: { stat?: BlobStat | null } = {},
+  ): Promise<RemoteAvailability> {
+    const local = stat === undefined ? await this.#host.stat(hash) : stat;
     if (local) {
       return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: local.size };
     }

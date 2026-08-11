@@ -132,7 +132,7 @@ export class BlobTransferChannel {
    *
    * The outbox blob is verified against its hash before it is offered
    * (spec: SCRUB, MOB): the device holds the only copy of captured content, so
-   * local corruption is quarantined and surfaced as a fault on the device
+   * local corruption is recorded and surfaced as a fault on the device
    * rather than as a push refused over and over.
    */
   async pushToCentral(hash: string): Promise<{ acknowledged: boolean; existed?: boolean }> {
@@ -141,9 +141,9 @@ export class BlobTransferChannel {
       throw new NotFoundError(`Cannot push a blob not held locally: ${hash}`);
     }
     if (!(await this.#blobStore.verify(hash))) {
-      await this.#blobStore.quarantine(hash);
+      await this.#blobStore.markCorrupt(hash);
       throw new BlobHashMismatchError(
-        `Captured content for ${hash} is corrupt on this device; quarantined instead of offered`,
+        `Captured content for ${hash} is corrupt on this device; retained instead of offered`,
       );
     }
     return await this.#transfer.push(hash);

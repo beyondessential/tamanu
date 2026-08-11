@@ -110,15 +110,31 @@ describe('facility blob integrity', () => {
       await expect(fs.access(pathOf(hash))).rejects.toThrow();
     });
 
-    it('quarantines a corrupt outbox blob rather than dropping the only copy', async () => {
+    it('retains a corrupt outbox blob rather than dropping the only copy', async () => {
       const { hash } = await put(BLOB_TIERS.OUTBOX);
       await corrupt(hash);
 
       await makeScrubber().run();
 
       const blob = await models.Blob.findOne({ where: { hash } });
-      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
       // Retained for investigation, per the spec: the bytes are still there.
+      await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
+    });
+
+    // verifies spec: AV, SCRUB — every repair below ends in the same bytes being
+    // held again, which for content the deployment has recorded as malware is
+    // the one outcome to avoid. A cache copy would otherwise be dropped and
+    // refetched, which is exactly resurrecting it.
+    it('leaves a quarantined cache blob unrepaired rather than refetching it', async () => {
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await models.BlobQuarantine.create({ hash });
+      await corrupt(hash);
+
+      await makeScrubber().run();
+
+      // Neither dropped nor refetched: the healer declined to touch it.
+      expect(await models.Blob.findOne({ where: { hash } })).not.toBeNull();
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
 
@@ -151,7 +167,7 @@ describe('facility blob integrity', () => {
       expect((await readAll(await blobStore.get(hash))).equals(content)).toBe(true);
     });
 
-    it('leaves an outbox blob quarantined when central cannot supply it', async () => {
+    it('leaves an outbox blob corrupt when central cannot supply it', async () => {
       const { hash } = await put(BLOB_TIERS.OUTBOX);
       await corrupt(hash);
       blobHealer.setTransferChannel({
@@ -163,7 +179,7 @@ describe('facility blob integrity', () => {
       await makeScrubber().run();
 
       const blob = await models.Blob.findOne({ where: { hash } });
-      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
     });
   });
 
@@ -251,7 +267,7 @@ describe('facility blob integrity', () => {
 
     it('retains a corrupt orphan rather than the cache healer deleting it', async () => {
       // A corrupt orphan has no reference and no known provenance, so it cannot
-      // be assumed a refetchable replica: quarantine must retain it, not let the
+      // be assumed a refetchable replica: it must be retained, not let the
       // cache path drop it.
       const { hash } = await put(BLOB_TIERS.CACHE);
       await corrupt(hash);
@@ -261,7 +277,7 @@ describe('facility blob integrity', () => {
 
       expect(result.faults).toBe(1);
       const blob = await models.Blob.findOne({ where: { hash } });
-      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+      expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
       // The bytes are retained on disk for investigation, not deleted.
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
@@ -332,7 +348,7 @@ describe('facility blob integrity', () => {
       errorCorrection = { enabled: true, proportion: 0.1 };
     });
 
-    it('repairs a corrupt outbox blob in place instead of quarantining it', async () => {
+    it('repairs a corrupt outbox blob in place instead of recording it corrupt', async () => {
       const content = coveredContent();
       const { hash } = await put(BLOB_TIERS.OUTBOX, content);
       await damageShards(hash, [6]);
@@ -348,7 +364,7 @@ describe('facility blob integrity', () => {
       expect(await readAll(await blobStore.get(hash))).toEqual(content);
     });
 
-    it('quarantines an outbox blob damaged beyond the parity budget', async () => {
+    it('records an outbox blob damaged beyond the parity budget corrupt', async () => {
       const { hash } = await put(BLOB_TIERS.OUTBOX, coveredContent());
       await damageShards(hash, [1, 5, 9]);
 
@@ -356,7 +372,7 @@ describe('facility blob integrity', () => {
 
       expect(result.faults).toBe(1);
       const row = await models.Blob.findOne({ where: { hash } });
-      expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+      expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
       expect(row.correctionCount).toBe(0);
     });
 

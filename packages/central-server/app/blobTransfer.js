@@ -14,6 +14,7 @@ import { parseBlobHash } from '@tamanu/utils/blobs';
 import { serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 import { isHashReferencedInScope } from './blobReferences';
+import { blobServeGate } from './blobServing';
 
 const putContentQuerySchema = yup
   .object({
@@ -98,11 +99,27 @@ export const buildBlobTransferRoutes = ctx => {
     });
 
   // spec: BLAC, SCRUB
-  // The store retains a quarantined blob but never serves it. On the read path
+  // The store retains a corrupt blob but never serves it. On the read path
   // it is therefore not held: availability and fetch answer as they would for
   // absent content, so neither advertises a blob fetch would refuse nor
-  // discloses the quarantine.
+  // discloses that it is corrupt.
   const servableStat = async hash => await blobStore.servableStat(hash);
+
+  // spec: AV
+  // The transfer channel answers the serve policy too, which is what keeps a
+  // facility's cache to content central was willing to serve: under
+  // serve-only-when-known-good a facility cannot fetch what central has not
+  // scanned, so a facility that runs no scanner still holds only known-good
+  // content.
+  const withheldReason = async (req, hash, stat) =>
+    await blobServeGate({ settings: req.settings, models: req.store.models }, hash, stat);
+
+  // spec: AV
+  // Known-bad content is never sent and never taken. Unlike a corrupt copy,
+  // which central wants replaced, the hash names malware wherever it turns up,
+  // so a fresh copy of it is not a repair.
+  const isKnownBad = async (req, hash) =>
+    Boolean(await req.store.models.BlobQuarantine.findOne({ where: { hash } }));
 
   // Identical for a hash that is genuinely not held and one outside the
   // requester's scope: the two must be indistinguishable.
@@ -118,7 +135,7 @@ export const buildBlobTransferRoutes = ctx => {
   // spec: XFER
   // Availability without transferring bytes. The central server is the
   // authoritative store and never fetches, so absent bytes are always awaiting
-  // upload from their origin. Quarantine serving policy is the integrity
+  // upload from their origin. Whether corrupt content serves is the integrity
   // spec's concern (see specs/blob-storage/integrity.md).
   routes.get(
     '/:hash/availability',
@@ -128,11 +145,16 @@ export const buildBlobTransferRoutes = ctx => {
       // Scoping applies to the probe as much as the fetch: whether unscoped
       // content exists is itself information.
       const held = (await hashInScope(req, hash)) && (await servableStat(hash));
-      if (held) {
-        res.send({ availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: held.size });
-      } else {
+      if (!held) {
         res.send({ availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD });
+        return;
       }
+      const withheld = await withheldReason(req, hash, held);
+      if (withheld) {
+        res.send({ availability: withheld });
+        return;
+      }
+      res.send({ availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: held.size });
     }),
   );
 
@@ -152,8 +174,15 @@ export const buildBlobTransferRoutes = ctx => {
       if (!(await hashInScope(req, hash))) {
         throw pushNotExpected(hash);
       }
+      // spec: AV — a known-bad hash is settled, not wanted: taking the bytes
+      // would be fetching the same malware again. Answered as already stored so
+      // the origin stops offering it rather than retrying against a refusal.
+      if (await isKnownBad(req, hash)) {
+        res.send({ status: BLOB_OFFER_STATUSES.ALREADY_STORED });
+        return;
+      }
       // spec: SCRUB
-      // servableStat, so a quarantined copy is wanted rather than declined.
+      // servableStat, so a corrupt copy is wanted rather than declined.
       // This is central's peer healing: it cannot reach a facility on demand
       // and keeps no index of what facilities hold, so it takes a replacement
       // on the connection a facility makes anyway, whenever one happens to
@@ -188,7 +217,14 @@ export const buildBlobTransferRoutes = ctx => {
         throw pushNotExpected(hash);
       }
 
-      // spec: SCRUB — matches the offer: a quarantined copy is being replaced,
+      // spec: AV — matches the offer: known-bad content is never staged, so a
+      // quarantine cannot be undone by pushing the same bytes again.
+      if (await isKnownBad(req, hash)) {
+        res.send({ acknowledged: true, existed: true });
+        return;
+      }
+
+      // spec: SCRUB — matches the offer: a corrupt copy is being replaced,
       // so the bytes are accepted rather than acknowledged against bad content.
       if (await servableStat(hash)) {
         res.send({ acknowledged: true, existed: true });
@@ -228,6 +264,15 @@ export const buildBlobTransferRoutes = ctx => {
       const held = (await hashInScope(req, hash)) && (await servableStat(hash));
       if (!held) {
         throw blobNotHeld(hash);
+      }
+      // spec: AV — a fetch the policy withholds carries the reason, so the
+      // fetching server can tell content that is coming from content it will
+      // never be given.
+      const withheld = await withheldReason(req, hash, held);
+      if (withheld) {
+        throw new NotFoundError(`Blob not served: ${hash}`).withExtraData({
+          availability: withheld,
+        });
       }
 
       // The stat already fetched is passed through so the read path queries the

@@ -3,6 +3,8 @@ import * as yup from 'yup';
 import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
+  BLOB_SERVE_POLICIES,
+  BLOB_SERVE_POLICIES_VALUES,
   BROWSER_SUPPORT_POLICIES,
   IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
@@ -173,6 +175,33 @@ export const globalSettings = {
           type: yup.number().positive(),
           defaultValue: 10,
           unit: 'GB',
+        },
+        // spec: AV — the posture is deployment-wide so a facility cannot serve
+        // what central withholds; which scanner each server drives is its own
+        // setting (central.ts, facility.ts)
+        antivirus: {
+          name: 'Antivirus',
+          description: 'Malware scanning of stored blobs',
+          properties: {
+            servePolicy: {
+              name: 'Serve policy',
+              description:
+                'How much of a scan verdict a server insists on before serving a blob. With no scanner configured anywhere, all three behave as off',
+              type: yup.string().oneOf(BLOB_SERVE_POLICIES_VALUES),
+              defaultValue: BLOB_SERVE_POLICIES.UNLESS_KNOWN_BAD,
+              options: [
+                { value: BLOB_SERVE_POLICIES.OFF, label: 'Off: serve without consulting a verdict' },
+                {
+                  value: BLOB_SERVE_POLICIES.UNLESS_KNOWN_BAD,
+                  label: 'Serve unless known-bad: withhold only infected content',
+                },
+                {
+                  value: BLOB_SERVE_POLICIES.ONLY_KNOWN_GOOD,
+                  label: 'Serve only when known-good: withhold until scanned clean',
+                },
+              ],
+            },
+          },
         },
       },
     },

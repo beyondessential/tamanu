@@ -1,6 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
+import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
 import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
@@ -81,6 +82,7 @@ export async function startScheduledTasks(context) {
     ProgramRegistryPltfuFlagger,
     BlobBackfillTask,
     BlobIntegrityScrubTask,
+    BlobAntivirusScanTask,
     SendStatusToMetaServer,
   ];
 

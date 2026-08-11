@@ -26,6 +26,7 @@ describe('MobileBlobStore', () => {
 
   beforeEach(async () => {
     await Database.models.Blob.getRepository().clear();
+    await Database.models.BlobQuarantine.getRepository().clear();
     fs = new FakeBlobFileSystem();
     store = buildStore(fs);
   });
@@ -88,23 +89,36 @@ describe('MobileBlobStore', () => {
   });
 
   describe('stat / has / servablePath', () => {
-    it('reports a held blob and refuses a quarantined one from serving', async () => {
+    it('reports a held blob and refuses a corrupt one from serving', async () => {
       fs.seed('/tmp/c.jpg', 'served');
       const { hash } = await store.putFile('/tmp/c.jpg');
 
       expect(await store.has(hash)).toBe(true);
       expect(await store.servablePath(hash)).toBe(store.pathFor(hash));
 
-      await store.quarantine(hash);
+      await store.markCorrupt(hash);
       // still present, never served
       expect(await store.has(hash)).toBe(true);
-      await expect(store.servablePath(hash)).rejects.toThrow(/quarantined/i);
+      await expect(store.servablePath(hash)).rejects.toThrow(/corrupt/i);
     });
 
     it('treats bytes without a registry row as not held', async () => {
       const orphanHash = sha256Hash('orphan');
       fs.seed(store.pathFor(orphanHash), 'orphan');
       expect(await store.has(orphanHash)).toBe(false);
+    });
+
+    // verifies spec: AV — quarantine propagates from central, so a device that
+    // runs no scanner still refuses content the deployment found to be malware,
+    // and refuses it whether or not it can reach central
+    it('refuses a quarantined hash from serving, though the bytes verify', async () => {
+      fs.seed('/tmp/d.jpg', 'infected');
+      const { hash } = await store.putFile('/tmp/d.jpg');
+      await Database.models.BlobQuarantine.createAndSaveOne({ hash });
+
+      expect(await store.verify(hash)).toBe(true);
+      expect(await store.has(hash)).toBe(true);
+      await expect(store.servablePath(hash)).rejects.toThrow(/quarantined/i);
     });
   });
 
@@ -154,12 +168,12 @@ describe('MobileBlobStore', () => {
       expect(await store.stagedSize(hash)).toBe(0);
     });
 
-    // verifies spec: SCRUB — good bytes arriving for a quarantined row clear the
-    // quarantine, so the healed blob is servable rather than withheld forever
-    it('clears a quarantined row when replacement bytes verify', async () => {
+    // verifies spec: SCRUB — good bytes arriving for a corrupt row clear the
+    // fault, so the healed blob is servable rather than withheld forever
+    it('clears a corrupt row when replacement bytes verify', async () => {
       fs.seed('/tmp/captured.jpg', 'captured');
       const { hash } = await store.putFile('/tmp/captured.jpg');
-      await store.quarantine(hash);
+      await store.markCorrupt(hash);
       await fs.unlink(store.pathFor(hash));
 
       fs.seed('/tmp/replacement', 'captured');

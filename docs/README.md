@@ -90,6 +90,7 @@ treated as a hard pre-filter on any suggested action.
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
 | [blob-integrity](runbooks/blob-integrity.md) | Attachment or asset bytes corrupt or missing (`blob_integrity` check) | Complete |
 | [blob-correction-rate](runbooks/blob-correction-rate.md) | Blobs being repaired from parity often enough to signal failing media (`blob_correction_rate` check) | Complete |
+| [blob-antivirus](runbooks/blob-antivirus.md) | Content quarantined as malware, or scanning stalled (`blob_antivirus` check) | Complete |
 
 ## SOPs
 

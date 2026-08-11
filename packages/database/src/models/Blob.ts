@@ -5,6 +5,7 @@ import {
   BLOB_TIERS,
   SYNC_DIRECTIONS,
   type BlobIntegrityState,
+  type BlobScanVerdict,
   type BlobTier,
 } from '@tamanu/constants';
 import { Model } from './Model';
@@ -28,6 +29,10 @@ export class Blob extends Model {
   declare hasParity: boolean;
   declare correctionCount: number;
   declare lastCorrectedAt: Date | null;
+  declare scanVerdict: BlobScanVerdict | null;
+  declare scannedAt: Date | null;
+  declare scannerVersion: string | null;
+  declare signatureVersion: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -112,6 +117,26 @@ export class Blob extends Model {
         },
         lastCorrectedAt: {
           type: DataTypes.DATE,
+          allowNull: true,
+        },
+        // spec: AV
+        // What this server's scan found, when it ran, and the scanner and
+        // signature versions it ran with. Null verdict is not-yet-scanned:
+        // no scanner configured, or content admitted ahead of its scan.
+        scanVerdict: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        scannedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        scannerVersion: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        signatureVersion: {
+          type: DataTypes.TEXT,
           allowNull: true,
         },
       },

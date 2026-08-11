@@ -104,7 +104,7 @@ export class MobileBlobStore {
         return { free: info.freeSpace, reserve: this.#getFreeDiskReserveBytes(info) };
       },
       ...(evictCache ? { evict: async (bytes: number) => void (await evictCache(bytes)) } : {}),
-      // spec: SCRUB — a row left quarantined, or standing as absent after its
+      // spec: SCRUB — a row left corrupt, or standing as absent after its
       // bytes went, is out of date once a replacement verifies. A row already
       // verified is left alone.
       markVerified: async (hash, size) => {
@@ -131,7 +131,7 @@ export class MobileBlobStore {
   }
 
   /**
-   * Presence, not servability: a quarantined blob is present (has → true) but
+   * Presence, not servability: a corrupt blob is present (has → true) but
    * is never served. A malformed hash throws rather than reporting absent.
    */
   async has(hash: string): Promise<boolean> {
@@ -154,19 +154,32 @@ export class MobileBlobStore {
 
   /**
    * The on-disk path of a held blob, for reading or uploading. Refuses a
-   * quarantined blob: its bytes are retained for investigation, never served.
+   * corrupt blob: its bytes are retained for investigation, never served.
    * A caller that already holds the blob's stat passes it rather than paying
    * for a second lookup.
+   *
+   * spec: AV — refuses known-bad content too. The device runs no scanner, so
+   * the quarantine record pulled from central is all it knows, and it is enough
+   * to refuse whether or not the device can reach central right now.
    */
   async servablePath(hash: string, known?: BlobStat | null): Promise<string> {
     const stat = known ?? (await this.stat(hash));
     if (!stat) {
       throw new NotFoundError(`Blob not found: ${hash}`);
     }
-    if (stat.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
+    if (stat.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
+      throw new NotFoundError(`Blob is corrupt: ${hash}`);
+    }
+    if (await this.isQuarantined(hash)) {
       throw new NotFoundError(`Blob is quarantined: ${hash}`);
     }
     return this.pathFor(hash);
+  }
+
+  // spec: AV
+  /** Whether the deployment has found this content to be malware. */
+  async isQuarantined(hash: string): Promise<boolean> {
+    return Boolean(await this.#models.BlobQuarantine.findOne({ where: { hash } }));
   }
 
   // spec: SCRUB
@@ -209,10 +222,10 @@ export class MobileBlobStore {
 
   // spec: SCRUB
   /** Retain a corrupt blob's bytes for investigation but never serve or offer it. */
-  async quarantine(hash: string): Promise<void> {
+  async markCorrupt(hash: string): Promise<void> {
     await this.#models.Blob.getRepository().update(
       { hash },
-      { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+      { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
     );
   }
 

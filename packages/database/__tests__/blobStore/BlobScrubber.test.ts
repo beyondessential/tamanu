@@ -212,7 +212,7 @@ describe('BlobScrubber', () => {
       expect(stampCalls[0]).toHaveLength(5);
     });
 
-    it('leaves a blob quarantined mid-pass quarantined, not stamped verified by the flush', async () => {
+    it('leaves a blob corrupt mid-pass corrupt, not stamped verified by the flush', async () => {
       // Two intact blobs, so the first has verified and is sitting in the
       // pending batch while the second is still being read.
       const { hash: first } = await store.put(Readable.from(Buffer.from('first content')));
@@ -223,14 +223,14 @@ describe('BlobScrubber', () => {
         if (hash === second) {
           // A read-path corruption on the first blob lands between its verify()
           // and the end-of-pass flush.
-          fakeBlob.rows.get(first)!.integrityState = 'quarantined';
+          fakeBlob.rows.get(first)!.integrityState = 'corrupt';
         }
         return outcome;
       };
 
       await makeScrubber().run();
 
-      expect(fakeBlob.rows.get(first)!.integrityState).toBe('quarantined');
+      expect(fakeBlob.rows.get(first)!.integrityState).toBe('corrupt');
       expect(fakeBlob.rows.get(second)!.integrityState).toBe('verified');
     });
 
@@ -265,10 +265,10 @@ describe('BlobScrubber', () => {
       expect(healed).toEqual([{ hash, fault: BLOB_FAULTS.CORRUPT, tier: 'outbox' }]);
     });
 
-    it('leaves an already-quarantined blob alone rather than re-reporting it each pass', async () => {
+    it('leaves an already-corrupt blob alone rather than re-reporting it each pass', async () => {
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       await corruptStoredBytes(hash, 'goodbye wo');
-      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+      fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       const result = await makeScrubber().run();
 
@@ -369,7 +369,7 @@ describe('BlobScrubber', () => {
       expect(fakeBlob.rows.get(hash)).toMatchObject({ hash, size, integrityState: 'verified' });
     });
 
-    it('quarantines unregistered bytes that do not match the hash their location encodes', async () => {
+    it('records unregistered bytes corrupt when they mismatch their location hash', async () => {
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       await corruptStoredBytes(hash, 'goodbye wo');
       fakeBlob.rows.clear();
@@ -378,7 +378,7 @@ describe('BlobScrubber', () => {
 
       expect(result.adopted).toBe(0);
       expect(result.faults).toBe(1);
-      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('quarantined');
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('corrupt');
       expect(healed).toEqual([{ hash, fault: BLOB_FAULTS.CORRUPT, tier: 'cache' }]);
     });
 

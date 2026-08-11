@@ -290,11 +290,11 @@ describe('BlobTransferChannel', () => {
 
     // spec: SCRUB — a copy the store retains but will not serve is not local
     // availability, so the servable copy central holds is what is reported.
-    it('does not advertise a quarantined local copy as available', async () => {
-      const content = Buffer.from('quarantined locally');
+    it('does not advertise a corrupt local copy as available', async () => {
+      const content = Buffer.from('corrupt locally');
       const { hash, size } = await localStore.put(Readable.from(content));
       await centralStore.put(Readable.from(content));
-      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
 
       expect(await channel.availability(hash)).toEqual({
         availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH,
@@ -378,11 +378,11 @@ describe('BlobTransferChannel', () => {
       });
     });
 
-    // spec: SCRUB — the read that feeds a push refuses quarantined bytes, so
+    // spec: SCRUB — the read that feeds a push refuses corrupt bytes, so
     // offering them only spends a round of offers and backoff to be refused.
-    it('refuses to push a quarantined blob, without offering it', async () => {
+    it('refuses to push a corrupt blob, without offering it', async () => {
       const { hash } = await localStore.put(Readable.from(Buffer.from('bad bytes')));
-      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
       central.fetchCalls = 0;
 
       await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
@@ -440,11 +440,11 @@ describe('BlobTransferChannel', () => {
 
     // spec: SCRUB — the self-heal path: a hash occupied by a copy the store will
     // not serve is fetched, and the replacement settles the state on commit.
-    it('replaces a quarantined local copy rather than reporting it held', async () => {
+    it('replaces a corrupt local copy rather than reporting it held', async () => {
       const content = Buffer.from('a copy central can replace');
       const { hash } = await localStore.put(Readable.from(content));
       await centralStore.put(Readable.from(content));
-      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
 
       const result = await channel.fetchFromCentral(hash);
       expect(result).toMatchObject({ hash, existed: false });

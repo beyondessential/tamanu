@@ -131,7 +131,7 @@ export class BlobScrubber {
   // today is verified before one checked last week, and the whole population is
   // covered within the target cycle without tracking a cursor across passes.
   //
-  // Quarantined blobs are skipped: their bytes are known-bad and on disk, so
+  // Corrupt blobs are skipped: their bytes are known-bad and on disk, so
   // re-hashing them every pass would burn the byte budget to re-learn what is
   // already recorded. Absent blobs are kept in the scan but treated specially:
   // re-checking one is cheap (its bytes are missing, so there is nothing to
@@ -141,7 +141,7 @@ export class BlobScrubber {
   // once its bytes return and verify, it flips back to verified.
   async #verificationPass(limits: ScrubPassLimits, result: ScrubResult): Promise<void> {
     const candidates = await this.#models.Blob.findAll({
-      where: { integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.QUARANTINED } },
+      where: { integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.CORRUPT } },
       order: [
         ['lastScrubbedAt', 'ASC NULLS FIRST'],
         ['createdAt', 'ASC'],
@@ -265,13 +265,13 @@ export class BlobScrubber {
       return;
     }
     // Registered either way. Bytes that match become usable content; bytes that
-    // do not need a registry row before they can be quarantined, which is what
-    // retains them for investigation and keeps them from being served. Both beat
-    // leaving them stranded on disk, where nothing serves them and nothing
+    // do not need a registry row before they can be recorded corrupt, which is
+    // what retains them for investigation and keeps them from being served. Both
+    // beat leaving them stranded on disk, where nothing serves them and nothing
     // reclaims them.
     await this.#blobStore.adopt(hash, outcome.size);
     if (!outcome.matches) {
-      await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      await this.#blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
       result.faults += 1;
       await this.#reportFault({
         hash,

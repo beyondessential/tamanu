@@ -57,7 +57,7 @@ describe('central blob error correction', () => {
         getSettings: async () => errorCorrection,
       },
     });
-    blobHealer = new CentralBlobHealer({ blobStore });
+    blobHealer = new CentralBlobHealer({ blobStore, models });
   });
 
   afterEach(async () => {
@@ -104,7 +104,7 @@ describe('central blob error correction', () => {
     expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
   });
 
-  it('repairs a corrupt blob rather than quarantining it', async () => {
+  it('repairs a corrupt blob rather than recording it corrupt', async () => {
     const content = coveredContent(2);
     const { hash } = await admit(content);
     await damageShards(hash, [3, 12]);
@@ -118,18 +118,18 @@ describe('central blob error correction', () => {
     expect(await fs.readFile(pathOf(hash))).toEqual(content);
   });
 
-  it('quarantines a blob damaged beyond the parity budget', async () => {
+  it('records a blob damaged beyond the parity budget corrupt', async () => {
     const { hash } = await admit(coveredContent(3));
     await damageShards(hash, [3, 7, 12]);
 
     await healCorrupt(hash);
 
     const row = await models.Blob.findOne({ where: { hash } });
-    expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.QUARANTINED);
+    expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
     expect(row.correctionCount).toBe(0);
   });
 
-  it('quarantines as before where the blob carries no parity', async () => {
+  it('records it corrupt as before where the blob carries no parity', async () => {
     errorCorrection = { enabled: false, proportion: 0.1 };
     const { hash } = await admit(coveredContent(4));
     await damageShards(hash, [5]);
@@ -137,7 +137,7 @@ describe('central blob error correction', () => {
     await healCorrupt(hash);
 
     expect((await models.Blob.findOne({ where: { hash } })).integrityState).toBe(
-      BLOB_INTEGRITY_STATES.QUARANTINED,
+      BLOB_INTEGRITY_STATES.CORRUPT,
     );
   });
 });

@@ -8,6 +8,7 @@ import {
   BLOB_AVAILABILITY_STATES,
   BLOB_INTEGRITY_STATES,
   BLOB_OFFER_STATUSES,
+  BLOB_SCAN_VERDICTS,
   DEVICE_SCOPES,
 } from '@tamanu/constants';
 
@@ -386,16 +387,16 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: BLAC, SCRUB
-  // A quarantined blob is retained but never served, so on the channel it is
+  // A corrupt blob is retained but never served, so on the channel it is
   // indistinguishable from one central does not hold — availability and fetch
-  // agree, and neither discloses the quarantine.
-  describe('quarantined content', () => {
-    it('answers a quarantined hash as absent on availability and fetch', async () => {
-      const content = Buffer.from('quarantined content');
+  // agree, and neither discloses that it is corrupt.
+  describe('corrupt content', () => {
+    it('answers a corrupt hash as absent on availability and fetch', async () => {
+      const content = Buffer.from('corrupt content');
       const hash = await seedHeldBlob(content);
       await reference(hash);
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -405,20 +406,20 @@ describe('Blob transfer channel', () => {
       const fetched = await getBlob(hash);
       expect(fetched.status).toBe(404);
       expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD);
-      // and does not disclose the quarantine in the message
-      expect(JSON.stringify(fetched.body)).not.toContain('quarantine');
+      // and does not disclose the corruption in the message
+      expect(JSON.stringify(fetched.body)).not.toContain('corrupt');
     });
 
     // spec: SCRUB
     // Central's peer healing. It cannot reach a facility on demand and keeps no
     // index of what facilities hold, so a replacement is taken on a connection
     // the facility makes anyway, whenever one happens to offer the content.
-    it('wants a hash whose held copy is quarantined, rather than declining it', async () => {
+    it('wants a hash whose held copy is corrupt, rather than declining it', async () => {
       const content = Buffer.from('content central found to be bad');
       const hash = await seedHeldBlob(content);
       await reference(hash);
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -427,7 +428,7 @@ describe('Blob transfer channel', () => {
       expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.WANTED);
     });
 
-    it('replaces the quarantined copy once the pushed content verifies', async () => {
+    it('replaces the corrupt copy once the pushed content verifies', async () => {
       const content = Buffer.from('content central found to be bad, replaced');
       const hash = await seedHeldBlob(content);
       await reference(hash);
@@ -435,7 +436,7 @@ describe('Blob transfer channel', () => {
       // replacement is a real repair rather than a no-op over good content.
       await fs.writeFile(storedPath(hash), Buffer.from('rotted'));
       await models.Blob.update(
-        { integrityState: BLOB_INTEGRITY_STATES.QUARANTINED },
+        { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
         { where: { hash } },
       );
 
@@ -464,9 +465,106 @@ describe('Blob transfer channel', () => {
     });
   });
 
+  // spec: AV
+  // Known-bad content is settled rather than faulty. Where a corrupt copy is
+  // wanted so central can be repaired, a quarantined hash is refused in both
+  // directions: it is never sent, and a fresh copy of it is never taken.
+  describe('quarantined content', () => {
+    const quarantine = async hash =>
+      await models.BlobQuarantine.create({
+        hash,
+        scannerVersion: 'ClamAV 1.0.5',
+        signatureVersion: '27100',
+      });
+
+    it('answers a quarantined hash as withheld on availability and fetch', async () => {
+      const content = Buffer.from('quarantined content');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await quarantine(hash);
+
+      const probe = await availability(hash);
+      expect(probe.body).toEqual({
+        availability: BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
+      });
+
+      const fetched = await getBlob(hash);
+      expect(fetched.status).toBe(404);
+      expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED);
+    });
+
+    it('does not want a quarantined hash, so the bytes are never fetched again', async () => {
+      const content = Buffer.from('malware central will not take again');
+      const hash = hashOf(content);
+      await reference(hash);
+      await quarantine(hash);
+
+      const offered = await offer(hash, content.length);
+      expect(offered).toHaveSucceeded();
+      expect(offered.body.status).toBe(BLOB_OFFER_STATUSES.ALREADY_STORED);
+    });
+
+    it('acknowledges pushed bytes for a quarantined hash without staging them', async () => {
+      const content = Buffer.from('malware pushed anyway');
+      const hash = hashOf(content);
+      await reference(hash);
+      await quarantine(hash);
+
+      const put = await putChunk(hash, content, 0, content.length);
+      expect(put).toHaveSucceeded();
+      expect(put.body).toMatchObject({ acknowledged: true, existed: true });
+      expect(await ctx.blobStore.stagedSize(hash)).toBe(0);
+      expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
+    });
+
+    // verifies spec: AV — the transfer channel answers the serve policy too,
+    // which is what keeps a facility's cache to content central was willing to
+    // serve: it cannot fetch what central has not scanned.
+    it('withholds unscanned content from the channel under serve-only-when-known-good', async () => {
+      const content = Buffer.from('content central has not scanned yet');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await models.Setting.set('blobStorage.antivirus.servePolicy', 'only-known-good');
+      await models.Setting.set('blobStorage.antivirus.scanner', 'clamd');
+
+      try {
+        const probe = await availability(hash);
+        expect(probe.body).toEqual({ availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN });
+
+        const fetched = await getBlob(hash);
+        expect(fetched.status).toBe(404);
+        expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_SCAN);
+
+        // and the same content serves once it has been scanned clean
+        await ctx.blobStore.recordScanVerdict(hash, {
+          verdict: BLOB_SCAN_VERDICTS.CLEAN,
+          scannerVersion: 'ClamAV 1.0.5',
+          signatureVersion: '27100',
+        });
+        expect(await getBlob(hash)).toHaveSucceeded();
+      } finally {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'unless-known-bad');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'none');
+      }
+    });
+
+    it('keeps the quarantine when the content is already held and verifies', async () => {
+      const content = Buffer.from('content quarantined after it was stored');
+      const hash = await seedHeldBlob(content);
+      await reference(hash);
+      await quarantine(hash);
+
+      const put = await putChunk(hash, content, 0, content.length);
+      expect(put).toHaveSucceeded();
+      expect(await models.BlobQuarantine.findOne({ where: { hash } })).not.toBeNull();
+      const fetched = await getBlob(hash);
+      expect(fetched.status).toBe(404);
+    });
+  });
+
   // spec: BLAC, SCRUB
   // Only verified content is servable, so an absent copy is withheld on the
-  // channel exactly as a quarantined one is: availability and fetch answer as
+  // channel exactly as a corrupt one is: availability and fetch answer as
   // for content central does not hold, and an offer is wanted so the bytes can
   // be restored.
   describe('absent content', () => {

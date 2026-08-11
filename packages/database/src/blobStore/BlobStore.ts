@@ -12,6 +12,7 @@ import {
   BLOB_INTEGRITY_STATES,
   BLOB_TIERS,
   type BlobIntegrityState,
+  type BlobScanVerdict,
   type BlobTier,
 } from '@tamanu/constants';
 import {
@@ -98,6 +99,8 @@ export interface PutResult {
 export interface BlobStat {
   size: number;
   integrityState: string;
+  /** What a scan found, or null when the blob has not been scanned. */
+  scanVerdict: BlobScanVerdict | null;
 }
 
 export interface VerifyResult {
@@ -159,7 +162,7 @@ export class BlobStore {
       }),
       ...(evictCache ? { evict: evictCache } : {}),
       // spec: SCRUB — these bytes just verified, so a row still standing as
-      // quarantined or absent is now out of date. A row already verified is
+      // corrupt or absent is now out of date. A row already verified is
       // left alone.
       markVerified: async (hash, size) => {
         await this.#models.Blob.update(
@@ -180,7 +183,7 @@ export class BlobStore {
   }
 
   /**
-   * Presence, not servability: a quarantined blob is present (has → true) but
+   * Presence, not servability: a corrupt blob is present (has → true) but
    * is never served (get refuses). A malformed hash throws rather than
    * reporting absent, on every operation alike.
    */
@@ -201,7 +204,7 @@ export class BlobStore {
    * corrupt content is never served as complete. A ranged read cannot be
    * verified this way and relies on receipt verification and the scrub instead.
    * `verify: false` opts out for callers that are themselves the verification
-   * (the scrub) or that must read quarantined bytes.
+   * (the scrub) or that must read corrupt bytes.
    */
   async get(
     hash: string,
@@ -221,9 +224,9 @@ export class BlobStore {
       // Bytes with no registry row are a crash orphan, not admitted content.
       throw new NotFoundError(`Blob not found: ${hash}`);
     }
-    if (registered.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
-      // Quarantined content is retained for investigation but never served.
-      throw new NotFoundError(`Blob is quarantined: ${hash}`);
+    if (registered.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
+      // Corrupt content is retained for investigation but never served.
+      throw new NotFoundError(`Blob is corrupt: ${hash}`);
     }
     let handle;
     try {
@@ -265,7 +268,7 @@ export class BlobStore {
   // spec: SCRUB
   /**
    * Re-hash the stored bytes for a hash and report whether they still match it.
-   * Reads the file directly, so it verifies quarantined content too — a repair
+   * Reads the file directly, so it verifies corrupt content too — a repair
    * needs to be able to re-check what it replaced.
    */
   async verify(hash: string): Promise<VerifyResult> {
@@ -413,7 +416,7 @@ export class BlobStore {
   // disk rather than for recovering content.
   //
   // The blob is recorded verified — the reconstruction was checked against its
-  // hash — and so is neither quarantined nor escalated.
+  // hash — and so is neither recorded corrupt nor escalated.
   async #recordCorrection(hash: string): Promise<void> {
     await this.#models.Blob.sequelize.query(
       `
@@ -492,10 +495,10 @@ export class BlobStore {
    * common case is that most blobs pass, so this keeps a pass to a single write
    * for the verified set rather than one per blob.
    *
-   * spec: SCRUB — a read-path quarantine landing between a blob's verify() and
-   * this end-of-pass flush must win: its bytes are known-bad now, whatever they
-   * hashed to earlier in the pass. So this never overwrites a quarantined row,
-   * only the verified/absent ones the scrub actually re-checked.
+   * spec: SCRUB — a read-path corruption record landing between a blob's
+   * verify() and this end-of-pass flush must win: its bytes are known-bad now,
+   * whatever they hashed to earlier in the pass. So this never overwrites a
+   * corrupt row, only the verified/absent ones the scrub actually re-checked.
    */
   async recordVerified(hashes: string[]): Promise<void> {
     if (hashes.length === 0) {
@@ -506,7 +509,7 @@ export class BlobStore {
       {
         where: {
           hash: hashes,
-          integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.QUARANTINED },
+          integrityState: { [Op.ne]: BLOB_INTEGRITY_STATES.CORRUPT },
         },
       },
     );
@@ -543,12 +546,37 @@ export class BlobStore {
     if (!registered || !(await fileExists(this.#pathFor(hash)))) {
       return null;
     }
-    return { size: registered.size, integrityState: registered.integrityState };
+    return {
+      size: registered.size,
+      integrityState: registered.integrityState,
+      scanVerdict: registered.scanVerdict ?? null,
+    };
+  }
+
+  // spec: AV
+  /**
+   * Record what a scan found, with the scanner and signatures that found it.
+   * Written together because a verdict without the versions behind it cannot be
+   * aged: a re-scan is decided by comparing the recorded signature version
+   * against the scanner's current one.
+   */
+  async recordScanVerdict(
+    hash: string,
+    {
+      verdict,
+      scannerVersion,
+      signatureVersion,
+    }: { verdict: BlobScanVerdict; scannerVersion: string; signatureVersion: string },
+  ): Promise<void> {
+    await this.#models.Blob.update(
+      { scanVerdict: verdict, scannedAt: new Date(), scannerVersion, signatureVersion },
+      { where: { hash } },
+    );
   }
 
   // spec: SCRUB
   /**
-   * The registry's record of a blob this store can serve. A quarantined or
+   * The registry's record of a blob this store can serve. A corrupt or
    * absent copy is retained but never served, so every read path treats it as
    * not held: that is what withholds the bad bytes, keeps the state itself
    * undisclosed, and on a facility lets a refetch replace the copy rather than
@@ -574,8 +602,8 @@ export class BlobStore {
    * source stream is destroyed; it cannot be reused.
    *
    * Cannot replace bytes already stored under the hash: an existing blob wins
-   * (`existed: true`), including a quarantined one, whose corrupt bytes and
-   * state are kept. Repair is delete-then-put.
+   * (`existed: true`), including a corrupt one, whose bytes and state are
+   * kept. Repair is delete-then-put.
    */
   async put(
     source: Readable,

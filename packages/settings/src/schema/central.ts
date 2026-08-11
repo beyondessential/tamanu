@@ -4,6 +4,8 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   batchingProperties,
+  blobAntivirusProperties,
+  blobScanProperties,
   blobScrubProperties,
   cronExpressionSchema,
   durationStringSchema,
@@ -96,6 +98,7 @@ export const centralSettings = {
           description: 'Parity data over stored blobs, so limited corruption is repaired in place',
           properties: errorCorrectionProperties(),
         },
+        ...blobAntivirusProperties(),
       },
     },
     disk: {
@@ -872,6 +875,14 @@ export const centralSettings = {
         blobIntegrityScrub: scheduledTaskSchema(
           { schedule: '17 * * * *', jitterTime: '5m' },
           blobScrubProperties(),
+        ),
+        // spec: AV — every fifteen minutes, so content admitted between passes
+        // is scanned soon enough that serve-only-when-known-good is usable. It
+        // runs whatever the setting says and finds nothing to do when no scanner
+        // is configured
+        blobAntivirusScan: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', jitterTime: '2m' },
+          blobScanProperties(),
         ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),

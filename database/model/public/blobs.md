@@ -20,9 +20,12 @@ Size of the blob's content in bytes.
 
 {% docs blobs__integrity_state %}
 The blob's integrity state: `verified` when its content matched its hash at the
-last check, `quarantined` when verification failed and the blob is retained for
+last check, `corrupt` when verification failed and the blob is retained for
 investigation but never served, `absent` when the store no longer holds the
 bytes this entry names and the server needs to acquire them again.
+
+Infection is not an integrity state: infected content matches its hash, so its
+scan verdict is recorded separately in `scan_verdict`.
 {% enddocs %}
 
 {% docs blobs__tier %}
@@ -45,6 +48,29 @@ hash; the result of that verification is the integrity state as at this time.
 The scrub takes the least-recently-scrubbed blobs first, so how far this lags
 behind the present is how far behind a full cycle of the store the scrub is.
 Null means never scrubbed.
+{% enddocs %}
+
+{% docs blobs__scan_verdict %}
+What this server's antivirus scan found in the content: `clean` or `infected`.
+Null means no scan has been recorded, which is every blob on a deployment with
+no scanner configured, and any blob admitted ahead of its scan. Independent of
+`integrity_state`: infected content matches its hash, so a verdict says nothing
+about integrity and integrity says nothing about a verdict.
+{% enddocs %}
+
+{% docs blobs__scanned_at %}
+When the recorded verdict was reached. Null while the blob is unscanned.
+{% enddocs %}
+
+{% docs blobs__scanner_version %}
+The version of the scanner that reached the recorded verdict. Null while the
+blob is unscanned.
+{% enddocs %}
+
+{% docs blobs__signature_version %}
+The scanner's malware signature version at the time of the recorded verdict,
+which is what a re-scan compares against when definitions move on. Null while
+the blob is unscanned.
 {% enddocs %}
 
 {% docs blobs__eligible_since_tick %}
