@@ -237,7 +237,7 @@ describe('getIsDueBeforePrescriptionStart', () => {
     ).toBe(false);
   });
 
-  it('fails open when either date is missing or unparseable', () => {
+  it('fails open when either date is missing or unparsable', () => {
     expect(
       getIsDueBeforePrescriptionStart({
         dueAt: undefined,
