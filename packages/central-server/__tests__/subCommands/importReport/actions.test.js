@@ -38,10 +38,11 @@ const mockPush = vi.fn();
 const mockToString = vi.fn();
 
 vi.mock('cli-table3', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    push: mockPush,
-    toString: mockToString,
-  })),
+  // `function`, not an arrow: the module's default export is called with `new`, and only a
+  // function has a construct trap whose return value replaces the instance.
+  default: vi.fn().mockImplementation(function () {
+    return { push: mockPush, toString: mockToString };
+  }),
 }));
 
 const mockDefinition = { id: 'test-definition-id', name: 'test-definition-name' };
@@ -54,7 +55,8 @@ const mockVersions = [
   { versionNumber: 1, status: 'draft', updatedAt: mockUpdatedAt },
 ];
 
-vi.mock('../../../app/database', () => ({
+vi.mock('../../../app/database', async () => ({
+  ...(await vi.importActual('../../../app/database')),
   initDatabase: vi.fn().mockResolvedValue({
     models: {
       User: {

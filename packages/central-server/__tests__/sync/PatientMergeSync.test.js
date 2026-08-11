@@ -13,6 +13,16 @@ import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
+// Keep the NOTIFY-driven resync out of these cases so each one observes what mergePatient
+// itself does. The listener re-stamps a merged encounter's child records asynchronously, on
+// another connection, so leaving it registered makes the flag-off case a race: it asserts the
+// child records were *not* re-stamped, which only holds until the listener catches up. What the
+// listener does on its own is covered by CentralSyncManager.syncLookup.test.js.
+vi.mock('../../app/sync', async () => ({
+  ...(await vi.importActual('../../app/sync')),
+  registerSyncLookupUpdateListener: vi.fn(),
+}));
+
 vi.mock('config', async () => {
   const actual = await vi.importActual('config');
   const sync = {

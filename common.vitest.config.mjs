@@ -2,7 +2,7 @@ import { defineConfig, mergeConfig } from 'vitest/config';
 import { tamanuSourceResolve } from './scripts/viteTamanuSourceResolve.mjs';
 import { testSeed } from './scripts/testSeed.mjs';
 
-export const isCI = Boolean(process.env.CI);
+const isCI = Boolean(process.env.CI);
 
 // 45s, the value `createTestContext` used to install at runtime once it had finished setting
 // up (whatever a test file had asked for before that point, it got 45s during the tests).

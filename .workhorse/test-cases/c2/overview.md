@@ -15,7 +15,7 @@ a regression.
 - [x] `@tamanu/facility-server` collects exactly 100
 - [x] `@tamanu/shared` collects exactly 17
 - [x] `@tamanu/settings` collects exactly 6
-- [ ] Root `vitest run` collects every vitest package and nothing else — mobile's 49 jest files,
+- [x] Root `vitest run` collects every vitest package and nothing else — mobile's 49 jest files,
       e2e-tests' Playwright specs and `scripts`' tape tests must not appear
 
 ## Suites pass
@@ -24,7 +24,7 @@ a regression.
 - [x] `@tamanu/shared` passes, including the two files that needed hand-work: the logging env-var
       suite (`jest.isolateModules` + `require` to `vi.resetModules` + dynamic import) and the
       ScheduledTask suite (fake timers, and a `shortid` mock that now has to return `default`)
-- [ ] `@tamanu/facility-server` passes
+- [x] `@tamanu/facility-server` passes (100 collected: 99 passed, 1 skipped)
 - [ ] `@tamanu/central-server` passes
 - [x] `@tamanu/database` passes with `--no-file-parallelism` removed
 - [ ] `@tamanu/upgrade` passes with `--no-file-parallelism` removed
@@ -40,7 +40,7 @@ migration could pass lint and still be silently wrong.
       Covered by the sync lookup-table and scheduled-task-config suites
 - [x] A mock of a default-export module (`shortid`, `cli-table3`, `read`) resolves to the mock
       rather than `undefined`
-- [ ] A mock used with `new` returns the stand-in: vitest only honours the return value when the
+- [x] A mock used with `new` returns the stand-in: vitest only honours the return value when the
       implementation is a `function`, not an arrow (`CentralServerConnection` in the facility
       summary, user-auth and upload-attachment suites)
 - [ ] Dynamic `import()` of an absolute path passed as a `file://` URL still resolves, with
@@ -50,17 +50,17 @@ migration could pass lint and still be silently wrong.
 
 ## Mocking reach
 
-- [ ] Every facility suite runs against a stubbed central server — no suite reaches the network
+- [x] Every facility suite runs against a stubbed central server — no suite reaches the network
       because the setup file's `vi.doMock` applies to the test file's module graph
-- [ ] The facility suites that drive the mock directly still can: the summary suites, user auth,
+- [x] The facility suites that drive the mock directly still can: the summary suites, user auth,
       and the attachment upload suites
 - [x] `vi.mock` nested in a function, block, or `describe`/`test` callback is a lint error
 
 ## Seed reproducibility
 
-- [ ] A run prints its seed, and re-running with `TAMANU_TEST_SEED=<n>` generates the same fake
+- [x] A run prints its seed, and re-running with `TAMANU_TEST_SEED=<n>` generates the same fake
       data. Verifiable in any package that uses `@tamanu/fake-data`
-- [ ] A seed of `0` is honoured rather than treated as absent
+- [x] A seed of `0` is honoured rather than treated as absent
 
 ## Repo-level
 

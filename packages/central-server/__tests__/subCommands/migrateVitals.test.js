@@ -2,7 +2,8 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { COLUMNS_TO_DATA_ELEMENT_ID, migrateVitals } from '../../app/subCommands/migrateVitals';
 import { initDatabase } from '../../app/database';
 
-vi.mock('../../app/database', () => ({
+vi.mock('../../app/database', async () => ({
+  ...(await vi.importActual('../../app/database')),
   initDatabase: vi.fn().mockResolvedValue({
     models: {
       // Empty settings: the temperature unit falls through to the schema default

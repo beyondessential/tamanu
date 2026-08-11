@@ -60,7 +60,7 @@ describe('Read Settings - Cache', () => {
     await createSetting(models, 'new-database-key', 'new-database-value', SETTINGS_SCOPES.GLOBAL);
 
     // Calling it after creating a new row should call build settings one more time
-    await settings.get(models, 'new-database-key');
+    await settings.get('new-database-key');
 
     // buildSettings should be called twice
     expect(buildSettings).toHaveBeenCalledTimes(2);
