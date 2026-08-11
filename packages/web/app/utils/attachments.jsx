@@ -3,6 +3,15 @@ import React from 'react';
 import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { TranslatedText } from '@tamanu/ui-components';
 
+// Carries the message for a caller that can only signal by throwing, such as a
+// `saveFile` data callback, which runs after the save picker has been accepted.
+export class AttachmentUnavailableError extends Error {
+  constructor(message) {
+    super('Attachment content is unavailable');
+    this.userMessage = message;
+  }
+}
+
 // spec: ATCH, AV
 // The attachment routes answer 202 with an availability state in place of the
 // bytes, so a response carrying no data is a file that exists and is not being

@@ -3,7 +3,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../api';
-import { getAttachmentUnavailableMessage, notify, notifyError, notifySuccess } from '../utils';
+import {
+  AttachmentUnavailableError,
+  getAttachmentUnavailableMessage,
+  notify,
+  notifyError,
+  notifySuccess,
+} from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
 
 const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
@@ -45,16 +51,16 @@ export const useDocumentActions = () => {
           { replacement: { type: 'info' } },
         );
 
-        const response = await api.get(`attachment/${document.attachmentId}`, { base64: true });
-        const unavailableMessage = getAttachmentUnavailableMessage(response);
-        if (unavailableMessage) {
-          notifyError(unavailableMessage);
-          return;
-        }
-
         const saved = await saveFile({
           defaultFileName: document.name,
-          getData: async () => base64ToUint8Array(response.data),
+          getData: async () => {
+            const response = await api.get(`attachment/${document.attachmentId}`, { base64: true });
+            const unavailableMessage = getAttachmentUnavailableMessage(response);
+            if (unavailableMessage) {
+              throw new AttachmentUnavailableError(unavailableMessage);
+            }
+            return base64ToUint8Array(response.data);
+          },
           extension: extension(document.type),
           mimetype: document.type,
         });
@@ -68,7 +74,9 @@ export const useDocumentActions = () => {
           );
         }
       } catch (error) {
-        notifyError(error.message);
+        notifyError(
+          error instanceof AttachmentUnavailableError ? error.userMessage : error.message,
+        );
       }
     },
     [api],
