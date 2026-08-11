@@ -1,3 +1,5 @@
+import { BLOB_INTEGRITY_STATES } from '@tamanu/constants';
+
 // spec: BLAC
 // The tables that reference blobs by hash. Access to blob content is authorised
 // against these references: a hash is in scope for a requesting server when at
@@ -95,6 +97,69 @@ export async function findUndeliverableReferences(sequelize, { limit, deliveredB
     { replacements },
   );
   return rows.map(({ hash }) => hash);
+}
+
+// spec: RECL
+// Blobs nothing names any more, derived by comparing the registry against the
+// hashes the reference tables and the changelog carry, not from a maintained
+// reference count.
+//
+// Referenced is read as widely as the data allows, since retaining an orphan
+// costs disk and collecting live content costs the content. A reference row
+// counts whether or not it is soft-deleted, because a deleted clinical record
+// still names its content. A changelog entry counts because it carries the row
+// snapshot as it stood, which is what holds content superseded on a mutable
+// reference (an asset replaced by a later upload). Corrupt content is retained
+// for investigation, an absent row is the record of a fault, and quarantined
+// content is never deleted, so only verified unquarantined blobs are eligible.
+export async function findOrphanedBlobHashes(sequelize, { limit, admittedBefore }) {
+  if (BLOB_REFERENCE_SOURCES.length === 0) {
+    return [];
+  }
+
+  const recordTypes = BLOB_REFERENCE_SOURCES.map(({ recordType }) => recordType);
+  const replacements = {
+    limit,
+    admittedBefore,
+    recordTypes,
+    verified: BLOB_INTEGRITY_STATES.VERIFIED,
+  };
+  // One clause per source rather than a union inside a single NOT EXISTS: each
+  // stands alone as an anti-join the planner can satisfy from that table's hash
+  // index. Identifiers are interpolated (SQL cannot bind them) and constrained
+  // to SAFE_IDENTIFIER at registration; everything else is bound.
+  const unreferenced = BLOB_REFERENCE_SOURCES.map(
+    ({ recordType, hashColumn }) => `
+      AND NOT EXISTS (
+        SELECT 1 FROM ${recordType} record WHERE record.${hashColumn} = blobs.hash
+      )`,
+  );
+
+  const [rows] = await sequelize.query(
+    `
+      SELECT blobs.hash, blobs.size
+      FROM blobs
+      WHERE blobs.deleted_at IS NULL
+      AND blobs.integrity_state = :verified
+      AND blobs.created_at < :admittedBefore
+      ${unreferenced.join('')}
+      AND NOT EXISTS (
+        SELECT 1 FROM logs.changes
+        WHERE logs.changes.record_data->>'hash' = blobs.hash
+        AND logs.changes.table_schema = 'public'
+        AND logs.changes.table_name IN (:recordTypes)
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM blob_quarantines
+        WHERE blob_quarantines.hash = blobs.hash
+        AND blob_quarantines.deleted_at IS NULL
+      )
+      ORDER BY blobs.created_at
+      LIMIT :limit
+    `,
+    { replacements },
+  );
+  return rows.map(({ hash, size }) => ({ hash, size: Number(size) }));
 }
 
 // spec: BLAC

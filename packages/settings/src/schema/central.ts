@@ -5,6 +5,7 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 import {
   batchingProperties,
   blobAntivirusProperties,
+  blobReclamationProperties,
   blobScanProperties,
   blobScrubProperties,
   cronExpressionSchema,
@@ -883,6 +884,14 @@ export const centralSettings = {
         blobAntivirusScan: scheduledTaskSchema(
           { schedule: '*/15 * * * *', jitterTime: '2m' },
           blobScanProperties(),
+        ),
+        // spec: RECL
+        // Daily, and only on central: a facility's store is a cache whose
+        // outbox holds the only durable copy of its content, so it evicts
+        // against a size budget and never collects orphans
+        blobOrphanCollection: scheduledTaskSchema(
+          { schedule: '43 3 * * *', jitterTime: '20m' },
+          blobReclamationProperties(),
         ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),

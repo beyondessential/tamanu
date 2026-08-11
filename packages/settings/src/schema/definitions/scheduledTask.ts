@@ -94,6 +94,37 @@ export const blobScrubProperties = (): Record<string, Setting> => ({
   },
 });
 
+// spec: RECL
+// The safety window and per-pass bounds for central orphan collection. Orphans
+// are rare and nothing is waiting on the space they occupy, so every bound here
+// is set to retain content rather than to converge quickly: a pass that stops
+// early leaves the rest for the next one.
+export const blobReclamationProperties = (): Record<string, Setting> => ({
+  safetyWindow: {
+    name: 'Safety window',
+    description:
+      'Content admitted more recently than this is retained whatever references it, so a blob whose reference is still being written is never collected',
+    type: msDurationSchema,
+    // The gap between admitting content and writing the reference that names it
+    // is one request; a week is orders of magnitude beyond it.
+    defaultValue: '7d',
+  },
+  maxBlobsPerPass: {
+    name: 'Blobs per pass',
+    description:
+      'Most orphans one pass collects. A bound on how much content a single pass can remove, so a run that finds far more than expected is throttled rather than trusted',
+    type: yup.number().integer().positive(),
+    defaultValue: 100,
+  },
+  maxGigabytesPerPass: {
+    name: 'Gigabytes per pass',
+    description: 'Most content one pass reclaims. The pass stops once it has freed this much',
+    type: yup.number().positive(),
+    defaultValue: 1,
+    unit: 'GB',
+  },
+});
+
 export const limitProperty = (limit: number): Record<string, Setting> => ({
   limit: {
     name: 'Limit',

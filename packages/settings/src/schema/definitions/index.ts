@@ -9,6 +9,7 @@ export {
   cronExpressionSchema,
   scheduledTaskSchema,
   batchingProperties,
+  blobReclamationProperties,
   blobScrubProperties,
   limitProperty,
 } from './scheduledTask';

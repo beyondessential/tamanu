@@ -22,6 +22,7 @@ import {
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { CentralBlobHealer } from './blobIntegrity';
+import { BlobReclaimer } from './blobReclamation';
 import { quarantineBlob } from './blobServing';
 import { findUndeliverableReferences, registerBlobReferenceSource } from './blobReferences';
 import { EmailService } from './services/EmailService';
@@ -85,6 +86,9 @@ export class ApplicationContext {
 
   /** @type {BlobScanner | null} */
   blobScanner = null;
+
+  /** @type {BlobReclaimer | null} */
+  blobReclaimer = null;
 
   /** @type {string | null} */
   deviceId = null;
@@ -174,6 +178,21 @@ export class ApplicationContext {
           // ordinary content-pending, since push is sync-first.
           deliveredBefore: new Date(Date.now() - UNDELIVERED_REFERENCE_GRACE_MS),
         }),
+      log,
+    });
+
+    // spec: RECL
+    this.blobReclaimer = new BlobReclaimer({
+      sequelize: this.store.sequelize,
+      blobStore: this.blobStore,
+      getLimits: async () => {
+        const collection = await this.settings.get('schedules.blobOrphanCollection');
+        return {
+          maxBlobs: collection.maxBlobsPerPass,
+          maxBytes: collection.maxGigabytesPerPass * 1024 ** 3,
+          safetyWindowMs: ms(collection.safetyWindow),
+        };
+      },
       log,
     });
 

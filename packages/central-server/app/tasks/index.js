@@ -3,6 +3,7 @@ import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaSer
 
 import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
 import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
+import { BlobOrphanCollectionTask } from './BlobOrphanCollectionTask';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -83,6 +84,7 @@ export async function startScheduledTasks(context) {
     BlobBackfillTask,
     BlobIntegrityScrubTask,
     BlobAntivirusScanTask,
+    BlobOrphanCollectionTask,
     SendStatusToMetaServer,
   ];
 
