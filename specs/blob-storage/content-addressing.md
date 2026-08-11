@@ -36,8 +36,9 @@ retrieved blob can be verified by re-hashing it.
 
 - [ ] The store exposes four operations keyed by hash: presence check, streamed
   retrieval, admission, and removal.
-- [ ] Admission hashes content as it streams in, so a blob's recorded hash is
-  always computed from the bytes actually stored.
+- [ ] Admission hashes the content the store has written, so a blob's recorded hash
+  is always computed from the bytes actually stored rather than from a hash the
+  caller supplied.
 - [ ] Admission is idempotent: content whose hash is already stored is not stored
   again, and the existing blob is shared.
 - [ ] Admission records the blob in the local registry with its size and integrity

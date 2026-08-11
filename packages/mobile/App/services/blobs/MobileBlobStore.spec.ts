@@ -167,6 +167,22 @@ describe('MobileBlobStore', () => {
       expect(result.existed).toBe(true);
       expect(await store.stagedSize(hash)).toBe(0);
     });
+
+    // verifies spec: SCRUB — good bytes arriving for a corrupt row clear the
+    // fault, so the healed blob is servable rather than withheld forever
+    it('clears a corrupt row when replacement bytes verify', async () => {
+      fs.seed('/tmp/captured.jpg', 'captured');
+      const { hash } = await store.putFile('/tmp/captured.jpg');
+      await store.markCorrupt(hash);
+      await fs.unlink(store.pathFor(hash));
+
+      fs.seed('/tmp/replacement', 'captured');
+      await store.appendStagedFromFile(hash, '/tmp/replacement');
+      await store.commitStaged(hash);
+
+      expect(await store.servablePath(hash)).toBe(store.pathFor(hash));
+      expect((await store.stat(hash))?.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
+    });
   });
 
   describe('verify', () => {

@@ -1,5 +1,6 @@
 import RNFS from 'react-native-fs';
 
+import { BlobEviction } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 import { BlobHashMismatchError, NotFoundError } from '@tamanu/errors';
 
@@ -42,12 +43,24 @@ export class MobileBlobCache {
   #blobStore: MobileBlobStore;
   #models: { Blob: typeof Blob };
   #fs: BlobFileSystem;
+  #eviction: BlobEviction;
+
   #transferChannel: BlobTransferChannel | null = null;
 
   constructor({ blobStore, models, fs }: MobileBlobCacheOptions) {
     this.#blobStore = blobStore;
     this.#models = models;
     this.#fs = fs ?? (RNFS as unknown as BlobFileSystem);
+    this.#eviction = new BlobEviction({
+      budgetBytes: async cacheSizeBytes =>
+        deriveCacheBudgetBytes(await this.#fs.getFSInfo(), cacheSizeBytes),
+      cacheSizeBytes: () => this.cacheSizeBytes(),
+      cacheRowsLruFirst: limit => this.#cacheRowsLruFirst(limit),
+      mostRecentlyUsedHash: () => this.#mostRecentlyUsedCacheHash(),
+      delete: hash => this.#blobStore.delete(hash),
+      onWarning: (message, details) =>
+        console.warn(`MobileBlobCache: ${message} (${JSON.stringify(details)})`),
+    }, { scanLimit: EVICTION_SCAN_LIMIT });
   }
 
   /** Wired once the central connection is up; reads work local-only without it. */
@@ -173,38 +186,27 @@ export class MobileBlobCache {
    * Evict least-recently-used cache blobs until the cache fits its budget. The
    * budget is derived fresh from the device's storage on every enforcement, so
    * a device filling up with unrelated data gives cache space back rather than
-   * holding to a budget it can no longer afford. The budget is a target, not a
-   * hard limit: the single most recently used blob is never evicted merely to
-   * satisfy it, so content larger than the whole budget serves reads while it
-   * is in use rather than cycling through eviction and refetch.
+   * holding to a budget it can no longer afford.
    */
   async enforceBudget(): Promise<{ evictedBytes: number; evictedCount: number }> {
-    const cacheBytes = await this.cacheSizeBytes();
-    const budget = deriveCacheBudgetBytes(await this.#fs.getFSInfo(), cacheBytes);
-    const excess = cacheBytes - budget;
-    if (excess <= 0) {
-      return { evictedBytes: 0, evictedCount: 0 };
-    }
-    const protectHash = await this.#mostRecentlyUsedCacheHash();
-    return await this.#evictRows(await this.#cacheRowsLruFirst(), excess, { protectHash });
+    return await this.#eviction.enforceBudget();
   }
 
   // spec: CAP
-  /**
-   * Free at least bytesNeeded for the free-disk floor. The floor is the hard
-   * bound, so unlike budget enforcement every cache blob is a candidate; only
-   * outbox blobs are untouchable.
-   */
+  /** Free at least bytesNeeded for the free-disk floor. */
   async evictBytes(bytesNeeded: number): Promise<{ evictedBytes: number; evictedCount: number }> {
-    return await this.#evictRows(await this.#cacheRowsLruFirst(), bytesNeeded);
+    return await this.#eviction.evictBytes(bytesNeeded);
   }
 
-  async #cacheRowsLruFirst(): Promise<Blob[]> {
-    return await this.#models.Blob.getRepository().find({
+  // Outbox blobs are absent by construction: they are the only durable copy on
+  // the device and are never eviction candidates.
+  async #cacheRowsLruFirst(limit: number): Promise<{ hash: string; size: number }[]> {
+    const rows = await this.#models.Blob.getRepository().find({
       where: { tier: BLOB_TIERS.CACHE },
       order: { lastAccessedAt: 'ASC', createdAt: 'ASC' },
-      take: EVICTION_SCAN_LIMIT,
+      take: limit,
     });
+    return rows.map(({ hash, size }) => ({ hash, size: Number(size) }));
   }
 
   async #mostRecentlyUsedCacheHash(): Promise<string | null> {
@@ -215,43 +217,7 @@ export class MobileBlobCache {
     return row?.hash ?? null;
   }
 
-  async #evictRows(
-    rows: Blob[],
-    bytesTarget: number,
-    { protectHash = null }: { protectHash?: string | null } = {},
-  ): Promise<{ evictedBytes: number; evictedCount: number }> {
-    let evictedBytes = 0;
-    let evictedCount = 0;
-    for (const { hash, size } of rows) {
-      if (evictedBytes >= bytesTarget) break;
-      if (hash === protectHash) {
-        // spec: CACHE — the most-recently-used blob is withheld from budget
-        // eviction (not from the free-disk floor, which passes no protectHash).
-        continue;
-      }
-      try {
-        await this.#blobStore.delete(hash);
-        evictedBytes += Number(size);
-        evictedCount += 1;
-      } catch (error) {
-        console.warn(`MobileBlobCache: eviction of blob ${hash} failed, skipping: ${error.message}`);
-      }
-    }
-    return { evictedBytes, evictedCount };
-  }
-
-  // Coalesced recency: a no-op while the recorded access is fresh, so hot
-  // blobs don't rewrite the registry on every read.
   async #touch(hash: string): Promise<void> {
-    await this.#models.Blob.getRepository().query(
-      `
-        UPDATE blobs
-        SET lastAccessedAt = datetime('now')
-        WHERE hash = ?
-          AND deletedAt IS NULL
-          AND lastAccessedAt < datetime('now', ?)
-      `,
-      [hash, `-${RECENCY_COALESCE_SECONDS} seconds`],
-    );
+    await this.#blobStore.touch(hash, { coalesceSeconds: RECENCY_COALESCE_SECONDS });
   }
 }
