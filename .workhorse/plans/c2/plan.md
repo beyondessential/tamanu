@@ -315,8 +315,12 @@ appearing in the project list) without conflating two different questions.
 - [x] Convert `facility-server` (100 files)
 - [x] Convert `central-server` (180 files)
 - [x] Fold `database`, `utils`, `upgrade`, `web` into projects. Web's `globals: true` was **not**
-      vestigial: dropping it (plus removing jest's globals from ESLint) surfaced
-      `DownloadDataButton.test.jsx` using `expect` with no import. Fixed there rather than kept
+      vestigial, in two ways. It was masking `DownloadDataButton.test.jsx` using `expect` with no
+      import (now imported), and more importantly it was what made React Testing Library register
+      its own cleanup — RTL only does that when a global `afterEach` exists. Without it 46 tests
+      failed on DOM left behind by the previous case. Web now registers `afterEach(cleanup)` in a
+      setup file, which keeps the explicit-imports property that lets ESLint catch the first
+      problem while fixing the second
 - [x] Port the `configureEnvironment.js` files. Central's CJS body became ESM, and its
       `globalThis.crypto = require('crypto')` and `global.TextDecoder` shims are gone: both were
       jest-environment workarounds, and under vitest's node environment the real globals are present,

@@ -27,8 +27,10 @@ a regression.
 - [x] `@tamanu/facility-server` passes (100 collected: 99 passed, 1 skipped)
 - [ ] `@tamanu/central-server` passes
 - [x] `@tamanu/database` passes with `--no-file-parallelism` removed
-- [ ] `@tamanu/upgrade` passes with `--no-file-parallelism` removed
-- [ ] `@tamanu/web` passes with `globals: true` removed
+- [x] `@tamanu/upgrade` passes with `--no-file-parallelism` removed (needs its `pretest`
+      translation scrape to have run: an empty `default-translations.json` fails two cases)
+- [x] `@tamanu/web` passes with `globals: true` replaced by an explicit `afterEach(cleanup)`
+      setup file — RTL's auto-cleanup is only registered when a global `afterEach` exists
 
 ## CJS-to-ESM edges
 
