@@ -59,7 +59,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
 const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, refreshCount, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
     const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
     const COLUMNS = useMemo(
@@ -116,7 +116,6 @@ export const ImmunisationsTable = React.memo(
         endpoint={`patient/${patient.id}/administeredVaccines`}
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
-        refreshCount={refreshCount}
         columns={COLUMNS}
         noDataMessage={
           <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />

@@ -182,6 +182,9 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
             </ButtonWithPermissionCheck>
           </NoteModalActionBlocker>
         </TableButtonRow>
+        {/* Both tables are keyed on vaccineRefreshCount so a record/edit/delete
+            remounts them for a clean refetch, resetting table-local state (the
+            "include not given" filter, lazy-loaded rows) as reloadPatient used to. */}
         <TableWrapper data-testid="tablewrapper-rbs7">
           {hideUpcomingVaccines ? (
               <Button onClick={handleShowUpcomingVaccines}>
@@ -192,16 +195,16 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
               </Button>
             ) : (
               <ImmunisationScheduleTable
+                key={vaccineRefreshCount}
                 patient={patient}
-                refreshCount={vaccineRefreshCount}
                 onItemEdit={id => handleOpenRecordModal(id)}
                 data-testid="immunisationscheduletable-8nat"
               />
           )}
         </TableWrapper>
         <ImmunisationsTable
+          key={vaccineRefreshCount}
           patient={patient}
-          refreshCount={vaccineRefreshCount}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
           onItemDeleteClick={id => handleOpenDeleteModal(id)}
