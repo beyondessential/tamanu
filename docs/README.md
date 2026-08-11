@@ -91,6 +91,7 @@ treated as a hard pre-filter on any suggested action.
 | [blob-integrity](runbooks/blob-integrity.md) | Attachment or asset bytes corrupt or missing (`blob_integrity` check) | Complete |
 | [blob-correction-rate](runbooks/blob-correction-rate.md) | Blobs being repaired from parity often enough to signal failing media (`blob_correction_rate` check) | Complete |
 | [blob-antivirus](runbooks/blob-antivirus.md) | Content quarantined as malware, or scanning stalled (`blob_antivirus` check) | Complete |
+| [blob-backfill-rollback](runbooks/blob-backfill-rollback.md) | Putting attachment and asset bytes back in the database, before a version downgrade | Complete |
 
 ## SOPs
 
