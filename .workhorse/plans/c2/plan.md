@@ -384,8 +384,33 @@ appearing in the project list) without conflating two different questions.
       committed `describe.only` is a hard failure there rather than a silent narrowing. There was
       one, in the facility program-registry suite since EPI-1316, which had been stopping 14 of
       that file's 21 tests from running in CI. Removed; they all pass
-- [ ] After merge, compare CI timings against the baseline above and open a separate CI-time
-      optimisation pass if the critical path moved materially
+- [x] CI timings compared against the baseline. **No readable regression, and no optimisation
+      pass needed.** Two post-migration runs on the PR (31465492673, 31466035327) against the two
+      baseline runs on main, same measurement (job duration, so inclusive of checkout, install and
+      Postgres setup):
+
+      | | Baseline A | Baseline B | Post 1 | Post 2 |
+      |---|---|---|---|---|
+      | central, slowest of 8 shards | 5.1 | 3.8 | 4.2 | 4.2 |
+      | central, fastest of 8 shards | 3.6 | 2.8 | 2.9 | 3.1 |
+      | central, sum of 8 shards | 33.7 | 26.3 | 29.1 | 28.4 |
+      | facility, slowest of 8 shards | 3.5 | 2.2 | 2.4 | 2.3 |
+      | facility, fastest of 8 shards | 2.7 | 1.8 | 1.9 | 1.9 |
+      | facility, sum of 8 shards | 23.6 | 15.9 | 16.6 | 16.6 |
+      | database (pg=18) | 3.1 | 2.1 | 2.4 | — |
+      | web-frontend | 3.0 | 2.2 | 2.2 | — |
+
+      Every figure sits inside the baseline band, and the two post-migration runs agree closely
+      with each other — tighter than the two baselines agree with each other. The `test` job's
+      critical path (slowest central shard) is 4.2 min against a baseline 3.8 to 5.1.
+
+      This settles the `workerIdleMemoryLimit` risk recorded above: the missing memory recycling
+      does not show up as the "massively slower" failure mode that was the worry. The levers
+      listed there stay unused.
+
+      Sum-of-shards is the sharper comparison, since min/max over 8 shards is noisy: central
+      29.1/28.4 against 26.3/33.7, facility 16.6/16.6 against 15.9/23.6. Post-migration lands
+      between the two baselines in both cases.
 
 ## Adjacent, not in scope
 
