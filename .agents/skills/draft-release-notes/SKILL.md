@@ -40,7 +40,13 @@ Pull issues that meet **all** of:
 - On the **Tamanu** team.
 - Labelled with the version (e.g. `v2.45.0`).
 
+**Filter issues directly by the label string** (list issues with `team: Tamanu`, `label: v2.45.0`). The label-search tool is unreliable for version labels — don't depend on it to confirm the label exists; instead read the labels on a returned issue to confirm the exact spelling for that version.
+
 Filtering to the Tamanu team already excludes DataTrak, Tupaia, and other non-Tamanu product work — they live on separate teams. If you surface an issue that is clearly one of those, drop it.
+
+**Exclude internal / non-user-facing work.** Developer-only issues — E2E or test changes, build tooling, dependency bumps, internal readmes and developer docs — do not belong in public release notes. Judge by whether a project manager or administrator would notice the change; if not, leave it out.
+
+A completed issue whose status is **"Complete: Docs Required"** is explicitly flagged as awaiting release-notes coverage — treat that as a strong signal it belongs in the notes.
 
 Use each issue's title, description, and comments for the human-readable framing of a feature — what it is and why it matters to a user.
 
@@ -82,7 +88,7 @@ Classify every included item into one of the six sections. Judge by significance
 1. **Header** — `Released DD-MM-YYYY`, then one short paragraph naming the release's marquee items.
 2. **🌟 Major Features and Changes** — the 3–4 most significant items, each with a real overview. Group by surface with `## ` headings, using only the surfaces that have content: **Tamanu Desktop**, **Tamanu Mobile**, **Patient Portal**, **System Administration**. Each feature is an `### _Italic title_` with an overview paragraph, a **Key features** bullet list, and a **Supporting documentation** list. Add **Security considerations** or a **Keen to implement …?** call-to-action block only where the feature warrants it (as the example does for the Patient Portal and integrations).
 3. **🔧 System Enhancements** — smaller improvements. Same shape as major features but lighter; group related items; call out any configuration change.
-4. **🐛 Tweaks and Bug Fixes** — everything else, **all of it listed**. Group by platform (`## Desktop`, `## Mobile`), each area a `**_Bold-italic heading_**` with terse bullets. Group related fixes together.
+4. **🐛 Tweaks and Bug Fixes** — everything else, **all of it listed**. Group by platform (`## Desktop`, `## Mobile`), with a `## System` group for backend, sync, and infrastructure fixes that aren't tied to one client. Each area within a group is a `**_Bold-italic heading_**` with terse bullets. Group related fixes together.
 5. **⚠️ Critical Upgrade Notes** — split **Required** and **Optional**, per feature. Name settings keys and reference-data values literally here (e.g. `appointments.bookingSlots.slotDuration`, `isBookable`) — this is the one place concrete configuration belongs.
 6. **Upgrade Steps and Recommended Testing** — split **Required** and **Optional**, per feature, closing with a **General** block. Concrete things a PM can test.
 
