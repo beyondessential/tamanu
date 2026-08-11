@@ -19,7 +19,9 @@ export class AttachmentUnavailableError extends Error {
 // its own, so a reader is told the content is not coming rather than left
 // waiting on it.
 export const getAttachmentUnavailableMessage = ({ data, availability }) => {
-  if (data) return null;
+  // Absence, not falsiness: zero-byte content has a defined hash and is stored
+  // like any other blob, so it comes back as an empty string and is served.
+  if (data != null) return null;
 
   if (availability === BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED) {
     return (

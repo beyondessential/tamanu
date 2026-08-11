@@ -86,7 +86,9 @@ patientProfilePicture.get(
       method: 'GET',
     });
 
-    if (!response?.data) {
+    // Absence, not falsiness: a zero-byte attachment reads back as an empty
+    // string and is forwarded rather than reported as pending.
+    if (response?.data == null) {
       res.status(202).send({ attachmentId, availability: response?.availability });
       return;
     }

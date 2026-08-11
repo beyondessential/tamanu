@@ -143,6 +143,22 @@ describe('Patient profile picture', () => {
     expect(result.body.data).toBeUndefined();
   });
 
+  // A legacy attachment holds its bytes on central and has no hash, so it is read
+  // through rather than resolved locally. Central answering with no data is the
+  // same awaiting-content state, and used to reach the client as a 200 carrying
+  // an undefined `data`.
+  it('should present a legacy attachment central cannot supply as awaiting its content', async () => {
+    const attachment = await models.Attachment.create(
+      fake(models.Attachment, { hash: null, data: null, type: 'image/jpeg', size: 0 }),
+    );
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    await uploadDummyProfilePicture(models, patient.id, attachment.id);
+
+    const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
+    expect(result).toHaveStatus(202);
+    expect(result.body.data).toBeUndefined();
+  });
+
   it('should send a placeholder picture when no real one is available', async () => {
     const otherPatient = await models.Patient.create(await createDummyPatient(models));
 

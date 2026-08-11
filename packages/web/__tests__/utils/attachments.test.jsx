@@ -15,6 +15,12 @@ describe('getAttachmentUnavailableMessage', () => {
     expect(getAttachmentUnavailableMessage({ data: 'aGVsbG8=' })).toBeNull();
   });
 
+  // spec: CAS — zero-byte content has a defined hash and is stored like any
+  // other blob, so an empty string is content rather than an absent response.
+  it('treats zero-byte content as served', () => {
+    expect(getAttachmentUnavailableMessage({ data: '' })).toBeNull();
+  });
+
   // spec: ATCH — one awaiting-content message whichever way it is pending
   it('gives the same pending message for every awaiting state', () => {
     const pending = [

@@ -23,7 +23,11 @@ export default function PhotoPreview({ attachmentId }) {
         return;
       }
       const response = await api.get(`attachment/${attachmentId}`, { base64: true });
-      setUnavailableMessage(getAttachmentUnavailableMessage(response));
+      const unavailable = getAttachmentUnavailableMessage(response);
+      setUnavailableMessage(unavailable);
+      if (unavailable) {
+        return;
+      }
       setImageData(response.data);
     })();
   }, [api, attachmentId, setImageData]);
