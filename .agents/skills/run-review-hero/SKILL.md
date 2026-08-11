@@ -77,7 +77,8 @@ Report progress at each round so the user can follow along — which comments yo
 
 Once you deem the PR clean and CI is green:
 
-- Squash-merge: `gh pr merge <n> --squash`
 - **Pause for the user first** if you flagged any spec-level comment, deemed it clean while leaving items unaddressed, or anything else leaves the merge in doubt. Otherwise — when the loop reached a clean verdict with everything resolved — merging is what this skill is for, so proceed
-- Workhorse's own merge can optionally strip this card's scratch artefacts (mockups, plan, test cases under `.workhorse/`) and revert design-library changes before merging, to keep `main` clean. If the user wants that, remove those files in a commit and push before merging. Ask if you're unsure whether they should land on `main`
+- **Empty the card-scoped artifact trees before squashing.** Merging here bypasses Workhorse's merge button, so this path owns the obligations that button carries. Delete everything under `.workhorse/design/mockups/`, `.workhorse/working-docs/`, `.workhorse/breakdowns/`, `.workhorse/plans/`, and `.workhorse/test-cases/` — the whole trees, not just this card's folders, since they hold card scratch only. Commit and push, then wait for CI to pass on the new head. This is not optional and not a question for the user
+- If the card's design-library changes are to be reverted before merge, revert those files in the same commit
+- Squash-merge: `gh pr merge <n> --squash`
 - Confirm the merge succeeded and report the merge commit
