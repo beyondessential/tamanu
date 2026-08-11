@@ -57,8 +57,8 @@ export class Attachment extends Model {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 
-  // Mobile still uploads by carrying its bytes in the synchronised record; those
-  // arrive base64-encoded and are stored as a legacy in-database attachment.
+  // A record carrying base64 bytes rather than a hash is a legacy in-database
+  // attachment and is stored as one.
   static sanitizeForCentralServer(
     values: ModelSanitizeArgs<{ data?: string; type?: string; size?: number }>,
   ) {

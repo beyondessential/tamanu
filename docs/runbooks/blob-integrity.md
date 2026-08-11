@@ -49,6 +49,12 @@ is the distinction that decides how urgent the report is:
 A corrupt blob is **retained, never served, and never deleted automatically**,
 so the bad bytes stay available for investigation.
 
+The facility cache row is the exception, and it changes where you look. Dropping
+the bad copy is the repair, so the row goes with it and the corrupt-blob query
+below will not show it. Whether it persists is read from the dropped-cache count
+in `../reference/query-cookbook.md` instead, which is also what `blob_integrity`
+grades that tier on.
+
 Recording a blob corrupt also takes it out of the scrub's verification pass, which is
 deliberate: re-hashing bytes already known to be bad every pass would spend the
 scrub's budget re-learning what is recorded. The consequence matters for the

@@ -1,6 +1,12 @@
 import { BLOB_FAULTS } from '@tamanu/database/blobStore';
-import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_TIERS,
+  FACT_BLOB_CACHE_FAULTS,
+  FACT_BLOB_CACHE_FAULT_AT,
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 // spec: SCRUB
 // The facility's response to a blob that fails verification. Severity is graded
@@ -71,10 +77,23 @@ export class FacilityBlobHealer {
   // Low-severity and self-correcting, so it is logged but not escalated.
   async #healCache({ hash, fault }) {
     await this.#blobStore.delete(hash);
+    await this.#countCacheFault();
     log.warn('FacilityBlobHealer: dropped a faulty cache blob, it will refetch on demand', {
       hash,
       fault,
     });
+  }
+
+  // spec: SCRUB
+  // Dropping the row is what makes the repair self-correcting, and it is also
+  // what leaves the registry with nothing to report: the drop is indistinguishable
+  // from an eviction, which deletes the row the same way. So the fault is counted
+  // here, where "only a concern if it persists" has something to read.
+  async #countCacheFault() {
+    const { LocalSystemFact } = this.#models;
+    await LocalSystemFact.setIfAbsent(FACT_BLOB_CACHE_FAULTS, '0');
+    await LocalSystemFact.incrementValue(FACT_BLOB_CACHE_FAULTS);
+    await LocalSystemFact.set(FACT_BLOB_CACHE_FAULT_AT, getCurrentDateTimeString());
   }
 
   // spec: SCRUB

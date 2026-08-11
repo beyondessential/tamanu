@@ -563,6 +563,24 @@ On a facility, `tier` decides how urgent this is: a `cache` row is self-correcti
 an `outbox` row may be the only copy of its content. See
 `../runbooks/blob-integrity.md`.
 
+Note the query above does not show most facility cache faults. Dropping the bad
+copy is what makes them self-correcting, and the drop takes the row with it, so
+they are counted instead (below).
+
+### Dropped cache blobs (facility)
+
+How many cache blobs this server has dropped for failing verification, and when it
+last did. A dropped blob leaves no row, so this counter is the only record that it
+happened. It never resets, so the number matters relative to the last one seen for
+this server rather than on its own: one drop is a bad sector the refetch already
+corrected, a count climbing between visits is failing media.
+
+```sql
+SELECT key, value
+FROM local_system_facts
+WHERE key IN ('blobCacheFaults', 'blobCacheFaultAt');
+```
+
 ### Return a restored blob to the scrub (dev-OTS)
 
 **[dev-OTS]** The one mutating statement in this section, and only as step 2 of the

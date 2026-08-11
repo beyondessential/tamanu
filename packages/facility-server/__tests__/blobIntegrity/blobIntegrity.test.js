@@ -5,7 +5,12 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { FACILITY_PARITY_TIERS, parityGeometry } from '@tamanu/blobs';
-import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_TIERS,
+  FACT_BLOB_CACHE_FAULTS,
+  FACT_BLOB_CACHE_FAULT_AT,
+} from '@tamanu/constants';
 import { BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
 import { BlobHashMismatchError } from '@tamanu/errors';
 
@@ -109,6 +114,19 @@ describe('facility blob integrity', () => {
 
       expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
       await expect(fs.access(pathOf(hash))).rejects.toThrow();
+    });
+
+    // spec: SCRUB — the dropped row is indistinguishable from an eviction, so
+    // the count is the only thing left that says the fault happened.
+    it('counts a dropped cache blob, since its row is gone', async () => {
+      const before = Number((await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULTS)) ?? 0);
+      const { hash } = await put(BLOB_TIERS.CACHE);
+      await corrupt(hash);
+
+      await makeScrubber().run();
+
+      expect(Number(await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULTS))).toBe(before + 1);
+      expect(await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULT_AT)).toEqual(expect.any(String));
     });
 
     it('retains a corrupt outbox blob rather than dropping the only copy', async () => {
