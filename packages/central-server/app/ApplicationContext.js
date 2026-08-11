@@ -203,7 +203,11 @@ export class ApplicationContext {
             maxScanBytes: maxScanMB * 1024 ** 2,
           };
         },
-        onInfected: (hash, versions) => quarantineBlob(this.store.models, hash, versions),
+        onInfected: async (hash, versions) => {
+          await quarantineBlob(this.store.models, hash, versions);
+          // spec: FEC — quarantined content is never served and never repaired.
+          await this.blobStore.discardParity(hash);
+        },
         log,
       });
 

@@ -219,6 +219,8 @@ export class ApplicationContext {
         // content is pushed to it.
         onInfected: async hash => {
           log.warn('BlobScanner: infected content held by this facility', { hash });
+          // spec: FEC — quarantined content is never served and never repaired.
+          await this.blobStore.discardParity(hash);
         },
         log,
       });
