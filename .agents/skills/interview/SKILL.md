@@ -23,9 +23,7 @@ Methodology:
 3. **Surface decisions** — identify ambiguity and ask the user to resolve it
 4. **Track open questions** — maintain unresolved questions
 5. **Extract acceptance criteria** — as the conversation progresses, extract concrete criteria
-6. **Flow into writing** — as soon as enough detail exists in any area, start writing it up. Don't wait for a "ready" signal and don't announce completion; the interview and the write-up are a continuous activity. Keep interviewing on the areas that are still thin while writing up the areas that are solid
-
-**Where the write-up lands:** if a working doc exists for this card in `draft` status (`.workhorse/working-docs/{card-id}/working-doc.md`), write your findings into it — under the conventional sections in `.agents/docs/working-doc-format.md`, in working voice — rather than drafting specs directly. The working doc is the drafting home while the card is being shaped, and a later Split working doc turns it into specs. With no draft working doc, flow into drafting and editing the relevant spec files as normal.
+6. **Flow into writing specs** — as soon as enough detail exists in any area, start drafting or editing the relevant spec files. Don't wait for a "ready" signal and don't announce completion; the interview and the write-up are a continuous activity. Keep interviewing on the areas that are still thin while writing up the areas that are solid
 
 Ask focused questions — one or two at a time, not long lists. **Number your questions** (1., 2., etc.) so the user can reply by number. Example:
 

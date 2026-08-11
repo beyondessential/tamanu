@@ -17,6 +17,6 @@ Scaffold a new working doc for this card. A working doc is a per-card drafting s
 
 1. Read `.agents/docs/working-doc-format.md` for the shape and voice of a working doc.
 2. Create the file at `.workhorse/working-docs/{card-id}/working-doc.md` with `status: draft` frontmatter, an H1 title derived from the card, and a one-line overview. Keep it minimal — do not pre-draft the body sections.
-3. Point the user at **Interview me** and **Tech design** to build the doc up, and mention **Split working doc** as the move for when the shape is clear.
+3. Invite the user to keep talking — workshopping behaviour and implementation together — and accrue that conversation into the working doc under the sections in `.agents/docs/working-doc-format.md`, rather than letting it flow into specs or the plan. Mention **Split working doc** as the move for when the shape is clear.
 
 Do not start interviewing or drafting body content from this skill — creation only.
