@@ -127,8 +127,7 @@ describe('<ViewPhotoLink />', () => {
     expect(centralServer.get).not.toHaveBeenCalled();
   });
 
-  // A record with no hash is only reachable over the central attachment route,
-  // so an offline device can say nothing better than that it needs a connection.
+  // A record with no hash is reachable only over the central attachment route.
   it('reports that a hashless record needs a live connection when offline', async () => {
     (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: false });
     const attachment = await seedAttachment(null);
