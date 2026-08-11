@@ -1,19 +1,19 @@
 import React, { useRef, useState } from 'react';
 
 import { useDateTime } from '@tamanu/ui-components';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
-import { WarningModal } from '../WarningModal';
-import { MarDetails } from './MarDetails';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import useIsEncounterDischarged from '../../../../hooks/useIsEncounterDischarged';
+import { WarningModal } from '../../WarningModal';
+import { MarDetails } from '../MarDetails/MarDetails';
 import MarDoseStatus from './MarDoseStatus';
 import { MarStatusLabel, MarStatusTooltip } from './MarStatusTooltip';
 import { StatusPopper } from './StatusPopper';
-import { MarCellButton } from './components';
+import { MarCellButton } from '../components';
 import { getIsDueBeforePrescriptionStart } from './getShowDoseInfo';
-import useCanViewMedication from './useCanViewMedication';
+import useCanViewMedication from '../useCanViewMedication';
 import useMarDoseAlerts from './useMarDoseAlerts';
 import { useMarDoseTiming } from './useMarDoseTiming';
-import useMarDoses from './useMarDoses';
+import useMarDoses from '../useMarDoses';
 import useMarPermissions from './useMarPermissions';
 import { useMarDoseScheduleStatus } from './useMarStatusFlags';
 

@@ -8,7 +8,7 @@ import styled, { css } from 'styled-components';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import DashedCircleOutlineIcon from './DashedCircleOutline';
-import { MarDataCell, MarDoseSlot } from './components';
+import { MarDataCell, MarDoseSlot } from '../components';
 
 const styles = css`
   &,

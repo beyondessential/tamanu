@@ -17,7 +17,7 @@ import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
 import { MarHeaderCellButton } from './components';
-import MarCell from './MarCell';
+import MarCell from './DoseCell/MarCell';
 import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
 import useCanViewMedication from './useCanViewMedication';
 

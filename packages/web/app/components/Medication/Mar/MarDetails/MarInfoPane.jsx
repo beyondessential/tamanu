@@ -16,10 +16,10 @@ import {
   useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { getDisplayedPharmacyNote } from '../../../utils/medications';
+import { Colors } from '../../../../constants/styles';
+import { getDisplayedPharmacyNote } from '../../../../utils/medications';
 import { ChangeLogModal } from './ChangeLogModal';
-import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
+import { PrescriptionChangeHistoryModal } from '../../PrescriptionChangeHistoryModal';
 
 const Container = styled.div`
   padding: 12px 16px;
