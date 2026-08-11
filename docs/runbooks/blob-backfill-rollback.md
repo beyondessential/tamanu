@@ -76,12 +76,15 @@ rows back out to the store while the command is moving them in.
 
 **The rollback runs first, the downgrade second.**
 
-Reversing the attachment hash migration restores the `NOT NULL` constraint on
-`attachments.data`, which fails while any attachment row carries a hash instead of
-bytes. Migrations reverse newest first, so by the time it fails the assets hash
-column has already been dropped and committed: those rows are left with no bytes
-and no hash naming their content, and the rollback can no longer put anything
-back. Recovering from that is a database restore from backup.
+Reversing either hash migration restores the `NOT NULL` constraint on that table's
+`data` column, which fails while any row still carries a hash instead of bytes.
+Each migration runs in its own transaction, so a failure rolls that migration back
+whole, hash column included: the downgrade stops, and nothing is lost. That is the
+guard, and it is why the order matters rather than being a preference.
+
+A downgrade attempted without the rollback therefore halts part way, with the
+migrations newer than these already reversed. Run the rollback, confirm it
+finished, then run the downgrade again.
 
 So the order is: stop the services, run the rollback, confirm it finished, then
 run the downgrade.
