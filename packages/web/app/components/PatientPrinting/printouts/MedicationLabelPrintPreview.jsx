@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
-import { MedicationLabel } from './MedicationLabel';
+import { MedicationLabel, useLabelDimensions } from './MedicationLabel';
 
 const PrintContainer = styled.div`
   display: flex;
@@ -25,7 +25,7 @@ export const PrintStyles = createGlobalStyle`
   @media print {
     @page {
       margin: 0;
-      size: auto;
+      size: ${props => props.$width}mm ${props => props.$height}mm;
     }
 
     html, body {
@@ -33,7 +33,6 @@ export const PrintStyles = createGlobalStyle`
       padding: 0;
     }
 
-    .MuiDialogTitle-root,
     .MuiDialogActions-root {
       display: none;
     }
@@ -56,9 +55,11 @@ export const PrintStyles = createGlobalStyle`
 `;
 
 export const MedicationLabelPrintPreview = ({ labels, showDescription = true }) => {
+  const { width, height } = useLabelDimensions();
+
   return (
     <>
-      <PrintStyles />
+      <PrintStyles $width={width} $height={height} />
       {showDescription && (
         <PrintDescription>
           <TranslatedText
