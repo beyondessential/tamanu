@@ -679,6 +679,113 @@ GROUP BY tier
 ORDER BY tier;
 ```
 
+### Backfill progress
+
+After the upgrade to the version that carries blob storage, a background job moves
+the attachment and asset bytes that were held in database columns out to the
+store. It starts on its own, works in small batches every few minutes, and stops
+when nothing is left. No operator action starts or finishes it.
+
+Central and a facility do different work here, which changes how the figures read:
+
+- **Central** moves both `attachments` and `assets` rows: each row gains a hash
+  and gives up its bytes. It rewrites its changelog entries for both tables.
+- **A facility** copies its asset bytes into its own store and leaves the rows
+  alone. Those rows change only when central's updated rows arrive over sync. It
+  rewrites asset changelog entries, and deliberately leaves attachment rows and
+  attachment changelog entries as they are, so a count against attachments on a
+  facility is expected and will not fall.
+
+Progress shows in the counts below. The database's on-disk size stays where it is
+while the job runs: clearing a byte column makes the space reusable inside the
+database without handing it back to the filesystem, which takes a `VACUUM FULL` or
+`pg_repack` and is a separate operator decision.
+
+**What is left to move.** The rows still holding bytes and the changelog entries
+still holding a copy of them. `stored_bytes` is the size as stored (compressed),
+so treat it as an order of magnitude rather than an exact volume. **[diagnose]**
+
+```sql
+SELECT 'rows: attachments' AS unit,
+       count(*) AS remaining,
+       pg_size_pretty(sum(pg_column_size(data))) AS stored_bytes
+FROM attachments
+WHERE data IS NOT NULL AND hash IS NULL
+UNION ALL
+SELECT 'rows: assets', count(*), pg_size_pretty(sum(pg_column_size(data)))
+FROM assets
+WHERE data IS NOT NULL AND hash IS NULL
+UNION ALL
+SELECT 'changelog: ' || table_name, count(*), NULL
+FROM logs.changes
+WHERE table_schema = 'public'
+  AND table_name IN ('attachments', 'assets')
+  AND record_data->>'data' IS NOT NULL
+GROUP BY table_name;
+```
+
+A changelog line missing from the output means there is nothing left for that
+table. On a facility the changelog count has no index to work with and scans the
+changelog, so it can take a while on a large one. It is still read-only.
+
+**What is already on the store.** Rows and entries that carry a hash and no bytes.
+Content created since the upgrade was never in the database and is counted here
+too, so read this as the size of the store-backed set rather than as a tally of
+what the job has moved. **[diagnose]**
+
+```sql
+SELECT 'rows: attachments' AS unit, count(*) AS on_store
+FROM attachments
+WHERE hash IS NOT NULL
+UNION ALL
+SELECT 'rows: assets', count(*)
+FROM assets
+WHERE hash IS NOT NULL
+UNION ALL
+SELECT 'changelog: ' || table_name, count(*)
+FROM logs.changes
+WHERE table_schema = 'public'
+  AND table_name IN ('attachments', 'assets')
+  AND record_data->>'hash' IS NOT NULL
+  AND record_data->>'data' IS NULL
+GROUP BY table_name;
+```
+
+**Is it moving.** Run this twice, several minutes apart, and compare. It is the
+same total the server itself uses to decide the job is done: at zero the backfill
+is complete and stops looking. On a facility, drop the `attachments` line and
+narrow the changelog filter to `table_name = 'assets'`, since neither is that
+server's work. **[diagnose]**
+
+```sql
+SELECT now() AS at,
+       (SELECT count(*) FROM attachments WHERE data IS NOT NULL AND hash IS NULL)
+     + (SELECT count(*) FROM assets WHERE data IS NOT NULL AND hash IS NULL)
+     + (SELECT count(*) FROM logs.changes
+        WHERE table_schema = 'public'
+          AND table_name IN ('attachments', 'assets')
+          AND record_data->>'data' IS NOT NULL) AS remaining;
+```
+
+The job runs every few minutes, so if the figure has not moved after fifteen
+minutes or so, read the server log for `BlobBackfillTask`
+(`../sops/read-logs.md`):
+
+| Log line | What it means |
+| --- | --- |
+| `moved content into the blob store` | A batch finished, with the unit and how many |
+| `paused, not enough free disk to admit more content` | The store has reached its free-disk reserve and stopped rather than crossing it. It resumes on its own once there is room; the fix is space on the volume holding `blobStorage.root` |
+| `content still to move` | A pass ended with work outstanding, which is normal mid-run |
+| `complete, no in-database blob content remains` | Finished, and every hash confirmed backed by content the server holds |
+| `complete except for content this server does not hold` | Nothing is left holding bytes, but a hash has no content behind it locally. See `../runbooks/blob-integrity.md` |
+
+No `BlobBackfillTask` lines at all means the job is not running: check that the
+server's task process is up and that `schedules.blobBackfill.enabled` has not been
+turned off in settings.
+
+To put content back in the database (a version downgrade, or an abandoned
+backfill), see `../runbooks/blob-backfill-rollback.md`.
+
 ## Blob antivirus
 
 Only where the deployment has turned scanning on. See
