@@ -399,7 +399,9 @@ describe('blob parity', () => {
 
       // The retrofit the scrub performs once error correction is switched on.
       const enabled = makeStore();
-      expect(await enabled.writeParity({ hash, size, tier: BLOB_TIERS.CACHE })).toBe(true);
+      expect((await enabled.writeParity({ hash, size, tier: BLOB_TIERS.CACHE })).protected).toBe(
+        true,
+      );
 
       expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
       await damageShards(hash, [5]);
@@ -423,8 +425,24 @@ describe('blob parity', () => {
       const facility = makeStore({ coveredTiers: FACILITY_PARITY_TIERS });
       const { hash, size } = await admit(content(), BLOB_TIERS.CACHE, facility);
 
-      expect(await facility.writeParity({ hash, size, tier: BLOB_TIERS.CACHE })).toBe(false);
+      expect((await facility.writeParity({ hash, size, tier: BLOB_TIERS.CACHE })).protected).toBe(
+        false,
+      );
       await expect(fs.access(sidecarPath(hash))).rejects.toThrow();
+    });
+
+    // spec: FEC
+    it('leaves a blob that has rotted since its last scrub unprotected', async () => {
+      const store = makeStore({ enabled: false });
+      const { hash, size } = await admit(content(), BLOB_TIERS.CACHE, store);
+      await damageShards(hash, [2]);
+
+      const outcome = await makeStore().writeParity({ hash, size, tier: BLOB_TIERS.CACHE });
+
+      expect(outcome.protected).toBe(false);
+      expect(outcome.bytesRead).toBe(size);
+      await expect(fs.access(sidecarPath(hash))).rejects.toThrow();
+      expect(fakeBlob.rows.get(hash)!.hasParity).toBe(false);
     });
 
     // spec: FEC

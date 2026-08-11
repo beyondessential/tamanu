@@ -89,6 +89,12 @@ export interface BlobStoreOptions {
   statfs?: (root: string) => Promise<VolumeStats>;
 }
 
+export interface ParityRetrofitResult {
+  /** Whether the blob now carries parity. */
+  protected: boolean;
+  bytesRead: number;
+}
+
 export interface PutResult {
   hash: string;
   size: number;
@@ -325,7 +331,11 @@ export class BlobStore {
   /**
    * Compute and store parity for a covered blob the store already holds — the
    * scrub's retrofit, which is what brings content admitted before error
-   * correction was enabled under protection. Returns whether parity now exists.
+   * correction was enabled under protection.
+   *
+   * The encode verifies the blob as it reads it, so a blob whose bytes no longer
+   * hash to their name gets no parity and is reported unprotected. That fault
+   * belongs to the verification pass, which reaches the blob on its own.
    */
   async writeParity({
     hash,
@@ -335,21 +345,25 @@ export class BlobStore {
     hash: string;
     size: number;
     tier: BlobTier;
-  }): Promise<boolean> {
+  }): Promise<ParityRetrofitResult> {
     if (!this.#parity || !(await this.#parity.covers({ size, tier }))) {
-      return false;
+      return { protected: false, bytesRead: 0 };
     }
+    let outcome;
     try {
-      await this.#parity.write(hash, this.#pathFor(hash), size);
+      outcome = await this.#parity.write(hash, this.#pathFor(hash), size);
     } catch (error) {
       this.#log?.error('BlobStore: parity write failed, blob remains unprotected', {
         hash,
         error: (error as Error).message,
       });
-      return false;
+      return { protected: false, bytesRead: 0 };
+    }
+    if (!outcome.verified) {
+      return { protected: false, bytesRead: outcome.bytesRead };
     }
     await this.#recordParityPresence(hash, true);
-    return true;
+    return { protected: true, bytesRead: outcome.bytesRead };
   }
 
   // spec: FEC
@@ -680,7 +694,13 @@ export class BlobStore {
         return;
       }
       await this.#ensureFloor(await this.#parity.sidecarBytesFor(size));
-      await this.#parity.write(hash, this.#pathFor(hash), size);
+      const { verified } = await this.#parity.write(hash, this.#pathFor(hash), size);
+      if (!verified) {
+        // The bytes hashed to this name on the way in, so failing here is
+        // corruption within the admission itself.
+        this.#log?.error('BlobStore: admitted content no longer matches its hash', { hash });
+        return;
+      }
       await this.#recordParityPresence(hash, true);
     } catch (error) {
       this.#log?.error('BlobStore: parity write failed, blob is stored unprotected', {

@@ -22,7 +22,7 @@ import {
   type ParityGeometry,
 } from '@tamanu/blobs';
 import { type BlobTier } from '@tamanu/constants';
-import { parseBlobHash } from '@tamanu/utils/blobs';
+import { formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
 
 // Bytes of each shard held resident while recovering a group, so a repair's
 // memory is bounded by the geometry rather than by the blob's size.
@@ -40,6 +40,12 @@ function shardLength(
   }
   const at = groupStart(geometry, group) + index * geometry.shardSize;
   return Math.max(0, Math.min(geometry.shardSize, blobSize - at));
+}
+
+export interface ParityWriteResult {
+  /** Whether the bytes the encode read still hash to the blob's name. */
+  verified: boolean;
+  bytesRead: number;
 }
 
 export interface ErrorCorrectionSettings {
@@ -147,16 +153,31 @@ export class BlobParity {
    * because the shard geometry needs the blob's size, which streaming admission
    * only knows once the bytes are down.
    *
+   * The encode reads every byte of the blob in order, so it hashes it in the same
+   * pass and reports whether the bytes still hash to the blob's name. Parity over
+   * a blob that has rotted since its last scrub would protect the corruption
+   * instead of the content, so an unverified blob gets no sidecar at all.
+   *
    * The sidecar is built at a temporary path and moved into place, so a partial
    * one is never read as a whole one.
    */
-  async write(hash: string, sourcePath: string, size: number): Promise<void> {
+  async write(hash: string, sourcePath: string, size: number): Promise<ParityWriteResult> {
     const { algorithm } = parseBlobHash(hash);
     const { proportion } = await this.#getSettings();
     const geometry = parityGeometry(size, proportion);
 
     const sidecarPath = await this.#createTempPath();
-    const source = await fs.open(sourcePath, 'r');
+    let source;
+    try {
+      source = await fs.open(sourcePath, 'r');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return { verified: false, bytesRead: 0 };
+      }
+      throw error;
+    }
+    const content = createHash(algorithm);
+    let bytesRead = 0;
     try {
       const sidecar = await fs.open(sidecarPath, 'w');
       try {
@@ -171,8 +192,12 @@ export class BlobParity {
           for (let index = 0; index < dataShards; index++) {
             const at = groupStart(geometry, group) + index * geometry.shardSize;
             const length = Math.min(geometry.shardSize, size - at);
-            const { bytesRead } = await source.read(shard, 0, length, at);
-            const bytes = shard.subarray(0, bytesRead);
+            const read = await source.read(shard, 0, length, at);
+            const bytes = shard.subarray(0, read.bytesRead);
+            // The data shards ascend contiguously from the blob's first byte, so
+            // hashing them in this order hashes the blob itself.
+            content.update(bytes);
+            bytesRead += bytes.length;
             encoder.addDataShard(index, bytes);
             this.#recordDigest(digests, geometry, group, index, bytes, algorithm);
           }
@@ -207,7 +232,13 @@ export class BlobParity {
       await source.close();
     }
 
+    if (formatBlobHash(algorithm, content.digest('hex')) !== hash) {
+      await fs.rm(sidecarPath, { force: true });
+      return { verified: false, bytesRead };
+    }
+
     await this.#place(sidecarPath, this.sidecarPathFor(hash));
+    return { verified: true, bytesRead };
   }
 
   // spec: FEC

@@ -345,21 +345,14 @@ export class BlobScrubber {
         result.ratelimited = true;
         return;
       }
-      if (!(await this.#blobStore.coversWithParity(blob))) {
-        continue;
-      }
-      // Parity is only ever computed over bytes that still hash to their name:
-      // encoding a blob that has rotted since its last scrub would protect the
-      // corruption instead of the content.
-      const outcome = await this.#blobStore.verify(blob.hash);
-      bytesRead += outcome.size;
-      result.bytesRead += outcome.size;
-      if (!outcome.held || !outcome.matches) {
-        // The verification pass owns this fault and will reach the blob on its
-        // own; re-reporting it here would double-count and double-heal.
-        continue;
-      }
-      if (await this.#blobStore.writeParity(blob)) {
+      // One read per blob: the encode hashes the bytes it reads, so a blob that
+      // has rotted since its last scrub is left unprotected without a second
+      // pass over it to find that out. The fault is the verification pass's,
+      // which reaches the blob on its own.
+      const outcome = await this.#blobStore.writeParity(blob);
+      bytesRead += outcome.bytesRead;
+      result.bytesRead += outcome.bytesRead;
+      if (outcome.protected) {
         result.protected += 1;
       }
     }
