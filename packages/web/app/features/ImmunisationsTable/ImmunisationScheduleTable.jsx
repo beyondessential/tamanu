@@ -31,7 +31,7 @@ const getSchedule = (record) =>
 const getVaccineName = (record) =>
   record.label || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
-export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) => {
+export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit, refreshCount }) => {
   const COLUMNS = useMemo(
     () => [
       {
@@ -71,6 +71,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
     <DataFetchingTable
       endpoint={`patient/${patient.id}/upcomingVaccination`}
       initialSort={{ orderBy: 'date', order: 'asc' }}
+      refreshCount={refreshCount}
       columns={COLUMNS}
       noDataMessage={
         <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />

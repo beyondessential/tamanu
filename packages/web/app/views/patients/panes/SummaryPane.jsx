@@ -11,9 +11,11 @@ import { LocationBookingsTable } from '../../../components/Appointments/Location
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 export const SummaryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
+  const [encounterRefreshCount, updateEncounterRefreshCount] = useRefreshCount();
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
   const { ability } = useAuth();
@@ -38,7 +40,10 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
     [loadEncounter, navigateToEncounter],
   );
 
-  const onCloseCheckInModal = useCallback(() => setIsCheckInModalOpen(false), []);
+  const onCloseCheckInModal = useCallback(() => {
+    setIsCheckInModalOpen(false);
+    updateEncounterRefreshCount();
+  }, [updateEncounterRefreshCount]);
 
   return (
     <>
@@ -68,6 +73,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <ContentPane data-testid="contentpane-n51k">
         <PatientHistory
           patient={patient}
+          refreshCount={encounterRefreshCount}
           onItemClick={onViewEncounter}
           data-testid="patienthistory-yw6n"
         />

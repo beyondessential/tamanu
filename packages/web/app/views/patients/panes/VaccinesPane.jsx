@@ -193,6 +193,7 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
             ) : (
               <ImmunisationScheduleTable
                 patient={patient}
+                refreshCount={vaccineRefreshCount}
                 onItemEdit={id => handleOpenRecordModal(id)}
                 data-testid="immunisationscheduletable-8nat"
               />
