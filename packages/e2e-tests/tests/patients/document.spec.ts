@@ -31,7 +31,7 @@ test.describe('Documents', () => {
       filePath: TEST_PDF,
     });
 
-    await expect(documentsPane.getRowCount()).resolves.toBe(1);
+    await expect(documentsPane.tableRows).toHaveCount(1);
     await expect(documentsPane.getTableCell(0, 0)).toHaveText('Discharge summary');
     await expect(documentsPane.getTableCell(0, 3)).toHaveText('Dr Kamaka');
     await expect(documentsPane.getTableCell(0, 4)).toHaveText(department);
@@ -59,7 +59,7 @@ test.describe('Documents', () => {
       await documentsPane.addDocument({ fileName, filePath: TEST_PDF });
     }
 
-    await expect(documentsPane.getRowCount()).resolves.toBe(fileNames.length);
+    await expect(documentsPane.tableRows).toHaveCount(fileNames.length);
 
     // Identical bytes deduplicate to one stored blob, so each row must still
     // resolve its own content rather than the last writer's.

@@ -28,10 +28,6 @@ export class DocumentsPane {
     this.tableRows = this.documentsTable.locator('tbody tr');
   }
 
-  getRowCount(): Promise<number> {
-    return this.tableRows.count();
-  }
-
   /**
    * @param rowIndex - The row index (0-based)
    * @param columnIndex - The column index (0-based): name, type, upload date,
