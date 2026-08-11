@@ -602,7 +602,7 @@ export class BlobStore {
       throw error;
     }
 
-    await this.#writeParityOnAdmission(result, admittedTier);
+    await this.#writeParityOnAdmission(result);
     return result;
   }
 
@@ -629,12 +629,16 @@ export class BlobStore {
    * guarantee and parity is a protection over it, so the blob stands unprotected
    * and the scrub generates its parity later.
    */
-  async #writeParityOnAdmission({ hash, size, existed }: PutResult, tier: BlobTier): Promise<void> {
-    if (existed || !this.#parity) {
+  async #writeParityOnAdmission({ hash, size, existed }: PutResult): Promise<void> {
+    if (existed || !this.#parity || !(await this.#parity.enabled())) {
       return;
     }
     try {
-      if (!(await this.#parity.covers({ size, tier }))) {
+      // The tier the registry recorded, not the one admission asked for: a live
+      // row keeps its own tier (spec: CACHE — content already held as cache stays
+      // cache), so what parity covers follows the row rather than the intent.
+      const registered = await this.#models.Blob.findOne({ where: { hash } });
+      if (!registered || !(await this.#parity.covers({ size, tier: registered.tier }))) {
         return;
       }
       await this.#ensureFloor(await this.#parity.sidecarBytesFor(size));
