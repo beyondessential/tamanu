@@ -3,7 +3,6 @@ import { Locator, Page } from '@playwright/test';
 export class DocumentPreviewModal {
   readonly page: Page;
 
-  readonly modal!: Locator;
   readonly downloadButton!: Locator;
   readonly pdfDocument!: Locator;
   readonly photo!: Locator;
@@ -12,8 +11,10 @@ export class DocumentPreviewModal {
   constructor(page: Page) {
     this.page = page;
 
+    // The modal container carries no id of its own to wait on: `Modal` hardcodes
+    // its own `data-testid` after spreading props, so the one this modal passes
+    // is discarded. These are the preview's own elements instead.
     const testIds = {
-      modal: 'modal-lnv7',
       downloadButton: 'button-54bc',
       pdfDocument: 'pdfdocument-qcy9',
       photo: 'image-znla',
@@ -28,7 +29,7 @@ export class DocumentPreviewModal {
   }
 
   async waitForModalToLoad(): Promise<void> {
-    await this.modal.waitFor({ state: 'visible' });
+    await this.downloadButton.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
