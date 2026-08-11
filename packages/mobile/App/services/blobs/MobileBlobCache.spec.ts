@@ -122,8 +122,8 @@ describe('MobileBlobCache', () => {
       hashSpy.mockRestore();
     });
 
-    // verifies spec: SCRUB, MOB — corrupt outbox content is quarantined and surfaced
-    it('quarantines corrupt outbox content instead of refetching', async () => {
+    // verifies spec: SCRUB, MOB — corrupt outbox content is retained and surfaced
+    it('marks corrupt outbox content rather than refetching', async () => {
       const hash = sha256Hash('captured content');
       await insertVerified(hash, 'captured content', BLOB_TIERS.OUTBOX);
       fs.seed(store.pathFor(hash), 'corrupted');
@@ -131,7 +131,7 @@ describe('MobileBlobCache', () => {
 
       await expect(cache.open(hash)).rejects.toThrow(/corrupt/i);
       const row = await Database.models.Blob.findOne({ where: { hash } });
-      expect(row.integrityState).toBe('quarantined');
+      expect(row.integrityState).toBe('corrupt');
     });
   });
 

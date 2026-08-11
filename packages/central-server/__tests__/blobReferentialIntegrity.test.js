@@ -232,6 +232,7 @@ describe('findUndeliverableReferences', () => {
       expect(await ctx.blobStore.servableStat(hash)).toEqual({
         size: content.length,
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+        scanVerdict: null,
       });
     });
   });

@@ -29,12 +29,19 @@ export class FacilityBlobHealer {
    * hash repeatedly and concurrently.
    */
   async heal({ hash, fault, blob }) {
-    // spec: SCRUB — a quarantined blob is retained, never deleted. Reconciliation
-    // quarantines a corrupt orphan (unknown provenance, so not assumed to be a
+    // spec: AV — self-heal never resurrects known-bad content. Every repair
+    // below ends in the same bytes being held again, and for a hash the
+    // deployment has found to be malware that is the one outcome to avoid.
+    if (await this.#models.BlobQuarantine.findOne({ where: { hash } })) {
+      log.warn('FacilityBlobHealer: leaving quarantined content unrepaired', { hash, fault });
+      return;
+    }
+    // spec: SCRUB — a corrupt blob is retained, never deleted. Reconciliation
+    // records a corrupt orphan (unknown provenance, so not assumed to be a
     // refetchable replica) before handing it here; the cache path below would
-    // otherwise delete the very evidence the quarantine is meant to keep.
-    if (blob?.integrityState === BLOB_INTEGRITY_STATES.QUARANTINED) {
-      log.warn('FacilityBlobHealer: retaining a quarantined corrupt blob for investigation', {
+    // otherwise delete the very evidence retention is meant to keep.
+    if (blob?.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
+      log.warn('FacilityBlobHealer: retaining a corrupt blob for investigation', {
         hash,
         fault,
       });
@@ -70,7 +77,7 @@ export class FacilityBlobHealer {
     await this.#blobStore.recordIntegrityState(
       hash,
       fault === BLOB_FAULTS.CORRUPT
-        ? BLOB_INTEGRITY_STATES.QUARANTINED
+        ? BLOB_INTEGRITY_STATES.CORRUPT
         : BLOB_INTEGRITY_STATES.ABSENT,
     );
 

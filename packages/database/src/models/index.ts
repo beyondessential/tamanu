@@ -5,6 +5,7 @@ export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
 export * from './LocalSystemSecret';
 export * from './Blob';
+export * from './BlobQuarantine';
 export * from './PortalUser';
 export * from './Device';
 

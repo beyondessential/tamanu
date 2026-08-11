@@ -72,7 +72,7 @@ export class FacilityBlobCache {
     this.#retainRead(hash);
     try {
       // spec: SCRUB — servableStat, so a local copy the store will not serve
-      // (quarantined, or absent bytes under a live row) is a miss and resolves
+      // (corrupt, or absent bytes under a live row) is a miss and resolves
       // from central like any other, rather than failing the read against the
       // copy it already has.
       if (!(await this.#blobStore.servableStat(hash))) {

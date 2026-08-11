@@ -195,7 +195,7 @@ describe('BlobTransferChannel', () => {
     });
 
     // verifies spec: SCRUB, MOB — verify an outbox blob before offering it
-    it('quarantines corrupt outbox content instead of offering it', async () => {
+    it('marks corrupt outbox content rather than offering it', async () => {
       fs.seed('/tmp/good.jpg', 'good bytes');
       const { hash } = await store.putFile('/tmp/good.jpg', { tier: BLOB_TIERS.OUTBOX });
       // corrupt the stored bytes after admission
@@ -204,7 +204,7 @@ describe('BlobTransferChannel', () => {
       await expect(channel.pushToCentral(hash)).rejects.toThrow(/corrupt/i);
       expect(centralServer.post).not.toHaveBeenCalled();
       const row = await Database.models.Blob.findOne({ where: { hash } });
-      expect(row.integrityState).toBe('quarantined');
+      expect(row.integrityState).toBe('corrupt');
     });
   });
 });

@@ -85,12 +85,16 @@ pass walks the store.
   self-correcting event. A cache copy that is merely absent is not a fault and
   refetches on demand.
 - [ ] A corrupt or missing blob that must be durably present — an authoritative copy
-  on central, or an outbox blob that is the only copy — is quarantined, escalated for
-  attention, and repaired from the cheapest available source in order: local error
-  correction where present, a peer holding the hash, then a backup.
+  on central, or an outbox blob that is the only copy — is recorded against its hash as
+  corrupt or absent, escalated for attention, and repaired from the cheapest available
+  source in order: local error correction where present, a peer holding the hash, then a
+  backup.
 - [ ] For the central server a peer source is a facility that holds the blob within
   its data scope. Central cannot reach a facility on demand, so it heals from a peer
   opportunistically as facilities connect, and maintains no index of what facilities
   hold; a backup remains its dependable source.
-- [ ] A quarantined blob is retained rather than deleted, so it remains available for
-  investigation and is never served.
+- [ ] A blob recorded corrupt is retained rather than deleted, so it remains available
+  for investigation and is never served.
+- [ ] Content known to be malware is never repaired: every repair above ends in the
+  same bytes being held again, which for known-bad content is the one outcome to avoid
+  (see `antivirus.md`).

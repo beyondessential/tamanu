@@ -213,13 +213,13 @@ describe('committing staged content', () => {
     expect(state.registry.get(ABC)?.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
   });
 
-  it('heals a quarantined row by replacing its bytes', async () => {
+  it('heals a corrupt row by replacing its bytes', async () => {
     const { host, state } = createHost();
     state.files.set(`store/${ABC}`, 'dec');
     state.registry.set(ABC, {
       size: 3,
       tier: BLOB_TIERS.CACHE,
-      integrityState: BLOB_INTEGRITY_STATES.QUARANTINED,
+      integrityState: BLOB_INTEGRITY_STATES.CORRUPT,
     });
     state.files.set(`staging/${ABC}`, 'abc');
 

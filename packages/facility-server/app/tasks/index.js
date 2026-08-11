@@ -12,6 +12,7 @@ import { getServerFacilityIds } from '../serverConfig';
 
 import { BedFeeCharger } from './BedFeeCharger';
 import { BlobCacheEvictorTask } from './BlobCacheEvictorTask';
+import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
 import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { BlobOutboxPusherTask } from './BlobOutboxPusherTask';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
@@ -28,6 +29,7 @@ const DEFAULT_TASK_CLASSES = [
   BlobOutboxPusherTask,
   BlobCacheEvictorTask,
   BlobIntegrityScrubTask,
+  BlobAntivirusScanTask,
   FhirMissingResources,
   FhirJobWorkerCleaner,
   FhirErroredJobCleaner,

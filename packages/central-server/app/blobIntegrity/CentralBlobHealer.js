@@ -6,10 +6,10 @@ import { log } from '@tamanu/shared/services/logging';
 // Central's response to a blob that fails verification. Every copy central
 // holds is authoritative, so there is no low-severity case here as there is on
 // a facility: a fault is content the deployment may have lost. The copy is
-// quarantined (retained, never served) and escalated, and repair comes either
-// from a facility that still holds the content — opportunistically, as it
-// connects and offers the hash, which the transfer routes handle — or from a
-// backup, which is a human action the runbook covers.
+// recorded corrupt (retained, never served) and escalated, and repair comes
+// either from a facility that still holds the content — opportunistically, as
+// it connects and offers the hash, which the transfer routes handle — or from
+// a backup, which is a human action the runbook covers.
 export class CentralBlobHealer {
   #blobStore;
 
@@ -28,7 +28,7 @@ export class CentralBlobHealer {
       await this.#blobStore.recordIntegrityState(
         hash,
         fault === BLOB_FAULTS.CORRUPT
-          ? BLOB_INTEGRITY_STATES.QUARANTINED
+          ? BLOB_INTEGRITY_STATES.CORRUPT
           : BLOB_INTEGRITY_STATES.ABSENT,
       );
     }

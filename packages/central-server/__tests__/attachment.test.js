@@ -1,6 +1,10 @@
 import { Readable } from 'node:stream';
 
-import { BLOB_INTEGRITY_STATES, MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_SCAN_VERDICTS,
+  MAX_INLINE_BLOB_BYTES,
+} from '@tamanu/constants';
 import { InsufficientStorageError } from '@tamanu/errors';
 
 import { createTestContext } from './utilities';
@@ -212,24 +216,84 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: SCRUB
-    // A quarantined copy is retained but never served, and the transfer routes
+    // A corrupt copy is retained but never served, and the transfer routes
     // answer for it exactly as they do for content central does not hold. This
     // route answers the same way, so reading an attachment neither serves the
-    // bad bytes nor discloses the quarantine.
-    it('presents a quarantined blob as awaiting content, without disclosing the quarantine', async () => {
+    // bad bytes nor discloses that it is corrupt.
+    it('presents a corrupt blob as awaiting content, without disclosing that it is corrupt', async () => {
       const { hash, size } = await ctx.blobStore.put(
         Readable.from([Buffer.from('bytes that later fail verification', 'utf8')]),
       );
-      const quarantined = await models.Attachment.create({ type: 'text/plain', hash, size });
-      await ctx.blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      const corrupt = await models.Attachment.create({ type: 'text/plain', hash, size });
+      await ctx.blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
 
-      const result = await app.get(`/api/attachment/${quarantined.id}`);
+      const result = await app.get(`/api/attachment/${corrupt.id}`);
       expect(result.status).toBe(202);
       expect(result.body).toMatchObject({
-        attachmentId: quarantined.id,
+        attachmentId: corrupt.id,
         availability: 'awaiting-upload',
       });
-      expect(JSON.stringify(result.body)).not.toMatch(/quarantin/i);
+      expect(JSON.stringify(result.body)).not.toMatch(/corrupt/i);
+    });
+
+    // spec: AV
+    // Infected content is answered as its own state rather than as pending, so
+    // a reader is told the content is not coming instead of waiting on it.
+    it('presents a quarantined blob as withheld, not as pending', async () => {
+      const { hash, size } = await ctx.blobStore.put(
+        Readable.from([Buffer.from('content found to be malware', 'utf8')]),
+      );
+      const infected = await models.Attachment.create({ type: 'text/plain', hash, size });
+      await models.BlobQuarantine.create({ hash });
+
+      const result = await app.get(`/api/attachment/${infected.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: infected.id,
+        availability: 'withheld-infected',
+      });
+    });
+
+    // spec: AV
+    // Serve-only-when-known-good withholds content until it has been scanned
+    // clean, and answers it in the content-pending shape so a client can tell
+    // it apart from content that is gone.
+    describe('under serve-only-when-known-good', () => {
+      let unscanned;
+
+      beforeEach(async () => {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'only-known-good');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'clamd');
+        const { hash, size } = await ctx.blobStore.put(
+          Readable.from([Buffer.from('content admitted ahead of its scan', 'utf8')]),
+        );
+        unscanned = await models.Attachment.create({ type: 'text/plain', hash, size });
+      });
+
+      afterEach(async () => {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'unless-known-bad');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'none');
+      });
+
+      it('withholds not-yet-scanned content as awaiting its scan', async () => {
+        const result = await app.get(`/api/attachment/${unscanned.id}`);
+        expect(result.status).toBe(202);
+        expect(result.body).toMatchObject({
+          attachmentId: unscanned.id,
+          availability: 'awaiting-scan',
+        });
+      });
+
+      it('serves the same content once it has been scanned clean', async () => {
+        await ctx.blobStore.recordScanVerdict(unscanned.hash, {
+          verdict: BLOB_SCAN_VERDICTS.CLEAN,
+          scannerVersion: 'ClamAV 1.0.5',
+          signatureVersion: '27100',
+        });
+
+        const result = await app.get(`/api/attachment/${unscanned.id}`);
+        expect(result).toHaveSucceeded();
+      });
     });
   });
 

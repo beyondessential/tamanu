@@ -174,10 +174,10 @@ describe('facility blob outbox and LRU cache', () => {
 
     // spec: SCRUB, CACHE — a copy the store will not serve is a miss, so the
     // read resolves it from central instead of failing against the local copy.
-    it('refetches a quarantined local copy rather than failing the read', async () => {
+    it('refetches a corrupt local copy rather than failing the read', async () => {
       const content = uniqueContent();
       const { hash } = await blobStore.put(Readable.from(content));
-      await blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.QUARANTINED);
+      await blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
       let fetched = 0;
       blobCache.setTransferChannel({
         fetchFromCentral: async wanted => {

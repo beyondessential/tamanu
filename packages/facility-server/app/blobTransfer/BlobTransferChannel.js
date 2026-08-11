@@ -43,8 +43,8 @@ export class BlobTransferChannel {
     return await this.#blobStore.has(hash);
   }
 
-  async availability(hash) {
-    return await this.#transfer.availability(hash);
+  async availability(hash, { stat } = {}) {
+    return await this.#transfer.availability(hash, { stat });
   }
 
   /**
@@ -91,7 +91,7 @@ export class BlobTransferChannel {
     const blobStore = this.#blobStore;
     return {
       // spec: SCRUB — bytes the store will not serve are not held for transfer
-      // either: a quarantined copy is what an incoming good copy replaces, and
+      // either: a corrupt copy is what an incoming good copy replaces, and
       // is not deliverable to central.
       stat: hash => blobStore.servableStat(hash),
       stagedSize: hash => blobStore.stagedSize(hash),

@@ -12,18 +12,61 @@ export const CURRENT_BLOB_HASH_ALGORITHM: BlobHashAlgorithm = BLOB_HASH_ALGORITH
 
 // spec: SCRUB
 // A blob's standing against its hash. `verified` content matched when it was
-// last checked; `quarantined` content failed and is retained for investigation
-// but never served; `absent` is a registry entry whose bytes the store does not
+// last checked; `corrupt` content failed and is retained for investigation but
+// never served; `absent` is a registry entry whose bytes the store does not
 // hold, which the server acquires rather than offers.
+//
+// Infection is not a value here: infected content hashes correctly, so its
+// verdict is recorded separately (see BLOB_SCAN_VERDICTS and `antivirus.md`).
 export const BLOB_INTEGRITY_STATES = {
   VERIFIED: 'verified',
-  QUARANTINED: 'quarantined',
+  CORRUPT: 'corrupt',
   ABSENT: 'absent',
 } as const;
 
 export type BlobIntegrityState = (typeof BLOB_INTEGRITY_STATES)[keyof typeof BLOB_INTEGRITY_STATES];
 
 export const BLOB_INTEGRITY_STATES_VALUES = Object.values(BLOB_INTEGRITY_STATES);
+
+// spec: AV
+// What a scan found in a blob's content. No verdict at all is the third case
+// and is not a value here: it is the absence of a recorded scan, which is
+// every blob on a deployment with no scanner configured.
+export const BLOB_SCAN_VERDICTS = {
+  CLEAN: 'clean',
+  INFECTED: 'infected',
+} as const;
+
+export type BlobScanVerdict = (typeof BLOB_SCAN_VERDICTS)[keyof typeof BLOB_SCAN_VERDICTS];
+
+export const BLOB_SCAN_VERDICTS_VALUES = Object.values(BLOB_SCAN_VERDICTS);
+
+// spec: AV
+// How much of a verdict a server insists on before it serves a blob. `off`
+// consults no verdict at all, and is the behaviour of a deployment with no
+// scanner configured. Hardening runs left to right: each posture serves a
+// subset of what the one before it serves.
+export const BLOB_SERVE_POLICIES = {
+  OFF: 'off',
+  UNLESS_KNOWN_BAD: 'unless-known-bad',
+  ONLY_KNOWN_GOOD: 'only-known-good',
+} as const;
+
+export type BlobServePolicy = (typeof BLOB_SERVE_POLICIES)[keyof typeof BLOB_SERVE_POLICIES];
+
+export const BLOB_SERVE_POLICIES_VALUES = Object.values(BLOB_SERVE_POLICIES);
+
+// spec: AV
+// The scanner a server drives, or none. A deployment opts in by naming one:
+// absent that, every blob stays unscanned and the serve policy reads as off.
+export const BLOB_SCANNERS = {
+  NONE: 'none',
+  CLAMD: 'clamd',
+} as const;
+
+export type BlobScanner = (typeof BLOB_SCANNERS)[keyof typeof BLOB_SCANNERS];
+
+export const BLOB_SCANNERS_VALUES = Object.values(BLOB_SCANNERS);
 
 // spec: CACHE
 // The durability tier of a blob on a facility or mobile server. An outbox blob
@@ -40,15 +83,20 @@ export type BlobTier = (typeof BLOB_TIERS)[keyof typeof BLOB_TIERS];
 
 export const BLOB_TIERS_VALUES = Object.values(BLOB_TIERS);
 
-// spec: XFER
+// spec: XFER, AV
 // The availability of a referenced blob's bytes on a serving server. A
 // content-pending reference is awaiting either upload from its origin or fetch
 // by the serving server; the two are distinguished so a client can tell them
-// apart without a further request.
+// apart without a further request. The last two are content the server holds
+// but will not serve: `awaiting-scan` resolves on its own once the scan runs,
+// while `withheld-infected` is terminal and says so rather than leaving a
+// clinician waiting on content that is never coming.
 export const BLOB_AVAILABILITY_STATES = {
   AVAILABLE: 'available',
   AWAITING_UPLOAD: 'awaiting-upload',
   AWAITING_FETCH: 'awaiting-fetch',
+  AWAITING_SCAN: 'awaiting-scan',
+  WITHHELD_INFECTED: 'withheld-infected',
 } as const;
 
 export type BlobAvailabilityState =

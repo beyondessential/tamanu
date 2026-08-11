@@ -5,9 +5,17 @@ import * as yup from 'yup';
 import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
+import { blobServeGate } from '../../blobServing';
 import { BlobTransferChannel } from '../../blobTransfer';
 import { getServerFacilityIds } from '../../serverConfig';
 import { CentralServerConnection } from '../../sync';
+
+// The availability states a read can be satisfied from: content this server
+// holds, and content central holds and is willing to serve.
+const SERVES_FROM = [
+  BLOB_AVAILABILITY_STATES.AVAILABLE,
+  BLOB_AVAILABILITY_STATES.AWAITING_FETCH,
+];
 
 const SAFE_ID_REGEX = /^[A-Za-z0-9-]+$/;
 const ID_SCHEMA = yup
@@ -54,17 +62,35 @@ attachment.get(
     // as a use.
     if (localAttachment?.hash) {
       const { hash, type } = localAttachment;
-      const channel = transferChannelFor(req);
-      const { availability, size } = await channel.availability(hash);
 
-      // spec: ATCH
-      // Content central does not hold either cannot be resolved by fetching, so
-      // it presents as an existing file awaiting its content. The response
-      // carries which way it is pending — awaiting upload from its origin, or
-      // awaiting this server's fetch — so the presentation can distinguish them
-      // without another request. Content central holds is fetched below and
-      // served, not reported pending.
-      if (availability === BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD) {
+      // spec: SCRUB — a copy the store will not serve reads as not held, so the
+      // read resolves a replacement from central rather than judging bad bytes.
+      const stat = await req.blobStore.servableStat(hash);
+
+      // spec: AV
+      // Asked of this server before central, so a facility with the link down
+      // still withholds content the deployment has found to be malware: the
+      // quarantine record reached it by sync and does not need central to be
+      // reachable to apply.
+      const withheldLocally = await blobServeGate(
+        { settings: req.settings[getServerFacilityIds()[0]], models: req.models },
+        hash,
+        stat,
+      );
+      if (withheldLocally) {
+        res.status(202).send({ attachmentId: id, availability: withheldLocally });
+        return;
+      }
+
+      const channel = transferChannelFor(req);
+      const { availability, size } = await channel.availability(hash, { stat });
+
+      // spec: ATCH, AV
+      // Available is held here and awaiting-fetch is held by central, which the
+      // read below resolves. Every other state is an existing file that is not
+      // being served, and carries which: awaiting upload from its origin,
+      // awaiting a scan central has not run, or withheld as infected.
+      if (!SERVES_FROM.includes(availability)) {
         res.status(202).send({ attachmentId: id, availability });
         return;
       }

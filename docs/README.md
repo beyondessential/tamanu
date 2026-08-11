@@ -89,6 +89,7 @@ treated as a hard pre-filter on any suggested action.
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
 | [blob-integrity](runbooks/blob-integrity.md) | Attachment or asset bytes corrupt or missing (`blob_integrity` check) | Complete |
+| [blob-antivirus](runbooks/blob-antivirus.md) | Content quarantined as malware, or scanning stalled (`blob_antivirus` check) | Complete |
 
 ## SOPs
 

@@ -1,3 +1,4 @@
+export { blobAntivirusProperties, blobScanProperties } from './blobAntivirus';
 export { datelessTimeStringSchema } from './bookingSlots';
 export { dhis2IdSchemeSchema } from './dhis2';
 export { vaccinationsSchema } from './vaccinations';

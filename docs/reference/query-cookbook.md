@@ -545,9 +545,9 @@ FROM blobs
 WHERE deleted_at IS NULL AND tier = 'outbox';
 ```
 
-### Quarantined blobs
+### Corrupt blobs
 
-A quarantined blob failed verification against its hash and is never served. On a
+A corrupt blob failed verification against its hash and is never served. On a
 facility this should self-correct by refetching; a count that persists means the
 repair path is not working. On central it is an authoritative copy needing repair
 from a peer or a backup, and is an escalation.
@@ -555,7 +555,7 @@ from a peer or a backup, and is an escalation.
 ```sql
 SELECT id, hash, size, tier, created_at, last_scrubbed_at
 FROM blobs
-WHERE deleted_at IS NULL AND integrity_state = 'quarantined'
+WHERE deleted_at IS NULL AND integrity_state = 'corrupt'
 ORDER BY created_at;
 ```
 
@@ -567,27 +567,27 @@ an `outbox` row may be the only copy of its content. See
 
 **[dev-OTS]** The one mutating statement in this section, and only as step 2 of the
 backup restore in `../runbooks/blob-integrity.md` §5, after good bytes have been
-placed in the blob's fan-out path. Quarantine takes a blob out of the scrub's
+placed in the blob's fan-out path. A `corrupt` row is taken out of the scrub's
 verification pass, so the placed file is not looked at until the row goes back to
 `absent`. The next pass then hashes the file and decides for itself: `verified` if
-the restore was good, quarantined again if it was not.
+the restore was good, `corrupt` again if it was not.
 
-Never run this to clear a quarantine count. Only `verified` content is served, so
+Never run this to clear a corrupt count. Only `verified` content is served, so
 this does not expose bad bytes, but without step 1 it converts a recorded fault
-into a blob that reads as content-pending until the next pass re-quarantines it,
-which loses the signal and the count that was tracking it.
+into a blob that reads as content-pending until the next pass records it corrupt
+again, which loses the signal and the count that was tracking it.
 
 ```sql
 UPDATE blobs
 SET integrity_state = 'absent', last_scrubbed_at = NULL
-WHERE hash = :hash AND integrity_state = 'quarantined';
+WHERE hash = :hash AND integrity_state = 'corrupt';
 ```
 
 ### Integrity state summary
 
 The shape of the store's health in one row, and the basis of the `blob_integrity`
 check. `absent` is a registry entry whose bytes the store no longer holds, as
-distinct from `quarantined` bytes that are held but no longer match their hash.
+distinct from `corrupt` bytes that are held but no longer match their hash.
 
 ```sql
 SELECT integrity_state,
@@ -617,6 +617,51 @@ SELECT count(*) AS blobs,
 FROM blobs
 WHERE deleted_at IS NULL;
 ```
+
+## Blob antivirus
+
+Only where the deployment has turned scanning on. See
+`../runbooks/blob-antivirus.md`.
+
+### Quarantined content
+
+Content found to be malware, named by hash. Written on central and synchronised
+everywhere, so the same rows appear on a facility. Quarantined content is
+retained, never served, never fetched and never repaired. **[diagnose]**
+
+```sql
+SELECT q.hash, q.created_at, q.scanner_version, q.signature_version,
+       b.size, b.tier
+FROM blob_quarantines q
+LEFT JOIN blobs b ON b.hash = q.hash AND b.deleted_at IS NULL
+WHERE q.deleted_at IS NULL
+ORDER BY q.created_at DESC;
+```
+
+A row with no matching blob is normal: the quarantine names content, not a copy
+of it, so it stands on servers that never held the bytes.
+
+### Scan coverage
+
+What the scanner has got through. Under the `only-known-good` posture unscanned
+content is withheld, so a large `unscanned` figure there is content clinicians
+cannot open. Falling means the pass is working through a backlog; flat means the
+scanner is not being reached, or nothing is scheduled to run. **[diagnose]**
+
+```sql
+SELECT count(*) AS blobs,
+       count(*) FILTER (WHERE scan_verdict IS NULL) AS unscanned,
+       count(*) FILTER (WHERE scan_verdict = 'clean') AS clean,
+       count(*) FILTER (WHERE scan_verdict = 'infected') AS infected,
+       max(scanned_at) AS newest_scan,
+       max(signature_version) AS newest_signatures
+FROM blobs
+WHERE deleted_at IS NULL AND integrity_state = 'verified';
+```
+
+Content above `blobStorage.antivirus.maxScanMB` is never sent to the scanner and
+stays unscanned by design, so a residual count that never clears is expected;
+compare it against the large blobs in the store before treating it as a stall.
 
 ## DHIS2 push log
 

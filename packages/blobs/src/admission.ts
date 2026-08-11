@@ -46,7 +46,7 @@ export interface BlobAdmissionHost {
   /** Asked to free at least bytesNeeded before the store refuses. */
   evict?(bytesNeeded: number): Promise<void>;
   /**
-   * spec: SCRUB — bring a row that was quarantined or standing as absent back to
+   * spec: SCRUB — bring a row that was corrupt or standing as absent back to
    * verified, now that these bytes have verified. Called after every commit, so
    * it must leave an already-verified row alone. Hosts that don't track
    * integrity state omit it.
@@ -123,7 +123,7 @@ export class BlobAdmission {
 
     const existing = await this.#host.stat(hash);
     // spec: SCRUB — only a copy already verified counts as content held; the
-    // commit is a no-op against it. A quarantined copy is exactly what an
+    // commit is a no-op against it. A corrupt copy is exactly what an
     // incoming good copy is there to replace, so it falls through and its bytes
     // and state are only settled once the replacement verifies below.
     const heldAndTrusted =
@@ -150,7 +150,7 @@ export class BlobAdmission {
 
     const size = await this.#host.fileSize(stagingPath);
     if (existing) {
-      // spec: SCRUB — the replacement has verified, so the quarantined bytes go
+      // spec: SCRUB — the replacement has verified, so the corrupt bytes go
       // now. Removing them first is what lets the placement below land, since
       // placement treats an occupied destination as content already won.
       await this.#host.removeFile(this.#host.pathFor(hash));
@@ -158,7 +158,7 @@ export class BlobAdmission {
     await this.#host.place(stagingPath, this.#host.pathFor(hash));
     await this.#host.register(hash, size, BLOB_TIERS.CACHE);
     // spec: SCRUB — these bytes just verified, so a row still standing as
-    // quarantined or absent is now out of date. Unconditional because the row a
+    // corrupt or absent is now out of date. Unconditional because the row a
     // refetch heals is one whose bytes had gone, which reads as nothing held at
     // all; registration leaves a live row's state alone, so nothing else would
     // clear it.

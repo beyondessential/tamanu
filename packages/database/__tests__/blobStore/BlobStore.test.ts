@@ -220,10 +220,10 @@ describe('BlobStore', () => {
       await expect(store.get(EMPTY_HASH)).rejects.toThrow(NotFoundError);
     });
 
-    it('never serves a quarantined blob', async () => {
+    it('never serves a corrupt blob', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+      fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       await expect(store.get(hash)).rejects.toThrow(NotFoundError);
     });
@@ -254,12 +254,12 @@ describe('BlobStore', () => {
       expect(content.toString()).toBe('hello world');
     });
 
-    it('refuses a provided stat marked quarantined', async () => {
+    it('refuses a provided stat marked corrupt', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
 
       await expect(
-        store.get(hash, { stat: { size: 11, integrityState: 'quarantined' } }),
+        store.get(hash, { stat: { size: 11, integrityState: 'corrupt' } }),
       ).rejects.toThrow(NotFoundError);
     });
   });
@@ -355,10 +355,10 @@ describe('BlobStore', () => {
       });
     });
 
-    it('verifies quarantined content, so a repair can re-check what it replaced', async () => {
+    it('verifies corrupt content, so a repair can re-check what it replaced', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+      fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       expect((await store.verify(hash)).matches).toBe(true);
     });
@@ -376,16 +376,16 @@ describe('BlobStore', () => {
       expect(fakeBlob.rows.get(hash)!.integrityState).toBe('verified');
     });
 
-    it('never overwrites a concurrently quarantined blob, so known-bad bytes stay unserved', async () => {
+    it('never overwrites a concurrently corrupt blob, so known-bad bytes stay unserved', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      // A read-path quarantine lands after this blob verified earlier in the
+      // A read-path corruption record lands after this blob verified earlier in the
       // pass but before the end-of-pass flush.
-      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+      fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       await store.recordVerified([hash]);
 
-      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('quarantined');
+      expect(fakeBlob.rows.get(hash)!.integrityState).toBe('corrupt');
     });
   });
 
@@ -435,11 +435,11 @@ describe('BlobStore', () => {
       expect(await store.has(hash)).toBe(false);
     });
 
-    it('reports a quarantined blob as present', async () => {
+    it('reports a corrupt blob as present', async () => {
       // presence, not servability: get refuses the same blob
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      fakeBlob.rows.get(hash)!.integrityState = 'quarantined';
+      fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       expect(await store.has(hash)).toBe(true);
     });
@@ -539,11 +539,15 @@ describe('BlobStore', () => {
   });
 
   describe('stat', () => {
-    it('reports size and integrity state for a held blob', async () => {
+    it('reports size, integrity state and scan verdict for a held blob', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
 
-      expect(await store.stat(hash)).toEqual({ size: 11, integrityState: 'verified' });
+      expect(await store.stat(hash)).toEqual({
+        size: 11,
+        integrityState: 'verified',
+        scanVerdict: null,
+      });
     });
 
     it('reports null for an absent blob', async () => {
@@ -566,14 +570,14 @@ describe('BlobStore', () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
 
-      expect(await store.servableStat(hash)).toEqual({ size: 11, integrityState: 'verified' });
+      expect(await store.servableStat(hash)).toEqual({ size: 11, integrityState: 'verified', scanVerdict: null });
     });
 
     it('withholds any state other than verified, so an unlisted one is not served by omission', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
 
-      for (const state of ['quarantined', 'absent', 'some-later-state']) {
+      for (const state of ['corrupt', 'absent', 'some-later-state']) {
         fakeBlob.rows.get(hash)!.integrityState = state;
         expect(await store.servableStat(hash)).toBeNull();
       }
