@@ -644,7 +644,7 @@ describe('ProgramRegistry', () => {
     });
   });
 
-  describe.only('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
+  describe('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
     let programRegistryId;
     let patient;
     let historicalSimpleChart;
