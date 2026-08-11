@@ -2,7 +2,7 @@
 
 ## Overview
 
-A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcoming** cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by the priority set in Tamanu (Urgent → High → Medium → No priority); within a tier the order is not yet fixed.
+A set of enhancements testing Tamanu's labs subsystem, compiled from the **Upcoming** cards in the **Labs ENH** Linear project. This PRD is the brief for our UX/UI designer: each requirement gets its own section, worked through one at a time to add detail. Requirements are ordered by the priority set in Tamanu (Urgent → High → Medium → No priority); within a tier the order is not yet fixed.
 
 ---
 
