@@ -152,16 +152,20 @@ export class BlobScanner {
         // does not abort the scan of everything queued behind it.
         open: () => this.#blobStore.get(hash, { verify: false }),
       });
-      await this.#blobStore.recordScanVerdict(hash, { verdict, ...versions });
-      result.scanned += 1;
-      result.bytesScanned += size;
       if (verdict === BLOB_SCAN_VERDICTS.INFECTED) {
-        result.infected += 1;
         this.#log.warn('BlobScanner: infected content found', { hash, ...versions });
+        // Quarantined before the verdict is recorded, which is terminal and
+        // takes the blob out of every later pass: a quarantine that fails to
+        // write leaves the blob to be found again rather than confining a known
+        // infection to this server.
         await this.#onInfected(hash, versions);
+        result.infected += 1;
       } else {
         result.clean += 1;
       }
+      await this.#blobStore.recordScanVerdict(hash, { verdict, ...versions });
+      result.scanned += 1;
+      result.bytesScanned += size;
       return true;
     } catch (error) {
       if (error instanceof BlobScannerUnavailableError) {

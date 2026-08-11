@@ -107,6 +107,7 @@ describe('BlobScanner', () => {
     signatureVersion = SIGNATURE_VERSION,
     versions,
     scan,
+    onInfected,
   }: {
     verdicts?: Map<string, string>;
     maxBlobs?: number;
@@ -115,6 +116,7 @@ describe('BlobScanner', () => {
     signatureVersion?: string;
     versions?: () => Promise<{ scannerVersion: string; signatureVersion: string }>;
     scan?: (target: { hash: string }) => Promise<string>;
+    onInfected?: (hash: string) => Promise<void>;
   } = {}) =>
     new BlobScanner({
       blobStore: store,
@@ -135,9 +137,11 @@ describe('BlobScanner', () => {
           }),
       } as any,
       getLimits: async () => ({ maxBlobs, maxBytes, maxScanBytes }),
-      onInfected: async hash => {
-        quarantined.push(hash);
-      },
+      onInfected:
+        onInfected ??
+        (async hash => {
+          quarantined.push(hash);
+        }),
       log: { info: () => {}, warn: () => {} },
     });
 
@@ -186,6 +190,30 @@ describe('BlobScanner', () => {
     }).run();
 
     expect(result).toMatchObject({ infected: 1, clean: 0 });
+    expect(quarantined).toEqual([hash]);
+    expect(fakeBlob.rows.get(hash)!.scanVerdict).toBe(BLOB_SCAN_VERDICTS.INFECTED);
+  });
+
+  // verifies spec: AV — the quarantine record is what carries the infection off
+  // this server, and an infected verdict is never revisited, so a pass that
+  // cannot write the record leaves the blob for the next pass to find
+  it('leaves an infected blob unscanned when the quarantine cannot be written', async () => {
+    const hash = await put('infected content');
+    const verdicts = new Map([[hash, BLOB_SCAN_VERDICTS.INFECTED]]);
+
+    const failed = await makeScanner({
+      verdicts,
+      onInfected: async () => {
+        throw new Error('quarantine unavailable');
+      },
+    }).run();
+
+    expect(failed).toMatchObject({ scanned: 0, infected: 0 });
+    expect(fakeBlob.rows.get(hash)!.scanVerdict).toBeNull();
+
+    const second = await makeScanner({ verdicts }).run();
+
+    expect(second).toMatchObject({ infected: 1 });
     expect(quarantined).toEqual([hash]);
     expect(fakeBlob.rows.get(hash)!.scanVerdict).toBe(BLOB_SCAN_VERDICTS.INFECTED);
   });
