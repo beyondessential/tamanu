@@ -12,12 +12,28 @@ import { log } from '@tamanu/shared/services/logging';
 // a backup, which is a human action the runbook covers.
 export class CentralBlobHealer {
   #blobStore;
+  #models;
 
-  constructor({ blobStore }) {
+  constructor({ blobStore, models }) {
     this.#blobStore = blobStore;
+    this.#models = models;
   }
 
   async heal({ hash, fault, blob }) {
+    // spec: AV — a repair ends in the same bytes being held again, which for a
+    // hash the deployment has found to be malware is the one outcome to avoid.
+    // The recording and escalation below still apply to it.
+    const knownBad = Boolean(await this.#models.BlobQuarantine.findOne({ where: { hash } }));
+
+    // spec: FEC — error correction is the first rung of the ladder: repair from
+    // parity before falling through to a peer or a backup. The reconstruction is
+    // checked against the blob's hash, so a repair means the content was never at
+    // risk and is neither recorded corrupt nor escalated.
+    if (!knownBad && fault === BLOB_FAULTS.CORRUPT && (await this.#blobStore.repairFromParity(hash))) {
+      log.info('CentralBlobHealer: repaired a corrupt blob from its parity', { hash });
+      return;
+    }
+
     if (!blob) {
       // The referential pass: a synchronised record references content the
       // registry does not name, so there is no row to stamp. Registering it

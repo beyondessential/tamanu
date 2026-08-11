@@ -80,3 +80,27 @@ Compared against the current push cursor to measure how long the blob has gone
 unpushed while syncs kept succeeding: the outbox dysfunction signal. Null while
 the blob is not yet eligible, and cleared when it is pushed and demoted to cache.
 {% enddocs %}
+
+{% docs blobs__has_parity %}
+Whether a parity sidecar is stored alongside this blob's content, letting limited
+corruption be repaired in place without another copy. Error correction is off by
+default and enabled per server, and covers that server's durable copies above a
+small size threshold: every blob on the central server, and un-pushed (outbox)
+blobs on a facility. The scrub generates parity for a covered blob that has none,
+so enabling error correction protects content already stored rather than only new
+writes.
+{% enddocs %}
+
+{% docs blobs__correction_count %}
+How many times this blob's content has been repaired from its parity. Each repair
+is verified against the blob's hash before it is kept, so a correction means the
+content was recovered intact rather than lost.
+{% enddocs %}
+
+{% docs blobs__last_corrected_at %}
+When this blob's content was last repaired from its parity. Together with the
+correction count this gives the rate of correction over a period, which is a
+failing-media signal: a rising rate means the underlying storage is beginning to
+fail and should be replaced, ahead of the point where it produces unrecoverable
+loss.
+{% enddocs %}

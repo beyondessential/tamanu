@@ -11,6 +11,7 @@ import {
   BlobStore,
   createScannerDriver,
 } from '@tamanu/database/blobStore';
+import { CENTRAL_PARITY_TIERS } from '@tamanu/blobs';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -131,6 +132,18 @@ export class ApplicationContext {
           blob: await this.store.models.Blob.findOne({ where: { hash } }),
         });
       },
+      // spec: FEC — every blob central holds is a durable copy, so coverage is
+      // not narrowed by tier.
+      errorCorrection: {
+        coveredTiers: CENTRAL_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = await this.settings.get('blobStorage.errorCorrection');
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
+      },
       log,
     });
 
@@ -138,7 +151,10 @@ export class ApplicationContext {
     // Every copy central holds is authoritative, so the healer has no
     // low-severity case: it records the blob corrupt and escalates, and repair
     // arrives either opportunistically from a facility or from a backup.
-    this.blobHealer = new CentralBlobHealer({ blobStore: this.blobStore });
+    this.blobHealer = new CentralBlobHealer({
+      blobStore: this.blobStore,
+      models: this.store.models,
+    });
     this.blobScrubber = new BlobScrubber({
       blobStore: this.blobStore,
       models: this.store.models,
@@ -187,7 +203,11 @@ export class ApplicationContext {
             maxScanBytes: maxScanMB * 1024 ** 2,
           };
         },
-        onInfected: (hash, versions) => quarantineBlob(this.store.models, hash, versions),
+        onInfected: async (hash, versions) => {
+          await quarantineBlob(this.store.models, hash, versions);
+          // spec: FEC — quarantined content is never served and never repaired.
+          await this.blobStore.discardParity(hash);
+        },
         log,
       });
 

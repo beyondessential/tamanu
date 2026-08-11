@@ -12,6 +12,7 @@ import {
   blobScanProperties,
   blobScrubProperties,
   emailSchema,
+  errorCorrectionProperties,
   letterheadProperties,
   nationalityIdSchema,
   passportSchema,
@@ -46,6 +47,14 @@ export const facilitySettings = {
           type: yup.number().positive(),
           defaultValue: 20,
           unit: 'GB',
+        },
+        // spec: FEC — outbox blobs only: a cache copy is durable on central, so
+        // parity over it would spend disk the cache budget needs.
+        errorCorrection: {
+          name: 'Error correction',
+          description:
+            'Parity data over un-pushed blobs, so limited corruption is repaired in place',
+          properties: errorCorrectionProperties(),
         },
         ...blobAntivirusProperties(),
       },

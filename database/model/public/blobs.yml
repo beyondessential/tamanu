@@ -58,6 +58,19 @@ sources:
           - name: eligible_since_tick
             data_type: bigint
             description: "{{ doc('blobs__eligible_since_tick') }}"
+          - name: has_parity
+            data_type: boolean
+            description: "{{ doc('blobs__has_parity') }}"
+            data_tests:
+              - not_null
+          - name: correction_count
+            data_type: integer
+            description: "{{ doc('blobs__correction_count') }}"
+            data_tests:
+              - not_null
+          - name: last_corrected_at
+            data_type: timestamp with time zone
+            description: "{{ doc('blobs__last_corrected_at') }}"
           - name: scan_verdict
             data_type: text
             description: "{{ doc('blobs__scan_verdict') }}"

@@ -191,7 +191,7 @@ describe('findUndeliverableReferences', () => {
   // it, and it hands the blob to the machinery that already handles absence.
   describe('recording the fault', () => {
     const healAsMissing = async hash =>
-      await new CentralBlobHealer({ blobStore: ctx.blobStore }).heal({
+      await new CentralBlobHealer({ blobStore: ctx.blobStore, models: ctx.store.models }).heal({
         hash,
         fault: BLOB_FAULTS.MISSING,
         blob: null,

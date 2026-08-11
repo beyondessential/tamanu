@@ -26,6 +26,9 @@ export class Blob extends Model {
   declare lastAccessedAt: Date;
   declare lastScrubbedAt: Date | null;
   declare eligibleSinceTick: number | null;
+  declare hasParity: boolean;
+  declare correctionCount: number;
+  declare lastCorrectedAt: Date | null;
   declare scanVerdict: BlobScanVerdict | null;
   declare scannedAt: Date | null;
   declare scannerVersion: string | null;
@@ -93,6 +96,28 @@ export class Blob extends Model {
             const value = this.getDataValue('eligibleSinceTick');
             return value == null ? null : Number(value);
           },
+        },
+        // spec: FEC
+        // Whether a parity sidecar is stored alongside this blob's content. The
+        // scrub's retrofit finds covered blobs without one, so enabling error
+        // correction brings existing content under protection.
+        hasParity: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        // spec: FEC
+        // Repairs made from this blob's parity. A rising rate of correction
+        // across the store is failing media, which calls for replacing the disk
+        // rather than for recovering content.
+        correctionCount: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        lastCorrectedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
         },
         // spec: AV
         // What this server's scan found, when it ran, and the scanner and

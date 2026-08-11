@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 
 import { BLOB_INTEGRITY_STATES } from '@tamanu/constants';
 
@@ -40,6 +40,8 @@ export interface ScrubResult {
   verified: number;
   faults: number;
   adopted: number;
+  /** Covered blobs the pass brought under parity protection. */
+  protected: number;
   bytesRead: number;
   /** True when the pass stopped on a limit rather than exhausting its work. */
   ratelimited: boolean;
@@ -110,6 +112,7 @@ export class BlobScrubber {
       verified: 0,
       faults: 0,
       adopted: 0,
+      protected: 0,
       bytesRead: 0,
       ratelimited: false,
     };
@@ -117,6 +120,7 @@ export class BlobScrubber {
     await this.#verificationPass(limits, result);
     await this.#reconciliationPass(limits, result);
     await this.#referentialPass(limits, result);
+    await this.#parityPass(limits, result);
 
     this.#log.info('BlobScrubber: pass complete', { ...result });
     return result;
@@ -295,6 +299,64 @@ export class BlobScrubber {
       result.faults += 1;
       await this.#reportFault({ hash, fault: BLOB_FAULTS.MISSING, blob: null });
     }
+  }
+
+  // spec: FEC
+  // Parity for covered blobs that carry none, so enabling error correction brings
+  // content already stored under protection over a scrub cycle rather than
+  // protecting only new writes.
+  //
+  // Its own byte budget, bounded by the same limit as verification rather than
+  // sharing one counter with it: once the store is covered, verification spends
+  // its whole budget every pass, so a shared counter would starve the retrofit
+  // indefinitely. The extra reads are transient — once every covered blob has
+  // parity, this pass is one indexed query that finds nothing.
+  async #parityPass(limits: ScrubPassLimits, result: ScrubResult): Promise<void> {
+    if (!(await this.#blobStore.parityEnabled())) {
+      return;
+    }
+    const { minimumSize, tiers } = this.#blobStore.parityCoverage;
+    const candidates = await this.#models.Blob.findAll({
+      where: {
+        hasParity: false,
+        integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+        // spec: AV — quarantined content is retained but never served and never
+        // repaired, so parity over it protects bytes nothing will ever read. A
+        // subquery rather than a fetched list, which a mass quarantine would
+        // otherwise grow without bound.
+        hash: {
+          [Op.notIn]: literal('(SELECT hash FROM blob_quarantines WHERE deleted_at IS NULL)'),
+        },
+        // Rows the store would refuse anyway: fetched, they spend the pass's
+        // limit on skips while covered blobs behind them wait another cycle.
+        size: { [Op.gte]: minimumSize },
+        tier: [...tiers],
+      },
+      order: [
+        ['lastScrubbedAt', 'ASC NULLS FIRST'],
+        ['createdAt', 'ASC'],
+      ],
+      limit: limits.maxBlobs,
+    });
+
+    let bytesRead = 0;
+    for (const blob of candidates) {
+      if (bytesRead >= limits.maxBytes) {
+        result.ratelimited = true;
+        return;
+      }
+      // One read per blob: the encode hashes the bytes it reads, so a blob that
+      // has rotted since its last scrub is left unprotected without a second
+      // pass over it to find that out. The fault is the verification pass's,
+      // which reaches the blob on its own.
+      const outcome = await this.#blobStore.writeParity(blob);
+      bytesRead += outcome.bytesRead;
+      result.bytesRead += outcome.bytesRead;
+      if (outcome.protected) {
+        result.protected += 1;
+      }
+    }
+    result.ratelimited ||= candidates.length === limits.maxBlobs;
   }
 
   async #reportFault(report: BlobFaultReport): Promise<void> {

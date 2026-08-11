@@ -36,6 +36,7 @@ marked planned are not written yet; use the Canopy solve in the meantime.
 | `sync_snapshot_tables` | [runbooks/sync-facility-stale.md](runbooks/sync-facility-stale.md) |
 | `report_errors`, `ips_errors`, `patient_communication_errors`, `certificate_notification_errors` | [runbooks/report-and-error-rows.md](runbooks/report-and-error-rows.md) |
 | `blob_integrity` | [runbooks/blob-integrity.md](runbooks/blob-integrity.md) |
+| `blob_correction_rate` | [runbooks/blob-correction-rate.md](runbooks/blob-correction-rate.md) |
 | `blob_antivirus` | [runbooks/blob-antivirus.md](runbooks/blob-antivirus.md) |
 | `db_connect`, `pg_tuning` | Canopy solve, then `reference/maintain-tamanu-on-linux.md` for the frontline host steps |
 | `disk_free`, `btrfs`, `inodes`, `load`, `memory` | Canopy solve; deep disk work is in `beyondessential/ops` |

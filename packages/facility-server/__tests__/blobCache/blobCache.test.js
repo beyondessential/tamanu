@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
+import { FACILITY_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
 import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { BlobStore } from '@tamanu/database/blobStore';
@@ -45,6 +46,7 @@ describe('facility blob outbox and LRU cache', () => {
   let blobStore;
   let blobCache;
   let cacheBudgetBytes;
+  let errorCorrection;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -57,10 +59,17 @@ describe('facility blob outbox and LRU cache', () => {
     await models.Blob.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-cache-test-'));
     cacheBudgetBytes = 10 * GB;
+    // Off by default, as on a server that has not enabled it; the parity case
+    // below switches it on before admitting anything.
+    errorCorrection = { enabled: false, proportion: 0.1 };
     blobStore = new BlobStore({
       root,
       models,
       getFreeDiskReserveBytes: async () => 0,
+      errorCorrection: {
+        coveredTiers: FACILITY_PARITY_TIERS,
+        getSettings: async () => errorCorrection,
+      },
     });
     blobCache = new FacilityBlobCache({
       blobStore,
@@ -124,6 +133,29 @@ describe('facility blob outbox and LRU cache', () => {
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.tier).toBe(BLOB_TIERS.CACHE);
       expect(row.eligibleSinceTick).toBeNull();
+    });
+
+    it('discards the parity of a demoted blob, since the cache tier carries none', async () => {
+      // verifies spec: FEC — central holds the content once it acknowledges the
+      // push, so a corrupt cache copy costs a refetch rather than needing parity
+      errorCorrection = { enabled: true, proportion: 0.1 };
+      const { hash } = await putOutbox(Buffer.alloc(64 * 1024, 'o'));
+      const digest = hash.split(':')[1];
+      const sidecar = path.join(
+        root,
+        'sha256',
+        digest.slice(0, 2),
+        digest.slice(2, 4),
+        `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
+      );
+      await expect(fs.access(sidecar)).resolves.toBeUndefined();
+
+      await blobCache.demote(hash);
+
+      await expect(fs.access(sidecar)).rejects.toThrow();
+      const row = await models.Blob.findOne({ where: { hash } });
+      expect(row.tier).toBe(BLOB_TIERS.CACHE);
+      expect(row.hasParity).toBe(false);
     });
   });
 

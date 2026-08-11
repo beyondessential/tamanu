@@ -9,6 +9,7 @@ import {
   BlobStore,
   createScannerDriver,
 } from '@tamanu/database/blobStore';
+import { FACILITY_PARITY_TIERS } from '@tamanu/blobs';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { facilityDefaults } from '@tamanu/settings';
@@ -119,6 +120,20 @@ export class ApplicationContext {
           blob: await this.models.Blob.findOne({ where: { hash } }),
         });
       },
+      // spec: FEC — the outbox is this server's only durable content; a cache
+      // copy is durable on central and costs a refetch.
+      errorCorrection: {
+        coveredTiers: FACILITY_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = facilityIds.length
+            ? await this.settings[facilityIds[0]].get('blobStorage.errorCorrection')
+            : facilityDefaults.blobStorage.errorCorrection;
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
+      },
       log,
     });
 
@@ -204,6 +219,8 @@ export class ApplicationContext {
         // content is pushed to it.
         onInfected: async hash => {
           log.warn('BlobScanner: infected content held by this facility', { hash });
+          // spec: FEC — quarantined content is never served and never repaired.
+          await this.blobStore.discardParity(hash);
         },
         log,
       });

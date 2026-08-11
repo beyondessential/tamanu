@@ -107,10 +107,16 @@ export class FacilityBlobCache {
   // spec: CACHE
   /** Move an acknowledged blob from outbox to cache: durable on central, evictable. */
   async demote(hash) {
-    await this.#models.Blob.update(
+    const [demoted] = await this.#models.Blob.update(
       { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
       { where: { hash, tier: BLOB_TIERS.OUTBOX } },
     );
+    if (demoted) {
+      // spec: FEC — the cache tier is uncovered: central holds the content now,
+      // so a corrupt copy costs a refetch and the parity's disk is the cache
+      // budget's to spend.
+      await this.#blobStore.discardParity(hash);
+    }
   }
 
   async cacheSizeBytes() {
