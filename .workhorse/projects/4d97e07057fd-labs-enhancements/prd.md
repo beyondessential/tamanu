@@ -119,6 +119,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - **Relationship to "Rejected" for LIMS instances:** when SENAITE rejects a sample (DiagnosticReport `cancelled` + rejection PDF), should the request land in "Recollect" instead of "Rejected" — making Recollect the home for LIMS rejections — or does "Rejected" stay as-is with "Recollect" a separate, manually-set status alongside it?
 - **Published table label/grouping:** Recollect requests are listed in the Published lab requests table, which is labelled "Published" and today shows completed requests — confirm whether the label or status grouping needs adjusting so a Recollect request doesn't read oddly there.
 - **Rejection report handling:** for LIMS instances the recollection is accompanied by a "Cancelled" diagnostic report with a PDF rejection report — clarify how that report is received, stored, and surfaced to the clinician on a Recollect request (e.g. where it is viewed and whether it is attached to the notification or the lab request view).
+- **Print action label:** on a Recollect request the printable document is a rejection report rather than results, so decide what the "Print results" label should be re-titled to in this context.
 
 ---
 
