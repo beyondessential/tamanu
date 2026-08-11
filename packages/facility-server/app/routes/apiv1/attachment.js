@@ -63,6 +63,10 @@ attachment.get(
     if (localAttachment?.hash) {
       const { hash, type } = localAttachment;
 
+      // spec: SCRUB — a copy the store will not serve reads as not held, so the
+      // read resolves a replacement from central rather than judging bad bytes.
+      const stat = await req.blobStore.servableStat(hash);
+
       // spec: AV
       // Asked of this server before central, so a facility with the link down
       // still withholds content the deployment has found to be malware: the
@@ -71,7 +75,7 @@ attachment.get(
       const withheldLocally = await blobServeGate(
         { settings: req.settings[getServerFacilityIds()[0]], models: req.models },
         hash,
-        await req.blobStore.stat(hash),
+        stat,
       );
       if (withheldLocally) {
         res.status(202).send({ attachmentId: id, availability: withheldLocally });
@@ -79,7 +83,7 @@ attachment.get(
       }
 
       const channel = transferChannelFor(req);
-      const { availability, size } = await channel.availability(hash);
+      const { availability, size } = await channel.availability(hash, { stat });
 
       // spec: ATCH, AV
       // Available is held here and awaiting-fetch is held by central, which the

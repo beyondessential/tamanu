@@ -39,8 +39,8 @@ describe('Attachment (facility-server)', () => {
   // mirroring the real channel, so only the remote half is faked here.
   const setCentral = ({ holds = null } = {}) => {
     ctx.blobCache.setTransferChannel({
-      availability: async hash => {
-        const local = await ctx.blobStore.stat(hash);
+      availability: async (hash, { stat } = {}) => {
+        const local = stat === undefined ? await ctx.blobStore.servableStat(hash) : stat;
         if (local) {
           return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: local.size };
         }
