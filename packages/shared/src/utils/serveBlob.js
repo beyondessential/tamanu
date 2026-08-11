@@ -25,13 +25,47 @@ export async function readBlobAsBase64({ size, open }) {
 }
 
 // spec: SERVE
+// spec: SERVE
+// Whether the client already holds this content. Weak comparison per RFC 9110,
+// which is what If-None-Match takes, so a `W/` prefix still matches.
+function clientHoldsContent(req, etag) {
+  const header = req.headers['if-none-match'];
+  if (!etag || !header) {
+    return false;
+  }
+  if (header.trim() === '*') {
+    return true;
+  }
+  return header.split(',').some(candidate => candidate.trim().replace(/^W\//, '') === etag);
+}
+
 // Stream a stored blob over HTTP: range support for large files, the hash as a
 // strong entity tag since it names immutable content, and a pipeline that
 // destroys the source when either side terminates so a dropped download does not
 // leak the open file handle. The caller supplies `open`, which returns the byte
-// stream for a range — a facility passes its cache's read-through open, so a
+// stream for a range, and a facility passes its cache's read-through open, so a
 // served blob is fetched on a local miss and counts as a use.
+//
+// A legacy attachment, whose bytes are still in its database row, has no content
+// hash and so nothing to validate against. It passes no `hash` and is served
+// without a validator, but with everything else the same (see backfill.md).
+// spec: SERVE
+// A hash names immutable content, so a client holding it never needs the bytes
+// again. Private, since blob content is clinical data and a shared cache must not
+// keep a copy.
+const IMMUTABLE = 'private, max-age=31536000, immutable';
+
 export async function serveBlob(req, res, { hash, size, contentType, open }) {
+  const etag = hash ? `"${hash}"` : null;
+
+  if (clientHoldsContent(req, etag)) {
+    // Carries the freshness a 200 would: a cache updates its stored entry from
+    // the headers the 304 arrives with, so omitting it leaves a client that
+    // cached before this existed revalidating on every read forever.
+    res.status(304).setHeader('etag', etag).setHeader('cache-control', IMMUTABLE).end();
+    return;
+  }
+
   const range = req.headers.range?.match(RANGE_PATTERN)?.groups;
   let start;
   let end;
@@ -49,8 +83,11 @@ export async function serveBlob(req, res, { hash, size, contentType, open }) {
   res.status(range ? 206 : 200);
   res.setHeader('content-type', contentType ?? 'application/octet-stream');
   res.setHeader('content-length', range ? end - start + 1 : size);
-  res.setHeader('etag', `"${hash}"`);
   res.setHeader('accept-ranges', 'bytes');
+  if (etag) {
+    res.setHeader('etag', etag);
+    res.setHeader('cache-control', IMMUTABLE);
+  }
   if (range) {
     res.setHeader('content-range', `bytes ${start}-${end}/${size}`);
   }

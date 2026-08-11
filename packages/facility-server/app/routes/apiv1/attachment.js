@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
@@ -56,11 +58,19 @@ attachment.get(
     if (localAttachment) {
       if (base64) {
         res.send({ data: Buffer.from(localAttachment.data).toString('base64') });
-      } else {
-        res.setHeader('Content-Type', localAttachment.type);
-        res.setHeader('Content-Length', localAttachment.size);
-        res.send(Buffer.from(localAttachment.data));
+        return;
       }
+
+      // spec: BKFL — served the same way a moved row is, so a reader cannot tell
+      // which form it got. The length comes from the bytes rather than the
+      // column, since the range arithmetic depends on it.
+      const bytes = Buffer.from(localAttachment.data);
+      await serveBlob(req, res, {
+        size: bytes.length,
+        contentType: localAttachment.type,
+        open: ({ start, end }) =>
+          Readable.from([start === undefined ? bytes : bytes.subarray(start, end + 1)]),
+      });
       return;
     }
 
