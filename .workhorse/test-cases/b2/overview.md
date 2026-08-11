@@ -371,6 +371,7 @@ consumer guarantee and a serving guarantee at once.
 - [x] Content is admitted through the server's own store, the one carrying the facility's cache-eviction hook, rather than a store the job constructs for itself (verifies spec: BKFL)
 - [x] Reaching the free-disk reserve pauses the job instead of failing it, leaving the row holding its bytes for a later run (verifies spec: BKFL, CAP)
 - [x] On a facility, asset content is seeded into the local store while the rows are left for central's synced update, and no attachment content reaches the local store from either the rows or their changelog entries (verifies spec: BKFL)
+- [x] An attachment still holding its bytes at upgrade pushes to central inline, carrying them, rather than being relocated locally: the push selects on sync tick alone (verifies spec: BKFL)
 
 ## Both forms coexisting
 

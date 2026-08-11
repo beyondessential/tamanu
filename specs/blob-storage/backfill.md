@@ -66,9 +66,13 @@ minor-version sync skew), so the backfill owes no compatibility to older peers.
 - [ ] An asset whose bytes are not in the facility's store when its updated row
   arrives is simply content-pending and resolves by fetch on demand (see
   `transfer.md`).
-- [ ] An attachment awaiting upload when the server upgrades (bytes held
-  locally, not yet pushed) is converted by the backfill into a store blob in
-  the outbox, and its push proceeds under the blob transfer model.
+- [ ] An attachment awaiting upload when the server upgrades (bytes held locally,
+  not yet pushed) is not relocated by the facility. Its record still carries its
+  bytes and the push selects on synchronisation progress alone, so it reaches the
+  central server inline as it did before, and the central backfill moves the
+  content to the store from there. Relocating it locally would instead leave a
+  hash reference to content only that facility holds, un-evictable in its cache
+  for as long as the reference stood.
 
 ## Changelog entries
 
