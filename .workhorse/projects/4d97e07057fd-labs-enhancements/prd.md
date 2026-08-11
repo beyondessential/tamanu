@@ -242,3 +242,4 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 ### 13. Autocancel uncollected lab requests
 
 _To be detailed._
+testing adding a new link www.google.com 
