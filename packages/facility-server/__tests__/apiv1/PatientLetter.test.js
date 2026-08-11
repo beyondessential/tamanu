@@ -2,6 +2,7 @@ import fs from 'fs';
 import config from 'config';
 import ReactPDF from '@react-pdf/renderer';
 
+import { BLOB_TIERS } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -62,6 +63,28 @@ describe('PatientLetter', () => {
     expect(attachment.data).toBeFalsy();
     expect(attachment.patientId).toBe(patient.id);
     expect(await ctx.blobStore.has(attachment.hash)).toBe(true);
+  });
+
+  // spec: ATCH
+  it('admits the letter at the outbox tier with central unreachable', async () => {
+    ctx.blobCache.setTransferChannel({
+      fetchFromCentral: async () => {
+        throw new Error('central is unreachable');
+      },
+      pushToCentral: async () => {
+        throw new Error('central is unreachable');
+      },
+    });
+    try {
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const attachment = await models.Attachment.findByPk(result.body.attachmentId);
+      const blob = await models.Blob.findOne({ where: { hash: attachment.hash } });
+      expect(blob.tier).toBe(BLOB_TIERS.OUTBOX);
+    } finally {
+      ctx.blobCache.setTransferChannel(null);
+    }
   });
 
   it('renders the letter with the requesting browser locale', async () => {
