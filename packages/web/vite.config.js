@@ -70,10 +70,8 @@ export default async () => {
     resolve: {
       // The @tamanu/* workspace packages point their `exports` straight at extensionless
       // TypeScript source, so edits to them hot-reload with no build step (see
-      // tamanuSourceResolve, which completes those targets for the Rollup build). `source` is
-      // a leftover from before the repo went build-less and now matches nothing; `module` and
-      // `browser` are still doing work for third-party dependencies.
-      conditions: ['source', 'module', 'browser', 'development|production'],
+      // tamanuSourceResolve, which completes those targets for the Rollup build).
+      conditions: ['module', 'browser', 'development|production'],
       dedupe: ['@mui/x-date-pickers'],
       alias: {
         // Browser polyfill for node's `path`. The old `path` package used

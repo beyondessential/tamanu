@@ -9,11 +9,6 @@
   "license": "GPL-3.0-or-later",
   "main": "./app/index.js",
   "bin": "dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./schemas/patient.schema": "./dist/routes/apiv1/patient/patient.schema.js",
-    "./schemas/encounter.schema": "./dist/routes/apiv1/encounter.schema.js"
-  },
   "scripts": {
     "clean": "rimraf -- dist __disttests__",
     "clean:deps": "rimraf -- node_modules",
