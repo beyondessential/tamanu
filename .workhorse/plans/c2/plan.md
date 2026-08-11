@@ -400,9 +400,18 @@ appearing in the project list) without conflating two different questions.
       | database (pg=18) | 3.1 | 2.1 | 2.4 | — |
       | web-frontend | 3.0 | 2.2 | 2.2 | — |
 
-      Every figure sits inside the baseline band, and the two post-migration runs agree closely
-      with each other — tighter than the two baselines agree with each other. The `test` job's
-      critical path (slowest central shard) is 4.2 min against a baseline 3.8 to 5.1.
+      Every figure sits inside the baseline band. The `test` job's critical path (slowest central
+      shard) is 4.2 min against a baseline 3.8 to 5.1.
+
+      The two post-migration runs agree with each other more closely than the two baselines do,
+      but **do not read that as vitest being steadier** — the conditions differ in ways that
+      explain it on their own. The baselines are `push` runs (full matrix, 50 jobs) taken 13
+      hours apart; the post-migration runs are `pull_request` runs (smoke subset, 33 jobs) taken
+      9 minutes apart, so less runner contention and near-identical fleet conditions. Dispersion
+      *within* a run — 8 shards, same fleet, same moment — is flat across all four runs
+      (coefficient of variation 10.0%, 10.8%, 10.2%, 12.6%, jest and vitest interleaved), which
+      is the comparison that isn't confounded by queue load. Settling the question properly would
+      need several runs per condition at matched event type and time of day.
 
       This settles the `workerIdleMemoryLimit` risk recorded above: the missing memory recycling
       does not show up as the "massively slower" failure mode that was the worry. The levers
