@@ -778,7 +778,12 @@ export class BlobStore {
    */
   async commitStaged(hash: string): Promise<PutResult> {
     parseBlobHash(hash);
-    return await this.#withStagingLock(hash, () => this.#commitStagedLocked(hash));
+    const result = await this.#withStagingLock(hash, () => this.#commitStagedLocked(hash));
+    // Outside the lock, as in put: parity is a second pass over content that is
+    // already admitted, and holding the staging lock across it would serialise
+    // transfers of the same hash on an encode.
+    await this.#writeParityOnAdmission(result);
+    return result;
   }
 
   async #commitStagedLocked(hash: string): Promise<PutResult> {

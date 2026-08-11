@@ -185,6 +185,20 @@ describe('blob parity', () => {
       expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
     });
 
+    // spec: FEC, XFER
+    it('writes a sidecar for content admitted by transfer', async () => {
+      const store = makeStore();
+      const blob = content();
+      const hash = `sha256:${createHash('sha256').update(blob).digest('hex')}`;
+
+      await store.stage(hash, Readable.from(blob), { offset: 0 });
+      const { existed } = await store.commitStaged(hash);
+
+      expect(existed).toBe(false);
+      expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
+      expect((await fs.stat(sidecarPath(hash))).size).toBe(paritySidecarByteCount(geometry));
+    });
+
     // spec: FEC
     it('skips a blob below the size floor', async () => {
       const { hash } = await admit(content(MINIMUM_COVERED_BLOB_SIZE - 1));
