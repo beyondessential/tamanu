@@ -123,7 +123,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 ---
 
-### 5. Show specimen type next to sample collected date & time
+### 5. Show specimen type next to sample collected date & time on lab request view
 
 **Problem.** When a sample has the wrong specimen type assigned, it gets sent to SENAITE incorrectly. Lab staff transitioning a request from `Reception pending` to `Results pending` currently can't see the specimen type without opening "View details" on the sample, so they don't reliably check it before transitioning.
 
