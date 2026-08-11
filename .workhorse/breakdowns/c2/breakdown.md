@@ -22,7 +22,7 @@ central and facility suites is not in this set: their `app/` directories are 313
 JavaScript files, so typed tests over them would be `any` at exactly the boundary that matters.
 That waits on those servers being TypeScript, which is a far larger piece of work.
 
-## Make TypeScript resolve the workspace's extensionless imports
+## Make TypeScript resolve the workspace's extensionless imports · A3
 
 Get `tsc` to follow the module graph the runtime already follows, without fixing any real type
 errors yet. The workspace packages expose extensionless `exports` targets (`{".": "./src"}`) that
@@ -34,7 +34,7 @@ whatever genuine type errors remain left for the entries below. Note that `@tama
 overrides `moduleResolution` to `NodeNext` and `strict` to `false` in its own tsconfig, so
 reconciling the per-package overrides against the shared config is part of this.
 
-## Clear the type errors in the leaf packages
+## Clear the type errors in the leaf packages · B3
 
 With resolution working, fix the real type errors in `@tamanu/utils`, `@tamanu/upgrade` and
 `@tamanu/settings` so each typechecks clean. The tail is small once the resolution noise is gone:
@@ -44,7 +44,7 @@ circular mapped type in `ReadSettings` that its current `strict: false` is maski
 resolving properly rather than suppressing. These three are independent of each other and of the
 database entry.
 
-## Clear the type errors in @tamanu/database
+## Clear the type errors in @tamanu/database · C3
 
 Fix the real type errors in `@tamanu/database`, which is by far the largest share: behind its 344
 resolution errors sit roughly 70 genuine ones, mostly argument and assignment mismatches
@@ -53,7 +53,7 @@ because of size, not because the work differs — 437 TypeScript source files, a
 model layer is where the mismatches concentrate. Expect some to be real latent bugs rather than
 annotation gaps, so each wants a judgement about whether to fix the type or the code.
 
-## Run typechecking in CI as a ratchet
+## Run typechecking in CI as a ratchet · D3
 
 Nothing currently runs `tsc` in CI — not one workflow references it, and even mobile's
 `typecheck` script is never invoked, so there is nothing stopping the counts climbing again. Add a
@@ -62,7 +62,7 @@ they go green, rather than blocking on the whole workspace at once. Fold it in a
 existing `Lint packages` job or add a sibling, and give each package a consistent script name (the
 repo currently has `lint:types` in settings and `typecheck` in mobile).
 
-## Write tests in TypeScript where the source is typed
+## Write tests in TypeScript where the source is typed · E3
 
 Convert the test files whose subject is already TypeScript, so the types actually bear on
 anything: `@tamanu/settings`' 6 JavaScript test files against 53 typed source files, and the 4
