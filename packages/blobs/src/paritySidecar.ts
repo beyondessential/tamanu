@@ -1,4 +1,4 @@
-import { type ParityGeometry } from './parity';
+import { isEncodableGeometry, type ParityGeometry } from './parity';
 
 // spec: FEC
 // The on-disk layout of a blob's parity sidecar. Pure byte arithmetic: the
@@ -115,12 +115,13 @@ export function decodeParityHeader(header: Uint8Array): ParitySidecarHeader {
     shardSize: view.getUint32(8, true),
     groupCount: view.getUint32(12, true),
   };
-  if (geometry.dataShards === 0 || geometry.parityShards === 0 || geometry.shardSize === 0) {
-    throw new Error('Parity sidecar: header describes an empty geometry');
+  const blobSize = Number(view.getBigUint64(16, true));
+  if (!isEncodableGeometry(geometry, blobSize)) {
+    throw new Error('Parity sidecar: header describes an impossible geometry');
   }
   return {
     geometry,
-    blobSize: Number(view.getBigUint64(16, true)),
+    blobSize,
     digestBytes: view.getUint8(5),
   };
 }

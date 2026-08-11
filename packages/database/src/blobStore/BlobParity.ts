@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 
 import {
+  MINIMUM_COVERED_BLOB_SIZE,
   PARITY_HEADER_BYTES,
   PARITY_SIDECAR_SUFFIX,
   ParityBudgetExceededError,
@@ -94,6 +95,12 @@ export class BlobParity {
   /** Whether error correction is on for this server at all. */
   async enabled(): Promise<boolean> {
     return (await this.#getSettings()).enabled;
+  }
+
+  // spec: FEC
+  /** What could be covered here, for narrowing a query to candidates. */
+  get coverage(): { minimumSize: number; tiers: readonly BlobTier[] } {
+    return { minimumSize: MINIMUM_COVERED_BLOB_SIZE, tiers: this.#coveredTiers };
   }
 
   // spec: FEC

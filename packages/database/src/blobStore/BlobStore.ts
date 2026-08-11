@@ -310,6 +310,16 @@ export class BlobStore {
 
   // spec: FEC
   /**
+   * The blobs this server could carry parity for, as bounds a query can narrow
+   * to. `coversWithParity` stays the per-blob authority; this only keeps a scan
+   * off the rows it would refuse.
+   */
+  get parityCoverage(): { minimumSize: number; tiers: readonly BlobTier[] } {
+    return this.#parity?.coverage ?? { minimumSize: 0, tiers: [] };
+  }
+
+  // spec: FEC
+  /**
    * Compute and store parity for a covered blob the store already holds — the
    * scrub's retrofit, which is what brings content admitted before error
    * correction was enabled under protection. Returns whether parity now exists.

@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+import { Op } from 'sequelize';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { CENTRAL_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
@@ -38,12 +39,14 @@ function makeFakeBlobModel() {
         return expected.includes(value);
       }
       if (expected && typeof expected === 'object') {
-        // The store and scrubber use Op.ne (a scalar) and Op.notIn (an array);
-        // flatten both to the set of excluded values.
-        const excluded = Object.getOwnPropertySymbols(expected)
-          .map(symbol => (expected as Record<symbol, unknown>)[symbol])
-          .flat();
-        return !excluded.includes(value);
+        return Object.getOwnPropertySymbols(expected).every(symbol => {
+          const operand = (expected as Record<symbol, unknown>)[symbol];
+          if (symbol === Op.gte) {
+            return (value as number) >= (operand as number);
+          }
+          // Op.ne (a scalar) and Op.notIn (an array) alike.
+          return ![operand].flat().includes(value);
+        });
       }
       return value === expected;
     });
@@ -492,6 +495,19 @@ describe('BlobScrubber', () => {
       );
 
       expect((await makeScrubber({ blobStore: makeParityStore() }).run()).protected).toBe(0);
+    });
+
+    it('reaches a covered blob sitting behind a limit of uncovered ones', async () => {
+      const disabled = makeParityStore({ enabled: false });
+      for (let index = 0; index < 6; index++) {
+        await disabled.put(Readable.from(Buffer.from(`too small ${index}`)));
+      }
+      const { hash } = await disabled.put(Readable.from(covered));
+
+      const result = await makeScrubber({ blobStore: makeParityStore(), maxBlobs: 3 }).run();
+
+      expect(result.protected).toBe(1);
+      expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
     });
 
     it('does not protect a blob whose bytes no longer match its hash', async () => {

@@ -399,6 +399,15 @@ describe('sidecar layout', () => {
   });
 
   // spec: FEC
+  it('rejects a geometry no encode could have produced', () => {
+    const header = encodeParityHeader(geometry, MIB);
+    // Unbounded, a groupCount damaged by bit rot sizes the digest table's read.
+    new DataView(header.buffer).setUint32(12, 0xffffffff, true);
+
+    expect(() => decodeParityHeader(header)).toThrow('impossible geometry');
+  });
+
+  // spec: FEC
   it('lays out digests then parity, with no region overlapping another', () => {
     const lastDigest = shardDigestOffset(
       geometry,

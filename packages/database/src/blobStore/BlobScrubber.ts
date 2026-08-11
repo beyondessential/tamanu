@@ -315,10 +315,15 @@ export class BlobScrubber {
     if (!(await this.#blobStore.parityEnabled())) {
       return;
     }
+    const { minimumSize, tiers } = this.#blobStore.parityCoverage;
     const candidates = await this.#models.Blob.findAll({
       where: {
         hasParity: false,
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+        // Rows the store would refuse anyway: fetched, they spend the pass's
+        // limit on skips while covered blobs behind them wait another cycle.
+        size: { [Op.gte]: minimumSize },
+        tier: [...tiers],
       },
       order: [
         ['lastScrubbedAt', 'ASC NULLS FIRST'],

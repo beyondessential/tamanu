@@ -134,6 +134,30 @@ export function groupDataShardCount(
   return Math.min(geometry.dataShards, Math.ceil(remaining / geometry.shardSize));
 }
 
+// spec: FEC
+/**
+ * Whether a geometry is one `parityGeometry` could have produced for a blob of
+ * this size. A sidecar's header is bytes on disk like any other, and a damaged
+ * one sizes the digest table and every read that follows it.
+ */
+export function isEncodableGeometry(geometry: ParityGeometry, blobSize: number): boolean {
+  const { shardSize, dataShards, parityShards, groupCount } = geometry;
+  return (
+    dataShards >= 1 &&
+    dataShards <= MAX_SHARDS_PER_GROUP &&
+    parityShards >= 1 &&
+    parityShards <= MAX_SHARDS_PER_GROUP &&
+    shardSize >= CLUSTER_SIZE &&
+    shardSize <= MAX_SHARD_SIZE &&
+    shardSize % CLUSTER_SIZE === 0 &&
+    groupCount >= 1 &&
+    // The groups span the blob and the last holds at least one shard, which is
+    // what bounds a groupCount claiming billions of them.
+    groupStart(geometry, groupCount - 1) < blobSize &&
+    groupCount * dataShards * shardSize >= blobSize
+  );
+}
+
 export interface ParityCoverage {
   coveredTiers: readonly BlobTier[];
 }
