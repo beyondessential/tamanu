@@ -316,7 +316,16 @@ export class BlobParity {
     if (bytesRead < PARITY_HEADER_BYTES) {
       return null;
     }
-    return decodeParityHeader(header.subarray(0, bytesRead));
+    const decoded = decodeParityHeader(header.subarray(0, bytesRead));
+    // The geometry sizes every allocation and read below it, and it is bounded
+    // only against a blob size the same header carries. The file it describes is
+    // the one bound that does not come from the header, so a geometry claiming
+    // more than the sidecar holds is corrupt whatever else it decodes to.
+    const { size } = await sidecar.stat();
+    if (paritySidecarByteCount(decoded.geometry) > size) {
+      return null;
+    }
+    return decoded;
   }
 
   /**

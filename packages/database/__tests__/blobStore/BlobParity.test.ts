@@ -10,6 +10,7 @@ import {
   FACILITY_PARITY_TIERS,
   MINIMUM_COVERED_BLOB_SIZE,
   PARITY_SIDECAR_SUFFIX,
+  encodeParityHeader,
   SHARD_DIGEST_BYTES,
   parityGeometry,
   parityShardOffset,
@@ -109,6 +110,7 @@ describe('blob parity', () => {
   let fakeBlob: ReturnType<typeof makeFakeBlobModel>;
   let volumeFreeBytes: number;
   let loggedErrors: string[];
+  let loggedWarnings: string[];
   const geometry = parityGeometry(BLOB_BYTES, DEFAULT_PERCENT);
 
   const makeStore = ({
@@ -132,7 +134,7 @@ describe('blob parity', () => {
       },
       log: {
         error: message => loggedErrors.push(message),
-        warn: () => {},
+        warn: message => loggedWarnings.push(message),
       },
       statfs: async () => ({ bavail: volumeFreeBytes, bsize: 1 }),
     });
@@ -169,6 +171,7 @@ describe('blob parity', () => {
     fakeBlob = makeFakeBlobModel();
     volumeFreeBytes = 10_000_000;
     loggedErrors = [];
+    loggedWarnings = [];
   });
 
   afterEach(async () => {
@@ -443,6 +446,27 @@ describe('blob parity', () => {
       expect(outcome.bytesRead).toBe(size);
       await expect(fs.access(sidecarPath(hash))).rejects.toThrow();
       expect(fakeBlob.rows.get(hash)!.hasParity).toBe(false);
+    });
+
+    // spec: FEC
+    it('refuses a header whose geometry claims more than the sidecar holds', async () => {
+      const store = makeStore();
+      const { hash } = await admit(content(), BLOB_TIERS.CACHE, store);
+
+      // Bounded against a blob size the same header carries, so this geometry
+      // passes every check that reads the header alone: one shard per group
+      // across four billion groups, with a blob size to match.
+      const geometry = { shardSize: 4096, dataShards: 1, parityShards: 1, groupCount: 2 ** 32 - 1 };
+      const handle = await fs.open(sidecarPath(hash), 'r+');
+      try {
+        await handle.write(encodeParityHeader(geometry, geometry.groupCount * geometry.shardSize));
+      } finally {
+        await handle.close();
+      }
+
+      expect(await store.repairFromParity(hash)).toBe(false);
+      // Rejected on the header rather than part-way through a 68 GB allocation.
+      expect(loggedWarnings).toEqual([]);
     });
 
     // spec: FEC
