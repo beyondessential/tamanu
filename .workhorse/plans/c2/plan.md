@@ -372,9 +372,14 @@ appearing in the project list) without conflating two different questions.
         takes that listener out of the way for that file so each case observes what
         `mergePatient` itself does, since with the listener registered the assertion only holds
         until it catches up
-- [ ] Confirm collected test-file counts match the pre-migration numbers exactly
-- [ ] Sanity-check local Postgres connection limits against `maxWorkers`, since central and facility
-      now run concurrently in one process where `test-all.mjs` serialised them
+- [x] Collected test-file counts match the pre-migration numbers exactly: central 180, facility
+      100, shared 17, settings 6. Full suites green — central 1488 passed, facility 1164 passed,
+      plus database 22, upgrade 8, utils and web 51
+- [x] Postgres connection limits are fine at `maxWorkers` (peaked around 33 backends on a
+      12-core machine, well under the default 100). One thing to know when running locally:
+      **two suites must not run at once**, because the per-pool-slot database names collide
+      (`<db>-1`..`-N`) and the second run drops the first's database mid-flight. That is what a
+      run of `duplicate key ... pg_database_datname_index` errors means
 - [ ] After merge, compare CI timings against the baseline above and open a separate CI-time
       optimisation pass if the critical path moved materially
 

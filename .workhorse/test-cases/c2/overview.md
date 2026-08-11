@@ -25,7 +25,7 @@ a regression.
       suite (`jest.isolateModules` + `require` to `vi.resetModules` + dynamic import) and the
       ScheduledTask suite (fake timers, and a `shortid` mock that now has to return `default`)
 - [x] `@tamanu/facility-server` passes (100 collected: 99 passed, 1 skipped)
-- [ ] `@tamanu/central-server` passes
+- [x] `@tamanu/central-server` passes (180 collected, 1488 passed)
 - [x] `@tamanu/database` passes with `--no-file-parallelism` removed
 - [x] `@tamanu/upgrade` passes with `--no-file-parallelism` removed (needs its `pretest`
       translation scrape to have run: an empty `default-translations.json` fails two cases)
@@ -70,9 +70,10 @@ migration could pass lint and still be silently wrong.
 ## Repo-level
 
 - [x] `npm run lint-all` reports no errors, including for the repo-root `vitest.config.ts`
-- [ ] Root `npm test` still runs mobile (jest), e2e-tests (Playwright) and `scripts` (tape)
-      alongside the vitest packages
-- [ ] `npm install` resolves — vitest at the root brings an optional `@opentelemetry/api` peer
+- [x] Root `npm test` still runs mobile (jest), e2e-tests (Playwright) and `scripts` (tape)
+      alongside the vitest packages — `test-all.mjs` walks exactly those three and skips the
+      eight the root `vitest run` covers
+- [x] `npm install` resolves — vitest at the root brings an optional `@opentelemetry/api` peer
       that conflicts with the artillery chain in `synthetic-tests` unless overridden
-- [ ] CI's `npm run --workspace <package> test -- --shard i/n` works unchanged; vitest takes the
+- [x] CI's `npm run --workspace <package> test -- --shard i/n` works unchanged; vitest takes the
       same `i/n` shard format jest did
