@@ -13,7 +13,7 @@ A set of enhancements across Tamanu's labs subsystem, compiled from the **Upcomi
 | 1 | [TAM-2053](https://linear.app/bes/issue/TAM-2053) | Combined test & panel ordering workflow, with panel contents visible and duplicates prevented | Urgent | **Yes** — new ordering workflow |
 | 2 | [TAM-4022](https://linear.app/bes/issue/TAM-4022) | Merge multiple lab requests into a single request | Urgent | **Yes** — request workflow & table display |
 | 3 | [TAM-6851](https://linear.app/bes/issue/TAM-6851) | Receive numeric results outside the detection limit | High | _TBC_ |
-| 4 | [TAM-6938](https://linear.app/bes/issue/TAM-6938) | Add a "Recollect" lab request status | High | _TBC_ |
+| 4 | [TAM-6938](https://linear.app/bes/issue/TAM-6938) | Add a "Recollect" lab request status | High | **Yes** — status, notification, listing |
 | 5 | [TAM-2045](https://linear.app/bes/issue/TAM-2045) | Specimen type shown next to sample collected date & time | High | **Minimal** — surface an existing field on the tile |
 | 6 | [TAM-6734](https://linear.app/bes/issue/TAM-6734) | Lab request label format with auto-print prompt | High | **Yes** — label format & print prompt |
 | 7 | [TAM-6827](https://linear.app/bes/issue/TAM-6827) | Multiselect status filter on the active requests page | High | **Minimal** — single-select becomes multiselect |
@@ -108,11 +108,15 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 
 **Context.** A `Rejected` status already exists but is integration-driven and terminal: a SENAITE rejection arrives as a FHIR DiagnosticReport with status `cancelled`, which materialises the request to `Rejected`. `Rejected` is excluded from the change-status options, so it is not staff-settable and gives the doctor no actionable signal to recollect. "Recollect" is intended as the actionable counterpart.
 
-**Open questions (to resolve before design):**
-- **Relationship to "Rejected":** for LIMS instances, when SENAITE rejects a sample (DiagnosticReport `cancelled` + rejection PDF), should the request land in "Recollect" instead of "Rejected" — making Recollect the new home for LIMS rejections — or does "Rejected" stay as-is with "Recollect" a separate, manually-set status alongside it?
-- **Lifecycle:** is "Recollect" an active, recoverable status — does the doctor act by recording a new sample on the same request (transitioning it back toward Reception pending) or by creating a brand-new request — or is it terminal like "Rejected"?
+**Desired behaviour.** Lab staff set a request to "Recollect" when a sample is unsuitable for testing.
 
-_To be detailed._
+- **Staff-settable.** "Recollect" is offered as an option when changing a request's status.
+- **Notify the requesting clinician.** Moving a request to "Recollect" raises an in-app notification to the requesting clinician. Opening the notification takes them to the lab request view for the request needing recollection.
+- **Recollection is a new request.** From that view the clinician generates a new lab request; the original "Recollect" request is not re-collected or reopened.
+- **Listing.** Requests in "Recollect" appear in the Published lab requests table (alongside the completed statuses), not the active requests table.
+
+**Open questions (to resolve before design):**
+- **Relationship to "Rejected" for LIMS instances:** when SENAITE rejects a sample (DiagnosticReport `cancelled` + rejection PDF), should the request land in "Recollect" instead of "Rejected" — making Recollect the home for LIMS rejections — or does "Rejected" stay as-is with "Recollect" a separate, manually-set status alongside it?
 
 ---
 
