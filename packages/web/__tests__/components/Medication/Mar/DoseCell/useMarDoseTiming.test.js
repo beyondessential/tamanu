@@ -4,7 +4,7 @@ import {
   getIsCurrent,
   getIsNotDue,
   getIsPast,
-} from '../../../../app/components/Medication/Mar/useMarDoseTiming';
+} from '../../../../../app/components/Medication/Mar/DoseCell/useMarDoseTiming';
 
 describe('getIsNotDue', () => {
   const selectedDate = new Date(2026, 6, 23);

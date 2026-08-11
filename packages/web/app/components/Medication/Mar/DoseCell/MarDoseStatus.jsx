@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { EditedOrnament } from '@tamanu/ui-components';
 import AlertOrnament from './AlertOrnament';
 import MarStatusIcon from './MarStatusIcon';
-import { MarDataCell, MarDoseSlot } from './components';
+import { MarDataCell, MarDoseSlot } from '../components';
 import { getMarStatusIconVariant } from './getShowDoseInfo';
 
 /** `span` rather than `div`: `MarCellButton` cannot contain flow content. */

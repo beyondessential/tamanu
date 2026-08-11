@@ -1,4 +1,4 @@
-import { useAuth } from '../../../contexts/Auth';
+import { useAuth } from '../../../../contexts/Auth';
 
 export default function useMarPermissions() {
   const { ability } = useAuth();

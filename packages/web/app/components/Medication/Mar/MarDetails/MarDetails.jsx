@@ -30,18 +30,18 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounter } from '../../../contexts/Encounter';
-import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { CheckField } from '../../Field';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { FormModal } from '../../FormModal';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { WarningModal } from '../WarningModal';
+import { useUpdateMarMutation } from '../../../../api/mutations/useMarMutation';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { Colors } from '../../../../constants/styles';
+import { useAuth } from '../../../../contexts/Auth';
+import { useEncounter } from '../../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../../hooks/useIsEncounterDischarged';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { CheckField } from '../../../Field';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { FormModal } from '../../../FormModal';
+import { NoteModalActionBlocker } from '../../../NoteModalActionBlocker';
+import { WarningModal } from '../../WarningModal';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import KeyValueDisplay from './KeyValueDisplay';
@@ -49,7 +49,7 @@ import DoseEntry, { DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 import RemoveAdditionalDoseModal from './RemoveAdditionalDoseModal';
-import useMarDoses from './useMarDoses';
+import useMarDoses from '../useMarDoses';
 
 const Container = styled.div`
   display: flex;

@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 import { MarDoseButton } from './MarDoseButton';
 import MarDoseInfoOverlay from './MarDoseInfoOverlay';
-import { getDosesPerSlot, getSubSlots } from './marTimeSlots';
-import { MarDataCell, MarDoseSlot } from './components';
-import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
+import { getDosesPerSlot, getSubSlots } from '../marTimeSlots';
+import { MarDataCell, MarDoseSlot } from '../components';
+import { useIsCurrentTimeSlot } from '../useIsCurrentTimeSlot';
 
 const DoseGrid = styled.div`
   --mar-cell-gap-rule: var(--mar-cell-gap-rule-width) solid ${p => p.theme.palette.divider};

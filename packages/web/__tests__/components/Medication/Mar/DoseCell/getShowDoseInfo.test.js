@@ -5,7 +5,7 @@ import getShowDoseInfo, {
   getIsDueBeforePrescriptionStart,
   getMarStatusIconVariant,
   hasVisibleMarStatusIcon,
-} from '../../../../app/components/Medication/Mar/getShowDoseInfo';
+} from '../../../../../app/components/Medication/Mar/DoseCell/getShowDoseInfo';
 
 const base = {
   isDiscontinued: false,

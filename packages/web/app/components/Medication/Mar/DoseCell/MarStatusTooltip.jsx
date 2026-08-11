@@ -10,7 +10,7 @@ import {
   useDateTime,
   VisuallyHidden,
 } from '@tamanu/ui-components';
-import { MarDoseSlot } from './components';
+import { MarDoseSlot } from '../components';
 
 /**
  * Phrasing content only, since this text is also rendered inside `MarCellButton`, which cannot

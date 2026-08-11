@@ -22,15 +22,15 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { WarningModal } from '../WarningModal';
-import { getSubSlotDueAt } from './marTimeSlots';
+import { useGivenMarMutation, useNotGivenMarMutation } from '../../../../api/mutations/useMarMutation';
+import { useSuggestionsQuery } from '../../../../api/queries/useSuggestionsQuery';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { useEncounter } from '../../../../contexts/Encounter';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { NoteModalActionBlocker } from '../../../NoteModalActionBlocker';
+import { WarningModal } from '../../WarningModal';
+import { getSubSlotDueAt } from '../marTimeSlots';
 
 const StyledPaper = styled.div`
   background-color: ${p => p.theme.palette.background.paper};
