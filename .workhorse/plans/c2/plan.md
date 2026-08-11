@@ -272,56 +272,84 @@ appearing in the project list) without conflating two different questions.
 
 ## Work
 
-- [ ] Shared "which packages run vitest" module for the project list, consumed by `vitest.config.ts`,
-      with `plan-ci.mjs` keeping its own `SPECIAL_PACKAGES` set
-- [ ] Root `vitest.config.ts` with `projects`, plus root-only `coverage` and `reporters`
-- [ ] Rewrite `common.jest.config.mjs` as a shared vitest config module carrying `tamanuSourceResolve`,
-      `resolve.conditions` and `server.deps.inline` (projects do not inherit root options unless a
-      project sets `extends: true`, so this stays a shared module rather than disappearing into the
-      root config)
-- [ ] Add `vitest` as a devDependency to the root and to `central-server`, `facility-server`,
-      `shared`, `settings`
-- [ ] `shared` + `settings` as a throwaway canary. Cheap CJS-to-ESM signal only; it does not exercise
-      the setup files, helper-file mocks, or transform whitelist that make the servers hard
-- [ ] `VITEST_POOL_ID` in `packages/database/src/services/database.js:89`, replacing `JEST_WORKER_ID`.
-      Vitest's migration guide names per-worker database names as the thing to update. Use
-      `VITEST_POOL_ID` ("always less than or equal to `maxWorkers`", slots reused), not
-      `VITEST_WORKER_ID` (monotonic, would create unbounded databases). This also un-serialises
-      `packages/database`, which currently runs `--no-file-parallelism` because the variable is
-      absent. **Unverified:** that ids are 1-based in v4 and were 0-based in v3. Low consequence for
-      a database-name suffix, but confirm before asserting it in the PR
-- [ ] Check whether `packages/upgrade`'s `--no-file-parallelism` has the same cause as database's, or
-      a separate one
-- [ ] Replace the fake-data seed mechanism: resolve `TAMANU_TEST_SEED ?? randomInt(2 ** 42)` once,
-      export it to the environment, print it at startup, and change
-      `packages/fake-data/src/fake/fake.ts:71` off `global.jest?.getSeed()`. Also fixes the four
-      already-migrated packages, where the seed is currently unreproducible
-- [ ] Move the two `jest.mock` calls out of `packages/facility-server/__tests__/utilities.js` into the
-      test files that need them, across the 85 importers
-- [ ] Move `jest.mock('../app/utils/getFreeDiskSpace')` out of central's setup file
-- [ ] Delete `packages/shared/src/test-helpers/spyOn.js` and inline a literal `vi.mock` at its one
-      call site
-- [ ] Convert `facility-server` (100 files)
-- [ ] Convert `central-server` (180 files)
-- [ ] Fold `database`, `utils`, `upgrade`, `web` into projects; drop web's vestigial `globals: true`
-- [ ] Port all four `configureEnvironment.js` files: the custom matchers in central and facility,
-      `jest.setTimeout` to `testTimeout` in all four, and central's CommonJS body to ESM
-- [ ] Hand-check the five `jest.useFakeTimers` sites; vitest fakes a different default set of timers
-- [ ] Replace `jest-extended` matchers; add a local `toBeEmpty` if any of the 73 sites are not arrays
-- [ ] Delete `jest-expect-message` (vitest supports `expect(value, message)` natively; only 6 sites,
-      all work unchanged): the `setupFilesAfterEnv` entries, central's `require` in
-      `configureEnvironment.js`, and facility's bare import at `__tests__/utilities.js:1`
-- [ ] Remove deps: `jest`, `@jest/globals`, `@swc/jest`, `jest-expect-message`, `jest-extended`
-- [ ] Delete `common.jest.config.mjs` (as jest config), `jest.resolver.cjs`, and the five in-scope
-      `jest.config.mjs` files (central, facility, shared, settings, fake-data).
-      `packages/mobile/jest.config.js` stays
-- [ ] Decide what root `npm test` becomes. `scripts/test-all.mjs` currently walks every workspace with
-      a `test` script, so deleting it drops mobile (jest), `e2e-tests` (Playwright) and `scripts`
-      (tape), and the root script's leading `npm run build` goes with it. Either keep a thin runner
-      for the non-vitest three or accept losing them, deliberately
+- [x] Shared "which packages run vitest" module for the project list (`scripts/vitestProjects.mjs`),
+      keyed on the presence of a `vitest.config.ts`. `plan-ci.mjs` keeps its own `SPECIAL_PACKAGES`
+      set. The consumer that earns the module is `scripts/test-all.mjs`, which uses it to skip the
+      packages the root `vitest run` already covers
+- [x] Root `vitest.config.ts` with `projects` and root-only `coverage`. No `reporters` entry: CI
+      invokes each package separately, so a root reporter would never apply there
+- [x] Rewrite `common.jest.config.mjs` as `common.vitest.config.mjs` carrying `tamanuSourceResolve`,
+      `resolve.conditions`, `server.deps.inline`, `maxWorkers` and the test seed. Stays a shared
+      module because projects do not inherit root options unless a project sets `extends: true`
+- [x] Add `vitest` as a devDependency to the root and to `central-server`, `facility-server`,
+      `shared`, `settings`. Adding it at the root hoists vitest out of the four packages that
+      already nested it, which surfaces its `peerOptional @opentelemetry/api ^1.9.0` against the
+      `@opentelemetry/api@1.4.1` the artillery chain in `synthetic-tests` pins below 1.5. Defused
+      with a vitest-scoped override (`"overrides": { "vitest": { "@opentelemetry/api": "1.4.1" } }`)
+      rather than a repo-wide pin — the peer is optional and unused
+- [x] `shared` + `settings` as a throwaway canary. It did earn its keep: both CJS-to-ESM default-export
+      failures it caught (`vi.mock('shortid', () => fn)` needing `{ default: fn }`, and
+      `jest.isolateModules` + `require`) recur in the server packages
+- [x] `VITEST_POOL_ID` in `packages/database/src/services/database.js`, replacing `JEST_WORKER_ID`.
+      **Confirmed** by probe on vitest 4.1.10: `VITEST_POOL_ID` is 1-based (`'1'`), and
+      `VITEST_WORKER_ID` is 0-based and monotonic — so the plan's concern about unbounded databases
+      holds for the latter. This also un-serialises `packages/database` (`--no-file-parallelism`
+      dropped)
+- [x] `packages/upgrade`'s `--no-file-parallelism` had no cause of its own: its suites use fake
+      sequelize objects and never touch a database, so the flag was carried over from `database`.
+      Dropped
+- [x] Replace the fake-data seed mechanism: `scripts/testSeed.mjs` resolves
+      `TAMANU_TEST_SEED ?? randomInt(2 ** 42)` once, puts it back in the environment, prints it, and
+      `fake.ts` reads the env var. Also fixes the four already-migrated packages
+- [x] Facility's two helper-file mocks, resolved differently from the plan: they moved into the setup
+      file as `vi.doMock`, not into the 85 importers. Only 7 files actually reference the mocks, so
+      the fan-out was never the real requirement — what is load-bearing is that no facility suite
+      reaches the network. The docs' caveat is narrower than "setup files can't mock": a setup file
+      cannot mock a module *it has already imported*, which is satisfied by extracting `extendExpect`
+      into `__tests__/extendExpect.js` so the setup file no longer pulls in the app graph
+- [x] Move `jest.mock('../app/utils/getFreeDiskSpace')` out of central's setup file, into
+      `attachment.test.js` — the only suite that touches the upload routes
+- [x] Delete `packages/shared/src/test-helpers/spyOn.js`. Its one call site was dead: the helper
+      re-exports the actual module so its exports can be spied on, and that test spies on nothing.
+      Deleted the call rather than porting a no-op
+- [x] Convert `facility-server` (100 files)
+- [x] Convert `central-server` (180 files)
+- [x] Fold `database`, `utils`, `upgrade`, `web` into projects. Web's `globals: true` was **not**
+      vestigial: dropping it (plus removing jest's globals from ESLint) surfaced
+      `DownloadDataButton.test.jsx` using `expect` with no import. Fixed there rather than kept
+- [x] Port the `configureEnvironment.js` files. Central's CJS body became ESM, and its
+      `globalThis.crypto = require('crypto')` and `global.TextDecoder` shims are gone: both were
+      jest-environment workarounds, and under vitest's node environment the real globals are present,
+      which is what production gets
+- [x] The runtime `jest.setTimeout` dance in both `createTestContext`s (24h during setup, 45s after)
+      is now config: `testTimeout: 45_000` — what tests actually ran with — and
+      `hookTimeout: 600_000` for the db-recreate-and-migrate in `beforeAll`. The per-file
+      `jest.setTimeout(50000..60000)` calls were dead under jest for the same reason (createTestContext
+      reset the timeout after them); they carry over as `vi.setConfig({ testTimeout })`, which makes
+      them live and slightly more generous than the 45s they were getting
+- [x] Hand-check the `jest.useFakeTimers` sites. `shared`'s ScheduledTask suite passes unchanged, so
+      vitest's narrower default `toFake` (which leaves `nextTick`/`queueMicrotask` real) is not a
+      problem here. `CentralServerConnection.test.js`'s `jest.setTimeout(2000) // fail quickly` was
+      inert (jest ignores a setTimeout inside the running test), so it becomes a real per-test timeout
+      argument
+- [x] Replace `jest-extended` matchers. All 73 `toBeEmpty()` sites are arrays, so `toHaveLength(0)`;
+      no local matcher needed. `xit` also went with jest's globals (no vitest equivalent) and becomes
+      `it.skip`
+- [x] Delete `jest-expect-message`: the `setupFilesAfterEnv` entries, central's `require`, and
+      facility's bare import
+- [x] Remove deps: `jest`, `@jest/globals`, `@swc/jest`, `jest-expect-message`, `jest-extended`
+- [x] Delete `common.jest.config.mjs`, `jest.resolver.cjs`, and the five in-scope `jest.config.mjs`
+      files. `packages/mobile/jest.config.js` stays
+- [x] Root `npm test` keeps all three runners: `npm run build && vitest run && node scripts/test-all.mjs`,
+      with `test-all.mjs` now skipping the vitest packages (they are covered by the root run) and
+      walking only mobile, `e2e-tests` and `scripts`. `test-coverage` becomes `vitest run --coverage`,
+      since `--` forwarding no longer works through a chained script
 - [x] Delete `packages/.new-package`, `scripts/create-package.mjs`, and the root `create-package`
       script entry
-- [ ] ESLint rule keeping `vi.mock` at top level
+- [x] ESLint: `no-restricted-syntax` rule keeping `vi.mock` at the top level of a test file, jest's
+      globals narrowed to mobile (so a missing `import { ... } from 'vitest'` is a `no-undef` error
+      rather than a runtime failure — this caught 9 files the codemod's detection missed), and the
+      TypeScript plugin extended to repo-root `*.config.ts` so `npm run lint-all` still resolves
 - [ ] Confirm collected test-file counts match the pre-migration numbers exactly
 - [ ] Sanity-check local Postgres connection limits against `maxWorkers`, since central and facility
       now run concurrently in one process where `test-all.mjs` serialised them

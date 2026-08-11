@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import * as yup from 'yup';
 import {
   extractSecretPaths,

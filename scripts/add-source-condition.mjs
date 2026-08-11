@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Add a `source` export condition to packages so bundlers (vite) can consume the
- * TypeScript source directly for instant HMR, while Node/jest/swc keep resolving to
+ * TypeScript source directly for instant HMR, while plain Node keeps resolving to
  * the built `dist` via the existing `import`/`require` conditions.
  *
  * For each entry in a package's `exports` map it derives the source path from the

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { exportProgram } from '../../../app/admin/programExporter';
 import { createTestContext } from '../../utilities';
 import { fake } from '@tamanu/fake-data/fake';
@@ -86,7 +87,7 @@ const buildExpectedSurveySheet = (surveyScreenComponentAndProgramDataElements) =
   ),
 ];
 
-jest.mock('xlsx', () => ({
+vi.mock('xlsx', () => ({
   utils: {
     book_new: () => ({}),
     aoa_to_sheet: (data) => data,

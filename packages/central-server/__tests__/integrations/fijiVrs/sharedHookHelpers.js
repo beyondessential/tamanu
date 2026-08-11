@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { chance } from '@tamanu/fake-data/fake';
 
@@ -73,7 +74,7 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
     }),
   } = opts;
 
-  const fetch = jest.fn((url, ...args) => {
+  const fetch = vi.fn((url, ...args) => {
     if (url.includes('/token')) {
       return tokenImpl(fetchId, url, ...args);
     }

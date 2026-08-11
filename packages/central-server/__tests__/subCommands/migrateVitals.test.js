@@ -1,14 +1,15 @@
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { COLUMNS_TO_DATA_ELEMENT_ID, migrateVitals } from '../../app/subCommands/migrateVitals';
 import { initDatabase } from '../../app/database';
 
-jest.mock('../../app/database', () => ({
-  initDatabase: jest.fn().mockResolvedValue({
+vi.mock('../../app/database', () => ({
+  initDatabase: vi.fn().mockResolvedValue({
     models: {
       // Empty settings: the temperature unit falls through to the schema default
-      Setting: { get: jest.fn().mockResolvedValue({}) },
+      Setting: { get: vi.fn().mockResolvedValue({}) },
       Vitals: {
-        count: jest.fn().mockResolvedValue(1),
-        findAll: jest.fn().mockResolvedValue([
+        count: vi.fn().mockResolvedValue(1),
+        findAll: vi.fn().mockResolvedValue([
           {
             dataValues: {
               id: 'test-vital',
@@ -24,18 +25,18 @@ jest.mock('../../app/database', () => ({
         ]),
       },
       Survey: {
-        findOne: jest.fn().mockResolvedValue({ dataValues: { id: 'vitals-survey' } }),
+        findOne: vi.fn().mockResolvedValue({ dataValues: { id: 'vitals-survey' } }),
       },
       SurveyResponse: {
-        bulkCreate: jest.fn(),
+        bulkCreate: vi.fn(),
       },
       SurveyResponseAnswer: {
-        bulkCreate: jest.fn(),
+        bulkCreate: vi.fn(),
       },
     },
     sequelize: {
-      query: jest.fn(),
-      transaction: jest.fn().mockImplementation(async (options, callback) => {
+      query: vi.fn(),
+      transaction: vi.fn().mockImplementation(async (options, callback) => {
         await callback();
       }),
     },

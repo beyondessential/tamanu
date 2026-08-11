@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
@@ -35,9 +36,11 @@ describe('EncounterSummary', () => {
     const mockAiContent = 'This is a generated encounter summary.';
 
     beforeEach(() => {
-      CentralServerConnection.mockImplementation(() => ({
-        fetch: jest.fn(async () => ({ content: mockAiContent })),
-      }));
+      CentralServerConnection.mockImplementation(function () {
+        return {
+          fetch: vi.fn(async () => ({ content: mockAiContent })),
+        };
+      });
     });
 
     it('should generate a summary and persist an AiDocument', async () => {
@@ -178,9 +181,7 @@ describe('EncounterSummary', () => {
 
     it('should discard an AiDocument and set content to null', async () => {
       const doc = await createAiDocument();
-      const result = await encounterSummaryApp
-        .put(DOC_URL(doc.id))
-        .send({ status: 'discarded' });
+      const result = await encounterSummaryApp.put(DOC_URL(doc.id)).send({ status: 'discarded' });
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({

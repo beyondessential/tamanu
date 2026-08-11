@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestContext } from '../utilities';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 import {
@@ -25,18 +26,18 @@ describe('FacilitySyncManager integration', () => {
 
   const mockCentralServer = {
     streaming: () => false,
-    startSyncSession: jest.fn().mockResolvedValue({
+    startSyncSession: vi.fn().mockResolvedValue({
       sessionId: 'test-session-sync',
       startedAtTick: 200
     }),
-    endSyncSession: jest.fn().mockResolvedValue({}),
-    initiatePull: jest.fn().mockResolvedValue({
+    endSyncSession: vi.fn().mockResolvedValue({}),
+    initiatePull: vi.fn().mockResolvedValue({
       totalToPull: 3,
       pullUntil: 200
     }),
-    completePush: jest.fn(),
-    push: jest.fn(),
-    pull: jest.fn().mockImplementation(async () => [
+    completePush: vi.fn(),
+    push: vi.fn(),
+    pull: vi.fn().mockImplementation(async () => [
         {
           id: '1',
           recordType: 'patients',

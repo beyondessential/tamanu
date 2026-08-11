@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LOOKUP_UP_TO_TICK,
@@ -12,16 +13,17 @@ import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
-jest.mock('config', () => ({
-  ...jest.requireActual('config'),
-  sync: {
-    ...jest.requireActual('config').sync,
+vi.mock('config', async () => {
+  const actual = await vi.importActual('config');
+  const sync = {
+    ...actual.default.sync,
     lookupTable: {
       enabled: true,
     },
     maxRecordsPerSnapshotChunk: 1000000000,
-  },
-}));
+  };
+  return { ...actual, sync, default: { ...actual.default, sync } };
+});
 
 describe('Sync Patient Merge', () => {
   let ctx;

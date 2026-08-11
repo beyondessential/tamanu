@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import qs from 'qs';
 
 import {
@@ -35,13 +36,12 @@ import { parseDate } from '@tamanu/utils/dateTime';
 import { writeExcelFile } from '../../app/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
-jest.mock('../../app/utils/excelUtils', () => {
-  const originalModule = jest.requireActual('../../app/utils/excelUtils');
+vi.mock('../../app/utils/excelUtils', async () => {
+  const originalModule = (await vi.importActual('../../app/utils/excelUtils'));
 
   return {
-    __esModule: true,
     ...originalModule,
-    writeExcelFile: jest.fn((_sheets, filename) => filename),
+    writeExcelFile: vi.fn((_sheets, filename) => filename),
   };
 });
 
@@ -61,7 +61,7 @@ describe('Reference data exporter', () => {
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     const modelsToDestroy = [
       'AdministeredVaccine',
@@ -127,7 +127,7 @@ describe('Reference data exporter', () => {
       // when downloading a file, for some reasons,
       // status of supertest is always 404 even tho we are sure that it is successful
       // So below is a work around by checking if the response body is buffer to make sure the file is downloaded properly
-      expect(Buffer.isBuffer(result.body)).toBeTrue();
+      expect(Buffer.isBuffer(result.body)).toBe(true);
     });
 
     it('checks the charging tab against the InvoicePriceListItem permission, not a InvoicePriceListCharging noun', async () => {
@@ -142,7 +142,7 @@ describe('Reference data exporter', () => {
         .responseType('blob');
 
       // Permission resolved (no "noun not defined" / forbidden error) and the file downloaded.
-      expect(Buffer.isBuffer(result.body)).toBeTrue();
+      expect(Buffer.isBuffer(result.body)).toBe(true);
     });
   });
 
@@ -1037,7 +1037,7 @@ describe('Permission and Roles exporter', () => {
 
   afterEach(async () => {
     const { Permission, Role } = models;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     await Permission.destroy({ where: {}, force: true });
     await Role.destroy({ where: {}, force: true });
   });

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 
 import { showError } from '@tamanu/shared/test-helpers';
@@ -8,8 +9,8 @@ import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
-jest.mock('@tamanu/constants', () => {
-  const constants = jest.requireActual('@tamanu/constants');
+vi.mock('@tamanu/constants', async () => {
+  const constants = (await vi.importActual('@tamanu/constants'));
 
   //Mock the default export and named export 'foo'
   return {
