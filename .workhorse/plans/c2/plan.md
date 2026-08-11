@@ -380,6 +380,10 @@ appearing in the project list) without conflating two different questions.
       **two suites must not run at once**, because the per-pool-slot database names collide
       (`<db>-1`..`-N`) and the second run drops the first's database mid-flight. That is what a
       run of `duplicate key ... pg_database_datname_index` errors means
+- [x] CI surfaced one more thing local runs could not: vitest sets `allowOnly` to `!CI`, so a
+      committed `describe.only` is a hard failure there rather than a silent narrowing. There was
+      one, in the facility program-registry suite since EPI-1316, which had been stopping 14 of
+      that file's 21 tests from running in CI. Removed; they all pass
 - [ ] After merge, compare CI timings against the baseline above and open a separate CI-time
       optimisation pass if the critical path moved materially
 

@@ -67,6 +67,15 @@ migration could pass lint and still be silently wrong.
       data. Verifiable in any package that uses `@tamanu/fake-data`
 - [x] A seed of `0` is honoured rather than treated as absent
 
+## Runner strictness
+
+Vitest is stricter than jest in ways that only show up in CI, so these are worth keeping.
+
+- [x] A committed `.only` fails the run under CI (`allowOnly` defaults to `!CI`), rather than
+      silently narrowing the file the way jest did
+- [ ] `vi.mock` nested in a function or block warns on vitest 4 and will throw on vitest 5; the
+      ESLint rule is what holds the line until then
+
 ## Repo-level
 
 - [x] `npm run lint-all` reports no errors, including for the repo-root `vitest.config.ts`
