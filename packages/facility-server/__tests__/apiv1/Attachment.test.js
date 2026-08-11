@@ -220,6 +220,23 @@ describe('Attachment (facility-server)', () => {
         availability: BLOB_AVAILABILITY_STATES.AWAITING_SCAN,
       });
     });
+
+    // The two answers a facility forwards read the same way to the route but not
+    // to the client: a wait that ends against content that is never coming.
+    it('forwards withheld-infected when central is the one withholding', async () => {
+      const content = uniqueContent();
+      const attachment = await makeAttachment(hashOf(content), content.length);
+      ctx.blobCache.setTransferChannel({
+        availability: async () => ({ availability: BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED }),
+      });
+
+      const result = await app.get(`/api/attachment/${attachment.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: attachment.id,
+        availability: BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
+      });
+    });
   });
 
   it('serves a locally held attachment base64-encoded when asked', async () => {
