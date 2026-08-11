@@ -94,6 +94,15 @@ describe('serveBlob', () => {
     expect(res.body).toHaveLength(0);
   });
 
+  // A cache updates its stored entry from the headers a 304 carries, so leaving
+  // freshness off it means a client that cached before this existed revalidates
+  // on every read forever.
+  it('repeats the freshness a 200 would carry on the 304', async () => {
+    const served = await serve();
+    const notModified = await serve({ headers: { 'if-none-match': ETAG } });
+    expect(notModified.headers['cache-control']).toBe(served.headers['cache-control']);
+  });
+
   it('matches a weak validator and one among several', async () => {
     expect((await serve({ headers: { 'if-none-match': `W/${ETAG}` } })).statusCode).toBe(304);
     expect((await serve({ headers: { 'if-none-match': `"other", ${ETAG}` } })).statusCode).toBe(304);

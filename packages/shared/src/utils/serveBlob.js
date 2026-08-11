@@ -49,14 +49,20 @@ function clientHoldsContent(req, etag) {
 // A legacy attachment, whose bytes are still in its database row, has no content
 // hash and so nothing to validate against. It passes no `hash` and is served
 // without a validator, but with everything else the same (see backfill.md).
+// spec: SERVE
+// A hash names immutable content, so a client holding it never needs the bytes
+// again. Private, since blob content is clinical data and a shared cache must not
+// keep a copy.
+const IMMUTABLE = 'private, max-age=31536000, immutable';
+
 export async function serveBlob(req, res, { hash, size, contentType, open }) {
   const etag = hash ? `"${hash}"` : null;
 
-  // spec: SERVE — a hash names immutable content, so a client holding it never
-  // needs the bytes again. Private, since blob content is clinical data and a
-  // shared cache must not keep a copy.
   if (clientHoldsContent(req, etag)) {
-    res.status(304).setHeader('etag', etag).end();
+    // Carries the freshness a 200 would: a cache updates its stored entry from
+    // the headers the 304 arrives with, so omitting it leaves a client that
+    // cached before this existed revalidating on every read forever.
+    res.status(304).setHeader('etag', etag).setHeader('cache-control', IMMUTABLE).end();
     return;
   }
 
@@ -80,7 +86,7 @@ export async function serveBlob(req, res, { hash, size, contentType, open }) {
   res.setHeader('accept-ranges', 'bytes');
   if (etag) {
     res.setHeader('etag', etag);
-    res.setHeader('cache-control', 'private, max-age=31536000, immutable');
+    res.setHeader('cache-control', IMMUTABLE);
   }
   if (range) {
     res.setHeader('content-range', `bytes ${start}-${end}/${size}`);
