@@ -453,6 +453,13 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
+            resolverLockTimeout: {
+              name: 'Resolver lock timeout',
+              description:
+                'How long the FHIR resolver waits to acquire row locks before failing the job, so a resolver blocked on locks held elsewhere errors and retries instead of stalling the queue indefinitely',
+              type: yup.string(),
+              defaultValue: '2 minutes',
+            },
           },
         },
       },
