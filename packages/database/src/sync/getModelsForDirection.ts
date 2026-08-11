@@ -17,7 +17,6 @@ export const getModelsForPull = (models: Record<string, typeof Model>) =>
     SYNC_DIRECTIONS.BIDIRECTIONAL,
   ]);
 
-// the models whose own phase of a facility's first sync is this one
 export const getModelsForPullPhase = (
   models: Record<string, typeof Model>,
   phase: SyncPhaseValues,
@@ -28,8 +27,7 @@ export const getModelsForPullPhase = (
     ),
   );
 
-// every model a phase of a facility's first sync pulls: its own, plus the earlier phases' models,
-// which it catches up from where the phase before it stopped
+// this phase's models, plus every earlier phase's
 export const getModelsForPullThroughPhase = (
   models: Record<string, typeof Model>,
   phase: SyncPhaseValues,

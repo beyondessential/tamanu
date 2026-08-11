@@ -597,9 +597,9 @@ export class CentralSyncManager {
           sessionConfig,
         );
 
-        // any tables to pull from the beginning of the sync timeline rather than from `since`: mobile
-        // wiping and resyncing tables as part of an upgrade, and a phase of a facility's first sync
-        // pulling its own tables for the first time while catching the earlier phases' up from `since`
+        // any tables to pull from the beginning of the sync timeline rather than from `since`, i.e.
+        // - any phase of a facility's initial sync (boot tables, then catalogue, then records)
+        // - mobile wiping and resyncing tables as part of an upgrade
         if (tablesForFullResync) {
           const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
           await snapshotOutgoingChanges(

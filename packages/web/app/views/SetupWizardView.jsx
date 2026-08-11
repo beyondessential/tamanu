@@ -160,9 +160,7 @@ export const SetupWizardView = () => {
       // Refetch the alive/setup status so the app leaves the wizard — no full reload,
       // which would re-run auth refresh and surface a misleading "session expired".
       await queryClient.invalidateQueries(['serverAlive']);
-      // The credentials just entered are the ones this server will sync with, so they authenticate
-      // against central too. Using them saves asking for them again, and takes whoever set the server
-      // up straight to the first sync's progress rather than to a login form they'd stare past.
+      // these credentials are known-good at this point
       await dispatch(login(values.email.trim(), values.password));
     } catch (error) {
       setErrorMessage(

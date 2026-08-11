@@ -253,8 +253,6 @@ const ContinueButton = styled(Button)`
   margin-top: 30px;
 `;
 
-// The phases are named for what they carry, not for what they are called internally. Each id is a
-// literal so it can be extracted; the map is keyed by the phase the server reports.
 const PHASE_CAPTIONS = {
   boot: (
     <TranslatedText

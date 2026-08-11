@@ -72,9 +72,7 @@ describe('snapshotOutgoingChanges', () => {
   it(
     'returns 0 for an empty set of models rather than building a broken query',
     withErrorShown(async () => {
-      // The boot phase of a facility's first sync carries no patient-linked tables, so the pass that
-      // snapshots those is handed nothing. Without a guard the record type filter has no values to
-      // match against, which is a SQL error rather than an empty result.
+      // the boot phase of a facility's first sync asks for no patient-linked tables at all
       const { LocalSystemFact } = models;
       const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
 

@@ -8,9 +8,8 @@ export const SYNC_DIRECTIONS = {
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
-// A facility's first sync runs in phases, so each capability of the server becomes available as
-// soon as the data it needs has arrived. The values are ordered: phases run in ascending order, and
-// a model's phase must be no earlier than the phase of every model it references.
+// A facility's first sync runs in phases, so each capability of the server becomes available as soon
+// as the data it needs has arrived. The values are ordered, and compared as such.
 export const SYNC_PHASES = {
   // enough to authenticate a user and start serving requests
   BOOT: 1,
@@ -28,8 +27,7 @@ export const SYNC_PHASE_LABELS = {
   [SYNC_PHASES.RECORDS]: 'records',
 };
 
-// the phases in the order they run, named as they are reported, for a client showing progress
-// through them without having to know their numbering
+// the phases in the order they run, as the labels they're reported by rather than their numbers
 export const SYNC_PHASE_SEQUENCE = [...SYNC_PHASES_VALUES]
   .sort((a, b) => a - b)
   .map(phase => SYNC_PHASE_LABELS[phase]);

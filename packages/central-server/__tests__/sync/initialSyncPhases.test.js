@@ -3,9 +3,9 @@ import { getModelsForPull, getModelsForPullPhase } from '@tamanu/database/sync';
 
 import { createTestContext } from '../utilities';
 
-// A facility saves each phase of its first sync on its own, in dependency order within the phase, so
-// a model may only arrive in a phase that is no earlier than the phase of everything it references.
-// Otherwise the phase's insert hits a foreign key pointing at a record that hasn't been pulled yet.
+// Each phase of a facility's first sync is saved on its own, in dependency order within that phase.
+// So a model may only arrive in a phase no earlier than the phase of everything it references —
+// otherwise its insert hits a foreign key to a record that hasn't been pulled yet.
 describe('initial sync phases', () => {
   let ctx;
   let pulledModels;
@@ -61,8 +61,7 @@ describe('initial sync phases', () => {
   it('puts the data needed to authenticate a user in the first phase', () => {
     const bootModels = Object.keys(getModelsForPullPhase(ctx.store.models, SYNC_PHASES.BOOT));
 
-    // a user logging in resolves their facilities against the local facilities table, and their
-    // permissions against roles, so a facility can't serve a login without these
+    // these are what a login is resolved against, so a facility can't serve one without them
     expect(bootModels).toEqual(
       expect.arrayContaining(['Facility', 'User', 'Role', 'Permission', 'Setting']),
     );

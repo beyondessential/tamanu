@@ -14,8 +14,7 @@ const phaseAfter = phase => PHASE_ORDER[PHASE_ORDER.indexOf(phase) + 1] ?? null;
 /**
  * Which phase of the initial sync this run should perform, or null for an ordinary unphased sync.
  *
- * A facility with no pull cursor has never completed a pull, so it starts at the first phase; from
- * then on the phase it is up to is held in a fact, and outlives a restart or a failed phase.
+ * Held in a fact, so it outlives a restart or a failed phase.
  */
 export const getInitialSyncPhase = async models => {
   const phase = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE);
@@ -29,12 +28,10 @@ export const getInitialSyncPhase = async models => {
 };
 
 /**
- * The phase a facility's first sync is up to, named for display, or null when it isn't performing
- * one.
+ * The phase a facility's first sync is up to, or null when it isn't performing one.
  *
- * This is read on the liveness check, which otherwise answers without touching the database at all,
- * so a database that can't be reached reports no phase rather than taking the liveness check - and
- * with it the whole app's idea of whether the server is up - down alongside it.
+ * Read on the liveness check, which otherwise answers without touching the database, so a database
+ * it can't reach must report no phase rather than fail the check.
  */
 export const getInitialSyncPhaseLabel = async models => {
   try {
@@ -47,9 +44,8 @@ export const getInitialSyncPhaseLabel = async models => {
 };
 
 /**
- * The tick the phase before this one was snapshotted up to, which is where this phase resumes the
- * earlier phases' tables from. The first phase has nothing before it, so it starts from the
- * beginning of the sync timeline.
+ * The tick the previous phase was snapshotted up to, which is where this phase resumes the earlier
+ * phases' tables from. -1 for the first phase, i.e. the beginning of the sync timeline.
  */
 export const getPhaseCatchUpSince = async models => {
   const pulledUpTo = await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PULLED_UP_TO);
@@ -59,13 +55,8 @@ export const getPhaseCatchUpSince = async models => {
 /**
  * Record that a phase has landed, and return the phase to run next, or null if that was the last.
  *
- * Runs inside the transaction that saves the phase's records, so a phase's data and its progress
- * through the phases land together.
- *
- * A phase pulls its own tables from the beginning of the sync timeline and every earlier phase's
- * tables from where the phase before it stopped, so on completion everything up to and including
- * this phase is current as of the tick it was snapshotted at. That tick is what the next phase
- * resumes from, and the last phase's tick becomes the pull cursor.
+ * Runs inside the transaction that saves the phase's records, so data and progress land together.
+ * The last phase's tick becomes the pull cursor.
  */
 export const completeInitialSyncPhase = async (models, phase, pullUntil) => {
   const nextPhase = phaseAfter(phase);

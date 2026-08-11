@@ -34,9 +34,8 @@ const AppContentsContainer = styled.div`
   flex: 1;
 `;
 
-// Whether the user has chosen to carry on while the records phase of a first sync finishes. Kept in
-// session storage rather than component state so that navigating, or anything that remounts this
-// layout, doesn't put the progress screen back in front of someone already working.
+// In session storage rather than component state: a remount of this layout mustn't put the progress
+// screen back in front of someone already working.
 const ENTERED_DURING_INITIAL_SYNC = 'enteredDuringInitialSync';
 
 export function App({ sidebar, children }) {
@@ -81,10 +80,8 @@ export function App({ sidebar, children }) {
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
 
-  // A facility part-way through its first sync can be logged into but not worked in: the boot phase
-  // brings the facilities a user is matched against, and only once the catalogue phase lands is there
-  // a patient list to work from. Sits ahead of facility selection because there may be no facility to
-  // select yet, and because selecting one wouldn't help.
+  // A facility part-way through its first sync can be logged into but not worked in. Sits ahead of
+  // facility selection: there may be no facility to select yet, and selecting one wouldn't help.
   const initialSyncPhase = serverStatus?.initialSyncPhase;
   const canEnterDuringInitialSync = initialSyncPhase === 'records';
   if (initialSyncPhase && !(canEnterDuringInitialSync && hasEnteredDuringInitialSync)) {

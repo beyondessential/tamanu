@@ -92,8 +92,7 @@ export class Model<
       );
     }
     this.syncDirection = syncDirection;
-    // a model that doesn't nominate a phase arrives in the last one, so a model added without
-    // thinking about phases holds up nothing that comes before it
+    // a model that doesn't nominate a phase arrives in the final "records" phase
     this.initialSyncPhase = initialSyncPhase;
     this.validateSync(timestamps);
     this.usesPublicSchema = usesPublicSchema;
