@@ -179,3 +179,18 @@ backlog is scanned without swamping the scanner.
   - Unit coverage is in `@tamanu/database` and mobile, both runnable here
   - The central and facility endpoint tests need a database, so they are listed
     unticked in the test cases rather than written blind
+
+## CI
+
+**Not ours (2026-08-11).** Facility shard 3/8 failed on
+`FacilitySyncManager-edgecases.test.js`, "throws an error if a pulled record was
+updated between push and pull". The test sleeps 200ms expecting the sync to be
+parked inside a mocked `pushOutgoingChanges` with the local tick already advanced,
+then saves a record so it is stamped with the *new* tick. On a slow runner the save
+lands before the bump at `FacilitySyncManager.js:256`, is stamped with the old tick,
+and the assertion's `updated_at_sync_tick > last_successful_sync_push` (which push
+sets to that same old tick) is false, so nothing throws and the promise resolves.
+That is the reported symptom exactly. This card touches no sync code; the only
+contact is `BlobQuarantine` joining `getModelsForPull`, which adds one COUNT query
+to the assertion loop after the decisive per-model check. Re-run rather than fix,
+and do not "harden" a shared sync test from this card.
