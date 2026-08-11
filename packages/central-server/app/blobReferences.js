@@ -117,23 +117,34 @@ export async function findOrphanedBlobHashes(sequelize, { limit, admittedBefore 
     return [];
   }
 
-  const recordTypes = BLOB_REFERENCE_SOURCES.map(({ recordType }) => recordType);
   const replacements = {
     limit,
     admittedBefore,
-    recordTypes,
     verified: BLOB_INTEGRITY_STATES.VERIFIED,
   };
   // One clause per source rather than a union inside a single NOT EXISTS: each
   // stands alone as an anti-join the planner can satisfy from that table's hash
   // index. Identifiers are interpolated (SQL cannot bind them) and constrained
-  // to SAFE_IDENTIFIER at registration; everything else is bound.
-  const unreferenced = BLOB_REFERENCE_SOURCES.map(
-    ({ recordType, hashColumn }) => `
+  // to SAFE_IDENTIFIER at registration, which is also what makes `hashColumn`
+  // safe to place inside the JSON key literal below; everything else is bound.
+  //
+  // The changelog is checked per source and by that source's own hash column: a
+  // snapshot is the whole row, so its key is whatever the column is called. One
+  // clause shared across sources would have to pick a single key and would
+  // silently stop protecting superseded content on every source not using it.
+  const unreferenced = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
+    replacements[`recordType${index}`] = recordType;
+    return `
       AND NOT EXISTS (
         SELECT 1 FROM ${recordType} record WHERE record.${hashColumn} = blobs.hash
-      )`,
-  );
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM logs.changes
+        WHERE logs.changes.record_data->>'${hashColumn}' = blobs.hash
+        AND logs.changes.table_schema = 'public'
+        AND logs.changes.table_name = :recordType${index}
+      )`;
+  });
 
   const [rows] = await sequelize.query(
     `
@@ -143,12 +154,6 @@ export async function findOrphanedBlobHashes(sequelize, { limit, admittedBefore 
       AND blobs.integrity_state = :verified
       AND blobs.created_at < :admittedBefore
       ${unreferenced.join('')}
-      AND NOT EXISTS (
-        SELECT 1 FROM logs.changes
-        WHERE logs.changes.record_data->>'hash' = blobs.hash
-        AND logs.changes.table_schema = 'public'
-        AND logs.changes.table_name IN (:recordTypes)
-      )
       AND NOT EXISTS (
         SELECT 1 FROM blob_quarantines
         WHERE blob_quarantines.hash = blobs.hash

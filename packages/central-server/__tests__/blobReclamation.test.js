@@ -137,6 +137,38 @@ describe('central orphan collection', () => {
     expect(await ctx.blobStore.has(hash)).toBe(true);
   });
 
+  // A source may name its hash column anything, which the registry supports and
+  // this suite's scratch source uses. The changelog snapshot is the whole row, so
+  // its key is that column's name: a liveness check reading a single hardcoded
+  // key would stop protecting superseded content on every other source.
+  it('retains superseded content on a source whose hash column is not named hash', async () => {
+    const supersededHash = await admit(uniqueContent());
+    const id = randomUUID();
+    await sequelize.query(
+      `INSERT INTO test_reclamation_refs (id, blob_hash) VALUES (:id, :hash)`,
+      { replacements: { id, hash: supersededHash } },
+    );
+    // Stand in for the changelog entry a real repointing leaves behind, then drop
+    // the live reference so only that entry keeps the content alive.
+    await sequelize.query(
+      `INSERT INTO logs.changes
+         (table_oid, table_schema, table_name, record_id,
+          record_created_at, record_updated_at, record_data, updated_by_user_id)
+       VALUES ('test_reclamation_refs'::regclass::oid, 'public', 'test_reclamation_refs', :id,
+               now(), now(), jsonb_build_object('id', :id, 'blob_hash', :hash),
+               (SELECT id FROM users ORDER BY created_at LIMIT 1))`,
+      { replacements: { id, hash: supersededHash } },
+    );
+    await sequelize.query(`DELETE FROM test_reclamation_refs WHERE id = :id`, {
+      replacements: { id },
+    });
+
+    const result = await reclaimer.run();
+
+    expect(result).toMatchObject({ found: 0, collected: 0 });
+    expect(await ctx.blobStore.has(supersededHash)).toBe(true);
+  });
+
   // The case orphan collection is most likely to get wrong: nothing points at
   // the superseded content any more except the changelog entry that recorded
   // the asset as it stood.
@@ -213,7 +245,7 @@ describe('central orphan collection', () => {
     expect(await models.Blob.count()).toBe(1);
   });
 
-  it('runs from its scheduled task, which takes its bounds from settings', async () => {
+  it('runs its reclaimer from the scheduled task', async () => {
     const hash = await admit(uniqueContent());
     const task = new BlobOrphanCollectionTask({ ...ctx, blobReclaimer: reclaimer });
 
