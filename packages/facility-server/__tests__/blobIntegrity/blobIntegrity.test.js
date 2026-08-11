@@ -50,6 +50,7 @@ describe('facility blob integrity', () => {
 
   beforeEach(async () => {
     await models.Blob.destroy({ where: {}, force: true });
+    await models.BlobQuarantine.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-integrity-test-'));
     // Off by default, as on a server that has not enabled it; the parity cases
     // below switch it on before they admit anything.
@@ -374,6 +375,21 @@ describe('facility blob integrity', () => {
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
       expect(row.correctionCount).toBe(0);
+    });
+
+    // verifies spec: AV, FEC — quarantined content is retained but never served
+    // and never repaired, so the retrofit spends no disk protecting it.
+    it('writes no parity for content quarantined as malware', async () => {
+      const { hash } = await put(BLOB_TIERS.OUTBOX, coveredContent());
+      await models.Blob.update({ hasParity: false }, { where: { hash } });
+      await fs.rm(`${pathOf(hash)}.parity`, { force: true });
+      await models.BlobQuarantine.create({ hash });
+
+      const result = await makeScrubber().run();
+
+      expect(result.protected).toBe(0);
+      await expect(fs.access(`${pathOf(hash)}.parity`)).rejects.toThrow();
+      expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(false);
     });
 
     it('leaves a cache blob to refetch, since a facility carries no parity for one', async () => {

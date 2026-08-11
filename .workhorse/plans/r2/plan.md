@@ -266,7 +266,7 @@ would force parity above the boundary.
 - [x] Correction-rate health signal: query-cookbook row, healthcheck, runbook
       - [x] `blob_correction_rate` and parity-coverage queries in the cookbook
       - [x] `docs/runbooks/blob-correction-rate.md`, mapped in `healthchecks.md`
-      - [ ] The check itself is a **Canopy** change, not a Tamanu one (see below)
+      - [ ] The check itself is a **bestool** change, not a Tamanu one (see below)
 - [x] Tests: seeded corruption within and beyond the parity budget, retrofit over an
       existing store, outbox demotion discarding parity, admission refused when blob
       plus parity would cross the free-disk reserve
@@ -300,12 +300,16 @@ said. None of them changes a decision in "Decisions taken".
 
 ## Not in this repo
 
-The `blob_correction_rate` **healthcheck itself has to be added in Canopy**, which
-is where every check's definition, thresholds and solve text live (`docs/healthchecks.md`
-is only a bridge). This card has done the Tamanu side: the columns the check reads,
-the cookbook query it is built from, the runbook it points at, and the row in the
-check-to-runbook map. The check will report nothing until the Canopy side lands, so
-that needs its own card.
+The `blob_correction_rate` **healthcheck itself has to be added in bestool**, in
+`crates/alertd/src/doctor/checks/`, where every check's definition, SQL and
+thresholds live alongside its siblings in the check-to-runbook map (`fhir_jobs`,
+`sync_facility_stale`, `disk_free`). `docs/healthchecks.md` is only a bridge.
+Canopy holds the policy over a check a device reports, and its documentation, and
+has no Tamanu database access, so a check reading `blobs.correction_count` cannot
+live there. This card has done the Tamanu side: the columns the check reads, the
+cookbook query it is built from, the runbook it points at, and the row in the
+check-to-runbook map. The check will report nothing until the bestool side lands,
+so that needs its own card.
 
 Thresholds are a judgement for whoever writes it, but the shape the runbook assumes
 is: warn on corrections spread across several distinct blobs, escalate on a count

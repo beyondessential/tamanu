@@ -273,26 +273,29 @@ export class BlobParity {
       await sidecar.read(digests, 0, digests.length, PARITY_HEADER_BYTES);
 
       const blob = await fs.open(this.#pathFor(hash), 'r');
-      const destination = await fs.open(destinationPath, 'w');
       try {
-        for (let group = 0; group < geometry.groupCount; group++) {
-          const recovered = await this.#recoverGroup({
-            geometry,
-            blobSize,
-            group,
-            algorithm,
-            digests,
-            blob,
-            sidecar,
-          });
-          if (!recovered) {
-            return false;
+        const destination = await fs.open(destinationPath, 'w');
+        try {
+          for (let group = 0; group < geometry.groupCount; group++) {
+            const recovered = await this.#recoverGroup({
+              geometry,
+              blobSize,
+              group,
+              algorithm,
+              digests,
+              blob,
+              sidecar,
+            });
+            if (!recovered) {
+              return false;
+            }
+            await this.#writeGroup({ geometry, blobSize, group, blob, destination, recovered });
           }
-          await this.#writeGroup({ geometry, blobSize, group, blob, destination, recovered });
+          await destination.sync();
+        } finally {
+          await destination.close();
         }
-        await destination.sync();
       } finally {
-        await destination.close();
         await blob.close();
       }
     } catch (error) {

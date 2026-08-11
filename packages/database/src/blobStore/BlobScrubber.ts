@@ -1,10 +1,9 @@
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 
 import { BLOB_INTEGRITY_STATES } from '@tamanu/constants';
 
 import type { BlobStore } from './BlobStore';
 import type { Blob } from '../models/Blob';
-import type { BlobQuarantine } from '../models/BlobQuarantine';
 
 // spec: SCRUB
 // What a scrub found wrong with a blob. `corrupt` bytes are held but no longer
@@ -50,7 +49,7 @@ export interface ScrubResult {
 
 export interface BlobScrubberOptions {
   blobStore: BlobStore;
-  models: { Blob: typeof Blob; BlobQuarantine: typeof BlobQuarantine };
+  models: { Blob: typeof Blob };
   getLimits: () => Promise<ScrubPassLimits>;
   /**
    * Severity grading and the repair ladder, supplied by the server: what a
@@ -77,7 +76,7 @@ export interface BlobScrubberOptions {
 // and a refetchable cache copy warrant different responses to identical bytes.
 export class BlobScrubber {
   #blobStore: BlobStore;
-  #models: { Blob: typeof Blob; BlobQuarantine: typeof BlobQuarantine };
+  #models: { Blob: typeof Blob };
   #getLimits: () => Promise<ScrubPassLimits>;
   #heal: (report: BlobFaultReport) => Promise<void>;
   #findUndeliverableReferences?: (limit: number) => Promise<string[]>;
@@ -317,16 +316,17 @@ export class BlobScrubber {
       return;
     }
     const { minimumSize, tiers } = this.#blobStore.parityCoverage;
-    // spec: AV — quarantined content is retained but never served and never
-    // repaired, so parity over it protects bytes nothing will ever read.
-    const quarantined = (
-      await this.#models.BlobQuarantine.findAll({ attributes: ['hash'] })
-    ).map(row => row.hash);
     const candidates = await this.#models.Blob.findAll({
       where: {
         hasParity: false,
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
-        hash: { [Op.notIn]: quarantined },
+        // spec: AV — quarantined content is retained but never served and never
+        // repaired, so parity over it protects bytes nothing will ever read. A
+        // subquery rather than a fetched list, which a mass quarantine would
+        // otherwise grow without bound.
+        hash: {
+          [Op.notIn]: literal('(SELECT hash FROM blob_quarantines WHERE deleted_at IS NULL)'),
+        },
         // Rows the store would refuse anyway: fetched, they spend the pass's
         // limit on skips while covered blobs behind them wait another cycle.
         size: { [Op.gte]: minimumSize },

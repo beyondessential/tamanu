@@ -10,7 +10,6 @@ import { CENTRAL_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
 import { BLOB_FAULTS, BlobScrubber } from '../../src/blobStore/BlobScrubber';
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
-import type { BlobQuarantine } from '../../src/models/BlobQuarantine';
 
 const HELLO_HASH = 'sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
 
@@ -103,22 +102,9 @@ function makeFakeBlobModel() {
   };
 }
 
-// Malware is recorded by hash alone, so the set of them is the whole model the
-// parity pass asks for.
-function makeFakeQuarantineModel() {
-  const hashes = new Set<string>();
-  return {
-    hashes,
-    async findAll() {
-      return [...hashes].map(hash => ({ hash }));
-    },
-  };
-}
-
 describe('BlobScrubber', () => {
   let root: string;
   let fakeBlob: ReturnType<typeof makeFakeBlobModel>;
-  let fakeQuarantine: ReturnType<typeof makeFakeQuarantineModel>;
   let store: BlobStore;
   let healed: Array<{ hash: string; fault: string; tier?: string }>;
 
@@ -137,10 +123,7 @@ describe('BlobScrubber', () => {
   } = {}) =>
     new BlobScrubber({
       blobStore,
-      models: {
-        Blob: fakeBlob as unknown as typeof Blob,
-        BlobQuarantine: fakeQuarantine as unknown as typeof BlobQuarantine,
-      },
+      models: { Blob: fakeBlob as unknown as typeof Blob },
       getLimits: async () => ({ maxBlobs, maxBytes }),
       heal:
         heal ??
@@ -155,10 +138,7 @@ describe('BlobScrubber', () => {
   const makeParityStore = ({ enabled = true } = {}) =>
     new BlobStore({
       root,
-      models: {
-        Blob: fakeBlob as unknown as typeof Blob,
-        BlobQuarantine: fakeQuarantine as unknown as typeof BlobQuarantine,
-      },
+      models: { Blob: fakeBlob as unknown as typeof Blob },
       getFreeDiskReserveBytes: async () => 0,
       statfs: async () => ({ bavail: 1_000_000_000, bsize: 1 }),
       errorCorrection: {
@@ -187,14 +167,10 @@ describe('BlobScrubber', () => {
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-scrubber-test-'));
     fakeBlob = makeFakeBlobModel();
-    fakeQuarantine = makeFakeQuarantineModel();
     healed = [];
     store = new BlobStore({
       root,
-      models: {
-        Blob: fakeBlob as unknown as typeof Blob,
-        BlobQuarantine: fakeQuarantine as unknown as typeof BlobQuarantine,
-      },
+      models: { Blob: fakeBlob as unknown as typeof Blob },
       getFreeDiskReserveBytes: async () => 0,
       statfs: async () => ({ bavail: 1_000_000, bsize: 1 }),
     });
@@ -532,18 +508,6 @@ describe('BlobScrubber', () => {
 
       expect(result.protected).toBe(1);
       expect(fakeBlob.rows.get(hash)!.hasParity).toBe(true);
-    });
-
-    // spec: AV, FEC
-    it('leaves content quarantined as malware unprotected', async () => {
-      const { hash } = await makeParityStore({ enabled: false }).put(Readable.from(covered));
-      fakeQuarantine.hashes.add(hash);
-
-      const result = await makeScrubber({ blobStore: makeParityStore() }).run();
-
-      expect(result.protected).toBe(0);
-      await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
-      expect(fakeBlob.rows.get(hash)!.hasParity).toBe(false);
     });
 
     it('does not protect a blob whose bytes no longer match its hash', async () => {
