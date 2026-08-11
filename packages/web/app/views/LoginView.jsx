@@ -36,9 +36,10 @@ export const LoginView = () => {
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
 
-    // If a different user logs in, clear cached data and navigate to index
+    // If a different user logs in, clear cached data and navigate to index.
+    // Keep the serverAlive query, otherwise the app treats the server as down.
     if (email !== api.user?.email) {
-      queryClient.clear();
+      queryClient.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
       navigate('/');
     }
 
