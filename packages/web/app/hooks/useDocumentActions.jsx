@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../api';
-import { notify, notifyError, notifySuccess } from '../utils';
+import { getAttachmentUnavailableMessage, notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
 
 const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
@@ -45,13 +45,16 @@ export const useDocumentActions = () => {
           { replacement: { type: 'info' } },
         );
 
+        const response = await api.get(`attachment/${document.attachmentId}`, { base64: true });
+        const unavailableMessage = getAttachmentUnavailableMessage(response);
+        if (unavailableMessage) {
+          notifyError(unavailableMessage);
+          return;
+        }
+
         const saved = await saveFile({
           defaultFileName: document.name,
-          getData: async () => {
-            // Download attachment (*currently the API only supports base64 responses)
-            const { data } = await api.get(`attachment/${document.attachmentId}`, { base64: true });
-            return base64ToUint8Array(data);
-          },
+          getData: async () => base64ToUint8Array(response.data),
           extension: extension(document.type),
           mimetype: document.type,
         });
@@ -74,11 +77,16 @@ export const useDocumentActions = () => {
   const onPrintPDF = useCallback(
     async (attachmentId) => {
       try {
-        const { data } = await api.get(`attachment/${attachmentId}`, {
+        const response = await api.get(`attachment/${attachmentId}`, {
           base64: true,
         });
+        const unavailableMessage = getAttachmentUnavailableMessage(response);
+        if (unavailableMessage) {
+          notifyError(unavailableMessage);
+          return;
+        }
         const url = URL.createObjectURL(
-          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
+          new Blob([Buffer.from(response.data, 'base64').buffer], { type: 'application/pdf' }),
         );
 
         // Triggers the useEffect that handles printing logic
