@@ -229,7 +229,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
 - Add new visibility status to lab test types `reflexTest` .
   - Tests with this status are not able to be ordered as an individual test.
   - Tests with this status are not able to be added to a panel. 
-- What other considerations are there for SENAITE integration here? Ask Rohan?
+- What other considerations are there for SENAITE integration here? Check with Rohan if needed. 
 
 ---
 
