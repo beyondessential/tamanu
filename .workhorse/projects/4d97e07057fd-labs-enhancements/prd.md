@@ -80,7 +80,7 @@ Figma link - https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-
   - Update the table so that it can handle displaying results for both individual tests and panels.
   - Display panels first alphabetically, with individual tests listed in same order as reference data.
   - Display individual tests first alphabetically after panels.
-      - This should include reflex tests added by SENAITE. 
+      - This should include reflex tests added by SENAITE whether or not they're intended as an individual test or as part of a panel. 
   - Please also update the tile 'Test category' to 'Category'. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41639-15551&t=tyhjuqgTUSzOAZGg-1
 - **Results entry modal:**
   - Use same layout as lab request view. https://www.figma.com/design/sy6gyLBPoSXuJNq5lEEOL8/Tamanu-Desktop-1?node-id=41830-319441&t=tyhjuqgTUSzOAZGg-1
