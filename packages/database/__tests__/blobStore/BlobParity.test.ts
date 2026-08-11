@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   CENTRAL_PARITY_TIERS,
@@ -175,6 +175,7 @@ describe('blob parity', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await fs.rm(root, { recursive: true, force: true });
   });
 
@@ -376,6 +377,30 @@ describe('blob parity', () => {
       );
       expect(await fs.readFile(storedPath(hash))).toEqual(damaged);
       expect(fakeBlob.rows.get(hash)!.correctionCount).toBe(0);
+    });
+
+    // spec: FEC, CAS
+    // A repair lands over bytes that are already there. POSIX renames over them;
+    // Windows/NTFS refuses, so the occupant has to go before the rename can win,
+    // and only a faked rename reaches that on a POSIX test host.
+    it('replaces damaged bytes where they cannot be renamed over', async () => {
+      const blob = content();
+      const store = makeStore();
+      const { hash } = await admit(blob, BLOB_TIERS.CACHE, store);
+      await damageShards(hash, [7]);
+
+      const occupied = Object.assign(new Error('rename failed with EEXIST'), { code: 'EEXIST' });
+      const realRename = fs.rename;
+      const rename = vi
+        .spyOn(fs, 'rename')
+        .mockRejectedValueOnce(occupied)
+        .mockImplementation(realRename);
+
+      expect(await store.repairFromParity(hash)).toBe(true);
+
+      expect(rename).toHaveBeenCalledTimes(2);
+      expect(await fs.readFile(storedPath(hash))).toEqual(blob);
+      expect(await fs.readdir(path.join(root, 'tmp'))).toHaveLength(0);
     });
 
     // spec: FEC
