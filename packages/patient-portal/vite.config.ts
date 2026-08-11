@@ -37,9 +37,11 @@ export default async () =>
         '@components': path.resolve(__dirname, 'src/components'),
         '@routes': path.resolve(__dirname, 'src/routes'),
       },
-      // Consume @tamanu/* workspace packages' TypeScript source directly (via their
-      // `source` export condition) so edits to shared packages hot-reload without a
-      // rebuild. Node/jest/swc don't honour this condition and keep using built dist.
+      // The @tamanu/* workspace packages point their `exports` straight at extensionless
+      // TypeScript source, so edits to them hot-reload with no build step (see
+      // tamanuSourceResolve, which completes those targets for the Rollup build). `source` is
+      // a leftover from before the repo went build-less and now matches nothing; `module` and
+      // `browser` are still doing work for third-party dependencies.
       conditions: ['source', 'module', 'browser', 'development|production'],
       dedupe: ['@mui/x-date-pickers'],
     },

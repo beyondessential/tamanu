@@ -15,10 +15,11 @@ export const SERVER_TEST_TIMEOUT = 45_000;
 // TODO: lower this once the slow test setup is addressed at the source.
 export const SETUP_HOOK_TIMEOUT = 600_000;
 
-// Consume @tamanu/* workspace packages from their TypeScript source: resolve the `source`
-// export condition, inline them so Vite (not Node) resolves their extensionless directory
-// exports, and complete those with the shared plugin. This is the same resolution the
-// frontends build with, so tests exercise module semantics that actually ship.
+// Consume @tamanu/* workspace packages from their TypeScript source, which is what their
+// `exports` point at: inline them so Vite (not Node) resolves their extensionless directory
+// exports, and complete those with the shared plugin. This is the same resolution the frontends
+// build with, so tests exercise module semantics that actually ship. (`source` in the condition
+// list below is inherited from those configs and matches nothing; see the note there.)
 //
 // Projects don't inherit the root config's options unless they set `extends: true`, so this
 // stays a shared module each package's config spreads in rather than folding into the root.
