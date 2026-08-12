@@ -23,7 +23,7 @@ import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
-import { getStockStatus } from '../utils/medications';
+import { DiscontinuedTag, getStockStatus } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
@@ -104,13 +104,16 @@ const getLocation = ({ pharmacyOrder }) => {
     </div>
   );
 };
-const getMedication = ({ prescription }) => {
+const getMedication = ({ prescription }, formatShort) => {
   return (
-    <TranslatedReferenceData
-      fallback={prescription?.medication?.name}
-      value={prescription?.medication?.id}
-      category={prescription?.medication?.type}
-    />
+    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+      <TranslatedReferenceData
+        fallback={prescription?.medication?.name}
+        value={prescription?.medication?.id}
+        category={prescription?.medication?.type}
+      />
+      <DiscontinuedTag prescription={prescription} formatShort={formatShort} />
+    </Box>
   );
 };
 const getOrderingPrescriber = ({ pharmacyOrder }) => {
@@ -135,7 +138,7 @@ const getDateSent = ({ pharmacyOrder }, formatTime) => {
 const DISPENSE_PATIENT_PARAM = 'dispense';
 
 export const MedicationRequestsTable = () => {
-  const { formatTime } = useDateTime();
+  const { formatTime, formatShort } = useDateTime();
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
@@ -253,7 +256,7 @@ export const MedicationRequestsTable = () => {
           data-testid="translatedtext-medication-column-title"
         />
       ),
-      accessor: getMedication,
+      accessor: row => getMedication(row, formatShort),
       sortable: true,
     },
     {

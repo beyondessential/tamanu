@@ -373,6 +373,51 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   return content;
 };
 
+// A prescription discontinued after it was sent to pharmacy stays in the queue and stays
+// dispensable — the pharmacist is warned rather than blocked, so every surface that lists a
+// pharmacy request flags it with this tag (spec: PHDIS).
+export const DiscontinuedTag = ({ prescription, formatShort }) => {
+  if (!prescription?.discontinued) return null;
+
+  const { discontinuedDate, discontinuingReason } = prescription;
+  const tag = (
+    <StyledTag $color={TAMANU_COLORS.alert} noWrap>
+      <TranslatedText stringId="medication.status.discontinued" fallback="Discontinued" />
+    </StyledTag>
+  );
+
+  // Date and reason are what the pharmacist needs to judge whether dispensing is still
+  // appropriate; neither is guaranteed to be recorded, so the tooltip adapts to what exists.
+  const tooltipLines = [
+    discontinuedDate && formatShort ? (
+      <div key="date">
+        <TranslatedText
+          stringId="medication.discontinued.tooltip.date"
+          fallback="Discontinued :date"
+          replacements={{ date: formatShort(discontinuedDate) }}
+        />
+      </div>
+    ) : null,
+    discontinuingReason ? (
+      <div key="reason">
+        <TranslatedText
+          stringId="medication.discontinued.tooltip.reason"
+          fallback="Reason: :reason"
+          replacements={{ reason: discontinuingReason }}
+        />
+      </div>
+    ) : null,
+  ].filter(Boolean);
+
+  if (tooltipLines.length === 0) return tag;
+
+  return (
+    <ThemedTooltip title={<>{tooltipLines}</>}>
+      <span>{tag}</span>
+    </ThemedTooltip>
+  );
+};
+
 // A fill can be modified by pharmacy at dispensing time, recorded via `modifiedAt` on the
 // medication dispense. When set, dispensed medication rows are flagged with an asterisk and the
 // table shows a "*Prescription modified by pharmacy" footnote. The original prescription is
