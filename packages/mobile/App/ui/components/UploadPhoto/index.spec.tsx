@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import { Popup } from 'popup-ui';
 import { useNetInfo } from '@react-native-community/netinfo';
 
@@ -44,21 +44,58 @@ const PHOTO_BYTES = 'the captured photograph';
 const PHOTO_HASH = sha256Hash(PHOTO_BYTES);
 const PHOTO_URI = `data:image/jpeg;base64, ${Buffer.from(PHOTO_BYTES).toString('base64')}`;
 const CAPTURED_IMAGE = { base64: 'Y2FwdHVyZWQ=', uri: 'file:///documents/original.jpg' };
+const CAPTURED_URI = `data:image/jpeg;base64, ${CAPTURED_IMAGE.base64}`;
 
 const displayedImageUri = (container): string | undefined =>
   container.queryAll(node => node.type === 'Image')[0]?.props?.source?.uri;
+
+// The device reports connectivity through the hook's own state, which is what
+// re-renders a mounted component when it changes.
+const connectivity = {
+  current: { isInternetReachable: true } as { isInternetReachable: boolean | null },
+  subscribers: new Set<(value: { isInternetReachable: boolean | null }) => void>(),
+};
+
+const useConnectivity = (): { isInternetReachable: boolean | null } => {
+  const [reported, setReported] = React.useState(connectivity.current);
+  React.useEffect(() => {
+    connectivity.subscribers.add(setReported);
+    return (): void => {
+      connectivity.subscribers.delete(setReported);
+    };
+  }, []);
+  return reported;
+};
+
+const deviceIsOffline = (): void => {
+  connectivity.current = { isInternetReachable: false };
+};
+
+const connectivityIsUnknown = (): void => {
+  connectivity.current = { isInternetReachable: null };
+};
+
+const connectivityReturns = async (): Promise<void> => {
+  connectivity.current = { isInternetReachable: true };
+  await act(async () => {
+    connectivity.subscribers.forEach(notify => notify(connectivity.current));
+  });
+};
 
 describe('<UploadPhoto />', () => {
   let fs: FakeBlobFileSystem;
   let store: MobileBlobStore;
   let cache: MobileBlobCache;
   let onChange: jest.Mock;
+  let backendCalls: Promise<void>[];
+  let contentReads: number;
 
   beforeAll(async () => {
     await Database.connect();
   });
 
   beforeEach(async () => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
     await Database.models.Attachment.getRepository().clear();
     await Database.models.Blob.getRepository().clear();
@@ -72,10 +109,12 @@ describe('<UploadPhoto />', () => {
       fs,
     });
     cache = new MobileBlobCache({ blobStore: store, models: Database.models, fs });
+    trackBackendCalls();
 
     onChange = jest.fn();
     (useBackend as jest.Mock).mockReturnValue({ models: Database.models, blobCache: cache });
-    (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: true });
+    connectivity.current = { isInternetReachable: true };
+    (useNetInfo as jest.Mock).mockImplementation(useConnectivity);
     (getImageFromCamera as jest.Mock).mockResolvedValue(CAPTURED_IMAGE);
     (resizeImage as jest.Mock).mockResolvedValue({ path: RESIZED_PATH });
     fs.seed(RESIZED_PATH, PHOTO_BYTES);
@@ -88,7 +127,6 @@ describe('<UploadPhoto />', () => {
     const { getByText } = await render(<UploadPhoto onChange={onChange} value={null} />);
 
     await takePhoto(getByText);
-    await waitFor(() => expect(onChange).toHaveBeenCalled());
 
     const [attachmentId] = onChange.mock.calls[0];
     const attachment = await Database.models.Attachment.findOne({ where: { id: attachmentId } });
@@ -112,7 +150,6 @@ describe('<UploadPhoto />', () => {
     );
 
     await takePhoto(getByText);
-    await waitFor(() => expect(Popup.show).toHaveBeenCalled());
 
     const [popup] = (Popup.show as jest.Mock).mock.calls[0];
     expect(popup.title).toMatch(/storage space on this device/i);
@@ -131,8 +168,9 @@ describe('<UploadPhoto />', () => {
     const { container, getByText, queryByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
+    await settleRead();
 
-    await waitFor(() => expect(displayedImageUri(container)).toBe(PHOTO_URI));
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
     expect(getByText('Remove photo')).toBeTruthy();
     expect(getByText('Change photo')).toBeTruthy();
     expect(queryByText('Upload photo')).toBeNull();
@@ -142,16 +180,12 @@ describe('<UploadPhoto />', () => {
   // and admitted to the cache tier
   it('fetches a photo the device does not hold', async () => {
     const attachment = await seedAttachment();
-    cache.setTransferChannel({
-      fetchFromCentral: jest.fn(async () => {
-        fs.seed(FETCHED_PATH, PHOTO_BYTES);
-        return await store.putFile(FETCHED_PATH);
-      }),
-    } as any);
+    fetchesPhoto();
 
     const { container } = await render(<UploadPhoto onChange={onChange} value={attachment.id} />);
+    await settleRead();
 
-    await waitFor(() => expect(displayedImageUri(container)).toBe(PHOTO_URI));
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
     const blob = await Database.models.Blob.findOne({ where: { hash: PHOTO_HASH } });
     expect(blob.tier).toBe(BLOB_TIERS.CACHE);
   });
@@ -169,28 +203,105 @@ describe('<UploadPhoto />', () => {
     const { getByText, queryByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
+    await settleRead();
 
-    await waitFor(() =>
-      expect(getByText(/has not finished uploading from the device that captured it/)).toBeTruthy(),
-    );
+    expect(getByText(/has not finished uploading from the device that captured it/)).toBeTruthy();
     expect(getByText('Remove photo')).toBeTruthy();
     expect(queryByText('Upload photo')).toBeNull();
   });
 
-  // verifies spec: MOB — content this device has not fetched is distinct from
+  // verifies spec: MOB — content this device could not fetch is distinct from
   // content pending at its origin, and neither reads as a missing photo
-  it('reports a photo not on this device when there is no connectivity', async () => {
-    (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: false });
+  it('reports a photo not on this device when the fetch cannot reach the network', async () => {
+    deviceIsOffline();
     const attachment = await seedAttachment();
+    cache.setTransferChannel({
+      fetchFromCentral: jest.fn(async () => {
+        throw new Error('network request failed');
+      }),
+    } as any);
 
     const { getByText, queryByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
+    await settleRead();
 
-    await waitFor(() => expect(getByText(/is not on this device yet/)).toBeTruthy());
+    expect(getByText(/is not on this device yet/)).toBeTruthy();
     expect(getByText(/Connect to the internet to fetch it/)).toBeTruthy();
     expect(getByText('Remove photo')).toBeTruthy();
     expect(queryByText('Upload photo')).toBeNull();
+  });
+
+  // verifies spec: MOB — a record whose content this device cannot resolve is
+  // a photo awaiting its content, not an answer with no photo
+  it('reports a photo whose record has not reached this device', async () => {
+    const { getByText, queryByText } = await render(
+      <UploadPhoto onChange={onChange} value="an-answer-from-another-device" />,
+    );
+    await settleRead();
+
+    expect(getByText(/is not on this device yet/)).toBeTruthy();
+    expect(getByText('Remove photo')).toBeTruthy();
+    expect(queryByText('Upload photo')).toBeNull();
+  });
+
+  // The connectivity the device reports arrives after the first render, so a
+  // photo already being read must not be stranded by it.
+  it('shows the photo when connectivity is reported while the read is in flight', async () => {
+    connectivityIsUnknown();
+    const attachment = await seedAttachment();
+    const releaseFetch = deferPhotoFetch();
+
+    const { container } = await render(<UploadPhoto onChange={onChange} value={attachment.id} />);
+    await connectivityReturns();
+    releaseFetch();
+    await settleRead();
+
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
+    expect(contentReads).toBe(1);
+  });
+
+  // verifies spec: MOB — content the device could not fetch is fetched again
+  // once it has connectivity, so the advice to connect can be acted on
+  it('fetches the photo again once connectivity returns', async () => {
+    deviceIsOffline();
+    const attachment = await seedAttachment();
+    let reachable = false;
+    cache.setTransferChannel({
+      fetchFromCentral: jest.fn(async () => {
+        if (!reachable) {
+          throw new Error('network request failed');
+        }
+        fs.seed(FETCHED_PATH, PHOTO_BYTES);
+        return await store.putFile(FETCHED_PATH);
+      }),
+    } as any);
+
+    const { container } = await render(<UploadPhoto onChange={onChange} value={attachment.id} />);
+    await settleRead();
+    expect(displayedImageUri(container)).toBeUndefined();
+
+    reachable = true;
+    await connectivityReturns();
+    await settleRead();
+
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
+  });
+
+  // A photo captured here is already on screen, so the value the form hands
+  // back is not read from the store again.
+  it('does not read back a photo it just captured', async () => {
+    const { container, getByText, rerender } = await render(
+      <UploadPhoto onChange={onChange} value={null} />,
+    );
+    await takePhoto(getByText);
+
+    const [attachmentId] = onChange.mock.calls[0];
+    await rerender(<UploadPhoto onChange={onChange} value={attachmentId} />);
+    await settleRead();
+
+    expect(displayedImageUri(container)).toBe(CAPTURED_URI);
+    expect(contentReads).toBe(0);
   });
 
   // verifies spec: MOB, CACHE — a removed photo's blob has no referencing
@@ -201,7 +312,8 @@ describe('<UploadPhoto />', () => {
     const { container, getByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
-    await waitFor(() => expect(displayedImageUri(container)).toBe(PHOTO_URI));
+    await settleRead();
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
     await removePhoto(getByText);
 
     expect(onChange).toHaveBeenCalledWith(null);
@@ -220,7 +332,8 @@ describe('<UploadPhoto />', () => {
     const { container, getByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
-    await waitFor(() => expect(displayedImageUri(container)).toBe(PHOTO_URI));
+    await settleRead();
+    expect(displayedImageUri(container)).toBe(PHOTO_URI);
     await removePhoto(getByText);
 
     expect(await Database.models.Attachment.findOne({ where: { id: attachment.id } })).toBeNull();
@@ -229,35 +342,38 @@ describe('<UploadPhoto />', () => {
     expect(blob.tier).toBe(BLOB_TIERS.OUTBOX);
   });
 
-  // A fetch that lands after the photo is removed must not put it back on
+  // A read that lands after the photo is removed must not put it back on
   // screen, since the record it belonged to is gone.
   it('discards content that arrives after the photo is removed', async () => {
-    let releaseFetch: () => void;
-    const fetchReleased = new Promise<void>(resolve => {
-      releaseFetch = resolve;
-    });
     const attachment = await seedAttachment();
-    cache.setTransferChannel({
-      fetchFromCentral: jest.fn(async () => {
-        await fetchReleased;
-        fs.seed(FETCHED_PATH, PHOTO_BYTES);
-        return await store.putFile(FETCHED_PATH);
-      }),
-    } as any);
-
-    const read = jest.spyOn(cache, 'readBase64');
+    const releaseFetch = deferPhotoFetch();
 
     const { container, getByText } = await render(
       <UploadPhoto onChange={onChange} value={attachment.id} />,
     );
     await removePhoto(getByText);
-    await act(async () => {
-      releaseFetch();
-      await read.mock.results[0].value;
-    });
+    releaseFetch();
+    await settleRead();
 
     expect(displayedImageUri(container)).toBeUndefined();
     expect(getByText('Upload photo')).toBeTruthy();
+  });
+
+  // A capture owns the field from the moment it completes, so a read of the
+  // photo it replaced must not put the old one back on screen.
+  it('keeps the captured photo when the read it replaced lands afterwards', async () => {
+    const attachment = await seedAttachment();
+    const releaseFetch = deferPhotoFetch();
+
+    const { container, getByText } = await render(
+      <UploadPhoto onChange={onChange} value={attachment.id} />,
+    );
+    await takePhoto(getByText);
+    releaseFetch();
+    await settleRead();
+
+    expect(displayedImageUri(container)).toBe(CAPTURED_URI);
+    expect(getByText('Remove photo')).toBeTruthy();
   });
 
   async function seedAttachment(): Promise<Attachment> {
@@ -273,6 +389,64 @@ describe('<UploadPhoto />', () => {
     await cache.putOutbox(HELD_PATH);
     return await seedAttachment();
   }
+
+  function fetchesPhoto(): void {
+    cache.setTransferChannel({
+      fetchFromCentral: jest.fn(async () => {
+        fs.seed(FETCHED_PATH, PHOTO_BYTES);
+        return await store.putFile(FETCHED_PATH);
+      }),
+    } as any);
+  }
+
+  function deferPhotoFetch(): () => void {
+    let release: () => void;
+    const released = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    cache.setTransferChannel({
+      fetchFromCentral: jest.fn(async () => {
+        await released;
+        fs.seed(FETCHED_PATH, PHOTO_BYTES);
+        return await store.putFile(FETCHED_PATH);
+      }),
+    } as any);
+    return () => release();
+  }
+
+  // A photo resolves behind six or more database round trips. Draining the
+  // calls the component makes, rather than polling what it has rendered,
+  // keeps these assertions off a wall-clock budget.
+  function trackBackendCalls(): void {
+    backendCalls = [];
+    contentReads = 0;
+    const track = <T,>(call: Promise<T>): Promise<T> => {
+      backendCalls.push(call.then(ignoreOutcome, ignoreOutcome));
+      return call;
+    };
+
+    const { Attachment: attachmentModel } = Database.models;
+    const findOne = attachmentModel.findOne.bind(attachmentModel);
+    jest.spyOn(attachmentModel, 'findOne').mockImplementation(options => track(findOne(options)));
+
+    const readBase64 = cache.readBase64.bind(cache);
+    jest.spyOn(cache, 'readBase64').mockImplementation(hash => {
+      contentReads += 1;
+      return track(readBase64(hash));
+    });
+  }
+
+  async function settleRead(): Promise<void> {
+    await act(async () => {
+      for (let drained = 0; drained < backendCalls.length; ) {
+        const pending = backendCalls.slice(drained);
+        drained = backendCalls.length;
+        await Promise.all(pending);
+      }
+    });
+  }
+
+  function ignoreOutcome(): void {}
 
   async function takePhoto(getByText): Promise<void> {
     await act(async () => {

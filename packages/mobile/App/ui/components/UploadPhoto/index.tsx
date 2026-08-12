@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { ERROR_TYPE } from '@tamanu/errors';
+import { ERROR_TYPE, NotFoundError } from '@tamanu/errors';
 import { useBackend } from '~/ui/hooks';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
@@ -57,28 +57,56 @@ interface UploadPhotoComponentProps {
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
-const resolvePhoto = async (
+// One fact, so a read that lands late can be told from the photo the field
+// holds now.
+interface Photo {
+  attachmentId: string | null;
+  status: 'empty' | 'loading' | 'ready' | 'unavailable';
+  imageData?: string;
+  error?: Error;
+}
+
+const NO_PHOTO: Photo = { attachmentId: null, status: 'empty' };
+
+const readPhoto = async (
   attachmentId: string,
   { models, blobCache }: Pick<BackendManager, 'models' | 'blobCache'>,
-  isInternetReachable: boolean,
-): Promise<{ imageData?: string; errorMessage?: string }> => {
+): Promise<Photo> => {
   try {
     const attachment = await models.Attachment.findOne({ where: { id: attachmentId } });
     if (!attachment?.hash) {
-      return { errorMessage: NOT_ON_DEVICE_MESSAGE };
+      throw new NotFoundError(`This device holds no record for attachment ${attachmentId}`);
     }
-    return { imageData: await blobCache.readBase64(attachment.hash) };
+    return {
+      attachmentId,
+      status: 'ready',
+      imageData: await blobCache.readBase64(attachment.hash),
+    };
   } catch (error) {
-    // spec: MOB, XFER — an existing file awaiting its content, with the
-    // awaiting-upload and awaiting-fetch cases distinguished
-    if (error instanceof BlobAwaitingUploadError) {
-      return { errorMessage: AWAITING_UPLOAD_MESSAGE };
-    }
-    if (!isInternetReachable) {
-      return { errorMessage: NOT_ON_DEVICE_MESSAGE };
-    }
-    return { errorMessage: `Error loading image: ${error.message}` };
+    return { attachmentId, status: 'unavailable', error };
   }
+};
+
+const photoMessage = (
+  { attachmentId, error }: Photo,
+  isInternetReachable: boolean,
+): string | null => {
+  if (!error) {
+    return null;
+  }
+  if (!attachmentId) {
+    // Nothing attached, so the failure came from a capture rather than a read.
+    return `Error loading image: ${error.message}`;
+  }
+  // spec: MOB, XFER — an existing file awaiting its content, with the
+  // awaiting-upload and awaiting-fetch cases distinguished
+  if (error instanceof BlobAwaitingUploadError) {
+    return AWAITING_UPLOAD_MESSAGE;
+  }
+  if (error instanceof NotFoundError || !isInternetReachable) {
+    return NOT_ON_DEVICE_MESSAGE;
+  }
+  return `Error loading image: ${error.message}`;
 };
 
 const ImageActionButton = ({ onPress, label, marginTop = 5, border = true }) => (
@@ -144,13 +172,9 @@ const UploadPhotoComponent = ({
 );
 
 export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
-  const [loading, setLoading] = useState(Boolean(value));
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [imageData, setImageData] = useState(null);
-  const [hasPhoto, setHasPhoto] = useState(Boolean(value));
-  // The value already taken up, so a photo captured here is not read back from
-  // the store, and a read still in flight when it is removed is discarded.
-  const shownValue = useRef(null);
+  const [photo, setPhoto] = useState<Photo>(() =>
+    value ? { attachmentId: value, status: 'loading' } : NO_PHOTO,
+  );
   const { models, blobCache } = useBackend();
   const { isInternetReachable } = useNetInfo();
 
@@ -177,11 +201,17 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
-    shownValue.current = null;
-    setHasPhoto(false);
-    setImageData(null);
-    setErrorMessage(null);
+    setPhoto(NO_PHOTO);
     await removeAttachment(value);
+  }, [value]);
+
+  useEffect(() => {
+    setPhoto(current => {
+      if (current.attachmentId === value) {
+        return current;
+      }
+      return value ? { attachmentId: value, status: 'loading' } : NO_PHOTO;
+    });
   }, [value]);
 
   // spec: MOB
@@ -189,31 +219,31 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   // content the device holds reads without connectivity, content it does not
   // hold is fetched by hash.
   useEffect(() => {
-    if (!value || value === shownValue.current) {
+    const { attachmentId, status } = photo;
+    if (status !== 'loading' || !attachmentId) {
       return;
     }
-    shownValue.current = value;
-    let cancelled = false;
-
-    setHasPhoto(true);
-    setImageData(null);
-    setErrorMessage(null);
-    setLoading(true);
-
     (async (): Promise<void> => {
-      const resolved = await resolvePhoto(value, { models, blobCache }, isInternetReachable);
-      if (cancelled || shownValue.current !== value) {
-        return;
-      }
-      setImageData(resolved.imageData ?? null);
-      setErrorMessage(resolved.errorMessage ?? null);
-      setLoading(false);
+      const read = await readPhoto(attachmentId, { models, blobCache });
+      // A capture or removal that lands first owns the field; this read is stale.
+      setPhoto(current =>
+        current.attachmentId === attachmentId && current.status === 'loading' ? read : current,
+      );
     })();
+  }, [photo, models, blobCache]);
 
-    return (): void => {
-      cancelled = true;
-    };
-  }, [value, models, blobCache, isInternetReachable]);
+  // spec: MOB — content the device could not fetch is retried once it has
+  // connectivity, so the advice to connect is one the component can act on.
+  useEffect(() => {
+    if (!isInternetReachable) {
+      return;
+    }
+    setPhoto(current =>
+      current.status === 'unavailable'
+        ? { attachmentId: current.attachmentId, status: 'loading' }
+        : current,
+    );
+  }, [isInternetReachable]);
 
   const addPhotoCallback = useCallback(
     async imageType => {
@@ -227,13 +257,11 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         }
       } catch (error) {
         await removePhotoCallback();
-        setErrorMessage(`Error loading image: ${error.message}`);
+        setPhoto({ ...NO_PHOTO, error });
         return;
       }
 
-      setHasPhoto(false);
-      setImageData(null);
-      setLoading(true);
+      setPhoto({ attachmentId: null, status: 'loading' });
 
       // image-picker produces quite expensive files so
       // always delete them straight away to save storage
@@ -257,7 +285,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       try {
         putResult = await blobCache.putOutbox(path);
       } catch (error) {
-        setLoading(false);
+        setPhoto(NO_PHOTO);
         await deleteFileInDocuments(path);
         if (error?.type === ERROR_TYPE.STORAGE_INSUFFICIENT) {
           // spec: CAP — the refusal names the device's storage as the cause
@@ -270,7 +298,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
           });
           return;
         }
-        setErrorMessage(`Error loading image: ${error.message}`);
+        setPhoto({ ...NO_PHOTO, error });
         return;
       }
 
@@ -281,23 +309,20 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       });
 
       onChange(id);
-      shownValue.current = id;
-      setHasPhoto(true);
-      setImageData(image.base64);
-      setLoading(false);
+      setPhoto({ attachmentId: id, status: 'ready', imageData: image.base64 });
     },
     [value],
   );
 
   return (
     <UploadPhotoComponent
-      hasPhoto={hasPhoto}
-      imageData={imageData}
-      errorMessage={errorMessage}
+      hasPhoto={Boolean(photo.attachmentId)}
+      imageData={photo.imageData}
+      errorMessage={photoMessage(photo, isInternetReachable)}
       onPressTakePhoto={() => addPhotoCallback(IMAGE_SOURCE_TYPES.CAMERA)}
       onPressChoosePhoto={() => addPhotoCallback(IMAGE_SOURCE_TYPES.LIBRARY)}
       onPressRemovePhoto={removePhotoCallback}
-      loading={loading}
+      loading={photo.status === 'loading'}
     />
   );
 });
