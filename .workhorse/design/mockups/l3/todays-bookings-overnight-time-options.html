@@ -424,10 +424,12 @@
        */
       const timeCell = (locale, dayIndex, isolate = false) => {
         const { startDate, startTime, endDate, endTime } = LOCALES[locale];
-        const part = text => (isolate ? `<bdi>${text}</bdi>` : text);
-        const start =
-          dayIndex === 0 ? part(startTime) : `${part(startDate)} ${part(startTime)}`;
-        const end = dayIndex === 2 ? part(endTime) : `${part(endDate)} ${part(endTime)}`;
+        // The isolate goes around a whole end, date and time together. Isolating the
+        // date and the time separately keeps each intact but forces them into
+        // left-to-right order against each other, which is wrong for the locale.
+        const isolated = text => (isolate ? `<bdi>${text}</bdi>` : text);
+        const start = isolated(dayIndex === 0 ? startTime : `${startDate} ${startTime}`);
+        const end = isolated(dayIndex === 2 ? endTime : `${endDate} ${endTime}`);
         return `${start} –<br /><span class="nowrap">${end} ${MOON}</span>`;
       };
 
@@ -552,7 +554,7 @@
             { label: 'ur-PK · middle day, as it renders today', rows: proposedRows('ur-PK', 1) },
             { label: 'ur-IN · middle day, as it renders today', rows: proposedRows('ur-IN', 1) },
             {
-              label: 'ur-PK · each part isolated in a bdi',
+              label: 'ur-PK · each end isolated in a bdi',
               rows: proposedRows('ur-PK', 1, true),
             },
             {
@@ -565,7 +567,7 @@
         {
           title: 'Fixing the direction',
           caption:
-            'Wrapping each formatted part in a <code>bdi</code> keeps the runs apart, so the date and time stay in the right order even in a left-to-right pane: that is the third pane above, and it is cheap enough to do wherever a date is rendered. Setting the pane\'s direction from the locale is the fuller answer, and the setting already carries what is needed: <code>new Intl.Locale(locale).getTextInfo().direction</code>. The fourth pane above is both together, and it is the only one that reads correctly to an Urdu speaker: the grid mirrors, the dot and connector move to the right, and the dash and icon land at the visual end of their lines.',
+            'Wrapping each end of the range in a <code>bdi</code>, date and time together, keeps it from merging with what sits beside it: that is the third pane above, and it is cheap enough to do wherever a date is rendered. Measured left to right, that end renders in exactly the order a native right-to-left container gives it. Isolating the date and the time separately instead would keep each intact but order them left to right against each other. Setting the pane\'s direction from the locale is the fuller answer, and the setting already carries what is needed: <code>new Intl.Locale(locale).getTextInfo().direction</code>. The fourth pane above is both together, and it is the only one that reads correctly to an Urdu speaker: the grid mirrors, the dot and connector move to the right, and the dash and icon land at the visual end of their lines.',
           panes: [],
         },
       ];

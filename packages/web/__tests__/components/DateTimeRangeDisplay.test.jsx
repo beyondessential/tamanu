@@ -126,17 +126,43 @@ describe('DateTimeRangeDisplay', () => {
   });
 
   describe('bidi isolation', () => {
-    it('wraps each end so a right-to-left month cannot absorb the time beside it', () => {
+    // Visual order cannot be asserted here: jsdom does no layout, so it applies no
+    // bidi reordering. What is pinned instead is the structure that produces the
+    // right order, measured in a browser: one isolate per end, holding the date and
+    // the time together. Isolating them separately keeps the time intact but forces
+    // the date and time into left-to-right order against each other, which is wrong
+    // for a right-to-left locale.
+    it('isolates each end as a whole, date and time together', () => {
       const { container } = renderRange({
         settings: { dateTimeLocale: 'ur-PK' },
         start: '2026-08-12 10:00:00',
         end: '2026-08-14 11:30:00',
         dateFormat: 'dayMonth',
       });
+
       const isolated = container.querySelectorAll('bdi');
       expect(isolated).toHaveLength(2);
       expect(isolated[0].textContent).toBe('12 اگست 10:00am');
       expect(isolated[1].textContent).toBe('14 اگست 11:30am');
+      // No nested isolate splitting a date from its time
+      for (const end of isolated) {
+        expect(end.querySelectorAll('bdi')).toHaveLength(0);
+      }
+    });
+
+    it('isolates a time-only end too, so it cannot join a neighbouring run', () => {
+      const { container } = renderRange({
+        settings: { dateTimeLocale: 'ur-PK' },
+        start: '2026-08-12 10:00:00',
+        end: '2026-08-14 11:30:00',
+        onDate: '2026-08-14',
+        dateFormat: 'dayMonth',
+      });
+
+      const isolated = container.querySelectorAll('bdi');
+      expect(isolated).toHaveLength(2);
+      expect(isolated[0].textContent).toBe('12 اگست 10:00am');
+      expect(isolated[1].textContent).toBe('11:30am');
     });
   });
 });

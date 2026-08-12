@@ -355,8 +355,13 @@ export const DateTimeRangeDisplay = React.memo(
 
     return (
       <span>
-        {/* Each end is isolated so a right-to-left month name cannot absorb the
-            digits beside it and reorder the date against the time */}
+        {/* Each end is isolated as a whole, date and time together, so a
+            right-to-left month name cannot absorb the digits beside it and strand
+            the am/pm marker. `bdi` resolves its base direction from the first
+            strong character, so an Urdu end becomes one right-to-left run and
+            renders exactly as a native RTL container would. Do not isolate the
+            date and time separately: that keeps them intact but forces them into
+            left-to-right order against each other, which is wrong for the locale. */}
         <bdi>
           <DateDisplay
             date={start}
