@@ -13,6 +13,7 @@ import {
 } from '@tamanu/constants';
 
 import { registerBlobReferenceSource } from '../app/blobReferences';
+import { CentralSyncManager } from '../app/sync/CentralSyncManager';
 import { createTestContext } from './utilities';
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -684,6 +685,26 @@ describe('Blob transfer channel', () => {
       expect(response.status).toBe(403);
     });
 
+    // spec: BLAC
+    // One inaccessible facility refuses the whole list, whichever position it
+    // holds: a check that accepted the request because some declared facility
+    // was accessible would then scope the operation to the inaccessible one too.
+    it('refuses a facility list mixing one the user can access with one it cannot', async () => {
+      const content = Buffer.from('referenced at the sensitive facility alone');
+      const hash = await seedHeldBlob(content);
+      await reference(hash, { facilityId: sensitiveFacility.id });
+
+      for (const facilityIds of [
+        [facilityA.id, sensitiveFacility.id],
+        [sensitiveFacility.id, facilityA.id],
+      ]) {
+        const scope = { token: tokenA, facilityIds };
+        expect(await availability(hash, scope)).toBeForbidden();
+        expect(await getBlob(hash, scope)).toBeForbidden();
+        expect(await offer(hash, content.length, scope)).toBeForbidden();
+      }
+    });
+
     describe('fetch', () => {
       it('serves a blob referenced by a record in the declared facility scope', async () => {
         const content = Buffer.from('scoped fetch in scope');
@@ -912,5 +933,75 @@ describe('Blob transfer channel', () => {
       });
     });
 
+    // spec: BLAC, ATCH
+    // Everything above scopes through the scratch reference table, so this runs
+    // the same gate over the `attachments` registration that ships: real rows,
+    // entering sync_lookup through the same build a pull reads from.
+    describe('attachment references', () => {
+      let inScopeHash;
+      let sensitiveHash;
+
+      const attachmentCarrying = async (hash, content, overrides) =>
+        await models.Attachment.create(
+          fake(models.Attachment, {
+            ...overrides,
+            type: 'text/plain',
+            size: content.length,
+            hash,
+            data: null,
+          }),
+        );
+
+      beforeAll(async () => {
+        const inScopeContent = Buffer.from('bytes an attachment row references');
+        inScopeHash = await seedHeldBlob(inScopeContent);
+        await attachmentCarrying(inScopeHash, inScopeContent, { patientId: patientAtA.id });
+
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patientAtA.id,
+          facilityId: sensitiveFacility.id,
+        });
+        const department = await models.Department.create(
+          fake(models.Department, { facilityId: sensitiveFacility.id }),
+        );
+        const location = await models.Location.create(
+          fake(models.Location, { facilityId: sensitiveFacility.id }),
+        );
+        const examiner = await models.User.create(fake(models.User));
+        const encounter = await models.Encounter.create(
+          fake(models.Encounter, {
+            patientId: patientAtA.id,
+            departmentId: department.id,
+            locationId: location.id,
+            examinerId: examiner.id,
+            endDate: null,
+          }),
+        );
+        const sensitiveContent = Buffer.from('bytes attached at the sensitive facility');
+        sensitiveHash = await seedHeldBlob(sensitiveContent);
+        await attachmentCarrying(sensitiveHash, sensitiveContent, { encounterId: encounter.id });
+
+        await new CentralSyncManager(ctx).updateLookupTable();
+      });
+
+      it('serves a blob an attachment row references within the declared scope', async () => {
+        const served = await getBlob(inScopeHash, scopeA).buffer(true);
+        expect(served).toHaveSucceeded();
+        expect(Buffer.from(served.body).toString()).toBe('bytes an attachment row references');
+
+        const elsewhere = await availability(inScopeHash, scopeB);
+        expect(elsewhere.body).toEqual({
+          availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+        });
+      });
+
+      it('applies the sensitive-facility restriction to an attachment', async () => {
+        const outside = await availability(sensitiveHash, scopeA);
+        expect(outside.body).toEqual({ availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD });
+
+        expect(await getBlob(sensitiveHash, scopeSensitive)).toHaveSucceeded();
+      });
+    });
   });
 });
