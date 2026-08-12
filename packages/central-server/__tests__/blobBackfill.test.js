@@ -332,6 +332,37 @@ describe('Blob backfill', () => {
       expect(await readAll(await blobStore.get(hashOf(current)))).toEqual(current);
     });
 
+    // Entries never re-synchronise, so each server rewrites its own copy. The
+    // two only stay in agreement because the rewrite is derived from the bytes
+    // and nothing else: same content, same hash, same resulting snapshot.
+    it('rewrites to identical content on two servers working independently', async () => {
+      const content = Buffer.from('the same entry on both servers');
+      const recordId = randomUUID();
+      const here = await insertChangelogEntry('attachments', recordId, content);
+      const there = await insertChangelogEntry('attachments', recordId, content);
+      const otherRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'tamanu-backfill-other-'));
+      const otherServer = new BlobBackfill({
+        sequelize,
+        blobStore: new BlobStore({
+          root: otherRoot,
+          models,
+          getFreeDiskReserveBytes: async () => 0,
+        }),
+      });
+
+      try {
+        // A batch of one each, taken in id order, so the two servers rewrite
+        // one entry apiece into stores that share nothing.
+        await backfill.rewriteChangelogEntries(1);
+        await otherServer.rewriteChangelogEntries(1);
+
+        expect(await entryOf(there)).toEqual(await entryOf(here));
+        expect((await entryOf(here)).record_data.hash).toBe(hashOf(content));
+      } finally {
+        await fs.rm(otherRoot, { recursive: true, force: true });
+      }
+    });
+
     it('is idempotent across runs', async () => {
       await insertChangelogEntry('attachments', randomUUID(), Buffer.from('rewrite me once'));
 
@@ -467,6 +498,36 @@ describe('Blob backfill', () => {
         { type: QueryTypes.SELECT, plain: true },
       );
       expect(Number(rows.count)).toBe(0);
+    });
+
+    // The spec makes an intact store the precondition: rollback is a database
+    // restore from the store, not from a backup. Content the store cannot
+    // supply has to stop the run, since the alternative is a row silently
+    // restored to nothing on the way into a downgrade.
+    it('fails rather than restoring a row whose content has left the store', async () => {
+      const content = Buffer.from('this one has gone from the store');
+      const id = await insertAttachment(content);
+      await backfill.moveReferenceRows('attachments', 10);
+      await blobStore.delete(hashOf(content));
+
+      await expect(backfill.rollbackReferenceRows('attachments', 10)).rejects.toThrow();
+
+      const row = await rowOf('attachments', id);
+      expect(row.hash).toBe(hashOf(content));
+      expect(row.data).toBeNull();
+    });
+
+    it('fails rather than restoring a changelog entry whose content has left the store', async () => {
+      const content = Buffer.from('a snapshot with no bytes behind it');
+      const entryId = await insertChangelogEntry('assets', randomUUID(), content);
+      await backfill.rewriteChangelogEntries(10);
+      await blobStore.delete(hashOf(content));
+
+      await expect(backfill.rollbackChangelogEntries(10)).rejects.toThrow();
+
+      const entry = await entryOf(entryId);
+      expect(entry.record_data.hash).toBe(hashOf(content));
+      expect(entry.record_data.data).toBeNull();
     });
 
     it('round-trips content unchanged through backfill and rollback', async () => {

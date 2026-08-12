@@ -46,6 +46,7 @@ describe('central blob error correction', () => {
 
   beforeEach(async () => {
     await models.Blob.destroy({ where: {}, force: true });
+    await models.BlobQuarantine.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'central-parity-test-'));
     errorCorrection = { enabled: true, proportion: 0.1 };
     blobStore = new BlobStore({
@@ -127,6 +128,24 @@ describe('central blob error correction', () => {
     const row = await models.Blob.findOne({ where: { hash } });
     expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
     expect(row.correctionCount).toBe(0);
+  });
+
+  // verifies spec: AV, FEC — a repair ends in the same bytes being held again,
+  // which for content the deployment has recorded as malware is the one outcome
+  // to avoid. The damage here is inside the parity budget, so the only reason
+  // not to reconstruct it is the quarantine.
+  it('refuses to reconstruct quarantined content its parity could restore', async () => {
+    const content = coveredContent(5);
+    const { hash } = await admit(content);
+    await models.BlobQuarantine.create({ hash });
+    await damageShards(hash, [4]);
+
+    await healCorrupt(hash);
+
+    const row = await models.Blob.findOne({ where: { hash } });
+    expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
+    expect(row.correctionCount).toBe(0);
+    expect(await fs.readFile(pathOf(hash))).not.toEqual(content);
   });
 
   it('records it corrupt as before where the blob carries no parity', async () => {
