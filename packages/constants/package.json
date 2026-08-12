@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/constants",
-  "version": "2.55.25",
+  "version": "2.55.26",
   "private": true,
   "description": "Shared constants",
   "main": "dist/cjs/index.js",
