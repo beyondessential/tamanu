@@ -106,6 +106,12 @@ describe('PatientLetter', () => {
     }
 
     const hash = `sha256:${createHash('sha256').update(content).digest('hex')}`;
+    await models.Blob.update(
+      { lastAccessedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+      { where: { hash }, silent: true },
+    );
+    await ctx.blobCache.demoteStrandedOutbox();
+
     expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
   });
 

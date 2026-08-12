@@ -47,19 +47,13 @@ export const createPatientLetter = (modelName, idField) =>
     );
     fs.unlink(filePath, () => null);
 
-    let attachmentId;
-    try {
-      ({ id: attachmentId } = await models.Attachment.create({
-        type: mimeType,
-        hash,
-        size: storedSize,
-        [idField]: params.id,
-        ...(modelName === 'Encounter' ? { patientId: specifiedObject.patientId } : {}),
-      }));
-    } catch (error) {
-      await req.blobCache.demoteIfStranded(hash);
-      throw error;
-    }
+    const { id: attachmentId } = await models.Attachment.create({
+      type: mimeType,
+      hash,
+      size: storedSize,
+      [idField]: params.id,
+      ...(modelName === 'Encounter' ? { patientId: specifiedObject.patientId } : {}),
+    });
 
     const documentMetadataObject = await models.DocumentMetadata.create({
       name,
