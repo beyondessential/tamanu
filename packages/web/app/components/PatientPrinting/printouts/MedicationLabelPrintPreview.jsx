@@ -12,9 +12,28 @@ const PrintContainer = styled.div`
   align-items: center;
 
   @media print {
-    // Each label forces a page break after itself (see MedicationLabel), so this
-    // gap would otherwise eat into the next exact-sized page and misalign it.
+    // Each LabelPrintPage fills and forces a break onto its own page, so this
+    // gap would otherwise add extra height on top of that and misalign it.
     gap: 0;
+  }
+`;
+
+const LabelPrintPage = styled.div`
+  @media print {
+    // The printer/OS paper size doesn't always end up matching the label's own
+    // exact mm dimensions (e.g. the driver falls back to a larger default
+    // media size), so centre the label within whichever page size is actually
+    // used rather than assuming it fills the page.
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+
+    &:not(:last-child) {
+      break-after: page;
+      page-break-after: always;
+    }
   }
 `;
 
@@ -76,7 +95,9 @@ export const MedicationLabelPrintPreview = ({ labels, showDescription = true }) 
       )}
       <PrintContainer>
         {labels.map((label, index) => (
-          <MedicationLabel key={label.id || index} data={label} />
+          <LabelPrintPage key={label.id || index}>
+            <MedicationLabel data={label} />
+          </LabelPrintPage>
         ))}
       </PrintContainer>
     </>
