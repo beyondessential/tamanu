@@ -1,3 +1,7 @@
+import { createReadStream } from 'node:fs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { Readable, Writable } from 'node:stream';
 
 import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
@@ -7,6 +11,7 @@ import { readBlobAsBase64, serveBlob } from '../../src/utils/serveBlob';
 class FakeResponse extends Writable {
   statusCode = 200;
   headers = {};
+  onWrite = () => {};
   #chunks = [];
 
   status(code) {
@@ -22,6 +27,7 @@ class FakeResponse extends Writable {
   _write(chunk, _encoding, callback) {
     this.#chunks.push(chunk);
     callback();
+    this.onWrite();
   }
 
   get body() {
@@ -134,5 +140,84 @@ describe('serveBlob', () => {
     const res = await serve({ hash: null, headers: { 'if-none-match': '*' } });
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(CONTENT);
+  });
+
+  it('writes the first bytes out before the source has produced its last', async () => {
+    const res = new FakeResponse();
+    let sourceFinished = false;
+    let finishedAtFirstWrite = null;
+    let release;
+    const released = new Promise(resolve => {
+      release = resolve;
+    });
+    // Released on the first write, or shortly after regardless, so a serve that
+    // reads the whole blob before writing any of it fails the assertion below
+    // rather than waiting on a write that is never coming.
+    const fallback = setTimeout(() => release(), 100);
+    res.onWrite = () => {
+      finishedAtFirstWrite ??= sourceFinished;
+      release();
+    };
+
+    async function* slowly() {
+      yield CONTENT.subarray(0, 5);
+      await released;
+      sourceFinished = true;
+      yield CONTENT.subarray(5);
+    }
+
+    try {
+      await serveBlob({ headers: {} }, res, {
+        hash: HASH,
+        size: CONTENT.length,
+        contentType: 'text/plain',
+        open: () => Readable.from(slowly()),
+      });
+    } finally {
+      clearTimeout(fallback);
+    }
+
+    expect(finishedAtFirstWrite).toBe(false);
+    expect(res.body).toEqual(CONTENT);
+  });
+
+  describe('a client that goes away mid-download', () => {
+    let root;
+    let filePath;
+
+    beforeAll(async () => {
+      root = await fs.mkdtemp(path.join(os.tmpdir(), 'serve-blob-'));
+      filePath = path.join(root, 'content');
+      // Past the read stream's buffer, so the download is still in flight when
+      // the client disconnects.
+      await fs.writeFile(filePath, Buffer.alloc(256 * 1024, 'a'));
+    });
+
+    afterAll(async () => {
+      await fs.rm(root, { recursive: true, force: true });
+    });
+
+    // How an interrupted fetch pauses before resuming with a range request, so
+    // it must not surface as a failure, and it must not leave the file open.
+    it('is not an error, and leaves no open file handle', async () => {
+      const res = new FakeResponse();
+      res.onWrite = () => res.destroy();
+      const source = createReadStream(filePath);
+      const closed = new Promise(resolve => {
+        source.once('close', resolve);
+      });
+
+      await expect(
+        serveBlob({ headers: {} }, res, {
+          hash: HASH,
+          size: 256 * 1024,
+          contentType: 'text/plain',
+          open: () => source,
+        }),
+      ).resolves.toBeUndefined();
+
+      await closed;
+      expect(source.closed).toBe(true);
+    });
   });
 });

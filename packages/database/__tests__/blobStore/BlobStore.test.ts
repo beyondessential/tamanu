@@ -112,15 +112,21 @@ describe('BlobStore', () => {
       statfs: async () => ({ bavail: volumeFreeBytes, bsize: 1 }),
     });
 
+  const storedPath = (hash: string) => {
+    const digest = hash.split(':')[1];
+    return path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4));
+  };
+
   // Rewrite a stored blob's bytes in place, leaving its registry row and its
   // path untouched: bit rot as the store would meet it.
   const corruptStoredBytes = async (hash: string, replacement: string) => {
-    const digest = hash.split(':')[1];
-    await fs.writeFile(
-      path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4)),
-      replacement,
-    );
+    await fs.writeFile(storedPath(hash), replacement);
   };
+
+  const renameFailure = (code: string) =>
+    Object.assign(new Error(`rename failed with ${code}`), { code });
+
+  const tempFiles = async () => await fs.readdir(path.join(root, 'tmp'));
 
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-store-test-'));
@@ -203,6 +209,71 @@ describe('BlobStore', () => {
       expect(again.existed).toBe(true);
       expect(fakeBlob.rows.get(hash)).toMatchObject({ hash, size: 11 });
       expect(await store.has(hash)).toBe(true);
+    });
+  });
+
+  // spec: CAS
+  // Renaming over an occupied destination, and transient sharing violations from
+  // an antivirus or indexer handle, only happen on Windows/NTFS: POSIX never
+  // raises them here, so a faked rename is the only exercise this branch gets.
+  describe('atomic placement', () => {
+    const realRename = fs.rename;
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('places the content whole once a transient rename failure clears', async () => {
+      const rename = vi
+        .spyOn(fs, 'rename')
+        .mockRejectedValueOnce(renameFailure('EPERM'))
+        .mockRejectedValueOnce(renameFailure('EBUSY'))
+        .mockImplementation(realRename);
+      const store = makeStore();
+
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(rename).toHaveBeenCalledTimes(3);
+      expect((await readAll(await store.get(hash))).toString()).toBe('hello world');
+      expect(await tempFiles()).toHaveLength(0);
+    });
+
+    it('keeps the bytes a concurrent put placed and drops its own', async () => {
+      vi.spyOn(fs, 'rename').mockImplementationOnce(async (_from, to) => {
+        // The other put won between this one's presence check and its rename.
+        await fs.writeFile(to as string, 'placed by the concurrent put');
+        throw renameFailure('EEXIST');
+      });
+      const store = makeStore();
+
+      const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+
+      expect(hash).toBe(HELLO_HASH);
+      expect((await fs.readFile(storedPath(hash))).toString()).toBe('placed by the concurrent put');
+      expect(await tempFiles()).toHaveLength(0);
+    });
+
+    it('gives up once the attempts are exhausted, storing nothing', async () => {
+      const rename = vi.spyOn(fs, 'rename').mockRejectedValue(renameFailure('EBUSY'));
+      const store = makeStore();
+
+      await expect(store.put(Readable.from(Buffer.from('hello world')))).rejects.toMatchObject({
+        code: 'EBUSY',
+      });
+      expect(rename.mock.calls.length).toBeGreaterThan(1);
+      expect(await store.has(HELLO_HASH)).toBe(false);
+      expect(await tempFiles()).toHaveLength(0);
+    });
+
+    it('does not retry a failure that waiting cannot clear', async () => {
+      const rename = vi.spyOn(fs, 'rename').mockRejectedValue(renameFailure('EXDEV'));
+      const store = makeStore();
+
+      await expect(store.put(Readable.from(Buffer.from('hello world')))).rejects.toMatchObject({
+        code: 'EXDEV',
+      });
+      expect(rename).toHaveBeenCalledTimes(1);
+      expect(await tempFiles()).toHaveLength(0);
     });
   });
 
@@ -417,6 +488,25 @@ describe('BlobStore', () => {
       await store.stage(HELLO_HASH, Readable.from(Buffer.from('hello')), { offset: 0 });
       await fs.mkdir(path.join(root, 'tmp'), { recursive: true });
       await fs.writeFile(path.join(root, 'tmp', 'leftover'), 'x');
+
+      expect(await collect(store)).toEqual([]);
+    });
+
+    it('skips a file misplaced under the fan-out directories of another blob', async () => {
+      const store = makeStore();
+      const digest = HELLO_HASH.split(':')[1];
+      // The same characters as a stored blob's path, split a byte along: joined
+      // up they name a real blob, so only the location the fan-out actually
+      // encodes tells this apart from content.
+      const misplaced = path.join(
+        root,
+        'sha256',
+        digest.slice(0, 2),
+        digest.slice(2, 5),
+        digest.slice(5),
+      );
+      await fs.mkdir(path.dirname(misplaced), { recursive: true });
+      await fs.writeFile(misplaced, 'hello world');
 
       expect(await collect(store)).toEqual([]);
     });
