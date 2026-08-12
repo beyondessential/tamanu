@@ -75,6 +75,18 @@ describe('blob cache scheduled tasks', () => {
       expect(await blobStore.has(recent.hash)).toBe(true);
     });
 
+    it('demotes an outbox blob left without a referencing record', async () => {
+      // verifies spec: CACHE — nothing else reclaims a stranded outbox blob, so
+      // the periodic pass demotes it into the budget's reach
+      const { hash } = await blobCache.putOutbox(Readable.from(uniqueContent()));
+      await setLastAccessed(hash, 2 * 60 * 60 * 1000);
+
+      const ran = await new BlobCacheEvictorTask({ schedules, blobCache }).runImmediately();
+
+      expect(ran).toBe(true);
+      expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
+    });
+
     it('runs cleanly before the blob cache is wired', async () => {
       const ran = await new BlobCacheEvictorTask({ schedules }).runImmediately();
 

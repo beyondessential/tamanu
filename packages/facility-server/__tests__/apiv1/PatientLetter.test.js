@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from 'node:crypto';
 import fs from 'fs';
 import config from 'config';
 import ReactPDF from '@react-pdf/renderer';
@@ -85,6 +86,27 @@ describe('PatientLetter', () => {
     } finally {
       ctx.blobCache.setTransferChannel(null);
     }
+  });
+
+  // spec: CACHE
+  it('leaves no outbox blob when the attachment write fails', async () => {
+    const content = `not a real pdf ${randomUUID()}`;
+    renderSpy.mockImplementationOnce(async (_element, filePath) => {
+      fs.writeFileSync(filePath, content);
+    });
+    const createSpy = jest
+      .spyOn(models.Attachment, 'create')
+      .mockRejectedValueOnce(new Error('attachment write failed'));
+
+    try {
+      const result = await createLetter();
+      expect(result).toHaveStatus(500);
+    } finally {
+      createSpy.mockRestore();
+    }
+
+    const hash = `sha256:${createHash('sha256').update(content).digest('hex')}`;
+    expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
   });
 
   it('renders the letter with the requesting browser locale', async () => {
