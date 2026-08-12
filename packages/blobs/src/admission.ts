@@ -32,9 +32,9 @@ export interface BlobAdmissionHost {
   /**
    * Registry upsert. Contract, since hosts implement it in different dialects:
    * atomic against a concurrent admission of the same content; a live row is
-   * left entirely alone (content already held as cache stays cache); a
-   * soft-deleted row is resurrected with the incoming tier and its recency reset
-   * to now.
+   * left entirely alone, so a tier the admission needs applied is the caller's
+   * to set; a soft-deleted row is resurrected with the incoming tier and its
+   * recency reset to now.
    */
   register(hash: string, size: number, tier: BlobTier): Promise<void>;
   /**

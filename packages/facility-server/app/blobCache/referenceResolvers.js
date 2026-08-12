@@ -16,6 +16,28 @@ function quoteIdentifier(identifier) {
 
 // spec: CACHE
 /**
+ * The tables that reference blobs by hash on a facility. The pusher's
+ * eligibility resolvers and the stranded-outbox sweep are both built from this
+ * one list, so a consumer registered for the first is registered for the
+ * second: a table missing here has its outbox blobs demoted as unreferenced.
+ */
+export const BLOB_REFERENCE_TABLES = [{ tableName: 'attachments', hashColumn: 'hash' }];
+
+// spec: CACHE
+/** Matches a blob no live record references, for use against the blobs table. */
+export const UNREFERENCED_BLOB_CONDITION = BLOB_REFERENCE_TABLES.map(
+  ({ tableName, hashColumn }) => {
+    const table = quoteIdentifier(tableName);
+    return `NOT EXISTS (
+      SELECT 1 FROM ${table}
+      WHERE ${table}.${quoteIdentifier(hashColumn)} = blobs.hash
+        AND ${table}.deleted_at IS NULL
+    )`;
+  },
+).join(' AND ');
+
+// spec: CACHE
+/**
  * Builds a reference resolver for a consumer table that references blobs by
  * hash: given candidate hashes, returns those with at least one referencing
  * record that has synchronised to the central server. Synchronised is

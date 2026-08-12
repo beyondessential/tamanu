@@ -1,12 +1,23 @@
+import { Op, literal } from 'sequelize';
+
 import { BlobEviction } from '@tamanu/blobs';
 import { BLOB_TIERS } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
+import { UNREFERENCED_BLOB_CONDITION } from './referenceResolvers';
+
 // Reads within this window of the last recorded access don't rewrite recency.
 // spec: CACHE — recency updates may be coalesced; losing the most recent
 // refreshes degrades eviction ordering only.
 const RECENCY_COALESCE_SECONDS = 60;
+
+// spec: RECL
+// A reference is written after the blob it points at is admitted, so content
+// admitted within this window may have a reference still in flight and the
+// sweep leaves it alone. Long enough to cover a write inside a slow enclosing
+// transaction, since the record is invisible until that transaction commits.
+const STRANDED_SAFETY_WINDOW_MS = 60 * 60 * 1000;
 
 // spec: CACHE
 // The facility store's two durability tiers over the blob store primitive: the
@@ -52,11 +63,87 @@ export class FacilityBlobCache {
    * Admit locally originated content into the outbox. Call within the
    * operation that creates the blob's referencing record — outbox admission
    * without a reference strands the blob, since facility servers run no
-   * orphan collection. Content already held as cache stays cache: it is
-   * already durable on central and needs no push.
+   * orphan collection. Content the store already holds joins the outbox with
+   * it: a local origin means central is not known to hold the bytes.
    */
   async putOutbox(source, { sizeHint } = {}) {
-    return await this.#blobStore.put(source, { sizeHint, tier: BLOB_TIERS.OUTBOX });
+    const admitted = await this.#blobStore.put(source, { sizeHint, tier: BLOB_TIERS.OUTBOX });
+    // Admission leaves a row it already holds untouched, so the tier is set here.
+    if (admitted.existed) {
+      await this.#promoteToOutbox(admitted.hash);
+    }
+    return admitted;
+  }
+
+  // spec: CACHE — locally admitted content belongs in the outbox whatever tier
+  // its row held; the recency bump keeps the sweep's window over it (spec: RECL).
+  async #promoteToOutbox(hash) {
+    const [, [blob]] = await this.#models.Blob.update(
+      { tier: BLOB_TIERS.OUTBOX, lastAccessedAt: new Date() },
+      { where: { hash }, returning: true },
+    );
+    if (blob && !blob.hasParity) {
+      // spec: FEC — the outbox is this server's only durable copy, so it carries parity.
+      await this.#blobStore.writeParity({ hash, size: blob.size, tier: blob.tier });
+    }
+  }
+
+  // spec: CACHE
+  /**
+   * Demote a blob whose referencing record failed to write, so it does not sit
+   * in the outbox where this server can neither push nor evict it. Best effort:
+   * the caller is already failing with its own error, and the periodic sweep
+   * covers whatever this misses.
+   */
+  async demoteIfStranded(hash) {
+    try {
+      return await this.#demoteStranded({ hash });
+    } catch (error) {
+      log.warn('FacilityBlobCache: could not demote a stranded outbox blob', {
+        hash,
+        error: error.message,
+      });
+      return [];
+    }
+  }
+
+  // spec: CACHE
+  /**
+   * Demote every outbox blob no live record references. Covers what a write
+   * path cannot: a crash between admission and the record write leaves no
+   * catch to run, and the blob would otherwise persist forever.
+   */
+  async demoteStrandedOutbox() {
+    const demoted = await this.#demoteStranded({ minimumAgeMs: STRANDED_SAFETY_WINDOW_MS });
+    if (demoted.length > 0) {
+      log.info('FacilityBlobCache: demoted stranded outbox blobs', { hashes: demoted });
+    }
+    return demoted;
+  }
+
+  // Demotes rather than deletes, and tests the reference in the same statement
+  // as the update: admission is content-addressed and idempotent, so these bytes
+  // may be the only copy backing a reference this pass cannot see.
+  async #demoteStranded({ hash, minimumAgeMs = 0 }) {
+    const [, demoted] = await this.#models.Blob.update(
+      { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
+      {
+        where: {
+          tier: BLOB_TIERS.OUTBOX,
+          ...(hash ? { hash } : {}),
+          ...(minimumAgeMs
+            ? { lastAccessedAt: { [Op.lt]: new Date(Date.now() - minimumAgeMs) } }
+            : {}),
+          [Op.and]: [literal(UNREFERENCED_BLOB_CONDITION)],
+        },
+        returning: ['hash'],
+      },
+    );
+    for (const blob of demoted) {
+      // spec: FEC — a facility covers only its outbox with parity.
+      await this.#blobStore.discardParity(blob.hash);
+    }
+    return demoted.map(blob => blob.hash);
   }
 
   // spec: CACHE
