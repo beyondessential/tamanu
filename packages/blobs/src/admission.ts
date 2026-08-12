@@ -5,7 +5,10 @@ import {
   type BlobTier,
 } from '@tamanu/constants';
 import { BlobHashMismatchError, InsufficientStorageError, NotFoundError } from '@tamanu/errors';
-import { formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
+// Imported from the package root, not the `blobs` subpath: metro (mobile, which
+// bundles this package) resolves workspace packages by `main` and can't follow
+// subpath exports.
+import { formatBlobHash, parseBlobHash } from '@tamanu/utils';
 
 export interface AdmissionResult {
   hash: string;

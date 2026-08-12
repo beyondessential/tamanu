@@ -1,5 +1,6 @@
 import { BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM, type BlobTier } from '@tamanu/constants';
-import { formatBlobHash } from '@tamanu/utils/blobs';
+// Root import, not the `blobs` subpath: see the note in admission.ts.
+import { formatBlobHash } from '@tamanu/utils';
 
 // Known digests, so a host that hashes differently fails here rather than
 // silently storing content under an identity the other host can't resolve.
