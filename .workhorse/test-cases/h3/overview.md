@@ -32,4 +32,13 @@ Covers the warn-but-allow behaviour for prescriptions discontinued after they we
 
 ## Notes
 
-The backend cases above are unticked because the facility-server integration suite could not be run in this worktree: it has no dependency install, and the test database could not be provisioned with a toolchain borrowed from a sibling worktree. They are owed coverage in `packages/facility-server/__tests__/apiv1/Medication.test.js`.
+The backend cases above are unticked because no DB-backed facility-server suite can run in this
+worktree. Dependencies are installed and Postgres 18.4 is reachable (a raw `pg` connect plus
+`DROP`/`CREATE DATABASE` against the per-worker test database both succeed), but every suite that
+calls `createTestContext` dies in `beforeAll` with `Connection terminated unexpectedly` from
+`pg/lib/client.js`. It reproduces on the 25-line `__tests__/apiv1/index.test.js`, so it is
+environmental rather than specific to this card. They are owed coverage in
+`packages/facility-server/__tests__/apiv1/Medication.test.js`.
+
+The frontend cases are owed Playwright coverage in `packages/e2e-tests`; only the
+DiscontinuedTag unit case is currently automated.
