@@ -311,7 +311,10 @@ export const useDateRangeSpan = ({ start, end, onDate = null }) => {
 
   return {
     spansMultipleDays,
-    hasEnd: Boolean(endDay),
+    // Whether the range has an end is a property of `end`, not of whether it could
+    // be converted: a value that fails to convert renders as the formatter's
+    // placeholder, which is visible, rather than the end silently disappearing.
+    hasEnd: Boolean(end),
     showStartDate: !onDate || startDay !== onDate,
     showEndDate: spansMultipleDays && (!onDate || endDay !== onDate),
   };

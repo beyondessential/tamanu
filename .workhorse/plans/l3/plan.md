@@ -239,6 +239,10 @@ follow-up work worth its own card: it is a real correctness fix on each surface.
 - The time column was `text-transform: lowercase`, which would render a day-month
   date as "12 aug". It is dropped: `formatTime` already lowercases the am/pm marker,
   so the rule was redundant as well as harmful.
+- Whether a range has an end depends on `end` itself, not on whether it converted:
+  the old code threw on a malformed value, and deriving it from the converted value
+  made the end disappear silently. Now it renders through the formatter, which
+  supplies a visible placeholder.
 - Each end of the range is an explicit nowrap line. An icon is an atomic inline, so
   a break is allowed either side of it; left in an inline run it lands on a line of
   its own.

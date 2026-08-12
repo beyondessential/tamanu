@@ -84,6 +84,13 @@ describe('DateTimeRangeDisplay', () => {
     });
   });
 
+  it('still shows an end that cannot be converted, as a placeholder', () => {
+    renderRange({ settings, start: '2026-08-12 10:00:00', end: 'not-a-datetime' });
+    // The end is present, so it is rendered; the formatter supplies the placeholder
+    expect(rangeText()).toContain('–');
+    expect(rangeText()).not.toBe('12/08/2026 10:00am');
+  });
+
   describe('bidi isolation', () => {
     // Visual order cannot be asserted here: jsdom does no layout, so it applies no
     // bidi reordering. What is pinned instead is the structure that produces the
