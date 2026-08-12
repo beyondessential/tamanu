@@ -10,6 +10,12 @@ const PrintContainer = styled.div`
   flex-direction: column;
   gap: 14px;
   align-items: center;
+
+  @media print {
+    // Each label forces a page break after itself (see MedicationLabel), so this
+    // gap would otherwise eat into the next exact-sized page and misalign it.
+    gap: 0;
+  }
 `;
 
 const PrintDescription = styled(Box)`

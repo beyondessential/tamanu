@@ -24,6 +24,15 @@ const Label = styled.div`
   @media print {
     width: ${props => props.$width}mm;
     height: ${props => props.$height}mm;
+
+    // @page is sized to exactly one label, so without an explicit break the
+    // browser decides for itself where to split the flex column of labels —
+    // unreliably, since the flex gap below still eats into that exact-sized
+    // page. Force one label per page/physical label instead.
+    &:not(:last-child) {
+      break-after: page;
+      page-break-after: always;
+    }
   }
 `;
 
