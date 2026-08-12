@@ -73,11 +73,20 @@ export class MobileBlobCache {
    * Admit device-captured content into the outbox, consuming the source file
    * so no second copy remains outside the store. Call within the operation
    * that creates the blob's referencing record; a blob stranded by a crash in
-   * between is demoted to cache by the startup reconciliation. Content already
-   * held as cache stays cache: it is already durable on central.
+   * between is demoted to cache by the startup reconciliation. Content the
+   * store already holds joins the outbox with it: a device capture means
+   * central is not known to hold the bytes.
    */
   async putOutbox(sourcePath: string): Promise<PutResult> {
-    return await this.#blobStore.putFile(sourcePath, { tier: BLOB_TIERS.OUTBOX });
+    const admitted = await this.#blobStore.putFile(sourcePath, { tier: BLOB_TIERS.OUTBOX });
+    // Admission leaves a row it already holds untouched, so the tier is set here.
+    if (admitted.existed) {
+      await this.#models.Blob.getRepository().update(
+        { hash: admitted.hash },
+        { tier: BLOB_TIERS.OUTBOX },
+      );
+    }
+    return admitted;
   }
 
   // spec: MOB, SCRUB
