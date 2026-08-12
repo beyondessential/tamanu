@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { isSameDay } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, isISO9075DateString } from '@tamanu/utils/dateTime';
+import { isISO9075DateString, trimToDate } from '@tamanu/utils/dateTime';
 
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
@@ -291,12 +290,44 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
 );
 
 /**
+ * Works out which ends of a range need a date, for callers laying a range out
+ * themselves rather than taking {@link DateTimeRangeDisplay}'s inline shape.
+ *
+ * Days are compared as they are displayed, not as they are stored: a range can sit
+ * within one day in the primary timezone and straddle midnight in the facility's,
+ * or the reverse.
+ *
+ * @param {string|Date} start
+ * @param {string|Date} end
+ * @param {string} onDate - A `yyyy-MM-dd` date in the display timezone that the
+ *   range is being shown against, if any. An end falling on it needs no date.
+ */
+export const useDateRangeSpan = ({ start, end, onDate = null }) => {
+  const { toFacilityDateTime } = useDateTime();
+
+  const startDay = trimToDate(toFacilityDateTime(start));
+  const endDay = end ? trimToDate(toFacilityDateTime(end)) : null;
+  const spansMultipleDays = Boolean(endDay) && startDay !== endDay;
+
+  return {
+    spansMultipleDays,
+    hasEnd: Boolean(endDay),
+    showStartDate: !onDate || startDay !== onDate,
+    showEndDate: spansMultipleDays && (!onDate || endDay !== onDate),
+  };
+};
+
+/**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
  * @param {string|Date} start - The start date/time
  * @param {string|Date} end - The end date/time (optional)
  * @param {string} weekdayFormat - "short" | "long" | "narrow" | null (default, no weekday)
  * @param {string} dateFormat - Date format (default "short")
  * @param {string} timeFormat - Time format (default "default")
+ * @param {string} onDate - A `yyyy-MM-dd` date in the display timezone. An end of the
+ *   range falling on it is shown as a time alone, because the reader already knows
+ *   the day. Use where the range is presented against a known day, such as a list
+ *   of today's bookings.
  *
  * @example
  * // Same day → "Fri 15/03/2024 9:30am – 10:00am"
@@ -307,30 +338,44 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
  *
  * // No end → "Fri 15/03/2024 9:30am"
  * <DateTimeRangeDisplay start="2024-03-15 09:30:00" weekdayFormat="short" />
+ *
+ * // Multi-day, read on the last day → "15/03/2024 9:30am – 10:00am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-16 10:00:00" onDate="2024-03-16" />
  */
 export const DateTimeRangeDisplay = React.memo(
-  ({ start, end, weekdayFormat = null, dateFormat = 'short', timeFormat = 'default' }) => {
-    const startDate = parseDate(start);
-    const endDate = end ? parseDate(end) : null;
-    const spansMultipleDays = endDate && !isSameDay(startDate, endDate);
+  ({
+    start,
+    end,
+    weekdayFormat = null,
+    dateFormat = 'short',
+    timeFormat = 'default',
+    onDate = null,
+  }) => {
+    const { hasEnd, showStartDate, showEndDate } = useDateRangeSpan({ start, end, onDate });
 
     return (
       <span>
-        <DateDisplay
-          date={start}
-          format={dateFormat}
-          weekdayFormat={weekdayFormat}
-          timeFormat={timeFormat}
-          noTooltip
-        />
-        {endDate && (
+        {/* Each end is isolated so a right-to-left month name cannot absorb the
+            digits beside it and reorder the date against the time */}
+        <bdi>
+          <DateDisplay
+            date={start}
+            format={showStartDate ? dateFormat : null}
+            weekdayFormat={showStartDate ? weekdayFormat : null}
+            timeFormat={timeFormat}
+            noTooltip
+          />
+        </bdi>
+        {hasEnd && (
           <>
             &nbsp;&ndash;{' '}
-            {spansMultipleDays ? (
-              <DateDisplay date={end} format={dateFormat} timeFormat={timeFormat} noTooltip />
-            ) : (
-              <TimeDisplay date={end} format={timeFormat} noTooltip />
-            )}
+            <bdi>
+              {showEndDate ? (
+                <DateDisplay date={end} format={dateFormat} timeFormat={timeFormat} noTooltip />
+              ) : (
+                <TimeDisplay date={end} format={timeFormat} noTooltip />
+              )}
+            </bdi>
           </>
         )}
       </span>

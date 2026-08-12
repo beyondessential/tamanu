@@ -71,12 +71,12 @@ than the clipping was.
 So the list becomes one grid and each row a `subgrid` of it:
 
 ```
-grid-template-columns: auto minmax(122px, auto) 1fr;   /* separator | time | card */
+grid-template-columns: auto minmax(15ch, max-content) 1fr;   /* separator | time | card */
 ```
 
 The time track is then as wide as the widest row and no wider, every card starts at
 the same place, and the whole list resizes together when a locale needs more room.
-`minmax` keeps today's 122px as the floor so nothing moves in the common case.
+`minmax` keeps today's width as the floor, in `ch`, so nothing moves in the common case.
 Subgrid is Chrome 117 and up; the web bundle targets the last three Chrome majors
 and the default browser policy is Chromium-family, so it is comfortably in range.
 This means overriding MUI's flex layout on `Timeline`, `TimelineItem` and
@@ -114,7 +114,7 @@ rather than a redesign. Measured at the pane's 14px / 18px: `1ch` is 8px, `1em` 
 
 | Was | Becomes | Why |
 | --- | --- | --- |
-| `width: 122px` on the time column | `minmax(15ch, auto)` grid track | A digit count, not a pixel count. Tracks the font, and `auto` handles anything wider |
+| `width: 122px` on the time column | `minmax(15ch, max-content)` grid track | A digit count, not a pixel count. Tracks the font, and the max term handles anything wider |
 | `height: 54px` on the card | `min-block-size: 3lh` | Exactly today's height, expressed as lines of text, so it grows instead of clipping |
 | `min-height: 60px` on the row | `min-block-size: 3.75rem` | Vertical rhythm, not a text measure, so `rem` rather than `lh` |
 | `min-width: 366px` on the pane | `22.875rem` | Grows with the reader's font-size preference instead of holding still while the text grows |
@@ -135,6 +135,38 @@ codebase already uses them heavily (94 `padding-inline`, 60 `block-size`, 61
 Not worth reaching for: container query units (subgrid already sizes from content,
 so a container query buys nothing), `clamp()` (the single `minmax` is the whole
 constraint), `%`, viewport units, and `ex` / `cap` / `ic`.
+
+### What implementation changed about the plan
+
+Two of the mockup's conclusions did not survive contact with a real layout engine,
+found by measuring the shipped CSS in Chrome rather than reasoning about it:
+
+- **The icon cannot be held on a line by adjacency.** An icon is an atomic inline,
+  and the line-breaking rules allow a break either side of it whether or not there
+  is whitespace in the markup. Relying on "no whitespace between the range and the
+  icon" put the icon on a third line of its own, exactly the defect the mockup was
+  corrected for. The row now renders each end of the range as its own `nowrap`
+  block line, with the icon inside the second one, so neither line can be broken
+  and the icon has nowhere else to go.
+- **`min-content` on the track was wrong.** With the ends as explicit lines the
+  track is `minmax(15ch, max-content)`, which resolves to the wider of the two
+  lines. Measured: the track takes 130px for the two-line row, holds the 15ch floor
+  for a same-day row, and the cards line up at the same x either way.
+
+A booking wholly within the day keeps its single line, so the common case renders
+exactly as it does today.
+
+The date-suppression decision is shared as a `useDateRangeSpan` hook rather than
+being duplicated: `DateTimeRangeDisplay` uses it for its inline shape, and the pane
+uses it to compose its two-line shape. The hook also carries the display-timezone
+comparison and the `bdi` isolation reaches every existing caller.
+
+**Pre-existing, left alone:** the list overflows its own box by 21px because the
+timeline separator is offset `top: 21px`, so `overflow-y: auto` shows a scrollbar.
+The same harness reproduces it with the original CSS, and the `+ 21px` in the
+`max-height` formula was compensating for it. The per-row allowance is now generous
+enough to cover a two-line row, so the change does not make it worse, but the
+formula still never actually caps a long list.
 
 ### Other constraints the mockup surfaced
 

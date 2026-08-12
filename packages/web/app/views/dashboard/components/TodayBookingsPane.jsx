@@ -7,10 +7,17 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
+import Brightness2Icon from '@mui/icons-material/Brightness2';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { TranslatedText, useDateTime } from '@tamanu/ui-components';
+import {
+  DateDisplay,
+  TimeDisplay,
+  TranslatedText,
+  useDateRangeSpan,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -27,11 +34,11 @@ import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/Location
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
-  min-width: 366px;
-  min-height: 41%;
+  min-inline-size: 22.875rem;
+  min-block-size: 41%;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  padding-top: 15px;
+  padding-block-start: 0.9375rem;
   background-color: ${Colors.white};
   display: flex;
   flex-direction: column;
@@ -41,9 +48,10 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${Colors.outline};
-  padding-bottom: 6px;
-  margin: 0 20px 11px;
+  border-block-end: 1px solid ${Colors.outline};
+  padding-block-end: 6px;
+  margin-inline: 1.25rem;
+  margin-block-end: 11px;
 `;
 
 const ActionLink = styled.span`
@@ -52,33 +60,43 @@ const ActionLink = styled.span`
   font-size: 14px;
 `;
 
+/**
+ * One grid for the whole list, with each row a subgrid of it, so the time column is
+ * a single track as wide as the widest row needs and every card starts at the same
+ * place. The track's floor is in `ch` rather than pixels because the times and dates
+ * are locale-formatted and their width belongs to the reader, not to the design.
+ */
 const StyledTimeline = styled(Timeline)`
-  padding-top: 0;
-  padding-right: 20px;
-  padding-left: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(15ch, max-content) 1fr;
+  column-gap: 5px;
+  padding-block: 0;
+  padding-inline: 0.75rem 1.25rem;
   margin: 0;
-  margin-bottom: -16px;
+  margin-block-end: -1rem;
   overflow-y: auto;
-  ${({ length }) => `max-height: calc(60px * ${length} + 21px);`}
+  ${({ length }) => `max-block-size: calc(${length} * (3.75rem + 1lh) + 21px);`}
 `;
 
 const StyledTimelineContent = styled(TimelineContent)`
-  font-size: 14px;
-  display: flex;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 2 / -1;
   align-items: center;
-  gap: 5px;
+  font-size: 14px;
   padding: 0;
-  padding-left: 6px;
-  width: 0;
 `;
 
 const StyledTimelineConnector = styled(TimelineConnector)`
   background-color: ${Colors.outline};
-  width: 1px;
+  inline-size: 1px;
 `;
 
 const StyledTimelineItem = styled(TimelineItem)`
-  min-height: 60px;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  min-block-size: 3.75rem;
   &:before {
     content: none;
   }
@@ -101,13 +119,12 @@ const StyledTimelineSeparator = styled(TimelineSeparator)`
   top: 21px;
 `;
 
+/* Sized in lines of text, so it grows rather than clipping when a row wraps */
 const Card = styled.div`
-  background-color: ${Colors.outline};
-  height: 54px;
+  min-block-size: 3lh;
   border-radius: 3px;
-  padding: 8px 16px;
-  flex-grow: 0;
-  flex-shrink: 0;
+  padding-block: 8px;
+  padding-inline: 1rem;
   background-color: ${({ $color }) => `${$color}1a`};
 `;
 
@@ -124,17 +141,34 @@ const CardBody = styled(CardHeading)`
 `;
 
 const TimeText = styled.div`
-  flex-grow: 0;
-  flex-shrink: 0;
-  width: 122px;
-  text-transform: lowercase;
+  padding-inline-start: 6px;
+`;
+
+/**
+ * Each end of the range is its own line rather than one inline run that wraps. An
+ * icon is an atomic inline, so line breaks are allowed either side of it: left to
+ * wrap on its own it lands on a line of its own, and the width the grid track needs
+ * becomes hard to predict. As explicit lines, each one is unbreakable and the track
+ * is simply as wide as the wider of the two.
+ */
+const RangeLine = styled.div`
+  white-space: nowrap;
+`;
+
+const OvernightIcon = styled(Brightness2Icon)`
+  /* Tracks the text beside it rather than pinning a pixel size against 14px type */
+  font-size: 1em;
+  color: ${Colors.primary};
+  vertical-align: -0.1em;
+  margin-inline-start: 0.3em;
 `;
 
 const Footer = styled.div`
-  margin: 4px 20px 0;
+  margin-inline: 1.25rem;
+  margin-block-start: 4px;
   flex-grow: 1;
-  min-height: 20px;
-  border-top: 1px solid ${Colors.outline};
+  min-block-size: 1.25rem;
+  border-block-start: 1px solid ${Colors.outline};
   position: sticky;
   background-color: ${Colors.white};
 `;
@@ -158,10 +192,35 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-const BookingsTimelineItem = ({ appointment }) => {
-  const { formatTime } = useDateTime();
+/**
+ * One end of a booking's time range, isolated so a right-to-left month name cannot
+ * absorb the digits beside it and reorder the date against the time.
+ */
+const RangeEnd = ({ date, withDate, testIdSuffix }) => (
+  <bdi>
+    {withDate ? (
+      <DateDisplay
+        date={date}
+        format="dayMonth"
+        timeFormat="default"
+        noTooltip
+        data-testid={`datedisplay-${testIdSuffix}-w2kf`}
+      />
+    ) : (
+      <TimeDisplay date={date} noTooltip data-testid={`timedisplay-${testIdSuffix}-qz61`} />
+    )}
+  </bdi>
+);
+
+const BookingsTimelineItem = ({ appointment, today }) => {
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
+
+  const { spansMultipleDays, hasEnd, showStartDate, showEndDate } = useDateRangeSpan({
+    start: startTime,
+    end: endTime,
+    onDate: today,
+  });
 
   const [headingRef, isHeadingOverflowing] = useOverflow();
   const [bodyRef, isBodyOverflowing] = useOverflow();
@@ -181,10 +240,38 @@ const BookingsTimelineItem = ({ appointment }) => {
         <StyledTimelineConnector data-testid="styledtimelineconnector-qmh4" />
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
+        {/* A booking within the day keeps its single line. One that spans days takes
+            two, so neither line has to be broken to fit the column. */}
         <TimeText data-testid="timetext-4k7e">
-          {formatTime(startTime)} - {formatTime(endTime)}
+          {spansMultipleDays ? (
+            <>
+              <RangeLine data-testid="rangeline-start-8ptz">
+                <RangeEnd date={startTime} withDate={showStartDate} testIdSuffix="start" />
+                &nbsp;&ndash;
+              </RangeLine>
+              <RangeLine data-testid="rangeline-end-4vqx">
+                <RangeEnd date={endTime} withDate={showEndDate} testIdSuffix="end" />
+                <OvernightIcon
+                  aria-label="Overnight booking"
+                  aria-hidden={undefined}
+                  data-testid="overnighticon-p8ka"
+                />
+              </RangeLine>
+            </>
+          ) : (
+            <RangeLine data-testid="rangeline-start-8ptz">
+              <RangeEnd date={startTime} withDate={showStartDate} testIdSuffix="start" />
+              {hasEnd && (
+                <>
+                  &nbsp;&ndash; <RangeEnd date={endTime} withDate={false} testIdSuffix="end" />
+                </>
+              )}
+            </RangeLine>
+          )}
         </TimeText>
-        <Box width={0} flex={1} data-testid="box-i72x">
+        {/* min-width rather than width: in a grid track it is what lets the card
+            shrink below its content so the headings can ellipsise */}
+        <Box minWidth={0} data-testid="box-i72x">
           <ConditionalTooltip
             visible={showTooltip}
             title={
@@ -291,6 +378,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
               <BookingsTimelineItem
                 key={appointment.id}
                 appointment={appointment}
+                today={todayFacility}
                 data-testid={`bookingstimelineitem-kl6a-${index}`}
               />
             ))}
