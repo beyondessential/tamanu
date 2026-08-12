@@ -104,6 +104,38 @@ Both together is the only combination that reads correctly to an Urdu speaker: t
 grid mirrors, the dot and connector move to the right, and the dash and icon land
 at the visual end of their lines.
 
+### Units
+
+The pane is written almost entirely in `px`, which is what made every earlier
+sizing answer a guess. Each magic number has a unit that states what it actually
+means, and today's values map onto them cleanly, so this is a rewrite in place
+rather than a redesign. Measured at the pane's 14px / 18px: `1ch` is 8px, `1em` is
+14px, `1rem` is 16px, `1lh` is 18px.
+
+| Was | Becomes | Why |
+| --- | --- | --- |
+| `width: 122px` on the time column | `minmax(15ch, auto)` grid track | A digit count, not a pixel count. Tracks the font, and `auto` handles anything wider |
+| `height: 54px` on the card | `min-block-size: 3lh` | Exactly today's height, expressed as lines of text, so it grows instead of clipping |
+| `min-height: 60px` on the row | `min-block-size: 3.75rem` | Vertical rhythm, not a text measure, so `rem` rather than `lh` |
+| `min-width: 366px` on the pane | `22.875rem` | Grows with the reader's font-size preference instead of holding still while the text grows |
+| `15px` / `20px` / `12px` insets | `rem` | Same reason |
+| Overnight icon at 13px | `1em` | Removes the question of which pixel size pairs with 14px text |
+
+`rem` is already the idiom here (629 uses across `web` and `ui-components`), and
+there is a `block-size: 3lh` precedent in `RecentlyViewedPatientsList`. `ch` and
+`lh` are both far inside the Chrome 149 floor this app targets.
+
+**Logical properties matter more than the units.** The pane uses
+`padding-left: 12px`, `padding-right: 20px` and `padding-left: 6px`. Under
+`dir="rtl"` those stay on the physical left and right, so the mirrored pane gets
+its insets on the wrong sides. `padding-inline` and friends fix it, and the
+codebase already uses them heavily (94 `padding-inline`, 60 `block-size`, 61
+`inline-size`). The mockup was converted and the RTL pane visibly corrected.
+
+Not worth reaching for: container query units (subgrid already sizes from content,
+so a container query buys nothing), `clamp()` (the single `minmax` is the whole
+constraint), `%`, viewport units, and `ex` / `cap` / `ic`.
+
 ### Other constraints the mockup surfaced
 
 - Suppressing a date that falls on today is a change to `DateTimeRangeDisplay`, and

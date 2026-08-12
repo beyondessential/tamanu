@@ -94,12 +94,17 @@
 
       /* Faithful to TodayBookingsPane */
 
+      /* Boxes are sized in rem so the pane grows with the reader's font-size
+         preference rather than staying put while the text inside it grows.
+         Anything that must line up with text uses a text-relative unit, and
+         every inset is logical so the RTL pane mirrors correctly. */
+
       .container {
-        min-width: 366px;
-        width: 366px;
+        min-inline-size: 22.875rem; /* 366px */
+        inline-size: 22.875rem;
         border: 1px solid var(--outline);
         border-radius: 3px;
-        padding-top: 15px;
+        padding-block-start: 0.9375rem; /* 15px */
         background-color: var(--white);
         display: flex;
         flex-direction: column;
@@ -109,9 +114,10 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--outline);
-        padding-bottom: 6px;
-        margin: 0 20px 11px;
+        border-block-end: 1px solid var(--outline);
+        padding-block-end: 6px;
+        margin-inline: 1.25rem; /* 20px */
+        margin-block-end: 11px;
       }
 
       .heading4 {
@@ -128,15 +134,15 @@
       }
 
       .timeline {
-        padding: 0 20px 0 12px;
-        margin: 0 0 -16px;
+        padding-inline: 0.75rem 1.25rem; /* start 12px, end 20px */
+        margin-block-end: -1rem;
         display: flex;
         flex-direction: column;
       }
 
       .timeline-item {
         display: flex;
-        min-height: 60px;
+        min-block-size: 3.75rem; /* 60px of vertical rhythm */
       }
 
       .timeline-separator {
@@ -158,7 +164,7 @@
 
       .timeline-connector {
         flex-grow: 1;
-        width: 1px;
+        inline-size: 1px;
         background-color: var(--outline);
       }
 
@@ -171,11 +177,13 @@
         display: flex;
         align-items: center;
         gap: 5px;
-        padding: 0 0 0 6px;
+        padding-inline-start: 6px;
         flex: 1;
-        min-width: 0;
+        min-inline-size: 0;
       }
 
+      /* Deliberately still 122px: the panes using this class depict the column
+         exactly as it is today, including its overflow. */
       .time-text {
         flex-grow: 0;
         flex-shrink: 0;
@@ -199,9 +207,12 @@
       /* One grid for the whole list, so the time track is as wide as the widest
          row and every card starts at the same place. minmax keeps today's 122px
          as the floor. */
+      /* The floor is in ch, so it tracks the font rather than pinning a pixel
+         count: 15ch is about the 122px the column has today. `auto` above it
+         means the track only ever grows to what the widest row needs. */
       .timeline.aligned {
         display: grid;
-        grid-template-columns: auto minmax(122px, auto) 1fr;
+        grid-template-columns: auto minmax(15ch, auto) 1fr;
         column-gap: 5px;
       }
 
@@ -231,13 +242,16 @@
 
       .card-slot {
         flex: 1;
-        min-width: 0;
+        min-inline-size: 0;
       }
 
+      /* 3lh is the 54px it has today, but as "three lines of text", so the card
+         grows instead of clipping if the text wraps or the reader's font grows */
       .card {
-        height: 54px;
+        min-block-size: 3lh;
         border-radius: 3px;
-        padding: 8px 16px;
+        padding-block: 8px;
+        padding-inline: 1rem;
       }
 
       .card-heading {
@@ -257,18 +271,26 @@
       }
 
       .footer {
-        margin: 4px 20px 0;
+        margin-inline: 1.25rem;
+        margin-block-start: 4px;
         flex-grow: 1;
-        min-height: 20px;
-        border-top: 1px solid var(--outline);
+        min-block-size: 1.25rem;
+        border-block-start: 1px solid var(--outline);
         background-color: var(--white);
       }
 
+      /* 1em, so the icon tracks the text beside it instead of being a number
+         chosen against one font size */
       .moon {
         flex: 0 0 auto;
         color: var(--primary);
         display: inline-flex;
         vertical-align: -2px;
+      }
+
+      .moon svg {
+        inline-size: 1em;
+        block-size: 1em;
       }
 
       .nowrap {
@@ -495,7 +517,7 @@
         {
           title: 'Keeping the cards aligned',
           caption:
-            'Sizing each row to its own content stops the clipping but leaves the card edges ragged. Making the list one grid, with each row a <code>subgrid</code> of it, gives the time column a single track as wide as the widest row, so the cards line up again and the whole list resizes together. <code>minmax(122px, auto)</code> keeps today\'s width as the floor. Subgrid is Chrome 117 and up, comfortably inside the supported range.',
+            'Sizing each row to its own content stops the clipping but leaves the card edges ragged. Making the list one grid, with each row a <code>subgrid</code> of it, gives the time column a single track as wide as the widest row, so the cards line up again and the whole list resizes together. <code>minmax(15ch, auto)</code> holds today\'s width as a floor without pinning it to a pixel count. Subgrid is Chrome 117 and up, well inside the Chrome 149 floor this app targets.',
           panes: [
             {
               label: 'pt-BR · content-sized per row · ragged',
