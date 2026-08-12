@@ -441,7 +441,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, isInitialSync, deviceId },
+    { since, facilityIds, tablesToPull, isInitialSync, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -480,12 +480,15 @@ export class CentralSyncManager {
       await models.SyncSession.setParameters(sessionId, {
         minSourceTick,
         maxSourceTick,
-        tablesForFullResync,
+        tablesToPull,
         useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
-      const modelsToInclude = tablesToInclude
-        ? filterModelsFromName(models, tablesToInclude)
+      const modelsToInclude = tablesToPull
+        ? filterModelsFromName(models, [
+            ...(tablesToPull.incremental ?? []),
+            ...(tablesToPull.full ?? []),
+          ])
         : models;
 
       // work out if any patients were newly marked for sync since this device last connected, and
@@ -575,15 +578,9 @@ export class CentralSyncManager {
           where: { facilityId: facilityIds },
         });
 
-        // regular changes, leaving out the tables about to be snapshotted in full from the start of
-        // the timeline: a record in one of those changed since `since` would otherwise be snapshotted
-        // by both passes, and the persist creates a row per snapshot record, so the second copy is a
-        // duplicate primary key
-        const fullResyncTables = new Set(tablesForFullResync ?? []);
-        const modelsForIncrementalPull = Object.fromEntries(
-          Object.entries(getModelsForPull(modelsToInclude)).filter(
-            ([, model]) => !fullResyncTables.has(model.tableName),
-          ),
+        // regular changes
+        const modelsForIncrementalPull = getModelsForPull(
+          tablesToPull ? filterModelsFromName(models, tablesToPull.incremental ?? []) : models,
         );
         await snapshotOutgoingChanges(
           this.store,
@@ -600,11 +597,11 @@ export class CentralSyncManager {
         // any tables to pull from the beginning of the sync timeline rather than from `since`, i.e.
         // - any phase of a facility's initial sync (boot tables, then catalogue, then records)
         // - mobile wiping and resyncing tables as part of an upgrade
-        if (tablesForFullResync) {
-          const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
+        if (tablesToPull?.full?.length) {
+          const modelsForFullPull = filterModelsFromName(models, tablesToPull.full);
           await snapshotOutgoingChanges(
             this.store,
-            getModelsForPull(modelsForFullResync),
+            getModelsForPull(modelsForFullPull),
             -1,
             patientFacilitiesCount,
             incrementalSyncPatientsTable,

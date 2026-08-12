@@ -193,13 +193,7 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
       const { params, body, device } = req;
-      const {
-        since: sinceString,
-        facilityIds,
-        tablesToInclude,
-        tablesForFullResync,
-        isInitialSync,
-      } = body;
+      const { since: sinceString, facilityIds, tablesToPull, isInitialSync } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
@@ -207,8 +201,7 @@ export const buildSyncRoutes = ctx => {
       await syncManager.initiatePull(params.sessionId, {
         since,
         facilityIds,
-        tablesToInclude,
-        tablesForFullResync,
+        tablesToPull,
         isInitialSync,
         deviceId: device.id,
       });

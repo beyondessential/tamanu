@@ -27,13 +27,13 @@ export const getModelsForPullPhase = (
     ),
   );
 
-// this phase's models, plus every earlier phase's
-export const getModelsForPullThroughPhase = (
+// every earlier phase's models, not this phase's
+export const getModelsForPullBeforePhase = (
   models: Record<string, typeof Model>,
   phase: SyncPhaseValues,
 ) =>
   Object.fromEntries(
-    Object.entries(getModelsForPull(models)).filter(([, model]) => model.initialSyncPhase <= phase),
+    Object.entries(getModelsForPull(models)).filter(([, model]) => model.initialSyncPhase < phase),
   );
 
 export const getModelsForPush = (models: Record<string, typeof Model>) =>

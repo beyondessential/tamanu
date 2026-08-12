@@ -13,7 +13,7 @@ import {
   getModelsForPush,
   getModelsForPull,
   getModelsForPullPhase,
-  getModelsForPullThroughPhase,
+  getModelsForPullBeforePhase,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
@@ -307,16 +307,19 @@ export class FacilitySyncManager {
 
     // A phase pulls its own tables from the beginning of the sync timeline, and every earlier phase's
     // from where the phase before it stopped, so nothing arrives before a record it references.
-    const modelsForPull = phase
-      ? getModelsForPullThroughPhase(this.models, phase)
+    const tableNamesOf = models => Object.values(models).map(model => model.tableName);
+    const modelsForFullPull = phase ? getModelsForPullPhase(this.models, phase) : {};
+    const modelsForIncrementalPull = phase
+      ? getModelsForPullBeforePhase(this.models, phase)
       : getModelsForPull(this.models);
+    const modelsForPull = { ...modelsForIncrementalPull, ...modelsForFullPull };
     const pullParams = phase
       ? {
           since: await getPhaseCatchUpSince(this.models),
-          tablesToInclude: Object.values(modelsForPull).map(model => model.tableName),
-          tablesForFullResync: Object.values(getModelsForPullPhase(this.models, phase)).map(
-            model => model.tableName,
-          ),
+          tablesToPull: {
+            incremental: tableNamesOf(modelsForIncrementalPull),
+            full: tableNamesOf(modelsForFullPull),
+          },
           isInitialSync: true,
         }
       : { since: pullSince };

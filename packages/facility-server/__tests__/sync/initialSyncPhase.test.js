@@ -152,10 +152,10 @@ describe('initial sync phases', () => {
         initiatePull: jest.fn().mockImplementation(async (_sessionId, pullParams) => {
           // a phase is identified by the tables it asks to pull from the start, so a retried phase is
           // served the same records again
-          const { tablesForFullResync } = pullParams;
-          phase = tablesForFullResync.includes('encounters')
+          const { full } = pullParams.tablesToPull;
+          phase = full.includes('encounters')
             ? SYNC_PHASES.RECORDS
-            : tablesForFullResync.includes('patients')
+            : full.includes('patients')
               ? SYNC_PHASES.CATALOGUE
               : SYNC_PHASES.BOOT;
           pullsByPhase.push({ phase, ...pullParams });
@@ -198,13 +198,13 @@ describe('initial sync phases', () => {
       const [boot, catalogue, records] = centralServer.pullsByPhase;
 
       // a phase pulls its own tables from the beginning of the sync timeline
-      expect(boot.tablesForFullResync).toEqual(
+      expect(boot.tablesToPull.full).toEqual(
         expect.arrayContaining(['facilities', 'users', 'roles']),
       );
-      expect(boot.tablesForFullResync).not.toContain('patients');
-      expect(catalogue.tablesForFullResync).toContain('patients');
-      expect(catalogue.tablesForFullResync).not.toContain('encounters');
-      expect(records.tablesForFullResync).toContain('encounters');
+      expect(boot.tablesToPull.full).not.toContain('patients');
+      expect(catalogue.tablesToPull.full).toContain('patients');
+      expect(catalogue.tablesToPull.full).not.toContain('encounters');
+      expect(records.tablesToPull.full).toContain('encounters');
 
       // and every phase declares itself part of an initial sync, so central keeps the
       // deployment-wide lab request filter off throughout
@@ -228,16 +228,16 @@ describe('initial sync phases', () => {
 
       // the first phase has nothing before it to catch up
       expect(boot.since).toBe(-1);
-      expect(boot.tablesToInclude).toEqual(boot.tablesForFullResync);
+      expect(boot.tablesToPull.incremental).toEqual([]);
 
       // later phases resume the earlier tables from the previous phase's tick...
       expect(catalogue.since).toBe(PULL_UNTIL[SYNC_PHASES.BOOT]);
       expect(records.since).toBe(PULL_UNTIL[SYNC_PHASES.CATALOGUE]);
 
-      // ...and ask for them alongside their own
-      expect(catalogue.tablesToInclude).toEqual(expect.arrayContaining(['users', 'patients']));
-      expect(records.tablesToInclude).toEqual(
-        expect.arrayContaining(['users', 'patients', 'encounters']),
+      // ...pulling those earlier tables incrementally, alongside their own from the start
+      expect(catalogue.tablesToPull.incremental).toContain('users');
+      expect(records.tablesToPull.incremental).toEqual(
+        expect.arrayContaining(['users', 'patients']),
       );
     });
 

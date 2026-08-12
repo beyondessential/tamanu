@@ -602,7 +602,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         {
           since: 1,
           facilityIds: [facility.id],
-          tablesToInclude: ['programs'],
+          tablesToPull: { incremental: ['programs'] },
         },
         () => true,
       );
