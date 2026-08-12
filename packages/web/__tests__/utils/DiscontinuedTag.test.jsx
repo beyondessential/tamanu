@@ -2,6 +2,8 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 
+import { DateTimeProviderContext } from '@tamanu/ui-components';
+
 import { renderElementWithTranslatedText } from '../helpers';
 import { DiscontinuedTag } from '../../app/utils/medications';
 
@@ -18,9 +20,14 @@ const translationContext = {
   translations: {},
 };
 
+// DiscontinuedTag reads formatShort from the datetime context, so stub just that formatter.
+const dateTimeContext = { formatShort: date => `formatted(${date})` };
+
 const renderTag = prescription =>
   renderElementWithTranslatedText(
-    <DiscontinuedTag prescription={prescription} formatShort={date => `formatted(${date})`} />,
+    <DateTimeProviderContext.Provider value={dateTimeContext}>
+      <DiscontinuedTag prescription={prescription} />
+    </DateTimeProviderContext.Provider>,
     undefined,
     translationContext,
   );

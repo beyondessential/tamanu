@@ -14,7 +14,6 @@ import {
   notifySuccess,
   OutlinedButton,
   RequiredOrnament,
-  TranslatedReferenceData,
   TranslatedText,
   useApi,
   useDateTime,
@@ -30,10 +29,10 @@ import { useAuth } from '../../contexts/Auth';
 import {
   buildInstructionText,
   buildLabelText,
-  DiscontinuedTag,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  MedicationNameWithDiscontinuedTag,
   InstructionsInput,
   QuantityInput,
   resolvePresetLabelText,
@@ -613,19 +612,12 @@ export const DispenseMedicationWorkflowModal = memo(
           key: 'medication',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           style: { minInlineSize: '16em' },
-          accessor: item => {
-            const medication = getEffectivePrescription(item)?.medication;
-            return (
-              <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-                <TranslatedReferenceData
-                  fallback={medication?.name}
-                  value={medication?.id}
-                  category={medication?.type ?? 'drug'}
-                />
-                <DiscontinuedTag prescription={item.prescription} formatShort={formatShort} />
-              </Box>
-            );
-          },
+          accessor: item => (
+            <MedicationNameWithDiscontinuedTag
+              medication={getEffectivePrescription(item)?.medication}
+              prescription={item.prescription}
+            />
+          ),
         },
         {
           key: 'quantity',
