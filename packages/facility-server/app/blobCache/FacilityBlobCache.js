@@ -90,50 +90,21 @@ export class FacilityBlobCache {
 
   // spec: CACHE
   /**
-   * Demote a blob whose referencing record failed to write, so it does not sit
-   * in the outbox where this server can neither push nor evict it. Best effort:
-   * the caller is already failing with its own error, and the periodic sweep
-   * covers whatever this misses.
-   */
-  async demoteIfStranded(hash) {
-    try {
-      return await this.#demoteStranded({ hash });
-    } catch (error) {
-      log.warn('FacilityBlobCache: could not demote a stranded outbox blob', {
-        hash,
-        error: error.message,
-      });
-      return [];
-    }
-  }
-
-  // spec: CACHE
-  /**
-   * Demote every outbox blob no live record references. Covers what a write
-   * path cannot: a crash between admission and the record write leaves no
-   * catch to run, and the blob would otherwise persist forever.
+   * Demote every outbox blob no live record references, which nothing else
+   * reclaims: a crash between admission and the record write leaves no catch to
+   * run, and the blob would otherwise persist forever.
+   *
+   * Demotes rather than deletes, and tests the reference in the same statement
+   * as the update: admission is content-addressed and idempotent, so these bytes
+   * may be the only copy backing a reference this pass cannot see.
    */
   async demoteStrandedOutbox() {
-    const demoted = await this.#demoteStranded({ minimumAgeMs: STRANDED_SAFETY_WINDOW_MS });
-    if (demoted.length > 0) {
-      log.info('FacilityBlobCache: demoted stranded outbox blobs', { hashes: demoted });
-    }
-    return demoted;
-  }
-
-  // Demotes rather than deletes, and tests the reference in the same statement
-  // as the update: admission is content-addressed and idempotent, so these bytes
-  // may be the only copy backing a reference this pass cannot see.
-  async #demoteStranded({ hash, minimumAgeMs = 0 }) {
     const [, demoted] = await this.#models.Blob.update(
       { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
       {
         where: {
           tier: BLOB_TIERS.OUTBOX,
-          ...(hash ? { hash } : {}),
-          ...(minimumAgeMs
-            ? { lastAccessedAt: { [Op.lt]: new Date(Date.now() - minimumAgeMs) } }
-            : {}),
+          lastAccessedAt: { [Op.lt]: new Date(Date.now() - STRANDED_SAFETY_WINDOW_MS) },
           [Op.and]: [literal(UNREFERENCED_BLOB_CONDITION)],
         },
         returning: ['hash'],
@@ -143,7 +114,11 @@ export class FacilityBlobCache {
       // spec: FEC — a facility covers only its outbox with parity.
       await this.#blobStore.discardParity(blob.hash);
     }
-    return demoted.map(blob => blob.hash);
+    const hashes = demoted.map(blob => blob.hash);
+    if (hashes.length > 0) {
+      log.info('FacilityBlobCache: demoted stranded outbox blobs', { hashes });
+    }
+    return hashes;
   }
 
   // spec: CACHE

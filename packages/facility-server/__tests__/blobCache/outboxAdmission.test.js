@@ -135,7 +135,7 @@ describe('outbox admission and the referencing record', () => {
     expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
   });
 
-  it('leaves no outbox row when the attachment record write fails', async () => {
+  it('leaves no outbox row once the sweep reaches an attachment write that failed', async () => {
     // verifies spec: CACHE — a blob whose referencing record is never created is
     // not left in the outbox, where a facility can neither push it nor evict it
     const { hash } = await stageUpload();
@@ -145,6 +145,8 @@ describe('outbox admission and the referencing record', () => {
         patientId: 'patient-that-does-not-exist',
       }),
     ).rejects.toThrow();
+    await ageBlob(hash, BEYOND_SAFETY_WINDOW_MS);
+    await blobCache.demoteStrandedOutbox();
 
     expect(await models.Attachment.findOne({ where: { hash } })).toBeNull();
     expect(await outboxRowFor(hash)).toBeNull();
@@ -160,18 +162,21 @@ describe('outbox admission and the referencing record', () => {
         patientId: 'patient-that-does-not-exist',
       }),
     ).rejects.toThrow();
+    await ageBlob(hash, BEYOND_SAFETY_WINDOW_MS);
+    await blobCache.demoteStrandedOutbox();
 
     expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
     expect(await blobStore.has(hash)).toBe(true);
   });
 
-  it('leaves an outbox blob alone when a failed upload deduplicated onto it', async () => {
-    // verifies spec: CACHE — content already referenced by a live record is not
-    // demoted out from under it by a later upload of the same bytes
+  it('keeps content pushable when another upload of the same file fails', async () => {
+    // verifies spec: CACHE — the upload that succeeds admits its content first
+    // and writes its record last, so the failing upload of the same bytes sees a
+    // blob nothing references yet. Its admission and record write are split to
+    // hold that ordering, which is what the two uploads race for.
     const patient = await models.Patient.create(fake(models.Patient));
     const content = Buffer.from(`uploaded document ${randomUUID()}`);
-    const { hash } = await stageUpload(content);
-    await uploadAttachment({ models, blobCache }, DOCUMENT_SIZE_LIMIT, { patientId: patient.id });
+    const { hash, size } = await blobCache.putOutbox(Readable.from(content));
 
     await stageUpload(content);
     await expect(
@@ -180,25 +185,7 @@ describe('outbox admission and the referencing record', () => {
       }),
     ).rejects.toThrow();
 
-    expect(await outboxRowFor(hash)).not.toBeNull();
-  });
-
-  it('pushes the content to central when a failed upload is retried', async () => {
-    // verifies spec: CACHE — content demoted when its record write failed
-    // rejoins the outbox on the upload that does reference it, so the pusher
-    // still delivers the bytes central has never been offered
-    const patient = await models.Patient.create(fake(models.Patient));
-    const content = Buffer.from(`uploaded document ${randomUUID()}`);
-    const { hash } = await stageUpload(content);
-    await expect(
-      uploadAttachment({ models, blobCache }, DOCUMENT_SIZE_LIMIT, {
-        patientId: 'patient-that-does-not-exist',
-      }),
-    ).rejects.toThrow();
-    expect(await outboxRowFor(hash)).toBeNull();
-
-    await stageUpload(content);
-    await uploadAttachment({ models, blobCache }, DOCUMENT_SIZE_LIMIT, { patientId: patient.id });
+    await models.Attachment.create({ type: 'application/pdf', hash, size, patientId: patient.id });
 
     const pushed = [];
     await new BlobOutboxPusher({
