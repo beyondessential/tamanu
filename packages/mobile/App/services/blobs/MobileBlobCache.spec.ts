@@ -38,6 +38,19 @@ describe('MobileBlobCache', () => {
       const row = await Database.models.Blob.findOne({ where: { hash } });
       expect(row.tier).toBe(BLOB_TIERS.OUTBOX);
     });
+
+    // verifies spec: MOB, CACHE — a cache copy central holds cannot be told
+    // apart from one demoted after its referencing record was never created
+    it('returns cache-tier content to the outbox when the device captures it', async () => {
+      fs.seed('/tmp/held.jpg', 'same photo');
+      const { hash } = await store.putFile('/tmp/held.jpg', { tier: BLOB_TIERS.CACHE });
+
+      fs.seed('/tmp/captured.jpg', 'same photo');
+      await cache.putOutbox('/tmp/captured.jpg');
+
+      const row = await Database.models.Blob.findOne({ where: { hash } });
+      expect(row.tier).toBe(BLOB_TIERS.OUTBOX);
+    });
   });
 
   describe('open', () => {
