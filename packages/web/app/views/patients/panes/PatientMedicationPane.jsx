@@ -580,6 +580,9 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
+        // The medication actually dispensed, which differs from the prescription's when
+        // pharmacy substituted it during dispensing (mirrors the table's Medication column).
+        medication: getDispensedMedication(dispenseData),
         prescription: pharmacyOrderPrescription?.prescription,
         medicationPresetLabel,
         patient,
