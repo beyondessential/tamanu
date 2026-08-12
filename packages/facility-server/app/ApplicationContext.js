@@ -21,7 +21,7 @@ import {
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { BLOB_REFERENCE_TABLES, FacilityBlobCache, makeSyncedReferenceResolver } from './blobCache';
-import { FacilityBlobHealer } from './blobIntegrity';
+import { FacilityBlobHealer, onBlobInfected } from './blobIntegrity';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -213,15 +213,7 @@ export class ApplicationContext {
             maxScanBytes: maxScanMB * 1024 ** 2,
           };
         },
-        // The deployment-wide record is central's to write, and it is pulled
-        // here rather than pushed from here. A facility's own finding stops it
-        // serving the content locally; central reaches the same verdict when the
-        // content is pushed to it.
-        onInfected: async hash => {
-          log.warn('BlobScanner: infected content held by this facility', { hash });
-          // spec: FEC — quarantined content is never served and never repaired.
-          await this.blobStore.discardParity(hash);
-        },
+        onInfected: async hash => onBlobInfected(this.blobStore, hash),
         log,
       });
 

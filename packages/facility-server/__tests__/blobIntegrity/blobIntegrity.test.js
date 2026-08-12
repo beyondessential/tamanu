@@ -15,6 +15,7 @@ import { BlobScrubber, BlobStore } from '@tamanu/database/blobStore';
 import { BlobHashMismatchError } from '@tamanu/errors';
 
 import { createTestContext } from '../utilities';
+import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
 import { FacilityBlobHealer } from '../../app/blobIntegrity/FacilityBlobHealer';
 
 const uniqueContent = () => Buffer.from(`blob content ${randomUUID()}`);
@@ -299,6 +300,35 @@ describe('facility blob integrity', () => {
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
       // The bytes are retained on disk for investigation, not deleted.
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
+    });
+  });
+
+  // spec: SCRUB
+  describe('legitimately absent content', () => {
+    it('reports no fault for a cache blob eviction has taken', async () => {
+      // An evicted cache blob is durable on central and refetches on demand, so
+      // the scrub that follows must leave it alone rather than escalating a
+      // reclamation the cache budget asked for.
+      const blobCache = new FacilityBlobCache({
+        blobStore,
+        models,
+        getCacheBudgetBytes: async () => 0,
+      });
+      const { hash, content } = await put(BLOB_TIERS.CACHE);
+      const faultsBefore = Number(
+        (await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULTS)) ?? 0,
+      );
+
+      await blobCache.evictBytes(content.length);
+      expect(await blobStore.has(hash)).toBe(false);
+
+      const result = await makeScrubber().run();
+
+      expect(result.faults).toBe(0);
+      expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
+      expect(Number((await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULTS)) ?? 0)).toBe(
+        faultsBefore,
+      );
     });
   });
 
