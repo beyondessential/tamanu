@@ -533,28 +533,15 @@ rediscovered by re-running the audit. None is an epic blocker: each is a guarant
 the code appears to hold and nothing asserts. Ordered within each area by what
 bites hardest if it silently stops being true.
 
-## Access control and scoping
-
-- [ ] Blob scoping agrees with the record sync pull filter. `isHashReferencedInScope` reproduces `snapshotOutgoingChanges`' scope predicate by hand; both are covered individually and nothing asserts they agree, so they can drift and blob access can widen past what record sync grants (verifies spec: BLAC)
-- [ ] A facility list where one facility is accessible and another is not, which is the case a permissive loop would leak (verifies spec: BLAC)
-- [ ] The permission refusal on a hash-backed attachment specifically; the existing cases use a legacy in-database row (verifies spec: BLAC)
-- [ ] Attachments authorise a fetch through real `attachments` rows rather than the scratch table the scope gate is exercised against (verifies spec: BLAC, ATCH)
-- [ ] The sensitive-facility restriction covers `attachments`; the sync suite covers `lab_request_attachments` only (verifies spec: BLAC, ATCH)
-
 ## Antivirus
 
-- [ ] `createScannerDriver` returns nothing for `none` and a clamd driver for `clamd`. It has no test at all, and it is the whole of "a server opts in by naming the scanner it drives" (verifies spec: AV)
-- [ ] A quarantine record written on central reaches a facility and a device through a sync session. `BlobQuarantine` is `PULL_FROM_CENTRAL` with no filter, and nothing drives the propagation the containment story depends on (verifies spec: AV)
 - [ ] A facility scan finding malware leaves `blob_quarantines` untouched, since the propagating record is central's to write (verifies spec: AV)
 - [ ] An infected verdict discards existing parity, which both application contexts do from `onInfected` (verifies spec: AV, FEC)
 - [ ] Central refuses to repair known-bad content from parity; the facility equivalent is covered and central's is not (verifies spec: AV, FEC)
-- [ ] A verdict and an integrity state are independent, so recording one leaves the other alone (verifies spec: AV)
 - [ ] The scan pass ordering runs against the real database, not only the in-memory registry's own sort (verifies spec: AV)
 
 ## Serving and transfer
 
-- [ ] A whole-blob serve begins writing before the source has produced its last chunk, which is what "streamed rather than read into memory" means (verifies spec: SERVE)
-- [ ] A client disconnecting mid-download is not an error and leaves no open file handle; `serveBlob` swallows `ERR_STREAM_PREMATURE_CLOSE` deliberately and nothing pins it (verifies spec: SERVE)
 - [ ] The channel sends `facilityIds` on every operation. The fake connection ignores the query string, so only the construction-time guard ties the channel to its scope (verifies spec: BLAC, XFER)
 - [ ] A background fetch refused for capacity leaves the reference content-pending and retries (verifies spec: CAP, XFER)
 - [ ] Transfers of different hashes proceed concurrently rather than serialising behind each other (verifies spec: XFER)
@@ -562,42 +549,28 @@ bites hardest if it silently stops being true.
 
 ## Store and capacity
 
-- [ ] `blobs` is local: `DO_NOT_SYNC`, no changelog trigger, no sync tick column. The generic sync invariants do not reach it, since the tick column is derived from the sync direction (verifies spec: CAS)
-- [ ] Atomic placement where the destination cannot be renamed over: the retriable-rename path and its attempt cap have no test (verifies spec: CAS)
 - [ ] The store root comes from the `blobStorage.root` setting, and a relative value resolves against the working directory (verifies spec: CAP)
-- [ ] Facility outbox dysfunction escalation, including the in-flight exclusion that makes an actively progressing transfer healthy accumulation (verifies spec: CAP)
 
 ## Cache, outbox and mobile
 
-- [ ] Budget enforcement at admission: a read that fetches while over budget evicts least-recently-used content and keeps the new arrival (verifies spec: CACHE)
-- [ ] `BlobCacheEvictorTask` and `BlobOutboxPusherTask` call through, and no-op before the cache and pusher are wired (verifies spec: CACHE)
-- [ ] The facility cache budget resolves from `blobStorage.cacheSizeBudgetGB`, unit conversion included (verifies spec: CACHE)
-- [ ] `ViewPhotoLink`: content held on the device renders with no central call, and each of the three distinct unavailable messages appears in its own case (verifies spec: MOB)
 - [ ] A device retains its attachment records after the bytes reach central, which is what makes the content refetchable (verifies spec: MOB)
 
 ## Consumers
 
-- [ ] Creating an attachment succeeds with central unreachable, at the outbox tier, for both document uploads and patient letters (verifies spec: ATCH)
 - [ ] The document upload route's own size limit, which is never applied end to end because `uploadAttachment` is mocked away in the route tests (verifies spec: ATCH)
-- [ ] A facility upload the store refuses for capacity, covered on central only (verifies spec: ATCH, CAP)
 - [ ] A facility retains its attachment records after they sync, which the move from push-then-delete to bidirectional changed (verifies spec: ATCH)
-- [ ] Certificate and patient-letter rendering resolve a hash-form asset, and fail rather than printing unbranded when the bytes cannot be resolved (verifies spec: ASSET)
-- [ ] A facility-specific asset is preferred over the deployment-wide one, on both the endpoint and the letter renderer (verifies spec: ASSET)
+- [ ] `makePatientCertificate` and `makePatientLetter` resolve a hash-form asset, and fail rather than printing unbranded when the bytes cannot be resolved; both suites stub the asset lookup away. The browser's half is covered, in `useCertificate` holding a pending asset back (verifies spec: ASSET)
+- [ ] A facility-specific asset is preferred over the deployment-wide one in the letter renderer, which repeats the rule the endpoint applies; the endpoint is covered and the renderer is not (verifies spec: ASSET)
 - [ ] Asset blobs are ordinary cache-tier content: prefetched at the cache tier, evictable, refetched after eviction (verifies spec: ASSET, CACHE)
-- [ ] `useAssetQuery` suppresses the fallback for a content-pending asset, and `useCertificate` folds pending into its not-ready signal (verifies spec: ASSET)
 
 ## Backfill
 
-- [ ] The rollback subcommand has no test at all: that it drains both reference tables then the changelog, its default batch size, and that an explicit zero delay runs without pausing (verifies spec: BKFL)
 - [ ] Rollback when the store is not intact, which the spec makes a precondition and nothing pins (verifies spec: BKFL)
-- [ ] Batch pacing: the pause between batches is taken and is the configured length. Both suites run with it set to zero (verifies spec: BKFL)
-- [ ] `BlobBackfillTask` is in the default task list on both servers, which is what makes the backfill run with no operator action (verifies spec: BKFL)
-- [ ] Completion reporting's three outcomes, the only operator-visible completion signal (verifies spec: BKFL)
+- [ ] `BlobBackfillTask` is in the facility's default task list, which is what makes the backfill run there with no operator action; central's is covered and the facility's is not (verifies spec: BKFL)
 - [ ] Two servers rewriting the same changelog entry independently produce identical content, the basis for entries never re-synchronising and still converging (verifies spec: BKFL)
 
 ## Integrity
 
-- [ ] Central's opportunistic peer heal: central holds a corrupt copy, a facility connects and offers the hash, central takes the bytes and returns to verified (verifies spec: SCRUB)
 - [ ] An evicted cache blob is not reported as a fault by a later scrub (verifies spec: SCRUB)
 - [ ] Scheduled bounds resolve from settings for central's scrub and both servers' scan; only the facility scrub asserts it (verifies spec: SCRUB, AV)
 
