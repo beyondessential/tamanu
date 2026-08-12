@@ -223,11 +223,15 @@
         display: block;
       }
 
-      /* F */
+      /* F and F2: 130px so the icon can never be pushed onto a line of its own */
       .time-text.day-month-stacked {
-        width: 122px;
+        width: 130px;
         text-transform: none;
         display: block;
+      }
+
+      .nowrap {
+        white-space: nowrap;
       }
 
       .card-slot {
@@ -289,7 +293,12 @@
     <div id="options"></div>
 
     <script>
-      const MOON = `<span class="moon" aria-label="Overnight booking"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z"/></svg></span>`;
+      const moon = (size = 15) =>
+        `<span class="moon" aria-label="Overnight booking"><svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z"/></svg></span>`;
+
+      const MOON = moon();
+      // Sized to the status indicator in this pane
+      const SMALL_MOON = moon(13);
 
       const STATUS = {
         arrived: {
@@ -404,14 +413,29 @@
         {
           title: 'F. The same, wrapped to two lines',
           caption:
-            'Option E over two lines. Fits the current 122px column and leaves the card its full width. Row height still has to grow.',
+            'Option E over two lines, with the icon pinned to the end of the second line so it can never be pushed onto a line of its own. Needs 130px rather than 122px, and the card keeps almost all of its width. Row height still has to grow.',
           timeClass: 'day-month-stacked',
           rows: dayIndex => {
             const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
             const end = dayIndex === 2 ? END.time : `${END.dayMonth} ${END.time}`;
             return order(
               dayIndex,
-              overnight(`${start} – ${MOON}<br />${end}`),
+              overnight(`${start} –<br /><span class="nowrap">${end} ${SMALL_MOON}</span>`),
+              sameDay('8:30am – 9:00am'),
+            );
+          },
+        },
+        {
+          title: 'F2. The same, with the icon in place of the dash',
+          caption:
+            'The icon does the work of the range dash. Two lines and 130px again, one glyph shorter, and it reads as running through the night. No explicit separator, so the two times rely on the icon and the line order.',
+          timeClass: 'day-month-stacked',
+          rows: dayIndex => {
+            const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
+            const end = dayIndex === 2 ? END.time : `${END.dayMonth} ${END.time}`;
+            return order(
+              dayIndex,
+              overnight(`<span class="nowrap">${start} ${SMALL_MOON}</span><br />${end}`),
               sameDay('8:30am – 9:00am'),
             );
           },

@@ -46,7 +46,8 @@ first, middle and last day of the stay, each alongside a same-day booking.
 | C. `DateTimeRangeDisplay`, column widened | ~280px, pane 530px | Pane 45% wider; dates on same-day rows |
 | D. `dateFormat="shortest"`, two lines | 136px | Two lines on every row; dates on same-day rows |
 | E. Drop dates falling on today, day-month for the rest | 200px | Card truncates the location |
-| F. As E, wrapped to two lines | 122px | Two lines on overnight rows only |
+| F. As E, wrapped to two lines, icon ending line two | 130px | Two lines on overnight rows only |
+| F2. As F, icon in place of the range dash | 130px | No explicit separator between the two times |
 | G. Clamp to today's boundaries | 122px | Shows boundary times the booking doesn't have |
 
 Constraints the mockup surfaced:
@@ -59,6 +60,9 @@ Constraints the mockup surfaced:
   option needs that budget raised or the list starts scrolling.
 - The time column is `text-transform: lowercase`, so a day-month date renders
   "12 aug" until the lowercasing is scoped to the times.
+- The overnight icon has to be in a nowrap span with the text it sits beside, or
+  it wraps onto a third line of its own. At the pane's icon scale (13px, matching
+  the status indicator) the column needs 130px.
 
 ## Notes
 
