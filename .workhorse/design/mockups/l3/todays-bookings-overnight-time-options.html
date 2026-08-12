@@ -1,0 +1,481 @@
+<!-- spec: scheduling/overview.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <title>Today's bookings overnight time options</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+      :root {
+        --primary: #326699;
+        --darkest-text: #444444;
+        --dark-text: #666666;
+        --mid-text: #888888;
+        --outline: #dedede;
+        --white: #ffffff;
+        --background: #f3f5f7;
+        --purple: #4101c9;
+        --green: #19934e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px 40px 64px;
+        background-color: var(--background);
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        color: var(--darkest-text);
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      h1 {
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        margin: 0 0 8px;
+      }
+
+      .intro {
+        max-width: 780px;
+        margin: 0 0 8px;
+        color: var(--dark-text);
+      }
+
+      .intro-note {
+        max-width: 780px;
+        margin: 0 0 40px;
+        color: var(--mid-text);
+        font-size: 11px;
+        line-height: 15px;
+      }
+
+      .option {
+        margin-bottom: 44px;
+      }
+
+      .option-title {
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 24px;
+        margin: 0 0 4px;
+      }
+
+      .option-caption {
+        max-width: 780px;
+        margin: 0 0 16px;
+        color: var(--dark-text);
+      }
+
+      .option-caption code {
+        font-size: 13px;
+        color: var(--darkest-text);
+      }
+
+      .panes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .pane-with-label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .day-label {
+        font-size: 11px;
+        line-height: 15px;
+        color: var(--mid-text);
+      }
+
+      /* Faithful to TodayBookingsPane */
+
+      .container {
+        min-width: 366px;
+        width: 366px;
+        border: 1px solid var(--outline);
+        border-radius: 3px;
+        padding-top: 15px;
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container.wide {
+        min-width: 530px;
+        width: 530px;
+      }
+
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--outline);
+        padding-bottom: 6px;
+        margin: 0 20px 11px;
+      }
+
+      .heading4 {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 21px;
+        margin: 0;
+      }
+
+      .action-link {
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .timeline {
+        padding: 0 20px 0 12px;
+        margin: 0 0 -16px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .timeline-item {
+        display: flex;
+        min-height: 60px;
+      }
+
+      .timeline-separator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 0 0 auto;
+        position: relative;
+        top: 21px;
+      }
+
+      .timeline-dot {
+        display: flex;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .timeline-connector {
+        flex-grow: 1;
+        width: 1px;
+        background-color: var(--outline);
+      }
+
+      .timeline-item:last-child .timeline-connector {
+        display: none;
+      }
+
+      .timeline-content {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0 0 0 6px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .time-text {
+        flex-grow: 0;
+        flex-shrink: 0;
+        width: 122px;
+        text-transform: lowercase;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* B: the range is wider than the column and the column has no clipping
+         rule, so in the real DOM it spills over the card. Clipped here so the
+         comparison stays readable. */
+      .time-text.clipped {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* C: sized to content so it cannot overlap the card */
+      .time-text.fit {
+        width: max-content;
+        white-space: nowrap;
+      }
+
+      /* D */
+      .time-text.shortest {
+        width: 136px;
+        display: block;
+      }
+
+      /* E: day-month dates are words, so the column's lowercasing is scoped
+         back to the times */
+      .time-text.day-month {
+        width: 200px;
+        text-transform: none;
+        display: block;
+      }
+
+      /* F */
+      .time-text.day-month-stacked {
+        width: 122px;
+        text-transform: none;
+        display: block;
+      }
+
+      .card-slot {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .card {
+        height: 54px;
+        border-radius: 3px;
+        padding: 8px 16px;
+      }
+
+      .card-heading {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .card-body {
+        font-size: 14px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .footer {
+        margin: 4px 20px 0;
+        flex-grow: 1;
+        min-height: 20px;
+        border-top: 1px solid var(--outline);
+        background-color: var(--white);
+      }
+
+      .moon {
+        flex: 0 0 auto;
+        color: var(--primary);
+        display: inline-flex;
+        vertical-align: -2px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Today's bookings overnight time options</h1>
+    <p class="intro">
+      One booking runs 12 Aug 10:00am to 14 Aug 11:30am. Each option is shown on all three days of
+      the stay, alongside a same-day booking so the effect on the common case is visible. Rows are
+      ordered by start time, which is why the overnight booking sorts to the top on the middle and
+      last days.
+    </p>
+    <p class="intro-note">
+      Dates render dd/MM/yyyy here (en-AU); the reported deployment renders MM/DD/YYYY. The time
+      column is 122px today, and the pane budgets 60px of height per row.
+    </p>
+
+    <div id="options"></div>
+
+    <script>
+      const MOON = `<span class="moon" aria-label="Overnight booking"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z"/></svg></span>`;
+
+      const STATUS = {
+        arrived: {
+          colour: '#4101c9',
+          icon: colour =>
+            `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-label="Arrived"><circle cx="12" cy="12" r="9" stroke="${colour}"/></svg>`,
+        },
+        seen: {
+          colour: '#19934e',
+          icon: colour =>
+            `<svg width="13" height="13" viewBox="0 0 24 24" aria-label="Seen"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="${colour}"/></svg>`,
+        },
+      };
+
+      const DAYS = [
+        { label: 'Wed 12 Aug · first day', short: '12/08/2026', shortest: '12/08/26' },
+        { label: 'Thu 13 Aug · middle day', short: '13/08/2026', shortest: '13/08/26' },
+        { label: 'Fri 14 Aug · last day', short: '14/08/2026', shortest: '14/08/26' },
+      ];
+
+      const START = { short: '12/08/2026', shortest: '12/08/26', dayMonth: '12 Aug', time: '10:00am' };
+      const END = { short: '14/08/2026', shortest: '14/08/26', dayMonth: '14 Aug', time: '11:30am' };
+
+      const overnight = time => ({
+        time,
+        heading: 'Outpatient Outpatient',
+        body: 'Barton Aufderhar',
+        status: 'arrived',
+      });
+
+      const sameDay = time => ({
+        time,
+        heading: 'Ward 1 Bed 2',
+        body: 'Marisol Frami',
+        status: 'seen',
+      });
+
+      // Day 0: the overnight booking starts at 10:00am, so it sorts after the
+      // 8:30am booking. Days 1 and 2: it started on 12 Aug, so it sorts first.
+      const order = (dayIndex, overnightRow, sameDayRow) =>
+        dayIndex === 0 ? [sameDayRow, overnightRow] : [overnightRow, sameDayRow];
+
+      const OPTIONS = [
+        {
+          title: 'Current behaviour',
+          caption: 'Two bare times of day. Reads as a 90-minute booking on every day of the stay.',
+          timeClass: '',
+          rows: dayIndex =>
+            order(dayIndex, overnight('10:00am - 11:30am'), sameDay('8:30am - 9:00am')),
+        },
+        {
+          title: 'A. Start time and overnight icon',
+          caption:
+            'Matches the location bookings calendar tiles, and there is nothing new to build. No end time anywhere on the dashboard, and the last day leads with a time that is not today.',
+          timeClass: '',
+          rows: dayIndex =>
+            order(dayIndex, overnight(`10:00am ${MOON}`), sameDay('8:30am - 9:00am')),
+        },
+        {
+          title: 'B. DateTimeRangeDisplay as it stands',
+          caption:
+            'The direct swap, no layout change. The range needs about 280px against a 122px column, so it does not fit. The component always renders the start date, so same-day rows pick one up too.',
+          timeClass: 'clipped',
+          rows: dayIndex =>
+            order(
+              dayIndex,
+              overnight(`${START.short} ${START.time} – ${END.short} ${END.time}`),
+              sameDay(`${DAYS[dayIndex].short} 8:30am – 9:00am`),
+            ),
+        },
+        {
+          title: 'C. DateTimeRangeDisplay as it stands, column widened',
+          caption:
+            'Same swap, with the time column sized to content and the pane grown to 530px to keep the card readable. Truthful on every day. The pane is 45% wider, and same-day rows carry a date they do not need.',
+          timeClass: 'fit',
+          wide: true,
+          rows: dayIndex =>
+            order(
+              dayIndex,
+              overnight(`${START.short} ${START.time} – ${END.short} ${END.time}`),
+              sameDay(`${DAYS[dayIndex].short} 8:30am – 9:00am`),
+            ),
+        },
+        {
+          title: 'D. Squeezed with shortest dates over two lines',
+          caption:
+            'Passes <code>dateFormat="shortest"</code> and wraps. Both dates are visible so the icon is redundant. Needs 136px and two lines, so the pane\'s per-row height budget has to grow. Same-day rows still carry a date.',
+          timeClass: 'shortest',
+          rows: dayIndex =>
+            order(
+              dayIndex,
+              overnight(`${START.shortest} ${START.time} –<br />${END.shortest} ${END.time}`),
+              sameDay(`${DAYS[dayIndex].shortest} 8:30am –<br />9:00am`),
+            ),
+        },
+        {
+          title: "E. Squeezed by dropping today's date",
+          caption:
+            'New behaviour in the shared component: suppress a date that falls on today, and render the rest as day-month. Same-day rows are untouched. Only the middle day, where neither end is today, needs two lines. At 200px the card truncates the location.',
+          timeClass: 'day-month',
+          rows: dayIndex => {
+            const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
+            const end = dayIndex === 2 ? END.time : `${END.dayMonth} ${END.time}`;
+            const separator = dayIndex === 1 ? `– ${MOON}<br />` : `– `;
+            return order(
+              dayIndex,
+              overnight(dayIndex === 1 ? `${start} ${separator}${end}` : `${start} – ${end} ${MOON}`),
+              sameDay('8:30am – 9:00am'),
+            );
+          },
+        },
+        {
+          title: 'F. The same, wrapped to two lines',
+          caption:
+            'Option E over two lines. Fits the current 122px column and leaves the card its full width. Row height still has to grow.',
+          timeClass: 'day-month-stacked',
+          rows: dayIndex => {
+            const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
+            const end = dayIndex === 2 ? END.time : `${END.dayMonth} ${END.time}`;
+            return order(
+              dayIndex,
+              overnight(`${start} – ${MOON}<br />${end}`),
+              sameDay('8:30am – 9:00am'),
+            );
+          },
+        },
+        {
+          title: "G. Today's slice, clamped",
+          caption:
+            'Times clamped to today. Fits the current column and every row describes today. Shows boundary times the booking does not have.',
+          timeClass: '',
+          rows: dayIndex => {
+            const slice = ['10:00am - 11:59pm', '12:00am - 11:59pm', '12:00am - 11:30am'][dayIndex];
+            return order(dayIndex, overnight(`${slice} ${MOON}`), sameDay('8:30am - 9:00am'));
+          },
+        },
+      ];
+
+      const renderRow = (row, timeClass) => {
+        const { colour, icon } = STATUS[row.status];
+        return `
+          <div class="timeline-item">
+            <div class="timeline-separator">
+              <span class="timeline-dot">${icon(colour)}</span>
+              <span class="timeline-connector"></span>
+            </div>
+            <div class="timeline-content">
+              <div class="time-text ${timeClass}">${row.time}</div>
+              <div class="card-slot">
+                <div class="card" style="background-color: ${colour}1a">
+                  <div class="card-heading">${row.heading}</div>
+                  <div class="card-body">${row.body}</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      };
+
+      const renderPane = (option, dayIndex) => `
+        <div class="pane-with-label">
+          <div class="day-label">${DAYS[dayIndex].label}</div>
+          <div class="container${option.wide ? ' wide' : ''}">
+            <div class="title-container">
+              <h4 class="heading4">Today's bookings</h4>
+              <span class="action-link">View all…</span>
+            </div>
+            <div class="timeline">
+              ${option
+                .rows(dayIndex)
+                .map(row => renderRow(row, option.timeClass))
+                .join('')}
+            </div>
+            <div class="footer"></div>
+          </div>
+        </div>`;
+
+      document.getElementById('options').innerHTML = OPTIONS.map(
+        option => `
+          <section class="option">
+            <h2 class="option-title">${option.title}</h2>
+            <p class="option-caption">${option.caption}</p>
+            <div class="panes">
+              ${DAYS.map((_, dayIndex) => renderPane(option, dayIndex)).join('')}
+            </div>
+          </section>`,
+      ).join('');
+    </script>
+  </body>
+</html>

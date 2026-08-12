@@ -34,6 +34,32 @@ Two secondary consequences of the same root cause:
 - Rows are ordered by `startTime`, so a booking that began days ago sorts above
   today's bookings rather than at its position in today's timeline.
 
+## Display options
+
+Mocked up in "Today's bookings overnight time options", all seven rendered on the
+first, middle and last day of the stay, each alongside a same-day booking.
+
+| Option | Time column | Cost |
+| --- | --- | --- |
+| A. Start time and overnight icon | 122px | No end time at all; last day leads with a time that isn't today |
+| B. `DateTimeRangeDisplay` as-is | needs ~280px | Doesn't fit; dates on same-day rows |
+| C. `DateTimeRangeDisplay`, column widened | ~280px, pane 530px | Pane 45% wider; dates on same-day rows |
+| D. `dateFormat="shortest"`, two lines | 136px | Two lines on every row; dates on same-day rows |
+| E. Drop dates falling on today, day-month for the rest | 200px | Card truncates the location |
+| F. As E, wrapped to two lines | 122px | Two lines on overnight rows only |
+| G. Clamp to today's boundaries | 122px | Shows boundary times the booking doesn't have |
+
+Constraints the mockup surfaced:
+
+- `DateTimeRangeDisplay` always renders the start date, so options B, C and D
+  date-qualify every same-day row too. Suppressing a date that falls on today
+  (E, F) is a change to the shared component, and would want to apply wherever
+  the range is shown against a known day.
+- `StyledTimeline` budgets `60px` per row in its `max-height`, so any two-line
+  option needs that budget raised or the list starts scrolling.
+- The time column is `text-transform: lowercase`, so a day-month date renders
+  "12 aug" until the lowercasing is scoped to the times.
+
 ## Notes
 
 - Multi-day detection elsewhere (`DateTimeRangeDisplay`, `AppointmentTile`,
