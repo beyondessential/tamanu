@@ -244,10 +244,14 @@ export const DispenseMedicationWorkflowModal = memo(
       enabled: open,
     });
 
-    // Once the list is built the table stays up, so a background refetch never pulls it out from
-    // under an in-progress edit.
+    // Pending until the built list is actually in `items`. A settled response is not enough: the
+    // list is assembled in an effect, which runs after the paint that first sees the response, so
+    // treating arrived-but-unbuilt data as ready would flash an empty table for one frame. Once
+    // the list is built the table stays up, so a background refetch never pulls it out from under
+    // an in-progress edit.
     const isDispensableListPending =
-      !itemsInitialised && (isLoadingDispensables || isFetchingDispensables);
+      !itemsInitialised &&
+      (isLoadingDispensables || isFetchingDispensables || Boolean(dispensableResponse?.data));
 
     const selectedItems = items.filter(({ selected }) => selected);
     const stockColumnEnabled = items.some(

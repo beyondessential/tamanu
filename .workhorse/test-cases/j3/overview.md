@@ -14,9 +14,10 @@ deleting a request).
 - [ ] Edit a dispense's quantity, then reopen the dispense modal for that patient: the modal reflects the edit
 - [ ] Delete an active medication request, then open the dispense modal for that patient: the deleted request is not listed
 - [ ] The modal shows its loading state while the list is being fetched, and never shows "No data" before the fetch settles
+- [x] The table is never rendered empty between the response arriving and the list being built, so "No data" does not flash on the way to the list
 
 ## No regression to in-progress edits
 
 - [ ] Modify a prescription in the modal, then reopen the modify modal for another row: the first row keeps its modification
 - [ ] Change a row's quantity and label text, wait on the modal, and confirm the entered values are not reset
-- [ ] A patient with genuinely nothing to dispense shows "No data" rather than a permanent loading state
+- [x] A patient with genuinely nothing to dispense shows "No data" rather than a permanent loading state
