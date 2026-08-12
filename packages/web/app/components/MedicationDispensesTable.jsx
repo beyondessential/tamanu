@@ -323,6 +323,9 @@ export const MedicationDispensesTable = () => {
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
+      // The medication actually dispensed, which differs from the prescription's when
+      // pharmacy substituted it during dispensing (mirrors the table's Medication column).
+      medication: getDispensedMedication(dispenseData),
       // Full prescription so the modal can derive the original Instructions text.
       prescription: dispenseData.pharmacyOrderPrescription?.prescription,
       medicationPresetLabel: dispenseData.medicationPresetLabel,
