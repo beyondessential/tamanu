@@ -1905,7 +1905,9 @@ medication.get(
         {
           association: 'prescription',
           where: prescriptionFilters,
-          attributes: ['id'],
+          // A prescription discontinued after the order was placed stays in the queue, flagged
+          // rather than filtered, so the pharmacist can see it and decide (spec: PHDIS).
+          attributes: ['id', 'discontinued'],
           include: [
             {
               association: 'medication',
@@ -2509,6 +2511,11 @@ medication.get(
             'isVariableDose',
             'isOngoing',
             'date',
+            // Dispensing a discontinued prescription is warned about, not blocked, so the
+            // pharmacist needs the discontinuation context to decide (spec: PHDIS).
+            'discontinued',
+            'discontinuedDate',
+            'discontinuingReason',
           ],
           required: true,
           include: [
@@ -2813,7 +2820,7 @@ medication.post(
       const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
       if (notFoundIds.length > 0) {
         throw new NotFoundError(
-          `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
+          `Pharmacy order prescription(s) not found: ${notFoundIds.join(', ')}`,
         );
       }
       const isSamePatient = prescriptionRecords.every(

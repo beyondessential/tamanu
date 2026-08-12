@@ -14,7 +14,6 @@ import {
   notifySuccess,
   OutlinedButton,
   RequiredOrnament,
-  TranslatedReferenceData,
   TranslatedText,
   useApi,
   useDateTime,
@@ -33,6 +32,7 @@ import {
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  MedicationNameWithDiscontinuedTag,
   InstructionsInput,
   QuantityInput,
   resolvePresetLabelText,
@@ -82,6 +82,20 @@ const HeaderRow = styled(Box)`
   gap: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
+`;
+
+// Discontinuation after a pharmacy order is placed warns rather than blocks, so the pharmacist
+// gets a banner as well as the per-row tag (spec: PHDIS).
+const DiscontinuedWarningBanner = styled(Box)`
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid ${Colors.alert};
+  border-radius: 4px;
+  background: ${Colors.alert}1a;
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 18px;
 `;
 
 const DispenseHeaderToolbarRow = styled(Box)`
@@ -254,6 +268,7 @@ export const DispenseMedicationWorkflowModal = memo(
       (isLoadingDispensables || isFetchingDispensables || Boolean(dispensableResponse?.data));
 
     const selectedItems = items.filter(({ selected }) => selected);
+    const hasDiscontinuedItems = items.some(({ prescription }) => prescription?.discontinued);
     const stockColumnEnabled = items.some(
       ({ prescription }) => prescription?.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
     );
@@ -297,7 +312,9 @@ export const DispenseMedicationWorkflowModal = memo(
           const { quantity, prescription, instructions } = d;
           return {
             ...d,
-            selected: true,
+            // Discontinued requests stay dispensable but must not be dispensed by accident, so
+            // they start unselected and need the pharmacist to opt in (spec: PHDIS).
+            selected: !prescription?.discontinued,
             quantity: quantity ?? 1,
             instructions:
               buildLabelText(prescription, getTranslation, getEnumTranslation) ||
@@ -617,16 +634,12 @@ export const DispenseMedicationWorkflowModal = memo(
           key: 'medication',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           style: { minInlineSize: '16em' },
-          accessor: item => {
-            const medication = getEffectivePrescription(item)?.medication;
-            return (
-              <TranslatedReferenceData
-                fallback={medication?.name}
-                value={medication?.id}
-                category={medication?.type ?? 'drug'}
-              />
-            );
-          },
+          accessor: item => (
+            <MedicationNameWithDiscontinuedTag
+              medication={getEffectivePrescription(item)?.medication}
+              prescription={item.prescription}
+            />
+          ),
         },
         {
           key: 'quantity',
@@ -968,6 +981,14 @@ export const DispenseMedicationWorkflowModal = memo(
                   <DispenseHeaderPatientSlot>{patientSummaryBanner}</DispenseHeaderPatientSlot>
                 ) : null}
               </DispenseHeaderToolbarRow>
+              {hasDiscontinuedItems ? (
+                <DiscontinuedWarningBanner data-testid="dispense-discontinued-warning">
+                  <TranslatedText
+                    stringId="medication.dispense.discontinuedWarning"
+                    fallback="Some medications below were discontinued after being sent to pharmacy."
+                  />
+                </DiscontinuedWarningBanner>
+              ) : null}
             </HeaderRow>
 
             {isDispensableListPending ? (

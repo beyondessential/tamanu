@@ -24,7 +24,7 @@ import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
-import { getStockStatus } from '../utils/medications';
+import { getStockStatus, MedicationNameWithDiscontinuedTag } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
@@ -105,15 +105,12 @@ const getLocation = ({ pharmacyOrder }) => {
     </div>
   );
 };
-const getMedication = ({ prescription }) => {
-  return (
-    <TranslatedReferenceData
-      fallback={prescription?.medication?.name}
-      value={prescription?.medication?.id}
-      category={prescription?.medication?.type}
-    />
-  );
-};
+const getMedication = ({ prescription }) => (
+  <MedicationNameWithDiscontinuedTag
+    medication={prescription?.medication}
+    prescription={prescription}
+  />
+);
 const getOrderingPrescriber = ({ pharmacyOrder }) => {
   return pharmacyOrder?.orderingClinician?.displayName;
 };
