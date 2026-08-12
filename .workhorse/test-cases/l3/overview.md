@@ -6,15 +6,22 @@ clinician it is assigned to.
 
 Ticked cases are covered by the unit tests in
 `packages/web/__tests__/views/dashboard/TodayBookingsPane.test.jsx` and
-`packages/web/__tests__/components/DateTimeRangeDisplay.test.jsx`, or by
+`packages/web/__tests__/components/DateTimeRangeDisplay.test.jsx`, the endpoint
+test in `packages/facility-server/__tests__/apiv1/Appointments.test.js`, or by
 measuring the pane's CSS in a browser. The unticked ones need the running app.
+
+The facility-server suite could not be run locally: its test database harness
+fails at connection setup in this worktree, for every test including untouched
+ones, so CI is the first execution of the endpoint test.
 
 ## The reported bug
 
 - [x] On the first day of the stay, the row shows the start time and the end time carrying its date, not two bare times (verifies spec: SCHEDULING)
 - [x] On a middle day, the row carries a date on both ends (verifies spec: SCHEDULING)
 - [x] On the last day, the row shows the start time carrying its date and the end time alone (verifies spec: SCHEDULING)
-- [ ] The booking appears on all three days of the stay (verifies spec: SCHEDULING)
+- [x] The booking appears on all three days of the stay (verifies spec: SCHEDULING)
+- [x] The appointments endpoint returns a booking spanning days on the day it starts, a day it neither starts nor ends on, and the day it ends, and not on the day either side (verifies spec: SCHEDULING)
+- [x] It returns both of the booking's times, so the pane can tell which day each falls on
 - [x] An overnight indicator appears on the row on each of those days (verifies spec: SCHEDULING)
 
 ## Bookings wholly within today
@@ -56,5 +63,6 @@ worsen it, but the case stays open until the offset or the overflow is addressed
 ## Regression
 
 - [ ] The other surfaces using the shared date range display are unchanged: appointment detail, location bookings table, past bookings, and the two cancel modals
+- [ ] End to end: a clinician opens the dashboard and sees a multi-day booking with the right dates on a middle day. Covered at the endpoint and unit levels instead; this stays open as the one case that exercises the whole path in a browser
 - [ ] Booking status colour, status indicator, and the tooltip on a truncated location or patient name all behave as before
 - [ ] "View all…" still opens location bookings filtered to the clinician

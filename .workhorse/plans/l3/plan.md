@@ -92,9 +92,13 @@ stands, in every right-to-left locale, overnight or not.
 
 Two things fix it, and the mockup shows both:
 
-- Wrap each formatted part in a `bdi` so the runs cannot merge. Keeps the order
-  correct even in a left-to-right pane, and is cheap enough to apply wherever a
-  date is rendered.
+- Wrap each end of the range in a `bdi`, date and time together, so it cannot merge
+  with what sits beside it. Keeps the order correct even in a left-to-right pane,
+  and is cheap enough to apply wherever a date is rendered. Measured left to right,
+  an isolated end renders in exactly the order a native right-to-left container
+  gives it. Isolating the date and the time *separately* keeps each intact but
+  orders them left to right against each other, which is wrong for the locale, so
+  the isolate goes around the whole end.
 - Set the pane's direction from the locale. The setting already carries what is
   needed: `new Intl.Locale(locale).getTextInfo().direction` returns `rtl` for
   ur-PK, ur-IN, ar-EG and he-IL, `ltr` for en-AU and ja-JP. Note that Chrome
@@ -167,6 +171,28 @@ The same harness reproduces it with the original CSS, and the `+ 21px` in the
 `max-height` formula was compensating for it. The per-row allowance is now generous
 enough to cover a two-line row, so the change does not make it worse, but the
 formula still never actually caps a long list.
+
+### Test levels
+
+The overlap query is what puts a multi-day booking in each day's list, and it was
+untested: the existing endpoint tests only cover appointments with no `endTime`,
+which is the other branch of `buildTimeQuery`. That gap is now covered in
+`packages/facility-server/__tests__/apiv1/Appointments.test.js`, asserting the
+booking comes back on the day it starts, a day it merely covers, and the day it
+ends, and not on the day either side.
+
+Review asked for this as an E2E spec. It sits at the endpoint level instead: the
+claim is about what the API returns for a set of day bounds, which is API contract,
+and the rendering above it is already unit tested. The repo's own guidance puts API
+behaviour in integration tests and reserves E2E for business-critical multi-step UI
+flows. The end-to-end case stays on the test-cases list, unticked, as the one that
+would exercise the whole path in a browser; it needs a dashboard page object, since
+`packages/e2e-tests/pages/DashboardPage.ts` is an empty stub.
+
+Neither the E2E nor the endpoint test could be run here. E2E has no `.env` and no
+running stack, and the facility-server harness fails at database connection setup
+in this worktree for every test, including ones this card does not touch. The web
+unit tests and lint do run, and pass.
 
 ### Other constraints the mockup surfaced
 
