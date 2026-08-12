@@ -34,7 +34,10 @@ import { singularize } from './utils';
 
 // `name` is carried through so the change handler can populate Label text from it.
 export const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
-export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
+export const PRESET_LABEL_SUGGESTER_OPTIONS = {
+  formatter: presetLabelFormatter,
+  baseQueryParameters: { noLimit: true },
+};
 
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
