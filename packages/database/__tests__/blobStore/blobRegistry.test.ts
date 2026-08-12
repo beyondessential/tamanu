@@ -10,11 +10,13 @@ import { BLOB_INTEGRITY_STATES, BLOB_SCAN_VERDICTS, type BlobScanVerdict } from 
 import { fake } from '@tamanu/fake-data/fake';
 
 import { BlobStore } from '../../src/blobStore/BlobStore';
+import { BlobScanner } from '../../src/blobStore/scanning/BlobScanner';
 import { getModelsForPull, getModelsForPush } from '../../src/sync/getModelsForDirection';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
 const SCANNER_VERSION = 'ClamAV 1.0.5';
 const SIGNATURE_VERSION = '27100';
+const SUPERSEDED_SIGNATURE_VERSION = '27099';
 
 describe('blob registry', () => {
   let models: any;
@@ -152,6 +154,61 @@ describe('blob registry', () => {
       expect(blob.scannerVersion).toBe(SCANNER_VERSION);
       expect(blob.signatureVersion).toBe(SIGNATURE_VERSION);
       expect(blob.scannedAt).toBeInstanceOf(Date);
+    });
+  });
+
+  // spec: AV
+  describe('scan pass ordering', () => {
+    // The pass draws on the whole registry, so rows other cases admitted would order into it.
+    beforeEach(async () => {
+      await models.Blob.destroy({ where: {}, force: true });
+    });
+
+    const recordSupersededScan = async (hash: string, scannedAt: Date) =>
+      await sequelize.query(
+        `UPDATE blobs
+         SET scan_verdict = $verdict, scanned_at = $scannedAt, signature_version = $signatureVersion
+         WHERE hash = $hash`,
+        {
+          bind: {
+            hash,
+            verdict: BLOB_SCAN_VERDICTS.CLEAN,
+            scannedAt: scannedAt.toISOString(),
+            signatureVersion: SUPERSEDED_SIGNATURE_VERSION,
+          },
+        },
+      );
+
+    const scanOrder = async () => {
+      const order: string[] = [];
+      await new BlobScanner({
+        blobStore: store,
+        models,
+        driver: {
+          versions: async () => ({
+            scannerVersion: SCANNER_VERSION,
+            signatureVersion: SIGNATURE_VERSION,
+          }),
+          scan: async ({ hash }: { hash: string }) => {
+            order.push(hash);
+            return BLOB_SCAN_VERDICTS.CLEAN;
+          },
+        } as any,
+        getLimits: async () => ({ maxBlobs: 100, maxBytes: 1_000_000, maxScanBytes: 1_000_000 }),
+        onInfected: async () => {},
+        log: { info: () => {}, warn: () => {} },
+      }).run();
+      return order;
+    };
+
+    it('takes never-scanned content first, then what was scanned longest ago', async () => {
+      const neverScanned = await admit();
+      const scannedRecently = await admit();
+      const scannedLongAgo = await admit();
+      await recordSupersededScan(scannedRecently, new Date('2024-06-01T00:00:00Z'));
+      await recordSupersededScan(scannedLongAgo, new Date('2020-01-01T00:00:00Z'));
+
+      expect(await scanOrder()).toEqual([neverScanned, scannedLongAgo, scannedRecently]);
     });
   });
 });

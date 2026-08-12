@@ -212,6 +212,41 @@ describe('BlobStore', () => {
     });
   });
 
+  // spec: CAP
+  describe('store root', () => {
+    // blobStorage.root ships relative, so this is where an unconfigured store lands.
+    it('resolves a relative root against the working directory', async () => {
+      const relativeRoot = path.relative(
+        process.cwd(),
+        await fs.mkdtemp(path.join(process.cwd(), '.blob-relative-root-')),
+      );
+      const store = new BlobStore({
+        root: relativeRoot,
+        models: { Blob: fakeBlob as unknown as typeof Blob },
+        getFreeDiskReserveBytes: async () => 0,
+        statfs: async () => ({ bavail: volumeFreeBytes, bsize: 1 }),
+      });
+
+      try {
+        const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
+        const digest = hash.split(':')[1];
+        const placed = path.join(
+          process.cwd(),
+          relativeRoot,
+          'sha256',
+          digest.slice(0, 2),
+          digest.slice(2, 4),
+          digest.slice(4),
+        );
+
+        expect((await fs.readFile(placed)).toString()).toBe('hello world');
+        expect(await readAll(await store.get(hash))).toEqual(Buffer.from('hello world'));
+      } finally {
+        await fs.rm(relativeRoot, { recursive: true, force: true });
+      }
+    });
+  });
+
   // spec: CAS
   // Renaming over an occupied destination, and transient sharing violations from
   // an antivirus or indexer handle, only happen on Windows/NTFS: POSIX never
