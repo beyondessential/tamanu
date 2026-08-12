@@ -95,6 +95,17 @@ describe('facility blob outbox and LRU cache', () => {
 
   const tierOf = async hash => (await models.Blob.findOne({ where: { hash } })).tier;
 
+  const sidecarPathFor = hash => {
+    const digest = hash.split(':')[1];
+    return path.join(
+      root,
+      'sha256',
+      digest.slice(0, 2),
+      digest.slice(2, 4),
+      `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
+    );
+  };
+
   const setLastAccessed = async (hash, msAgo) =>
     models.Blob.update(
       { lastAccessedAt: new Date(Date.now() - msAgo) },
@@ -108,12 +119,13 @@ describe('facility blob outbox and LRU cache', () => {
       expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
 
-    it('keeps content already held as cache in the cache tier on outbox re-admission', async () => {
-      // verifies spec: CACHE — the tier reflects whether central holds the bytes
+    it('returns cache-tier content to the outbox when it is admitted locally', async () => {
+      // verifies spec: CACHE — a cache copy central holds cannot be told apart
+      // from one demoted after its referencing record was never created
       const content = uniqueContent();
       await putCache(content);
       const { hash } = await putOutbox(content);
-      expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
 
     it('keeps an un-acknowledged blob in the outbox on repeat admission', async () => {
@@ -141,14 +153,7 @@ describe('facility blob outbox and LRU cache', () => {
       // push, so a corrupt cache copy costs a refetch rather than needing parity
       errorCorrection = { enabled: true, proportion: 0.1 };
       const { hash } = await putOutbox(Buffer.alloc(64 * 1024, 'o'));
-      const digest = hash.split(':')[1];
-      const sidecar = path.join(
-        root,
-        'sha256',
-        digest.slice(0, 2),
-        digest.slice(2, 4),
-        `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
-      );
+      const sidecar = sidecarPathFor(hash);
       await expect(fs.access(sidecar)).resolves.toBeUndefined();
 
       await blobCache.demote(hash);
@@ -157,6 +162,21 @@ describe('facility blob outbox and LRU cache', () => {
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.tier).toBe(BLOB_TIERS.CACHE);
       expect(row.hasParity).toBe(false);
+    });
+
+    it('covers content promoted back to the outbox with parity again', async () => {
+      // verifies spec: FEC — a blob back in the outbox is again the only durable
+      // copy, so it is protected rather than left on the cache tier's terms
+      errorCorrection = { enabled: true, proportion: 0.1 };
+      const content = Buffer.alloc(64 * 1024, 'p');
+      const { hash } = await putOutbox(content);
+      await blobCache.demote(hash);
+      await expect(fs.access(sidecarPathFor(hash))).rejects.toThrow();
+
+      await blobCache.putOutbox(Readable.from(content));
+
+      await expect(fs.access(sidecarPathFor(hash))).resolves.toBeUndefined();
+      expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
     });
   });
 

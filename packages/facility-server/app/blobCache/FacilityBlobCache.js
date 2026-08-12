@@ -63,18 +63,29 @@ export class FacilityBlobCache {
    * Admit locally originated content into the outbox. Call within the
    * operation that creates the blob's referencing record — outbox admission
    * without a reference strands the blob, since facility servers run no
-   * orphan collection. Content already held as cache stays cache: it is
-   * already durable on central and needs no push.
+   * orphan collection. Content the store already holds joins the outbox with
+   * it: a local origin means central is not known to hold the bytes.
    */
   async putOutbox(source, { sizeHint } = {}) {
     const admitted = await this.#blobStore.put(source, { sizeHint, tier: BLOB_TIERS.OUTBOX });
-    // spec: RECL — admission leaves a row it already holds untouched, so refresh
-    // recency here to keep the stranded sweep's safety window over content whose
-    // new reference has not landed yet.
+    // Admission leaves a row it already holds untouched, so the tier is set here.
     if (admitted.existed) {
-      await this.#touch(admitted.hash);
+      await this.#promoteToOutbox(admitted.hash);
     }
     return admitted;
+  }
+
+  // spec: CACHE — locally admitted content belongs in the outbox whatever tier
+  // its row held; the recency bump keeps the sweep's window over it (spec: RECL).
+  async #promoteToOutbox(hash) {
+    const [, [blob]] = await this.#models.Blob.update(
+      { tier: BLOB_TIERS.OUTBOX, lastAccessedAt: new Date() },
+      { where: { hash }, returning: true },
+    );
+    if (blob && !blob.hasParity) {
+      // spec: FEC — the outbox is this server's only durable copy, so it carries parity.
+      await this.#blobStore.writeParity({ hash, size: blob.size, tier: blob.tier });
+    }
   }
 
   // spec: CACHE

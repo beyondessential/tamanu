@@ -11,6 +11,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 import { createTestContext } from '../utilities';
+import { BlobOutboxPusher } from '../../app/blobCache/BlobOutboxPusher';
 import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
 
 jest.mock('@tamanu/shared/utils/getUploadedData');
@@ -180,6 +181,40 @@ describe('outbox admission and the referencing record', () => {
     ).rejects.toThrow();
 
     expect(await outboxRowFor(hash)).not.toBeNull();
+  });
+
+  it('pushes the content to central when a failed upload is retried', async () => {
+    // verifies spec: CACHE — content demoted when its record write failed
+    // rejoins the outbox on the upload that does reference it, so the pusher
+    // still delivers the bytes central has never been offered
+    const patient = await models.Patient.create(fake(models.Patient));
+    const content = Buffer.from(`uploaded document ${randomUUID()}`);
+    const { hash } = await stageUpload(content);
+    await expect(
+      uploadAttachment({ models, blobCache }, DOCUMENT_SIZE_LIMIT, {
+        patientId: 'patient-that-does-not-exist',
+      }),
+    ).rejects.toThrow();
+    expect(await outboxRowFor(hash)).toBeNull();
+
+    await stageUpload(content);
+    await uploadAttachment({ models, blobCache }, DOCUMENT_SIZE_LIMIT, { patientId: patient.id });
+
+    const pushed = [];
+    await new BlobOutboxPusher({
+      models,
+      transferChannel: {
+        pushToCentral: async offeredHash => {
+          pushed.push(offeredHash);
+          return { acknowledged: true };
+        },
+      },
+      blobCache,
+      referenceResolvers: [async (_models, hashes) => hashes],
+    }).runOnce();
+
+    expect(pushed).toEqual([hash]);
+    expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
   });
 
   describe('stranded outbox sweep', () => {

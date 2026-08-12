@@ -610,8 +610,8 @@ export class BlobStore {
    * Admit content into the store: stream it to a temporary file within the
    * store, hash what landed there, then atomically rename into the fan-out path
    * and record it in the registry. Idempotent — identical content resolves to the one
-   * stored blob, keeping its existing tier (spec: CACHE — content already held
-   * as cache stays cache). Refuses (InsufficientStorageError) rather than take
+   * stored blob, keeping its existing tier, which a caller that needs the
+   * admitted tier applied sets itself. Refuses (InsufficientStorageError) rather than take
    * the volume's free space below the configured reserve. On any failure the
    * source stream is destroyed; it cannot be reused.
    *
@@ -687,8 +687,8 @@ export class BlobStore {
     }
     try {
       // The tier the registry recorded, not the one admission asked for: a live
-      // row keeps its own tier (spec: CACHE — content already held as cache stays
-      // cache), so what parity covers follows the row rather than the intent.
+      // row keeps its own tier, so what parity covers follows the row rather
+      // than the intent.
       const registered = await this.#models.Blob.findOne({ where: { hash } });
       if (!registered || !(await this.#parity.covers({ size, tier: registered.tier }))) {
         return;
@@ -1006,8 +1006,7 @@ export class BlobStore {
   ): Promise<void> {
     // Race-safe against concurrent puts of the same content; the loser's
     // insert is a no-op against the winner's identical live row, which keeps
-    // its tier: content already held as cache is durable on central and stays
-    // cache even when re-admitted with outbox intent (spec: CACHE). A
+    // its tier. A tier a re-admission needs applied is the caller's to set. A
     // soft-deleted row still occupies the unique index and would otherwise
     // shadow re-admission forever (invisible to has/get, conflicting here), so
     // resurrect it as the fresh admission it is: take the incoming tier (an
