@@ -27,12 +27,18 @@ export const uploadAttachment = async (req, maxFileSize, scope = {}) => {
     const { hash, size: storedSize } = await blobCache.putOutbox(fs.createReadStream(file), {
       sizeHint: size,
     });
-    const attachment = await models.Attachment.create({
-      type,
-      hash,
-      size: storedSize,
-      ...scope,
-    });
+    let attachment;
+    try {
+      attachment = await models.Attachment.create({
+        type,
+        hash,
+        size: storedSize,
+        ...scope,
+      });
+    } catch (error) {
+      await blobCache.demoteIfStranded(hash);
+      throw error;
+    }
 
     return {
       attachmentId: attachment.id,

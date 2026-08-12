@@ -370,6 +370,35 @@ describe('Attachment (central-server)', () => {
       expect(result).toBeForbidden();
     });
 
+    // spec: BLAC, ATCH
+    // The permission check governs the referencing record and runs ahead of the
+    // hash branch, so a blob-backed attachment is refused exactly as a row
+    // holding its own bytes is.
+    describe('on a hash-backed attachment', () => {
+      let blobBacked;
+
+      beforeEach(async () => {
+        const { hash, size } = await ctx.blobStore.put(
+          Readable.from([Buffer.from('content the permission check governs', 'utf8')]),
+        );
+        blobBacked = await models.Attachment.create({ type: 'text/plain', hash, size });
+      });
+
+      it('rejects reading it without read Attachment permission', async () => {
+        app = await baseApp.asNewRole([['create', 'Attachment']], { id: 'practitioner' });
+
+        const result = await app.get(`/v1/attachment/${blobBacked.id}`);
+        expect(result).toBeForbidden();
+      });
+
+      it('serves it with read Attachment permission', async () => {
+        app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
+
+        const result = await app.get(`/v1/attachment/${blobBacked.id}`);
+        expect(result).toHaveSucceeded();
+      });
+    });
+
     it('rejects getting an attachment if there is no create Attachment permission', async () => {
       app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
 

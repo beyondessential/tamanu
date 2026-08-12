@@ -5,9 +5,16 @@ import path from 'node:path';
 import { QueryTypes } from 'sequelize';
 
 import { BlobStore } from '@tamanu/database/blobStore';
+import { log } from '@tamanu/shared/services/logging';
 import { BlobBackfillTask } from '@tamanu/shared/tasks';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from './utilities';
+
+// The pause between batches is observed rather than waited out.
+jest.mock('@tamanu/utils/sleepAsync', () => ({
+  sleepAsync: jest.fn().mockResolvedValue(undefined),
+}));
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
@@ -60,6 +67,7 @@ describe('BlobBackfillTask', () => {
 
   beforeEach(async () => {
     root = ctx.blobStore.root;
+    sleepAsync.mockClear();
 
     await sequelize.query('DELETE FROM attachments');
     await sequelize.query('DELETE FROM assets');
@@ -188,5 +196,91 @@ describe('BlobBackfillTask', () => {
     expect(row.hash).toBeNull();
     expect(row.data).not.toBeNull();
     await fs.rm(starvedStore.root, { recursive: true, force: true });
+  });
+
+  // spec: BKFL
+  // The pause between batches is what keeps a long run off the back of a live
+  // deployment, so it has to be taken and be the configured length.
+  describe('batch pacing', () => {
+    it('pauses for the configured length between batches', async () => {
+      for (let i = 0; i < 3; i++) await insertAttachment(Buffer.from(`document ${i}`));
+
+      await makeTask({ batchSize: 1, batchSleepAsyncDurationInMilliseconds: 250 }).run();
+
+      expect(sleepAsync).toHaveBeenCalledWith(250);
+      expect(sleepAsync.mock.calls.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('does not pause when the configured length is zero', async () => {
+      for (let i = 0; i < 3; i++) await insertAttachment(Buffer.from(`document ${i}`));
+
+      await makeTask({ batchSize: 1, batchSleepAsyncDurationInMilliseconds: 0 }).run();
+
+      expect(sleepAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  // spec: BKFL
+  // The report a run ends on is the only operator-visible completion signal, and
+  // no bytes left in the database is only half of done.
+  describe('completion reporting', () => {
+    let info;
+    let warn;
+
+    const messagesOf = spy => spy.mock.calls.map(([message]) => message);
+
+    beforeEach(() => {
+      info = jest.spyOn(log, 'info');
+      warn = jest.spyOn(log, 'warn');
+    });
+
+    afterEach(() => {
+      info.mockRestore();
+      warn.mockRestore();
+    });
+
+    it('reports completion once nothing holds bytes and every hash resolves', async () => {
+      await insertAttachment(Buffer.from('the last of the legacy content'));
+
+      await makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 }).run();
+
+      expect(messagesOf(info)).toContain(
+        'BlobBackfillTask: complete, no in-database blob content remains',
+      );
+    });
+
+    it('reports content still to move when a pass leaves rows behind', async () => {
+      await insertAsset(Buffer.from('a letterhead a facility only seeds'));
+
+      const previous = global.serverInfo;
+      global.serverInfo = { serverType: 'facility' };
+      try {
+        await makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 }).run();
+      } finally {
+        // eslint-disable-next-line require-atomic-updates -- single-threaded save/restore
+        global.serverInfo = previous;
+      }
+
+      expect(messagesOf(info)).toContain('BlobBackfillTask: content still to move');
+      expect(messagesOf(info)).not.toContain(
+        'BlobBackfillTask: complete, no in-database blob content remains',
+      );
+    });
+
+    it('reports a referenced hash the server holds no content for rather than completion', async () => {
+      await sequelize.query(
+        `INSERT INTO attachments (id, type, size, hash) VALUES ($id, 'image/png', 4, $hash)`,
+        { bind: { id: randomUUID(), hash: `sha256:${'d'.repeat(64)}` } },
+      );
+
+      await makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 }).run();
+
+      expect(messagesOf(warn)).toContain(
+        'BlobBackfillTask: complete except for content this server does not hold',
+      );
+      expect(messagesOf(info)).not.toContain(
+        'BlobBackfillTask: complete, no in-database blob content remains',
+      );
+    });
   });
 });

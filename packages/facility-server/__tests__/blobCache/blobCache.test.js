@@ -8,6 +8,7 @@ import { FACILITY_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
 import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { BlobStore } from '@tamanu/database/blobStore';
+import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../utilities';
 import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
@@ -94,6 +95,17 @@ describe('facility blob outbox and LRU cache', () => {
 
   const tierOf = async hash => (await models.Blob.findOne({ where: { hash } })).tier;
 
+  const sidecarPathFor = hash => {
+    const digest = hash.split(':')[1];
+    return path.join(
+      root,
+      'sha256',
+      digest.slice(0, 2),
+      digest.slice(2, 4),
+      `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
+    );
+  };
+
   const setLastAccessed = async (hash, msAgo) =>
     models.Blob.update(
       { lastAccessedAt: new Date(Date.now() - msAgo) },
@@ -107,12 +119,13 @@ describe('facility blob outbox and LRU cache', () => {
       expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
 
-    it('keeps content already held as cache in the cache tier on outbox re-admission', async () => {
-      // verifies spec: CACHE — the tier reflects whether central holds the bytes
+    it('returns cache-tier content to the outbox when it is admitted locally', async () => {
+      // verifies spec: CACHE — a cache copy central holds cannot be told apart
+      // from one demoted after its referencing record was never created
       const content = uniqueContent();
       await putCache(content);
       const { hash } = await putOutbox(content);
-      expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
+      expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
 
     it('keeps an un-acknowledged blob in the outbox on repeat admission', async () => {
@@ -140,14 +153,7 @@ describe('facility blob outbox and LRU cache', () => {
       // push, so a corrupt cache copy costs a refetch rather than needing parity
       errorCorrection = { enabled: true, proportion: 0.1 };
       const { hash } = await putOutbox(Buffer.alloc(64 * 1024, 'o'));
-      const digest = hash.split(':')[1];
-      const sidecar = path.join(
-        root,
-        'sha256',
-        digest.slice(0, 2),
-        digest.slice(2, 4),
-        `${digest.slice(4)}${PARITY_SIDECAR_SUFFIX}`,
-      );
+      const sidecar = sidecarPathFor(hash);
       await expect(fs.access(sidecar)).resolves.toBeUndefined();
 
       await blobCache.demote(hash);
@@ -156,6 +162,21 @@ describe('facility blob outbox and LRU cache', () => {
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.tier).toBe(BLOB_TIERS.CACHE);
       expect(row.hasParity).toBe(false);
+    });
+
+    it('covers content promoted back to the outbox with parity again', async () => {
+      // verifies spec: FEC — a blob back in the outbox is again the only durable
+      // copy, so it is protected rather than left on the cache tier's terms
+      errorCorrection = { enabled: true, proportion: 0.1 };
+      const content = Buffer.alloc(64 * 1024, 'p');
+      const { hash } = await putOutbox(content);
+      await blobCache.demote(hash);
+      await expect(fs.access(sidecarPathFor(hash))).rejects.toThrow();
+
+      await blobCache.putOutbox(Readable.from(content));
+
+      await expect(fs.access(sidecarPathFor(hash))).resolves.toBeUndefined();
+      expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
     });
   });
 
@@ -222,6 +243,29 @@ describe('facility blob outbox and LRU cache', () => {
       const served = await readAll(await blobCache.open(hash));
       expect(served.equals(content)).toBe(true);
       expect(fetched).toBe(1);
+    });
+
+    it('evicts least-recently-used content when a fetch takes the cache over budget', async () => {
+      // verifies spec: CACHE — the budget is enforced when a blob is admitted,
+      // and never at the expense of the arrival that triggered the admission
+      const stale = await putCache();
+      const recent = await putCache();
+      await setLastAccessed(stale.hash, 3 * 60 * 60 * 1000);
+      await setLastAccessed(recent.hash, 60 * 60 * 1000);
+
+      const content = uniqueContent();
+      const hash = hashOf(content);
+      cacheBudgetBytes = recent.content.length + content.length;
+      blobCache.setTransferChannel({
+        fetchFromCentral: async () => await blobStore.put(Readable.from(content)),
+      });
+
+      const served = await readAll(await blobCache.open(hash));
+
+      expect(served.equals(content)).toBe(true);
+      expect(await blobStore.has(hash)).toBe(true);
+      expect(await blobStore.has(stale.hash)).toBe(false);
+      expect(await blobStore.has(recent.hash)).toBe(true);
     });
   });
 
@@ -539,6 +583,90 @@ describe('facility blob outbox and LRU cache', () => {
       expect(status.count).toBe(2);
       expect(status.totalBytes).toBeGreaterThan(0);
       expect(status.oldestEligibleTick).toBe(42);
+    });
+
+    describe('escalation', () => {
+      let errorLog;
+
+      beforeEach(() => {
+        errorLog = jest.spyOn(log, 'error').mockImplementation(() => {});
+      });
+
+      afterEach(() => {
+        errorLog.mockRestore();
+      });
+
+      const dysfunctionCalls = () =>
+        errorLog.mock.calls.filter(([message]) => /outbox dysfunction/i.test(message));
+
+      // A blob eligible at the given cursor, with the cursor left where the
+      // caller wants it for the cycle under test.
+      const eligibleSince = async (pusher, tick) => {
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
+        await pusher.recordSyncCycle();
+        errorLog.mockClear();
+      };
+
+      it('escalates a blob left unpushed across several successful syncs', async () => {
+        // verifies spec: CAP — the connection is working but the push path is not
+        const { hash } = await putOutbox();
+        const pusher = makeCyclePusher(hash);
+        await eligibleSince(pusher, 10);
+
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '100');
+        await pusher.recordSyncCycle();
+
+        expect(dysfunctionCalls()).toHaveLength(1);
+        expect(dysfunctionCalls()[0][1]).toMatchObject({
+          ticksSinceEligible: 90,
+          outboxCount: 1,
+        });
+      });
+
+      it('stays quiet while a blob has only just become eligible', async () => {
+        // verifies spec: CAP — accumulation is measured against sync progress,
+        // so a blob that has not yet outlived several cycles is not dysfunction
+        const { hash } = await putOutbox();
+        const pusher = makeCyclePusher(hash);
+        await eligibleSince(pusher, 10);
+
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '12');
+        await pusher.recordSyncCycle();
+
+        expect(dysfunctionCalls()).toHaveLength(0);
+      });
+
+      it('treats a blob whose transfer is in flight as healthy accumulation', async () => {
+        // verifies spec: CAP — escalation applies to eligible blobs that are not
+        // being attempted, so a slow but progressing transfer is not dysfunction
+        const { hash } = await putOutbox();
+        let resolvePush;
+        let attempts = 0;
+        const pusher = new BlobOutboxPusher({
+          models,
+          transferChannel: {
+            pushToCentral: () => {
+              attempts += 1;
+              return new Promise(resolve => {
+                resolvePush = () => resolve({ acknowledged: true });
+              });
+            },
+          },
+          blobCache,
+          referenceResolvers: [async (_models, hashes) => hashes.filter(h => h === hash)],
+        });
+        await eligibleSince(pusher, 10);
+
+        const push = pusher.runOnce();
+        await waitFor(() => attempts === 1);
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '100');
+        await pusher.recordSyncCycle();
+
+        expect(dysfunctionCalls()).toHaveLength(0);
+
+        resolvePush();
+        await push;
+      });
     });
   });
 

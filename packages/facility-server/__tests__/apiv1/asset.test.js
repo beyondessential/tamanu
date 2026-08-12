@@ -11,6 +11,7 @@ const NAME = ASSET_NAMES.LETTERHEAD_LOGO;
 const LEGACY_NAME = ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG;
 const PENDING_NAME = ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG;
 const UNUPLOADED_NAME = ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK;
+const SCOPED_NAME = ASSET_NAMES.INVOICE_FOOTER;
 const IMAGE = Buffer.from('facility-asset-image-bytes');
 
 describe('Asset GET endpoint', () => {
@@ -61,6 +62,36 @@ describe('Asset GET endpoint', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.data).toBeNull();
     expect(response.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_FETCH);
+  });
+
+  it('prefers a facility-specific asset over the deployment-wide one', async () => {
+    // verifies spec: ASSET
+    const deploymentWide = Buffer.from('deployment-wide-invoice-footer');
+    const facilitySpecific = Buffer.from('this-facility-invoice-footer');
+    const wide = await ctx.blobStore.put(Readable.from([deploymentWide]), {
+      sizeHint: deploymentWide.length,
+    });
+    const specific = await ctx.blobStore.put(Readable.from([facilitySpecific]), {
+      sizeHint: facilitySpecific.length,
+    });
+    await models.Asset.create({
+      name: SCOPED_NAME,
+      type: 'image/png',
+      hash: wide.hash,
+      data: null,
+      facilityId: null,
+    });
+    await models.Asset.create({
+      name: SCOPED_NAME,
+      type: 'image/png',
+      hash: specific.hash,
+      data: null,
+      facilityId,
+    });
+
+    const response = await app.get(`/api/asset/${SCOPED_NAME}`).query({ facilityId });
+    expect(response).toHaveSucceeded();
+    expect(Buffer.from(response.body.data)).toEqual(facilitySpecific);
   });
 
   it('returns an empty object when no asset row exists', async () => {

@@ -28,9 +28,11 @@ anything it has dropped.
   its referencing record, since facility and mobile servers reclaim nothing by
   orphan collection (see `reclamation.md`) and a stranded outbox blob would
   otherwise persist forever.
-- [ ] Content already held in the cache tier remains cache when a new local
-  reference to it is created: the tier reflects whether the central server holds
-  the bytes, not where a reference came from.
+- [ ] Content admitted from a local origin is held in the outbox whatever tier it
+  was already in, since the server cannot tell a cache copy the central server
+  holds from one demoted after its reference was never created. At worst this
+  re-offers content the central server already has, which its admission
+  deduplicates by hash.
 
 ## Background pusher
 
