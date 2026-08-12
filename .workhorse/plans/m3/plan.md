@@ -47,6 +47,11 @@ is a plain `findOne` by primary key with no filters.
 For the reported path the route does match (`/practitioner/:id` is registered and the id
 in the screenshot is a well-formed UUID), which points at (2).
 
+The tester has since confirmed she saw the same toast on other paths, not just
+`suggestions/practitioner/…`. That is what (2) predicts — the proxy answers whichever
+request is in flight — and it rules out anything specific to the practitioner suggester,
+including (1), since the paths in question all match registered routes.
+
 ## Next step to close it out
 
 Pull the facility server log for that CD deployment around the time of the screenshot.
