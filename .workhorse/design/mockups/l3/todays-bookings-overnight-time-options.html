@@ -223,11 +223,21 @@
         display: block;
       }
 
-      /* F and F2: 130px so the icon can never be pushed onto a line of its own */
+      /* F and F2: sized to its content with 122px as a floor, so the cards still
+         line up on the common case but no locale can be clipped */
       .time-text.day-month-stacked {
-        width: 130px;
+        width: max-content;
+        min-width: 122px;
         text-transform: none;
         display: block;
+      }
+
+      /* Current behaviour under a wider locale: fixed 122px, no clipping rule,
+         so the range runs over the card */
+      .time-text.overflowing {
+        display: block;
+        white-space: nowrap;
+        overflow: visible;
       }
 
       .nowrap {
@@ -286,8 +296,10 @@
       last days.
     </p>
     <p class="intro-note">
-      Dates render dd/MM/yyyy here (en-AU); the reported deployment renders MM/DD/YYYY. The time
-      column is 122px today, and the pane budgets 60px of height per row.
+      Widths quoted are en-AU; the reported deployment renders MM/DD/YYYY. Date and time formatting
+      follows a deployment setting that falls back to each user's browser locale, so the same range
+      runs up to 25% wider elsewhere. The last two sections carry that through. The time column is
+      122px today, and the pane budgets 60px of height per row.
     </p>
 
     <div id="options"></div>
@@ -413,7 +425,7 @@
         {
           title: 'F. The same, wrapped to two lines',
           caption:
-            'Option E over two lines, with the icon pinned to the end of the second line so it can never be pushed onto a line of its own. Needs 130px rather than 122px, and the card keeps almost all of its width. Row height still has to grow.',
+            'Option E over two lines, with the icon pinned to the end of the second line so it can never be pushed onto a line of its own. The column is sized to its content with 122px as a floor, so it holds in any locale. Row height still has to grow.',
           timeClass: 'day-month-stacked',
           rows: dayIndex => {
             const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
@@ -428,7 +440,7 @@
         {
           title: 'F2. The same, with the icon in place of the dash',
           caption:
-            'The icon does the work of the range dash. Two lines and 130px again, one glyph shorter, and it reads as running through the night. No explicit separator, so the two times rely on the icon and the line order.',
+            'The icon does the work of the range dash: one glyph shorter, and it reads as running through the night. No explicit separator, so the two times rely on the icon and the line order.',
           timeClass: 'day-month-stacked',
           rows: dayIndex => {
             const start = dayIndex === 0 ? START.time : `${START.dayMonth} ${START.time}`;
@@ -449,6 +461,56 @@
             const slice = ['10:00am - 11:59pm', '12:00am - 11:59pm', '12:00am - 11:30am'][dayIndex];
             return order(dayIndex, overnight(`${slice} ${MOON}`), sameDay('8:30am - 9:00am'));
           },
+        },
+      ];
+
+      // Middle day of the stay, where neither end is today, so both dates show.
+      // Times and dates come from Intl in each locale, with the same format
+      // options the app passes (hour12 is forced on, so 24-hour locales still
+      // carry a localised am/pm marker).
+      const LOCALES = [
+        { label: 'en-AU', start: '12 Aug 10:00am', end: '14 Aug 11:30am' },
+        { label: 'es-ES', start: '12 ago 10:00a. m.', end: '14 ago 11:30a. m.' },
+        { label: 'pt-BR', start: '12 de ago. 10:00am', end: '14 de ago. 11:30am' },
+        { label: 'ja-JP', start: '8月12日 午前10:00', end: '8月14日 午前11:30' },
+        { label: 'hu-HU', start: 'aug. 12. de.10:00', end: 'aug. 14. de.11:30' },
+      ];
+
+      const LOCALE_SECTIONS = [
+        {
+          title: 'Option F across locales',
+          caption:
+            'The middle day in five locales, with the column sized to its content. Nothing clips, and the card gives up width only where the locale needs it.',
+          panes: LOCALES.map(locale => ({
+            label: locale.label,
+            timeClass: 'day-month-stacked',
+            rows: [
+              overnight(
+                `${locale.start} –<br /><span class="nowrap">${locale.end} ${SMALL_MOON}</span>`,
+              ),
+              sameDay('8:30am – 9:00am'),
+            ],
+          })),
+        },
+        {
+          title: 'Why a pixel budget cannot hold',
+          caption:
+            'Current behaviour, unchanged, in two wider locales. The range already needs 148px in es-ES and 139px in ja-JP against a 122px column, and the column has no clipping rule, so it runs over the card today. Any fixed width is a guess at a locale.',
+          panes: [
+            {
+              label: 'es-ES · 148px in a 122px column',
+              timeClass: 'overflowing',
+              rows: [
+                overnight('10:00a. m. - 11:30a. m.'),
+                sameDay('8:30a. m. - 9:00a. m.'),
+              ],
+            },
+            {
+              label: 'ja-JP · 139px in a 122px column',
+              timeClass: 'overflowing',
+              rows: [overnight('午前10:00 - 午前11:30'), sameDay('午前8:30 - 午前9:00')],
+            },
+          ],
         },
       ];
 
@@ -490,16 +552,44 @@
           </div>
         </div>`;
 
-      document.getElementById('options').innerHTML = OPTIONS.map(
-        option => `
-          <section class="option">
-            <h2 class="option-title">${option.title}</h2>
-            <p class="option-caption">${option.caption}</p>
-            <div class="panes">
-              ${DAYS.map((_, dayIndex) => renderPane(option, dayIndex)).join('')}
+      const renderLabelledPane = pane => `
+        <div class="pane-with-label">
+          <div class="day-label">${pane.label}</div>
+          <div class="container">
+            <div class="title-container">
+              <h4 class="heading4">Today's bookings</h4>
+              <span class="action-link">View all…</span>
             </div>
-          </section>`,
-      ).join('');
+            <div class="timeline">
+              ${pane.rows.map(row => renderRow(row, pane.timeClass)).join('')}
+            </div>
+            <div class="footer"></div>
+          </div>
+        </div>`;
+
+      const section = (title, caption, panes) => `
+        <section class="option">
+          <h2 class="option-title">${title}</h2>
+          <p class="option-caption">${caption}</p>
+          <div class="panes">${panes}</div>
+        </section>`;
+
+      document.getElementById('options').innerHTML = [
+        ...OPTIONS.map(option =>
+          section(
+            option.title,
+            option.caption,
+            DAYS.map((_, dayIndex) => renderPane(option, dayIndex)).join(''),
+          ),
+        ),
+        ...LOCALE_SECTIONS.map(localeSection =>
+          section(
+            localeSection.title,
+            localeSection.caption,
+            localeSection.panes.map(renderLabelledPane).join(''),
+          ),
+        ),
+      ].join('');
     </script>
   </body>
 </html>
