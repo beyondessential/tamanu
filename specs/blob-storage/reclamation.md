@@ -56,4 +56,7 @@ implements this has to answer both:
 - [ ] Facility and mobile servers hold blobs as a bounded cache and reclaim space
   by evicting cached blobs under a least-recently-used and size budget, never by
   orphan collection.
-- [ ] A blob that is not yet durable on the central server is never evicted.
+- [ ] A blob awaiting its push is never evicted: it stays in the outbox until the
+  central server acknowledges it. Content no record references is demoted out of
+  the outbox and reclaimed with the rest of the cache, whether or not the central
+  server ever received it.

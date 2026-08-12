@@ -216,8 +216,10 @@ consumer guarantee and a serving guarantee at once.
 
 ### Tiers and read-through
 
-- [x] Locally originated content is admitted at the outbox tier, and content already held as cache stays cache when the same bytes are admitted as outbox (verifies spec: CACHE)
+- [x] Locally originated content is admitted at the outbox tier, and content already held as cache returns to the outbox when the same bytes are admitted locally (verifies spec: CACHE)
 - [x] An acknowledged blob is demoted to cache and its push-eligibility marker cleared (verifies spec: CACHE)
+- [x] Content stranded by an attachment write that failed is demoted to evictable cache rather than deleted, so the space is reclaimable and the bytes survive; a blob a record still references is left in the outbox, and one admitted inside the safety window is left alone (verifies spec: CACHE, RECL)
+- [x] Re-admitting content already held refreshes its recency, so a stranded blob whose new reference has not yet committed is not swept (verifies spec: CACHE, RECL)
 - [x] A read of content held locally serves the stored bytes and refreshes stale recency, while one inside the coalescing window leaves recency unchanged (verifies spec: CACHE)
 - [x] A read of content the server has dropped fetches it from central, admits it as cache, and serves it, so the cache is genuinely disposable (verifies spec: CACHE)
 - [x] A read of content held neither locally nor reachable reports not-found rather than hanging (verifies spec: CACHE)
@@ -226,7 +228,7 @@ consumer guarantee and a serving guarantee at once.
 
 - [x] Once over budget, the least-recently-used cache blobs go first and the more recent ones survive (verifies spec: CACHE)
 - [x] A lone cache blob larger than the entire budget is not evicted merely to satisfy the budget (verifies spec: CACHE)
-- [x] Outbox blobs are left untouched while cache blobs around them are evicted, so content not yet durable on central is never reclaimed (verifies spec: CACHE, RECL)
+- [x] Outbox blobs are left untouched while cache blobs around them are evicted, so content awaiting its push is never reclaimed (verifies spec: CACHE, RECL)
 - [x] A blob with a read in progress survives the pass and is evicted only once that read has completed and closed (verifies spec: CACHE)
 - [x] Free-disk-floor pressure evicts even the sole most-recently-used blob, which budget enforcement would have protected (verifies spec: CACHE, CAP)
 - [x] A changed budget applies on the next enforcement pass, with no restart (verifies spec: CACHE)
@@ -248,6 +250,15 @@ consumer guarantee and a serving guarantee at once.
 - [x] The same bytes captured twice resolve to one stored blob and keep the tier already recorded (verifies spec: MOB, CACHE)
 - [x] A capture is refused with an error naming the device's storage when free space is already below the device's reserve, and cache is evicted before that refusal (verifies spec: MOB, CAP)
 
+### Photo answers
+
+- [x] A photo the answer already holds is shown when the question is returned to, and is offered for removal rather than reading as no photo at all (verifies spec: MOB, ATCH)
+- [x] A photo the device does not hold is fetched by hash and shown (verifies spec: MOB, XFER)
+- [x] Content still awaiting upload from the capturing device, content that cannot be fetched with no connectivity, and a record that has not reached this device each report their own state rather than one generic error (verifies spec: MOB, XFER)
+- [x] A read still in flight when connectivity is reported completes rather than being cancelled, and a photo that could not be fetched is retried once connectivity returns (verifies spec: MOB, XFER)
+- [x] A read landing after the photo was removed or replaced is discarded rather than restoring what it replaced (verifies spec: MOB)
+- [x] Removing a photo demotes its blob to reclaimable cache, unless another attachment still references the same hash (verifies spec: MOB, CACHE)
+
 ### Reads, tiers and reconciliation
 
 - [x] Content the device holds is read from the store without touching the transfer channel (verifies spec: MOB)
@@ -259,6 +270,8 @@ consumer guarantee and a serving guarantee at once.
 - [x] A pre-blob-store attachment whose record has already been pushed is adopted as evictable cache with its hash set and its sync tick untouched (verifies spec: MOB)
 - [x] A pre-blob-store attachment whose file is gone loses its pointer and presents as awaiting content (verifies spec: MOB)
 - [x] One legacy row that cannot be adopted is left for a later start without stalling the rest of the pass (verifies spec: MOB)
+- [x] Cache-tier content returns to the outbox when the device captures the same bytes, so content the central server never received is pushed rather than left evictable (verifies spec: CACHE, MOB)
+- [x] Content stranded by a capture whose record never landed, then captured again, reaches the central server rather than staying reclaimable (verifies spec: CACHE, MOB)
 
 ---
 
@@ -559,8 +572,6 @@ bites hardest if it silently stops being true.
 - [ ] Budget enforcement at admission: a read that fetches while over budget evicts least-recently-used content and keeps the new arrival (verifies spec: CACHE)
 - [ ] `BlobCacheEvictorTask` and `BlobOutboxPusherTask` call through, and no-op before the cache and pusher are wired (verifies spec: CACHE)
 - [ ] The facility cache budget resolves from `blobStorage.cacheSizeBudgetGB`, unit conversion included (verifies spec: CACHE)
-- [ ] Outbox admission is coupled to the referencing record on a facility: an attachment write that fails after admission leaves no outbox row. Mobile has a reconciliation pass for this and the facility has neither it nor a test (verifies spec: CACHE)
-- [ ] `UploadPhoto`: capture admits to the outbox and records only the hash; an insufficient-storage refusal shows the device-storage message and leaves no attachment; removing a photo demotes its blob only when no other attachment references that hash (verifies spec: MOB, CACHE)
 - [ ] `ViewPhotoLink`: content held on the device renders with no central call, and each of the three distinct unavailable messages appears in its own case (verifies spec: MOB)
 - [ ] A device retains its attachment records after the bytes reach central, which is what makes the content refetchable (verifies spec: MOB)
 
