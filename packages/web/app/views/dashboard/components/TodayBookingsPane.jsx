@@ -12,8 +12,7 @@ import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
 import {
-  DateDisplay,
-  TimeDisplay,
+  RangeEndDisplay,
   TranslatedText,
   useDateRangeSpan,
   useDateTime,
@@ -29,16 +28,17 @@ import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
+import { useTranslation } from '../../../contexts/Translation';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
-  min-inline-size: 22.875rem;
-  min-block-size: 41%;
+  min-width: 366px;
+  min-height: 41%;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  padding-block-start: 0.9375rem;
+  padding-top: 15px;
   background-color: ${Colors.white};
   display: flex;
   flex-direction: column;
@@ -48,10 +48,9 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-block-end: 1px solid ${Colors.outline};
-  padding-block-end: 6px;
-  margin-inline: 1.25rem;
-  margin-block-end: 11px;
+  border-bottom: 1px solid ${Colors.outline};
+  padding-bottom: 6px;
+  margin: 0 20px 11px;
 `;
 
 const ActionLink = styled.span`
@@ -70,12 +69,12 @@ const StyledTimeline = styled(Timeline)`
   display: grid;
   grid-template-columns: auto minmax(15ch, max-content) 1fr;
   column-gap: 5px;
-  padding-block: 0;
-  padding-inline: 0.75rem 1.25rem;
+  padding-top: 0;
+  padding-right: 20px;
+  padding-left: 12px;
   margin: 0;
-  margin-block-end: -1rem;
+  margin-bottom: -16px;
   overflow-y: auto;
-  ${({ length }) => `max-block-size: calc(${length} * (3.75rem + 1lh) + 21px);`}
 `;
 
 const StyledTimelineContent = styled(TimelineContent)`
@@ -89,14 +88,14 @@ const StyledTimelineContent = styled(TimelineContent)`
 
 const StyledTimelineConnector = styled(TimelineConnector)`
   background-color: ${Colors.outline};
-  inline-size: 1px;
+  width: 1px;
 `;
 
 const StyledTimelineItem = styled(TimelineItem)`
   display: grid;
   grid-template-columns: subgrid;
   grid-column: 1 / -1;
-  min-block-size: 3.75rem;
+  min-height: 60px;
   &:before {
     content: none;
   }
@@ -141,7 +140,7 @@ const CardBody = styled(CardHeading)`
 `;
 
 const TimeText = styled.div`
-  padding-inline-start: 6px;
+  padding-left: 6px;
 `;
 
 /**
@@ -160,15 +159,14 @@ const OvernightIcon = styled(Brightness2Icon)`
   font-size: 1em;
   color: ${Colors.primary};
   vertical-align: -0.1em;
-  margin-inline-start: 0.3em;
+  margin-left: 0.3em;
 `;
 
 const Footer = styled.div`
-  margin-inline: 1.25rem;
-  margin-block-start: 4px;
+  margin: 4px 20px 0;
   flex-grow: 1;
-  min-block-size: 1.25rem;
-  border-block-start: 1px solid ${Colors.outline};
+  min-height: 20px;
+  border-top: 1px solid ${Colors.outline};
   position: sticky;
   background-color: ${Colors.white};
 `;
@@ -192,27 +190,8 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-/**
- * One end of a booking's time range, isolated so a right-to-left month name cannot
- * absorb the digits beside it and reorder the date against the time.
- */
-const RangeEnd = ({ date, withDate, testIdSuffix }) => (
-  <bdi>
-    {withDate ? (
-      <DateDisplay
-        date={date}
-        format="dayMonth"
-        timeFormat="default"
-        noTooltip
-        data-testid={`datedisplay-${testIdSuffix}-w2kf`}
-      />
-    ) : (
-      <TimeDisplay date={date} noTooltip data-testid={`timedisplay-${testIdSuffix}-qz61`} />
-    )}
-  </bdi>
-);
-
 const BookingsTimelineItem = ({ appointment, today }) => {
+  const { getTranslation } = useTranslation();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -242,30 +221,27 @@ const BookingsTimelineItem = ({ appointment, today }) => {
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
         {/* A booking within the day keeps its single line. One that spans days takes
             two, so neither line has to be broken to fit the column. */}
+        {/* A booking within the day keeps its single line. One that spans days puts
+            its end on a second line, so neither line has to be broken to fit. */}
         <TimeText data-testid="timetext-4k7e">
-          {spansMultipleDays ? (
-            <>
-              <RangeLine data-testid="rangeline-start-8ptz">
-                <RangeEnd date={startTime} withDate={showStartDate} testIdSuffix="start" />
-                &nbsp;&ndash;
-              </RangeLine>
-              <RangeLine data-testid="rangeline-end-4vqx">
-                <RangeEnd date={endTime} withDate={showEndDate} testIdSuffix="end" />
-                <OvernightIcon
-                  aria-label="Overnight booking"
-                  aria-hidden={undefined}
-                  data-testid="overnighticon-p8ka"
-                />
-              </RangeLine>
-            </>
-          ) : (
-            <RangeLine data-testid="rangeline-start-8ptz">
-              <RangeEnd date={startTime} withDate={showStartDate} testIdSuffix="start" />
-              {hasEnd && (
-                <>
-                  &nbsp;&ndash; <RangeEnd date={endTime} withDate={false} testIdSuffix="end" />
-                </>
-              )}
+          <RangeLine data-testid="rangeline-start-8ptz">
+            <RangeEndDisplay date={startTime} dateFormat={showStartDate ? 'dayMonth' : null} />
+            {hasEnd && <>&nbsp;&ndash;</>}
+            {hasEnd && !spansMultipleDays && (
+              <>
+                {' '}
+                <RangeEndDisplay date={endTime} />
+              </>
+            )}
+          </RangeLine>
+          {spansMultipleDays && (
+            <RangeLine data-testid="rangeline-end-4vqx">
+              <RangeEndDisplay date={endTime} dateFormat={showEndDate ? 'dayMonth' : null} />
+              <OvernightIcon
+                aria-label={getTranslation('scheduling.bookingType.overnight', 'Overnight')}
+                aria-hidden={undefined}
+                data-testid="overnighticon-p8ka"
+              />
             </RangeLine>
           )}
         </TimeText>

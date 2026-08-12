@@ -129,6 +129,16 @@ rather than a redesign. Measured at the pane's 14px / 18px: `1ch` is 8px, `1em` 
 there is a `block-size: 3lh` precedent in `RecentlyViewedPatientsList`. `ch` and
 `lh` are both far inside the Chrome 149 floor this app targets.
 
+**Only the rows were converted in the end.** Review pushed back on rewriting the
+pane's chrome (`Container`, `TitleContainer`, `Footer`) in the same change: `rem`
+tracks the root font where `px` did not, so converting the pane's own box changes
+rendered sizes for no bug-fix payoff, and the file ended up half-converted anyway
+(`NoDataContainer`, `column-gap: 5px`, `top: 21px` and others stayed physical).
+That is fair, so the chrome is back to `px` and physical insets. What stayed is what
+the fix needs: the `ch` floor on the grid track, `3lh` on the card so a two-line row
+grows instead of clipping, and `1em` on the icon. The table above is the reference
+for doing the pane-wide conversion as its own change.
+
 **Logical properties matter more than the units.** The pane uses
 `padding-left: 12px`, `padding-right: 20px` and `padding-left: 6px`. Under
 `dir="rtl"` those stay on the physical left and right, so the mirrored pane gets
@@ -165,12 +175,16 @@ being duplicated: `DateTimeRangeDisplay` uses it for its inline shape, and the p
 uses it to compose its two-line shape. The hook also carries the display-timezone
 comparison and the `bdi` isolation reaches every existing caller.
 
-**Pre-existing, left alone:** the list overflows its own box by 21px because the
-timeline separator is offset `top: 21px`, so `overflow-y: auto` shows a scrollbar.
-The same harness reproduces it with the original CSS, and the `+ 21px` in the
-`max-height` formula was compensating for it. The per-row allowance is now generous
-enough to cover a two-line row, so the change does not make it worse, but the
-formula still never actually caps a long list.
+**The row-count `max-height` is gone.** It read
+`calc(60px * length + 21px)`, which scales with the number of rows and so could
+never cap anything: it was dead except when a row exceeded 60px, where it clipped.
+Re-tuning the per-row allowance for the two-line row would have kept a rule with no
+effect while making it look load-bearing, so it is deleted instead. `overflow-y:
+auto` stays, because the list still overflows its own box by 21px: the timeline
+separator is offset `top: 21px`, which the `+ 21px` in the old formula was
+compensating for. That overflow predates this card and the same harness reproduces
+it with the original CSS. Choosing a real cap (how many rows before the list
+scrolls) is a product decision, not one to invent here.
 
 ### Test levels
 
@@ -194,24 +208,45 @@ running stack, and the facility-server harness fails at database connection setu
 in this worktree for every test, including ones this card does not touch. The web
 unit tests and lint do run, and pass.
 
+### Follow-up: four definitions of "overnight"
+
+`useDateRangeSpan` is the display-timezone answer to "does this range span days",
+but three existing surfaces still hand-roll it, each differently and each against
+the stored primary-timezone values, so each is wrong where a facility timezone
+differs from the primary one:
+
+- `AppointmentTile.jsx:121` — `!isSameDay(startTime, endTime)`
+- `LocationBookingsTable.jsx:257` — `startDate !== endDate`
+- `PastBookingsModal.jsx:125` — `!isSameDay(parseISO(...))`
+
+Each also styles its own `Brightness2Icon`. Review asked either to migrate them or
+to say why not. They stay as they are here, deliberately: the same review round
+asked for this card's unrelated scope to come *down*, and moving three more
+surfaces onto the hook changes when each shows its overnight marker, on screens
+this card does not otherwise touch and cannot verify visually. Migrating the three
+detections to `spansMultipleDays`, and promoting one shared `OvernightIcon`, is
+follow-up work worth its own card: it is a real correctness fix on each surface.
+
 ### Other constraints the mockup surfaced
 
-- Suppressing a date that falls on today is a change to `DateTimeRangeDisplay`, and
-  would want to apply wherever a range is shown against a known day.
-- `StyledTimeline` budgets `60px` per row in its `max-height`, so the two-line row
-  needs that budget raised or the list starts scrolling.
-- The time column is `text-transform: lowercase`, so a day-month date renders
-  "12 aug" until the lowercasing is scoped to the times.
-- The overnight icon has to sit in a nowrap span with the text beside it, or it
-  wraps onto a line of its own.
+- Suppressing a date that falls on a known day lives in `useDateRangeSpan`, not on
+  `DateTimeRangeDisplay`. It was briefly an `onDate` prop on the component too, but
+  no callsite passed it: the pane composes the hook to build its own two-line shape,
+  and the other six callers want the plain inline range. Review called that
+  generalisation ahead of evidence, which it was, so the prop is gone. The inline
+  component and the pane share `RangeEndDisplay` for the rendering half, so the bidi
+  isolation and the date/time pairing exist once.
+- The time column was `text-transform: lowercase`, which would render a day-month
+  date as "12 aug". It is dropped: `formatTime` already lowercases the am/pm marker,
+  so the rule was redundant as well as harmful.
+- Each end of the range is an explicit nowrap line. An icon is an atomic inline, so
+  a break is allowed either side of it; left in an inline run it lands on a line of
+  its own.
 
 ## Notes
 
-- Multi-day detection elsewhere (`DateTimeRangeDisplay`, `AppointmentTile`,
-  `PastBookingsModal`) compares the stored primary-timezone strings rather than
-  the facility-timezone values, so it can be off by a day boundary where a
-  facility timezone differs from the primary timezone. Out of scope for this
-  card, but the fix here should compare facility-timezone values.
+- `DateTimeRangeDisplay` now compares facility-timezone days; the surfaces that
+  still compare stored values are listed under the follow-up above.
 - `TodayBookingsPane` destructures `getDayBoundaries()` directly while
   `TodayAppointmentsPane` guards with `boundaries?.start`; the helper is typed as
   nullable.

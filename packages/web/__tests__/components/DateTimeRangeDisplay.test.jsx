@@ -30,7 +30,7 @@ const rangeText = () => screen.getByTestId('range').textContent.replace(/\u00a0/
 describe('DateTimeRangeDisplay', () => {
   const settings = { dateTimeLocale: 'en-AU' };
 
-  describe('without onDate', () => {
+  describe('inline range', () => {
     it('shows one date for a range within a single day', () => {
       renderRange({
         settings,
@@ -52,37 +52,6 @@ describe('DateTimeRangeDisplay', () => {
     it('shows the start alone when there is no end', () => {
       renderRange({ settings, start: '2026-08-12 10:00:00' });
       expect(rangeText()).toBe('12/08/2026 10:00am');
-    });
-  });
-
-  describe('with onDate', () => {
-    const start = '2026-08-12 10:00:00';
-    const end = '2026-08-14 11:30:00';
-
-    it('drops both dates when the range sits within the given day', () => {
-      renderRange({
-        settings,
-        start,
-        end: '2026-08-12 11:30:00',
-        onDate: '2026-08-12',
-        dateFormat: 'dayMonth',
-      });
-      expect(rangeText()).toBe('10:00am – 11:30am');
-    });
-
-    it('keeps only the end date on the first day of a span', () => {
-      renderRange({ settings, start, end, onDate: '2026-08-12', dateFormat: 'dayMonth' });
-      expect(rangeText()).toBe('10:00am – 14 Aug 11:30am');
-    });
-
-    it('keeps both dates on a day the range merely covers', () => {
-      renderRange({ settings, start, end, onDate: '2026-08-13', dateFormat: 'dayMonth' });
-      expect(rangeText()).toBe('12 Aug 10:00am – 14 Aug 11:30am');
-    });
-
-    it('keeps only the start date on the last day of a span', () => {
-      renderRange({ settings, start, end, onDate: '2026-08-14', dateFormat: 'dayMonth' });
-      expect(rangeText()).toBe('12 Aug 10:00am – 11:30am');
     });
   });
 
@@ -112,16 +81,6 @@ describe('DateTimeRangeDisplay', () => {
         end: '2026-08-12 23:00:00',
       });
       expect(rangeText()).toBe('11/08/2026 10:00am – 12/08/2026 1:00am');
-    });
-
-    it('decides onDate suppression against the display timezone too', () => {
-      renderRange({
-        settings: settingsInHonolulu,
-        start: '2026-08-12 23:30:00',
-        end: '2026-08-13 00:30:00',
-        onDate: '2026-08-12',
-      });
-      expect(rangeText()).toBe('1:30am – 2:30am');
     });
   });
 
@@ -153,9 +112,9 @@ describe('DateTimeRangeDisplay', () => {
     it('isolates a time-only end too, so it cannot join a neighbouring run', () => {
       const { container } = renderRange({
         settings: { dateTimeLocale: 'ur-PK' },
+        // Within one day, so the end is a time alone
         start: '2026-08-12 10:00:00',
-        end: '2026-08-14 11:30:00',
-        onDate: '2026-08-14',
+        end: '2026-08-12 11:30:00',
         dateFormat: 'dayMonth',
       });
 

@@ -318,16 +318,49 @@ export const useDateRangeSpan = ({ start, end, onDate = null }) => {
 };
 
 /**
+ * RangeEndDisplay - One end of a date/time range
+ *
+ * Renders the instant as a date with its time, or as a time alone when `dateFormat`
+ * is null because the reader already knows the day.
+ *
+ * The end is isolated as a whole, date and time together, so a right-to-left month
+ * name cannot absorb the digits beside it and strand the am/pm marker. `bdi`
+ * resolves its base direction from the first strong character, so an Urdu end
+ * becomes one right-to-left run and renders exactly as a native RTL container
+ * would. Do not isolate the date and the time separately: that keeps them intact
+ * but forces them into left-to-right order against each other, which is wrong for
+ * the locale.
+ *
+ * @param {string|Date} date - The date/time value
+ * @param {string} dateFormat - Any {@link DateDisplay} format, or null for the time alone
+ * @param {string} timeFormat - Time format (default "default")
+ * @param {string} weekdayFormat - "short" | "long" | "narrow" | null (default, no weekday)
+ */
+export const RangeEndDisplay = React.memo(
+  ({ date, dateFormat = null, timeFormat = 'default', weekdayFormat = null }) => (
+    <bdi>
+      {dateFormat ? (
+        <DateDisplay
+          date={date}
+          format={dateFormat}
+          weekdayFormat={weekdayFormat}
+          timeFormat={timeFormat}
+          noTooltip
+        />
+      ) : (
+        <TimeDisplay date={date} format={timeFormat} noTooltip />
+      )}
+    </bdi>
+  ),
+);
+
+/**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
  * @param {string|Date} start - The start date/time
  * @param {string|Date} end - The end date/time (optional)
  * @param {string} weekdayFormat - "short" | "long" | "narrow" | null (default, no weekday)
  * @param {string} dateFormat - Date format (default "short")
  * @param {string} timeFormat - Time format (default "default")
- * @param {string} onDate - A `yyyy-MM-dd` date in the display timezone. An end of the
- *   range falling on it is shown as a time alone, because the reader already knows
- *   the day. Use where the range is presented against a known day, such as a list
- *   of today's bookings.
  *
  * @example
  * // Same day → "Fri 15/03/2024 9:30am – 10:00am"
@@ -338,49 +371,27 @@ export const useDateRangeSpan = ({ start, end, onDate = null }) => {
  *
  * // No end → "Fri 15/03/2024 9:30am"
  * <DateTimeRangeDisplay start="2024-03-15 09:30:00" weekdayFormat="short" />
- *
- * // Multi-day, read on the last day → "15/03/2024 9:30am – 10:00am"
- * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-16 10:00:00" onDate="2024-03-16" />
  */
 export const DateTimeRangeDisplay = React.memo(
-  ({
-    start,
-    end,
-    weekdayFormat = null,
-    dateFormat = 'short',
-    timeFormat = 'default',
-    onDate = null,
-  }) => {
-    const { hasEnd, showStartDate, showEndDate } = useDateRangeSpan({ start, end, onDate });
+  ({ start, end, weekdayFormat = null, dateFormat = 'short', timeFormat = 'default' }) => {
+    const { hasEnd, spansMultipleDays } = useDateRangeSpan({ start, end });
 
     return (
       <span>
-        {/* Each end is isolated as a whole, date and time together, so a
-            right-to-left month name cannot absorb the digits beside it and strand
-            the am/pm marker. `bdi` resolves its base direction from the first
-            strong character, so an Urdu end becomes one right-to-left run and
-            renders exactly as a native RTL container would. Do not isolate the
-            date and time separately: that keeps them intact but forces them into
-            left-to-right order against each other, which is wrong for the locale. */}
-        <bdi>
-          <DateDisplay
-            date={start}
-            format={showStartDate ? dateFormat : null}
-            weekdayFormat={showStartDate ? weekdayFormat : null}
-            timeFormat={timeFormat}
-            noTooltip
-          />
-        </bdi>
+        <RangeEndDisplay
+          date={start}
+          dateFormat={dateFormat}
+          weekdayFormat={weekdayFormat}
+          timeFormat={timeFormat}
+        />
         {hasEnd && (
           <>
             &nbsp;&ndash;{' '}
-            <bdi>
-              {showEndDate ? (
-                <DateDisplay date={end} format={dateFormat} timeFormat={timeFormat} noTooltip />
-              ) : (
-                <TimeDisplay date={end} format={timeFormat} noTooltip />
-              )}
-            </bdi>
+            <RangeEndDisplay
+              date={end}
+              dateFormat={spansMultipleDays ? dateFormat : null}
+              timeFormat={timeFormat}
+            />
           </>
         )}
       </span>

@@ -44,6 +44,7 @@ ones, so CI is the first execution of the endpoint test.
 - [x] With the locale set to ur-PK, the day-month and the time beside it read in the intended order, with the am/pm marker attached to its own time (verifies spec: SCHEDULING)
 - [ ] With no locale set, formatting follows the browser locale and the row still fits
 - [x] A day-month date is not lowercased to "12 aug"
+- [ ] The overnight indicator's label is translated, and read out by a screen reader on the row
 
 ## Layout
 
@@ -57,8 +58,9 @@ ones, so CI is the first execution of the endpoint test.
 The scrollbar case is not met, and did not start with this card: the timeline
 separator is offset 21px, so the list overflows its own box and `overflow-y: auto`
 shows a scrollbar. The same harness reproduces it with the pre-change CSS. The
-per-row height allowance now covers a two-line row, so this change does not
-worsen it, but the case stays open until the offset or the overflow is addressed.
+row-count `max-height` that used to sit alongside it has been removed as dead, so
+nothing here clips, but the case stays open until the offset or the overflow is
+addressed.
 
 ## Regression
 
