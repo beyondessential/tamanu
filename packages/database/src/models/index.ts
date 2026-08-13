@@ -55,6 +55,8 @@ export * from './EncounterPausePrescription';
 export * from './EncounterPausePrescriptionHistory';
 
 export * from './EncounterDiet';
+export * from './EncounterDischargeDraft';
+export * from './EncounterDischargeDraftMedication';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
 export * from './LabTest';

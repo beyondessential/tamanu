@@ -10,6 +10,8 @@ export const NON_SYNCING_TABLES = [
   'logs.fhir_writes',
   'public.ai_chat_sessions',
   'public.devices',
+  'public.encounter_discharge_draft_medications',
+  'public.encounter_discharge_drafts',
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
   'public.idempotency_keys',
@@ -54,6 +56,11 @@ export const NON_LOGGED_TABLES = [
   // ephemeral AI form-builder chat state
   'public.ai_chat_sessions',
   'public.form_builder_chat_jobs',
+
+  // a clinician's part-finished discharge form, cleared once the discharge is recorded — the
+  // discharge itself is the audited record, and these rows are removed rather than soft-deleted
+  'public.encounter_discharge_drafts',
+  'public.encounter_discharge_draft_medications',
 
   // historical signer records retained for compliance, no sensitive data remains
   'public.signers_historical',
