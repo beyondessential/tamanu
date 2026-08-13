@@ -467,14 +467,19 @@ export const getDisplayedPharmacyNote = medication => {
 export const DispensedMedicationName = ({ dispense }) => {
   const medication = getDispensedMedication(dispense);
   return (
-    <>
-      <TranslatedReferenceData
-        fallback={medication?.name}
-        value={medication?.id}
-        category={medication?.type ?? 'drug'}
-      />
-      {isDispenseModifiedByPharmacy(dispense) && ' *'}
-    </>
+    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+      {/* The pharmacy-modified asterisk belongs to the name, so it stays inside the same span
+          rather than drifting to the far side of the discontinued tag. */}
+      <span>
+        <TranslatedReferenceData
+          fallback={medication?.name}
+          value={medication?.id}
+          category={medication?.type ?? 'drug'}
+        />
+        {isDispenseModifiedByPharmacy(dispense) && ' *'}
+      </span>
+      <DiscontinuedTag prescription={dispense?.pharmacyOrderPrescription?.prescription} />
+    </Box>
   );
 };
 
