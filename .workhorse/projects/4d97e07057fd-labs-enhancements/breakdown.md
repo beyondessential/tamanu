@@ -4,7 +4,7 @@ Cards derived from the 13 requirements in the PRD.
 
 ## One lab request per category
 
-Change the fan-out rule so a submission produces one lab request per lab test category, each holding multiple panels and individual tests, rather than one request per panel. Covers the model change away from a single `labTestPanelRequestId`, the migration, and the SENAITE sample mapping so a merged request maps to a single sample. Backend only, with no new UI. Blocked on confirming with Rohan whether SENAITE can return the same result to two panels that share a test.
+Change the fan-out rule so a submission produces one lab request per lab test category, each holding multiple panels and individual tests, rather than one request per panel. Covers the model change away from a single `labTestPanelRequestId`, the migration, and the SENAITE sample mapping so a merged request maps to a single sample. Backend only, with no new UI. Open question to resolve with Rohan: whether SENAITE can return the same result to two panels that share a test, and how that result is shown once rather than twice in the patient results table.
 
 ## Combined test and panel selector
 
@@ -72,4 +72,4 @@ Automatically cancel lab requests where no sample has been collected, as an opt-
 
 ## Recollect lab request status
 
-Add a staff-settable Recollect status for samples unsuitable for testing, notifying the requesting clinician and listing the request in the published table. Not ready to spawn: four open questions remain, and the first of them, whether LIMS rejections should land in Recollect rather than Rejected, determines whether this is a new status or a change to the existing integration mapping.
+Add a staff-settable Recollect status for samples unsuitable for testing, notifying the requesting clinician and listing the request in the published table. Four open questions are recorded against this requirement in the PRD and need resolving during the card's interview. The load-bearing one is whether LIMS rejections should land in Recollect rather than Rejected, which determines whether this is a new status or a change to the existing integration mapping.
