@@ -177,7 +177,6 @@ Items the IRD call surfaced that the internal working session didn't cover, or a
 - **GZIP compression.** Is the sync payload compressed? Bilal asked directly; answer owed back to IRD.
 - **Resume vs restart on dropped connection.** Does an interrupted sync continue from where it stopped or start over? Critical given unstable field internet; never came up. Answer owed back to IRD.
 - **Device specs list.** IRD offered to email specs of all mobile devices/tablets — make sure it lands.
-- **Fresh disk-IO error** on the latest build (v0.5.29), separate from the index-creation "driver" error already discussed.
 - **Incremental sync has specifics now.** Not "vague" — crashes on both initial and incremental sync, ~10% of users, none in the last three weeks.
 - **Performance not actually resolved.** The 3–5 min form-load fix worked for one user (Ali) but recurred for another on v0.5.29, and Minhal finds no difference old-vs-new — confirms the perf work is still open.
 - **Strategic sizing note.** The field is desktop-first via the ET device; mobile is used mainly by phone-only staff without tablets. How big the mobile-sync prize is depends on how many are actually on mobile — and their "make mobile usable in the field" ask routes through the ET-connectivity question as much as raw performance.
