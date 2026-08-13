@@ -9,7 +9,7 @@ first-time coverage rather than regression protection.
 - [x] Saving a draft stores it and reads back unchanged (verifies spec: DDRAFT)
 - [x] Saving twice replaces the draft rather than accumulating one per save
 - [x] Save & exit closes the modal and leaves the encounter open, without navigating to the patient view
-- [ ] Reopening the form restores discharge date, discharging clinician, and disposition through the UI
+- [x] Reopening the form restores discharge date, discharging clinician, and disposition through the UI
 - [x] Reopening restores each medication's quantity, repeats, and send-to-pharmacy (verifies spec: DDRAFT)
 - [x] A prescription dropped from the form does not survive the next save
 - [ ] Reopening restores the pharmacy order's ordering clinician

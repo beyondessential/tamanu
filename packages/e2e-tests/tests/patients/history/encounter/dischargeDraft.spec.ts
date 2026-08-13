@@ -86,6 +86,13 @@ test.describe('Discharge draft', () => {
     await dischargeModal.setDispensingQuantity(prescription.id, 12);
     await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
 
+    // The date, clinician and disposition all come back from the draft rather than being
+    // regenerated from live defaults, so they are set to something distinguishable first.
+    const dischargeDate = '2026-08-13T09:30';
+    await dischargeModal.setDischargeDate(dischargeDate);
+    const dischargingClinician = await dischargeModal.selectDischargingClinician();
+    const disposition = await dischargeModal.selectDisposition();
+
     await dischargeModal.saveAndExit();
 
     // Saving a draft must not discharge the patient: the encounter stays open, and the clinician
@@ -101,6 +108,12 @@ test.describe('Discharge draft', () => {
     );
     await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('12');
     await expect(dischargeModal.sendToPharmacyCheckbox(prescription.id)).not.toBeChecked();
+
+    await expect(dischargeModal.dischargeDateInput).toHaveValue(dischargeDate);
+    // The autocompletes show a label resolved from the stored id, so matching the label the
+    // clinician picked also proves the id itself round-tripped.
+    await expect(dischargeModal.dischargingClinicianInput).toHaveValue(dischargingClinician);
+    await expect(dischargeModal.dispositionInput).toHaveValue(disposition);
   });
 
   test('A resumed draft can be finalised, and does not outlive the discharge', async ({
