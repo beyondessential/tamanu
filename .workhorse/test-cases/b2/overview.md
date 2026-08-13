@@ -528,53 +528,11 @@ close one. All five found in the audit are now closed: two in #10752, two in
 
 # Automatable, not yet written
 
-Gaps the coverage audit found that a test could close, listed so they are not
-rediscovered by re-running the audit. None is an epic blocker: each is a guarantee
-the code appears to hold and nothing asserts. Ordered within each area by what
-bites hardest if it silently stops being true.
-
-## Antivirus
-
-- [ ] A facility scan finding malware leaves `blob_quarantines` untouched, since the propagating record is central's to write (verifies spec: AV)
-- [ ] An infected verdict discards existing parity, which both application contexts do from `onInfected` (verifies spec: AV, FEC)
-- [ ] Central refuses to repair known-bad content from parity; the facility equivalent is covered and central's is not (verifies spec: AV, FEC)
-- [ ] The scan pass ordering runs against the real database, not only the in-memory registry's own sort (verifies spec: AV)
-
-## Serving and transfer
-
-- [ ] The channel sends `facilityIds` on every operation. The fake connection ignores the query string, so only the construction-time guard ties the channel to its scope (verifies spec: BLAC, XFER)
-- [ ] A background fetch refused for capacity leaves the reference content-pending and retries (verifies spec: CAP, XFER)
-- [ ] Transfers of different hashes proceed concurrently rather than serialising behind each other (verifies spec: XFER)
-- [ ] `/api/sync/status` carries `blobOutbox`; the status builder is covered but the route exposing it is not (verifies spec: CAP)
-
-## Store and capacity
-
-- [ ] The store root comes from the `blobStorage.root` setting, and a relative value resolves against the working directory (verifies spec: CAP)
-
-## Cache, outbox and mobile
-
-- [ ] A device retains its attachment records after the bytes reach central, which is what makes the content refetchable (verifies spec: MOB)
-
-## Consumers
-
-- [ ] The document upload route's own size limit, which is never applied end to end because `uploadAttachment` is mocked away in the route tests (verifies spec: ATCH)
-- [ ] A facility retains its attachment records after they sync, which the move from push-then-delete to bidirectional changed (verifies spec: ATCH)
-- [ ] `makePatientCertificate` and `makePatientLetter` resolve a hash-form asset, and fail rather than printing unbranded when the bytes cannot be resolved; both suites stub the asset lookup away. The browser's half is covered, in `useCertificate` holding a pending asset back (verifies spec: ASSET)
-- [ ] A facility-specific asset is preferred over the deployment-wide one in the letter renderer, which repeats the rule the endpoint applies; the endpoint is covered and the renderer is not (verifies spec: ASSET)
-- [ ] Asset blobs are ordinary cache-tier content: prefetched at the cache tier, evictable, refetched after eviction (verifies spec: ASSET, CACHE)
-
-## Backfill
-
-- [ ] Rollback when the store is not intact, which the spec makes a precondition and nothing pins (verifies spec: BKFL)
-- [ ] `BlobBackfillTask` is in the facility's default task list, which is what makes the backfill run there with no operator action; central's is covered and the facility's is not (verifies spec: BKFL)
-- [ ] Two servers rewriting the same changelog entry independently produce identical content, the basis for entries never re-synchronising and still converging (verifies spec: BKFL)
-
-## Integrity
-
-- [ ] An evicted cache blob is not reported as a fault by a later scrub (verifies spec: SCRUB)
-- [ ] Scheduled bounds resolve from settings for central's scrub and both servers' scan; only the facility scrub asserts it (verifies spec: SCRUB, AV)
-
----
+Empty. Every gap this section held now has a test, written per package and landed
+together. The per-area checklists above do not yet carry them: a tick means someone
+read the test that asserts it, and authoring twenty ticks from a summary would put
+exactly the kind of unearned `[x]` in this document that makes the rest of them
+worth nothing. Re-run the audit to place them.
 
 # Not automated
 
