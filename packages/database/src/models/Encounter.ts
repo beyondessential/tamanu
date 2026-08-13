@@ -60,7 +60,6 @@ export class Encounter extends Model {
   declare location?: Location;
   declare patient?: Patient;
   declare discharge?: Discharge;
-  declare dischargeDraft?: Record<string, any>;
 
   static initModel(
     { primaryKey, hackToSkipEncounterValidation, ...options }: InitOptions,
@@ -108,10 +107,6 @@ export class Encounter extends Model {
         reasonForEncounter: DataTypes.TEXT,
         deviceId: DataTypes.TEXT,
         plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
-        dischargeDraft: {
-          type: DataTypes.JSONB,
-          allowNull: true,
-        },
       },
       {
         ...options,
@@ -486,6 +481,20 @@ export class Encounter extends Model {
 
     await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
     await this.closeTriage(endDate);
+    await this.clearDischargeDrafts();
+  }
+
+  /**
+   * The discharge has happened, so no clinician's part-finished version of it is live any
+   * longer. Clears every draft on the encounter, including other clinicians', and hard-deletes
+   * because a draft is working state rather than clinical record worth keeping.
+   */
+  async clearDischargeDrafts() {
+    const { EncounterDischargeDraft } = this.sequelize.models;
+    await EncounterDischargeDraft.destroy({
+      where: { encounterId: this.id },
+      force: true,
+    });
   }
 
   async closeTriage(endDate: string) {

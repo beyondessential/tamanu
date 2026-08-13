@@ -44,14 +44,20 @@ The decisions that shaped it:
 
 ## Build steps
 
-- [ ] Replace `encounters.discharge_draft` with a draft per (encounter, clinician), schematised rather than a nested blob
-- [ ] Re-expose **Save & exit** on the discharge form, gated on write-discharge permission
-- [ ] Restore the dirty-cancel route to the unsaved-changes screen, reviving or rebuilding `showWarningScreen`
-- [ ] Store the discharge note in the draft alongside the ids of the planning notes it was seeded from
-- [ ] Merge on resume: restore the clinician's text, append planning notes added since
-- [ ] Clear all drafts for an encounter on finalise; clear the clinician's own on discard
-- [ ] Add the draft indicator, using a cheap flag rather than shipping draft contents into list payloads
-- [ ] Remove whatever dead code the rebuild does not reclaim
+- [x] Replace `encounters.discharge_draft` with a draft per (encounter, clinician), schematised rather than a nested blob
+  - [x] `encounter_discharge_drafts` and `encounter_discharge_draft_medications` tables, `DO_NOT_SYNC`, registered in `NON_SYNCING_TABLES`
+  - [x] Migration drops the old column and flags the encounters sync lookup for rebuild
+  - [x] dbt source models regenerated and documented
+- [x] Re-expose **Save & exit** on the discharge form, gated on write-discharge permission
+- [x] Restore the dirty-cancel route to the unsaved-changes screen, reviving `showWarningScreen`
+- [x] Store the discharge note in the draft alongside the ids of the planning notes it was seeded from
+- [x] Merge on resume: restore the clinician's text, append planning notes added since
+- [x] Clear all drafts for an encounter on finalise; clear the clinician's own on discard
+- [x] Add the draft indicator, using a dedicated endpoint rather than shipping draft contents into list payloads
+- [x] Remove whatever dead code the rebuild does not reclaim
+
+`GET`/`PUT`/`DELETE /encounter/:id/dischargeDraft` all scope to the requesting user, so the
+visibility rule is enforced server-side rather than by the caller passing an owner.
 
 ## Review the whole workflow
 

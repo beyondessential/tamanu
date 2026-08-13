@@ -10,6 +10,8 @@ export const NON_SYNCING_TABLES = [
   'logs.fhir_writes',
   'public.ai_chat_sessions',
   'public.devices',
+  'public.encounter_discharge_draft_medications',
+  'public.encounter_discharge_drafts',
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
   'public.local_system_facts',

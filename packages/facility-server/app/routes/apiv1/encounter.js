@@ -302,6 +302,129 @@ encounter.put(
   }),
 );
 
+const serialiseDischargeDraft = draft =>
+  draft && {
+    endDate: draft.endDate,
+    dischargerId: draft.dischargerId,
+    dispositionId: draft.dispositionId,
+    note: draft.note,
+    seededNoteIds: draft.seededNoteIds ?? [],
+    orderingClinicianId: draft.orderingClinicianId,
+    medications: (draft.medications ?? []).map(medication => ({
+      prescriptionId: medication.prescriptionId,
+      quantity: medication.quantity,
+      repeats: medication.repeats,
+      sendToPharmacy: medication.sendToPharmacy,
+    })),
+  };
+
+// A draft belongs to the clinician who saved it and is only ever read back by them, so every
+// handler below scopes on the requesting user rather than taking an owner from the request.
+const findOwnDischargeDraft = (models, encounterId, userId) =>
+  models.EncounterDischargeDraft.findOne({
+    where: { encounterId, userId },
+    include: [{ model: models.EncounterDischargeDraftMedication, as: 'medications' }],
+  });
+
+// Picked field by field rather than spreading the body: the encounter and the owning user are
+// what scope a draft, so letting a request set them would let one clinician write into another's.
+const pickDischargeDraftValues = body => ({
+  endDate: body.endDate ?? null,
+  dischargerId: body.dischargerId ?? null,
+  dispositionId: body.dispositionId ?? null,
+  note: body.note ?? null,
+  seededNoteIds: Array.isArray(body.seededNoteIds) ? body.seededNoteIds : [],
+  orderingClinicianId: body.orderingClinicianId ?? null,
+});
+
+const pickDischargeDraftMedication = medication => ({
+  prescriptionId: medication.prescriptionId,
+  quantity: medication.quantity ?? null,
+  repeats: medication.repeats ?? null,
+  sendToPharmacy: Boolean(medication.sendToPharmacy),
+});
+
+const getDraftEncounter = async (req, { forWrite }) => {
+  const { models, params } = req;
+  req.checkPermission('read', 'Encounter');
+  const encounterObject = await models.Encounter.findByPk(params.id);
+  if (!encounterObject) throw new NotFoundError();
+  if (forWrite) {
+    req.checkPermission('write', 'Discharge');
+    if (encounterObject.endDate) {
+      throw new InvalidOperationError('Cannot save a discharge draft on a discharged encounter.');
+    }
+  }
+  return encounterObject;
+};
+
+encounter.get(
+  '/:id/dischargeDraft',
+  asyncHandler(async (req, res) => {
+    const { models, params, user } = req;
+    await getDraftEncounter(req, { forWrite: false });
+
+    const draft = await findOwnDischargeDraft(models, params.id, user.id);
+    res.send({ draft: serialiseDischargeDraft(draft) ?? null });
+  }),
+);
+
+encounter.put(
+  '/:id/dischargeDraft',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, user, body } = req;
+    await getDraftEncounter(req, { forWrite: true });
+
+    const draftValues = pickDischargeDraftValues(body);
+    const medications = Array.isArray(body.medications) ? body.medications : [];
+
+    await db.transaction(async () => {
+      const existing = await models.EncounterDischargeDraft.findOne({
+        where: { encounterId: params.id, userId: user.id },
+      });
+
+      const draft = existing
+        ? await existing.update(draftValues)
+        : await models.EncounterDischargeDraft.create({
+            ...draftValues,
+            encounterId: params.id,
+            userId: user.id,
+          });
+
+      // The lines are replaced wholesale: the draft is whatever was on screen when the clinician
+      // left, so a prescription missing from the payload is one they no longer had.
+      await models.EncounterDischargeDraftMedication.destroy({
+        where: { dischargeDraftId: draft.id },
+        force: true,
+      });
+      for (const medication of medications) {
+        await models.EncounterDischargeDraftMedication.create({
+          ...pickDischargeDraftMedication(medication),
+          dischargeDraftId: draft.id,
+        });
+      }
+    });
+
+    const saved = await findOwnDischargeDraft(models, params.id, user.id);
+    res.send({ draft: serialiseDischargeDraft(saved) });
+  }),
+);
+
+encounter.delete(
+  '/:id/dischargeDraft',
+  asyncHandler(async (req, res) => {
+    const { models, params, user } = req;
+    await getDraftEncounter(req, { forWrite: true });
+
+    await models.EncounterDischargeDraft.destroy({
+      where: { encounterId: params.id, userId: user.id },
+      force: true,
+    });
+
+    res.send({ draft: null });
+  }),
+);
+
 encounter.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {

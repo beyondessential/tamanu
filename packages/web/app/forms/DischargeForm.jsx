@@ -20,6 +20,11 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import { keyBy } from 'es-toolkit/compat';
+import {
+  ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY,
+  useEncounterDischargeDraftQuery,
+} from '../api/queries/useEncounterDischargeDraftQuery';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
@@ -32,6 +37,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { createPrescriptionHash } from '../utils/medications';
 import { foreignKey } from '../utils/validation';
 import { EncounterOverview } from './DischargeEncounterOverview';
+import { buildDischargeNote, toDischargeDraftPayload } from './dischargeDraft';
 import {
   Divider,
   DischargeFormScreen,
@@ -137,16 +143,16 @@ const dischargingClinicianLabel = (
 const getDischargeInitialValues = ({
   encounter,
   currentUser,
+  draft,
   dischargeNotes,
   medicationInitialValues,
   getCurrentDateTime,
   storedDateTimeToEpochMilliseconds,
 }) => {
-  const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (!dischargeDraft) {
+    if (!draft) {
       if (encounterStartMs != null && encounterStartMs > Date.now()) {
         const primaryNow = getCurrentDateTime();
         const time = trimToTime(primaryNow);
@@ -155,19 +161,18 @@ const getDischargeInitialValues = ({
         return getCurrentDateTime();
       }
     }
-    return encounter?.dischargeDraft?.endDate;
+    return draft.endDate;
   };
 
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId || currentUser?.id,
-      dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
+      dischargerId: draft?.dischargerId || currentUser?.id,
+      dispositionId: draft?.dispositionId,
+      note: buildDischargeNote({ draft, dischargeNotes }),
     },
     pharmacyOrder: {
-      orderingClinicianId:
-        encounter?.dischargeDraft?.pharmacyOrder?.orderingClinicianId || currentUser?.id,
+      orderingClinicianId: draft?.orderingClinicianId || currentUser?.id,
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
@@ -181,10 +186,10 @@ the table-like form fields.
 const getMedicationsInitialValues = ({
   encounterMedications,
   ongoingMedications,
-  encounter,
+  draft,
   isPharmacyOrderEnabled,
 }) => {
-  const medicationDraft = encounter?.dischargeDraft?.medications;
+  const medicationDraft = keyBy(draft?.medications ?? [], 'prescriptionId');
   const medicationsInitialValues = {};
 
   const addMedication = (medication, isSentToPharmacyByDefault) => {
@@ -192,9 +197,10 @@ const getMedicationsInitialValues = ({
     medicationsInitialValues[key] = {
       // Left blank rather than zeroed when the prescription has no quantity, so the clinician sees
       // an empty field to fill in rather than a number nobody entered.
-      quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? null,
-      repeats: medicationDraft?.[key]?.repeats ?? medication?.repeats?.toString() ?? '0',
-      sendToPharmacy: medicationDraft?.[key]?.sendToPharmacy ?? isSentToPharmacyByDefault,
+      quantity: medicationDraft[key]?.quantity ?? medication.quantity ?? null,
+      repeats:
+        medicationDraft[key]?.repeats?.toString() ?? medication?.repeats?.toString() ?? '0',
+      sendToPharmacy: medicationDraft[key]?.sendToPharmacy ?? isSentToPharmacyByDefault,
     };
   };
 
@@ -267,6 +273,8 @@ export const DischargeForm = ({
     encounter.patientId,
     facilityId,
   );
+  const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id);
+  const draft = dischargeDraftData?.draft ?? null;
 
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
@@ -279,7 +287,7 @@ export const DischargeForm = ({
   const medicationInitialValues = getMedicationsInitialValues({
     encounterMedications: activeMedications,
     ongoingMedications,
-    encounter,
+    draft,
     isPharmacyOrderEnabled,
   });
 
@@ -289,19 +297,40 @@ export const DischargeForm = ({
     medication => medication.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
   );
 
+  const invalidateDraft = useCallback(
+    () => queryClient.invalidateQueries([ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounter.id]),
+    [queryClient, encounter.id],
+  );
+
   const handleSubmit = useCallback(
-    async ({ isDischarged = true, ...data }) => {
+    async data => {
       // The server takes the order's facility from the discharging user's token, so only the
       // ordering prescriber travels with the request.
       const submitData = isPharmacyOrderEnabled ? data : { ...data, pharmacyOrder: undefined };
-      if (isDischarged) {
-        await onSubmit(submitData);
-        return;
-      }
-      await onSubmit({ dischargeDraft: submitData });
+      await onSubmit(submitData);
+      // Discharging clears every draft on the encounter, so the cached copy is gone too.
+      await invalidateDraft();
     },
-    [onSubmit, isPharmacyOrderEnabled],
+    [onSubmit, isPharmacyOrderEnabled, invalidateDraft],
   );
+
+  const handleSaveDraft = useCallback(
+    async values => {
+      await api.put(
+        `encounter/${encounter.id}/dischargeDraft`,
+        toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }),
+      );
+      await invalidateDraft();
+      onCancel();
+    },
+    [api, encounter.id, dischargeNotes, isPharmacyOrderEnabled, invalidateDraft, onCancel],
+  );
+
+  const handleDiscardDraft = useCallback(async () => {
+    await api.delete(`encounter/${encounter.id}/dischargeDraft`);
+    await invalidateDraft();
+    onCancel();
+  }, [api, encounter.id, invalidateDraft, onCancel]);
 
   useEffect(() => {
     (async () => {
@@ -327,13 +356,23 @@ export const DischargeForm = ({
     const hasEncounterMeds = Boolean(encounterMedications);
     const hasOngoingMeds = Boolean(ongoingPrescriptions);
     const hasNotes = Boolean(dischargeNotes);
-    if (enableReinitialize && hasEncounterMeds && hasOngoingMeds && hasNotes) {
+    // The draft has to have resolved too, or the form would seed from live data and then be
+    // reinitialised out from under anything the clinician had already saved.
+    const hasResolvedDraft = Boolean(dischargeDraftData);
+    if (
+      enableReinitialize &&
+      hasEncounterMeds &&
+      hasOngoingMeds &&
+      hasNotes &&
+      hasResolvedDraft
+    ) {
       setEnableReinitialize(false);
     }
   }, [
     Boolean(encounterMedications),
     Boolean(ongoingPrescriptions),
     Boolean(dischargeNotes),
+    Boolean(dischargeDraftData),
     enableReinitialize,
   ]);
 
@@ -364,6 +403,7 @@ export const DischargeForm = ({
         initialValues={getDischargeInitialValues({
           encounter,
           currentUser,
+          draft,
           dischargeNotes,
           medicationInitialValues,
           getCurrentDateTime,
@@ -373,7 +413,7 @@ export const DischargeForm = ({
           <DischargeFormScreen
             {...props}
             currentDiagnoses={currentDiagnoses}
-            onSubmit={handleSubmit}
+            onSaveDraft={handleSaveDraft}
             setShowWarningScreen={setShowWarningScreen}
             data-testid="dischargeformscreen-z2zo"
           />
@@ -401,8 +441,8 @@ export const DischargeForm = ({
             : props => (
                 <UnsavedChangesScreen
                   {...props}
-                  showWarningScreen={showWarningScreen}
-                  onSubmit={handleSubmit}
+                  onSaveDraft={handleSaveDraft}
+                  onDiscardDraft={handleDiscardDraft}
                   data-testid="unsavedchangesscreen-o64o"
                 />
               )
