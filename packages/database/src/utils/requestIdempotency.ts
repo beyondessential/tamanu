@@ -99,6 +99,21 @@ export function createRequestIdempotencyMiddleware({
     const requestHash = fingerprintRequest(req.method, req.path, req.body);
     const scope = { key, userId, facilityId };
 
+    // Servers that require every endpoint to declare a permission check do it by
+    // leaving a `res.send` that throws until a handler flags one. The interceptors
+    // below sit in front of that stub, so its throw would land only once we flush
+    // — after this transaction had committed — quietly turning a missing
+    // permission check into a committed, replayable success. Observe the flag so an
+    // unflagged request can be failed and rolled back instead.
+    let permissionChecked = false;
+    const declarePermissionChecked = req.flagPermissionChecked;
+    if (declarePermissionChecked) {
+      req.flagPermissionChecked = () => {
+        permissionChecked = true;
+        declarePermissionChecked.call(req);
+      };
+    }
+
     // --- Buffer the response instead of writing it to the socket. ---
     const originalJson = res.json.bind(res);
     const originalSend = res.send.bind(res);
@@ -176,13 +191,14 @@ export function createRequestIdempotencyMiddleware({
     const flush = () => {
       intercepting = false;
       // When we answer without running the handler — a replay or a conflict — no
-      // handler ran to satisfy `ensurePermissionCheck`, whose `res.send` stub
-      // throws until a permission check flags itself. Flag it here: a replay is
-      // the same user's own recorded outcome for an identical request (the key is
-      // scoped to user + facility and bound to the request hash), and a conflict
-      // discloses nothing. Guarded because only the facility server installs it.
-      if ((conflict || replayRecord) && req.flagPermissionChecked) {
-        req.flagPermissionChecked();
+      // handler ran to declare a permission check, so the guard's `res.send` stub
+      // would throw. Declare it here: an outcome is only ever recorded for a
+      // request that declared its own check (see the rollback above), and the key
+      // is scoped to user + facility and bound to the request hash, so a replay
+      // returns the same user their own outcome for the same request. A conflict
+      // discloses nothing. Guarded because not every server installs the check.
+      if ((conflict || replayRecord) && declarePermissionChecked) {
+        declarePermissionChecked.call(req);
       }
       if (conflict === 'mismatch') {
         res
@@ -266,7 +282,11 @@ export function createRequestIdempotencyMiddleware({
         await responded;
 
         const statusCode = captured?.statusCode ?? 500;
-        if (statusCode >= 400) {
+        // An endpoint that never declared a permission check is treated as a
+        // failure: flushing its response raises the guard's error, so committing
+        // here would persist writes for a request the client sees fail.
+        const missingPermissionCheck = Boolean(declarePermissionChecked) && !permissionChecked;
+        if (statusCode >= 400 || missingPermissionCheck) {
           // The operation failed. Roll back so neither its writes nor the claim
           // persist, leaving the operation retryable; the buffered error response
           // is flushed after.

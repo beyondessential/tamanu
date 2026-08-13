@@ -312,7 +312,8 @@ questions are now covered by tests rather than reasoning:
 
 ### Bugs the tests found
 
-Three defects that only a running stack could expose:
+Four defects that only a running stack could expose (the fourth was raised in
+review and confirmed by a test before fixing):
 
 1. **Model registration was broken.** `IdempotencyKey.ts` exported the status
    constant, and `models/index.ts` re-exports that file wholesale into the model
@@ -332,6 +333,14 @@ Three defects that only a running stack could expose:
    `null` for that path, so a replay returned an empty body. The chunk is now
    decoded, and `response_content_type` was added so a replay reproduces the
    original response rather than assuming JSON.
+4. **The permission guard could be defused.** `ensurePermissionCheck` fires by
+   way of the `res.send` stub, which our interceptors sit in front of — so for an
+   endpoint that never declared a permission check, the throw was deferred until
+   the flush, *after* the transaction had committed. The write persisted and a
+   completed key was recorded, so a retry replayed a 200 for a request whose
+   guard should have failed it. The middleware now observes the flag and rolls
+   back an unflagged request, which also makes the flush-time flag on the replay
+   path sound: an outcome is only recorded for a request that declared a check.
 
 ### Policy guard
 

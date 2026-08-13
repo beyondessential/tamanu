@@ -56,6 +56,8 @@ Automated coverage lives in:
 - [ ] A create handler's row and its idempotency record commit together — killing the connection mid-request leaves neither (verifies spec: IDEM)
 - [x] A handler that opens its own managed `req.db.transaction` still commits atomically with the idempotency record (nested savepoint)
 - [x] CLS propagation: a handler's writes made after the middleware's transaction opened are rolled back when the response is a 4xx (verifies spec: IDEM)
+- [x] An endpoint that never declares a permission check neither commits its writes nor records an outcome, and its retry is not answered with a replayed success
+- [x] An endpoint that does declare a permission check still records and replays normally
 
 ## Policy guard
 

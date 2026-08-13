@@ -4,6 +4,7 @@ import supertest from 'supertest';
 import asyncHandler from 'express-async-handler';
 
 import { IDEMPOTENCY_KEY_STATUSES } from '@tamanu/constants';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { createRequestIdempotencyMiddleware } from '@tamanu/database/utils/requestIdempotency';
 
 import { createTestContext } from '../utilities';
@@ -23,6 +24,7 @@ describe('Request idempotency transaction integrity', () => {
   let ctx;
   let models;
   let app;
+  let guarded;
   let user;
   let facilityId;
 
@@ -86,10 +88,52 @@ describe('Request idempotency transaction integrity', () => {
 
     // eslint-disable-next-line no-unused-vars
     testApp.use((err, req, res, _next) => {
-      res.status(500).send({ error: { message: err.message } });
+      res.status(err.status ?? 500).send({ error: { message: err.message } });
     });
 
     app = supertest(testApp);
+
+    // A second app with the real permission guard in front, to check that
+    // idempotency does not defuse it. `ensurePermissionCheck` replaces res.send
+    // with a stub that throws unless a handler declares its permission check,
+    // and this middleware replaces res.send in turn.
+    const guardedApp = express();
+    guardedApp.use(express.json());
+    guardedApp.use((req, res, next) => {
+      req.models = models;
+      req.db = ctx.sequelize;
+      req.user = user;
+      req.facilityId = facilityId;
+      next();
+    });
+    guardedApp.use(ensurePermissionCheck);
+    guardedApp.use(createRequestIdempotencyMiddleware());
+
+    // Writes, then responds without ever declaring a permission check.
+    guardedApp.post(
+      '/unchecked',
+      asyncHandler(async (req, res) => {
+        await models.LocalSystemFact.create({ key: factKey(req.body.name), value: 'written' });
+        res.send({ ok: true });
+      }),
+    );
+
+    // The same thing, done properly.
+    guardedApp.post(
+      '/checked',
+      asyncHandler(async (req, res) => {
+        req.flagPermissionChecked();
+        await models.LocalSystemFact.create({ key: factKey(req.body.name), value: 'written' });
+        res.send({ ok: true });
+      }),
+    );
+
+    // eslint-disable-next-line no-unused-vars
+    guardedApp.use((err, req, res, _next) => {
+      res.status(err.status ?? 500).send({ error: { message: err.message } });
+    });
+
+    guarded = supertest(guardedApp);
   });
 
   afterAll(() => ctx.close());
@@ -175,5 +219,51 @@ describe('Request idempotency transaction integrity', () => {
     expect(replay.body).toEqual(first.body);
     // The handler would have thrown a unique-key error had it run again.
     expect(await models.LocalSystemFact.count({ where: { key: factKey('f') } })).toBe(1);
+  });
+
+  describe('permission guard', () => {
+    it('does not let an unchecked endpoint commit or record an outcome', async () => {
+      // `ensurePermissionCheck` turns a missing permission check into an error.
+      // Idempotency must not convert that into a committed, replayable success.
+      const result = await guarded
+        .post('/unchecked')
+        .set('Idempotency-Key', 'perm-1')
+        .send({ name: 'g' });
+
+      expect(result.status).toBeGreaterThanOrEqual(400);
+      expect(await factExists('g')).toBe(false);
+      expect(await models.IdempotencyKey.count({ where: { key: 'perm-1' } })).toBe(0);
+    });
+
+    it('does not replay a success for an unchecked endpoint on retry', async () => {
+      await guarded.post('/unchecked').set('Idempotency-Key', 'perm-2').send({ name: 'h' });
+
+      const retry = await guarded
+        .post('/unchecked')
+        .set('Idempotency-Key', 'perm-2')
+        .send({ name: 'h' });
+
+      // The guard must fire every time, not be defused by a recorded outcome.
+      expect(retry.status).toBeGreaterThanOrEqual(400);
+      expect(await factExists('h')).toBe(false);
+    });
+
+    it('still records a properly checked endpoint', async () => {
+      const result = await guarded
+        .post('/checked')
+        .set('Idempotency-Key', 'perm-3')
+        .send({ name: 'i' });
+
+      expect(result).toHaveSucceeded();
+      expect(await factExists('i')).toBe(true);
+      expect(await models.IdempotencyKey.count({ where: { key: 'perm-3' } })).toBe(1);
+
+      const replay = await guarded
+        .post('/checked')
+        .set('Idempotency-Key', 'perm-3')
+        .send({ name: 'i' });
+      expect(replay).toHaveSucceeded();
+      expect(replay.body).toEqual(result.body);
+    });
   });
 });
