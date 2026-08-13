@@ -179,4 +179,4 @@ Items the IRD call surfaced that the internal working session didn't cover, or a
 - **Device specs list.** IRD offered to email specs of all mobile devices/tablets — make sure it lands.
 - **Incremental sync has specifics now.** Not "vague" — crashes on both initial and incremental sync, ~10% of users, none in the last three weeks.
 - **Performance not actually resolved.** The 3–5 min form-load fix worked for one user (Ali) but recurred for another on v0.5.29.
-- **Strategic sizing note.** The field is desktop-first via the ET device; mobile is used mainly by phone-only staff without tablets. How big the mobile-sync prize is depends on how many are actually on mobile — and their "make mobile usable in the field" ask routes through the ET-connectivity question as much as raw performance.
+- **Strategic sizing note.** The field is desktop-first via the ET device; mobile is used mainly by phone-only staff without tablets. How big the mobile-sync prize is depends on how many are actually on mobile — and their "make mobile usable in the field" ask routes through the Iti-connectivity question as much as raw performance.
