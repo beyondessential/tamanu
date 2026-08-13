@@ -176,8 +176,7 @@ Items the IRD call surfaced that the internal working session didn't cover, or a
 - **Mobile ↔ Iti-device connectivity.** The reason IRD use desktop in the field and the real ceiling on mobile's field viability — a field mobile user can't hand a patient to the next station without waiting for internet, because mobile can't connect to the Iti device. Never discussed internally. Likely behaviour change and probably beyond this cycle → needs an explicit Edwin/Megan decision rather than silent omission.
 - **GZIP compression.** Is the sync payload compressed? Bilal asked directly; answer owed back to IRD.
 - **Resume vs restart on dropped connection.** Does an interrupted sync continue from where it stopped or start over? Critical given unstable field internet; never came up. Answer owed back to IRD.
-- **Engagement mechanics reconciliation.** The session landed on a spreadsheet + Mon/Wed standups; the IRD call establishes WhatsApp-tagging + Bilal's OS Ticket + live screen-share/log diagnosis, POCs (Saman coordinating, Minhal + rotating supervisors), and a hard window to ~20 August. Align Jasper's issue log with OS Ticket to avoid a parallel record.
-- **Device specs list.** IRD offered to email specs of all mobile devices/tablets — make sure it lands.
+**Device specs list.** IRD offered to email specs of all mobile devices/tablets — make sure it lands.
 - **Fresh disk-IO error** on the latest build (v0.5.29), separate from the index-creation "driver" error already discussed.
 - **Incremental sync has specifics now.** Not "vague" — crashes on both initial and incremental sync, ~10% of users, none in the last three weeks.
 - **Performance not actually resolved.** The 3–5 min form-load fix worked for one user (Ali) but recurred for another on v0.5.29, and Minhal finds no difference old-vs-new — confirms the perf work is still open.
