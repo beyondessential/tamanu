@@ -96,3 +96,73 @@ IRD reported data disappearing on mobile. It's unclear whether this was real. Th
 
 - **Initial (first-time) sync optimisation.** IRD's initial sync is large (tens of millions of records, a couple of hours) but heavily optimised already (Daniel's work last year) with little low-hanging fruit, and IRD's complaints are about everyday use, not first sync.
 - **Backend-maintenance / "spider" stability.** Raised in the thread as a possible cause of instability; checked and ruled out.
+
+---
+
+## Action plan after kick off
+
+Two follow-up sessions sharpened the plan: an internal working session (Edwin + Jasper) and a first call with the IRD team. This section captures how the engagement runs and the concrete threads to pull, for the virtual-FDE window through ~20 August. It's a live working plan, not fixed scope.
+
+---
+
+### Engagement and coordination with IRD
+
+- **WhatsApp group is the primary channel.** Field supervisors report issues there and tag Jasper; follow up with a separate call for detail as needed. This is faster and more feasible for field teams than email or scheduled meetings. Jasper to be added to the group.
+- **Live contact with the actual user is the goal.** When an issue is reported, get the user to screen-share or pull logs *while it's happening* — server conditions, load, and query behaviour change within hours, so after-the-fact diagnosis is much weaker.
+- **Points of contact.** Saman coordinates. Minhal (field team supervisor) and others rotate depending on location and activity — not a single fixed POC. Bilal (technical consultant) is on WhatsApp for technical questions.
+- **IRD-side tracking.** Bilal is standing up OS Ticket to dedupe and track support requests (many users report the same issue). Jasper maintains an issue log/sheet alongside and shares it; start with a spreadsheet as agreed, switch to something better if it becomes a pain point. Keep Edwin updated.
+- **Cadence.** Proposed Mon/Wed standups (note: Edwin doesn't work Wednesdays). Jasper to send IRD an opening email: the focus areas he's starting on, and the most useful things IRD could provide next (e.g. direct time with a user who hit a specific problem, or a list of dates when data went missing).
+- **This is a trial.** If virtual support proves unproductive, a physical visit can be revisited — but it carries administrative and security overhead (NOCs for foreigners, less-safe remote areas), so make as much headway independently as possible.
+
+---
+
+### Field context that shapes the work
+
+- **Campsites are largely offline** — no fixed internet or electricity (generators in mobile vans). Facilities have internet that's mostly stable but drops out.
+- **Devices are low-spec Android** (Oppo and similar budget brands, not Samsung/Apple); performance work must assume weak hardware.
+- **ET-device workflow drives desktop use.** Teams use an ET device to sync forms between field stations and run Tamanu desktop against it, because the mobile app can't connect to the ET device. On mobile, an operator can't hand a patient to the next station without waiting for internet to sync — counterintuitive, hence desktop. (Mobile-to-ET connectivity is a standing wish, likely beyond this cycle — flag to Edwin/Megan if it grows legs, as it leans toward behaviour change.)
+- **Live diagnosis is constrained** by offline campsites — plan around not always being able to reach a device mid-issue.
+
+---
+
+### Performance (start immediately, no external input needed)
+
+- Run an AI-assisted sweep ("fable run") to identify and fix mobile performance problems broadly, plus targeted work on known hotspots: the program/form selector (forms taking 3–5 minutes to appear on a lightly-populated program), and general data-entry / next-question lag that Minhal reports as no better on the latest build (v0.5.29).
+- The just-finished React Native upgrade unblocks this work.
+- **Ship as a proper release into `main`**, not scattered hot fixes, so the wide blast radius is covered by one big mobile regression test and a scheduled upgrade. Backport to 2.54 only case by case.
+- Consider a mobile version of Rohan's click-lag frustration metric to quantify and track improvements.
+
+---
+
+### Sync investigation
+
+Symptoms from the field: initial sync ~33–37 min on a fresh install even on fast office internet, often not finishing (restart from scratch), and crashes during both initial and incremental sync — random, ~10% of users, none reported in the last three weeks. Recent error reports include a disk-IO error and a DB "driver" error on an index-creation query (looks migration-related).
+
+Server-side (doable without waiting on IRD):
+- Query the central `sync_sessions` table for patterns — clusters of failed syncs, and syncs that are especially long in the **download** or **persist-to-local** phases (the snapshot phase should be consistent between Karachi and the field, so long tails there are the signal). Use Claude/Cursor with the support-docs skills to generate the SQL.
+- Advise IRD on **facility setup**: they appear to use a single facility, and patients marked for sync (a facility-level setting, not per-device) drive initial-sync size. Check the central DB for how many patients are marked and how much of the sync is encounter history vs base data; a facility with no patients marked for sync would sync far faster.
+- Investigate **memory** as the likely crash cause — mobile has a history of initial-sync memory leaks, and removing the old write-to-file-then-persist step (needed when SQLite's 999 bind-parameter limit applied, pre-2.54) may have raised memory use.
+- Audit **mobile indexes** — Felix's index audit was backend-only.
+
+In-flight work to branch off or leverage (Edwin to share PRs):
+- Felix's PR splitting initial sync into **boot / catalog / records** chunks — branch off this before making sync changes to avoid conflicts, and check whether it helps.
+- Felix's recently-merged sync **streaming** work.
+- Rohan's improved **foreign-key reporting** and central self-healing (central sends down missing referenced records), plus generally better mobile→central error reporting that landed after 2.54 — a reason to schedule IRD an upgrade for more "phone-home" visibility.
+
+Open technical questions raised by IRD to answer/verify: exactly what the initial sync downloads (metadata vs all patient submissions) and whether it's scoped per facility or pulls the whole central DB; current payload size and whether GZIP compression is enabled; and whether an interrupted sync resumes from where it dropped or restarts.
+
+---
+
+### Data loss investigation
+
+Take seriously despite the instinct to dismiss it. Two likely-distinct cases:
+- **Mobile, upgrade-related:** users report unsynced forms disappearing after updating the app (sometimes ~50 forms; sometimes only some forms vanish after a sync completes). Working hypothesis is an upgrade path that deletes the old APK and installs the new one, dropping local data — needs confirming.
+- **Desktop:** ~14–15 forms entered via Tamanu desktop didn't appear after a data download and had to be re-entered. More concerning (undermines the digital-only record), probably a different cause.
+
+Progress depends on specifics — which records, when. Give IRD time to supply dates/details; if nothing lands in ~2 working days, follow up directly with whoever reported each case.
+
+---
+
+### Mandatory-when-visible (parked)
+
+Not a live issue — IRD reconfigured to remove the mandatory questions, and both desktop and mobile are expected to gate mandatory on visibility (as Meditrak/DataTrack do). Leave to one side and revisit in spare time or a quick-wins batch; confirm whether mobile actually has a gap before doing any work.
