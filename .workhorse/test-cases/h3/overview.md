@@ -24,7 +24,7 @@ Covers the warn-but-allow behaviour for prescriptions discontinued after they we
 - [x] A dispensed fill whose prescription is discontinued is tagged in the dispensed-medications list (verifies spec: PHDIS)
 - [x] A dispensed fill whose prescription is active carries no tag (verifies spec: PHDIS)
 - [x] A fill both discontinued and modified by pharmacy shows the tag and the modified asterisk together (verifies spec: PHDIS)
-- [ ] The dispensed medication details modal shows the tag next to the medication (verifies spec: PHDIS)
+- [x] The dispensed medication details modal shows the tag next to the medication, and passes the prescription rather than the dispensed medication through to it (verifies spec: PHDIS)
 - [ ] The patient medication pane's dispensed table shows the tag (verifies spec: PHDIS)
 - [ ] The edit dispensed medication modal shows the tag against the medication being edited (verifies spec: PHDIS)
 
@@ -45,4 +45,6 @@ Covers the warn-but-allow behaviour for prescriptions discontinued after they we
 
 The backend cases are unticked because the facility-server integration suite could not be run in this worktree: it has no dependency install, and the test database could not be provisioned with a toolchain borrowed from a sibling worktree. They are owed coverage in `packages/facility-server/__tests__/apiv1/Medication.test.js` and the patient route tests.
 
-The unticked UI cases are per-surface renders of the same shared components (`DispensedMedicationName`, `MedicationNameWithDiscontinuedTag`), whose behaviour is covered by the ticked unit tests; they remain owed as manual or component-level checks that each surface passes the prescription through.
+The unticked UI cases are per-surface renders of the same shared components (`DispensedMedicationName`, `MedicationNameWithDiscontinuedTag`), whose behaviour is covered by the ticked unit tests; they remain owed as manual or component-level checks that each surface passes the prescription through. The details modal now has that wiring check; the patient pane and edit modal still owe one.
+
+These are deliberately unit/component tests rather than e2e: per `llm/project-rules/playwright-e2e.md`, e2e is reserved for business-critical multi-step journeys, and a tag rendering is granular UI detail that belongs at the cheaper level.
