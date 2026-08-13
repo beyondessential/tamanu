@@ -6,7 +6,7 @@ facility, but W1 only mounts the middleware on the facility server. Two follow-u
 depend on it — the facility web client's durable queue (the original motivating
 work), and mounting the same middleware on central once its surface is classified.
 
-## Durable client-side request queuing and retry (facility web)
+## Durable client-side request queuing and retry (facility web) · W3
 
 Build the facility web client's durable queue and retry on top of the server-side
 idempotency layer from W1. The client generates a stable idempotency key per user
@@ -18,7 +18,7 @@ Reads stay in-memory as today; auth/token-issuing, streaming/sync, and AI
 endpoints are never queued. Multipart/binary uploads may be deferred from this
 first version. Depends on W1's `Idempotency-Key` contract and skip-list.
 
-## Mount request idempotency on the central server
+## Mount request idempotency on the central server · X3
 
 Mount W1's shared idempotency middleware on the central server, activating the
 `idempotency_keys` table that W1 already ships there (empty). Central's stakes are
