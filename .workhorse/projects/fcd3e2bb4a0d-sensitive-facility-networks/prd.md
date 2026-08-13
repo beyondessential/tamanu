@@ -40,8 +40,10 @@ Establish the data model. Nothing changes behaviourally until requirement 3 land
 **Facility membership.**
 
 - `sensitive_network_id` FK on `facilities`, nullable. At most one network per facility
-- Drop `is_sensitive`. Whether the column is removed outright or derived as `sensitive_network_id IS NOT NULL` is an open question (see below)
+- Drop `is_sensitive` outright. It is not retained as a derived column; sensitivity is `sensitive_network_id IS NOT NULL` wherever it is needed
 - `Facility` model in `packages/database/src/models/Facility.ts` gains the association and drops `isSensitive`
+
+**Non-sync readers of facility sensitivity.** `User.allowedFacilities()` in `packages/database/src/models/User.ts` uses `isSensitive` to decide which facilities a user may log in to: it counts sensitive facilities to shortcut to full access, and lists non-sensitive ones to union with the user's explicit links. Both queries move to testing `sensitiveNetworkId` for null. Facility access stays per-facility, so a user linked to one member of a network gains no access to its siblings.
 
 **New column on `sync_lookup`.**
 
@@ -84,7 +86,7 @@ Removal is unsafe because sensitive data already synced to a facility cannot be 
 
 The behavioural change. Sensitive data becomes visible across a network.
 
-**Population.** `packages/database/src/sync/buildEncounterLinkedLookupFilter.ts` currently sets `facilityId` via `ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE`, a `CASE` on `facilities.is_sensitive`. Replace it with a straight `sensitiveNetworkId: 'facilities.sensitive_network_id'` and `facilityId: NULL`. No `CASE` is needed, because the column is already NULL for non-sensitive facilities. Around 50 encounter-linked models route through this helper, so they all pick the change up.
+**Population.** `packages/database/src/sync/buildEncounterLinkedLookupFilter.ts` currently sets `facilityId` via `ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE`, a `CASE` on `facilities.is_sensitive`. Replace it with a straight `sensitiveNetworkId: 'facilities.sensitive_network_id'` and `facilityId: NULL`. No `CASE` is needed, because the column is already NULL for non-sensitive facilities. Around 50 encounter-linked models route through this helper, so they all pick the change up. `packages/database/src/models/Notification.ts` uses `ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE` directly rather than through the helper, so it needs updating as a second call site.
 
 `packages/central-server/app/sync/updateLookupTable.js` needs `sensitive_network_id` added to the INSERT and `ON CONFLICT DO UPDATE` column lists, alongside `facility_id` and `patient_id`.
 
@@ -99,6 +101,8 @@ AND (
 ```
 
 `:sensitiveNetworkIds` is resolved from the requesting facility's network membership. A facility with no network gets an empty list, and the clause reduces to today's behaviour.
+
+**Lookup rebuild.** Existing `sync_lookup` rows still carry the old facility-based scoping, so the affected rows are rebuilt as part of this requirement rather than requirement 1, since the rebuild must run against the new population logic. `packages/database/src/migrations/1785372544730-RebuildLookupTableForSensitiveFacilityScopedModels.ts` is the precedent.
 
 **Guard test.** `packages/database/__tests__/sync/syncLookupFacilityScope.test.ts` asserts every encounter-linked model carries the sensitive scope marker. Its `SENSITIVE_SCOPE_MARKER` moves from `facilities.is_sensitive` to `facilities.sensitive_network_id`.
 

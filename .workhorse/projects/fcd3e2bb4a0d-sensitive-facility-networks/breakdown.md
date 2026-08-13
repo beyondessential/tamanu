@@ -4,7 +4,7 @@ Four sequential backend cards, one per PRD requirement. Cards 1 and 2 are inert 
 
 ## Add sensitive network schema and migrate existing sensitive facilities
 
-Introduce the `sensitive_networks` reference-data table, a nullable FK `sensitive_network_id` on `facilities`, and a nullable indexed `sensitive_network_id` on `sync_lookup`. Sequelize migrations keep DDL and DML in separate files, with the DML backfill moving every existing sensitive facility into one shared network, and the dbt source models under `database/model/` regenerated alongside. Mobile gets matching TypeORM migrations for the new table and the facility column. Facility sensitivity stops being a stored boolean, so the readers of it outside sync are in scope here too, notably the facility access list in `User.allowedFacilities`. Nothing changes behaviourally: this card lands only the data model the later cards build on.
+Introduce the `sensitive_networks` reference-data table, a nullable FK `sensitive_network_id` on `facilities`, and a nullable indexed `sensitive_network_id` on `sync_lookup`. Sequelize migrations keep DDL and DML in separate files, with the DML backfill moving every existing sensitive facility into one shared network, and the dbt source models under `database/model/` regenerated alongside. Mobile gets matching TypeORM migrations for the new table and the facility column. `is_sensitive` is dropped rather than kept as a derived column, so the readers of it outside sync move to testing network membership, notably the facility access list in `User.allowedFacilities`. Nothing changes behaviourally: this card lands only the data model the later cards build on.
 
 ## Import sensitive networks and block membership changes
 
@@ -12,7 +12,7 @@ Add a `sensitiveNetworks` sheet to the reference data importer and a network col
 
 ## Scope sensitive sync by network instead of facility
 
-The behavioural change. `buildEncounterLinkedLookupFilter` populates `sensitive_network_id` from the facility rather than conditionally populating `facility_id`, which carries the change to every encounter-linked model routed through it plus the direct call site in `Notification`. The lookup table upsert learns the new column, and the outgoing snapshot filter admits rows whose network matches the requesting facility's, leaving a facility with no network on today's behaviour. The guard test's sensitive scope marker moves to the new column, and the existing sensitive facility sync tests are reworked around networks. Sync-all-lab-requests behaviour is untouched.
+The behavioural change. `buildEncounterLinkedLookupFilter` populates `sensitive_network_id` from the facility rather than conditionally populating `facility_id`, which carries the change to every encounter-linked model routed through it plus the direct call site in `Notification`. The lookup table upsert learns the new column, and the outgoing snapshot filter admits rows whose network matches the requesting facility's, leaving a facility with no network on today's behaviour. Existing lookup rows carry the old facility-based scoping, so this card also rebuilds the affected `sync_lookup` rows. The guard test's sensitive scope marker moves to the new column, and the existing sensitive facility sync tests are reworked around networks. Sync-all-lab-requests behaviour is untouched.
 
 ## Resync historic sensitive data when a facility joins a network
 
