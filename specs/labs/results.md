@@ -28,3 +28,9 @@ reference range is flagged for clinicians.
 
 - [ ] The lab request results table shows each test's result, unit, reference range, method, lab officer, verification and completed date.
 - [ ] A result that also carries a secondary result shows the secondary result on hover.
+
+## Edited results
+
+- [ ] A result whose value has been changed after it was first entered is marked with a faded asterisk next to the result value, in both the patient's results table and an individual lab request's results table.
+- [ ] Whether a result counts as edited is derived from its recorded change history: it is edited once its value has taken more than one distinct value.
+- [ ] When a lab request's results table contains any edited result, a faded "* Edited entry" note appears at the bottom right below the table, in the same colour as the asterisk. The note is absent when no results are edited.

@@ -30,6 +30,27 @@ import {
 } from '../../utils/query';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
+// A lab test result counts as edited when its result value has taken more than one distinct
+// non-empty value over its audit history (logs.changes). This matches how the patient-wide
+// results grid derives its edited flag, so both agree.
+const getEditedLabTestIds = async (db, labRequestId) => {
+  const rows = await db.query(
+    `SELECT record_id
+     FROM logs.changes
+     WHERE table_schema = 'public'
+       AND table_name = 'lab_tests'
+       AND record_data->>'result' IS NOT NULL
+       AND TRIM(record_data->>'result') != ''
+       AND record_id::uuid IN (
+         SELECT id FROM lab_tests WHERE lab_request_id = :labRequestId
+       )
+     GROUP BY record_id
+     HAVING COUNT(DISTINCT (record_data->>'result')) >= 2`,
+    { replacements: { labRequestId }, type: QueryTypes.SELECT },
+  );
+  return new Set(rows.map(row => row.record_id));
+};
+
 export const labRequest = express.Router();
 
 labRequest.get(
@@ -504,7 +525,11 @@ labRelations.get(
         distinct: true,
       });
 
-      const data = objects.map(x => x.forResponse());
+      const editedLabTestIds = await getEditedLabTestIds(req.db, params.id);
+      const data = objects.map(x => ({
+        ...x.forResponse(),
+        isEdited: editedLabTestIds.has(x.id),
+      }));
 
       res.send({ count, data });
     } else {
@@ -513,7 +538,11 @@ labRelations.get(
         ? {}
         : { additionalFilters: { '$labTestType.is_sensitive$': false } };
       const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
-      res.send(response);
+      const editedLabTestIds = await getEditedLabTestIds(req.db, params.id);
+      res.send({
+        ...response,
+        data: response.data.map(x => ({ ...x, isEdited: editedLabTestIds.has(x.id) })),
+      });
     }
   }),
 );
