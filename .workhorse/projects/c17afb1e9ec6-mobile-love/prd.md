@@ -173,7 +173,7 @@ Not a live issue — IRD reconfigured to remove the mandatory questions, and bot
 
 Items the IRD call surfaced that the internal working session didn't cover, or assumed the other way. Follow-ups to close.
 
-- **Mobile ↔ ET-device connectivity.** The reason IRD use desktop in the field and the real ceiling on mobile's field viability — a field mobile user can't hand a patient to the next station without waiting for internet, because mobile can't connect to the ET device. Never discussed internally. Likely behaviour change and probably beyond this cycle → needs an explicit Edwin/Megan decision rather than silent omission.
+- **Mobile ↔ Iti-device connectivity.** The reason IRD use desktop in the field and the real ceiling on mobile's field viability — a field mobile user can't hand a patient to the next station without waiting for internet, because mobile can't connect to the ET device. Never discussed internally. Likely behaviour change and probably beyond this cycle → needs an explicit Edwin/Megan decision rather than silent omission.
 - **GZIP compression.** Is the sync payload compressed? Bilal asked directly; answer owed back to IRD.
 - **Resume vs restart on dropped connection.** Does an interrupted sync continue from where it stopped or start over? Critical given unstable field internet; never came up. Answer owed back to IRD.
 - **Data loss after a successful sync.** IRD report forms disappearing *after* a sync completes (some, not all) — not explained by the APK-reinstall upgrade hypothesis. Chase as a distinct cause, alongside the desktop case (14–15 forms gone after a data download).
