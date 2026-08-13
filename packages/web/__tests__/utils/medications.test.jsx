@@ -101,40 +101,18 @@ describe('isDispenseModifiedByPharmacy', () => {
 });
 
 describe('resolvePresetLabelText', () => {
-  // 30 presets so the list exceeds the suggester's default page size (25) —
-  // regression test for presets beyond the first page silently no-oping.
-  const presetLabelsList = Array.from({ length: 30 }, (_, index) => ({
-    value: `preset-${index}`,
-    label: String(index).padStart(3, '0'),
-    name: `Preset label ${index}`,
-  }));
-
   it('returns the fallback text when no preset is selected', () => {
-    expect(resolvePresetLabelText(null, presetLabelsList, 'Default label')).toBe('Default label');
-    expect(resolvePresetLabelText(undefined, presetLabelsList, 'Default label')).toBe(
-      'Default label',
-    );
+    expect(resolvePresetLabelText(null, 'Preset name', 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText(undefined, 'Preset name', 'Default label')).toBe('Default label');
   });
 
-  it('resolves a preset within the first page', () => {
-    expect(resolvePresetLabelText('preset-0', presetLabelsList, 'Default label')).toBe(
-      'Preset label 0',
-    );
+  it('resolves to the selected preset name', () => {
+    expect(resolvePresetLabelText('preset-1', 'Preset name', 'Default label')).toBe('Preset name');
   });
 
-  it('resolves a preset beyond the first page (e.g. the 26th and later)', () => {
-    expect(resolvePresetLabelText('preset-25', presetLabelsList, 'Default label')).toBe(
-      'Preset label 25',
-    );
-    expect(resolvePresetLabelText('preset-29', presetLabelsList, 'Default label')).toBe(
-      'Preset label 29',
-    );
-  });
-
-  it('falls back to the fallback text when the preset is not found in the list', () => {
-    expect(resolvePresetLabelText('unknown-preset', presetLabelsList, 'Default label')).toBe(
-      'Default label',
-    );
+  it('falls back to the fallback text when the preset name is missing', () => {
+    expect(resolvePresetLabelText('preset-1', undefined, 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText('preset-1', null, 'Default label')).toBe('Default label');
   });
 });
 
