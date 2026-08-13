@@ -173,7 +173,6 @@ Not a live issue — IRD reconfigured to remove the mandatory questions, and bot
 
 Items the IRD call surfaced that the internal working session didn't cover, or assumed the other way. Follow-ups to close.
 
-- **Initial sync scope contradiction (resolve first).** The session parked initial sync as out of scope ("not something they've complained about"). The IRD call names it as the single most disruptive issue — 33–37 min on fast office internet, frequently not finishing, forcing a full restart, plus mid-sync crashes. Reconcile the "Out of scope" bullet: initial-sync reliability, crashes, and facility scoping are in scope; only deep re-optimisation of the already-tuned path stays out.
 - **Mobile ↔ ET-device connectivity.** The reason IRD use desktop in the field and the real ceiling on mobile's field viability — a field mobile user can't hand a patient to the next station without waiting for internet, because mobile can't connect to the ET device. Never discussed internally. Likely behaviour change and probably beyond this cycle → needs an explicit Edwin/Megan decision rather than silent omission.
 - **GZIP compression.** Is the sync payload compressed? Bilal asked directly; answer owed back to IRD.
 - **Resume vs restart on dropped connection.** Does an interrupted sync continue from where it stopped or start over? Critical given unstable field internet; never came up. Answer owed back to IRD.
