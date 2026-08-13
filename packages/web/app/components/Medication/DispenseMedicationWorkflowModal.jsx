@@ -841,7 +841,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!name && !patientIdentifier) return null;
       const handleViewPatient = () => {
         if (!patient.id) return;
-        navigateToPatient(patient.id, { tab: PATIENT_TABS.MEDICATION });
+        navigateToPatient(patient.id, { tab: PATIENT_TABS.SUMMARY });
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
