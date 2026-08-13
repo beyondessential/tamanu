@@ -58,11 +58,16 @@ A Workhorse card is part of a version when it **landed in that version's `releas
 Find the spec delta for the version with git:
 
 ```
-git fetch origin release/2.45 release/2.44
-git diff --name-status origin/release/2.44..origin/release/2.45 -- specs/
+git fetch origin release/2.45
+git fetch origin release/2.44
+git diff --name-status origin/release/2.44...origin/release/2.45 -- specs/
 ```
 
-Added (`A`) and modified (`M`) files under `specs/` are the work that landed in this version. Read each changed spec to understand the behaviour. Use `git log` on a spec path to recover the Linear card and PR that introduced it:
+**Use the three-dot form.** Two dots compares the two branch tips directly, but Tamanu keeps servicing older release branches after a newer one is cut, so a spec added on `release/2.44` post-cut would surface inverted — an addition reading as `D`, an edit as a reversed `M` — and the previous version's hotfix work would be attributed to this release. Three dots diffs from the merge base, giving exactly what landed on this line since it diverged.
+
+Fetch each branch in its own command: a single `git fetch` naming both refs fails atomically if one doesn't exist yet, which is precisely the uncut-branch case below.
+
+Added (`A`) and modified (`M`) files under `specs/` are the work that landed in this version. Read each changed spec to understand the behaviour. Use `git log` on a spec path to recover the Linear card and PR that introduced it (two dots is correct here — `git log` takes a real commit range):
 
 ```
 git log --oneline origin/release/2.44..origin/release/2.45 -- specs/administration/settings/secret-encryption.md
@@ -77,7 +82,7 @@ Notes on refs:
   ```
 
   Confirm the line shipped by checking it has tags (`git tag --list 'v2.44.*'`). Compare against that branch so the delta is exactly this version's work, not an accumulation. State which refs you used.
-- If `release/2.45` **hasn't been cut yet**, the work is still on `main` — compare `origin/main` against the previous release branch instead, and say so.
+- If `release/2.45` **hasn't been cut yet**, the work is still on `main` — use `origin/release/2.44...origin/main` instead, and say so. This is an upper-bound-free view: `main` may already carry work destined for a later version, so check each spec's introducing commit and drop anything that isn't part of the version being written up.
 - `git fetch` does not create local branches — reference fetched branches as `origin/release/2.45`.
 
 ## Reconciling the two sources

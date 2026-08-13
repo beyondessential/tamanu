@@ -11,6 +11,8 @@ A trial run against **v2.61** was done during development; its output was inspec
 - [x] The skill diffs the version's `release/2.xx` branch against the preceding release line and reads the `specs/` that landed there.
 - [ ] When the `release/2.xx` branch isn't cut yet, the skill falls back to `origin/main` and states which refs it used.
 - [ ] The preceding release line is derived from the actual branch list, not by assuming `X.(YY-1)`.
+- [ ] The spec delta uses the three-dot form, so a spec changed on the older release branch after the newer one was cut is not attributed to this version.
+- [ ] When `main` is the upper ref, specs belonging to a later version are dropped rather than written up.
 - [ ] Issues that are cancelled, or still in progress, are excluded even when they carry the version label.
 - [ ] Linear-only work is confirmed present in the release branch history before being written up.
 - [x] Internal / developer-only work (E2E, tooling, deps, internal readmes) is excluded from the notes.
