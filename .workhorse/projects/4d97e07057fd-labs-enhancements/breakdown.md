@@ -1,10 +1,10 @@
 # Labs Enhancements card breakdown
 
-Cards derived from the 13 requirements in the PRD. The first nine form a dependency chain that rewrites the lab request workflow (PRD requirements 1, 2, 6 and 12) and should be spawned roughly in order. The rest are independent and can run in parallel, ordered by the PRD's priority.
+Cards derived from the 13 requirements in the PRD.
 
 ## One lab request per category
 
-Change the fan-out rule so a submission produces one lab request per lab test category, each holding multiple panels and individual tests, rather than one request per panel. Covers the model change away from a single `labTestPanelRequestId`, the migration, and the SENAITE sample mapping so a merged request maps to a single sample. Backend only, with no new UI. Foundation for the rest of the workflow cards. Blocked on confirming with Rohan whether SENAITE can return the same result to two panels that share a test.
+Change the fan-out rule so a submission produces one lab request per lab test category, each holding multiple panels and individual tests, rather than one request per panel. Covers the model change away from a single `labTestPanelRequestId`, the migration, and the SENAITE sample mapping so a merged request maps to a single sample. Backend only, with no new UI. Blocked on confirming with Rohan whether SENAITE can return the same result to two panels that share a test.
 
 ## Combined test and panel selector
 
@@ -12,7 +12,7 @@ Replace the up-front individual/panel radio with a single list combining tests a
 
 ## Sample details step grouped by category
 
-Rework the sample details step so samples are grouped by category, each listing the tests and panels it contains alphabetically. The same modal is reused when recording a sample from the lab request view, keeping the existing Record sample details header there. Depends on the one-request-per-category card.
+Rework the sample details step so samples are grouped by category, each listing the tests and panels it contains alphabetically. The same modal is reused when recording a sample from the lab request view, keeping the existing Record sample details header there.
 
 ## Finalise modal with category grouping and auto-selected samples
 
@@ -24,7 +24,7 @@ Update the lab request view table to display results for both individual tests a
 
 ## Results entry modal matching the lab request view
 
-Bring the results entry modal onto the same layout as the lab request view results table. A separate component from the lab request view table, so this does not come for free with the previous card.
+Bring the results entry modal onto the same layout as the lab request view results table. The modal is a separate component from the lab request view table, so the layout work is not shared between them.
 
 ## Category column and test tooltip on lab request listings
 
