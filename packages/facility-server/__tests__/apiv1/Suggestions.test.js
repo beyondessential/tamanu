@@ -542,6 +542,35 @@ describe('Suggestions', () => {
         'W17',
       ]);
     });
+
+    it('should return every preset label when noLimit is set, bypassing the default page size', async () => {
+      await models.ReferenceData.destroy({
+        where: { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL },
+        force: true,
+      });
+
+      const presetCount = 30;
+      for (let index = 0; index < presetCount; index++) {
+        const code = String(index).padStart(3, '0');
+        await models.ReferenceData.create({
+          id: `medicationPresetLabel-${code}`,
+          type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
+          code,
+          name: `Preset ${code}`,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      }
+
+      const cappedResult = await userApp.get('/api/suggestions/medicationPresetLabel');
+      expect(cappedResult).toHaveSucceeded();
+      expect(cappedResult.body.length).toEqual(25);
+
+      const uncappedResult = await userApp
+        .get('/api/suggestions/medicationPresetLabel')
+        .query({ noLimit: true });
+      expect(uncappedResult).toHaveSucceeded();
+      expect(uncappedResult.body.length).toEqual(presetCount);
+    });
   });
 
   describe('General functionality (via diagnoses)', () => {
