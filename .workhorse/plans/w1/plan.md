@@ -271,7 +271,8 @@ Server-side behaviour is specified in `specs/platform/request-idempotency.md`
 - [x] Mount on facility `createApiv1` after `attachAuditUserToDbSession`, skipping
   `/refresh`, `/setFacility`, `/admin/*`, `/sync`, `/syncHealth`, `/patientFacility`,
   `/ai` (+ the two invoice endpoints below).
-- [x] Retention cleanup `CleanupIdempotencyKeys` `ScheduledTask` + config default.
+- [x] Retention cleanup `CleanupIdempotencyKeys` `ScheduledTask`, scheduled through the
+  facility settings schema (`schedules.cleanupIdempotencyKeys`) like the other tasks.
 - [ ] Regenerate dbt source models (`database/model/`) with `response_body` masking
   — deferred to handoff (needs a live DB + `npm run dbt-generate-model`).
 - [x] **Design A audit** (see result below).

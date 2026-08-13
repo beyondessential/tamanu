@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -13,7 +12,7 @@ export class CleanupIdempotencyKeys extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, jitterTime, enabled } = config.schedules.cleanupIdempotencyKeys;
+    const { schedule, jitterTime, enabled } = context.schedules.cleanupIdempotencyKeys;
     super(schedule, log, jitterTime, enabled);
     this.models = context.models;
   }

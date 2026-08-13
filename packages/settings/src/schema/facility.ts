@@ -240,6 +240,7 @@ export const facilitySettings = {
           schedule: '0 * * * *',
           enabled: false,
         }),
+        cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
       },
     },
     sync: {
