@@ -9,7 +9,7 @@ first-time coverage rather than regression protection.
 - [x] Saving a draft stores it and reads back unchanged (verifies spec: DDRAFT)
 - [x] Saving twice replaces the draft rather than accumulating one per save
 - [x] Save & exit closes the modal and leaves the encounter open, without navigating to the patient view
-- [ ] Reopening the form restores discharge date, discharging clinician, and disposition
+- [ ] Reopening the form restores discharge date, discharging clinician, and disposition through the UI
 - [x] Reopening restores each medication's quantity, repeats, and send-to-pharmacy (verifies spec: DDRAFT)
 - [x] A prescription dropped from the form does not survive the next save
 - [ ] Reopening restores the pharmacy order's ordering clinician
@@ -17,6 +17,9 @@ first-time coverage rather than regression protection.
 - [x] Saving a draft on an already-discharged encounter is refused
 - [x] A number field the clinician has emptied saves without error
 - [x] An id that does not resolve is reported as a client error, not a server fault
+- [x] A medication line with no prescription is rejected as a client error
+- [x] A cleared discharging clinician stays cleared rather than being refilled
+- [x] A non-numeric quantity or repeats does not fail the save
 - [x] A user without permission to write discharges cannot save a draft
 - [x] A draft request for an encounter that does not exist 404s
 
@@ -25,9 +28,10 @@ first-time coverage rather than regression protection.
 - [x] Without a draft the note seeds from the encounter's discharge planning notes, oldest first (verifies spec: DDRAFT)
 - [x] Resuming restores the clinician's own text rather than reseeding from the notes (verifies spec: DDRAFT)
 - [x] A planning note added after the draft was saved is appended on resume (verifies spec: DDRAFT)
+- [x] The same, driven through the form rather than the merge helper alone
 - [x] A planning note edited after being absorbed is not appended a second time (verifies spec: DDRAFT)
 - [x] A new planning note still appears when the clinician had cleared the note field
-- [ ] Finalising after a resume writes what is on screen to the discharge record
+- [x] Finalising after a resume writes what is on screen to the discharge record
 
 ## Whose draft it is
 
@@ -51,7 +55,7 @@ first-time coverage rather than regression protection.
 ## Clearing
 
 - [x] Finalising a discharge clears every draft on the encounter, including other clinicians' (verifies spec: DDRAFT)
-- [ ] Deleting an encounter takes its drafts with it
+- [x] Deleting an encounter takes its drafts with it
 
 ## Fields added since drafts last worked
 
@@ -62,8 +66,14 @@ draft.
 - [ ] The stock column still resolves correctly on a resumed draft
 - [ ] The already-ordered confirmation still fires correctly when finalising a resumed draft
 
+## When the form cannot load what it needs
+
+- [ ] Finalising is blocked when the discharge planning notes could not be loaded
+- [ ] Save & exit is withheld in that state, so a draft cannot record an empty seed set
+- [ ] The clinician is told why finalising is unavailable
+
 ## Operational
 
 - [ ] The migration applies to a database with existing encounters carrying legacy draft blobs
 - [ ] Drafts do not appear in sync payloads
-- [ ] Two saves racing from the same clinician do not error
+- [x] Two saves racing from the same clinician do not error

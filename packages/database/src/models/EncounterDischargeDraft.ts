@@ -44,9 +44,10 @@ export class EncounterDischargeDraft extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
-        // Working state rather than clinical record, so clearing a draft removes it outright.
-        // The soft-delete rule covers the discharge itself, which is written on finalisation and
-        // never touched by this table. Changes are still captured in the change log.
+        // Working state rather than clinical record, so clearing a draft removes it outright and
+        // leaves nothing behind: these tables are in NON_LOGGED_TABLES too, so there is no
+        // change-log trail either. The soft-delete and audit rules cover the discharge itself,
+        // which is written on finalisation and never touched by this table.
         paranoid: false,
       },
     );

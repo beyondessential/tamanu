@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { ForeignKeyConstraintError, Op, literal } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
@@ -52,6 +52,11 @@ import {
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
+import {
+  discardDischargeDraft,
+  getDischargeDraft,
+  saveDischargeDraft,
+} from './encounterDischargeDraft';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -302,161 +307,9 @@ encounter.put(
   }),
 );
 
-const serialiseDischargeDraft = draft =>
-  draft && {
-    endDate: draft.endDate,
-    dischargerId: draft.dischargerId,
-    dispositionId: draft.dispositionId,
-    note: draft.note,
-    seededNoteIds: draft.seededNoteIds ?? [],
-    orderingClinicianId: draft.orderingClinicianId,
-    medications: (draft.medications ?? []).map(medication => ({
-      prescriptionId: medication.prescriptionId,
-      quantity: medication.quantity,
-      repeats: medication.repeats,
-      sendToPharmacy: medication.sendToPharmacy,
-    })),
-  };
-
-// A draft belongs to the clinician who saved it and is only ever read back by them, so every
-// handler below scopes on the requesting user rather than taking an owner from the request.
-const findOwnDischargeDraft = (models, encounterId, userId) =>
-  models.EncounterDischargeDraft.findOne({
-    where: { encounterId, userId },
-    include: [{ model: models.EncounterDischargeDraftMedication, as: 'medications' }],
-  });
-
-// Picked field by field rather than spreading the body: the encounter and the owning user are
-// what scope a draft, so letting a request set them would let one clinician write into another's.
-const pickDischargeDraftValues = body => ({
-  endDate: body.endDate ?? null,
-  dischargerId: body.dischargerId ?? null,
-  dispositionId: body.dispositionId ?? null,
-  note: body.note ?? null,
-  seededNoteIds: Array.isArray(body.seededNoteIds) ? body.seededNoteIds : [],
-  orderingClinicianId: body.orderingClinicianId ?? null,
-});
-
-// A draft is a part-finished form, so its number fields arrive empty as often as not. An emptied
-// input sends '' rather than null, which an integer column will not take.
-const draftNumberOrNull = value => (value === '' || value == null ? null : Number(value));
-
-const pickDischargeDraftMedication = medication => ({
-  prescriptionId: medication.prescriptionId,
-  quantity: draftNumberOrNull(medication.quantity),
-  repeats: draftNumberOrNull(medication.repeats),
-  sendToPharmacy: Boolean(medication.sendToPharmacy),
-});
-
-/**
- * Reading and discarding a draft need only the encounter: a draft is the requesting clinician's
- * own working state, and the discharge form opens on write Encounter, so requiring write Discharge
- * to discard would leave a clinician who can open the form but not save a draft unable to get out
- * of one they had edited.
- */
-const assertCanUseDischargeDraft = async req => {
-  const { models, params } = req;
-  req.checkPermission('read', 'Encounter');
-  const encounterObject = await models.Encounter.findByPk(params.id);
-  if (!encounterObject) throw new NotFoundError();
-  return encounterObject;
-};
-
-/** Saving, unlike reading and discarding, is a write against the encounter's discharge. */
-const assertCanSaveDischargeDraft = (req, encounterObject) => {
-  req.checkPermission('write', 'Discharge');
-  if (encounterObject.endDate) {
-    throw new InvalidOperationError('Cannot save a discharge draft on a discharged encounter.');
-  }
-};
-
-/**
- * The draft's four id columns are foreign keys, and a draft is saved without validation because
- * the form it comes from is part-finished. An id that does not resolve is a bad request from the
- * client rather than a server fault, so the constraint violation is reported as one.
- */
-const saveWithReadableFkErrors = async save => {
-  try {
-    return await save();
-  } catch (error) {
-    if (error instanceof ForeignKeyConstraintError) {
-      throw new InvalidParameterError(
-        'Discharge draft refers to a record that does not exist. Check the clinician, disposition and prescription ids.',
-      );
-    }
-    throw error;
-  }
-};
-
-encounter.get(
-  '/:id/dischargeDraft',
-  asyncHandler(async (req, res) => {
-    const { models, params, user } = req;
-    await assertCanUseDischargeDraft(req);
-
-    const draft = await findOwnDischargeDraft(models, params.id, user.id);
-    res.send({ draft: serialiseDischargeDraft(draft) ?? null });
-  }),
-);
-
-encounter.put(
-  '/:id/dischargeDraft',
-  asyncHandler(async (req, res) => {
-    const { db, models, params, user, body } = req;
-    const encounterObject = await assertCanUseDischargeDraft(req);
-    assertCanSaveDischargeDraft(req, encounterObject);
-
-    const draftValues = pickDischargeDraftValues(body);
-    const medications = Array.isArray(body.medications) ? body.medications : [];
-
-    await saveWithReadableFkErrors(() =>
-      db.transaction(async () => {
-        const existing = await models.EncounterDischargeDraft.findOne({
-          where: { encounterId: params.id, userId: user.id },
-        });
-
-        const draft = existing
-          ? await existing.update(draftValues)
-          : await models.EncounterDischargeDraft.create({
-              ...draftValues,
-              encounterId: params.id,
-              userId: user.id,
-            });
-
-        // The lines are replaced wholesale: the draft is whatever was on screen when the
-        // clinician left, so a prescription missing from the payload is one they no longer had.
-        await models.EncounterDischargeDraftMedication.destroy({
-          where: { dischargeDraftId: draft.id },
-          force: true,
-        });
-        for (const medication of medications) {
-          await models.EncounterDischargeDraftMedication.create({
-            ...pickDischargeDraftMedication(medication),
-            dischargeDraftId: draft.id,
-          });
-        }
-      }),
-    );
-
-    const saved = await findOwnDischargeDraft(models, params.id, user.id);
-    res.send({ draft: serialiseDischargeDraft(saved) });
-  }),
-);
-
-encounter.delete(
-  '/:id/dischargeDraft',
-  asyncHandler(async (req, res) => {
-    const { models, params, user } = req;
-    await assertCanUseDischargeDraft(req);
-
-    await models.EncounterDischargeDraft.destroy({
-      where: { encounterId: params.id, userId: user.id },
-      force: true,
-    });
-
-    res.send({ draft: null });
-  }),
-);
+encounter.get('/:id/dischargeDraft', getDischargeDraft);
+encounter.put('/:id/dischargeDraft', saveDischargeDraft);
+encounter.delete('/:id/dischargeDraft', discardDischargeDraft);
 
 encounter.post(
   '/:id/notes',

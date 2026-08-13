@@ -162,6 +162,14 @@ export class Encounter extends Model {
               transaction: opts.transaction,
               individualHooks: true,
             });
+
+            // Deleting an encounter soft-deletes it, so the drafts' foreign key never cascades.
+            // They are working state for an encounter that no longer exists, so clear them here.
+            await models.EncounterDischargeDraft.destroy({
+              where: { encounterId: encounter.id },
+              transaction: opts.transaction,
+              force: true,
+            });
           },
           afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {

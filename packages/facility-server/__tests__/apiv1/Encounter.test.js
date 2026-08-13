@@ -439,6 +439,59 @@ describe('Encounter', () => {
         .put(`/api/encounter/${encounter.id}/dischargeDraft`)
         .send({ dischargerId: 'not-a-real-user' });
       expect(badClinician).toHaveRequestError();
+
+      const missingPrescription = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ medications: [{ quantity: 1, sendToPharmacy: true }] });
+      expect(missingPrescription).toHaveRequestError();
+    });
+
+    it('survives two saves racing from the same clinician', async () => {
+      const encounter = await createOpenEncounter();
+
+      // A double-clicked Save & exit: both requests miss any prior draft, and the pair is unique
+      // per encounter and clinician, so a plain find-then-create would fail the second insert.
+      const results = await Promise.all([
+        app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'first' }),
+        app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'second' }),
+      ]);
+      results.forEach(result => expect(result).toHaveSucceeded());
+
+      const drafts = await models.EncounterDischargeDraft.findAll({
+        where: { encounterId: encounter.id },
+      });
+      expect(drafts).toHaveLength(1);
+    });
+
+    it('leaves a cleared clinician cleared rather than refilling it', async () => {
+      const encounter = await createOpenEncounter();
+      await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ dischargerId: user.id, note: 'first pass' });
+
+      // An emptied autocomplete sends '', which is not a key the column can hold.
+      const cleared = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ dischargerId: '', note: 'second thoughts' });
+      expect(cleared).toHaveSucceeded();
+
+      const result = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result.body.draft.dischargerId).toBe(null);
+    });
+
+    it('clears drafts when the encounter itself is deleted', async () => {
+      const encounter = await createOpenEncounter();
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'in progress' });
+
+      const deleted = await app.delete(`/api/encounter/${encounter.id}`);
+      expect(deleted).toHaveSucceeded();
+
+      // Deleting an encounter soft-deletes it, so the foreign key cascade never runs and the
+      // draft would otherwise outlive the encounter it belongs to.
+      const drafts = await models.EncounterDischargeDraft.findAll({
+        where: { encounterId: encounter.id },
+      });
+      expect(drafts).toHaveLength(0);
     });
 
     it('replaces the draft rather than accumulating one per save', async () => {
@@ -606,6 +659,16 @@ describe('Encounter', () => {
         const noPermsApp = await baseApp.asNewRole([]);
 
         const result = await noPermsApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(result).toBeForbidden();
+      });
+
+      it('rejects a save from a user who cannot read encounters', async () => {
+        const encounter = await createOpenEncounter();
+        const noPermsApp = await baseApp.asNewRole([]);
+
+        const result = await noPermsApp
+          .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+          .send({ note: 'not allowed' });
         expect(result).toBeForbidden();
       });
 

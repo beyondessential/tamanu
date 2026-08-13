@@ -1,9 +1,60 @@
+import { APIRequestContext } from '@playwright/test';
+
 import { test, expect } from '@fixtures/baseFixture';
 import {
   createEncounterPrescriptionViaApi,
   createHospitalAdmissionEncounterViaAPI,
   getDrugSuggestions,
+  getUser,
 } from '@utils/apiHelpers';
+import { constructFacilityUrl } from '@utils/navigation';
+
+/**
+ * The clinician's saved draft, read straight from the API.
+ *
+ * The "Draft" tag is not a proxy for this: a discharged encounter renders the discharged action
+ * row and disables the draft query, so the tag is absent whether or not the draft was cleared.
+ */
+const getDischargeDraft = async (api: APIRequestContext, encounterId: string) => {
+  const response = await api.get(
+    constructFacilityUrl(`/api/encounter/${encounterId}/dischargeDraft`),
+  );
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch discharge draft: ${response.status()}`);
+  }
+  const { draft } = await response.json();
+  return draft;
+};
+
+/** A discharge planning note on the encounter, the kind the treatment plan field seeds from. */
+const createDischargePlanningNote = async (
+  api: APIRequestContext,
+  encounterId: string,
+  authorId: string,
+  content: string,
+) => {
+  const response = await api.post(constructFacilityUrl('/api/notes'), {
+    data: {
+      recordId: encounterId,
+      recordType: 'Encounter',
+      noteTypeId: 'notetype-discharge',
+      authorId,
+      date: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      content,
+    },
+  });
+  if (!response.ok()) {
+    throw new Error(`Failed to create planning note: ${response.status()}`);
+  }
+};
+
+const getDischarge = async (api: APIRequestContext, encounterId: string) => {
+  const response = await api.get(constructFacilityUrl(`/api/encounter/${encounterId}/discharge`));
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch discharge: ${response.status()}`);
+  }
+  return response.json();
+};
 
 // Drafts shipped in 2.26 and were then unreachable for over a year without anything noticing,
 // because no test drove the form from saving through to resuming. These cover that loop.
@@ -79,8 +130,53 @@ test.describe('Discharge draft', () => {
     await dischargeModal.waitForModalToLoad();
     await dischargeModal.finaliseDischarge();
 
-    // The discharge has happened, so the encounter offers its summary and no draft remains.
-    await expect(patientDetailsPage.dischargeDraftTag).toBeHidden();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
+
+    // What was resumed is what got discharged.
+    const discharge = await getDischarge(api, encounter.id);
+    expect(discharge.note).toEqual('Discharged home, stable');
+
+    // Asserted through the API rather than the tag, which is absent on a discharged encounter
+    // whether or not the draft was actually cleared.
+    expect(await getDischargeDraft(api, encounter.id)).toBeNull();
+  });
+
+  test('A planning note written after the draft is appended, not duplicated', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const user = await getUser(api);
+    await createDischargePlanningNote(api, encounter.id, user.id, 'Planned before the draft');
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    // The field seeds from the planning notes recorded during the admission.
+    await expect(dischargeModal.dischargeNoteTextarea).toHaveValue(/Planned before the draft/);
+
+    await dischargeModal.dischargeNoteTextarea.fill('My own wording');
+    await dischargeModal.saveAndExit();
+
+    // A colleague adds a planning note while the discharge is part-finished.
+    await createDischargePlanningNote(api, encounter.id, user.id, 'Added by a colleague');
+
+    await patientDetailsPage.prepareDischargeButton.click();
+    await dischargeModal.waitForModalToLoad();
+
+    // The clinician's own wording survives, the new note is appended, and the note already
+    // folded in before the draft was saved does not come back a second time.
+    const resumed = await dischargeModal.dischargeNoteTextarea.inputValue();
+    expect(resumed).toContain('My own wording');
+    expect(resumed).toContain('Added by a colleague');
+    expect(resumed).not.toContain('Planned before the draft');
   });
 
   test('Returning from the unsaved-changes screen keeps the form usable', async ({
@@ -140,7 +236,7 @@ test.describe('Discharge draft', () => {
     await expect(patientDetailsPage.dischargeDraftTag).toBeHidden();
   });
 
-  test('An edited discharge can be left without saving a draft', async ({
+  test('Discarding clears a draft that had already been saved', async ({
     api,
     newPatient,
     patientDetailsPage,
@@ -159,11 +255,18 @@ test.describe('Discharge draft', () => {
 
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
-    await dischargeModal.dischargeNoteTextarea.fill('Typed then thought better of it');
+    await dischargeModal.dischargeNoteTextarea.fill('Saved, then thought better of it');
+    await dischargeModal.saveAndExit();
+    await expect(patientDetailsPage.dischargeDraftTag).toBeVisible();
 
+    // Discarding has to clear the saved draft, not just close the form on an unsaved edit.
+    await patientDetailsPage.prepareDischargeButton.click();
+    await dischargeModal.waitForModalToLoad();
+    await dischargeModal.dischargeNoteTextarea.fill('Second thoughts');
     await dischargeModal.cancelAndDiscardChanges();
 
     await expect(patientDetailsPage.prepareDischargeButton).toBeVisible();
     await expect(patientDetailsPage.dischargeDraftTag).toBeHidden();
+    expect(await getDischargeDraft(api, encounter.id)).toBeNull();
   });
 });

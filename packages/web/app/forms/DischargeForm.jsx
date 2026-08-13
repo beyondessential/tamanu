@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 
 import { FORM_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import {
@@ -20,10 +21,8 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
-import {
-  ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY,
-  useEncounterDischargeDraftQuery,
-} from '../api/queries/useEncounterDischargeDraftQuery';
+import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
+import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
@@ -167,15 +166,18 @@ const getDischargeInitialValues = ({
     return draft.endDate;
   };
 
+  // Whether a draft exists decides these, not whether its field is set: a clinician who cleared
+  // the discharging clinician before saving gets it back cleared, the same way the medication
+  // rows keep an emptied quantity empty. Only a form with no draft falls back to the live default.
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: draft?.dischargerId ?? currentUser?.id,
-      dispositionId: draft?.dispositionId,
+      dischargerId: draft ? (draft.dischargerId ?? null) : currentUser?.id,
+      dispositionId: draft?.dispositionId ?? null,
       note: buildDischargeNote({ draft, dischargeNotes }),
     },
     pharmacyOrder: {
-      orderingClinicianId: draft?.orderingClinicianId ?? currentUser?.id,
+      orderingClinicianId: draft ? (draft.orderingClinicianId ?? null) : currentUser?.id,
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
@@ -223,6 +225,7 @@ export const DischargeForm = ({
   const requiredInlineMessage = getTranslation('validation.required.inline', '*Required');
 
   const [dischargeNotes, setDischargeNotes] = useState(null);
+  const [dischargeNotesFailed, setDischargeNotesFailed] = useState(false);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
   const [enableReinitialize, setEnableReinitialize] = useState(true);
@@ -269,9 +272,9 @@ export const DischargeForm = ({
     medication => medication.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
   );
 
-  const invalidateDraft = useCallback(
-    () => queryClient.invalidateQueries([ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounter.id]),
-    [queryClient, encounter.id],
+  const { saveDraft, discardDraft, forgetDraft } = useEncounterDischargeDraftMutation(
+    encounter.id,
+    { onSuccess: onCancel },
   );
 
   const handleSubmit = useCallback(
@@ -281,39 +284,56 @@ export const DischargeForm = ({
       const submitData = isPharmacyOrderEnabled ? data : { ...data, pharmacyOrder: undefined };
       await onSubmit(submitData);
       // Discharging clears every draft on the encounter, so the cached copy is gone too.
-      await invalidateDraft();
+      forgetDraft();
     },
-    [onSubmit, isPharmacyOrderEnabled, invalidateDraft],
+    [onSubmit, isPharmacyOrderEnabled, forgetDraft],
   );
 
+  // A failed save is the one failure this feature cannot swallow: the whole point is not losing
+  // the clinician's text, so the modal stays open and says so rather than closing on nothing.
   const handleSaveDraft = useCallback(
     async values => {
-      await api.put(
-        `encounter/${encounter.id}/dischargeDraft`,
-        toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }),
-      );
-      await invalidateDraft();
-      onCancel();
+      try {
+        await saveDraft(toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }));
+      } catch (error) {
+        toast.error(
+          <TranslatedText
+            stringId="discharge.draft.saveFailed.message"
+            fallback="Could not save the discharge draft. Your changes are still here, try again."
+          />,
+        );
+      }
     },
-    [api, encounter.id, dischargeNotes, isPharmacyOrderEnabled, invalidateDraft, onCancel],
+    [saveDraft, dischargeNotes, isPharmacyOrderEnabled],
   );
 
   const handleDiscardDraft = useCallback(async () => {
-    await api.delete(`encounter/${encounter.id}/dischargeDraft`);
-    await invalidateDraft();
-    onCancel();
-  }, [api, encounter.id, invalidateDraft, onCancel]);
+    try {
+      await discardDraft();
+    } catch (error) {
+      toast.error(
+        <TranslatedText
+          stringId="discharge.draft.discardFailed.message"
+          fallback="Could not discard the discharge draft. Try again."
+        />,
+      );
+    }
+  }, [discardDraft]);
 
   useEffect(() => {
     (async () => {
       try {
         const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
         setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+        setDischargeNotesFailed(false);
       } catch (e) {
         // Settling on an empty list keeps the form usable: leaving this null would hold
         // reinitialisation open, and initial values carry a timestamp that changes every second,
-        // so Formik would wipe the clinician's typing on every render.
+        // so Formik would wipe the clinician's typing on every render. The failure is tracked
+        // separately because an empty list here would otherwise be indistinguishable from an
+        // admission with no planning notes, and discharging on that assumption would drop them.
         setDischargeNotes([]);
+        setDischargeNotesFailed(true);
       }
     })();
   }, [api, encounter.id]);
@@ -395,6 +415,7 @@ export const DischargeForm = ({
             currentDiagnoses={currentDiagnoses}
             onSaveDraft={handleSaveDraft}
             setShowWarningScreen={setShowWarningScreen}
+            dischargeNotesFailed={dischargeNotesFailed}
             data-testid="dischargeformscreen-z2zo"
           />
         )}
