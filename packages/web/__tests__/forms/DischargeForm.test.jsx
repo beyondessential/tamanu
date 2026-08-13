@@ -2,27 +2,39 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it, expect, vi } from 'vitest';
+import { RequiredOrnament } from '@tamanu/ui-components';
 
-import { MEDICATION_COLUMNS } from '../../app/forms/DischargeForm';
-
-// Regression test for the "Other ongoing medication" discharge table call site in
-// packages/web/app/forms/DischargeForm.jsx, which omitted the canWriteSensitiveMedication
-// argument to MEDICATION_COLUMNS(...). Users with the SensitiveMedication write permission
-// still had sensitive-drug quantity/repeats inputs disabled and the Discontinue action hidden
-// in that table only, because canWriteSensitiveMedication resolved to undefined there.
+// Registers yup's translatedLabel method, which the medication schema uses.
+import '../../app/utils/errorMessages';
+import {
+  getMedicationsValidationSchema,
+  MEDICATION_COLUMNS,
+} from '../../app/forms/DischargeMedicationColumns';
 
 const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = () => '';
 const handleDiscontinueMedication = vi.fn();
 
-const buildColumns = canWriteSensitiveMedication =>
-  MEDICATION_COLUMNS(
+const buildColumns = overrides =>
+  MEDICATION_COLUMNS({
     getTranslation,
     getEnumTranslation,
     handleDiscontinueMedication,
-    true, // canUpdateMedication
-    canWriteSensitiveMedication,
-  );
+    canUpdateMedication: true,
+    ...overrides,
+  });
+
+const columnKeys = columns => columns.map(column => column.key);
+
+const accessorFor = (columns, key) => columns.find(column => column.key === key).accessor;
+
+/** Every `stringId` in an element tree, so a cell's copy can be asserted without a render. */
+const collectStringIds = node => {
+  if (Array.isArray(node)) return node.flatMap(collectStringIds);
+  if (!node || typeof node !== 'object' || !node.props) return [];
+  const { stringId, children } = node.props;
+  return [...(stringId ? [stringId] : []), ...collectStringIds(children)];
+};
 
 const sensitiveMedicationRow = {
   id: 'medication-1',
@@ -31,62 +43,205 @@ const sensitiveMedicationRow = {
   medication: { referenceDrug: { isSensitive: true } },
 };
 
-describe('MEDICATION_COLUMNS', () => {
+// Regression guard for the "Other ongoing medication" discharge table call site, which once omitted
+// the canWriteSensitiveMedication argument. Users with the SensitiveMedication write permission
+// still had sensitive-drug quantity/repeats inputs disabled and the Discontinue action hidden in
+// that table only, because canWriteSensitiveMedication resolved to undefined there.
+describe('MEDICATION_COLUMNS sensitive medication permissions', () => {
   it('enables sensitive medication inputs and shows the discontinue action when permitted', () => {
-    const columns = buildColumns(true);
+    const columns = buildColumns({ canWriteSensitiveMedication: true });
 
-    const quantityField = columns.find(column => column.key === 'quantity').accessor(
-      sensitiveMedicationRow,
-    );
-    const repeatsField = columns.find(column => column.key === 'repeats').accessor(
-      sensitiveMedicationRow,
-    );
-    const discontinuedCell = columns.find(column => column.key === 'Discontinued').accessor(
-      sensitiveMedicationRow,
-    );
-
-    expect(quantityField.props.disabled).toBe(false);
-    expect(repeatsField.props.disabled).toBe(false);
-    expect(discontinuedCell.type).not.toBe('div');
+    expect(accessorFor(columns, 'quantity')(sensitiveMedicationRow).props.disabled).toBe(false);
+    expect(accessorFor(columns, 'repeats')(sensitiveMedicationRow).props.disabled).toBe(false);
+    expect(accessorFor(columns, 'Discontinued')(sensitiveMedicationRow).type).not.toBe('div');
   });
 
   it.each([false, undefined])(
     'disables sensitive medication inputs and hides the discontinue action when canWriteSensitiveMedication is %s',
     canWriteSensitiveMedication => {
-      const columns = buildColumns(canWriteSensitiveMedication);
+      const columns = buildColumns({ canWriteSensitiveMedication });
 
-      const quantityField = columns.find(column => column.key === 'quantity').accessor(
-        sensitiveMedicationRow,
-      );
-      const repeatsField = columns.find(column => column.key === 'repeats').accessor(
-        sensitiveMedicationRow,
-      );
-      const discontinuedCell = columns.find(column => column.key === 'Discontinued').accessor(
-        sensitiveMedicationRow,
-      );
-
-      expect(quantityField.props.disabled).toBe(true);
-      expect(repeatsField.props.disabled).toBe(true);
-      expect(discontinuedCell.type).toBe('div');
+      expect(accessorFor(columns, 'quantity')(sensitiveMedicationRow).props.disabled).toBe(true);
+      expect(accessorFor(columns, 'repeats')(sensitiveMedicationRow).props.disabled).toBe(true);
+      expect(accessorFor(columns, 'Discontinued')(sensitiveMedicationRow).type).toBe('div');
     },
   );
 });
 
-describe('DischargeForm ongoing medication table call site', () => {
-  it('passes canWriteSensitiveMedication to the "Other ongoing medication" MEDICATION_COLUMNS call', () => {
+describe('DischargeForm medication table call sites', () => {
+  it('builds both medication tables from the same column options', () => {
     const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(
       path.join(currentDirectory, '../../app/forms/DischargeForm.jsx'),
       'utf8',
     );
 
-    const ongoingMedicationHeadingIndex = source.indexOf('discharge.otherOngoingMedication');
-    expect(ongoingMedicationHeadingIndex).toBeGreaterThan(-1);
+    const callSiteArguments = [...source.matchAll(/MEDICATION_COLUMNS\(([^)]*)\)/g)].map(match =>
+      match[1].trim(),
+    );
 
-    const sourceAfterHeading = source.slice(ongoingMedicationHeadingIndex);
-    const callSiteMatch = sourceAfterHeading.match(/MEDICATION_COLUMNS\(([\s\S]*?)\)/);
-    expect(callSiteMatch).not.toBeNull();
+    expect(callSiteArguments).toHaveLength(2);
+    expect(new Set(callSiteArguments).size).toBe(1);
+  });
+});
 
-    expect(callSiteMatch[1]).toContain('canWriteSensitiveMedication');
+describe('MEDICATION_COLUMNS pharmacy ordering', () => {
+  it('omits the pharmacy columns when pharmacy orders are not enabled', () => {
+    const keys = columnKeys(buildColumns({ isPharmacyOrderEnabled: false, showStockColumn: true }));
+
+    expect(keys).not.toContain('sendToPharmacy');
+    expect(keys).not.toContain('lastSent');
+    expect(keys).not.toContain('stock');
+  });
+
+  it('shows send to pharmacy and last sent when pharmacy orders are enabled', () => {
+    const keys = columnKeys(buildColumns({ isPharmacyOrderEnabled: true }));
+
+    expect(keys).toContain('sendToPharmacy');
+    expect(keys).toContain('lastSent');
+  });
+
+  it('omits the stock column when nothing on the discharge has a stock status', () => {
+    const keys = columnKeys(buildColumns({ isPharmacyOrderEnabled: true, showStockColumn: false }));
+
+    expect(keys).not.toContain('stock');
+  });
+
+  it('shows the stock column when a medication has a stock status', () => {
+    const keys = columnKeys(buildColumns({ isPharmacyOrderEnabled: true, showStockColumn: true }));
+
+    expect(keys).toContain('stock');
+  });
+
+  it('orders the pharmacy columns after Ongoing and before Discontinue', () => {
+    const keys = columnKeys(buildColumns({ isPharmacyOrderEnabled: true, showStockColumn: true }));
+
+    expect(keys).toEqual([
+      'medication',
+      'quantity',
+      'repeats',
+      'Ongoing',
+      'sendToPharmacy',
+      'lastSent',
+      'stock',
+      'Discontinued',
+    ]);
+  });
+});
+
+describe('MEDICATION_COLUMNS last sent', () => {
+  const lastSentCell = row =>
+    accessorFor(buildColumns({ isPharmacyOrderEnabled: true }), 'lastSent')(row);
+
+  it('shows not applicable when the medication has never been sent to pharmacy', () => {
+    expect(collectStringIds(lastSentCell({ lastOrderedAt: null }))).toContain(
+      'general.fallback.notApplicable',
+    );
+  });
+
+  it('shows an active request when the most recent request has not been dispensed', () => {
+    const stringIds = collectStringIds(
+      lastSentCell({ lastOrderedAt: '2024-10-22 09:30:00', isLastOrderDispensed: false }),
+    );
+
+    expect(stringIds).toContain('medication.pharmacyRequest.status.activeRequest');
+    expect(stringIds).not.toContain('medication.pharmacyRequest.status.dispensed');
+  });
+
+  it('shows dispensed when the most recent request has been dispensed', () => {
+    const stringIds = collectStringIds(
+      lastSentCell({ lastOrderedAt: '2024-10-22 09:30:00', isLastOrderDispensed: true }),
+    );
+
+    expect(stringIds).toContain('medication.pharmacyRequest.status.dispensed');
+    expect(stringIds).not.toContain('medication.pharmacyRequest.status.activeRequest');
+  });
+});
+
+describe('MEDICATION_COLUMNS dispensing quantity', () => {
+  it('labels the column Dispensing qty', () => {
+    const quantityColumn = buildColumns({}).find(column => column.key === 'quantity');
+
+    expect(collectStringIds(quantityColumn.title)).toContain(
+      'discharge.table.column.dispensingQuantity',
+    );
+  });
+
+  // RequiredOrnament supplies its "Required" copy through styled-components attrs, which are only
+  // applied when it renders — so the ornament is matched by element type rather than by stringId.
+  it.each([true, false])(
+    'marks the column required with pharmacy orders enabled: %s',
+    isPharmacyOrderEnabled => {
+      const { title } = buildColumns({ isPharmacyOrderEnabled }).find(
+        column => column.key === 'quantity',
+      );
+
+      expect([title.props.children].flat().some(child => child?.type === RequiredOrnament)).toBe(
+        true,
+      );
+    },
+  );
+});
+
+// The discharge records a dispensing quantity against every listed prescription, so one is always
+// needed. Only the rows going to pharmacy have to be dispensing something, so zero is acceptable
+// elsewhere — including in the other ongoing medication table, whose rows start unselected.
+describe('getMedicationsValidationSchema', () => {
+  const validate = medications =>
+    getMedicationsValidationSchema('*Required')
+      .validate(medications)
+      .then(() => null)
+      .catch(error => error.message);
+
+  // Prescriptions without a quantity start the form blank, and clearing a number input leaves ''.
+  it.each([null, ''])(
+    'rejects a quantity of %p even when the medication is not being sent to pharmacy',
+    async quantity => {
+      await expect(
+        validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: false } }),
+      ).resolves.toBe('*Required');
+    },
+  );
+
+  it('accepts a zero quantity when the medication is not being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 0, repeats: '0', sendToPharmacy: false } }),
+    ).resolves.toBeNull();
+  });
+
+  it.each([0, null, ''])(
+    'rejects a quantity of %p when the medication is being sent to pharmacy',
+    async quantity => {
+      await expect(
+        validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: true } }),
+      ).resolves.toBe('*Required');
+    },
+  );
+
+  it('accepts a cleared repeats field', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 1, repeats: '', sendToPharmacy: true } }),
+    ).resolves.toBeNull();
+  });
+
+  it('accepts a quantity of at least one when the medication is being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: 1, repeats: '0', sendToPharmacy: true } }),
+    ).resolves.toBeNull();
+  });
+
+  it('rejects a negative quantity even when the medication is not being sent to pharmacy', async () => {
+    await expect(
+      validate({ 'medication-1': { quantity: -1, repeats: '0', sendToPharmacy: false } }),
+    ).resolves.not.toBeNull();
+  });
+
+  it('only requires a quantity above zero for the medications being sent', async () => {
+    await expect(
+      validate({
+        'medication-1': { quantity: 0, repeats: '0', sendToPharmacy: false },
+        'medication-2': { quantity: 2, repeats: '0', sendToPharmacy: true },
+      }),
+    ).resolves.toBeNull();
   });
 });

@@ -44,8 +44,10 @@ const DoseLabel = styled.span`
   top: 0;
 `;
 
-const StyledDivider = styled(Divider)`
-  margin: 34px -32px 20px -32px;
+const Hr = styled.hr`
+  inline-size: calc(100% + 64px);
+  margin-block: 32px 20px;
+  margin-inline: -32px;
 `;
 
 const LABELS = {
@@ -313,7 +315,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
       title={
         <TranslatedText
           stringId="medication.mar.changeLog.title"
-          fallback="Change Log | :medicationName"
+          fallback="Change log | :medicationName"
           replacements={{ medicationName: medication.medication.name }}
         />
       }
@@ -351,7 +353,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
           </Fragment>
         ))}
       </LogContainer>
-      <StyledDivider />
+      <Hr />
       <ConfirmCancelRow
         onConfirm={onClose}
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

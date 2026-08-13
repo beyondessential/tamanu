@@ -93,3 +93,12 @@ A string representing the reason for the change.
 Stores a JSON string (as type TEXT) with migration context information
 if the changelog was created from a migration.
 {% enddocs %}
+
+{% docs logs__changes__is_hard_delete %}
+True when the row was removed from the source table, rather than created or
+updated. `record_data` then holds the row as it was immediately before deletion,
+and no later changelog rows exist for that record.
+
+A soft delete (setting `deleted_at`, which is how clinical data is normally
+retired) is an update, so it has this false and `record_deleted_at` set.
+{% enddocs %}

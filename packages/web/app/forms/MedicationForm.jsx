@@ -8,7 +8,6 @@ import { capitalize } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -20,6 +19,8 @@ import {
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
+  PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -52,7 +53,13 @@ import {
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import useDispensingUnit from '../api/queries/useDispensingUnit';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { BodyText, CheckField, CheckInput, SmallBodyText } from '../components';
+import {
+  BodyText,
+  CheckField,
+  CheckInput,
+  SmallBodyText,
+  TranslatedRadioField,
+} from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
 import { DispensingQuantityAutocalculator } from '../components/Medication/DispensingQuantityAutocalculator';
@@ -62,13 +69,19 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
+import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
 import {
   preventInvalidNumber,
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
-import { foreignKey } from '../utils/validation';
+import { atLeastOneWhenSendingToPharmacy, emptyToNull, foreignKey } from '../utils/validation';
+
+const requiredInlineMessage = (
+  <TranslatedText stringId="validation.required.inline" fallback="*Required" />
+);
 
 const validationSchema = yup.object().shape({
   // medicationId, doseAmount, frequency, route, durationValue, durationUnit
@@ -85,9 +98,30 @@ const validationSchema = yup.object().shape({
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
-  quantity: yup.number().integer(),
+  sendToPharmacy: yup.boolean().optional(),
+  prescriptionType: yup.string().oneOf(Object.values(PHARMACY_PRESCRIPTION_TYPES)).optional(),
+  // Only mandatory when the prescription is being sent to pharmacy; the floor of one is shared
+  // with the discharge form's medication tables.
+  quantity: yup
+    .number()
+    .transform(emptyToNull)
+    .integer()
+    .nullable()
+    .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage))
+    .when('sendToPharmacy', {
+      is: true,
+      then: schema => schema.required(requiredInlineMessage),
+    }),
   patientWeight: yup.number().positive(),
 });
+
+const PRESCRIPTION_TYPE_DISPLAY_ORDER = [
+  PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+  PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+];
+
+const orderPrescriptionTypeOptions = options =>
+  PRESCRIPTION_TYPE_DISPLAY_ORDER.map(type => options.find(option => option.value === type));
 
 const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
   margin-block-end: 1em;
@@ -594,7 +628,7 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { loadEncounter } = useEncounter();
+  const { encounter, loadEncounter } = useEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -608,10 +642,21 @@ export const MedicationForm = ({
     enabled: isEditing,
   });
 
-  const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
+  const { patient } = usePatient();
+  const age = getAgeDurationFromDate(patient?.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
+
+  // Ongoing medications and medication sets are prescribed outside an encounter, and are sent to
+  // pharmacy through their own flows.
+  const canSendToPharmacy =
+    Boolean(encounterId) &&
+    getSetting('features.pharmacyOrder.enabled') &&
+    ability.can('create', 'MedicationRequest');
+  const defaultPrescriptionType = getDefaultPrescriptionType(
+    getSetting('medications.pharmacyOrder.defaultPrescriptionType'),
+    encounter?.encounterType,
+  );
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState();
@@ -643,6 +688,8 @@ export const MedicationForm = ({
       }
     })();
   }, [awaitingPrint, submittedMedication]);
+
+  if (!patient) return null;
 
   const onSubmit = async data => {
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
@@ -710,6 +757,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTime(),
       isOngoing: isOngoingPrescription,
+      sendToPharmacy: false,
       repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
@@ -1095,6 +1143,65 @@ export const MedicationForm = ({
                 </div>
               )}
 
+              {canSendToPharmacy && (
+                <>
+                  <Hr />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <FieldLabel>
+                      <TranslatedText
+                        stringId="medication.sendToPharmacy.label"
+                        fallback="Send to pharmacy"
+                      />
+                    </FieldLabel>
+                    <FieldContent>
+                      <TranslatedText
+                        stringId="medication.sendToPharmacy.description"
+                        fallback="Selecting this will send the order to pharmacy to be dispensed to the patient"
+                      />
+                    </FieldContent>
+                  </div>
+                  <Field
+                    name="sendToPharmacy"
+                    label={
+                      <BodyText>
+                        <TranslatedText
+                          stringId="medication.sendToPharmacy.label"
+                          fallback="Send to pharmacy"
+                        />
+                      </BodyText>
+                    }
+                    component={StyledCheckField}
+                    onChange={(_, isChecked) =>
+                      setFieldValue(
+                        'prescriptionType',
+                        isChecked ? defaultPrescriptionType : undefined,
+                      )
+                    }
+                    $isChecked={values.sendToPharmacy}
+                    data-testid="medication-field-sendToPharmacy-6r4d"
+                  />
+                  {values.sendToPharmacy && (
+                    <FullWidthFieldWrapper>
+                      <Field
+                        name="prescriptionType"
+                        label={
+                          <TranslatedText
+                            stringId="medication.prescriptionType.label"
+                            fallback="Prescription type"
+                          />
+                        }
+                        component={TranslatedRadioField}
+                        enumValues={PHARMACY_PRESCRIPTION_TYPE_LABELS}
+                        transformOptions={orderPrescriptionTypeOptions}
+                        fullWidth
+                        required
+                        data-testid="medication-field-prescriptionType-2m9k"
+                      />
+                    </FullWidthFieldWrapper>
+                  )}
+                </>
+              )}
+
               <Hr />
               <Field
                 name="quantity"
@@ -1104,7 +1211,8 @@ export const MedicationForm = ({
                     fallback="Dispensing quantity"
                   />
                 }
-                min={0}
+                min={values.sendToPharmacy ? 1 : 0}
+                required={values.sendToPharmacy}
                 component={NumberField}
                 onInput={preventInvalidNumber}
                 unit={

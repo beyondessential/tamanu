@@ -13,6 +13,7 @@ import {
   buildDiagnosis,
   createDummyEncounter,
   createDummyPatient,
+  createLabTestTypes,
   randomRecords,
   randomLabRequest,
   splitIds,
@@ -439,6 +440,75 @@ describe('Suggestions', () => {
       expect(result.body.length).toEqual(1);
       expect(result.body[0].name).toEqual('AA-used');
     });
+
+    it('should still include a historical (no longer current) category if the patient has a published lab request against it', async () => {
+      const { id: historicalCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        name: 'AA-historical',
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId: historicalCategoryId,
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestCategories').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ name }) => name).sort()).toEqual(['AA-historical', 'AA-used']);
+    });
+  });
+
+  describe('patientLabTestPanelTypes', () => {
+    let patientId;
+    let encounterId;
+
+    beforeAll(async () => {
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+      encounterId = encounter.id;
+    });
+
+    it('should still include a historical (no longer current) panel if the patient has a published lab request against a test in it', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [labTestType] = await createLabTestTypes(models, categoryId);
+
+      const { id: panelId } = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panelId,
+        labTestTypeId: labTestType.id,
+      });
+
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestTypeIds: [labTestType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).toEqual([panelId]);
+    });
   });
 
   describe('medicationPresetLabel', () => {
@@ -471,6 +541,35 @@ describe('Suggestions', () => {
         'W1P1',
         'W17',
       ]);
+    });
+
+    it('should return every preset label when noLimit is set, bypassing the default page size', async () => {
+      await models.ReferenceData.destroy({
+        where: { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL },
+        force: true,
+      });
+
+      const presetCount = 30;
+      for (let index = 0; index < presetCount; index++) {
+        const code = String(index).padStart(3, '0');
+        await models.ReferenceData.create({
+          id: `medicationPresetLabel-${code}`,
+          type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
+          code,
+          name: `Preset ${code}`,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      }
+
+      const cappedResult = await userApp.get('/api/suggestions/medicationPresetLabel');
+      expect(cappedResult).toHaveSucceeded();
+      expect(cappedResult.body.length).toEqual(25);
+
+      const uncappedResult = await userApp
+        .get('/api/suggestions/medicationPresetLabel')
+        .query({ noLimit: true });
+      expect(uncappedResult).toHaveSucceeded();
+      expect(uncappedResult.body.length).toEqual(presetCount);
     });
   });
 

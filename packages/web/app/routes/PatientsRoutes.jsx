@@ -25,13 +25,20 @@ const CategoryComponent = () => {
   }
 };
 
+// Key the whole patient shell by patientId so switching patients remounts it, resetting
+// subtree state (selected tab, search parameter filters, local form state).
+const KeyedPatientRoutes = () => {
+  const { patientId } = useParams();
+  return <PatientRoutes key={patientId} />;
+};
+
 export const PatientsRoutes = () => (
   <Routes>
     {/* Parameterized route for category listings */}
     <Route path=":category" element={<CategoryComponent />} />
 
     {/* Individual patient routes */}
-    <Route path=":category/:patientId/*" element={<PatientRoutes />} />
+    <Route path=":category/:patientId/*" element={<KeyedPatientRoutes />} />
 
     {/* Fallbacks */}
     <Route path="" element={<Navigate to="all" replace />} />

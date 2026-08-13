@@ -41,6 +41,19 @@ const fakeProblem = error => {
   const problem = Problem.fromError(error);
   return fakeResponse({ status: problem.status, ok: false }, problem.toJSON(), problem.headers);
 };
+// A reverse proxy answering for the central server with its own error page, so the
+// body is HTML rather than a problem document.
+const fakeGatewayFailure = status =>
+  Promise.resolve({
+    status,
+    ok: false,
+    json: () => Promise.reject(new Error('Unexpected token < in JSON at position 0')),
+    text: () => Promise.resolve(`<!doctype html><title>${status}</title><h1>${status}</h1>`),
+    headers: {
+      get: key => ({ 'content-type': 'text/html; charset=utf-8' })[key.toLowerCase()],
+      has: () => false,
+    },
+  });
 
 describe('CentralServerConnection', () => {
   // Create a valid JWT token for testing
@@ -196,6 +209,16 @@ describe('CentralServerConnection', () => {
     it('throws a RemoteCallError if no data is returned with the error', async () => {
       fetch.mockReturnValueOnce(authEmpty);
       await expect(centralServer.connect()).rejects.toBeProblemOfType(ERROR_TYPE.REMOTE);
+    });
+
+    it('throws a RemoteCallError if the error body is not a problem document', async () => {
+      // A gateway error page is the remote misbehaving, not a validation failure:
+      // keeping it as a remote error (with its real status) is what lets callers
+      // tell it apart from a problem the request itself caused.
+      fetch.mockReturnValueOnce(fakeGatewayFailure(502));
+      const problem = await centralServer.connect().catch(err => err);
+      expect(problem).toBeProblemOfType(ERROR_TYPE.REMOTE);
+      expect(problem.status).toBe(502);
     });
 
     it('retrieves server settings', async () => {

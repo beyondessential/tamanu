@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import AssignmentLate from '@mui/icons-material/AssignmentLate';
@@ -24,6 +23,7 @@ import {
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { usePatient } from '../../contexts/Patient';
 import { useSettings } from '../../contexts/Settings';
 import {
   DateDisplay,
@@ -199,6 +199,7 @@ export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
 
   const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
+  const isPriorityEditingEnabled = getSetting('features.labRequest.priorityEditable');
 
   const closeModal = () => {
     setModalOpen(false);
@@ -213,7 +214,7 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
 
   const handleRefreshLabTestTable = () => {
     setLabTestTableRefreshCount(oldVal => oldVal + 1);
@@ -228,7 +229,7 @@ export const LabRequestView = () => {
     setModalOpen(true);
   };
 
-  if (isLoading) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
+  if (isLoading || !patient) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
@@ -241,6 +242,7 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
+  const isPriorityReadOnly = areLabRequestsReadOnly || !isPriorityEditingEnabled;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);
   const canEnterResults = !isPublished && !areLabTestsReadOnly;
@@ -527,7 +529,7 @@ export const LabRequestView = () => {
                 <>&mdash;</>
               )
             }
-            isReadOnly={areLabRequestsReadOnly}
+            isReadOnly={isPriorityReadOnly}
             actions={[
               {
                 label: (

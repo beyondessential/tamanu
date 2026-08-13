@@ -186,6 +186,36 @@ describe('Reference data exporter', () => {
     );
   });
 
+  it('Should export a tab with name "Medication Dispense Mod Reason" for "medicationDispenseModifyReason"', async () => {
+    // The exported tab name is shortened to fit Excel's 31 character sheet name limit
+    // (the full startCase'd name is 33 characters); see ReferenceDataExporter's CUSTOM_TAB_NAMES.
+    await models.ReferenceData.create({
+      type: 'medicationDispenseModifyReason',
+      id: 'medicationDispenseModifyReason-outOfStock',
+      code: 'outOfStock',
+      name: 'Out of stock',
+    });
+    await exporter(store, { 1: 'medicationDispenseModifyReason' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            [
+              'medicationDispenseModifyReason-outOfStock',
+              'outOfStock',
+              'Out of stock',
+              'current',
+              null,
+            ],
+          ],
+          name: 'Medication Dispense Mod Reason',
+        },
+      ],
+      '',
+    );
+  });
+
   it('It should export Patient field definition with the right options', async () => {
     await createPatientFieldDefCategory(models);
     await createPatientFieldDefinitions(models);

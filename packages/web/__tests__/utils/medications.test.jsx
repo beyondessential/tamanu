@@ -5,6 +5,7 @@ import {
   buildLabelText,
   getDispensedMedication,
   isDispenseModifiedByPharmacy,
+  resolvePresetLabelText,
 } from '../../app/utils/medications';
 
 // Mirror the real translation helpers closely enough for formatting assertions:
@@ -14,7 +15,6 @@ const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = (enumValues, value) => enumValues?.[value] ?? value;
 
 const basePrescription = {
-  units: 'Tablet',
   dosingUnit: 'Tablet',
   doseAmount: 1,
   frequency: 'Two times daily',
@@ -39,7 +39,7 @@ describe('buildLabelText', () => {
   it('prefixes the verb configured for the dosing unit and pluralises correctly', () => {
     expect(
       buildLabelText(
-        { units: 'Patch', doseAmount: 2, frequency: 'Daily', route: 'dermal' },
+        { dosingUnit: 'Patch', doseAmount: 2, frequency: 'Daily', route: 'dermal' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -49,7 +49,7 @@ describe('buildLabelText', () => {
   it('keeps invariant units of measurement unchanged when plural', () => {
     expect(
       buildLabelText(
-        { units: 'mg', doseAmount: 500, frequency: 'Daily' },
+        { dosingUnit: 'mg', doseAmount: 500, frequency: 'Daily' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -59,7 +59,7 @@ describe('buildLabelText', () => {
   it("prefixes 'Inhale' for puffs (inhaler/puffer)", () => {
     expect(
       buildLabelText(
-        { units: 'Puff', doseAmount: 2, frequency: 'Two times daily' },
+        { dosingUnit: 'Puff', doseAmount: 2, frequency: 'Two times daily' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -70,7 +70,7 @@ describe('buildLabelText', () => {
     // 'IU' must not become 'iU', and route 'IM' must not become 'iM'.
     expect(
       buildLabelText(
-        { units: 'IU', doseAmount: 2, frequency: 'Daily', route: 'intramuscular' },
+        { dosingUnit: 'IU', doseAmount: 2, frequency: 'Daily', route: 'intramuscular' },
         getTranslation,
         getEnumTranslation,
       ),
@@ -97,6 +97,22 @@ describe('isDispenseModifiedByPharmacy', () => {
   it('is false for a nullish dispense', () => {
     expect(isDispenseModifiedByPharmacy(undefined)).toBe(false);
     expect(isDispenseModifiedByPharmacy(null)).toBe(false);
+  });
+});
+
+describe('resolvePresetLabelText', () => {
+  it('returns the fallback text when no preset is selected', () => {
+    expect(resolvePresetLabelText(null, 'Preset name', 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText(undefined, 'Preset name', 'Default label')).toBe('Default label');
+  });
+
+  it('resolves to the selected preset name', () => {
+    expect(resolvePresetLabelText('preset-1', 'Preset name', 'Default label')).toBe('Preset name');
+  });
+
+  it('falls back to the fallback text when the preset name is missing', () => {
+    expect(resolvePresetLabelText('preset-1', undefined, 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText('preset-1', null, 'Default label')).toBe('Default label');
   });
 });
 

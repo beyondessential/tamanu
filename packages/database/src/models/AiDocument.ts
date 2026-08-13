@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 
 const AI_DOCUMENT_TYPES = ['patient_summary', 'encounter_summary'] as const;
@@ -110,9 +110,13 @@ export class AiDocument extends Model {
       END
     `;
     return {
-      select: await buildSyncLookupSelect(this, { patientId: patientIdExpr }),
+      // an encounter's document inherits that encounter's facility scope; a patient's document has
+      // no encounter, so the joins below leave facilities null and it stays unscoped
+      select: await buildEncounterLinkedLookupSelect(this, { patientId: patientIdExpr }),
       joins: `
         LEFT JOIN encounters ON ai_documents.record_id = encounters.id AND ai_documents.record_type = 'Encounter'
+        LEFT JOIN locations ON encounters.location_id = locations.id
+        LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
     };
   }

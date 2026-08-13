@@ -1,14 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import {
   DocumentsPane,
   SummaryPane,
@@ -28,6 +25,7 @@ import { invalidatePatientDataQueries } from '../../utils';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
+import { usePatient } from '../../contexts/Patient';
 import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 
@@ -177,37 +175,30 @@ const usePatientTabs = () => {
 };
 
 export const PatientView = () => {
-  const dispatch = useDispatch();
-  const { patientId } = useParams();
   const queryClient = useQueryClient();
-  const patient = useSelector(state => state.patient);
-  const disabled = !!patient.dateOfDeath;
+  const { patient, patientId, isLoading } = usePatient();
+  const disabled = Boolean(patient?.dateOfDeath);
   const api = useApi();
   const syncState = useSyncState();
-  const isSyncing = syncState.isPatientSyncing(patient.id);
+  const isSyncing = syncState.isPatientSyncing(patientId);
   const {
     data: additionalData,
     isLoading: isLoadingAdditionalData,
-  } = usePatientAdditionalDataQuery(patient.id);
+  } = usePatientAdditionalDataQuery(patientId);
   const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
-    ['birthData', patient.id],
-    () => api.get(`patient/${patient.id}/birthData`),
+    ['birthData', patientId],
+    () => api.get(`patient/${patientId}/birthData`),
+    { enabled: Boolean(patientId) },
   );
   const {
     data: insurancePlans = [],
     isLoading: isLoadingInsurancePlans,
-  } = usePatientInsurancePlansQuery({ patientId: patient?.id });
+  } = usePatientInsurancePlansQuery({ patientId });
 
   const visibleTabs = usePatientTabs();
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
   const fallbackPatientTab = visibleTabs[0]?.key ?? PATIENT_TABS.SUMMARY;
   const { currentTab, onTabSelect } = useSyncedTabSearchParam(visibleTabKeys, fallbackPatientTab);
-
-  useEffect(() => {
-    if (patientId && (!patient?.id || patient?.id !== patientId)) {
-      dispatch(reloadPatient(patientId));
-    }
-  }, [dispatch, patientId, patient?.id]);
 
   useEffect(() => {
     if (patient?.id) {
@@ -218,14 +209,20 @@ export const PatientView = () => {
   useEffect(() => {
     if (!isSyncing) {
       // invalidate the cache of patient data queries to reload the patient data
-      invalidatePatientDataQueries(queryClient, patient.id);
+      invalidatePatientDataQueries(queryClient, patientId);
     }
 
     // invalidate queries only when syncing is done (changed from true to false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSyncing]);
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans) {
+  if (
+    isLoading ||
+    !patient ||
+    isLoadingAdditionalData ||
+    isLoadingBirthData ||
+    isLoadingInsurancePlans
+  ) {
     return <LoadingIndicator data-testid="patient-view-loading" />;
   }
 

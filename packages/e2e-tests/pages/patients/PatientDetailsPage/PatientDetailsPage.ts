@@ -11,6 +11,7 @@ import { BasePatientPage } from '../BasePatientPage';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { PatientMedicationPane } from '../MedicationsPage/panes/PatientMedicationPane';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
@@ -30,7 +31,9 @@ import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
+  readonly dischargeSummaryButton: Locator;
   readonly vaccineTab: Locator;
+  readonly patientMedicationTab: Locator;
   readonly procedureTab: Locator;
   readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
@@ -44,6 +47,7 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  patientMedicationPane?: PatientMedicationPane;
   documentsPane?: DocumentsPane;
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
@@ -132,7 +136,13 @@ export class PatientDetailsPage extends BasePatientPage {
       name: 'Prepare discharge',
       exact: true,
     });
+    // A discharged encounter offers its summary in place of the discharge action.
+    this.dischargeSummaryButton = this.page.getByRole('button', {
+      name: 'Discharge summary',
+      exact: true,
+    });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.patientMedicationTab = this.page.getByTestId('tab-medication');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
@@ -440,6 +450,15 @@ export class PatientDetailsPage extends BasePatientPage {
     }
     await this.encounterMedicationPane.waitForPaneToLoad();
     return this.encounterMedicationPane;
+  }
+
+  async navigateToPatientMedicationTab(): Promise<PatientMedicationPane> {
+    await this.patientMedicationTab.click();
+    if (!this.patientMedicationPane) {
+      this.patientMedicationPane = new PatientMedicationPane(this.page);
+    }
+    await this.patientMedicationPane.waitForPaneToLoad();
+    return this.patientMedicationPane;
   }
 
   async goToPatient(patient: Patient) {

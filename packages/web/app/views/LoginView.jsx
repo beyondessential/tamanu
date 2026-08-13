@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import {
   changePassword,
-  clearPatient,
   login,
   requestPasswordReset,
   restartPasswordResetFlow,
@@ -22,6 +22,7 @@ export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
   const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
@@ -35,9 +36,10 @@ export const LoginView = () => {
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
 
-    // If a different user logs in, reset patient state and navigate to index
+    // If a different user logs in, clear cached data and navigate to index.
+    // Keep the serverAlive query, otherwise the app treats the server as down.
     if (email !== api.user?.email) {
-      dispatch(clearPatient());
+      queryClient.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
       navigate('/');
     }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Navigate } from 'react-router';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@mui/icons-material/Print';
 
@@ -9,6 +8,7 @@ import { Colors } from '../../constants/styles';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 import { useEncounter } from '../../contexts/Encounter';
+import { usePatient } from '../../contexts/Patient';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useTranslation } from '../../contexts/Translation';
@@ -41,9 +41,9 @@ export const DischargeSummaryView = React.memo(() => {
   const { getSetting } = useSettings();
   const { primaryTimeZone } = useDateTime();
   const { encounter } = useEncounter();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
-    patient.id,
+    patient?.id,
   );
   const { data: village } = useReferenceDataQuery(patient?.villageId);
   const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischargeQuery(encounter);
@@ -51,7 +51,7 @@ export const DischargeSummaryView = React.memo(() => {
   const {
     data: patientConditions,
     isFetching: isLoadingPatientConditions,
-  } = usePatientConditionsQuery(patient.id);
+  } = usePatientConditionsQuery(patient?.id);
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
     return <Navigate to="/patients/all" replace data-testid="redirect-imzj" />;
