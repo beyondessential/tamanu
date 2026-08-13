@@ -39,6 +39,7 @@ Pull issues that meet **all** of:
 
 - On the **Tamanu** team.
 - Labelled with the version (e.g. `v2.45.0`).
+- **Completed.** A version label records intent to ship, not the outcome — an issue can carry the label while still in progress, or after being cancelled or bumped to a later release. Include only issues whose status type is `completed`, and drop anything cancelled. Never describe work that didn't land.
 
 **Filter issues directly by the label string** (list issues with `team: Tamanu`, `label: v2.45.0`). The label-search tool is unreliable for version labels — don't depend on it to confirm the label exists; instead read the labels on a returned issue to confirm the exact spelling for that version.
 
@@ -69,8 +70,14 @@ git log --oneline origin/release/2.44..origin/release/2.45 -- specs/administrati
 
 Notes on refs:
 
-- If `release/2.45` **hasn't been cut yet**, the work is still on `main` — compare `origin/main` against the previous release branch instead, and say which refs you used.
-- Compare against the **previous minor's** release branch so the delta is exactly this version's work, not an accumulation.
+- **Derive the previous release line from the branch list, don't assume it's `X.(YY-1)`.** List what actually exists and take the highest release branch below the target, so a skipped or unshipped minor can't send you to a branch that was never released:
+
+  ```
+  git branch -r --list 'origin/release/2.*' --sort=version:refname
+  ```
+
+  Confirm the line shipped by checking it has tags (`git tag --list 'v2.44.*'`). Compare against that branch so the delta is exactly this version's work, not an accumulation. State which refs you used.
+- If `release/2.45` **hasn't been cut yet**, the work is still on `main` — compare `origin/main` against the previous release branch instead, and say so.
 - `git fetch` does not create local branches — reference fetched branches as `origin/release/2.45`.
 
 ## Reconciling the two sources
@@ -78,7 +85,7 @@ Notes on refs:
 The same piece of work often appears in both places — a spec-driven card usually originates from a Linear issue. Match them on the **Linear card id** (the spec's introducing commits reference it; the Linear issues carry it).
 
 - **Committed specs are authoritative.** Where both describe the same work, the spec's description of the behaviour drives the write-up. Use the Linear issue only for supporting framing (a readable title, the "why") and for team/version confirmation.
-- **Linear-only work** (labelled for the version but with no spec that landed) is still included — describe it from the issue.
+- **Linear-only work** (labelled for the version but with no spec that landed) is included once you've confirmed it actually shipped in this version. The issue's status is the first check; confirm it against the release branch by looking for its card id in the history, e.g. `git log --oneline origin/release/2.45 --grep TAM-6786`. If the work isn't in the branch, leave it out — a label alone is not evidence it shipped.
 - **Never list the same feature twice.** One entry per piece of work.
 
 ## Structuring the notes
