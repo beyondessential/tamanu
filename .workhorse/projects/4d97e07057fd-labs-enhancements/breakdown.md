@@ -50,9 +50,17 @@ Turn the single-select Status filter on the active lab requests listing into a m
 
 Default the Collected by field to the logged-in user when recording a sample, in both the request workflow and the lab request view. The default stays editable and applies only when no collector is already recorded. Desktop only.
 
+## Mobile — default Collected by to the current user
+
+Mobile follow-up to defaulting Collected by. Default the Collected by field to the logged-in user when recording a lab sample on mobile, keeping it editable and applying only when no collector is already recorded. Split from the desktop card, which the PRD scopes to desktop with mobile to follow.
+
 ## Default specimen type per lab test category
 
 Add a `defaultSpecimenType` column to the Lab Test Category reference data, applied as the specimen type when recording a sample for a request in that category. The field stays editable, and is blank where the category has no default. Desktop only.
+
+## Mobile — default specimen type per lab test category
+
+Mobile follow-up to the default specimen type per category. Apply the category's `defaultSpecimenType` as the specimen type when recording a lab sample on mobile, keeping it editable and blank where the category has no default. Split from the desktop card, which the PRD scopes to desktop with mobile to follow.
 
 ## Numeric results outside the detection limit
 
