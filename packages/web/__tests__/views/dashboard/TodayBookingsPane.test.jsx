@@ -77,12 +77,12 @@ const rowLines = () =>
   );
 
 describe('TodayBookingsPane overnight bookings', () => {
-  it('carries the end date on the first day, and leaves a same-day row alone', () => {
+  it('carries both dates on the first day, and leaves a same-day row alone', () => {
     // Rows arrive sorted by start time, so on 12 Aug the 8:30am booking comes first
     renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING, OVERNIGHT_BOOKING] });
     expect(rowLines()).toEqual([
       '8:30am – 9:00am', // one line, exactly as it renders today
-      '10:00am –',
+      '12 Aug 10:00am –',
       '14 Aug 11:30am',
     ]);
   });
@@ -92,9 +92,19 @@ describe('TodayBookingsPane overnight bookings', () => {
     expect(rowLines()).toEqual(['12 Aug 10:00am –', '14 Aug 11:30am']);
   });
 
-  it('carries the start date on the last day of the stay', () => {
+  it('carries both dates on the last day of the stay', () => {
     renderPane({ onDate: '2026-08-14', withBookings: [OVERNIGHT_BOOKING] });
-    expect(rowLines()).toEqual(['12 Aug 10:00am –', '11:30am']);
+    expect(rowLines()).toEqual(['12 Aug 10:00am –', '14 Aug 11:30am']);
+  });
+
+  /* The dates are the whole point of the fix: every day of the stay states the span
+     the same way, so no day of it can be misread as the booking's only day. */
+  it('states the same span on every day the stay covers', () => {
+    for (const onDate of ['2026-08-12', '2026-08-13', '2026-08-14']) {
+      const { unmount } = renderPane({ onDate, withBookings: [OVERNIGHT_BOOKING] });
+      expect(rowLines()).toEqual(['12 Aug 10:00am –', '14 Aug 11:30am']);
+      unmount();
+    }
   });
 
   it('never shows the two times as though they were the same day', () => {
@@ -114,6 +124,19 @@ describe('TodayBookingsPane overnight bookings', () => {
     renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING] });
     expect(screen.queryByTestId('overnighticon-p8ka')).toBeNull();
     expect(rowLines()).toEqual(['8:30am – 9:00am']);
+  });
+
+  /* A lone dot with nothing running into it reads as misplaced rather than as the
+     first of a list. The rail reaching each dot from above is what places it, so it
+     is drawn for every booking including the only one. Where the rail *stops* is
+     left to CSS, which this renderer does not apply. */
+  it('runs the rail into every dot, down to a lone one', () => {
+    const { unmount } = renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING] });
+    expect(screen.getAllByTestId('leadconnector-3nqa')).toHaveLength(1);
+    unmount();
+
+    renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING, OVERNIGHT_BOOKING] });
+    expect(screen.getAllByTestId('leadconnector-3nqa')).toHaveLength(2);
   });
 
   it('shows a booking with no end time as a single time', () => {
