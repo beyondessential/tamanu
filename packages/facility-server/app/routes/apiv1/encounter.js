@@ -344,12 +344,18 @@ const pickDischargeDraftMedication = medication => ({
   sendToPharmacy: Boolean(medication.sendToPharmacy),
 });
 
-const getDraftEncounter = async (req, { forWrite }) => {
+/**
+ * Saving a draft is gated on writing discharges, but reading and discarding one are not: a draft
+ * is the requesting clinician's own working state. The discharge form opens on write Encounter, so
+ * requiring write Discharge to discard would leave a clinician who can open the form but not save
+ * a draft unable to get out of one they had edited.
+ */
+const getDraftEncounter = async (req, { forSave = false } = {}) => {
   const { models, params } = req;
   req.checkPermission('read', 'Encounter');
   const encounterObject = await models.Encounter.findByPk(params.id);
   if (!encounterObject) throw new NotFoundError();
-  if (forWrite) {
+  if (forSave) {
     req.checkPermission('write', 'Discharge');
     if (encounterObject.endDate) {
       throw new InvalidOperationError('Cannot save a discharge draft on a discharged encounter.');
@@ -362,7 +368,7 @@ encounter.get(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { models, params, user } = req;
-    await getDraftEncounter(req, { forWrite: false });
+    await getDraftEncounter(req);
 
     const draft = await findOwnDischargeDraft(models, params.id, user.id);
     res.send({ draft: serialiseDischargeDraft(draft) ?? null });
@@ -373,7 +379,7 @@ encounter.put(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { db, models, params, user, body } = req;
-    await getDraftEncounter(req, { forWrite: true });
+    await getDraftEncounter(req, { forSave: true });
 
     const draftValues = pickDischargeDraftValues(body);
     const medications = Array.isArray(body.medications) ? body.medications : [];
@@ -414,7 +420,7 @@ encounter.delete(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { models, params, user } = req;
-    await getDraftEncounter(req, { forWrite: true });
+    await getDraftEncounter(req);
 
     await models.EncounterDischargeDraft.destroy({
       where: { encounterId: params.id, userId: user.id },

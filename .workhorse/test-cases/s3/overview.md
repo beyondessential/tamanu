@@ -40,7 +40,10 @@ first-time coverage rather than regression protection.
 - [ ] Closing a form with unsaved changes offers save and exit, discard, or return to the form
 - [ ] Closing a form with no changes closes without asking
 - [ ] Returning to the form from the unsaved-changes screen keeps the entered values
+- [ ] Returning to the form and then finalising reaches the confirm-discharge step, not the unsaved-changes screen again
+- [ ] The modal title returns to "Discharge patient" after stepping back from the unsaved-changes screen
 - [ ] Discarding clears the draft and closes the modal
+- [ ] A clinician who cannot write discharges can still close a form they have edited
 
 ## Clearing
 

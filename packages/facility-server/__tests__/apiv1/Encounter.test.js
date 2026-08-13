@@ -513,19 +513,54 @@ describe('Encounter', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('rejects a draft from a user without permission to write discharges', async () => {
-      const encounter = await createOpenEncounter();
-      const noPermsApp = await baseApp.asRole('base');
-
-      const result = await noPermsApp
-        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
-        .send({ note: 'not allowed' });
-      expect(result).toBeForbidden();
-    });
-
     it('404s for an encounter that does not exist', async () => {
       const result = await app.get('/api/encounter/not-a-real-encounter/dischargeDraft');
       expect(result).toHaveStatus(404);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      // Opening the discharge form only needs write Encounter, so a clinician can reach the form
+      // without being able to save a draft from it.
+      const FORM_ONLY_PERMISSIONS = [
+        ['read', 'Encounter'],
+        ['write', 'Encounter'],
+      ];
+
+      it('rejects saving a draft without permission to write discharges', async () => {
+        const encounter = await createOpenEncounter();
+        const formOnlyApp = await baseApp.asNewRole(FORM_ONLY_PERMISSIONS);
+
+        const result = await formOnlyApp
+          .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+          .send({ note: 'not allowed' });
+        expect(result).toBeForbidden();
+      });
+
+      it('still lets that clinician read and discard, so an edited form can be left', async () => {
+        const encounter = await createOpenEncounter();
+        const formOnlyApp = await baseApp.asNewRole(FORM_ONLY_PERMISSIONS);
+
+        const read = await formOnlyApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(read).toHaveSucceeded();
+        expect(read.body.draft).toBe(null);
+
+        // Discarding is how a clinician gets out of a form they have edited. Gating it on the
+        // same permission as saving would leave them unable to close one.
+        const discarded = await formOnlyApp.delete(
+          `/api/encounter/${encounter.id}/dischargeDraft`,
+        );
+        expect(discarded).toHaveSucceeded();
+      });
+
+      it('rejects a draft read from a user who cannot read encounters', async () => {
+        const encounter = await createOpenEncounter();
+        const noPermsApp = await baseApp.asNewRole([]);
+
+        const result = await noPermsApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(result).toBeForbidden();
+      });
     });
   });
 

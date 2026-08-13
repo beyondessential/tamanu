@@ -121,9 +121,10 @@ export const DischargeFormScreen = props => {
   };
 
   // Leaving with edits in hand routes to the unsaved-changes screen so the clinician can save
-  // them as a draft instead of losing them; an untouched form just closes.
+  // them as a draft instead of losing them. An untouched form just closes, and so does one
+  // belonging to a clinician who cannot save a draft, since that screen exists to offer the save.
   const handleCancelAttempt = () => {
-    if (dirty) {
+    if (dirty && canWriteDischarge) {
       onStepForward();
       setShowWarningScreen(true);
     } else {

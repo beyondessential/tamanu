@@ -441,6 +441,13 @@ export const DischargeForm = ({
             : props => (
                 <UnsavedChangesScreen
                   {...props}
+                  // Returning to the form has to clear the flag as well as step back, or the
+                  // summary screen stays stuck on this one and the discharge can never be
+                  // confirmed for the rest of the modal session.
+                  onStepBack={() => {
+                    setShowWarningScreen(false);
+                    props.onStepBack();
+                  }}
                   onSaveDraft={handleSaveDraft}
                   onDiscardDraft={handleDiscardDraft}
                   data-testid="unsavedchangesscreen-o64o"
