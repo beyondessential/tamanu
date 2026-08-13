@@ -108,6 +108,38 @@ describe('toDischargeDraftPayload', () => {
     ]);
   });
 
+  it('sends an emptied number input as null rather than an empty string', () => {
+    // Emptying a number input leaves '' in Formik values, and draft saves skip validation, so ''
+    // is what arrives here. An integer column will not take it.
+    const payload = toDischargeDraftPayload({
+      values: {
+        ...values,
+        medications: { 'prescription-1': { quantity: '', repeats: '', sendToPharmacy: true } },
+      },
+      dischargeNotes: [],
+      isPharmacyOrderEnabled: true,
+    });
+
+    expect(payload.medications).toEqual([
+      { prescriptionId: 'prescription-1', quantity: null, repeats: null, sendToPharmacy: true },
+    ]);
+  });
+
+  it('sends numbers typed into the form as numbers', () => {
+    const payload = toDischargeDraftPayload({
+      values: {
+        ...values,
+        medications: { 'prescription-1': { quantity: '7', repeats: '2', sendToPharmacy: true } },
+      },
+      dischargeNotes: [],
+      isPharmacyOrderEnabled: true,
+    });
+
+    expect(payload.medications).toEqual([
+      { prescriptionId: 'prescription-1', quantity: 7, repeats: 2, sendToPharmacy: true },
+    ]);
+  });
+
   it('omits the ordering clinician when pharmacy orders are not enabled', () => {
     const payload = toDischargeDraftPayload({
       values,
@@ -240,5 +272,13 @@ describe('discharge draft medication round trip', () => {
     ];
 
     expect(roundTrip(formValues, medications)).toEqual(formValues);
+  });
+
+  it('brings an emptied quantity back empty rather than reseeding the prescription', () => {
+    const medications = [{ id: 'prescription-1', quantity: 5, repeats: 3 }];
+
+    expect(roundTrip({ 'prescription-1': { quantity: '', repeats: '', sendToPharmacy: false } }, medications)).toEqual(
+      { 'prescription-1': { quantity: null, repeats: '', sendToPharmacy: false } },
+    );
   });
 });

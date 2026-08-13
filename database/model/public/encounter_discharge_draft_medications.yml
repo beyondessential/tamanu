@@ -10,8 +10,7 @@ sources:
           tags:
             - clinical
           meta:
-            triggers:
-              - record_encounter_discharge_draft_medications_changelog
+            triggers: []
         columns:
           - name: id
             data_type: uuid
@@ -58,6 +57,3 @@ sources:
             description: "{{ doc('generic__updated_at') }} in encounter_discharge_draft_medications."
             data_tests:
               - not_null
-          - name: deleted_at
-            data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in encounter_discharge_draft_medications."

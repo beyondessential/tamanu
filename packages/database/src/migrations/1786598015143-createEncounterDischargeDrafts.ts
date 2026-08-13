@@ -78,19 +78,13 @@ export async function up(query: QueryInterface): Promise<void> {
       defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
   });
 
-  // One live draft per clinician per encounter. Drafts are hard-deleted when cleared, so the
-  // partial clause is a safeguard rather than load-bearing: the model is paranoid like every
-  // model here, and a soft-deleted row must not block the clinician starting a new draft.
+  // One draft per clinician per encounter. Clearing one removes the row, so there is no
+  // soft-deleted state for the constraint to work around.
   await query.addIndex('encounter_discharge_drafts', ['encounter_id', 'user_id'], {
     name: 'encounter_discharge_drafts_encounter_user_unique',
     unique: true,
-    where: { deleted_at: null },
   });
 
   await query.createTable('encounter_discharge_draft_medications', {
@@ -140,10 +134,6 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       defaultValue: Sequelize.fn('now'),
       allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
     },
   });
 

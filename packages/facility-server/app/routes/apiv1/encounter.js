@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { Op, literal } from 'sequelize';
+import { ForeignKeyConstraintError, Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
@@ -337,38 +337,62 @@ const pickDischargeDraftValues = body => ({
   orderingClinicianId: body.orderingClinicianId ?? null,
 });
 
+// A draft is a part-finished form, so its number fields arrive empty as often as not. An emptied
+// input sends '' rather than null, which an integer column will not take.
+const draftNumberOrNull = value => (value === '' || value == null ? null : Number(value));
+
 const pickDischargeDraftMedication = medication => ({
   prescriptionId: medication.prescriptionId,
-  quantity: medication.quantity ?? null,
-  repeats: medication.repeats ?? null,
+  quantity: draftNumberOrNull(medication.quantity),
+  repeats: draftNumberOrNull(medication.repeats),
   sendToPharmacy: Boolean(medication.sendToPharmacy),
 });
 
 /**
- * Saving a draft is gated on writing discharges, but reading and discarding one are not: a draft
- * is the requesting clinician's own working state. The discharge form opens on write Encounter, so
- * requiring write Discharge to discard would leave a clinician who can open the form but not save
- * a draft unable to get out of one they had edited.
+ * Reading and discarding a draft need only the encounter: a draft is the requesting clinician's
+ * own working state, and the discharge form opens on write Encounter, so requiring write Discharge
+ * to discard would leave a clinician who can open the form but not save a draft unable to get out
+ * of one they had edited.
  */
-const getDraftEncounter = async (req, { forSave = false } = {}) => {
+const assertCanUseDischargeDraft = async req => {
   const { models, params } = req;
   req.checkPermission('read', 'Encounter');
   const encounterObject = await models.Encounter.findByPk(params.id);
   if (!encounterObject) throw new NotFoundError();
-  if (forSave) {
-    req.checkPermission('write', 'Discharge');
-    if (encounterObject.endDate) {
-      throw new InvalidOperationError('Cannot save a discharge draft on a discharged encounter.');
-    }
-  }
   return encounterObject;
+};
+
+/** Saving, unlike reading and discarding, is a write against the encounter's discharge. */
+const assertCanSaveDischargeDraft = (req, encounterObject) => {
+  req.checkPermission('write', 'Discharge');
+  if (encounterObject.endDate) {
+    throw new InvalidOperationError('Cannot save a discharge draft on a discharged encounter.');
+  }
+};
+
+/**
+ * The draft's four id columns are foreign keys, and a draft is saved without validation because
+ * the form it comes from is part-finished. An id that does not resolve is a bad request from the
+ * client rather than a server fault, so the constraint violation is reported as one.
+ */
+const saveWithReadableFkErrors = async save => {
+  try {
+    return await save();
+  } catch (error) {
+    if (error instanceof ForeignKeyConstraintError) {
+      throw new InvalidParameterError(
+        'Discharge draft refers to a record that does not exist. Check the clinician, disposition and prescription ids.',
+      );
+    }
+    throw error;
+  }
 };
 
 encounter.get(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { models, params, user } = req;
-    await getDraftEncounter(req);
+    await assertCanUseDischargeDraft(req);
 
     const draft = await findOwnDischargeDraft(models, params.id, user.id);
     res.send({ draft: serialiseDischargeDraft(draft) ?? null });
@@ -379,37 +403,40 @@ encounter.put(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { db, models, params, user, body } = req;
-    await getDraftEncounter(req, { forSave: true });
+    const encounterObject = await assertCanUseDischargeDraft(req);
+    assertCanSaveDischargeDraft(req, encounterObject);
 
     const draftValues = pickDischargeDraftValues(body);
     const medications = Array.isArray(body.medications) ? body.medications : [];
 
-    await db.transaction(async () => {
-      const existing = await models.EncounterDischargeDraft.findOne({
-        where: { encounterId: params.id, userId: user.id },
-      });
-
-      const draft = existing
-        ? await existing.update(draftValues)
-        : await models.EncounterDischargeDraft.create({
-            ...draftValues,
-            encounterId: params.id,
-            userId: user.id,
-          });
-
-      // The lines are replaced wholesale: the draft is whatever was on screen when the clinician
-      // left, so a prescription missing from the payload is one they no longer had.
-      await models.EncounterDischargeDraftMedication.destroy({
-        where: { dischargeDraftId: draft.id },
-        force: true,
-      });
-      for (const medication of medications) {
-        await models.EncounterDischargeDraftMedication.create({
-          ...pickDischargeDraftMedication(medication),
-          dischargeDraftId: draft.id,
+    await saveWithReadableFkErrors(() =>
+      db.transaction(async () => {
+        const existing = await models.EncounterDischargeDraft.findOne({
+          where: { encounterId: params.id, userId: user.id },
         });
-      }
-    });
+
+        const draft = existing
+          ? await existing.update(draftValues)
+          : await models.EncounterDischargeDraft.create({
+              ...draftValues,
+              encounterId: params.id,
+              userId: user.id,
+            });
+
+        // The lines are replaced wholesale: the draft is whatever was on screen when the
+        // clinician left, so a prescription missing from the payload is one they no longer had.
+        await models.EncounterDischargeDraftMedication.destroy({
+          where: { dischargeDraftId: draft.id },
+          force: true,
+        });
+        for (const medication of medications) {
+          await models.EncounterDischargeDraftMedication.create({
+            ...pickDischargeDraftMedication(medication),
+            dischargeDraftId: draft.id,
+          });
+        }
+      }),
+    );
 
     const saved = await findOwnDischargeDraft(models, params.id, user.id);
     res.send({ draft: serialiseDischargeDraft(saved) });
@@ -420,7 +447,7 @@ encounter.delete(
   '/:id/dischargeDraft',
   asyncHandler(async (req, res) => {
     const { models, params, user } = req;
-    await getDraftEncounter(req);
+    await assertCanUseDischargeDraft(req);
 
     await models.EncounterDischargeDraft.destroy({
       where: { encounterId: params.id, userId: user.id },

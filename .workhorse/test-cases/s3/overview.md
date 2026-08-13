@@ -15,6 +15,8 @@ first-time coverage rather than regression protection.
 - [ ] Reopening restores the pharmacy order's ordering clinician
 - [ ] An untouched form still opens with live defaults when no draft exists
 - [x] Saving a draft on an already-discharged encounter is refused
+- [x] A number field the clinician has emptied saves without error
+- [x] An id that does not resolve is reported as a client error, not a server fault
 - [x] A user without permission to write discharges cannot save a draft
 - [x] A draft request for an encounter that does not exist 404s
 
@@ -39,9 +41,9 @@ first-time coverage rather than regression protection.
 ## Leaving the form
 
 - [x] Closing a form with unsaved changes routes to the unsaved-changes screen rather than closing
-- [ ] Closing a form with no changes closes without asking
-- [ ] Returning to the form from the unsaved-changes screen keeps the entered values
-- [ ] Returning to the form and then finalising reaches the confirm-discharge step, not the unsaved-changes screen again
+- [x] Closing a form with no changes closes without asking
+- [x] Returning to the form from the unsaved-changes screen keeps the entered values
+- [x] Returning to the form and then finalising reaches the confirm-discharge step, not the unsaved-changes screen again
 - [ ] The modal title returns to "Discharge patient" after stepping back from the unsaved-changes screen
 - [x] Discarding clears the draft and closes the modal
 - [x] A clinician who cannot write discharges can still close a form they have edited
@@ -64,3 +66,4 @@ draft.
 
 - [ ] The migration applies to a database with existing encounters carrying legacy draft blobs
 - [ ] Drafts do not appear in sync payloads
+- [ ] Two saves racing from the same clinician do not error

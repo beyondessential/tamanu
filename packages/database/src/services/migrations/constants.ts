@@ -56,6 +56,11 @@ export const NON_LOGGED_TABLES = [
   'public.ai_chat_sessions',
   'public.form_builder_chat_jobs',
 
+  // a clinician's part-finished discharge form, cleared once the discharge is recorded — the
+  // discharge itself is the audited record, and these rows are removed rather than soft-deleted
+  'public.encounter_discharge_drafts',
+  'public.encounter_discharge_draft_medications',
+
   // historical signer records retained for compliance, no sensitive data remains
   'public.signers_historical',
 

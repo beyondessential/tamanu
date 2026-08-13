@@ -31,6 +31,8 @@ export class PrepareDischargeModal {
     
     // Action buttons (these would need to be updated with actual test IDs from the modal)
     this.confirmButton = page.getByTestId('box-p5wr');
+    // Only closes the modal outright on an untouched form. A form with edits steps forward to
+    // the unsaved-changes screen instead, so use cancelAndDiscardChanges() for that.
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
     // Saving the form as a draft, and discarding it from the unsaved-changes screen. Both are
     // the button row's back-row button, which every such row shares a test id for, so they are
@@ -97,6 +99,15 @@ export class PrepareDischargeModal {
     await this.discardChangesButton.waitFor({ state: 'visible' });
     await this.discardChangesButton.click();
     await this.waitForModalToClose();
+  }
+
+  /** Steps back to the form from the unsaved-changes screen, keeping what was entered. */
+  async cancelAndReturnToForm() {
+    await this.cancelButton.click();
+    await this.discardChangesButton.waitFor({ state: 'visible' });
+    // The unsaved-changes screen's own cancel is what returns to the form.
+    await this.cancelButton.click();
+    await this.discardChangesButton.waitFor({ state: 'hidden' });
   }
 
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */

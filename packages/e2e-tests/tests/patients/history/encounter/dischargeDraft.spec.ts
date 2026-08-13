@@ -83,6 +83,63 @@ test.describe('Discharge draft', () => {
     await expect(patientDetailsPage.dischargeDraftTag).toBeHidden();
   });
 
+  test('Returning from the unsaved-changes screen keeps the form usable', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const [drug] = await getDrugSuggestions(api, 1);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id, undefined, {
+      medicationId: drug.id,
+    });
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+    await dischargeModal.dischargeNoteTextarea.fill('Changed my mind about leaving');
+    await dischargeModal.setDispensingQuantity(prescription.id, 4);
+
+    await dischargeModal.cancelAndReturnToForm();
+
+    // What was entered survives the detour.
+    await expect(dischargeModal.dischargeNoteTextarea).toHaveValue(
+      'Changed my mind about leaving',
+    );
+
+    // And the discharge can still be finalised: the unsaved-changes screen must not remain in
+    // place of the confirm step, which is what made this unreachable the first time round.
+    await dischargeModal.finaliseDischarge();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
+  });
+
+  test('An untouched discharge form closes without asking', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    await dischargeModal.cancelButton.click();
+    await dischargeModal.waitForModalToClose();
+
+    await expect(patientDetailsPage.dischargeDraftTag).toBeHidden();
+  });
+
   test('An edited discharge can be left without saving a draft', async ({
     api,
     newPatient,

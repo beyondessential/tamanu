@@ -244,7 +244,8 @@ export const DischargeForm = ({
     encounter.patientId,
     facilityId,
   );
-  const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id);
+  const { data: dischargeDraftData, isFetched: isDischargeDraftFetched } =
+    useEncounterDischargeDraftQuery(encounter.id);
   const draft = dischargeDraftData?.draft ?? null;
 
   const activeMedications = (encounterMedications?.data || []).filter(
@@ -305,8 +306,15 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+      try {
+        const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+        setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+      } catch (e) {
+        // Settling on an empty list keeps the form usable: leaving this null would hold
+        // reinitialisation open, and initial values carry a timestamp that changes every second,
+        // so Formik would wipe the clinician's typing on every render.
+        setDischargeNotes([]);
+      }
     })();
   }, [api, encounter.id]);
 
@@ -327,15 +335,16 @@ export const DischargeForm = ({
     const hasEncounterMeds = Boolean(encounterMedications);
     const hasOngoingMeds = Boolean(ongoingPrescriptions);
     const hasNotes = Boolean(dischargeNotes);
-    // The draft has to have resolved too, or the form would seed from live data and then be
-    // reinitialised out from under anything the clinician had already saved.
-    const hasResolvedDraft = Boolean(dischargeDraftData);
+    // The draft has to have settled too, or the form would seed from live data and then be
+    // reinitialised out from under anything the clinician had already saved. Settled rather than
+    // present: a draft query that ends in error never yields data, and holding reinitialisation
+    // open would let the every-second timestamp in the initial values wipe their typing.
     if (
       enableReinitialize &&
       hasEncounterMeds &&
       hasOngoingMeds &&
       hasNotes &&
-      hasResolvedDraft
+      isDischargeDraftFetched
     ) {
       setEnableReinitialize(false);
     }
@@ -343,7 +352,7 @@ export const DischargeForm = ({
     Boolean(encounterMedications),
     Boolean(ongoingPrescriptions),
     Boolean(dischargeNotes),
-    Boolean(dischargeDraftData),
+    isDischargeDraftFetched,
     enableReinitialize,
   ]);
 

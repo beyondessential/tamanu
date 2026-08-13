@@ -68,6 +68,14 @@ export const buildMedicationsInitialValues = ({
   return medicationsInitialValues;
 };
 
+/**
+ * A number field the clinician has emptied, ready for a nullable integer column.
+ *
+ * Draft saves deliberately skip validation — the form is part-finished by definition — so the
+ * raw Formik value arrives here, and an emptied number input holds '' rather than null.
+ */
+const clearedToNull = value => (value === '' || value == null ? null : Number(value));
+
 /** The request body for saving the form as it currently stands. */
 export const toDischargeDraftPayload = ({ values, dischargeNotes, isPharmacyOrderEnabled }) => ({
   endDate: values.endDate,
@@ -82,9 +90,8 @@ export const toDischargeDraftPayload = ({ values, dischargeNotes, isPharmacyOrde
     : undefined,
   medications: Object.entries(values.medications ?? {}).map(([prescriptionId, medication]) => ({
     prescriptionId,
-    quantity: medication.quantity ?? null,
-    repeats:
-      medication.repeats === '' || medication.repeats == null ? null : Number(medication.repeats),
+    quantity: clearedToNull(medication.quantity),
+    repeats: clearedToNull(medication.repeats),
     sendToPharmacy: Boolean(medication.sendToPharmacy),
   })),
 });

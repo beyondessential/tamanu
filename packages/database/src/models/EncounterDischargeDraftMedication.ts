@@ -36,6 +36,8 @@ export class EncounterDischargeDraftMedication extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        // Removed outright with the draft it belongs to; see EncounterDischargeDraft.
+        paranoid: false,
       },
     );
   }
