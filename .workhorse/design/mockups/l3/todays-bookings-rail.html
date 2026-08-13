@@ -63,6 +63,11 @@
         height: 260px;
       }
 
+      /* Enough room for three rows without scrolling, so the tail is in view */
+      .pane.tall {
+        height: 330px;
+      }
+
       .title {
         display: flex;
         justify-content: space-between;
@@ -201,14 +206,11 @@
         display: none;
       }
 
-      /* ---- The rail: runs from the top of the list into every dot ---- */
+      /* ---- The rail: into every dot, and out of the last one ---- */
 
-      .rail .item:last-child .conn.trail {
-        display: none;
+      .railstub .item:last-child .conn.trail {
+        flex: 0 0 12px;
       }
-
-      /* ---- Variant: the rail carries on past the last dot ---- */
-      /* (nothing to hide, every connector renders) */
     </style>
   </head>
   <body>
@@ -257,7 +259,7 @@
             <h3>Today's bookings</h3>
             <a>View all…</a>
           </div>
-          <div class="timeline rail">
+          <div class="timeline railstub">
             <div class="item">
               <div class="sep">
                 <div class="conn lead"></div>
@@ -284,17 +286,17 @@
           </div>
           <div class="footer"></div>
         </div>
-        <p>The rail runs from the top of the list into the dot, so one booking is placed the same way as any other. No scrollbar.</p>
+        <p>The rail runs in and out of the dot, and the tail stops above the footer rule rather than running into it.</p>
       </section>
 
       <section class="case">
         <h2>With the rail, three bookings</h2>
-        <div class="pane">
+        <div class="pane tall">
           <div class="title">
             <h3>Today's bookings</h3>
             <a>View all…</a>
           </div>
-          <div class="timeline rail">
+          <div class="timeline railstub">
             <div class="item">
               <div class="sep">
                 <div class="conn lead"></div>
@@ -366,44 +368,7 @@
           </div>
           <div class="footer"></div>
         </div>
-        <p>The rail ends at the last dot, so nothing dangles past it. The list scrolls only once it genuinely overflows.</p>
-      </section>
-
-      <section class="case">
-        <h2>Variant: rail past the last dot</h2>
-        <div class="pane">
-          <div class="title">
-            <h3>Today's bookings</h3>
-            <a>View all…</a>
-          </div>
-          <div class="timeline">
-            <div class="item">
-              <div class="sep">
-                <div class="conn lead"></div>
-                <div class="dot">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="#4101c9" stroke-width="2" />
-                  </svg>
-                </div>
-                <div class="conn trail"></div>
-              </div>
-              <div class="content">
-                <div class="time">
-                  <div class="line">12 Aug 10:00am &ndash;</div>
-                  <div class="line">14 Aug 11:30am <span class="moon">&#9790;</span></div>
-                </div>
-                <div>
-                  <div class="card arrived">
-                    <div class="heading">Outpatient Outpatient</div>
-                    <div class="body">Barton Aufderhar</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="footer"></div>
-        </div>
-        <p>Carrying the rail through the row gives the dot more to sit on, at the cost of a tail that stops in open space.</p>
+        <p>The same tail closes the list, so the rail reads the same way however many bookings there are.</p>
       </section>
     </div>
   </body>

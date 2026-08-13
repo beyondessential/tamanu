@@ -99,11 +99,12 @@ const StyledTimelineItem = styled(TimelineItem)`
   &:before {
     content: none;
   }
-  /* The rail arrives at the last dot and stops there rather than dangling past it.
-     The separator's last child is its trailing connector; the leading one stays, so
-     even a list of one still has rail running into its dot. */
+  /* Past the last dot the rail carries on far enough to read as running out of it,
+     then stops short of the footer's rule rather than running into it. The
+     separator's last child is its trailing connector; on every other row that
+     connector fills the gap to the dot below. */
   &:last-child .MuiTimelineSeparator-root > :last-child {
-    display: none;
+    flex: 0 0 12px;
   }
 `;
 
@@ -117,8 +118,8 @@ const StyledTimelineDot = styled(TimelineDot)`
 /**
  * Rail above the dot as well as below it, so the rail runs from the top of the list
  * into every dot rather than only between consecutive pairs. A list of one is then
- * laid out like any other, with its dot sitting on the rail instead of floating with
- * nothing to place it against.
+ * laid out like any other, its dot sitting on rail that runs in and back out of it
+ * instead of floating with nothing to place it against.
  *
  * It also puts the dot where it belongs as a matter of layout: this segment's height
  * is the offset. Nudging the separator down with relative positioning left the row's
