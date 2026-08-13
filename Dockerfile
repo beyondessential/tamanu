@@ -83,6 +83,8 @@ ENV NODE_CONFIG_DIR=/app/packages/central-server/config \
 ENTRYPOINT ["bash", "-euc"]
 # DB_* come from the connection Secret the pgsnap operator injects via envFrom.
 # ROUNDS sets the fake-data volume; override it to scale the snapshot's size.
+# The scrub runs last: migrate provisions secrets encrypted with this image's key file,
+# which the deploy restoring the snapshot doesn't have, so they must not ship in it.
 CMD ["\
 export CONFIG_SYNC_DB_HOST=\"$DB_HOST\" CONFIG_SYNC_DB_PORT=\"$DB_PORT\" \
        CONFIG_SYNC_DB_NAME=\"$DB_NAME\" CONFIG_SYNC_DB_USERNAME=\"$DB_USERNAME\" \
@@ -91,7 +93,8 @@ node --import tsx app migrate\n\
 node --import tsx ../scripts/src/fake.mts \
   --database \"$DB_NAME\" \
   --rounds \"$ROUNDS\" \
-  --from-tally ../fake-data/src/populateDb/parseTally/standard.json\
+  --from-tally ../fake-data/src/populateDb/parseTally/standard.json\n\
+node --import tsx ../scripts/src/scrubSeedSecrets.mts\
 "]
 
 

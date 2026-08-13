@@ -36,7 +36,12 @@ export function generateWhereClause(query, parameters, FhirResource) {
   return { resolved: true, [Op.and]: andWhere };
 }
 
-const INVERSE_OPS = new Map([
+// The converse of each operator: the one that expresses the same predicate with
+// its operands swapped (a > b is the same claim as b < a). This is not negation —
+// the complement of `>` is `<=`, which would flip the boundary case and make `gt`
+// behave as `ge`. The custom fhir.<~ family are converses of the regex operators
+// in the same way: fhir.op_inverse_regex(regex, value) is defined as value ~ regex.
+const CONVERSE_OPS = new Map([
   [Op.regexp, 'OPERATOR(fhir.<~)'],
   [Op.iRegexp, 'OPERATOR(fhir.<~*)'],
   [Op.notRegexp, 'OPERATOR(fhir.<!~)'],
@@ -45,10 +50,10 @@ const INVERSE_OPS = new Map([
   ['OPERATOR(fhir.<~*)', Op.iRegexp],
   ['OPERATOR(fhir.<!~)', Op.notRegexp],
   ['OPERATOR(fhir.<!~*)', Op.notIRegexp],
-  [Op.gt, Op.lte],
-  [Op.gte, Op.lt],
-  [Op.lt, Op.gte],
-  [Op.lte, Op.gt],
+  [Op.gt, Op.lt],
+  [Op.gte, Op.lte],
+  [Op.lt, Op.gt],
+  [Op.lte, Op.gte],
 ]);
 export function singleMatch(path, paramQuery, paramDef, Model) {
   return paramQuery.value.map(value => {
@@ -70,10 +75,10 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
       // boolean condition that will let it use a GIN index as a pre-scan filter
       const optimisingCondition = `"${entirePath[0]}" @? '${getJsonbPath(entirePath)}'`;
 
-      // need to inverse the ops because we're writing the sql in the opposite
-      // direction (match operator any(...)) instead of (value operator match)
-      const inverseOp = INVERSE_OPS.get(op) ?? op;
-      if (typeof inverseOp === 'string') {
+      // need to take the converse of the op because we're writing the sql in the
+      // opposite direction (match operator any(...)) instead of (value operator match)
+      const converseOp = CONVERSE_OPS.get(op) ?? op;
+      if (typeof converseOp === 'string') {
         // our custom inverse regex operators don't work with sequelize, so we
         // need to write literals for them. also see:
         // https://github.com/sequelize/sequelize/issues/13011
@@ -85,7 +90,7 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
           entirePath,
         )}') #>> '{}')`;
 
-        return Sequelize.literal(`${escaped} ${inverseOp} ${selector} AND ${optimisingCondition}`);
+        return Sequelize.literal(`${escaped} ${converseOp} ${selector} AND ${optimisingCondition}`);
       }
 
       // while #>> works regardless of the jsonb path, using
@@ -99,7 +104,7 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
       return {
         [Op.and]: [
           // actual comparison
-          Sequelize.where(Sequelize.literal(escaped), inverseOp, selector),
+          Sequelize.where(Sequelize.literal(escaped), converseOp, selector),
           Sequelize.literal(optimisingCondition),
         ],
       };

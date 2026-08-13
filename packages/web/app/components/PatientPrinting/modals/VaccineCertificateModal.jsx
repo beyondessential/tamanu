@@ -100,6 +100,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       additionalActions={
         <EmailButton
           onEmail={createVaccineCertificateNotification}
+          email={patient.email}
           data-testid="emailbutton-f55q"
         />
       }

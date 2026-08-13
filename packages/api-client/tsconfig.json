@@ -12,8 +12,8 @@
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "skipLibCheck": true,
-    "target": "es2020",
-    "lib": ["ES2020", "DOM"],
+    "target": "es2025",
+    "lib": ["es2025", "ESNext.Collection", "ESNext.Temporal"],
     "incremental": true
   }
 }
