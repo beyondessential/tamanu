@@ -15,11 +15,6 @@ import type { InitOptions, Models } from '../types/model';
 // ships on both central and facility, but only the facility server mounts the
 // middleware that writes to it; on central it sits empty until that surface is
 // classified and the middleware is mounted there too.
-export const IDEMPOTENCY_KEY_STATUSES = {
-  IN_PROGRESS: 'in_progress',
-  COMPLETED: 'completed',
-} as const;
-
 export class IdempotencyKey extends Model {
   declare id: string;
   declare key: string;
@@ -31,6 +26,7 @@ export class IdempotencyKey extends Model {
   declare status: string;
   declare responseStatus?: number;
   declare responseBody?: unknown;
+  declare responseContentType?: string;
   declare claimedAt: Date;
   declare completedAt?: Date;
   declare expiresAt: Date;
@@ -49,6 +45,9 @@ export class IdempotencyKey extends Model {
         // Set together when the operation completes and commits.
         responseStatus: { type: DataTypes.INTEGER, allowNull: true },
         responseBody: { type: DataTypes.JSONB, allowNull: true },
+        // Lets a replay reproduce the original response's content type rather
+        // than assuming JSON.
+        responseContentType: { type: DataTypes.TEXT, allowNull: true },
         // When the in-progress claim was taken — drives the lease that reclaims a
         // claim abandoned by a server crash (only reachable once a committed
         // in-progress marker is used; see the plan's transaction-topology note).

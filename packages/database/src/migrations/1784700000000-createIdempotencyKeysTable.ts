@@ -67,6 +67,12 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.JSONB,
       allowNull: true,
     },
+    // Content type of the recorded response, so a replay reproduces the original
+    // exactly rather than assuming JSON.
+    response_content_type: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     claimed_at: {
       type: DataTypes.DATE,
       allowNull: false,

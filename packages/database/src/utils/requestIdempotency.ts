@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { ExpressRequest } from 'types/express';
 import type { NextFunction, Response } from 'express';
 
-import { IDEMPOTENCY_KEY_STATUSES } from '../models/IdempotencyKey';
+import { IDEMPOTENCY_KEY_STATUSES } from '@tamanu/constants';
 
 // spec: IDEM
 //
@@ -35,6 +35,7 @@ interface CapturedResponse {
   body: unknown;
   kind: 'json' | 'send' | 'end';
   endArgs?: unknown[];
+  contentType?: string;
 }
 
 interface RequestIdempotencyOptions {
@@ -110,7 +111,14 @@ export function createRequestIdempotencyMiddleware({
     });
     const capture = (kind: CapturedResponse['kind'], body: unknown, endArgs?: unknown[]) => {
       if (captured) return; // capture once; ignore any follow-on calls
-      captured = { statusCode: res.statusCode, body, kind, endArgs };
+      const contentType = res.getHeader('content-type');
+      captured = {
+        statusCode: res.statusCode,
+        body,
+        kind,
+        endArgs,
+        contentType: typeof contentType === 'string' ? contentType : undefined,
+      };
       onResponded();
     };
     res.json = function interceptJson(body: unknown) {
@@ -140,8 +148,42 @@ export function createRequestIdempotencyMiddleware({
     let replayRecord: InstanceType<typeof IdempotencyKey> | undefined;
     let conflict: 'mismatch' | 'in_progress' | undefined;
 
+    // The recorded form of the handler's response body.
+    //
+    // Most handlers here respond with `res.send`, and `ensurePermissionCheck`
+    // restores its own `res.send` when a handler flags its permission check —
+    // which drops the override above. Those responses therefore reach us at
+    // `res.end` as an already-serialised chunk, so decode it back into a value
+    // worth storing rather than recording nothing.
+    const recordedBody = (): unknown => {
+      if (!captured) return null;
+      if (captured.kind !== 'end') return captured.body;
+
+      const chunk = captured.body;
+      if (chunk === null || chunk === undefined) return null;
+      const text = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
+      if (text === '') return null;
+      if (captured.contentType?.includes('json')) {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text; // not the JSON it claimed to be; keep it verbatim
+        }
+      }
+      return text;
+    };
+
     const flush = () => {
       intercepting = false;
+      // When we answer without running the handler — a replay or a conflict — no
+      // handler ran to satisfy `ensurePermissionCheck`, whose `res.send` stub
+      // throws until a permission check flags itself. Flag it here: a replay is
+      // the same user's own recorded outcome for an identical request (the key is
+      // scoped to user + facility and bound to the request hash), and a conflict
+      // discloses nothing. Guarded because only the facility server installs it.
+      if ((conflict || replayRecord) && req.flagPermissionChecked) {
+        req.flagPermissionChecked();
+      }
       if (conflict === 'mismatch') {
         res
           .status(409)
@@ -156,7 +198,20 @@ export function createRequestIdempotencyMiddleware({
       }
       if (replayRecord) {
         res.status(replayRecord.responseStatus ?? 200);
-        originalJson(replayRecord.responseBody);
+        const body = replayRecord.responseBody;
+        const contentType = replayRecord.responseContentType;
+        if (body === null || body === undefined) {
+          (originalEnd as (...a: unknown[]) => Response)();
+          return;
+        }
+        // Reproduce a non-JSON response as it was; anything else is JSON, which
+        // res.json serialises and labels for us.
+        if (contentType && !contentType.includes('json')) {
+          res.setHeader('Content-Type', contentType);
+          (originalEnd as (...a: unknown[]) => Response)(String(body));
+          return;
+        }
+        originalJson(body);
         return;
       }
       if (!captured) return; // nothing to flush (handler produced no response)
@@ -223,7 +278,8 @@ export function createRequestIdempotencyMiddleware({
           {
             status: IDEMPOTENCY_KEY_STATUSES.COMPLETED,
             responseStatus: statusCode,
-            responseBody: captured?.kind === 'end' ? null : captured?.body,
+            responseBody: recordedBody(),
+            responseContentType: captured?.contentType ?? null,
             completedAt: new Date(),
             expiresAt: new Date(Date.now() + retentionMs),
           },

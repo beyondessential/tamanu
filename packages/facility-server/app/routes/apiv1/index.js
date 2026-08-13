@@ -4,6 +4,7 @@ import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { createRequestIdempotencyMiddleware } from '@tamanu/database/utils/requestIdempotency';
+import { IDEMPOTENCY_EXCLUDED_PATHS } from './idempotencyPolicy';
 import { suggestions } from '@tamanu/shared/services/suggestions';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
@@ -172,24 +173,12 @@ export function createApiv1({ authLimiter } = {}) {
 
   // Idempotency for mutating requests that carry an `Idempotency-Key` header, so a
   // client can durably retry after a dropped connection without duplicating
-  // records. Skips token-issuing, sync/streaming, and AI endpoints, which must not
-  // be replayed (see specs/platform/request-idempotency.md).
+  // records. Everything registered from here down is covered; the exclusions and
+  // the reason for each live in ./idempotencyPolicy, which the policy test holds
+  // to the routes actually registered (see specs/platform/request-idempotency.md).
   apiv1.use(
     createRequestIdempotencyMiddleware({
-      excludePaths: [
-        /^\/refresh$/,
-        /^\/setFacility$/,
-        /^\/admin(\/|$)/,
-        /^\/sync(\/|$)/,
-        /^\/syncHealth(\/|$)/,
-        /^\/patientFacility(\/|$)/,
-        /^\/ai(\/|$)/,
-        // These two use unmanaged transactions with an explicit commit(), so they
-        // are not safely covered by the single wrapping transaction. Migrate them
-        // to managed transactions to bring them back in.
-        /^\/invoices\/[^/]+\/finalise$/,
-        /^\/invoices\/[^/]+\/insurancePlans$/,
-      ],
+      excludePaths: IDEMPOTENCY_EXCLUDED_PATHS,
     }),
   );
 

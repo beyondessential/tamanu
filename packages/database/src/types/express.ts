@@ -16,4 +16,7 @@ export interface ExpressRequest extends Request {
   audit: {
     access: (params: CreateAccessLogParams) => Promise<AccessLog | void>;
   };
+  // Installed by the servers that enforce a permission check per endpoint; marks
+  // this request's check as satisfied. Optional because not every server does.
+  flagPermissionChecked?: () => void;
 }

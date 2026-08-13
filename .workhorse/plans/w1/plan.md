@@ -274,9 +274,10 @@ at `.workhorse/breakdowns/w1/breakdown.md`.
   `/ai` (+ the two invoice endpoints below).
 - [x] Retention cleanup `CleanupIdempotencyKeys` `ScheduledTask`, scheduled through the
   facility settings schema (`schedules.cleanupIdempotencyKeys`) like the other tasks.
-- [ ] Regenerate dbt source models (`database/model/`) with `response_body` masking
-  — deferred to handoff (needs a live DB + `npm run dbt-generate-model`).
+- [x] Regenerate dbt source models (`database/model/`) with `response_body` masking
+  (`empty`) and the `system` tag; docs filled in and `dbt-check-todos` clean.
 - [x] **Design A audit** (see result below).
+- [x] Automated tests and the policy guard (see below).
 
 ### Design A audit result
 
@@ -296,13 +297,49 @@ idempotency** via the skip-list for now — safe either way. Follow-up: migrate 
 to managed transactions (`req.db.transaction(async () => …)`, no `{ transaction }`
 args) per `llm/project-rules/sequelize-transactions.md`, then drop the exclusions.
 
-### Needs runtime verification (can't run here)
+### Runtime verification — done
 
-- **CLS propagation across `next()`** — that the handler's writes enrol in the
-  middleware's wrapping transaction (the load-bearing premise; same mechanism as
-  `attachAuditUserToDbSession`, but confirm end-to-end).
-- **Error-path rollback** — a handler throw routes to the app error handler, whose
-  `res.status().send()` is captured by the response override, driving rollback +
-  flush of the error response.
-- **Response buffering** under Express 5 for `res.json`/`res.send`/`res.end`.
-- The unmanaged-transaction nesting question above.
+Verified against a real stack (local Postgres, facility test harness). All four
+questions are now covered by tests rather than reasoning:
+
+- **CLS propagation across `next()`** — confirmed. A handler that writes and then
+  returns 4xx has its write rolled back with the middleware's transaction, without
+  the handler knowing a transaction exists.
+- **Error-path rollback** — confirmed, including a handler that throws.
+- **Response buffering** under Express 5 — confirmed, with a caveat found in
+  testing (below).
+- **Nested managed transaction** — confirmed to commit atomically as a savepoint.
+
+### Bugs the tests found
+
+Three defects that only a running stack could expose:
+
+1. **Model registration was broken.** `IdempotencyKey.ts` exported the status
+   constant, and `models/index.ts` re-exports that file wholesale into the model
+   registry, which calls `initModel()` on every export. Any server booting with
+   this branch threw `Model undefined has no initModel()`. Moved
+   `IDEMPOTENCY_KEY_STATUSES` to `@tamanu/constants` (where the other status
+   enums live).
+2. **Every replay returned 501.** `ensurePermissionCheck` swaps `res.send` for a
+   stub that throws until a handler flags its permission check. Replays and 409s
+   answer without running a handler, so nothing ever flagged it. The middleware
+   now flags it on those paths — sound because a replay is the same user's own
+   recorded outcome for an identical request.
+3. **Recorded responses lost their body.** Handlers here respond via `res.send`,
+   and `ensurePermissionCheck` restores its own `res.send` when the permission
+   check is flagged — which drops the middleware's `res.send` override. Responses
+   therefore arrive at `res.end` as a serialised chunk, and the old code stored
+   `null` for that path, so a replay returned an empty body. The chunk is now
+   decoded, and `response_content_type` was added so a replay reproduces the
+   original response rather than assuming JSON.
+
+### Policy guard
+
+The question this answers: with idempotency mounted across apiv1, how do we stop
+a gap appearing months from now? Coverage is opt-out, so an endpoint can only be
+uncovered by being registered above the middleware, mounted outside apiv1, or
+matching an exclusion. `app/routes/apiv1/idempotencyPolicy.js` holds all three as
+data with a reason per entry, and `__tests__/apiv1/idempotencyPolicy.test.js`
+holds that data against the router as actually built. Adding an ordinary endpoint
+needs no change there; opening a gap fails the test. Both guards were checked by
+deliberately introducing violations and confirming the failure.
