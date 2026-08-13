@@ -1,6 +1,6 @@
 # Labs Enhancements card breakdown
 
-Cards derived from the 13 requirements in the PRD. The first ten form a dependency chain that rewrites the lab request workflow (PRD requirements 1, 2, 6 and 12) and should be spawned roughly in order. The rest are independent and can run in parallel, ordered by the PRD's priority.
+Cards derived from the 13 requirements in the PRD. The first nine form a dependency chain that rewrites the lab request workflow (PRD requirements 1, 2, 6 and 12) and should be spawned roughly in order. The rest are independent and can run in parallel, ordered by the PRD's priority.
 
 ## One lab request per category
 
@@ -12,7 +12,7 @@ Replace the up-front individual/panel radio with a single list combining tests a
 
 ## Sample details step grouped by category
 
-Rework the sample details step so samples are grouped by category, each listing the tests and panels it contains alphabetically. Depends on the one-request-per-category card.
+Rework the sample details step so samples are grouped by category, each listing the tests and panels it contains alphabetically. The same modal is reused when recording a sample from the lab request view, keeping the existing Record sample details header there. Depends on the one-request-per-category card.
 
 ## Finalise modal with category grouping and auto-selected samples
 
@@ -29,10 +29,6 @@ Bring the results entry modal onto the same layout as the lab request view resul
 ## Category column and test tooltip on lab request listings
 
 Across the encounter-level labs table, the active requests table and the published requests table: remove the Panel column, rename Test category to Category in both column and search, and show the request's tests and panels on hover over the category.
-
-## Record sample details modal reusing the workflow modal
-
-Replace the modal used when recording a sample from the lab request view with the sample details modal from the new request workflow, keeping the existing Record sample details header.
 
 ## Standard lab request label format
 
