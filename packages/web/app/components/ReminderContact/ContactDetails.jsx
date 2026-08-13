@@ -1,12 +1,12 @@
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { WS_EVENTS } from '@tamanu/constants';
 import { TextButton, TranslatedText, VisuallyHidden, useTranslation } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 import { joinNames } from '../../utils/user';
 import { useSocket } from '../../utils/useSocket';
 import { DataFetchingTable, Table } from '../Table';
@@ -153,8 +153,8 @@ export const ContactDetails = ({
 }) => {
   const { socket } = useSocket();
   const { getTranslation } = useTranslation();
-  const patient = useSelector(state => state.patient);
-  const patientName = joinNames(patient);
+  const { patient } = usePatient();
+  const patientName = joinNames(patient ?? {});
   const [isEmpty, setIsEmpty] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -169,6 +169,8 @@ export const ContactDetails = ({
     socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
     return () => socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
   }, []);
+
+  if (!patient) return null;
 
   const onDataFetched = ({ count }) => {
     setIsEmpty(!count);

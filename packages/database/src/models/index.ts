@@ -6,6 +6,7 @@ export * from './LocalSystemFact';
 export * from './LocalSystemSecret';
 export * from './Blob';
 export * from './BlobQuarantine';
+export * from './IdempotencyKey';
 export * from './PortalUser';
 export * from './Device';
 

@@ -299,6 +299,7 @@ export const facilitySettings = {
           { schedule: '*/5 * * * *', jitterTime: '30s' },
           batchingProperties(50, 1000),
         ),
+        cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
       },
     },
     sync: {
