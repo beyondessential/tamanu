@@ -108,15 +108,23 @@ and lands the moment someone adds a JSONB-pathed `number` parameter, or a JSONB-
 There is no test coverage: nothing in the repo exercises `generateWhereClause` or
 `singleMatch`, and no test hits `date-start` or `end-date`.
 
-## Recommended fix
+## Fix
 
-- [ ] Change the four ordering entries in `INVERSE_OPS` to converses: `gt`→`lt`, `gte`→`lte`, `lt`→`gt`, `lte`→`gte`
-- [ ] Rename the map to `CONVERSE_OPS` (or similar). "Inverse" reads as negation, which is exactly the mistake the map makes; the surrounding comment already says the intent is direction reversal, not negation
-- [ ] Add unit coverage over `singleMatch` for the JSONB path — both regex and ordering ops — asserting the emitted comparison rather than only end-to-end search results, since end-to-end results cannot currently distinguish the two mappings
-- [ ] Add an integration test for `Encounter?date-start=` and `?end-date=` with each of the six prefixes; there is no coverage of these parameters today
+- [x] Change the four ordering entries in `INVERSE_OPS` to converses: `gt`→`lt`, `gte`→`lte`, `lt`→`gt`, `lte`→`gte`
+- [x] Rename the map to `CONVERSE_OPS`. "Inverse" reads as negation, which is exactly the mistake the map makes; the surrounding comment already said the intent is direction reversal, not negation
+- [x] Add unit coverage over `singleMatch` for the JSONB path — both regex and ordering ops — asserting the emitted comparison rather than only end-to-end search results, since end-to-end results cannot distinguish the two mappings. Verified by reintroducing the old mapping: the four ordering tests fail, the rest pass
+- [x] Add integration coverage for `Encounter?date-start=` and `?end-date=`, which had none
+
+Integration coverage stops short of all six prefixes. `gt` and `le` cannot be asserted
+on a day an encounter falls on without pinning the range-semantics defect in place, so
+those boundary cases are left to Q3 and recorded as owed coverage in the card's test
+cases. `gt` is covered against a non-encounter day instead.
 
 The fix is behaviour-preserving against all live search parameters, so it needs no
 spec change and carries no migration.
+
+Running the central-server suite on this machine needs `DATABASE_URL` unset — when it is
+set, `resolveDbConfig` lets it override the test config's connection target.
 
 ## Adjacent findings (out of scope for this card)
 
