@@ -5,7 +5,6 @@ import { Box } from '@material-ui/core';
 import {
   BaseModal,
   Button,
-  TranslatedReferenceData,
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
@@ -15,7 +14,11 @@ import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
-import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
+import {
+  buildInstructionText,
+  MedicationNameWithDiscontinuedTag,
+  usePresetLabelsQuery,
+} from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -91,11 +94,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
         <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />
       ),
       value: (
-        <TranslatedReferenceData
-          fallback={medication?.name}
-          value={medication?.id}
-          category={medication?.type}
-        />
+        <MedicationNameWithDiscontinuedTag medication={medication} prescription={prescription} />
       ),
     },
     {

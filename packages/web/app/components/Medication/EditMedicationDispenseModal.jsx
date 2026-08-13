@@ -7,7 +7,6 @@ import {
   ConfirmCancelBackRow,
   ConfirmCancelRow,
   TranslatedText,
-  TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
@@ -30,6 +29,7 @@ import {
   getStockStatus,
   getTranslatedMedicationName,
   InstructionsInput,
+  MedicationNameWithDiscontinuedTag,
   QuantityInput,
   resolvePresetLabelText,
   StyledPresetLabelAutocomplete,
@@ -276,10 +276,9 @@ export const EditMedicationDispenseModal = memo(
           width: '250px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           accessor: ({ pharmacyOrderPrescription }) => (
-            <TranslatedReferenceData
-              fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
-              value={pharmacyOrderPrescription?.prescription?.medication?.id}
-              category={pharmacyOrderPrescription?.prescription?.medication?.type}
+            <MedicationNameWithDiscontinuedTag
+              medication={pharmacyOrderPrescription?.prescription?.medication}
+              prescription={pharmacyOrderPrescription?.prescription}
             />
           ),
         },
