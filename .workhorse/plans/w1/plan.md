@@ -239,7 +239,8 @@ and the idempotency layer does not provide it.
 ## Spec
 
 Server-side behaviour is specified in `specs/platform/request-idempotency.md`
-(id `IDEM`). The client durable-queue follow-up is captured in `card-plan.md`.
+(id `IDEM`). The client durable-queue follow-up is captured in the card breakdown
+at `.workhorse/breakdowns/w1/breakdown.md`.
 
 ## Open questions
 - **Resolved:** key is carried in an `Idempotency-Key` header (not derived from a
