@@ -1,0 +1,111 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: idempotency_keys
+        description: "{{ doc('table__idempotency_keys') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in idempotency_keys."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in idempotency_keys."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in idempotency_keys."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in idempotency_keys."
+          - name: key
+            data_type: text
+            description: "{{ doc('idempotency_keys__key') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('idempotency_keys__user_id') }}"
+            data_tests:
+              - not_null
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('idempotency_keys__facility_id') }}"
+            data_tests:
+              - not_null
+          - name: method
+            data_type: text
+            description: "{{ doc('idempotency_keys__method') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: path
+            data_type: text
+            description: "{{ doc('idempotency_keys__path') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: request_hash
+            data_type: text
+            description: "{{ doc('idempotency_keys__request_hash') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: status
+            data_type: text
+            description: "{{ doc('idempotency_keys__status') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: response_status
+            data_type: integer
+            description: "{{ doc('idempotency_keys__response_status') }}"
+          - name: response_body
+            data_type: jsonb
+            description: "{{ doc('idempotency_keys__response_body') }}"
+            config:
+              meta:
+                masking: empty
+          - name: response_content_type
+            data_type: text
+            description: "{{ doc('idempotency_keys__response_content_type') }}"
+            config:
+              meta:
+                masking: text
+          - name: claimed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('idempotency_keys__claimed_at') }}"
+            data_tests:
+              - not_null
+          - name: completed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('idempotency_keys__completed_at') }}"
+          - name: expires_at
+            data_type: timestamp with time zone
+            description: "{{ doc('idempotency_keys__expires_at') }}"
+            data_tests:
+              - not_null
