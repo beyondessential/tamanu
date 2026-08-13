@@ -1,17 +1,27 @@
 import { Page, Locator } from '@playwright/test';
 
+import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+
 export class PrepareDischargeModal {
   readonly page: Page;
   readonly form: Locator;
   
   // Form fields
   readonly dischargeNoteTextarea: Locator;
-  
+
+  readonly dischargeDateInput: Locator;
+  readonly dischargingClinicianField: Locator;
+  readonly dischargingClinicianInput: Locator;
+  readonly dispositionField: Locator;
+  readonly dispositionInput: Locator;
+
   readonly orderingPrescriberInput: Locator;
 
   // Action buttons
   readonly confirmButton: Locator;
   readonly cancelButton: Locator;
+  readonly saveAndExitButton: Locator;
+  readonly discardChangesButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -23,13 +33,32 @@ export class PrepareDischargeModal {
     this.dischargeNoteTextarea = page.getByTestId('field-0uma-input');
     // The field's test id lands on the input's container rather than the input, so the disabled
     // state is only readable from the input itself.
+    // The autocomplete helper drives the field container (it reads its test id to find the
+    // suggestions list), while assertions read the input the selection lands in.
+    this.dischargeDateInput = page.locator('input[name="endDate"]');
+    this.dischargingClinicianField = page.getByTestId('field-6we6');
+    this.dischargingClinicianInput = page.locator('input[name="discharge.dischargerId"]');
+    this.dispositionField = page.getByTestId('localisedfield-d7fu');
+    this.dispositionInput = page.locator('input[name="discharge.dispositionId"]');
+
     this.orderingPrescriberInput = page.locator(
       'input[name="pharmacyOrder.orderingClinicianId"]',
     );
     
     // Action buttons (these would need to be updated with actual test IDs from the modal)
     this.confirmButton = page.getByTestId('box-p5wr');
+    // Only closes the modal outright on an untouched form. A form with edits steps forward to
+    // the unsaved-changes screen instead, so use cancelAndDiscardChanges() for that.
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
+    // Saving the form as a draft, and discarding it from the unsaved-changes screen. Both are
+    // the button row's back-row button, which every such row shares a test id for, so they are
+    // addressed by their own copy within the dialog.
+    this.saveAndExitButton = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Save & exit', exact: true });
+    this.discardChangesButton = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Discard changes', exact: true });
   }
 
   async waitForModalToLoad() {
@@ -38,8 +67,13 @@ export class PrepareDischargeModal {
   }
 
 
+  /**
+   * Waits on the dialog rather than a field inside it. The form's later screens (summary,
+   * unsaved changes) unmount the note textarea, so waiting on that would resolve the moment the
+   * form stepped forward and report a close that had not happened.
+   */
   async waitForModalToClose() {
-    await this.dischargeNoteTextarea.waitFor({ state: 'detached' });
+    await this.page.getByRole('dialog').waitFor({ state: 'detached' });
   }
 
   // Every medication row reuses the same test IDs for its inputs, so a row is addressed by its
@@ -66,9 +100,71 @@ export class PrepareDischargeModal {
     await input.fill(String(quantity));
   }
 
+  /**
+   * Sets the discharge date. The field is a native datetime-local, so the value is read back in
+   * the same form it is written — callers compare against what they set rather than a stored
+   * representation, which the facility timezone may shift.
+   */
+  async setDischargeDate(value: string) {
+    await this.dischargeDateInput.waitFor({ state: 'visible' });
+    await this.dischargeDateInput.fill(value);
+  }
+
+  /**
+   * Picks the first suggestion in an autocomplete and returns the label the field then shows.
+   * Fails loudly when the deployment has no options to pick, rather than handing back an
+   * undefined that a later assertion would compare against and pass.
+   */
+  private async selectFirstOption(field: Locator, fieldName: string): Promise<string> {
+    const label = await selectAutocompleteFieldOption(this.page, field, {
+      selectFirst: true,
+      returnOptionText: true,
+    });
+    if (!label) {
+      throw new Error(`No ${fieldName} options were available to select`);
+    }
+    return label;
+  }
+
+  /** Picks a discharging clinician, returning the label the field then shows. */
+  async selectDischargingClinician(): Promise<string> {
+    return this.selectFirstOption(this.dischargingClinicianField, 'discharging clinician');
+  }
+
+  /** Picks a discharge disposition, returning the label the field then shows. */
+  async selectDisposition(): Promise<string> {
+    return this.selectFirstOption(this.dispositionField, 'discharge disposition');
+  }
+
   /** Submits the form without expecting it to pass validation. */
   async attemptFinaliseDischarge() {
     await this.confirmButton.click();
+  }
+
+  /** Saves the form as a draft and closes it, leaving the encounter open. */
+  async saveAndExit() {
+    await this.saveAndExitButton.click();
+    await this.waitForModalToClose();
+  }
+
+  /**
+   * Closes a form with unsaved changes by discarding them. A form with edits routes to the
+   * unsaved-changes screen rather than closing outright, so the discard has to be confirmed there.
+   */
+  async cancelAndDiscardChanges() {
+    await this.cancelButton.click();
+    await this.discardChangesButton.waitFor({ state: 'visible' });
+    await this.discardChangesButton.click();
+    await this.waitForModalToClose();
+  }
+
+  /** Steps back to the form from the unsaved-changes screen, keeping what was entered. */
+  async cancelAndReturnToForm() {
+    await this.cancelButton.click();
+    await this.discardChangesButton.waitFor({ state: 'visible' });
+    // The unsaved-changes screen's own cancel is what returns to the form.
+    await this.cancelButton.click();
+    await this.discardChangesButton.waitFor({ state: 'hidden' });
   }
 
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */
