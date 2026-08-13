@@ -166,3 +166,22 @@ Progress depends on specifics — which records, when. Give IRD time to supply d
 ### Mandatory-when-visible (parked)
 
 Not a live issue — IRD reconfigured to remove the mandatory questions, and both desktop and mobile are expected to gate mandatory on visibility (as Meditrak/DataTrack do). Leave to one side and revisit in spare time or a quick-wins batch; confirm whether mobile actually has a gap before doing any work.
+
+---
+
+## Missed in call between Jasper and Edwin
+
+Items the IRD call surfaced that the internal working session didn't cover, or assumed the other way. Follow-ups to close.
+
+- **Initial sync scope contradiction (resolve first).** The session parked initial sync as out of scope ("not something they've complained about"). The IRD call names it as the single most disruptive issue — 33–37 min on fast office internet, frequently not finishing, forcing a full restart, plus mid-sync crashes. Reconcile the "Out of scope" bullet: initial-sync reliability, crashes, and facility scoping are in scope; only deep re-optimisation of the already-tuned path stays out.
+- **Mobile ↔ ET-device connectivity.** The reason IRD use desktop in the field and the real ceiling on mobile's field viability — a field mobile user can't hand a patient to the next station without waiting for internet, because mobile can't connect to the ET device. Never discussed internally. Likely behaviour change and probably beyond this cycle → needs an explicit Edwin/Megan decision rather than silent omission.
+- **GZIP compression.** Is the sync payload compressed? Bilal asked directly; answer owed back to IRD.
+- **Resume vs restart on dropped connection.** Does an interrupted sync continue from where it stopped or start over? Critical given unstable field internet; never came up. Answer owed back to IRD.
+- **Sync scope answer owed.** Confirm whether each device pulls only its facility or the entire central patient base (all facilities), and how that scales to millions of patients. The marked-for-sync discussion is adjacent but doesn't answer this directly.
+- **Data loss after a successful sync.** IRD report forms disappearing *after* a sync completes (some, not all) — not explained by the APK-reinstall upgrade hypothesis. Chase as a distinct cause, alongside the desktop case (14–15 forms gone after a data download).
+- **Engagement mechanics reconciliation.** The session landed on a spreadsheet + Mon/Wed standups; the IRD call establishes WhatsApp-tagging + Bilal's OS Ticket + live screen-share/log diagnosis, POCs (Saman coordinating, Minhal + rotating supervisors), and a hard window to ~20 August. Align Jasper's issue log with OS Ticket to avoid a parallel record.
+- **Device specs list.** IRD offered to email specs of all mobile devices/tablets — make sure it lands.
+- **Fresh disk-IO error** on the latest build (v0.5.29), separate from the index-creation "driver" error already discussed.
+- **Incremental sync has specifics now.** Not "vague" — crashes on both initial and incremental sync, ~10% of users, none in the last three weeks.
+- **Performance not actually resolved.** The 3–5 min form-load fix worked for one user (Ali) but recurred for another on v0.5.29, and Minhal finds no difference old-vs-new — confirms the perf work is still open.
+- **Strategic sizing note.** The field is desktop-first via the ET device; mobile is used mainly by phone-only staff without tablets. How big the mobile-sync prize is depends on how many are actually on mobile — and their "make mobile usable in the field" ask routes through the ET-connectivity question as much as raw performance.
