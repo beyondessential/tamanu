@@ -39,10 +39,7 @@ export const presetLabelFormatter = ({ id, code, name }) => ({
   label: code,
   presetName: name,
 });
-export const PRESET_LABEL_SUGGESTER_OPTIONS = {
-  formatter: presetLabelFormatter,
-  baseQueryParameters: { noLimit: true },
-};
+export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
