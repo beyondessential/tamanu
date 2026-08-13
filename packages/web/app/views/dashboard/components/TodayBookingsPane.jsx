@@ -99,10 +99,12 @@ const StyledTimelineItem = styled(TimelineItem)`
   &:before {
     content: none;
   }
-  &:last-child {
-    .MuiTimelineConnector-root {
-      display: none;
-    }
+  /* Past the last dot the rail carries on far enough to read as running out of it,
+     then stops short of the footer's rule rather than running into it. The
+     separator's last child is its trailing connector; on every other row that
+     connector fills the gap to the dot below. */
+  &:last-child .MuiTimelineSeparator-root > :last-child {
+    flex: 0 0 12px;
   }
 `;
 
@@ -113,9 +115,20 @@ const StyledTimelineDot = styled(TimelineDot)`
   box-shadow: none;
 `;
 
-const StyledTimelineSeparator = styled(TimelineSeparator)`
-  position: relative;
-  top: 21px;
+/**
+ * Rail above the dot as well as below it, so the rail runs from the top of the list
+ * into every dot rather than only between consecutive pairs. A list of one is then
+ * laid out like any other, its dot sitting on rail that runs in and back out of it
+ * instead of floating with nothing to place it against.
+ *
+ * It also puts the dot where it belongs as a matter of layout: this segment's height
+ * is the offset. Nudging the separator down with relative positioning left the row's
+ * real height 21px short of what was drawn, and that overhang was scrollable overflow
+ * in the list above, which showed up as a scrollbar on a list that plainly fit.
+ */
+const LeadConnector = styled(StyledTimelineConnector)`
+  /* Sets where the dot falls: level with the first line of text in the card beside it */
+  flex: 0 0 21px;
 `;
 
 /* Sized in lines of text, so it grows rather than clipping when a row wraps */
@@ -207,7 +220,8 @@ const BookingsTimelineItem = ({ appointment, today }) => {
 
   return (
     <StyledTimelineItem data-testid="styledtimelineitem-fyu7">
-      <StyledTimelineSeparator data-testid="styledtimelineseparator-vte2">
+      <TimelineSeparator data-testid="styledtimelineseparator-vte2">
+        <LeadConnector data-testid="leadconnector-3nqa" />
         <StyledTimelineDot data-testid="styledtimelinedot-9oqv">
           <AppointmentStatusIndicator
             appointmentStatus={status}
@@ -217,10 +231,8 @@ const BookingsTimelineItem = ({ appointment, today }) => {
           />
         </StyledTimelineDot>
         <StyledTimelineConnector data-testid="styledtimelineconnector-qmh4" />
-      </StyledTimelineSeparator>
+      </TimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
-        {/* A booking within the day keeps its single line. One that spans days takes
-            two, so neither line has to be broken to fit the column. */}
         {/* A booking within the day keeps its single line. One that spans days puts
             its end on a second line, so neither line has to be broken to fit. */}
         <TimeText data-testid="timetext-4k7e">
@@ -349,7 +361,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
         </NoDataContainer>
       ) : (
         <>
-          <StyledTimeline length={appointments.length} data-testid="styledtimeline-j8uu">
+          <StyledTimeline data-testid="styledtimeline-j8uu">
             {appointments.map((appointment, index) => (
               <BookingsTimelineItem
                 key={appointment.id}

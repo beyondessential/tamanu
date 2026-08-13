@@ -300,7 +300,8 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
  * @param {string|Date} start
  * @param {string|Date} end
  * @param {string} onDate - A `yyyy-MM-dd` date in the display timezone that the
- *   range is being shown against, if any. An end falling on it needs no date.
+ *   range is being shown against, if any. An end falling on it needs no date,
+ *   unless the range spans days.
  */
 export const useDateRangeSpan = ({ start, end, onDate = null }) => {
   const { toFacilityDateTime } = useDateTime();
@@ -315,8 +316,12 @@ export const useDateRangeSpan = ({ start, end, onDate = null }) => {
     // be converted: a value that fails to convert renders as the formatter's
     // placeholder, which is visible, rather than the end silently disappearing.
     hasEnd: Boolean(end),
-    showStartDate: !onDate || startDay !== onDate,
-    showEndDate: spansMultipleDays && (!onDate || endDay !== onDate),
+    // A range that spans days carries a date at both ends, including the end that
+    // falls on `onDate`. Dating only the other end reads as though the undated one
+    // were the whole of the range's day, which is the confusion `onDate` exists to
+    // avoid; a dated pair states the span outright on every day it covers.
+    showStartDate: spansMultipleDays || !onDate || startDay !== onDate,
+    showEndDate: spansMultipleDays,
   };
 };
 
