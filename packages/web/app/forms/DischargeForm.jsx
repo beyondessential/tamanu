@@ -20,7 +20,6 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
-import { keyBy } from 'es-toolkit/compat';
 import {
   ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY,
   useEncounterDischargeDraftQuery,
@@ -37,7 +36,11 @@ import { useEncounter } from '../contexts/Encounter';
 import { createPrescriptionHash } from '../utils/medications';
 import { foreignKey } from '../utils/validation';
 import { EncounterOverview } from './DischargeEncounterOverview';
-import { buildDischargeNote, toDischargeDraftPayload } from './dischargeDraft';
+import {
+  buildDischargeNote,
+  buildMedicationsInitialValues,
+  toDischargeDraftPayload,
+} from './dischargeDraft';
 import {
   Divider,
   DischargeFormScreen,
@@ -167,48 +170,16 @@ const getDischargeInitialValues = ({
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: draft?.dischargerId || currentUser?.id,
+      dischargerId: draft?.dischargerId ?? currentUser?.id,
       dispositionId: draft?.dispositionId,
       note: buildDischargeNote({ draft, dischargeNotes }),
     },
     pharmacyOrder: {
-      orderingClinicianId: draft?.orderingClinicianId || currentUser?.id,
+      orderingClinicianId: draft?.orderingClinicianId ?? currentUser?.id,
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
   };
-};
-
-/*
-Creates an object to add initialValues to Formik that matches
-the table-like form fields.
-*/
-const getMedicationsInitialValues = ({
-  encounterMedications,
-  ongoingMedications,
-  draft,
-  isPharmacyOrderEnabled,
-}) => {
-  const medicationDraft = keyBy(draft?.medications ?? [], 'prescriptionId');
-  const medicationsInitialValues = {};
-
-  const addMedication = (medication, isSentToPharmacyByDefault) => {
-    const key = medication.id;
-    medicationsInitialValues[key] = {
-      // Left blank rather than zeroed when the prescription has no quantity, so the clinician sees
-      // an empty field to fill in rather than a number nobody entered.
-      quantity: medicationDraft[key]?.quantity ?? medication.quantity ?? null,
-      repeats:
-        medicationDraft[key]?.repeats?.toString() ?? medication?.repeats?.toString() ?? '0',
-      sendToPharmacy: medicationDraft[key]?.sendToPharmacy ?? isSentToPharmacyByDefault,
-    };
-  };
-
-  // Medications prescribed during the encounter are sent to pharmacy on discharge by default; the
-  // patient's other ongoing medications are only sent when the clinician asks for them.
-  encounterMedications.forEach(medication => addMedication(medication, isPharmacyOrderEnabled));
-  ongoingMedications.forEach(medication => addMedication(medication, false));
-  return medicationsInitialValues;
 };
 
 /**
@@ -284,7 +255,7 @@ export const DischargeForm = ({
   const ongoingMedications = (ongoingPrescriptions?.data || []).filter(
     p => !p.discontinued && !activeMedicationHashes.has(createPrescriptionHash(p)),
   );
-  const medicationInitialValues = getMedicationsInitialValues({
+  const medicationInitialValues = buildMedicationsInitialValues({
     encounterMedications: activeMedications,
     ongoingMedications,
     draft,

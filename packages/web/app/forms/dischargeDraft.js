@@ -24,6 +24,50 @@ export const buildDischargeNote = ({ draft, dischargeNotes }) => {
     .join('\n\n');
 };
 
+/**
+ * The medication rows the form opens with, keyed the way the table's fields are named.
+ *
+ * A saved line wins outright rather than field by field: the clinician may have deliberately
+ * cleared a quantity or repeats, and a null there means "they emptied it", not "fall back to the
+ * prescription". Medications with no saved line are ones added since the draft, so they take the
+ * live defaults.
+ */
+export const buildMedicationsInitialValues = ({
+  encounterMedications,
+  ongoingMedications,
+  draft,
+  isPharmacyOrderEnabled,
+}) => {
+  const draftLinesByPrescriptionId = Object.fromEntries(
+    (draft?.medications ?? []).map(line => [line.prescriptionId, line]),
+  );
+  const medicationsInitialValues = {};
+
+  const addMedication = (medication, isSentToPharmacyByDefault) => {
+    const key = medication.id;
+    const draftLine = draftLinesByPrescriptionId[key];
+    medicationsInitialValues[key] = draftLine
+      ? {
+          quantity: draftLine.quantity ?? null,
+          repeats: draftLine.repeats == null ? '' : draftLine.repeats.toString(),
+          sendToPharmacy: Boolean(draftLine.sendToPharmacy),
+        }
+      : {
+          // Left blank rather than zeroed when the prescription has no quantity, so the clinician
+          // sees an empty field to fill in rather than a number nobody entered.
+          quantity: medication.quantity ?? null,
+          repeats: medication?.repeats?.toString() ?? '0',
+          sendToPharmacy: isSentToPharmacyByDefault,
+        };
+  };
+
+  // Medications prescribed during the encounter are sent to pharmacy on discharge by default; the
+  // patient's other ongoing medications are only sent when the clinician asks for them.
+  encounterMedications.forEach(medication => addMedication(medication, isPharmacyOrderEnabled));
+  ongoingMedications.forEach(medication => addMedication(medication, false));
+  return medicationsInitialValues;
+};
+
 /** The request body for saving the form as it currently stands. */
 export const toDischargeDraftPayload = ({ values, dischargeNotes, isPharmacyOrderEnabled }) => ({
   endDate: values.endDate,

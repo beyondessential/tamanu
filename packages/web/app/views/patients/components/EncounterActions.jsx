@@ -221,7 +221,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         ) : (
           <>
             {hasDischargeDraft && (
-              <DraftTag>
+              <DraftTag data-testid="dischargedrafttag-p3wq">
                 <TranslatedText stringId="discharge.draft.tag" fallback="Draft" />
               </DraftTag>
             )}

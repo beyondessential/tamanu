@@ -8,7 +8,7 @@ first-time coverage rather than regression protection.
 
 - [x] Saving a draft stores it and reads back unchanged (verifies spec: DDRAFT)
 - [x] Saving twice replaces the draft rather than accumulating one per save
-- [ ] Save & exit closes the modal and leaves the encounter open, without navigating to the patient view
+- [x] Save & exit closes the modal and leaves the encounter open, without navigating to the patient view
 - [ ] Reopening the form restores discharge date, discharging clinician, and disposition
 - [x] Reopening restores each medication's quantity, repeats, and send-to-pharmacy (verifies spec: DDRAFT)
 - [x] A prescription dropped from the form does not survive the next save
@@ -32,18 +32,19 @@ first-time coverage rather than regression protection.
 - [x] One clinician does not see another clinician's draft (verifies spec: DDRAFT)
 - [x] One clinician saving does not overwrite another's draft (verifies spec: DDRAFT)
 - [x] Discarding clears only the requesting clinician's own draft (verifies spec: DDRAFT)
-- [ ] The draft indicator appears only for a clinician who has their own draft on the encounter
-- [ ] The indicator does not appear on a discharged encounter
+- [x] The draft indicator appears once the clinician has saved a draft, and not before
+- [ ] The indicator stays hidden for a clinician who is not the draft's author
+- [x] The indicator does not appear on a discharged encounter
 
 ## Leaving the form
 
-- [ ] Closing a form with unsaved changes offers save and exit, discard, or return to the form
+- [x] Closing a form with unsaved changes routes to the unsaved-changes screen rather than closing
 - [ ] Closing a form with no changes closes without asking
 - [ ] Returning to the form from the unsaved-changes screen keeps the entered values
 - [ ] Returning to the form and then finalising reaches the confirm-discharge step, not the unsaved-changes screen again
 - [ ] The modal title returns to "Discharge patient" after stepping back from the unsaved-changes screen
-- [ ] Discarding clears the draft and closes the modal
-- [ ] A clinician who cannot write discharges can still close a form they have edited
+- [x] Discarding clears the draft and closes the modal
+- [x] A clinician who cannot write discharges can still close a form they have edited
 
 ## Clearing
 

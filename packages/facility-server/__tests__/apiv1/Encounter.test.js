@@ -514,8 +514,11 @@ describe('Encounter', () => {
     });
 
     it('404s for an encounter that does not exist', async () => {
-      const result = await app.get('/api/encounter/not-a-real-encounter/dischargeDraft');
-      expect(result).toHaveStatus(404);
+      const missing = '/api/encounter/not-a-real-encounter/dischargeDraft';
+
+      expect(await app.get(missing)).toHaveStatus(404);
+      expect(await app.put(missing).send({ note: 'nowhere' })).toHaveStatus(404);
+      expect(await app.delete(missing)).toHaveStatus(404);
     });
 
     describe('permissions', () => {

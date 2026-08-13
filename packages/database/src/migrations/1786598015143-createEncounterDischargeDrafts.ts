@@ -84,8 +84,9 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  // One live draft per clinician per encounter. Partial so a soft-deleted draft never blocks
-  // the same clinician starting a new one.
+  // One live draft per clinician per encounter. Drafts are hard-deleted when cleared, so the
+  // partial clause is a safeguard rather than load-bearing: the model is paranoid like every
+  // model here, and a soft-deleted row must not block the clinician starting a new draft.
   await query.addIndex('encounter_discharge_drafts', ['encounter_id', 'user_id'], {
     name: 'encounter_discharge_drafts_encounter_user_unique',
     unique: true,
