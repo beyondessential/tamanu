@@ -31,8 +31,13 @@ import { useSuggester } from '../api';
 import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
 
-// `name` is carried through so the change handler can populate Label text from it.
-export const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
+// `presetName` (not `name`) is carried through so it survives AutocompleteInput's
+// change event — which overwrites a `name` key with its own form-field name prop.
+export const presetLabelFormatter = ({ id, code, name }) => ({
+  value: id,
+  label: code,
+  presetName: name,
+});
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const StyledInstructionsTextInput = styled(TextInput)`
@@ -118,19 +123,14 @@ export const usePresetLabelsQuery = ({ enabled, facilityId }) => {
   });
   return {
     presetLabelSuggester,
-    presetLabelsList,
     hasPresetLabels: (presetLabelsList?.length ?? 0) > 0,
   };
 };
 
-// Picking a preset replaces Label text with its translated name; clearing reverts
-// to the prescription-derived default. Pure — both modals' handlers reduce to one
-// call.
-export const resolvePresetLabelText = (presetId, presetLabelsList, fallbackText) => {
-  if (!presetId) return fallbackText ?? '';
-  const preset = presetLabelsList?.find(p => p.value === presetId);
-  return preset?.name ?? fallbackText ?? '';
-};
+// Picking a preset replaces Label text with its translated name (read straight off
+// the change event); clearing reverts to the prescription-derived default.
+export const resolvePresetLabelText = (presetId, presetName, fallbackText) =>
+  presetId ? presetName ?? fallbackText ?? '' : fallbackText ?? '';
 
 // Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
 // 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and

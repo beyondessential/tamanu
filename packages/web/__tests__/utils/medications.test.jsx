@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 
-import { buildInstructionText, buildLabelText } from '../../app/utils/medications';
+import {
+  buildInstructionText,
+  buildLabelText,
+  resolvePresetLabelText,
+} from '../../app/utils/medications';
 
 // Mirror the real translation helpers closely enough for formatting assertions:
 // getTranslation falls back to the provided English, getEnumTranslation resolves
@@ -75,5 +79,21 @@ describe('buildLabelText', () => {
     expect(buildInstructionText(basePrescription, getTranslation, getEnumTranslation)).toBe(
       '1 tab Two times daily, Oral, back pain. This is the medication note.',
     );
+  });
+});
+
+describe('resolvePresetLabelText', () => {
+  it('returns the fallback text when no preset is selected', () => {
+    expect(resolvePresetLabelText(null, 'Preset name', 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText(undefined, 'Preset name', 'Default label')).toBe('Default label');
+  });
+
+  it('resolves to the selected preset name', () => {
+    expect(resolvePresetLabelText('preset-1', 'Preset name', 'Default label')).toBe('Preset name');
+  });
+
+  it('falls back to the fallback text when the preset name is missing', () => {
+    expect(resolvePresetLabelText('preset-1', undefined, 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText('preset-1', null, 'Default label')).toBe('Default label');
   });
 });
