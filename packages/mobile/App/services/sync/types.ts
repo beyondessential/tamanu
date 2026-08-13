@@ -52,6 +52,8 @@ export type FetchOptions = {
   backoff?: callWithBackoffOptions;
   skipAttemptRefresh?: boolean;
   timeout?: number;
+  /** gzip the request body (if large enough) and send it with Content-Encoding: gzip */
+  compress?: boolean;
   [key: string]: any;
 };
 

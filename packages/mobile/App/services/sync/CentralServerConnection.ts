@@ -15,6 +15,7 @@ import {
 } from '../error';
 import { version } from '/root/package.json';
 import { callWithBackoff, sleepAsync } from './utils';
+import { gzipRequestBody } from './utils/gzipRequestBody';
 import { CentralConnectionStatus } from '~/types';
 
 type PullMetadataResponse = {
@@ -163,8 +164,24 @@ export class CentralServerConnection {
     body,
     options?: FetchOptions,
   ): Promise<T> {
-    const headers = { 'Content-Type': 'application/json', ...(options?.headers || {}) };
-    return this.fetch(path, query, { ...options, method: 'POST', headers, body }) as Promise<T>;
+    const { compress, ...restOptions } = options ?? {};
+    const headers = { 'Content-Type': 'application/json', ...(restOptions.headers || {}) };
+    let outgoingBody = body;
+    if (compress) {
+      // gzip the body and let body-parser on the central server inflate it;
+      // small bodies come back null and are sent as plain JSON
+      const gzipped = gzipRequestBody(body);
+      if (gzipped !== null) {
+        outgoingBody = gzipped;
+        headers['Content-Encoding'] = 'gzip';
+      }
+    }
+    return this.fetch(path, query, {
+      ...restOptions,
+      method: 'POST',
+      headers,
+      body: outgoingBody,
+    }) as Promise<T>;
   }
 
   async delete(path: string, query: Record<string, string | number>) {
@@ -264,7 +281,7 @@ export class CentralServerConnection {
   }
 
   async push(sessionId: string, changes): Promise<unknown> {
-    return this.post(`sync/${sessionId}/push`, {}, { changes });
+    return this.post(`sync/${sessionId}/push`, {}, { changes }, { compress: true });
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {

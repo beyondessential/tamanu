@@ -7,6 +7,7 @@ import {
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import axios from 'axios';
+import { gunzipSync, strFromU8 } from 'fflate';
 import { sleepAsync } from './utils';
 import { ERROR_TYPE } from '@tamanu/errors';
 
@@ -120,7 +121,50 @@ describe('CentralServerConnection', () => {
         {
           changes: mockChanges,
         },
+        { compress: true },
       );
+    });
+
+    it('should gzip large push bodies and send them with Content-Encoding: gzip', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      // enough records to comfortably exceed the 1KB compression threshold
+      const mockChanges = Array.from({ length: 50 }, (_, i) => ({
+        id: `test-id-${i}`,
+        recordId: `test-record-id-${i}`,
+        recordType: 'test-type',
+        data: { id: `test-id-${i}` },
+      }));
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers).toMatchObject({
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip',
+      });
+      expect(requestConfig.data).toBeInstanceOf(Uint8Array);
+      const inflated = JSON.parse(strFromU8(gunzipSync(requestConfig.data)));
+      expect(inflated).toEqual({ changes: mockChanges });
+    });
+
+    it('should send small push bodies as plain JSON', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      const mockChanges = [
+        {
+          id: 'test-id-1',
+          recordId: 'test-record-id',
+          recordType: 'test-type-1',
+          data: { id: 'test-id-1' },
+        },
+      ];
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers['Content-Encoding']).toBeUndefined();
+      expect(requestConfig.data).toEqual({ changes: mockChanges });
     });
   });
   describe('completePush', () => {

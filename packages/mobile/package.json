@@ -39,6 +39,7 @@
     "chance": "^1.1.8",
     "date-fns": "^2.25.0",
     "es-toolkit": "^1.48.1",
+    "fflate": "^0.8.1",
     "formik": "^2.1.2",
     "get-yarn-workspaces": "^1.0.2",
     "khmer-unicode-converter": "^0.0.6",
