@@ -4,6 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
+import { TamanuApi } from '@tamanu/api-client';
+import { blobEndpoints } from '@tamanu/blobs';
 import {
   BLOB_AVAILABILITY_STATES,
   BLOB_INTEGRITY_STATES,
@@ -13,6 +15,10 @@ import { BlobStore } from '@tamanu/database/blobStore';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 
 import { BlobTransferChannel } from '../../app/blobTransfer/BlobTransferChannel';
+
+// The shared test environment auto-mocks this, which would answer every call
+// with undefined; the point here is the request the real one builds.
+const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
@@ -265,6 +271,84 @@ describe('BlobTransferChannel', () => {
     });
   });
 
+  // spec: BLAC, XFER
+  // Central scopes every blob operation to the facilities the caller declares
+  // in its query string, so the ids have to reach the query slot of each call
+  // rather than its request config. The channel addresses the api client two
+  // ways — a local two-argument form and the api-client three-argument form —
+  // which is where a call can lose them without any local check noticing. This
+  // reads the calls as the client turns them into a URL.
+  describe('facility scoping on the wire', () => {
+    // Declaring a token so the request goes out rather than pausing to log in.
+    class SignedInCentralConnection extends CentralServerConnection {
+      hasToken() {
+        return true;
+      }
+    }
+
+    const bodyOf = content =>
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(content);
+          controller.close();
+        },
+      });
+
+    it('declares the server facility ids on every operation', async () => {
+      const content = Buffer.from('bytes that make every round trip');
+      const hash = hashOf(content);
+      const sent = [];
+      const apiFetch = jest
+        .spyOn(TamanuApi.prototype, 'fetch')
+        .mockImplementation(async (endpoint, query) => {
+          sent.push({ endpoint, query });
+          if (endpoint === blobEndpoints.availability(hash)) {
+            return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: content.length };
+          }
+          if (endpoint === blobEndpoints.offer(hash)) {
+            return { status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 0 };
+          }
+          if (endpoint === blobEndpoints.upload(hash)) {
+            return { acknowledged: true, size: content.length };
+          }
+          return {
+            status: 200,
+            headers: new Map([['content-length', String(content.length)]]),
+            body: bodyOf(content),
+          };
+        });
+
+      try {
+        const scoped = new BlobTransferChannel({
+          blobStore: localStore,
+          centralServer: new SignedInCentralConnection({ deviceId: 'test-device' }),
+          facilityIds: ['test-facility'],
+          pushChunkBytes: 8,
+        });
+
+        await scoped.availability(hash);
+        await scoped.fetchFromCentral(hash);
+        await scoped.pushToCentral(hash);
+      } finally {
+        apiFetch.mockRestore();
+      }
+
+      expect(new Set(sent.map(({ endpoint }) => endpoint))).toEqual(
+        new Set([
+          blobEndpoints.availability(hash),
+          blobEndpoints.content(hash),
+          blobEndpoints.offer(hash),
+          blobEndpoints.upload(hash),
+        ]),
+      );
+      for (const { endpoint, query } of sent) {
+        expect(query.facilityIds, `facility ids missing from ${endpoint}`).toEqual([
+          'test-facility',
+        ]);
+      }
+    });
+  });
+
   describe('availability', () => {
     it('reports locally held bytes as available', async () => {
       const { hash } = await localStore.put(Readable.from(Buffer.from('local bytes')));
@@ -488,6 +572,39 @@ describe('BlobTransferChannel', () => {
       expect(central.fetchCalls).toBe(1); // the availability probe alone, no byte transfer
       expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
     });
+
+    // spec: XFER — many small blobs transfer as concurrent requests over one
+    // shared connection, so a blob held up in transit must not hold up the
+    // blobs behind it. Serialising per hash is enough for staging integrity.
+    it('lets a transfer of another hash finish while one is still in flight', async () => {
+      const held = Buffer.from('a blob whose delivery is held open');
+      const behind = Buffer.from('the blob queued behind it');
+      const { hash: heldHash } = await centralStore.put(Readable.from(held));
+      const { hash: behindHash } = await centralStore.put(Readable.from(behind));
+
+      let releaseHeld;
+      const heldDelivery = new Promise(resolve => {
+        releaseHeld = resolve;
+      });
+      const deliver = central.fetch.bind(central);
+      central.fetch = async (endpoint, options, upOptions) => {
+        if (endpoint === blobEndpoints.content(heldHash)) {
+          await heldDelivery;
+        }
+        return await deliver(endpoint, options, upOptions);
+      };
+
+      const completed = [];
+      const heldFetch = channel.fetchFromCentral(heldHash).then(() => completed.push('held'));
+      await channel.fetchFromCentral(behindHash);
+      completed.push('behind');
+      releaseHeld();
+      await heldFetch;
+
+      expect(completed).toEqual(['behind', 'held']);
+      expect(await localStore.has(behindHash)).toBe(true);
+      expect(await localStore.has(heldHash)).toBe(true);
+    }, 15000);
 
     it('recovers on the next call when fully staged bytes fail verification', async () => {
       const content = Buffer.from('central holds the true content');

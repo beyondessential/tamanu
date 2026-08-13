@@ -1,9 +1,10 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
 import fs from 'fs';
 import config from 'config';
 import ReactPDF from '@react-pdf/renderer';
 
-import { BLOB_TIERS } from '@tamanu/constants';
+import { ASSET_NAMES, BLOB_TIERS } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -138,5 +139,64 @@ describe('PatientLetter', () => {
       // keep formatting with the runtime default locale.
       await models.Setting.destroy({ where: { key: 'dateTimeLocale' }, force: true });
     }
+  });
+
+  describe('letterhead asset', () => {
+    const admit = async bytes => {
+      const { hash } = await ctx.blobStore.put(Readable.from([bytes]), { sizeHint: bytes.length });
+      return hash;
+    };
+
+    const createLetterhead = (hash, assetFacilityId = null) =>
+      models.Asset.create({
+        name: ASSET_NAMES.LETTERHEAD_LOGO,
+        type: 'image/png',
+        hash,
+        data: null,
+        facilityId: assetFacilityId,
+      });
+
+    afterEach(async () => {
+      // The letterhead name is shared with the asset endpoint suite, which runs
+      // against the same worker database.
+      await models.Asset.destroy({ where: { name: ASSET_NAMES.LETTERHEAD_LOGO }, force: true });
+    });
+
+    // spec: ASSET
+    it('resolves a hash-form letterhead from the blob store', async () => {
+      const image = Buffer.from(`letterhead logo ${randomUUID()}`);
+      await createLetterhead(await admit(image));
+
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const [element] = renderSpy.mock.calls[0];
+      expect(element.props.logoSrc).toEqual(image);
+    });
+
+    // spec: ASSET
+    it('fails rather than rendering unbranded when the letterhead bytes cannot resolve', async () => {
+      await createLetterhead(
+        'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      );
+
+      const result = await createLetter();
+      expect(result).toHaveStatus(502);
+      expect(renderSpy).not.toHaveBeenCalled();
+    });
+
+    // spec: ASSET
+    it('prefers a facility-specific letterhead over the deployment-wide one', async () => {
+      const deploymentWide = Buffer.from(`deployment-wide letterhead ${randomUUID()}`);
+      const facilitySpecific = Buffer.from(`facility letterhead ${randomUUID()}`);
+      await createLetterhead(await admit(deploymentWide));
+      await createLetterhead(await admit(facilitySpecific), facilityId);
+
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const [element] = renderSpy.mock.calls[0];
+      expect(element.props.logoSrc).toEqual(facilitySpecific);
+    });
   });
 });
