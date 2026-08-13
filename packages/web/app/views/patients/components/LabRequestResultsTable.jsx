@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
+import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
 import { RangeValidatedCell } from '../../../components/FormattedTableCell';
@@ -33,6 +34,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
   const { getTranslation } = useTranslation();
   const [modalLabTestId, setModalLabTestId] = useState();
   const [modalOpen, setModalOpen] = useState(false);
+  const [showEditedEntryLegend, setShowEditedEntryLegend] = useState(false);
 
   const handleRowClick = row => {
     setModalLabTestId(row.id);
@@ -70,7 +72,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         ),
         key: 'result',
         accessor: row => {
-          const { labTestType, result, secondaryResult } = row;
+          const { labTestType, result, secondaryResult, isEdited: rowIsEdited } = row;
           const {
             options,
             id: labTestTypeId,
@@ -78,6 +80,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             unit,
             resultType,
           } = labTestType;
+          const isEdited = rowIsEdited === true;
           const hasSecondaryResult = Boolean(supportsSecondaryResults && secondaryResult);
           const secondaryResultTooltip = getTranslation(
             'lab.results.tooltip.secondaryResult',
@@ -102,6 +105,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
               <ResultCell>
                 <ConditionalTooltip visible={hasSecondaryResult} title={secondaryResultTooltip}>
                   {displayResult}
+                  {isEdited && <EditedOrnament />}
                 </ConditionalTooltip>
               </ResultCell>
             );
@@ -120,6 +124,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
               })}
               hideUnitSuffix
               disableTooltip={hasSecondaryResult}
+              isEdited={isEdited}
               data-testid="rangevalidatedcell-labrequest"
             />
           );
@@ -228,9 +233,13 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        onDataFetched={({ data }) =>
+          setShowEditedEntryLegend(data.some(row => row.isEdited === true))
+        }
         data-testid="styleddatafetchingtable-brdm"
         allowExport={false}
       />
+      {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
