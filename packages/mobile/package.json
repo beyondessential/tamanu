@@ -108,6 +108,7 @@
     "@react-native/jest-preset": "0.85.3",
     "@react-native/metro-config": "0.85.3",
     "@swc/cli": "^0.1.63",
+    "@tanstack/eslint-plugin-query": "^5.101.4",
     "@testing-library/react-hooks": "^3.2.1",
     "@types/chance": "^1.0.8",
     "@types/jest": "^29.2.1",
