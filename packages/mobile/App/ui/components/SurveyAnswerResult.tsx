@@ -1,26 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useBackend } from '../hooks';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { renderAnswer } from '../navigation/screens/programs/SurveyResponseDetailsScreen';
 import { View, Text } from 'react-native';
 
 export const SurveyAnswerResult = ({ config, answer }) => {
-  const { models } = useBackend();
-
-  const [sourceQuestion, setSourceQuestion] = useState<any>();
-
-  useEffect(() => {
-    (async (): Promise<void> => {
-      if (answer && config) {
-        const parsedConfig = JSON.parse(config);
-        const sourceDataElement = await models.ProgramDataElement.findOne({
-          where: { code: parsedConfig.source || parsedConfig.Source },
-          relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
-        });
-
-        setSourceQuestion(sourceDataElement.surveyScreenComponent);
-      }
-    })();
-  }, []);
+  const { data: sourceQuestion } = useQuery({
+    queryKey: surveyKeys.dataElementByCode(config),
+    queryFn: async () => {
+      const parsedConfig = JSON.parse(config);
+      const sourceDataElement = await Database.models.ProgramDataElement.findOne({
+        where: { code: parsedConfig.source || parsedConfig.Source },
+        relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
+      });
+      return sourceDataElement.surveyScreenComponent;
+    },
+    enabled: !!(answer && config),
+  });
 
   return (
     <View>

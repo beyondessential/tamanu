@@ -13,20 +13,23 @@ import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
-import { useBackendEffect } from '../../../../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { suggestionKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
 
+const useFullSurveyResponseQuery = (surveyResponseId: string) =>
+  useQuery({
+    queryKey: surveyKeys.fullResponse(surveyResponseId),
+    queryFn: () => Database.models.SurveyResponse.getFullResponse(surveyResponseId),
+  });
+
 const SurveyLinkAnswer = ({ answer }): ReactElement => {
-  const [surveyResponse, error] = useBackendEffect(
-    async ({ models }) => {
-      return models.SurveyResponse.getFullResponse(answer);
-    },
-    [answer],
-  );
+  const { data: surveyResponse, error } = useFullSurveyResponseQuery(answer);
   if (error) {
     return <StyledText>{error.message}</StyledText>;
   }
@@ -42,10 +45,11 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { locale } = useDateFormatter();
   const parsedConfig = JSON.parse(config);
-  const [record, error] = useBackendEffect(
-    ({ models }) => models[parsedConfig.source].getRepository().findOne({ where: { id: answer } }),
-    [config, answer],
-  );
+  const { data: record, error } = useQuery({
+    queryKey: suggestionKeys.currentOption(parsedConfig.source, { id: answer }),
+    queryFn: () =>
+      Database.models[parsedConfig.source].getRepository().findOne({ where: { id: answer } }),
+  });
   if (!record) {
     return <StyledText>{answer}</StyledText>;
   }
@@ -176,14 +180,11 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
     navigation.goBack();
   }, []);
 
-  const [surveyResponse, error] = useBackendEffect(
-    ({ models }) => models.SurveyResponse.getFullResponse(surveyResponseId),
-    [surveyResponseId],
-  );
+  const { data: surveyResponse, error } = useFullSurveyResponseQuery(surveyResponseId);
 
   if (error) {
     console.error(error);
-    return <StyledText>{error}</StyledText>;
+    return <StyledText>{error.message}</StyledText>;
   }
 
   if (!surveyResponse) {

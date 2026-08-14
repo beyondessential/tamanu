@@ -1,31 +1,31 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { Text } from 'react-native-paper';
+import { useQuery } from '@tanstack/react-query';
 import { DateFormats } from '~/ui/helpers/constants';
 import { useFormikContext } from 'formik';
-import { ISurveyResponse } from '~/types';
-import { useBackend } from '~/ui/hooks';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 
 export const SurveyLink = ({ patient, config, name }): ReactElement => {
-  const [surveyResponse, setSurveyResponse] = useState<ISurveyResponse | undefined>();
   const { setFieldValue } = useFormikContext();
-  const { models } = useBackend();
   const { formatStringDate } = useDateFormatter();
   const { source } = config;
 
+  const { data: responses } = useQuery({
+    queryKey: patientKeys.surveyResponses(patient.id, source),
+    queryFn: () => Database.models.SurveyResponse.getForPatient(patient.id, source),
+  });
+  // getForPatient returns responses sorted by most recent, we want the most recent.
+  const surveyResponse = responses?.[0];
+
   useEffect(() => {
-    (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(patient.id, source);
-      if (responses.length === 0) {
-        return;
-      }
-      // getForPatient returns responses sorted by most recent, we want the most recent.
-      setSurveyResponse(responses[0]);
-      setFieldValue(name, responses[0].id);
-    })();
-  }, [patient, source]);
+    if (surveyResponse) {
+      setFieldValue(name, surveyResponse.id);
+    }
+  }, [surveyResponse, name, setFieldValue]);
 
   if (!surveyResponse) {
     return (

@@ -4,7 +4,9 @@ import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientDataDisplayField } from '../../PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_VALUES } from '@tamanu/constants';
@@ -41,17 +43,16 @@ function getField(
 
 const useGetConfig = component => {
   const configObject = component.getConfigObject();
-  const [survey] = useBackendEffect(({ models }) => {
-    const { source } = configObject;
-    if (source !== 'ProgramRegistryClinicalStatus') {
-      return null;
-    }
-    return models.Survey.findOne({
-      where: {
-        id: component.surveyId,
-      },
-      relations: ['program', 'program.registry'],
-    });
+  const { data: survey } = useQuery({
+    queryKey: [...surveyKeys.detail(component.surveyId), 'programRegistry'],
+    queryFn: () =>
+      Database.models.Survey.findOne({
+        where: {
+          id: component.surveyId,
+        },
+        relations: ['program', 'program.registry'],
+      }),
+    enabled: configObject.source === 'ProgramRegistryClinicalStatus',
   });
   if (configObject.source === 'ProgramRegistryClinicalStatus' && survey) {
     configObject.where = { programRegistryId: survey.program.registry.id };

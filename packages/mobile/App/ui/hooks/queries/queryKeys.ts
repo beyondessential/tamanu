@@ -56,6 +56,8 @@ export const surveyKeys = {
   vitalsSurvey: () => [...surveyKeys.all, 'vitalsSurvey'] as const,
   fullResponse: (surveyResponseId: string) =>
     [...surveyKeys.all, 'response', surveyResponseId] as const,
+  // config is the raw JSON config string naming the source data element code
+  dataElementByCode: (config: string) => [...surveyKeys.all, 'dataElement', config] as const,
 };
 
 export const programKeys = {
@@ -88,6 +90,8 @@ export const referenceKeys = {
   scheduledVaccines: (params: object) =>
     [...referenceKeys.all, 'scheduledVaccines', params] as const,
   facility: (facilityId: string) => [...referenceKeys.all, 'facility', facilityId] as const,
+  patientDataField: (params: object) =>
+    [...referenceKeys.all, 'patientDataField', params] as const,
 };
 
 export const suggestionKeys = {
