@@ -1,3 +1,4 @@
+import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../../app/ApplicationContext';
 import { AIService } from '../../app/services/AIService';
 
 jest.mock('@tamanu/shared/utils/crypto', () => {
@@ -59,5 +60,36 @@ describe('AIService.init', () => {
   it('is torn down when the feature is disabled or the model is cleared', async () => {
     expect(await initWith({ enabled: false, anthropicModel: 'claude-opus-5' })).toBeNull();
     expect(await initWith({ enabled: true, anthropicModel: '' })).toBeNull();
+  });
+});
+
+describe('ApplicationContext.refreshAiService', () => {
+  // A settings save and the NOTIFY it raises both refresh, so two can overlap.
+  it('keeps the result of the refresh that read the newest settings', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    const context = Object.create(ApplicationContext.prototype);
+    context.appType = CENTRAL_SERVER_APP_TYPES.API;
+    context.store = { models: {} };
+
+    // The first refresh reads slowly, so without serialising it would land last
+    // and overwrite the second refresh's newer model.
+    let isFirstRead = true;
+    context.settings = {
+      get: async path => {
+        if (path !== 'ai') return PROMPT_SETTINGS[path];
+        if (isFirstRead) {
+          isFirstRead = false;
+          await new Promise(resolve => {
+            setTimeout(resolve, 50);
+          });
+          return { enabled: true, anthropicModel: 'claude-stale' };
+        }
+        return { enabled: true, anthropicModel: 'claude-fresh' };
+      },
+    };
+
+    await Promise.all([context.refreshAiService(), context.refreshAiService()]);
+
+    expect(context.aiService.chatModel.model).toBe('claude-fresh');
   });
 });

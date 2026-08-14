@@ -51,6 +51,9 @@ export class ApplicationContext {
   /** @type {(typeof CENTRAL_SERVER_APP_TYPES)[keyof typeof CENTRAL_SERVER_APP_TYPES] | null} */
   appType = null;
 
+  /** @type {Promise<void> | null} */
+  aiServiceRefresh = null;
+
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
@@ -150,12 +153,18 @@ export class ApplicationContext {
 
   // API app only. Rebuilt rather than mutated: init already resolves every
   // enabled/key/model combination, including having no service at all.
+  // Serialised because a settings save and the NOTIFY it raises both land here,
+  // and the refresh that read the newest settings has to be the one that sticks.
   async refreshAiService() {
     if (this.appType !== CENTRAL_SERVER_APP_TYPES.API) return;
-    this.aiService = await AIService.init({
-      settings: this.settings,
-      models: this.store.models,
+    const refresh = (this.aiServiceRefresh ?? Promise.resolve()).then(async () => {
+      this.aiService = await AIService.init({
+        settings: this.settings,
+        models: this.store.models,
+      });
     });
+    this.aiServiceRefresh = refresh.catch(() => {});
+    await refresh;
   }
 
   onClose(hook) {

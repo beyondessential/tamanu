@@ -79,7 +79,7 @@ export class AIService {
     const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
 
     if (!enabled) {
-      log.info('AIService: disabled, skipping initialisation');
+      log.debug('AIService: disabled, skipping initialisation');
       return null;
     }
 
@@ -88,14 +88,14 @@ export class AIService {
       anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
     } catch (error) {
       if (error instanceof SecretNotConfiguredError) {
-        log.info('AIService: no Anthropic API key configured, skipping initialisation');
+        log.debug('AIService: no Anthropic API key configured, skipping initialisation');
         return null;
       }
       throw error;
     }
 
     if (!anthropicApiKey) {
-      log.info('AIService: no Anthropic API key configured, skipping initialisation');
+      log.debug('AIService: no Anthropic API key configured, skipping initialisation');
       return null;
     }
 
