@@ -16,18 +16,25 @@ const REQUIRED_MESSAGE = (
 const hasUserEnteredData = ({ productId, manualEntryPrice }) =>
   productId != null || manualEntryPrice != null;
 
+// An existing (already-saved) line must keep its required fields: clearing them can't silently drop
+// the line, it has to fail validation so the line goes through the Delete action instead. A blank
+// add-row that was never a saved line stays optional so it can be discarded on save.
+const isRequiredRow = ({ isExistingItem, manualEntryPrice }) =>
+  Boolean(isExistingItem) || hasUserEnteredData({ manualEntryPrice });
+
 export const invoiceFormSchema = yup.object({
   invoiceItems: yup.array(
     yup.object().shape({
       orderDate: yup.string().required(REQUIRED_MESSAGE),
-      productId: yup.string().when('manualEntryPrice', {
-        is: manualEntryPrice => hasUserEnteredData({ manualEntryPrice }),
+      productId: yup.string().when(['manualEntryPrice', 'isExistingItem'], {
+        is: (manualEntryPrice, isExistingItem) =>
+          isRequiredRow({ manualEntryPrice, isExistingItem }),
         then: schema => schema.required(REQUIRED_MESSAGE),
         otherwise: schema => schema.nullable(),
       }),
-      orderedByUserId: yup.string().when(['productId', 'manualEntryPrice'], {
-        is: (productId, manualEntryPrice) =>
-          hasUserEnteredData({ productId, manualEntryPrice }),
+      orderedByUserId: yup.string().when(['productId', 'manualEntryPrice', 'isExistingItem'], {
+        is: (productId, manualEntryPrice, isExistingItem) =>
+          isExistingItem || hasUserEnteredData({ productId, manualEntryPrice }),
         then: schema => schema.required(REQUIRED_MESSAGE),
         otherwise: schema => schema.nullable(),
       }),
@@ -36,6 +43,7 @@ export const invoiceFormSchema = yup.object({
         .transform((value, originalValue) => (originalValue === '' ? undefined : value))
         .required(REQUIRED_MESSAGE),
       manualEntryPrice: yup.number().nullable(),
+      isExistingItem: yup.boolean(),
     }),
   ),
 });
