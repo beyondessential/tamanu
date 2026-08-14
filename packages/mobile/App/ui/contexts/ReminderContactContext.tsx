@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '../hooks/queries/queryKeys';
 import { IPatientContact } from '~/types';
@@ -20,7 +20,6 @@ import { WS_EVENTS } from '~/constants/webSocket';
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
   isLoadingReminderContactList: boolean;
-  fetchReminderContactList: () => void;
   afterAddContact: (contact: IPatientContact, addedNew?: boolean) => void;
   isFailedContact: (contact: IPatientContact) => boolean;
 }
@@ -28,7 +27,6 @@ interface ReminderContactData {
 const ReminderContactContext = createContext<ReminderContactData>({
   reminderContactList: [],
   isLoadingReminderContactList: false,
-  fetchReminderContactList: () => undefined,
   afterAddContact: () => undefined,
   isFailedContact: () => false,
 });
@@ -52,67 +50,52 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
 
 const Provider = ({ children, selectedPatient }: BaseAppProps & { children: ReactNode }) => {
   const { socket } = useSocket();
+  const queryClient = useQueryClient();
   const [pendingContactList, setPendingContactList] = useState<string[]>([]);
-  const [reminderContactList, setReminderContactList] = useState<IPatientContact[]>([]);
-  const {
-    data,
-    isPending: isLoading,
-    refetch,
-  } = useQuery({
+  const { data: reminderContactList = [], isPending: isLoading } = useQuery({
     queryKey: patientKeys.contacts(selectedPatient.id),
     queryFn: () => getAllContacts(Database.models, selectedPatient.id),
   });
 
-  useEffect(() => {
-    setReminderContactList(data || []);
-  }, [data]);
+  useEffect(
+    function listenToSubscribeEvents() {
+      if (!socket) return;
+      const handleTelegramSubscribe = async data => {
+        const contact = await PatientContact.findOne({
+          where: { id: data.contactId },
+          relations: ['patient'],
+        });
+        if (!contact) return;
+        const connectionDetails = JSON.stringify({ chatId: data.chatId });
+        await PatientContact.updateValues(contact.id, {
+          connectionDetails,
+        });
+        queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
+      };
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.on(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
-    socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
-    return () => {
-      socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
-      socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
-    };
-  }, [socket]);
+      socket.on(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
+      return () => void socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
+    },
+    [selectedPatient.id, queryClient, socket],
+  );
 
-  const handleTelegramSubscribe = useCallback(async data => {
-    const contact = await PatientContact.findOne({
-      where: { id: data.contactId },
-      relations: ['patient'],
-    });
-    if (!contact) return;
+  useEffect(
+    function listenToUnsubscribeEvents() {
+      if (!socket) return;
+      const handleTelegramUnsubscribe = async data => {
+        const contact = await PatientContact.findOne({
+          where: { id: data.contactId },
+        });
+        if (!contact) return;
+        await PatientContact.updateValues(contact.id, { deletedAt: new Date() });
+        queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
+      };
 
-    const connectionDetails = JSON.stringify({ chatId: data.chatId });
-    await PatientContact.updateValues(contact.id, {
-      connectionDetails,
-    });
-
-    setReminderContactList(prev =>
-      prev.map(c => {
-        if (c.id === contact.id) {
-          return { ...c, connectionDetails };
-        }
-        return c;
-      }),
-    );
-  }, []);
-
-  const handleTelegramUnsubscribe = useCallback(async data => {
-    const contact = await PatientContact.findOne({
-      where: { id: data.contactId },
-    });
-    if (!contact) return;
-
-    await PatientContact.updateValues(contact.id, {
-      deletedAt: new Date(),
-    });
-
-    setReminderContactList(prev =>
-      prev.filter(c => c.id !== contact.id),
-    );
-  }, []);
+      socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
+      return () => void socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
+    },
+    [selectedPatient.id, queryClient, socket],
+  );
 
   const afterAddContact = (contact: IPatientContact, addedNew?: boolean) => {
     if (addedNew) {
@@ -133,7 +116,6 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
       value={{
         reminderContactList,
         isLoadingReminderContactList: isLoading,
-        fetchReminderContactList: refetch,
         afterAddContact,
         isFailedContact,
       }}
