@@ -1,8 +1,5 @@
-// Patient-scoped keys accept undefined so callers can build keys for disabled queries
-
 import type { QueryKey } from '@tanstack/react-query';
 
-// (enabled: !!patientId) without non-null assertions; a disabled query never fetches.
 type MaybeId = string | undefined;
 
 export const patientKeys = {
