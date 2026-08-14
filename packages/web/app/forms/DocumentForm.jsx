@@ -172,7 +172,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
   const api = useApi();
   const { getTranslation } = useTranslation();
   const [error, setError] = useState(false);
-  const isUploading = useRef(false);
+  const inFlightUpload = useRef(null);
 
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -180,22 +180,31 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
-      // Ignore repeat submissions (e.g. double-clicking Add) while an upload is
-      // in flight so the document is only created once.
-      if (isUploading.current) return;
-      isUploading.current = true;
+      // A repeat submission (e.g. double-clicking Add) waits on the upload already
+      // in flight rather than starting a second one. Waiting rather than returning
+      // keeps the form marked as submitting, so Add stays disabled until the
+      // upload settles.
+      if (inFlightUpload.current) {
+        await inFlightUpload.current;
+        return;
+      }
+
       onStart();
 
       // Read file metadata
       const birthtime = new Date(file.lastModified);
       const attachmentType = file.type;
 
+      const upload = api.postWithFileUpload(endpoint, file, {
+        ...data,
+        type: attachmentType,
+        documentCreatedAt: toDateTimeString(birthtime),
+      });
+      // Waiters only need to know when the upload settled; failures are handled here.
+      inFlightUpload.current = upload.catch(() => {});
+
       try {
-        await api.postWithFileUpload(endpoint, file, {
-          ...data,
-          type: attachmentType,
-          documentCreatedAt: toDateTimeString(birthtime),
-        });
+        await upload;
       } catch (e) {
         onError(e);
         // Assume that if submission fails is because of lack of storage
@@ -208,7 +217,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
         }
       } finally {
         // eslint-disable-next-line require-atomic-updates -- ref latch guarding against repeat submissions
-        isUploading.current = false;
+        inFlightUpload.current = null;
       }
 
       onSubmit();
