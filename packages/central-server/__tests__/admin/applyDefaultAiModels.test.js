@@ -74,6 +74,17 @@ describe('default AI models on first API key', () => {
     expect(ai.anthropicFastModel).toBe('claude-haiku-4-5-20251001');
   });
 
+  it('returns the selected models on the read the editor makes after saving', async () => {
+    await saveAi({ anthropicApiKey: 'sk-new' });
+
+    const result = await adminApp
+      .get('/v1/admin/settings')
+      .query({ scope: SETTINGS_SCOPES.CENTRAL });
+    expect(result).toHaveSucceeded();
+    expect(result.body.ai.anthropicModel).toBe('claude-opus-5');
+    expect(result.body.ai.anthropicFastModel).toBe('claude-haiku-4-5-20251001');
+  });
+
   it('does not overwrite models an admin has already chosen', async () => {
     const result = await saveAi({
       anthropicApiKey: 'sk-new',
