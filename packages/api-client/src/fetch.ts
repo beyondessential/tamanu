@@ -40,8 +40,10 @@ export async function fetchOrThrowIfUnavailable(
       );
     }
 
-    // some other unhandled error
-    throw new RemoteUnreachableError(e.message);
+    // some other unhandled error. `fetch` reports every transport failure as a bare
+    // `TypeError: fetch failed` and puts the real reason (a refused connection, a DNS
+    // failure) in `cause`, so keep it: the message alone doesn't say what went wrong.
+    throw new RemoteUnreachableError(e.message).withCause(e);
   }
 }
 

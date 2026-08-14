@@ -59,6 +59,7 @@ describe('FacilitySyncConnection', () => {
 
     const error = await connection.runSync().catch(caught => caught);
 
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(error.type).toEqual(ERROR_TYPE.REMOTE_UNREACHABLE);
     expect(error.message).toContain(connection.host);
     expect(error.message).toContain('connect ECONNREFUSED 127.0.0.1:4100');

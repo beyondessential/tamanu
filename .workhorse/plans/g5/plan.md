@@ -27,14 +27,18 @@ serving the web app. A manual sync during that stretch fails exactly this way.
 `FacilitySyncConnection` was the only bare `fetch` left in the sync path — everything on the
 facility → central path already goes through `fetchOrThrowIfUnavailable` and
 `fetchWithRetryBackoff`. So it had no retry, and it surfaced a message that told an operator
-nothing. Both are now addressed:
+nothing. Both are now addressed, reusing the shared helper rather than a second retry loop:
 
-- Retries a request that can't reach the sync process (4 attempts backing off over 3.5s), which
-  rides over the tail of a restart or a dropped idle socket. Bounded to stay inside the 10s the
-  api route races a trigger against, so a real failure still reports as one rather than being
-  masked as "sync is taking a while". Safe to retry because `FacilitySyncManager.triggerSync`
-  folds a concurrent request into the running sync.
-- On giving up, throws `RemoteUnreachableError` naming the address tried and the underlying cause
+- `fetchOrThrowIfUnavailable` now keeps the cause when it wraps a transport failure. It was
+  building `RemoteUnreachableError` from `e.message` alone, which for `fetch` is always the bare
+  `fetch failed` — so the refused connection or DNS failure underneath was discarded before any
+  caller could report it. That loss is why the retry couldn't simply be the shared helper.
+- `FacilitySyncConnection` uses `fetchWithRetryBackoff` (4 attempts, backing off over 1.2s),
+  which rides over the tail of a restart or a dropped idle socket. Bounded well inside the 10s
+  the api route races a trigger against, so a real failure still reports as one rather than
+  being masked as "sync is taking a while". Safe to retry because
+  `FacilitySyncManager.triggerSync` folds a concurrent request into the running sync.
+- On giving up it names the address tried and the underlying cause
   (`connect ECONNREFUSED 127.0.0.1:4100`), flattening the AggregateError a multi-address hostname
   like `localhost` produces.
 - No request timeout: `POST /sync/run` stays open for the whole sync, which legitimately runs for

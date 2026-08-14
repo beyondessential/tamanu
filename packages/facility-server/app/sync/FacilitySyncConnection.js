@@ -1,22 +1,27 @@
 import config from 'config';
 
+import { fetchWithRetryBackoff } from '@tamanu/api-client';
 import { extractErrorFromFetchResponse, RemoteUnreachableError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-// Attempt delays are cumulative, so these back off over 3.5s and then give up. That stays inside
-// the 10s the api route races a trigger against, so a request that can't get through reports the
-// real error rather than being masked as "sync is taking a while".
-const RETRY_DELAYS_MS = [500, 1000, 2000];
+// Backs off over 1.2s before giving up, well inside the 10s the api route races a trigger
+// against, so a request that can't get through reports the real error rather than being
+// masked as "sync is taking a while".
+const MAX_ATTEMPTS = 4;
 
 /** Describe why a fetch never got a response.
  *
- * `fetch` rejects with a bare `TypeError: fetch failed` and puts the real reason in `cause`,
- * which for a hostname resolving to several addresses (`localhost` being both `::1` and
- * `127.0.0.1`) is an AggregateError holding one error per address tried.
+ * `fetch` reports every transport failure as a bare `TypeError: fetch failed` and puts the real
+ * reason further down the cause chain, which for a hostname resolving to several addresses
+ * (`localhost` being both `::1` and `127.0.0.1`) is an AggregateError holding one error per
+ * address tried.
  */
 function describeTransportFailure(error) {
-  const cause = error.cause ?? error;
+  let cause = error;
+  while (cause.cause) {
+    cause = cause.cause;
+  }
+
   if (cause instanceof AggregateError && cause.errors?.length) {
     return cause.errors.map(each => each.message).join('; ');
   }
@@ -52,25 +57,12 @@ export class FacilitySyncConnection {
    * already bounded by undici's own connect timeout.
    */
   async #fetchOrThrowUnreachable(url, options) {
-    for (let attempt = 1; ; attempt++) {
-      try {
-        return await fetch(url, options);
-      } catch (error) {
-        const reason = describeTransportFailure(error);
-        const delay = RETRY_DELAYS_MS[attempt - 1];
-        if (!delay) {
-          throw new RemoteUnreachableError(
-            `Could not reach the sync process at ${this.host} after ${attempt} attempts (${reason}). It may still be starting up, in which case sync resumes on its own once it is listening.`,
-          ).withCause(error);
-        }
-
-        log.warn(`[FacilitySyncConnection] could not reach ${url}, retrying`, {
-          attempt,
-          maxAttempts: RETRY_DELAYS_MS.length + 1,
-          reason,
-        });
-        await sleepAsync(delay);
-      }
+    try {
+      return await fetchWithRetryBackoff(url, options, { log, maxAttempts: MAX_ATTEMPTS });
+    } catch (error) {
+      throw new RemoteUnreachableError(
+        `Could not reach the sync process at ${this.host} (${describeTransportFailure(error)}). It may still be starting up, in which case sync resumes on its own once it is listening.`,
+      ).withCause(error);
     }
   }
 
