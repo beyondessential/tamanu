@@ -25,7 +25,9 @@ import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { settingKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '/contexts/SettingsContext';
 
@@ -33,9 +35,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
 
-  const [isReminderContactEnabled] = useBackendEffect(async ({ models }) => {
-    return await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
-  }, []);
+  const { data: isReminderContactEnabled } = useQuery({
+    queryKey: settingKeys.byKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+    queryFn: () => Database.models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+  });
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();

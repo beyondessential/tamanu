@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo } from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
@@ -13,7 +13,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend } from '~/ui/hooks';
+import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -62,7 +62,7 @@ const formatNoteToPopup = (note: string): IPopup => {
       };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+const showPatientWarningPopups = (issues: Pick<IPatientIssue, 'type' | 'note'>[]): void =>
   showPopupChain(
     issues
       .filter(({ type }) => type === PatientIssueType.Warning)
@@ -161,7 +161,6 @@ const PatientHomeContainer = ({
   setSelectedPatient,
   route,
 }: PatientHomeScreenProps): ReactElement => {
-  const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
 
   const patientMenuButtons = usePatientMenuButtons(navigation);
@@ -185,37 +184,8 @@ const PatientHomeContainer = ({
     setSelectedPatient(null);
   }, [from, navigation, setSelectedPatient]);
 
-  const { models } = useBackend();
-
-  const [patientIssues, setPatientIssues] = useState(null);
-  useFocusEffect(
-    useCallback(() => {
-      if (!selectedPatient) {
-        return;
-      }
-
-      let mounted = true;
-      (async (): Promise<void> => {
-        try {
-          const result = await models.PatientIssue.find({
-            order: { recordedDate: 'ASC' },
-            where: { patient: { id: selectedPatient.id } },
-          });
-          if (!mounted) {
-            return;
-          }
-          setPatientIssues(result);
-        } catch (err) {
-          if (!mounted) {
-            return;
-          }
-          setErrorMessage(err.message);
-        }
-      })();
-      return (): void => {
-        mounted = false;
-      };
-    }, [models, selectedPatient?.id]),
+  const { data: patientIssues, error: patientIssuesError } = usePatientIssuesQuery(
+    selectedPatient?.id,
   );
 
   useFocusEffect(
@@ -231,7 +201,7 @@ const PatientHomeContainer = ({
 
   const patientModules = usePatientModules(navigation);
 
-  if (errorMessage) return <ErrorScreen error={errorMessage} />;
+  if (patientIssuesError) return <ErrorScreen error={patientIssuesError} />;
 
   if (!selectedPatient) {
     return null;

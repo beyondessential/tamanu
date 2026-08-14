@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { ReactElement, useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
 import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
@@ -37,15 +37,9 @@ const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(wi
 const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
-  const [recentlyViewedPatients, , , refetchRecentlyViewedPatients] = useRecentlyViewedPatients();
-
-  // The home screen stays mounted, so refetch on focus to reflect patients
-  // viewed since the last visit (the mount-time fetch would otherwise be stale).
-  useFocusEffect(
-    useCallback(() => {
-      refetchRecentlyViewedPatients();
-    }, [refetchRecentlyViewedPatients]),
-  );
+  // Selecting a patient invalidates this query (see store/ducks/patient.ts), so no
+  // focus-driven refetching is needed even though the home screen stays mounted.
+  const { data: recentlyViewedPatients } = useRecentlyViewedPatients();
 
   if (!recentlyViewedPatients)
     return <StyledView flex={1} background={theme.colors.BACKGROUND_GREY} />;

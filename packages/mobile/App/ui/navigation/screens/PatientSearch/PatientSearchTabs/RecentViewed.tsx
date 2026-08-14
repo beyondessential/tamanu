@@ -39,7 +39,7 @@ const NoPatientsCard = (): ReactElement => (
 );
 
 const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): ReactElement => {
-  const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
+  const { data: recentlyViewedPatients, error } = useRecentlyViewedPatients();
 
   useEffect(() => {
     if (!recentlyViewedPatients) return;
