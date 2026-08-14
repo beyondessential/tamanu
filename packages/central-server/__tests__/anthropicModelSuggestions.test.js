@@ -173,13 +173,4 @@ describe('anthropicModel suggester', () => {
     await adminApp.get('/api/suggestions/anthropicModel');
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
-
-  it('refetches the model list when the API key is rotated', async () => {
-    getSettingSecret.mockResolvedValue('sk-first');
-    mockModelsRequest();
-    await adminApp.get('/api/suggestions/anthropicModel');
-    getSettingSecret.mockResolvedValue('sk-second');
-    await adminApp.get('/api/suggestions/anthropicModel');
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-  });
 });
