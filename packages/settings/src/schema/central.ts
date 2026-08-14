@@ -50,7 +50,7 @@ export const centralSettings = {
       name: 'AI',
       description: 'Settings for AI-powered features',
       infoBanner:
-        'Model IDs for the model settings below are listed at https://platform.claude.com/docs/en/about-claude/models/overview',
+        'The model settings below offer a dropdown of available models once an API key is saved. Model IDs are also listed at https://platform.claude.com/docs/en/about-claude/models/overview',
       properties: {
         enabled: {
           name: 'Enabled',
