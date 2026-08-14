@@ -64,11 +64,16 @@ describe('sync push with gzipped request body', () => {
     );
 
     const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
+    // overrideConfig replaces the whole config object, so every key the sync
+    // session code path reads must be present here
     CentralSyncManager.overrideConfig({
       sync: {
         awaitPreparation: true,
         maxConcurrentSessions: 10,
         maxRecordsPerSnapshotChunk: 1000000000,
+        lookupTable: {
+          enabled: false,
+        },
       },
     });
 
@@ -97,6 +102,9 @@ describe('sync push with gzipped request body', () => {
       .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
       .set('Content-Type', 'application/json')
       .set('Content-Encoding', 'gzip')
+      // superagent would otherwise JSON-serialize the Buffer (because of the
+      // JSON content type), mangling the gzip bytes before they hit the wire
+      .serialize(data => data)
       .send(gzipSync(Buffer.from(JSON.stringify({ changes }))));
 
     expect(response).toHaveSucceeded();
@@ -106,7 +114,7 @@ describe('sync push with gzipped request body', () => {
       SYNC_SESSION_DIRECTION.INCOMING,
       'patients',
     );
-    expect(count).toEqual(changes.length);
+    expect(Number.parseInt(count, 10)).toEqual(changes.length);
   });
 
   it('still accepts a plain JSON push body', async () => {
@@ -126,6 +134,6 @@ describe('sync push with gzipped request body', () => {
       SYNC_SESSION_DIRECTION.INCOMING,
       'patients',
     );
-    expect(count).toEqual(changes.length);
+    expect(Number.parseInt(count, 10)).toEqual(changes.length);
   });
 });
