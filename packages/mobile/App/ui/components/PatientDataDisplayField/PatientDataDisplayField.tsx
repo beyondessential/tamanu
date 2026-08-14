@@ -87,26 +87,27 @@ export const PatientDataDisplayField = ({
     enabled: needsLookup,
   });
 
-  let displayValue = '';
-  if (value) {
-    if (!config?.column || !modelName) {
-      // Custom fields (and fields with no configured location) display the raw value
-      displayValue = value;
-    } else if (options) {
-      // Standard fields with options translate the value
-      displayValue = getEnumTranslation(options, value) || value;
-    } else if (association) {
-      displayValue = association.targetModel
-        ? getDisplayNameForModel({
-            modelName: association.targetModel,
-            record: association.data,
-            getReferenceDataTranslation,
-            getEnumTranslation,
-            locale,
-          })
-        : association.data;
-    }
-  }
+  const getDisplayValue = () => {
+    if (!value) return '';
 
-  return <StyledText>{displayValue}</StyledText>;
+    // Custom fields (and fields with no configured location) display the raw value
+    if (!config?.column || !modelName) return value;
+
+    // Standard fields with options translate the value
+    if (options) return getEnumTranslation(options, value) || value;
+
+    if (!association) return '';
+
+    return association.targetModel
+      ? getDisplayNameForModel({
+          modelName: association.targetModel,
+          record: association.data,
+          getReferenceDataTranslation,
+          getEnumTranslation,
+          locale,
+        })
+      : association.data;
+  };
+
+  return <StyledText>{getDisplayValue()}</StyledText>;
 };
