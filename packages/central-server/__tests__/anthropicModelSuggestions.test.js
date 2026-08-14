@@ -20,8 +20,8 @@ const MODELS_RESPONSE = {
   data: [
     { id: 'claude-opus-5', display_name: 'Claude Opus 5', capabilities: withVision },
     {
-      id: 'claude-haiku-4-5-20251001',
-      display_name: 'Claude Haiku 4.5',
+      id: 'claude-textonly-1',
+      display_name: 'Claude Text Only',
       capabilities: { image_input: { supported: false }, pdf_input: { supported: false } },
     },
   ],
@@ -71,7 +71,7 @@ describe('anthropicModel suggester', () => {
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual([
       { id: 'claude-opus-5', name: 'Claude Opus 5' },
-      { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+      { id: 'claude-textonly-1', name: 'Claude Text Only' },
     ]);
   });
 
@@ -85,11 +85,32 @@ describe('anthropicModel suggester', () => {
   it('filters on the search term', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();
-    const result = await adminApp.get('/api/suggestions/anthropicModel?q=haiku');
+    const result = await adminApp.get('/api/suggestions/anthropicModel?q=textonly');
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual([
-      { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+      { id: 'claude-textonly-1', name: 'Claude Text Only' },
     ]);
+  });
+
+  it('handles a repeated search term', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    mockModelsRequest();
+    const result = await adminApp.get('/api/suggestions/anthropicModel?q=opus&q=textonly');
+    expect(result).toHaveSucceeded();
+  });
+
+  it('returns an empty list when the API responds with something other than JSON', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    global.fetch = jest.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => {
+        throw new Error('Unexpected token < in JSON');
+      },
+    }));
+    const result = await adminApp.get('/api/suggestions/anthropicModel');
+    expect(result).toHaveSucceeded();
+    expect(result.body).toEqual([]);
   });
 
   it('returns an empty list when the API rejects the key', async () => {
@@ -138,12 +159,12 @@ describe('anthropicModel suggester', () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();
     const result = await adminApp.get(
-      '/api/suggestions/anthropicVisionModel/claude-haiku-4-5-20251001',
+      '/api/suggestions/anthropicVisionModel/claude-textonly-1',
     );
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual({
-      id: 'claude-haiku-4-5-20251001',
-      name: 'Claude Haiku 4.5',
+      id: 'claude-textonly-1',
+      name: 'Claude Text Only',
     });
   });
 

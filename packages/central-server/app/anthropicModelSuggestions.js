@@ -42,7 +42,14 @@ const loadModels = async settings => {
     return [];
   }
 
-  const body = await response.json();
+  let body;
+  try {
+    body = await response.json();
+  } catch (error) {
+    log.warn(`anthropicModel suggester: model list was not JSON: ${error.message}`);
+    return [];
+  }
+
   return (body.data ?? []).map(({ id, display_name: displayName, capabilities }) => ({
     id,
     name: displayName ?? id,
@@ -74,7 +81,9 @@ const listRoute = eligible =>
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Setting');
     const models = (await fetchModels(req.settings)).filter(eligible);
-    const search = (req.query.q || '').trim().toLowerCase();
+    const search = String(req.query.q ?? '')
+      .trim()
+      .toLowerCase();
     const matching = search
       ? models.filter(
           ({ id, name }) => id.toLowerCase().includes(search) || name.toLowerCase().includes(search),

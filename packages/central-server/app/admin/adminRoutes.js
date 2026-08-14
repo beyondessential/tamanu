@@ -15,6 +15,7 @@ import {
 } from '@tamanu/settings';
 import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 
+import { clearAnthropicModelCache } from '../anthropicModelSuggestions';
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
 
@@ -256,6 +257,8 @@ adminRoutes.put(
 
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
     await Setting.set('', settings, scope, facilityId);
+    // The suggester's list belongs to whichever key fetched it, so a key change must drop it.
+    if (getAtPath(settings, 'ai')) clearAnthropicModelCache();
     await req.aiService?.refreshContexts(req.ctx.settings);
     res.json({ code: 200 });
   }),
