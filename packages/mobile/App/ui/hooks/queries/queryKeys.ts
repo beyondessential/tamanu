@@ -113,6 +113,11 @@ export const reportKeys = {
     [...reportKeys.all, 'encounterSummary', surveyId] as const,
 };
 
+export const syncKeys = {
+  all: ['sync'] as const,
+  lastSuccessfulPushTick: () => [...syncKeys.all, 'lastSuccessfulPushTick'] as const,
+};
+
 export const settingKeys = {
   all: ['settings'] as const,
   byKey: (key: string) => [...settingKeys.all, key] as const,

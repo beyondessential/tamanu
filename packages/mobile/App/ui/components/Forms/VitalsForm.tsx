@@ -2,7 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
+import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
+import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { FullView, StyledText } from '~/ui/styled/common';
 import { theme } from '/styled/theme';
@@ -27,16 +29,16 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
-    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
-  );
-  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models: m }) =>
-      m.PatientAdditionalData.getRepository().findOne({
-        where: { patient: { id: selectedPatient.id } },
-      }),
-    [selectedPatient.id],
-  );
+  const {
+    data: vitalsSurvey,
+    error: vitalsError,
+    isPending: isVitalsLoading,
+  } = useVitalsSurveyQuery({ includeAllVitals: false });
+  const {
+    data: patientAdditionalData,
+    error: padError,
+    isPending: isPadLoading,
+  } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
 
   const error = vitalsError || padError;
   const isLoading = isVitalsLoading || isPadLoading;
