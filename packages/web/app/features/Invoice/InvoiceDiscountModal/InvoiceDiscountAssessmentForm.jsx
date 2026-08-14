@@ -40,7 +40,6 @@ const validationSchema = yup.object().shape({
 
 export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDiscount }) => {
   const [familySize, setFamilySize] = useState();
-  const [percentage, setPercentage] = useState();
 
   const { getSetting } = useSettings();
   const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE);
@@ -66,16 +65,12 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
     });
   }, [familySize, slidingFeeScale]);
 
-  const handleAnnualIncomeChange = e => {
-    const selectedOption = annualIncomeOptions.find(option => option.value === e.target.value);
-    if (selectedOption) {
-      setPercentage(selectedOption.percentage);
-    }
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async values => {
+    const selectedOption = annualIncomeOptions.find(
+      option => option.value === values.annualIncome,
+    );
     const discount = {
-      percentage: (1 - percentage).toFixed(2),
+      percentage: (1 - selectedOption.percentage).toFixed(2),
       isManual: false,
     };
     await handleUpdateDiscount(discount);
@@ -92,7 +87,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
       </BodyText>
       <Form
         onSubmit={handleSubmit}
-        render={({ submitForm }) => (
+        render={({ submitForm, setFieldValue }) => (
           <>
             <FormGrid columns={1} data-testid="formgrid-i3v1">
               <Field
@@ -106,7 +101,10 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
                 }
                 component={SelectField}
                 options={familySizesOptions}
-                onChange={e => setFamilySize(e.target.value)}
+                onChange={e => {
+                  setFamilySize(e.target.value);
+                  setFieldValue('annualIncome', '');
+                }}
                 data-testid="field-23z3"
               />
               <Field
@@ -121,7 +119,6 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
                 component={SelectField}
                 options={annualIncomeOptions}
                 disabled={!familySize && familySize !== 0}
-                onChange={handleAnnualIncomeChange}
                 data-testid="field-rdtx"
               />
             </FormGrid>
