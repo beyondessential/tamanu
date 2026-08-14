@@ -14,7 +14,7 @@ the field was disabled (nothing selected to send to pharmacy). The actual valida
 asterisk contradicted the real rule. Fixed by making `required` track `isSendingAnyMedication`, which
 the component already computes.
 
-### Problem 1 — dispensing qty always required (left as-is, needs a decision)
+### Problem 1 — dispensing qty always required (confirmed as-designed, no fix)
 
 The complaint is that "Dispensing qty" blocks discharge even when nothing is sent to pharmacy. This is
 **deliberate, documented behaviour**, not a coding defect:
@@ -29,8 +29,9 @@ So the intended workflow is: enter a quantity (zero is acceptable when not dispe
 the line to remove it. The reporter hit friction because medications with no pre-existing quantity
 start blank, and a blank field blocks discharge.
 
-Changing this would contradict the shipped spec (TAM-6895) and its tests. **Left unchanged pending
-confirmation against the Linear spec / product decision**, per the card's "settle first" note.
+Changing this would contradict the shipped spec (TAM-6895) and its tests. **Settled: confirmed
+as-designed, no code change.** The card's "settle first" open question is closed — the reported
+symptom is the intended workflow, not a defect.
 
 ## Test coverage
 
