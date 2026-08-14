@@ -1,7 +1,9 @@
 import { differenceInYears, parseISO } from 'date-fns';
 import React, { FC } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import {
@@ -27,15 +29,18 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
   const { formatDate } = useDateFormatter();
   const { getSetting } = useSettings();
   const hideOtherSex = getSetting<boolean>('features.hideOtherSex') === true;
-  const [recentVisitorsData] = useBackendEffect(
-    ({ models }) => models.Patient.getRecentVisitors(selectedSurveyId),
-    [selectedSurveyId],
-  );
+  const { data: recentVisitorsData } = useQuery({
+    queryKey: reportKeys.recentVisitors(selectedSurveyId),
+    queryFn: () => Database.models.Patient.getRecentVisitors(selectedSurveyId),
+  });
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
   const todayFormatted = formatDate(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
 
-  const [referralsData] = useBackendEffect(({ models }) => models.Patient.getReferralList(), []);
+  const { data: referralsData } = useQuery({
+    queryKey: reportKeys.referralList(),
+    queryFn: () => Database.models.Patient.getReferralList(),
+  });
 
   const maleData = genderData?.find(item => item.gender === 'male');
   const femaleData = genderData?.find(item => item.gender === 'female');

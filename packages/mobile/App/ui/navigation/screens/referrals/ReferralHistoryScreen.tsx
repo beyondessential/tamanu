@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
 import { subject } from '@casl/ability';
+import { useQuery } from '@tanstack/react-query';
 
 import { DateFormats } from '../../../helpers/constants';
-import { useBackendEffect } from '../../../hooks';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { StyledScrollView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -35,19 +36,24 @@ export const ReferralHistoryScreen = (): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const isFocused = useIsFocused();
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const { formatStringDate } = useDateFormatter();
 
-  const [referrals, error] = useBackendEffect(
-    async ({ models }) => {
-      const referrals = (await models.Referral.getForPatient(selectedPatient.id)) || [];
+  const {
+    data: referrals,
+    error,
+    // The CASL ability comes entirely from the signed-in user, so user.id represents it
+    // in the key.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: [...patientKeys.referrals(selectedPatient.id), { userId: user?.id }],
+    queryFn: async () => {
+      const referrals = (await Database.models.Referral.getForPatient(selectedPatient.id)) || [];
       return referrals.filter(referral =>
         ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
       );
     },
-    [isFocused],
-  );
+  });
 
   if (error) {
     return <ErrorScreen error={error} />;

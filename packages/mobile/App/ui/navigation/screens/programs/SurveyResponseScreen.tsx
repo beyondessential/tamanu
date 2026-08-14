@@ -15,6 +15,7 @@ import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import { useBackend } from '~/ui/hooks';
 import { GenericFormValues, IPatientAdditionalData, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
@@ -81,15 +82,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     data: patientAdditionalData,
     error: padError,
     isPending: isPadLoading,
-  } = useQuery({
-    queryKey: [...patientKeys.additionalData(selectedPatient.id), 'record'],
-    queryFn: () =>
-      Database.models.PatientAdditionalData.getRepository().findOne({
-        where: {
-          patient: { id: selectedPatient.id },
-        },
-      }),
-  });
+  } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
 
   const user = useSelector(authUserSelector);
 

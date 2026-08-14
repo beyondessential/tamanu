@@ -8,7 +8,9 @@ import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
 import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledText, StyledView } from '/styled/common';
@@ -96,17 +98,24 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
 };
 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const canListSensitive = ability.can('create', 'SensitiveLabRequest');
-  const [data, error] = useBackendEffect(
-    ({ models }) => models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
-    [selectedPatient],
-  );
+  const {
+    data,
+    error,
+    // The CASL ability (and canListSensitive derived from it) comes entirely from the
+    // signed-in user, so user.id represents it in the key.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: patientKeys.labRequests(selectedPatient.id, { userId: user?.id }),
+    queryFn: () =>
+      Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
+  });
 
-  const [lastSuccessfulPushTick] = useBackendEffect(
-    ({ models }) => getSyncTick(models, LAST_SUCCESSFUL_PUSH),
-    [],
-  );
+  const { data: lastSuccessfulPushTick } = useQuery({
+    queryKey: syncKeys.lastSuccessfulPushTick(),
+    queryFn: () => getSyncTick(Database.models, LAST_SUCCESSFUL_PUSH),
+  });
 
   useEffect(() => {
     if (!data) return;
