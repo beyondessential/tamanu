@@ -6,7 +6,9 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useBackendEffect } from '../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '../hooks/queries/queryKeys';
 import { IPatientContact } from '~/types';
 import { compose } from 'redux';
 import { withPatient } from '../containers/Patient';
@@ -52,10 +54,14 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   const { socket } = useSocket();
   const [pendingContactList, setPendingContactList] = useState<string[]>([]);
   const [reminderContactList, setReminderContactList] = useState<IPatientContact[]>([]);
-  const [data, _, isLoading, refetch] = useBackendEffect(
-    ({ models }) => getAllContacts(models, selectedPatient.id),
-    [],
-  );
+  const {
+    data,
+    isPending: isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: patientKeys.contacts(selectedPatient.id),
+    queryFn: () => getAllContacts(Database.models, selectedPatient.id),
+  });
 
   useEffect(() => {
     setReminderContactList(data || []);

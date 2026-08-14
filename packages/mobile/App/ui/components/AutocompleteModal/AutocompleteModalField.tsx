@@ -1,6 +1,8 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
@@ -49,12 +51,14 @@ export const AutocompleteModalField = ({
   fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  const [label, setLabel] = useState(null);
+  // Remembers the option the user just picked so the label shows immediately,
+  // without waiting for the lookup query below to refetch.
+  const [selectedOption, setSelectedOption] = useState(null);
   const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value, selectedItem);
-    setLabel(selectedItem.label);
+    setSelectedOption({ value: selectedItem.value, label: selectedItem.label });
   };
 
   const openModal = (): void =>
@@ -63,17 +67,24 @@ export const AutocompleteModalField = ({
       suggester,
     });
 
-  useEffect(() => {
-    if (!suggester) return;
-    (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value, language);
-      if (data) {
-        setLabel(data.label);
-      } else {
-        setLabel(null);
-      }
-    })();
-  }, [value, suggester, language]);
+  const {
+    data: currentOption,
+    // The Suggester instance isn't stably comparable (callers often construct it per
+    // render); its model name and find options describe the lookup and are in the key.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: suggestionKeys.currentOption(suggester?.model?.name, {
+      options: suggester?.options,
+      value,
+      language,
+    }),
+    queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
+    enabled: !!suggester && !!value,
+  });
+
+  const label =
+    (selectedOption && selectedOption.value === value ? selectedOption.label : null) ??
+    (value ? (currentOption?.label ?? null) : null);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;

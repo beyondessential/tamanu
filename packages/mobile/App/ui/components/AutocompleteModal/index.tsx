@@ -1,13 +1,15 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useQuery } from '@tanstack/react-query';
 import { StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
@@ -53,15 +55,25 @@ export const AutocompleteModalScreen = ({
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester, modalTitle } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedOptions, setDisplayedOptions] = useState([]);
   const { language, getTranslation } = useTranslation();
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const data = await suggester.fetchSuggestions(searchTerm, language);
-      setDisplayedOptions(data);
-    })();
-  }, [suggester, searchTerm, language]);
+  const {
+    data: displayedOptions,
+    // The Suggester instance (including its permission filter function) isn't stably
+    // comparable; it is fixed for the life of this modal, and its model name and find
+    // options describe the search and are in the key.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: suggestionKeys.list(suggester.model.name, {
+      options: suggester.options,
+      search: searchTerm,
+      language,
+    }),
+    queryFn: () => suggester.fetchSuggestions(searchTerm, language),
+    // Keep the previous list on screen while a keystroke's results load, mirroring the
+    // old setState behaviour and avoiding flicker.
+    placeholderData: previousData => previousData ?? [],
+  });
 
   const onSelectItem = useCallback((item) => {
     navigation.goBack();

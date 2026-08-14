@@ -40,6 +40,7 @@ export const patientKeys = {
     [...patientKeys.detail(patientId), 'availableRegistries'] as const,
   syncStatus: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'syncStatus'] as const,
   contacts: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'contacts'] as const,
+  allergies: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'allergies'] as const,
 };
 
 export const patientListKeys = {
@@ -94,6 +95,14 @@ export const referenceKeys = {
   facility: (facilityId: string) => [...referenceKeys.all, 'facility', facilityId] as const,
   patientDataField: (params: object) =>
     [...referenceKeys.all, 'patientDataField', params] as const,
+  addressHierarchy: (leafNodeType: string) =>
+    [...referenceKeys.all, 'addressHierarchy', leafNodeType] as const,
+};
+
+export const patientFieldDefinitionKeys = {
+  all: ['patientFieldDefinitions'] as const,
+  ids: () => [...patientFieldDefinitionKeys.all, 'ids'] as const,
+  detail: (definitionId: string) => [...patientFieldDefinitionKeys.all, definitionId] as const,
 };
 
 export const suggestionKeys = {
@@ -116,6 +125,7 @@ export const reportKeys = {
 export const syncKeys = {
   all: ['sync'] as const,
   lastSuccessfulPushTick: () => [...syncKeys.all, 'lastSuccessfulPushTick'] as const,
+  lastSuccessfulPull: () => [...syncKeys.all, 'lastSuccessfulPull'] as const,
 };
 
 export const settingKeys = {

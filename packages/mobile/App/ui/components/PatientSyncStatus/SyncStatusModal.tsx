@@ -1,7 +1,10 @@
 import React, { useCallback } from 'react';
 import { StyledText} from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { useBackend, useBackendEffect } from '../../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { syncKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '../../hooks';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ConfirmModal } from '../Modals/ConfirmModal';
 import { Patient } from '~/models/Patient';
@@ -25,9 +28,11 @@ export const SyncStatusModal = ({
   isMarkedForSync,
 }: SyncStatusModalModalProps): JSX.Element => {
   const { syncManager } = useBackend();
-  const [lastPull] = useBackendEffect(({ models: m }) =>
-    m.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
-  );
+  const { data: lastPull } = useQuery({
+    queryKey: syncKeys.lastSuccessfulPull(),
+    queryFn: () =>
+      Database.models.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
+  });
   const handleSyncPatient = useCallback(async (): Promise<void> => {
     await Patient.markForSync(selectedPatient.id);
     syncManager.triggerUrgentSync();
