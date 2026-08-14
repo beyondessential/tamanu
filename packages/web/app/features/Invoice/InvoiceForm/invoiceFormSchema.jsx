@@ -10,34 +10,15 @@ const REQUIRED_MESSAGE = (
   />
 );
 
-// Invoice item rows are autofilled with date, quantity and ordered-by clinician. A row only counts
-// as intentionally edited once the user sets a product or a manual price; ordered-by is excluded
-// because it's prefilled. != null keeps legitimate falsy values like manualEntryPrice=0 as input.
-const hasUserEnteredData = ({ productId, manualEntryPrice }) =>
-  productId != null || manualEntryPrice != null;
-
-// An existing (already-saved) line must keep its required fields: clearing them can't silently drop
-// the line, it has to fail validation so the line goes through the Delete action instead. A blank
-// add-row that was never a saved line stays optional so it can be discarded on save.
-const isRequiredRow = ({ isExistingItem, manualEntryPrice }) =>
-  Boolean(isExistingItem) || hasUserEnteredData({ manualEntryPrice });
-
+// Every invoice line needs a product and an ordered-by clinician, on both the add and edit paths.
+// This also keeps an already-saved line from being cleared to delete it: blanking either field
+// fails validation, so the line has to go through the Delete action instead.
 export const invoiceFormSchema = yup.object({
   invoiceItems: yup.array(
     yup.object().shape({
       orderDate: yup.string().required(REQUIRED_MESSAGE),
-      productId: yup.string().when(['manualEntryPrice', 'isExistingItem'], {
-        is: (manualEntryPrice, isExistingItem) =>
-          isRequiredRow({ manualEntryPrice, isExistingItem }),
-        then: schema => schema.required(REQUIRED_MESSAGE),
-        otherwise: schema => schema.nullable(),
-      }),
-      orderedByUserId: yup.string().when(['productId', 'manualEntryPrice', 'isExistingItem'], {
-        is: (productId, manualEntryPrice, isExistingItem) =>
-          isExistingItem || hasUserEnteredData({ productId, manualEntryPrice }),
-        then: schema => schema.required(REQUIRED_MESSAGE),
-        otherwise: schema => schema.nullable(),
-      }),
+      productId: yup.string().required(REQUIRED_MESSAGE),
+      orderedByUserId: yup.string().required(REQUIRED_MESSAGE),
       quantity: yup
         .number()
         .transform((value, originalValue) => (originalValue === '' ? undefined : value))
