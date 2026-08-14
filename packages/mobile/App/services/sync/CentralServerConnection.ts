@@ -15,7 +15,7 @@ import {
 } from '../error';
 import { version } from '/root/package.json';
 import { callWithBackoff, sleepAsync } from './utils';
-import { gzipRequestBody } from './utils/gzipRequestBody';
+import { compressibleRequestBody } from './utils/compressibleRequestBody';
 import { CentralConnectionStatus } from '~/types';
 
 type PullMetadataResponse = {
@@ -168,11 +168,13 @@ export class CentralServerConnection {
     const headers = { 'Content-Type': 'application/json', ...(restOptions.headers || {}) };
     let outgoingBody = body;
     if (compress) {
-      // gzip the body and let body-parser on the central server inflate it;
+      // send the body as a pre-serialised JSON string with Content-Encoding:
+      // gzip — React Native's native networking layer gzips string bodies with
+      // that header set, and body-parser on the central server inflates them;
       // small bodies come back null and are sent as plain JSON
-      const gzipped = gzipRequestBody(body);
-      if (gzipped !== null) {
-        outgoingBody = gzipped;
+      const compressible = compressibleRequestBody(body);
+      if (compressible !== null) {
+        outgoingBody = compressible;
         headers['Content-Encoding'] = 'gzip';
       }
     }

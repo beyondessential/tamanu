@@ -52,7 +52,10 @@ export type FetchOptions = {
   backoff?: callWithBackoffOptions;
   skipAttemptRefresh?: boolean;
   timeout?: number;
-  /** gzip the request body (if large enough) and send it with Content-Encoding: gzip */
+  /**
+   * Send the request body (if large enough) as a JSON string with
+   * Content-Encoding: gzip, so React Native's networking layer gzips it natively
+   */
   compress?: boolean;
   [key: string]: any;
 };

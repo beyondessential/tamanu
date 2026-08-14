@@ -7,7 +7,6 @@ import {
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import axios from 'axios';
-import { gunzipSync, strFromU8 } from 'fflate';
 import { sleepAsync } from './utils';
 import { ERROR_TYPE } from '@tamanu/errors';
 
@@ -125,7 +124,7 @@ describe('CentralServerConnection', () => {
       );
     });
 
-    it('should gzip large push bodies and send them with Content-Encoding: gzip', async () => {
+    it('should send large push bodies as a JSON string with Content-Encoding: gzip', async () => {
       mockAxiosRequest.mockResolvedValueOnce({ data: {} });
       // enough records to comfortably exceed the 1KB compression threshold
       const mockChanges = Array.from({ length: 50 }, (_, i) => ({
@@ -143,9 +142,11 @@ describe('CentralServerConnection', () => {
         'Content-Type': 'application/json',
         'Content-Encoding': 'gzip',
       });
-      expect(requestConfig.data).toBeInstanceOf(Uint8Array);
-      const inflated = JSON.parse(strFromU8(gunzipSync(requestConfig.data)));
-      expect(inflated).toEqual({ changes: mockChanges });
+      // React Native's networking layer only gzips string bodies (and strips
+      // the Content-Encoding header for any other body type), so the body must
+      // go out as a pre-serialised JSON string
+      expect(typeof requestConfig.data).toBe('string');
+      expect(JSON.parse(requestConfig.data)).toEqual({ changes: mockChanges });
     });
 
     it('should send small push bodies as plain JSON', async () => {

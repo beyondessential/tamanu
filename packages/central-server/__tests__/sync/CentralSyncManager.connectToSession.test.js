@@ -132,4 +132,20 @@ describe('CentralSyncManager.connectToSession', () => {
 
     expect(session.errors).toEqual(['Error 1', 'Error 2']);
   });
+
+  it('sanitizes error messages containing binary before persisting', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    // error messages can embed raw request bodies, e.g. gzip bytes including
+    // NUL characters, which Postgres rejects in TEXT columns
+    await session.markErrored('not valid JSON: \u0000\u001f\u008b\u0000binary');
+    await session.markErrored(`too long: ${'x'.repeat(10000)}`);
+
+    const persisted = await models.SyncSession.findByPk(sessionId);
+    expect(persisted.errors[0]).toEqual('not valid JSON: \u001f\u008bbinary');
+    expect(persisted.errors[1].length).toBeLessThanOrEqual(5000);
+  });
 });
