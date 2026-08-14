@@ -45,6 +45,15 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
   const showInsurer = hasInvoicePlans || enablePatientInsurer;
   const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
 
+  // Mirrors the web summary panel: a manual discount prints the reason the cashier typed,
+  // a sliding fee scale discount prints the assessment it was derived from.
+  const hasDiscount = Boolean(invoice?.discount?.percentage);
+  const discountReasonValue =
+    invoice?.discount?.reason ??
+    (hasDiscount && !invoice?.discount?.isManual
+      ? getTranslation('invoice.summary.discountReason.assessment', 'Based on patient assessment')
+      : undefined);
+
   return (
     <>
       <DataSection
@@ -86,10 +95,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
             value={getInvoicePaymentStatus(invoice)}
           />
-          {invoice?.discount?.reason && (
+          {discountReasonValue && (
             <DataItem
               label={getTranslation('invoice.discountReason.label', 'Discount reason')}
-              value={invoice.discount.reason}
+              value={discountReasonValue}
             />
           )}
         </Col>

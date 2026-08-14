@@ -38,6 +38,13 @@ const ApplyLinkText = styled.span`
   }
 `;
 
+const DiscountReasonText = styled.div`
+  color: ${Colors.midText};
+  font-size: 12px;
+  font-weight: 400;
+  text-wrap: pretty;
+`;
+
 const RemoveLinkText = styled.span`
   color: ${Colors.darkestText};
   cursor: pointer;
@@ -70,6 +77,11 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   const discountPercentage = invoice.discount?.percentage
     ? Math.round(invoice.discount.percentage * 100)
     : 0;
+
+  // A manual discount carries the reason the cashier typed; a sliding fee scale discount
+  // is derived from the patient assessment instead, so name that as its reason.
+  const discountReason = invoice.discount?.reason;
+  const showAssessmentReason = hasDiscount && !discountReason && !invoice.discount?.isManual;
 
   const {
     invoiceItemsUndiscountedTotal,
@@ -117,6 +129,18 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
             displayAsNegative
             data-testid="invoice-summary-discountTotal"
           />
+        </Row>
+      )}
+      {isSlidingFeeScaleEnabled && hasDiscount && (discountReason || showAssessmentReason) && (
+        <Row $indent>
+          <DiscountReasonText data-testid="invoice-summary-discountReason">
+            {discountReason ?? (
+              <TranslatedText
+                stringId="invoice.summary.discountReason.assessment"
+                fallback="Based on patient assessment"
+              />
+            )}
+          </DiscountReasonText>
         </Row>
       )}
       {isSlidingFeeScaleEnabled && isInvoiceEditable(invoice) && (
