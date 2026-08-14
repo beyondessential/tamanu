@@ -58,6 +58,8 @@ export interface SuggesterConfig<ModelType> {
 }
 
 export class Suggester<ModelType extends BaseModelSubclass> {
+  private static nextFilterCacheKey = 1;
+
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
@@ -65,6 +67,14 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   formatter: (entity: BaseModel) => OptionType;
 
   filter?: (entity: BaseModel) => boolean;
+
+  /**
+   * HACK: {@link Suggester.filter} is a method, which is ignored when a {@link Suggester} is
+   * serialized into a TanStack Query query key. Without this, two distinct {@link Suggester}s with
+   * equivalent `model` and `options` but different `filter` would collide in the query client
+   * cache.
+   */
+  filterCacheKey?: string;
 
   lastUpdatedAt: number;
 
@@ -78,6 +88,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     // Frontend filter applied to the data received. Use this to filter by permission
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = config.filter;
+    this.filterCacheKey = config.filter ? `filter:${Suggester.nextFilterCacheKey++}` : undefined;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
   }

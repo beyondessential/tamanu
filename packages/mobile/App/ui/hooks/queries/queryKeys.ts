@@ -125,9 +125,8 @@ export const patientFieldDefinitionKeys = {
 
 export const suggestionKeys = {
   all: ['suggestions'] as const satisfies QueryKey,
-  // one namespace per suggestible model; params carries filters/search/language
-  list: (modelName: string, params: object) =>
-    [...suggestionKeys.all, modelName, 'list', params] as const satisfies QueryKey,
+  list: (suggester: object, params: object) =>
+    [...suggestionKeys.all, suggester, 'list', params] as const satisfies QueryKey,
   currentOption: (modelName: string, params: object) =>
     [...suggestionKeys.all, modelName, 'currentOption', params] as const satisfies QueryKey,
 };
