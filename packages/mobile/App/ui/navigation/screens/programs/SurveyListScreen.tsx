@@ -41,38 +41,32 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
   const { programId, programName } = route.params;
   const { ability, user } = useAuth();
 
-  const {
-    data: filteredSurveys,
-    error,
-    isPending: isLoading,
-    // The CASL ability object is derived entirely from the signed-in user, so the user id
-    // stands in for it in the key; the ability instance itself isn't stably comparable.
+  const { data: filteredSurveys, error, isPending: isLoading } =
+    // `ability` is based on signed-in user anyway; encoded in query key as `user.id`
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  } = useQuery({
-    queryKey: surveyKeys.list({
-      programId,
-      patientId: selectedPatient?.id,
-      userId: user?.id,
-    }),
-    queryFn: async () => {
-      const { models } = Database;
-      const allSurveys = await models.Survey.find({
-        relations: ['program'],
-        where: {
-          surveyType: SurveyTypes.Programs,
-          program: { id: programId },
-          visibilityStatus: VisibilityStatus.Current,
-        },
-        order: {
-          name: 'ASC',
-        },
-      });
+    useQuery({
+      queryKey: surveyKeys.list({
+        patientId: selectedPatient?.id,
+        programId,
+        userId: user?.id,
+      }),
+      queryFn: async () => {
+        const { models } = Database;
+        const allSurveys = await models.Survey.find({
+          relations: ['program'],
+          where: {
+            surveyType: SurveyTypes.Programs,
+            program: { id: programId },
+            visibilityStatus: VisibilityStatus.Current,
+          },
+          order: { name: 'ASC' },
+        });
 
-      const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
+        const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
 
-      return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
-    },
-  });
+        return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
+      },
+    });
 
   const goBack = useCallback(() => {
     navigation.goBack();

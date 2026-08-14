@@ -21,9 +21,7 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
         source,
       );
 
-      if (!answer) {
-        return { answer: null, sourceQuestion: null };
-      }
+      if (!answer) return { answer: null, sourceQuestion: null };
 
       const dataElement = await models.ProgramDataElement.findOne({
         where: { id: answer.dataElementId },

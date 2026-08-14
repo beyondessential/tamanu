@@ -140,8 +140,6 @@ const Screen: FC<ViewAllScreenProps> = ({
     return [Object.fromEntries(entries), entries.length];
   }, [filterFields]);
 
-  // Sync completion invalidates the whole cache (see BackendContext), so first-sync
-  // results appear without the old syncEnded re-run hack.
   const { data: list } = useQuery({
     queryKey: patientListKeys.search({ search, filters: activeFilters }),
     queryFn: () => searchAndFilterPatients(search, activeFilters),

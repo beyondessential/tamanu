@@ -39,18 +39,14 @@ export const ReferralHistoryScreen = (): ReactElement => {
   const { ability, user } = useAuth();
   const { formatStringDate } = useDateFormatter();
 
-  const {
-    data: referrals,
-    error,
-    // The CASL ability comes entirely from the signed-in user, so user.id represents it
-    // in the key.
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  } = useQuery({
+  const { data: referrals, error } = useQuery({
     queryKey: [...patientKeys.referrals(selectedPatient.id), { userId: user?.id }],
     queryFn: async () => {
-      const referrals = (await Database.models.Referral.getForPatient(selectedPatient.id)) || [];
-      return referrals.filter(referral =>
-        ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
+      const referrals = await Database.models.Referral.getForPatient(selectedPatient.id);
+      return (
+        referrals?.filter(referral =>
+          ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
+        ) ?? []
       );
     },
   });

@@ -95,8 +95,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     data: patientProgramRegistration,
     error: pprError,
     isPending: isPprLoading,
-    // The CASL ability (and canReadRegistration derived from it) comes entirely from the
-    // signed-in user, so user.id represents it in the key.
+    // `canReadRegistration` is based on the signed-in user; encoded in query key as `user.id`
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
   } = useQuery({
     queryKey: [
@@ -146,8 +145,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     },
     onSuccess: response => {
       if (!response) return;
-      // A submission writes an encounter, answers and possibly a program registration,
-      // and feeds the program reports.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatientId) });
       queryClient.invalidateQueries({ queryKey: registrationKeys.all });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
@@ -187,8 +184,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   };
 
   const error = surveyError || componentsError || padError || pprError;
-  // the registration query is disabled until the survey loads, so its isPending keeps us
-  // in the loading state until every dependent query has resolved
   const isLoading =
     !survey ||
     !components ||

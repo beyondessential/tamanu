@@ -59,9 +59,8 @@ export const AutocompleteModalScreen = ({
 
   const {
     data: displayedOptions,
-    // The Suggester instance (including its permission filter function) isn't stably
-    // comparable; it is fixed for the life of this modal, and its model name and find
-    // options describe the search and are in the key.
+    // Suggester instance can’t really be assumed to be referentially stable; consumer may create it
+    // within the render lifecycle. Hence using its name as key.
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
   } = useQuery({
     queryKey: suggestionKeys.list(suggester.model.name, {
@@ -70,15 +69,17 @@ export const AutocompleteModalScreen = ({
       language,
     }),
     queryFn: () => suggester.fetchSuggestions(searchTerm, language),
-    // Keep the previous list on screen while a keystroke's results load, mirroring the
-    // old setState behaviour and avoiding flicker.
+    // Keep previous list on screen while during reloads to prevent flicker
     placeholderData: previousData => previousData ?? [],
   });
 
-  const onSelectItem = useCallback((item) => {
-    navigation.goBack();
-    callback(item);
-  }, [callback, navigation]);
+  const onSelectItem = useCallback(
+    item => {
+      navigation.goBack();
+      callback(item);
+    },
+    [callback, navigation],
+  );
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();

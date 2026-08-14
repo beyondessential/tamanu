@@ -16,7 +16,7 @@ export const SurveyAnswerResult = ({ config, answer }) => {
       });
       return sourceDataElement.surveyScreenComponent;
     },
-    enabled: !!(answer && config),
+    enabled: Boolean(answer && config),
   });
 
   return (

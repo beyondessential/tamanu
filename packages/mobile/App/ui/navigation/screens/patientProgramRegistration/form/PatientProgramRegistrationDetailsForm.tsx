@@ -22,11 +22,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import {
-  patientKeys,
-  programRegistryKeys,
-  registrationKeys,
-} from '~/ui/hooks/queries/queryKeys';
+import { patientKeys, programRegistryKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -62,7 +58,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [models.Facility],
   );
 
-  const { data: clinicalStatuses } = useQuery({
+  const { data: clinicalStatusOptions } = useQuery({
     queryKey: programRegistryKeys.clinicalStatuses(programRegistry.id),
     queryFn: () =>
       Database.models.ProgramRegistryClinicalStatus.find({
@@ -71,19 +67,15 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           programRegistry: { id: programRegistry.id },
         },
       }),
-  });
-  // Translation happens outside the queryFn so the query is fully described by its key
-  const clinicalStatusOptions = useMemo(
-    () =>
-      clinicalStatuses?.map((status) => ({
+    select: statuses =>
+      statuses.map(status => ({
         ...status,
         translatedName: getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
         ),
       })),
-    [clinicalStatuses, getTranslation],
-  );
+  });
   const queryClient = useQueryClient();
   const { mutateAsync: saveRegistration } = useMutation({
     mutationFn: async (formData: IPatientProgramRegistryForm) => {
@@ -114,8 +106,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       return newPpr;
     },
     onSuccess: () => {
-      // The upsert changes the patient's registration list/summary and the
-      // registration detail (including conditions).
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: registrationKeys.all });
     },
@@ -234,7 +224,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({
+                      clinicalStatusOptions?.map(x => ({
                         label: x.translatedName,
                         value: x.id,
                       })) || []
@@ -251,7 +241,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     programRegistryId={programRegistry.id}
                     values={values.conditions}
-                    onChange={(newValue) => {
+                    onChange={newValue => {
                       values.conditions = newValue;
                     }}
                   />

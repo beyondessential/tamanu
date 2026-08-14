@@ -1,139 +1,160 @@
-/**
- * Query key factories for the whole app (TkDodo-style: array keys, generic to specific).
- *
- * All data for one patient lives under the ['patient', patientId] prefix so that
- * mutations can cheaply invalidate everything about a patient with
- * queryClient.invalidateQueries({ queryKey: patientKeys.detail(patientId) }).
- *
- * This module is deliberately shared (rather than colocated) because invalidation
- * crosses feature modules: a survey submission invalidates patient history, program
- * registrations, and report queries at once.
- */
-
 // Patient-scoped keys accept undefined so callers can build keys for disabled queries
+
+import type { QueryKey } from '@tanstack/react-query';
+
 // (enabled: !!patientId) without non-null assertions; a disabled query never fetches.
 type MaybeId = string | undefined;
 
 export const patientKeys = {
-  all: ['patient'] as const,
-  detail: (patientId: MaybeId) => [...patientKeys.all, patientId] as const,
+  all: ['patient'] as const satisfies QueryKey,
+  detail: (patientId: MaybeId) => [...patientKeys.all, patientId] as const satisfies QueryKey,
   additionalData: (patientId: MaybeId) =>
-    [...patientKeys.detail(patientId), 'additionalData'] as const,
-  fieldValues: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'fieldValues'] as const,
-  issues: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'issues'] as const,
-  encounters: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'encounters'] as const,
+    [...patientKeys.detail(patientId), 'additionalData'] as const satisfies QueryKey,
+  fieldValues: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'fieldValues'] as const satisfies QueryKey,
+  issues: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'issues'] as const satisfies QueryKey,
+  encounters: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'encounters'] as const satisfies QueryKey,
   administeredVaccines: (patientId: MaybeId) =>
-    [...patientKeys.detail(patientId), 'administeredVaccines'] as const,
+    [...patientKeys.detail(patientId), 'administeredVaccines'] as const satisfies QueryKey,
   surveyResponses: (patientId: MaybeId, surveyId?: string) =>
     surveyId
-      ? ([...patientKeys.detail(patientId), 'surveyResponses', surveyId] as const)
-      : ([...patientKeys.detail(patientId), 'surveyResponses'] as const),
+      ? ([
+          ...patientKeys.detail(patientId),
+          'surveyResponses',
+          surveyId,
+        ] as const satisfies QueryKey)
+      : ([...patientKeys.detail(patientId), 'surveyResponses'] as const satisfies QueryKey),
   lastAnswers: (patientId: MaybeId, params: object) =>
-    [...patientKeys.detail(patientId), 'lastAnswers', params] as const,
+    [...patientKeys.detail(patientId), 'lastAnswers', params] as const satisfies QueryKey,
   labRequests: (patientId: MaybeId, params?: object) =>
-    [...patientKeys.detail(patientId), 'labRequests', params ?? {}] as const,
-  referrals: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'referrals'] as const,
-  vitals: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'vitals'] as const,
+    [...patientKeys.detail(patientId), 'labRequests', params ?? {}] as const satisfies QueryKey,
+  referrals: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'referrals'] as const satisfies QueryKey,
+  vitals: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'vitals'] as const satisfies QueryKey,
   registrations: (patientId: MaybeId) =>
-    [...patientKeys.detail(patientId), 'registrations'] as const,
+    [...patientKeys.detail(patientId), 'registrations'] as const satisfies QueryKey,
   availableRegistries: (patientId: MaybeId) =>
-    [...patientKeys.detail(patientId), 'availableRegistries'] as const,
-  syncStatus: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'syncStatus'] as const,
-  contacts: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'contacts'] as const,
-  allergies: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'allergies'] as const,
+    [...patientKeys.detail(patientId), 'availableRegistries'] as const satisfies QueryKey,
+  syncStatus: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'syncStatus'] as const satisfies QueryKey,
+  contacts: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'contacts'] as const satisfies QueryKey,
+  allergies: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'allergies'] as const satisfies QueryKey,
 };
 
 export const patientListKeys = {
-  all: ['patients'] as const,
-  search: (params: object) => [...patientListKeys.all, 'search', params] as const,
-  recentlyViewed: () => [...patientListKeys.all, 'recentlyViewed'] as const,
+  all: ['patients'] as const satisfies QueryKey,
+  search: (params: object) =>
+    [...patientListKeys.all, 'search', params] as const satisfies QueryKey,
+  recentlyViewed: () => [...patientListKeys.all, 'recentlyViewed'] as const satisfies QueryKey,
 };
 
 export const surveyKeys = {
-  all: ['surveys'] as const,
-  list: (params: object) => [...surveyKeys.all, 'list', params] as const,
-  detail: (surveyId: string) => [...surveyKeys.all, 'detail', surveyId] as const,
-  components: (surveyId: string) => [...surveyKeys.detail(surveyId), 'components'] as const,
-  vitalsSurvey: () => [...surveyKeys.all, 'vitalsSurvey'] as const,
+  all: ['surveys'] as const satisfies QueryKey,
+  list: (params: object) => [...surveyKeys.all, 'list', params] as const satisfies QueryKey,
+  detail: (surveyId: string) => [...surveyKeys.all, 'detail', surveyId] as const satisfies QueryKey,
+  components: (surveyId: string) =>
+    [...surveyKeys.detail(surveyId), 'components'] as const satisfies QueryKey,
+  vitalsSurvey: () => [...surveyKeys.all, 'vitalsSurvey'] as const satisfies QueryKey,
   fullResponse: (surveyResponseId: string) =>
-    [...surveyKeys.all, 'response', surveyResponseId] as const,
+    [...surveyKeys.all, 'response', surveyResponseId] as const satisfies QueryKey,
   // config is the raw JSON config string naming the source data element code
-  dataElementByCode: (config: string) => [...surveyKeys.all, 'dataElement', config] as const,
+  dataElementByCode: (config: string) =>
+    [...surveyKeys.all, 'dataElement', config] as const satisfies QueryKey,
 };
 
 export const programKeys = {
-  all: ['programs'] as const,
-  list: () => [...programKeys.all, 'list'] as const,
+  all: ['programs'] as const satisfies QueryKey,
+  list: () => [...programKeys.all, 'list'] as const satisfies QueryKey,
 };
 
 export const registrationKeys = {
-  all: ['registrations'] as const,
-  detail: (registrationId: MaybeId) => [...registrationKeys.all, registrationId] as const,
+  all: ['registrations'] as const satisfies QueryKey,
+  detail: (registrationId: MaybeId) =>
+    [...registrationKeys.all, registrationId] as const satisfies QueryKey,
   conditions: (registrationId: MaybeId) =>
-    [...registrationKeys.detail(registrationId), 'conditions'] as const,
+    [...registrationKeys.detail(registrationId), 'conditions'] as const satisfies QueryKey,
 };
 
 export const programRegistryKeys = {
-  all: ['programRegistries'] as const,
-  list: () => [...programRegistryKeys.all, 'list'] as const,
+  all: ['programRegistries'] as const satisfies QueryKey,
+  list: () => [...programRegistryKeys.all, 'list'] as const satisfies QueryKey,
   conditions: (programRegistryId: string, params?: object) =>
-    [...programRegistryKeys.all, programRegistryId, 'conditions', params ?? {}] as const,
+    [
+      ...programRegistryKeys.all,
+      programRegistryId,
+      'conditions',
+      params ?? {},
+    ] as const satisfies QueryKey,
   conditionCategories: (programRegistryId: string) =>
-    [...programRegistryKeys.all, programRegistryId, 'conditionCategories'] as const,
+    [
+      ...programRegistryKeys.all,
+      programRegistryId,
+      'conditionCategories',
+    ] as const satisfies QueryKey,
   clinicalStatuses: (programRegistryId: string) =>
-    [...programRegistryKeys.all, programRegistryId, 'clinicalStatuses'] as const,
+    [...programRegistryKeys.all, programRegistryId, 'clinicalStatuses'] as const satisfies QueryKey,
 };
 
 export const referenceKeys = {
-  all: ['reference'] as const,
+  all: ['reference'] as const satisfies QueryKey,
   dataByType: (type: string, params?: object) =>
-    [...referenceKeys.all, 'data', type, params ?? {}] as const,
+    [...referenceKeys.all, 'data', type, params ?? {}] as const satisfies QueryKey,
   hierarchyAncestors: (entityId: string) =>
-    [...referenceKeys.all, 'hierarchyAncestors', entityId] as const,
+    [...referenceKeys.all, 'hierarchyAncestors', entityId] as const satisfies QueryKey,
   scheduledVaccines: (params: object) =>
-    [...referenceKeys.all, 'scheduledVaccines', params] as const,
-  facility: (facilityId: string) => [...referenceKeys.all, 'facility', facilityId] as const,
+    [...referenceKeys.all, 'scheduledVaccines', params] as const satisfies QueryKey,
+  facility: (facilityId: string) =>
+    [...referenceKeys.all, 'facility', facilityId] as const satisfies QueryKey,
   patientDataField: (params: object) =>
-    [...referenceKeys.all, 'patientDataField', params] as const,
+    [...referenceKeys.all, 'patientDataField', params] as const satisfies QueryKey,
   addressHierarchy: (leafNodeType: string) =>
-    [...referenceKeys.all, 'addressHierarchy', leafNodeType] as const,
+    [...referenceKeys.all, 'addressHierarchy', leafNodeType] as const satisfies QueryKey,
 };
 
 export const patientFieldDefinitionKeys = {
-  all: ['patientFieldDefinitions'] as const,
-  ids: () => [...patientFieldDefinitionKeys.all, 'ids'] as const,
-  detail: (definitionId: string) => [...patientFieldDefinitionKeys.all, definitionId] as const,
+  all: ['patientFieldDefinitions'] as const satisfies QueryKey,
+  ids: () => [...patientFieldDefinitionKeys.all, 'ids'] as const satisfies QueryKey,
+  detail: (definitionId: string) =>
+    [...patientFieldDefinitionKeys.all, definitionId] as const satisfies QueryKey,
 };
 
 export const suggestionKeys = {
-  all: ['suggestions'] as const,
+  all: ['suggestions'] as const satisfies QueryKey,
   // one namespace per suggestible model; params carries filters/search/language
   list: (modelName: string, params: object) =>
-    [...suggestionKeys.all, modelName, 'list', params] as const,
+    [...suggestionKeys.all, modelName, 'list', params] as const satisfies QueryKey,
   currentOption: (modelName: string, params: object) =>
-    [...suggestionKeys.all, modelName, 'currentOption', params] as const,
+    [...suggestionKeys.all, modelName, 'currentOption', params] as const satisfies QueryKey,
 };
 
 export const reportKeys = {
-  all: ['reports'] as const,
-  recentVisitors: (surveyId: string) => [...reportKeys.all, 'recentVisitors', surveyId] as const,
-  referralList: () => [...reportKeys.all, 'referralList'] as const,
+  all: ['reports'] as const satisfies QueryKey,
+  recentVisitors: (surveyId: string) =>
+    [...reportKeys.all, 'recentVisitors', surveyId] as const satisfies QueryKey,
+  referralList: () => [...reportKeys.all, 'referralList'] as const satisfies QueryKey,
   encounterSummary: (surveyId: string) =>
-    [...reportKeys.all, 'encounterSummary', surveyId] as const,
+    [...reportKeys.all, 'encounterSummary', surveyId] as const satisfies QueryKey,
 };
 
 export const syncKeys = {
-  all: ['sync'] as const,
-  lastSuccessfulPushTick: () => [...syncKeys.all, 'lastSuccessfulPushTick'] as const,
-  lastSuccessfulPull: () => [...syncKeys.all, 'lastSuccessfulPull'] as const,
+  all: ['sync'] as const satisfies QueryKey,
+  lastSuccessfulPushTick: () =>
+    [...syncKeys.all, 'lastSuccessfulPushTick'] as const satisfies QueryKey,
+  lastSuccessfulPull: () => [...syncKeys.all, 'lastSuccessfulPull'] as const satisfies QueryKey,
 };
 
 export const settingKeys = {
-  all: ['settings'] as const,
-  byKey: (key: string) => [...settingKeys.all, key] as const,
+  all: ['settings'] as const satisfies QueryKey,
+  byKey: (key: string) => [...settingKeys.all, key] as const satisfies QueryKey,
 };
 
 export const attachmentKeys = {
-  all: ['attachments'] as const,
-  detail: (attachmentId: string) => [...attachmentKeys.all, attachmentId] as const,
+  all: ['attachments'] as const satisfies QueryKey,
+  detail: (attachmentId: string) =>
+    [...attachmentKeys.all, attachmentId] as const satisfies QueryKey,
 };

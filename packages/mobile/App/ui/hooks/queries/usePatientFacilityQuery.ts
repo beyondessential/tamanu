@@ -18,6 +18,6 @@ export default function usePatientFacilityQuery(
           facility: { id: await readConfig('facilityId', '') },
         },
       }),
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 }

@@ -22,9 +22,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
   const surveyResponse = responses?.[0];
 
   useEffect(() => {
-    if (surveyResponse) {
-      setFieldValue(name, surveyResponse.id);
-    }
+    if (surveyResponse) setFieldValue(name, surveyResponse.id);
   }, [surveyResponse, name, setFieldValue]);
 
   if (!surveyResponse) {

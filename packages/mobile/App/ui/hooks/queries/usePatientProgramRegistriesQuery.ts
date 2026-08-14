@@ -18,6 +18,6 @@ export default function usePatientProgramRegistriesQuery(patientId: string | und
       if (canListRegistrations === false) return [];
       return await Database.models.ProgramRegistry.getProgramRegistriesForPatient(patientId);
     },
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 }

@@ -131,9 +131,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
 
   const removeAttachment = useCallback(
     async (value, imagePath) => {
-      if (value) {
-        await deleteAttachment(value);
-      }
+      if (value) await deleteAttachment(value);
       if (imagePath) {
         await deleteFileInDocuments(imagePath);
         setImagePath(null);

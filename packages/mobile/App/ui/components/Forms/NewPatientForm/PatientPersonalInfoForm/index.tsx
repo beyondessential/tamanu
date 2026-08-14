@@ -9,9 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
 import { SubmitSection } from './SubmitSection';
-import {
-  getConfiguredPatientAdditionalDataFields,
-} from '~/ui/helpers/patient';
+import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -89,8 +87,8 @@ const getPatientInitialValues = (
   );
 };
 
-const containsAdditionalData = (values) =>
-  ALL_ADDITIONAL_DATA_FIELDS.some((fieldName) => Object.keys(values).includes(fieldName));
+const containsAdditionalData = values =>
+  ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
@@ -115,12 +113,12 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     }
 
     // Update any custom field definitions contained in this form
-    const customValuesToUpdate = Object.keys(values).filter((key) =>
+    const customValuesToUpdate = Object.keys(values).filter(key =>
       customPatientFieldDefinitions.map(({ id }) => id).includes(key),
     );
 
     await Promise.all(
-      customValuesToUpdate.map((definitionId) =>
+      customValuesToUpdate.map(definitionId =>
         PatientFieldValue.updateOrCreateForPatientAndDefinition(
           patientId,
           definitionId,
@@ -192,8 +190,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       try {
         reloadedPatient = await createPatient(values);
       } catch {
-        // Alerts are shown by the mutation's onError handler.
-        return;
+        return; // Alerts are shown by the mutation's onError handler.
       }
       setSelectedPatient(reloadedPatient);
       resetForm();
@@ -231,7 +228,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   });
 
   const onEditPatient = useCallback(
-    async (values) => {
+    async values => {
       const editedPatient = await editPatient(values);
       setSelectedPatient(editedPatient);
       navigation.goBack();

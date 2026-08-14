@@ -52,9 +52,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const queryClient = useQueryClient();
   const { mutateAsync: removeReminderContact } = useMutation({
     mutationFn: (contact: IPatientContact) =>
-      PatientContact.updateValues(contact.id, {
-        deletedAt: new Date(),
-      }),
+      PatientContact.updateValues(contact.id, { deletedAt: new Date() }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
     },

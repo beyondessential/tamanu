@@ -89,7 +89,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         where: { patient: { id: selectedPatient.id } },
         relations: ['allergy'],
       }),
-    enabled: !!selectedPatient?.id,
+    enabled: Boolean(selectedPatient?.id),
   });
   const patientAllergies = patientAllergiesData ?? [];
 
@@ -142,7 +142,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       );
     },
     onSuccess: () => {
-      // Prescribing may create an encounter, which feeds visit history and reports.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
     },

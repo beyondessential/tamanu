@@ -14,7 +14,9 @@ const loadPatientAdditionalData = async (patientId: string) => {
   const { models } = Database;
   const [record, fieldDefinitions, fieldValues] = (await Promise.all([
     models.PatientAdditionalData.find({
-      where: { patient: { id: patientId } },
+      where: {
+        patient: { id: patientId },
+      },
     }),
     models.PatientFieldDefinition.findVisible({
       relations: ['category'],
@@ -40,7 +42,7 @@ const loadPatientAdditionalData = async (patientId: string) => {
     ),
     customPatientFieldDefinitions: fieldDefinitions,
     customPatientFieldValues: groupBy(fieldValues, 'definitionId') as CustomPatientFieldValues,
-    patientAdditionalData: (record && record[0]) ?? null,
+    patientAdditionalData: record?.[0] ?? null,
   };
 };
 
@@ -57,7 +59,7 @@ export const usePatientAdditionalData = (
   const { data, error, isPending } = useQuery({
     queryKey: patientKeys.additionalData(patientId),
     queryFn: () => loadPatientAdditionalData(patientId),
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 
   return {
@@ -65,7 +67,7 @@ export const usePatientAdditionalData = (
     customPatientFieldDefinitions: data?.customPatientFieldDefinitions ?? [],
     customPatientFieldValues: data?.customPatientFieldValues ?? {},
     patientAdditionalData: data?.patientAdditionalData ?? null,
-    loading: !!patientId && isPending,
+    loading: Boolean(patientId) && isPending,
     error,
   };
 };

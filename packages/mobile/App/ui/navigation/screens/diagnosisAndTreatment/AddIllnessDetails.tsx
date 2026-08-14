@@ -80,7 +80,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
       }
     },
     onSuccess: () => {
-      // The new encounter/diagnosis/note feed visit history and reports.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
     },

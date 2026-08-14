@@ -30,13 +30,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
   }, [backendManager]);
 
   useEffect(() => {
-    // Sync rewrites the local database underneath the query cache, so a completed sync
-    // run is the one signal that any cached read may be stale. Queries use
-    // staleTime: Infinity and rely on this bridge (plus mutation-driven invalidation)
-    // for freshness.
-    const onSyncEnded = (): void => {
-      queryClient.invalidateQueries();
-    };
+    const onSyncEnded = (): void => void queryClient.invalidateQueries();
     backendManager.syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ENDED, onSyncEnded);
     return () => {
       backendManager.syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, onSyncEnded);

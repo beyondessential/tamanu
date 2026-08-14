@@ -103,13 +103,11 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   const {
     data,
     error,
-    // The CASL ability (and canListSensitive derived from it) comes entirely from the
-    // signed-in user, so user.id represents it in the key.
+    // canListSensitive is derived from the signed-in user; encoded in the query key by user.id
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
   } = useQuery({
     queryKey: patientKeys.labRequests(selectedPatient.id, { userId: user?.id }),
-    queryFn: () =>
-      Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
+    queryFn: () => Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
   });
 
   const { data: lastSuccessfulPushTick } = useQuery({
