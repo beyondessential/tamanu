@@ -7,6 +7,7 @@ import {
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
+import { getInvoiceDiscountReason } from '@tamanu/utils/invoice';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
@@ -44,6 +45,13 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
 
   const showInsurer = hasInvoicePlans || enablePatientInsurer;
   const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
+
+  const discountReason = getInvoiceDiscountReason(invoice?.discount);
+  const discountReasonValue =
+    discountReason?.kind === 'recorded'
+      ? discountReason.text
+      : discountReason &&
+        getTranslation('invoice.summary.discountReason.assessment', 'Based on patient assessment');
 
   return (
     <>
@@ -86,10 +94,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
             value={getInvoicePaymentStatus(invoice)}
           />
-          {invoice?.discount?.reason && (
+          {discountReasonValue && (
             <DataItem
               label={getTranslation('invoice.discountReason.label', 'Discount reason')}
-              value={invoice.discount.reason}
+              value={discountReasonValue}
             />
           )}
         </Col>
