@@ -48,6 +48,9 @@ export class ApplicationContext {
   /** @type {AIService | null} */
   aiService = null;
 
+  /** @type {(typeof CENTRAL_SERVER_APP_TYPES)[keyof typeof CENTRAL_SERVER_APP_TYPES] | null} */
+  appType = null;
+
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
@@ -62,6 +65,7 @@ export class ApplicationContext {
   closeHooks = [];
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
+    this.appType = appType;
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -112,12 +116,7 @@ export class ApplicationContext {
       );
     }
 
-    if (appType === CENTRAL_SERVER_APP_TYPES.API) {
-      this.aiService = await AIService.init({
-        settings: this.settings,
-        models: this.store.models,
-      });
-    }
+    await this.refreshAiService();
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       models: this.store.models,
@@ -147,6 +146,16 @@ export class ApplicationContext {
 
     await initIntegrations(this);
     return this;
+  }
+
+  // API app only. Rebuilt rather than mutated: init already resolves every
+  // enabled/key/model combination, including having no service at all.
+  async refreshAiService() {
+    if (this.appType !== CENTRAL_SERVER_APP_TYPES.API) return;
+    this.aiService = await AIService.init({
+      settings: this.settings,
+      models: this.store.models,
+    });
   }
 
   onClose(hook) {
