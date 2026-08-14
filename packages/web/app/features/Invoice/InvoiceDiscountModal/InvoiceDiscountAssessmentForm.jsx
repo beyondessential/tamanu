@@ -6,6 +6,7 @@ import { SETTING_KEYS } from '@tamanu/constants';
 import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-components';
 import { Field, TranslatedText, BodyText } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -15,32 +16,67 @@ const MAX_FAMILY_SIZE = 12;
 
 const formatDisplayPrice = value => value.toLocaleString('en-US');
 
-const validationSchema = yup.object().shape({
-  familySize: yup
-    .string()
-    .required()
-    .translatedLabel(
-      <TranslatedText
-        stringId="invoice.validation.familySize.path"
-        fallback="Family size"
-        data-testid="translatedtext-z8qt"
-      />,
-    ),
-  annualIncome: yup
-    .string()
-    .required()
-    .translatedLabel(
-      <TranslatedText
-        stringId="invoice.validation.annualIncome.path"
-        fallback="Annual income"
-        data-testid="translatedtext-qqwm"
-      />,
-    ),
-});
+// The income bands available to answer the assessment, derived from the sliding fee scale
+// setting for the chosen family size. Each band carries the proportion of the fee the
+// patient pays, so the discount is the remainder.
+export const getAnnualIncomeOptions = (slidingFeeScale, familySize) => {
+  const incomeArray = slidingFeeScale[familySize] || [];
+
+  return incomeArray.map((income, index) => {
+    let range;
+    const incomeDisplay = formatDisplayPrice(income);
+    if (index === incomeArray.length - 1) {
+      range = `> ${incomeDisplay}`;
+    } else {
+      const upperValueDisplay = formatDisplayPrice(incomeArray[index + 1]);
+      range = `${incomeDisplay} - ${upperValueDisplay}`;
+    }
+    return { value: range, label: range, percentage: (index + 2) / 10 };
+  });
+};
+
+export const getAssessmentDiscount = (annualIncomeOptions, annualIncome) => {
+  const selectedOption = annualIncomeOptions.find(option => option.value === annualIncome);
+  return {
+    percentage: (1 - selectedOption.percentage).toFixed(2),
+    isManual: false,
+  };
+};
+
+// The income bands depend on the selected family size, so an income selected against a
+// different family size is not a valid answer to this assessment.
+export const getAssessmentValidationSchema = (annualIncomeOptions, requiredMessage) =>
+  yup.object().shape({
+    familySize: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.validation.familySize.path"
+          fallback="Family size"
+          data-testid="translatedtext-z8qt"
+        />,
+      ),
+    annualIncome: yup
+      .string()
+      .required()
+      .oneOf(
+        annualIncomeOptions.map(option => option.value),
+        requiredMessage,
+      )
+      .translatedLabel(
+        <TranslatedText
+          stringId="invoice.validation.annualIncome.path"
+          fallback="Annual income"
+          data-testid="translatedtext-qqwm"
+        />,
+      ),
+  });
 
 export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDiscount }) => {
   const [familySize, setFamilySize] = useState();
 
+  const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE);
 
@@ -49,31 +85,22 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDis
     value: i,
   }));
 
-  const annualIncomeOptions = useMemo(() => {
-    const incomeArray = slidingFeeScale[familySize] || [];
+  const annualIncomeOptions = useMemo(
+    () => getAnnualIncomeOptions(slidingFeeScale, familySize),
+    [familySize, slidingFeeScale],
+  );
 
-    return incomeArray.map((income, index) => {
-      let range;
-      const incomeDisplay = formatDisplayPrice(income);
-      if (index === incomeArray.length - 1) {
-        range = `> ${incomeDisplay}`;
-      } else {
-        const upperValueDisplay = formatDisplayPrice(incomeArray[index + 1]);
-        range = `${incomeDisplay} - ${upperValueDisplay}`;
-      }
-      return { value: range, label: range, percentage: (index + 2) / 10 };
-    });
-  }, [familySize, slidingFeeScale]);
+  const validationSchema = useMemo(
+    () =>
+      getAssessmentValidationSchema(
+        annualIncomeOptions,
+        getTranslation('validation.required.inline', '*Required'),
+      ),
+    [annualIncomeOptions, getTranslation],
+  );
 
   const handleSubmit = async values => {
-    const selectedOption = annualIncomeOptions.find(
-      option => option.value === values.annualIncome,
-    );
-    const discount = {
-      percentage: (1 - selectedOption.percentage).toFixed(2),
-      isManual: false,
-    };
-    await handleUpdateDiscount(discount);
+    await handleUpdateDiscount(getAssessmentDiscount(annualIncomeOptions, values.annualIncome));
   };
 
   return (
