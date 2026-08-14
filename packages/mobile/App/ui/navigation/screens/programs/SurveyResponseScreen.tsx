@@ -64,7 +64,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     isPending: isSurveyLoading,
   } = useQuery({
     queryKey: surveyKeys.detail(surveyId),
-    queryFn: () => Database.models.Survey.getRepository().findOne({ where: { id: surveyId } }),
+    queryFn: () =>
+      Database.models.Survey.getRepository().findOne({
+        where: { id: surveyId },
+      }),
   });
 
   const {
@@ -73,14 +76,8 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     isPending: areComponentsLoading,
   } = useQuery({
     queryKey: surveyKeys.components(surveyId),
-    // Re-load the survey inside the queryFn so the components query is fully described by
-    // surveyId, rather than depending on the survey entity instance from the query above.
-    queryFn: async () => {
-      const loadedSurvey = await Database.models.Survey.getRepository().findOne({
-        where: { id: surveyId },
-      });
-      return loadedSurvey.getComponents({ includeAllVitals: false });
-    },
+    queryFn: () => survey.getComponents({ includeAllVitals: false }),
+    enabled: Boolean(survey),
   });
 
   const {
