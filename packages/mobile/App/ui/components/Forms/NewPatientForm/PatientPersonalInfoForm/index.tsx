@@ -90,6 +90,17 @@ const getPatientInitialValues = (
 const containsAdditionalData = values =>
   ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
+class PartialPatientSaveError extends Error {
+  constructor(cause?: unknown) {
+    super(
+      cause instanceof Error
+        ? cause.message
+        : 'Patient record was saved, but a later registration step failed.',
+    );
+    this.name = 'PartialPatientSaveError';
+  }
+}
+
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
@@ -145,10 +156,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         await createOrUpdateOtherPatientData(values, newPatient.id);
         await Patient.markForSync(newPatient.id);
       } catch (error) {
-        // Flag that the patient record was already persisted before this step failed,
-        // so onError can avoid inviting a duplicate-creating retry.
-        error.patientPersisted = true;
-        throw error;
+        throw new PartialPatientSaveError(error);
       }
 
       // Reload instance to get the complete village fields
@@ -159,8 +167,8 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       queryClient.invalidateQueries({ queryKey: patientListKeys.all });
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(reloadedPatient.id) });
     },
-    onError: (error: Error & { patientPersisted?: boolean }) => {
-      if (error.patientPersisted) {
+    onError: (error: Error) => {
+      if (error instanceof PartialPatientSaveError) {
         // The patient record was already created; a later step (additional data
         // or sync flagging) failed. Do NOT invite a retry — calling
         // createAndSaveOne again would create a duplicate patient.
