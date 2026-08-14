@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { readConfig, writeConfig } from '~/services/config';
 import { IPatient } from '~/types';
+import { queryClient } from '~/ui/queryClient';
+import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
 export type WithPatientStoreProps = WithPatientActions & PatientStateProps;
 export interface WithPatientActions {
@@ -23,7 +25,11 @@ const addPatientToRecentlyViewed = async (patientId: string): Promise<void> => {
     ...oldRecentlyViewedPatients.filter((id) => id !== patientId),
   ].slice(0, MAX_STORED_RECENT_PATIENTS);
 
-  writeConfig('recentlyViewedPatients', JSON.stringify(updatedArray));
+  await writeConfig('recentlyViewedPatients', JSON.stringify(updatedArray));
+
+  // The recently-viewed query reads this config entry, so invalidate it here rather than
+  // refetching on screen focus.
+  queryClient.invalidateQueries({ queryKey: patientListKeys.recentlyViewed() });
 };
 
 const initialState: PatientStateProps = {

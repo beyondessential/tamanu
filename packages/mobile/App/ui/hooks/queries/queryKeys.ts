@@ -10,32 +10,36 @@
  * registrations, and report queries at once.
  */
 
+// Patient-scoped keys accept undefined so callers can build keys for disabled queries
+// (enabled: !!patientId) without non-null assertions; a disabled query never fetches.
+type MaybeId = string | undefined;
+
 export const patientKeys = {
   all: ['patient'] as const,
-  detail: (patientId: string) => [...patientKeys.all, patientId] as const,
-  additionalData: (patientId: string) =>
+  detail: (patientId: MaybeId) => [...patientKeys.all, patientId] as const,
+  additionalData: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'additionalData'] as const,
-  fieldValues: (patientId: string) => [...patientKeys.detail(patientId), 'fieldValues'] as const,
-  issues: (patientId: string) => [...patientKeys.detail(patientId), 'issues'] as const,
-  encounters: (patientId: string) => [...patientKeys.detail(patientId), 'encounters'] as const,
-  administeredVaccines: (patientId: string) =>
+  fieldValues: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'fieldValues'] as const,
+  issues: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'issues'] as const,
+  encounters: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'encounters'] as const,
+  administeredVaccines: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'administeredVaccines'] as const,
-  surveyResponses: (patientId: string, surveyId?: string) =>
+  surveyResponses: (patientId: MaybeId, surveyId?: string) =>
     surveyId
       ? ([...patientKeys.detail(patientId), 'surveyResponses', surveyId] as const)
       : ([...patientKeys.detail(patientId), 'surveyResponses'] as const),
-  lastAnswers: (patientId: string, params: object) =>
+  lastAnswers: (patientId: MaybeId, params: object) =>
     [...patientKeys.detail(patientId), 'lastAnswers', params] as const,
-  labRequests: (patientId: string, params?: object) =>
+  labRequests: (patientId: MaybeId, params?: object) =>
     [...patientKeys.detail(patientId), 'labRequests', params ?? {}] as const,
-  referrals: (patientId: string) => [...patientKeys.detail(patientId), 'referrals'] as const,
-  vitals: (patientId: string) => [...patientKeys.detail(patientId), 'vitals'] as const,
-  registrations: (patientId: string) =>
+  referrals: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'referrals'] as const,
+  vitals: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'vitals'] as const,
+  registrations: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'registrations'] as const,
-  availableRegistries: (patientId: string) =>
+  availableRegistries: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'availableRegistries'] as const,
-  syncStatus: (patientId: string) => [...patientKeys.detail(patientId), 'syncStatus'] as const,
-  contacts: (patientId: string) => [...patientKeys.detail(patientId), 'contacts'] as const,
+  syncStatus: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'syncStatus'] as const,
+  contacts: (patientId: MaybeId) => [...patientKeys.detail(patientId), 'contacts'] as const,
 };
 
 export const patientListKeys = {
@@ -101,6 +105,11 @@ export const reportKeys = {
   referralList: () => [...reportKeys.all, 'referralList'] as const,
   encounterSummary: (surveyId: string) =>
     [...reportKeys.all, 'encounterSummary', surveyId] as const,
+};
+
+export const settingKeys = {
+  all: ['settings'] as const,
+  byKey: (key: string) => [...settingKeys.all, key] as const,
 };
 
 export const attachmentKeys = {
