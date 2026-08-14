@@ -67,6 +67,7 @@ export const centralSettings = {
           description: 'The Anthropic model to use for AI features',
           type: yup.string(),
           defaultValue: '',
+          suggesterEndpoint: 'anthropicModel',
         },
         anthropicFastModel: {
           name: 'Anthropic fast model',
@@ -74,6 +75,7 @@ export const centralSettings = {
             'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty.',
           type: yup.string(),
           defaultValue: '',
+          suggesterEndpoint: 'anthropicVisionModel',
         },
       },
     },
