@@ -57,16 +57,12 @@ export const AutocompleteModalScreen = ({
   const [searchTerm, setSearchTerm] = useState('');
   const { language, getTranslation } = useTranslation();
 
-  const {
-    data: displayedOptions,
-    // Suggester instance can’t really be assumed to be referentially stable; consumer may create it
-    // within the render lifecycle. Hence using its name as key.
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  } = useQuery({
-    queryKey: suggestionKeys.list(suggester.model.name, {
-      options: suggester.options,
+  const { data: displayedOptions } = useQuery({
+    queryKey: suggestionKeys.list(suggester, {
       search: searchTerm,
       language,
+      // Awkward hack because `Suggester.fetchSuggestions` is impure. See comments in Suggester.
+      filterCacheKey: suggester.filterCacheKey,
     }),
     queryFn: () => suggester.fetchSuggestions(searchTerm, language),
     // Keep previous list on screen while during reloads to prevent flicker
