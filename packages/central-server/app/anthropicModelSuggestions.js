@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import express from 'express';
+import { createHash } from 'node:crypto';
 
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
@@ -13,19 +14,19 @@ export const anthropicModelSuggestions = express.Router();
 
 let cache = null;
 
+const readApiKey = async settings => {
+  try {
+    return await getSettingSecret(settings, 'ai.anthropicApiKey');
+  } catch (error) {
+    if (error instanceof SecretNotConfiguredError) return null;
+    throw error;
+  }
+};
+
 // The API key is a secret setting, so the model list is fetched here rather than
 // from the browser. An unconfigured or rejected key yields an empty list: an
 // admin filling in this category may not have saved the key yet.
-const loadModels = async settings => {
-  let apiKey;
-  try {
-    apiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
-  } catch (error) {
-    if (error instanceof SecretNotConfiguredError) return [];
-    throw error;
-  }
-  if (!apiKey) return [];
-
+const loadModels = async apiKey => {
   let response;
   try {
     response = await fetch(MODELS_URL, {
@@ -59,20 +60,26 @@ const loadModels = async settings => {
   }));
 };
 
-// The pending request is cached, not its result, so concurrent requests share
-// one call. An empty result is never kept: the admin may be saving the key right
-// now, and should not wait out the TTL to see the list appear.
-const fetchModels = settings => {
-  if (cache && cache.expiresAt > Date.now()) return cache.models;
+// Keyed on the key that fetched it, so a rotated key never serves the previous
+// key's models. The pending request is cached, not its result, so concurrent
+// requests share one call. An empty result is never kept: the admin may be
+// saving the key right now, and should not wait out the TTL to see the list.
+const fetchModels = async settings => {
+  const apiKey = await readApiKey(settings);
+  if (!apiKey) return [];
 
-  const models = loadModels(settings);
-  cache = { models, expiresAt: Date.now() + CACHE_TTL_MS };
+  const keyFingerprint = createHash('sha256').update(apiKey).digest('hex');
+  if (cache?.keyFingerprint === keyFingerprint && cache.expiresAt > Date.now()) return cache.models;
+
+  const models = loadModels(apiKey);
+  const entry = { keyFingerprint, models, expiresAt: Date.now() + CACHE_TTL_MS };
+  cache = entry;
   models
     .then(loaded => {
-      if (loaded.length === 0) cache = null;
+      if (loaded.length === 0 && cache === entry) cache = null;
     })
     .catch(() => {
-      cache = null;
+      if (cache === entry) cache = null;
     });
   return models;
 };
