@@ -1,6 +1,7 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField, formatForMuiDateTimePicker } from '@utils/dateTimeHelpers';
 
 export class PrepareDischargeModal {
   readonly page: Page;
@@ -102,13 +103,23 @@ export class PrepareDischargeModal {
   }
 
   /**
-   * Sets the discharge date. The field is a native datetime-local, so the value is read back in
-   * the same form it is written — callers compare against what they set rather than a stored
-   * representation, which the facility timezone may shift.
+   * Sets the discharge date, given as `yyyy-MM-dd'T'HH:mm`. The field is a masked text input the
+   * picker only reads on blur, and one that silently keeps its previous value when what it is
+   * given does not parse, so the write is confirmed before the caller moves on.
    */
-  async setDischargeDate(value: string) {
+  async setDischargeDate(dateTime: string) {
     await this.dischargeDateInput.waitFor({ state: 'visible' });
-    await this.dischargeDateInput.fill(value);
+    await fillMuiDateTimeField(this.dischargeDateInput, dateTime);
+    await this.expectDischargeDate(dateTime);
+  }
+
+  /**
+   * Asserts the discharge date the field shows, given as `yyyy-MM-dd'T'HH:mm`. Compares against
+   * what the field displays rather than what is stored: the two differ whenever the facility
+   * timezone does, and the display is what the clinician reads back.
+   */
+  async expectDischargeDate(dateTime: string) {
+    await expect(this.dischargeDateInput).toHaveValue(formatForMuiDateTimePicker(dateTime));
   }
 
   /**

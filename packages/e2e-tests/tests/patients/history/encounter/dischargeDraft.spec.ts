@@ -1,4 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
+import { addDays, format } from 'date-fns';
 
 import { test, expect } from '@fixtures/baseFixture';
 import {
@@ -87,8 +88,10 @@ test.describe('Discharge draft', () => {
     await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
 
     // The date, clinician and disposition all come back from the draft rather than being
-    // regenerated from live defaults, so they are set to something distinguishable first.
-    const dischargeDate = '2026-08-13T09:30';
+    // regenerated from live defaults, so they are set to something distinguishable first. The
+    // field will not accept anything before the admission, which was just made, so the date has
+    // to sit after it rather than at some fixed point in the past.
+    const dischargeDate = `${format(addDays(new Date(), 1), 'yyyy-MM-dd')}T09:30`;
     await dischargeModal.setDischargeDate(dischargeDate);
     const dischargingClinician = await dischargeModal.selectDischargingClinician();
     const disposition = await dischargeModal.selectDisposition();
@@ -109,7 +112,7 @@ test.describe('Discharge draft', () => {
     await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('12');
     await expect(dischargeModal.sendToPharmacyCheckbox(prescription.id)).not.toBeChecked();
 
-    await expect(dischargeModal.dischargeDateInput).toHaveValue(dischargeDate);
+    await dischargeModal.expectDischargeDate(dischargeDate);
     // The autocompletes show a label resolved from the stored id, so matching the label the
     // clinician picked also proves the id itself round-tripped.
     await expect(dischargeModal.dischargingClinicianInput).toHaveValue(dischargingClinician);
