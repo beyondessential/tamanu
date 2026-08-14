@@ -1,9 +1,11 @@
-import { NavigationProp, RouteProp, useIsFocused } from '@react-navigation/native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { ReactElement, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { IPatient } from '~/types';
+import { Database } from '~/infra/db';
 import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
-import { useBackendEffect } from '~/ui/hooks';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
@@ -31,20 +33,19 @@ export const VaccineModalScreen = ({
 }: VaccineModalScreenProps): ReactElement => {
   const { vaccine, patient } = route.params;
   const administeredVaccineId = vaccine.administeredVaccine?.id;
-  const isFocused = useIsFocused();
 
-  /**
-   * Ideally we’d declare, declaratively, the relevant vaccine data and delegate state management
-   * to something like TanStack Query. In its absence, we use an Effect dependent on focus to
-   * imperatively refetch data if and when the administered vaccine is edited.
-   */
-  const [administeredVaccine, error, isLoading] = useBackendEffect(
-    ({ models }) => {
-      if (administeredVaccineId === undefined) return null;
-      return models.AdministeredVaccine.getById(administeredVaccineId);
-    },
-    [administeredVaccineId, isFocused],
-  );
+  // Nested under the patient's administeredVaccines key so edits that invalidate the
+  // vaccine list also refresh this record.
+  const {
+    data: administeredVaccine,
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: [...patientKeys.administeredVaccines(patient.id), administeredVaccineId],
+    queryFn: () => Database.models.AdministeredVaccine.getById(administeredVaccineId),
+    enabled: administeredVaccineId !== undefined,
+  });
+  const isLoading = administeredVaccineId !== undefined && isPending;
 
   const vaccineData = useMemo(
     () =>

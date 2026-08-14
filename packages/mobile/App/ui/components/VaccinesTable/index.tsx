@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
 import { uniqBy } from 'es-toolkit/compat';
-import { useIsFocused } from '@react-navigation/native';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys, referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
 import { VaccinesTableTitle } from './VaccinesTableTitle';
@@ -41,8 +43,19 @@ export const VaccinesTable = ({
   );
 
   const scrollViewRef = useRef(null);
-  const isFocused = useIsFocused();
   const latestAdministeredVaccineId = useContext(VaccineTableRefreshContext);
+  const queryClient = useQueryClient();
+
+  // Temporary bridge: recording a vaccine navigates back here with the new administered
+  // vaccine id as a route param (via VaccineTableRefreshContext). Until that write becomes
+  // a useMutation with its own invalidation, invalidate the cached vaccine reads here.
+  useEffect(() => {
+    if (latestAdministeredVaccineId) {
+      queryClient.invalidateQueries({
+        queryKey: patientKeys.administeredVaccines(selectedPatient.id),
+      });
+    }
+  }, [queryClient, latestAdministeredVaccineId, selectedPatient.id]);
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
@@ -51,18 +64,16 @@ export const VaccinesTable = ({
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
-  const [scheduledVaccines, scheduledVaccineError] = useBackendEffect(
-    async ({ models }) =>
-      (await models.ScheduledVaccine.find({
+  const { data: scheduledVaccines, error: scheduledVaccineError } = useQuery({
+    queryKey: referenceKeys.scheduledVaccines({ category: categoryName }),
+    queryFn: async () =>
+      (await Database.models.ScheduledVaccine.find({
         order: { index: 'ASC' },
         where: { category: categoryName },
       })) as IScheduledVaccine[],
-    [],
-  );
-  const [patientAdministeredVaccines, administeredError] = useBackendEffect(
-    ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [isFocused, latestAdministeredVaccineId, selectedPatient.id],
-  );
+  });
+  const { data: patientAdministeredVaccines, error: administeredError } =
+    usePatientAdministeredVaccinesQuery(selectedPatient.id);
 
   const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];
