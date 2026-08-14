@@ -15,6 +15,7 @@ import {
 } from '@tamanu/settings';
 import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 
+import { applyDefaultAiModels } from './applyDefaultAiModels';
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
 
@@ -254,8 +255,20 @@ adminRoutes.put(
       );
     }
 
+    // Captured before the write: resolveSecretsForSave rewrites the incoming
+    // secret, and the stored value is what tells us the key is new.
+    const incomingKey = getAtPath(settings, 'ai.anthropicApiKey');
+    const isFirstApiKey =
+      typeof incomingKey === 'string' &&
+      incomingKey.length > 0 &&
+      incomingKey !== SECRET_PLACEHOLDER &&
+      !(await Setting.get('ai.anthropicApiKey', facilityId, scope));
+
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
     await Setting.set('', settings, scope, facilityId);
+    if (isFirstApiKey) {
+      await applyDefaultAiModels({ Setting, readSettings: req.ctx.settings, scope, facilityId });
+    }
     await req.aiService?.refreshContexts(req.ctx.settings);
     res.json({ code: 200 });
   }),

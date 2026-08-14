@@ -43,9 +43,10 @@ const loadModels = async settings => {
   }
 
   const body = await response.json();
-  return (body.data ?? []).map(({ id, display_name: displayName, capabilities }) => ({
+  return (body.data ?? []).map(({ id, display_name: displayName, created_at, capabilities }) => ({
     id,
     name: displayName ?? id,
+    createdAt: created_at,
     supportsVision: Boolean(
       capabilities?.image_input?.supported && capabilities?.pdf_input?.supported,
     ),
@@ -55,7 +56,7 @@ const loadModels = async settings => {
 // The pending request is cached, not its result, so concurrent requests share
 // one call. An empty result is never kept: the admin may be saving the key right
 // now, and should not wait out the TTL to see the list appear.
-const fetchModels = settings => {
+export const fetchModels = settings => {
   if (cache && cache.expiresAt > Date.now()) return cache.models;
 
   const models = loadModels(settings);
