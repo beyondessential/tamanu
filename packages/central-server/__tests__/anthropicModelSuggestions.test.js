@@ -150,7 +150,7 @@ describe('anthropicModel suggester', () => {
   it('offers only vision-capable models for the fast model field', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();
-    const result = await adminApp.get('/api/suggestions/anthropicVisionModel');
+    const result = await adminApp.get('/api/suggestions/anthropicFastModel');
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual([{ id: 'claude-opus-5', name: 'Claude Opus 5' }]);
   });
@@ -158,9 +158,7 @@ describe('anthropicModel suggester', () => {
   it('still resolves a saved fast model that is no longer offered', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();
-    const result = await adminApp.get(
-      '/api/suggestions/anthropicVisionModel/claude-textonly-1',
-    );
+    const result = await adminApp.get('/api/suggestions/anthropicFastModel/claude-textonly-1');
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual({
       id: 'claude-textonly-1',

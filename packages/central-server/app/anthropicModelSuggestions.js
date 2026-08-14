@@ -107,10 +107,10 @@ anthropicModelSuggestions.get('/anthropicModel/:id', lookupRoute);
 // The fast model serves the form builder's image context, so it has to read
 // images and PDFs; a model that can't would fail only at the point of use.
 anthropicModelSuggestions.get(
-  '/anthropicVisionModel',
+  '/anthropicFastModel',
   listRoute(({ supportsVision }) => supportsVision),
 );
-anthropicModelSuggestions.get('/anthropicVisionModel/:id', lookupRoute);
+anthropicModelSuggestions.get('/anthropicFastModel/:id', lookupRoute);
 
 export const clearAnthropicModelCache = () => {
   cache = null;

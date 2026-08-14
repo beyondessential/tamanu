@@ -69,7 +69,8 @@ export const centralSettings = {
         },
         anthropicModel: {
           name: 'Anthropic model',
-          description: 'The Anthropic model to use for AI features',
+          description:
+            'The Anthropic model to use for AI features. Opus is recommended, Sonnet is a cheaper alternative.',
           type: yup.string(),
           defaultValue: '',
           suggesterEndpoint: 'anthropicModel',
@@ -77,10 +78,10 @@ export const centralSettings = {
         anthropicFastModel: {
           name: 'Anthropic fast model',
           description:
-            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty.',
+            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty. A Haiku model is a good choice.',
           type: yup.string(),
           defaultValue: '',
-          suggesterEndpoint: 'anthropicVisionModel',
+          suggesterEndpoint: 'anthropicFastModel',
         },
       },
     },
