@@ -14,6 +14,6 @@ export default function usePatientIssuesQuery(
         order: { recordedDate: 'ASC' },
         where: { patient: { id: patientId } },
       }),
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 }

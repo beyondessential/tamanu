@@ -47,8 +47,10 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   const parsedConfig = JSON.parse(config);
   const { data: record, error } = useQuery({
     queryKey: suggestionKeys.currentOption(parsedConfig.source, { id: answer }),
-    queryFn: () =>
-      Database.models[parsedConfig.source].getRepository().findOne({ where: { id: answer } }),
+    queryFn: () => {
+      const repo = Database.models[parsedConfig.source].getRepository();
+      return repo.findOne({ where: { id: answer } });
+    },
   });
   if (!record) {
     return <StyledText>{answer}</StyledText>;
@@ -65,11 +67,7 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
     locale,
   });
 
-  return (
-    <StyledText color={theme.colors.TEXT_DARK}>
-      {displayName}
-    </StyledText>
-  );
+  return <StyledText color={theme.colors.TEXT_DARK}>{displayName}</StyledText>;
 };
 
 function getAnswerText(type, answer, locale?: string): string | number {
@@ -113,9 +111,7 @@ function getAnswerText(type, answer, locale?: string): string | number {
 const TextAnswer = ({ type, answer }): ReactElement => {
   const { locale } = useDateFormatter();
   return (
-    <StyledText color={theme.colors.TEXT_DARK}>
-      {getAnswerText(type, answer, locale)}
-    </StyledText>
+    <StyledText color={theme.colors.TEXT_DARK}>{getAnswerText(type, answer, locale)}</StyledText>
   );
 };
 

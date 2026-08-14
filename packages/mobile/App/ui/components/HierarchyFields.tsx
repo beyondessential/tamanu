@@ -45,9 +45,7 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
 
       let entity = null as any;
       for (const candidateType of fallbackOrder) {
-        const found = await models.ReferenceData.getNode({
-          type: candidateType,
-        });
+        const found = await models.ReferenceData.getNode({ type: candidateType });
         if (found) {
           entity = found;
           break;

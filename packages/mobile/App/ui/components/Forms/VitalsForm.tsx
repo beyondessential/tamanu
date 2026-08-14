@@ -54,7 +54,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         values,
       ),
     onSuccess: () => {
-      // A vitals submission writes an encounter plus the response feeding the vitals table.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
     },
   });
@@ -104,7 +103,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   // On mobile, date is programmatically submitted
   const visibleComponents = components.filter(
-    (c) => c.dataElementId !== VitalsDataElements.dateRecorded,
+    c => c.dataElementId !== VitalsDataElements.dateRecorded,
   );
 
   return (
@@ -116,7 +115,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       validate={(values: object): object => {
         const errors: { form?: string } = {};
 
-        if (Object.values(values).every((x) => x === '' || x === null)) {
+        if (Object.values(values).every(x => x === '' || x === null)) {
           errors.form = getTranslation(
             'validation.rule.atLeastOneRecording',
             'At least one recording is required',

@@ -17,6 +17,6 @@ export default function usePatientAdditionalDataRecordQuery(
           patient: { id: patientId },
         },
       }),
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 }

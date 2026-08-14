@@ -105,9 +105,7 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
     queryFn: () =>
       Database.models.Survey.find({
-        where: {
-          surveyType: SurveyTypes.Programs,
-        },
+        where: { surveyType: SurveyTypes.Programs },
       }),
   });
 

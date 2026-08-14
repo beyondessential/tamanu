@@ -37,27 +37,27 @@ export const ProgramRegistrySection = (): ReactElement => {
             visibilityStatus: VisibilityStatus.Current,
           },
         },
-        filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
+        filter: ({ entity_id }) =>
+          ability.can('read', subject('ProgramRegistry', { id: entity_id })),
       }),
     [models.ProgramRegistry, ability],
   );
 
   const {
-    data: rawProgramRegistries,
+    data: programRegistries,
     error: programRegistryError,
     isPending: isProgramRegistryLoading,
   } = useQuery({
     queryKey: programRegistryKeys.list(),
     queryFn: () => Database.models.ProgramRegistry.getAllProgramRegistries(),
+    select: registries =>
+      registries.map(({ name, id }) => ({
+        label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
+        value: id,
+      })),
   });
 
-  if (isProgramRegistryLoading || programRegistryError) return;
-
-  // Translation happens outside the queryFn so the query is fully described by its key
-  const programRegistries = rawProgramRegistries.map(({ name, id }) => ({
-    label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
-    value: id,
-  }));
+  if (isProgramRegistryLoading || programRegistryError || !programRegistries) return;
 
   const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
 

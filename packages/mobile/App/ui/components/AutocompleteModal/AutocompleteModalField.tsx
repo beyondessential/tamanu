@@ -79,12 +79,11 @@ export const AutocompleteModalField = ({
       language,
     }),
     queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
-    enabled: !!suggester && !!value,
+    enabled: Boolean(suggester && value),
   });
 
   const label =
-    (selectedOption && selectedOption.value === value ? selectedOption.label : null) ??
-    (value ? (currentOption?.label ?? null) : null);
+    selectedOption?.value === value ? selectedOption.label : (currentOption?.label ?? null);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;

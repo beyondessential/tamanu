@@ -120,7 +120,6 @@ export const DumbAddLabRequestScreen = ({
       });
     },
     onSuccess: () => {
-      // The lab request and its encounter feed the history tab and reports.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
     },

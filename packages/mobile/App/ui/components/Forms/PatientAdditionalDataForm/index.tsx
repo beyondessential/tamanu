@@ -75,8 +75,6 @@ export const PatientAdditionalDataForm = ({
       );
     },
     onSuccess: () => {
-      // The form updates the patient record itself as well as additional data,
-      // so patient search/list results may change too.
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(patient.id) });
       queryClient.invalidateQueries({ queryKey: patientListKeys.all });
     },

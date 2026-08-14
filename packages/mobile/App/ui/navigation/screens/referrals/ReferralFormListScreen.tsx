@@ -26,9 +26,7 @@ export const ReferralFormListScreen = (): ReactElement => {
           surveyType: SurveyTypes.Referral,
           visibilityStatus: VisibilityStatus.Current,
         },
-        order: {
-          name: 'ASC',
-        },
+        order: { name: 'ASC' },
       }),
   });
 

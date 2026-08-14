@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyledText} from '~/ui/styled/common';
+import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -37,7 +37,6 @@ export const SyncStatusModal = ({
     mutationFn: () => Patient.markForSync(selectedPatient.id),
     onSuccess: () => {
       syncManager.triggerUrgentSync();
-      // The parent invalidates the patient's sync-status query.
       onSyncPatient();
     },
   });
@@ -53,14 +52,18 @@ export const SyncStatusModal = ({
         open={open}
         onClose={onClose}
         onConfirm={handleSyncPatient}
-        title={<TranslatedText
-          stringId="patient.details.modal.unsynced.title"
-          fallback="Sync patient?"
-        />}
-        confirmButtonText={<TranslatedText
-          stringId="patient.details.modal.unsynced.action.sync"
-          fallback="Sync patient"
-        />}
+        title={
+          <TranslatedText
+            stringId="patient.details.modal.unsynced.title"
+            fallback="Sync patient?"
+          />
+        }
+        confirmButtonText={
+          <TranslatedText
+            stringId="patient.details.modal.unsynced.action.sync"
+            fallback="Sync patient"
+          />
+        }
       >
         <StyledText
           textAlign="center"
@@ -81,38 +84,33 @@ export const SyncStatusModal = ({
 
   return (
     <ConfirmModal
-        open={open}
-        onClose={onClose}
-        onConfirm={onClose}
-        showCancelButton={false}
-        title={<TranslatedText
+      open={open}
+      onClose={onClose}
+      onConfirm={onClose}
+      showCancelButton={false}
+      title={
+        <TranslatedText
           stringId="patient.details.modal.synced.title"
           fallback="Patient sync information"
-        />}
-        confirmButtonText={<TranslatedText
-          stringId="general.action.close"
-          fallback="Close"
-        />}
+        />
+      }
+      confirmButtonText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+    >
+      <StyledText
+        textAlign="center"
+        fontSize={14}
+        fontWeight={500}
+        marginTop={20}
+        color={theme.colors.TEXT_SUPER_DARK}
       >
-        <StyledText
-          textAlign="center"
-          fontSize={14}
-          fontWeight={500}
-          marginTop={20}
-          color={theme.colors.TEXT_SUPER_DARK}
-        >
-          <TranslatedText
-            stringId="sync.subHeading.lastSuccessfulSync"
-            fallback="Last successful sync"
-          />
-        </StyledText>
-        <StyledText
-          textAlign="center"
-          fontSize={14}
-          color={theme.colors.TEXT_SUPER_DARK}
-        >
-          {formattedLastPull}
-        </StyledText>
-      </ConfirmModal>
+        <TranslatedText
+          stringId="sync.subHeading.lastSuccessfulSync"
+          fallback="Last successful sync"
+        />
+      </StyledText>
+      <StyledText textAlign="center" fontSize={14} color={theme.colors.TEXT_SUPER_DARK}>
+        {formattedLastPull}
+      </StyledText>
+    </ConfirmModal>
   );
-}
+};

@@ -34,8 +34,6 @@ export const VaccineModalScreen = ({
   const { vaccine, patient } = route.params;
   const administeredVaccineId = vaccine.administeredVaccine?.id;
 
-  // Nested under the patient's administeredVaccines key so edits that invalidate the
-  // vaccine list also refresh this record.
   const {
     data: administeredVaccine,
     error,
@@ -55,9 +53,7 @@ export const VaccineModalScreen = ({
     [administeredVaccine, vaccine],
   );
 
-  const onNavigateBack = useCallback(() => {
-    returnToVaccineTable(navigation);
-  }, [navigation]);
+  const onNavigateBack = useCallback(() => void returnToVaccineTable(navigation), [navigation]);
 
   const onNavigateToEditDetails = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {

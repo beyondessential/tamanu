@@ -74,7 +74,7 @@ export const PatientDataDisplayField = ({
     (config?.column && PATIENT_DATA_FIELD_LOCATIONS[config.column]) || [];
 
   // Only standard fields without enum options need a database lookup
-  const needsLookup = !!value && !!modelName && !options;
+  const needsLookup = Boolean(value && modelName && !options);
   const { data: association } = useQuery({
     queryKey: referenceKeys.patientDataField({ modelName, fieldName, answer: value }),
     queryFn: () =>

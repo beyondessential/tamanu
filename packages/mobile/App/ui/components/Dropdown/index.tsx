@@ -219,18 +219,17 @@ export const MultiSelectDropdown = ({ ...props }): ReactElement => (
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
   const { getTranslation } = useTranslation();
 
-  const { data: results } = useQuery({
+  const { data: options = [] } = useQuery({
     queryKey: referenceKeys.dataByType(referenceDataType, { format: 'selectOptions' }),
     queryFn: () => Database.models.ReferenceData.getSelectOptionsForType(referenceDataType),
-  });
-
-  // Translation happens outside the queryFn so the query is fully described by its key
-  const options = (results ?? []).map(option => {
-    const stringId = getReferenceDataStringId(option.value, referenceDataType);
-    return {
-      label: getTranslation(stringId, option.label),
-      value: option.value,
-    };
+    select: data =>
+      data.map(option => ({
+        label: getTranslation(
+          getReferenceDataStringId(option.value, referenceDataType),
+          option.label,
+        ),
+        value: option.value,
+      })),
   });
 
   return <Dropdown {...props} options={options} />;

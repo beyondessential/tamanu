@@ -37,14 +37,11 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
     error,
     isPending: isLoading,
   } = useQuery({
-    // latestResponseId ensures a fresh cache entry when a new survey is submitted (this
-    // tab can stay mounted while inactive); the survey submit mutation will also
-    // invalidate this key. userId stands in for the CASL ability derived from the user.
     queryKey: [
       ...patientKeys.surveyResponses(selectedPatient.id),
       { type: SurveyTypes.Programs, latestResponseId, userId: user?.id },
     ],
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- ability is represented in the key by user.id (see above)
+
     queryFn: async () => {
       const { models } = Database;
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);

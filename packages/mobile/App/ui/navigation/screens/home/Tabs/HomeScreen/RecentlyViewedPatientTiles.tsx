@@ -13,32 +13,31 @@ import { theme } from '/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
-const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(
-  ({ displayedPatient, setSelectedPatient }: any): ReactElement => {
-    const navigation = useNavigation();
+const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(({
+  displayedPatient,
+  setSelectedPatient,
+}: any): ReactElement => {
+  const navigation = useNavigation();
 
-    return (
-      <StyledView marginRight={10}>
-        <PatientCard
-          onPress={(): void => {
-            setSelectedPatient(displayedPatient);
-            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
-              screen: Routes.HomeStack.SearchPatientStack.Index,
-              from: PatientFromRoute.HOME,
-            });
-          }}
-          patient={displayedPatient}
-        />
-      </StyledView>
-    );
-  },
-);
+  return (
+    <StyledView marginRight={10}>
+      <PatientCard
+        onPress={(): void => {
+          setSelectedPatient(displayedPatient);
+          navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+            screen: Routes.HomeStack.SearchPatientStack.Index,
+            from: PatientFromRoute.HOME,
+          });
+        }}
+        patient={displayedPatient}
+      />
+    </StyledView>
+  );
+});
 
 const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
-  // Selecting a patient invalidates this query (see store/ducks/patient.ts), so no
-  // focus-driven refetching is needed even though the home screen stays mounted.
   const { data: recentlyViewedPatients } = useRecentlyViewedPatients();
 
   if (!recentlyViewedPatients)

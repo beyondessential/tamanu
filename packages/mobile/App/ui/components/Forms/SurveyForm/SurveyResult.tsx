@@ -15,21 +15,14 @@ export const SurveyResult = ({ patient, config, name }) => {
     queryKey: patientKeys.surveyResponses(patient.id, config.source),
     queryFn: () => Database.models.SurveyResponse.getForPatient(patient.id, config.source),
   });
-  // getForPatient returns responses sorted by most recent, we want the most recent.
+  /** getForPatient returns responses sorted by most recent, we want the most recent */
   const surveyResponse = responses?.[0];
 
   useEffect(() => {
-    if (surveyResponse) {
-      setFieldValue(name, surveyResponse.resultText);
-    }
+    if (surveyResponse) setFieldValue(name, surveyResponse.resultText);
   }, [surveyResponse, name, setFieldValue]);
 
-  if (!surveyResponse)
-    return (
-      <Text>
-        Survey (id: {config.source}) not submitted for patient.
-      </Text>
-    );
+  if (!surveyResponse) return <Text>Survey (id: {config.source}) not submitted for patient.</Text>;
   const SurveyBadgeField = () => (
     <View>
       <Text variant="titleMedium">CVD Risk</Text>
