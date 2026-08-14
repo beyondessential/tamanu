@@ -129,9 +129,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
 
   // Main submit action for the invoice
   const handleSubmit = async data => {
-    // Every row here has a product: validation requires one, and a row the cashier doesn't want is
-    // removed from the table rather than left blank, so nothing is dropped silently on save.
-    const newItems = data.invoiceItems;
+    const newItems = data.invoiceItems.filter(item => !!item.productId);
     // In add modal mode, merge new items with existing ones rather than replacing
     const invoiceItems = isAddForm ? [...(invoice.items ?? []), ...newItems] : newItems;
 
@@ -183,8 +181,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        // Tag already-saved lines so the table only offers Remove on rows that aren't saved yet: a
-        // saved line goes through the invoice view's Delete action, so editing can't drop it.
+        // Tag already-saved lines so validation keeps their product/ordered-by required: clearing a
+        // field on an existing line must block save (see invoiceFormSchema) rather than silently drop
+        // the line. Blank add-rows stay untagged so they remain discardable on save.
         invoiceItems: isAddForm
           ? inProgressItems
           : [
