@@ -7,8 +7,6 @@ export const patientKeys = {
   detail: (patientId: MaybeId) => [...patientKeys.all, patientId] as const satisfies QueryKey,
   additionalData: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'additionalData'] as const satisfies QueryKey,
-  fieldValues: (patientId: MaybeId) =>
-    [...patientKeys.detail(patientId), 'fieldValues'] as const satisfies QueryKey,
   issues: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'issues'] as const satisfies QueryKey,
   encounters: (patientId: MaybeId) =>
@@ -80,13 +78,6 @@ export const registrationKeys = {
 export const programRegistryKeys = {
   all: ['programRegistries'] as const satisfies QueryKey,
   list: () => [...programRegistryKeys.all, 'list'] as const satisfies QueryKey,
-  conditions: (programRegistryId: string, params?: object) =>
-    [
-      ...programRegistryKeys.all,
-      programRegistryId,
-      'conditions',
-      params ?? {},
-    ] as const satisfies QueryKey,
   conditionCategories: (programRegistryId: string) =>
     [
       ...programRegistryKeys.all,
@@ -101,12 +92,8 @@ export const referenceKeys = {
   all: ['reference'] as const satisfies QueryKey,
   dataByType: (type: string, params?: object) =>
     [...referenceKeys.all, 'data', type, params ?? {}] as const satisfies QueryKey,
-  hierarchyAncestors: (entityId: string) =>
-    [...referenceKeys.all, 'hierarchyAncestors', entityId] as const satisfies QueryKey,
   scheduledVaccines: (params: object) =>
     [...referenceKeys.all, 'scheduledVaccines', params] as const satisfies QueryKey,
-  facility: (facilityId: string) =>
-    [...referenceKeys.all, 'facility', facilityId] as const satisfies QueryKey,
   patientDataField: (params: object) =>
     [...referenceKeys.all, 'patientDataField', params] as const satisfies QueryKey,
   addressHierarchy: (leafNodeType: string) =>
@@ -147,10 +134,4 @@ export const syncKeys = {
 export const settingKeys = {
   all: ['settings'] as const satisfies QueryKey,
   byKey: (key: string) => [...settingKeys.all, key] as const satisfies QueryKey,
-};
-
-export const attachmentKeys = {
-  all: ['attachments'] as const satisfies QueryKey,
-  detail: (attachmentId: string) =>
-    [...attachmentKeys.all, attachmentId] as const satisfies QueryKey,
 };
