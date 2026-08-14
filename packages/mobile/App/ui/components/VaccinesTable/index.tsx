@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
 import { uniqBy } from 'es-toolkit/compat';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { patientKeys, referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
@@ -23,8 +23,6 @@ import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData
 
 type VaccineTableCells = Record<string, VaccineTableCellData[]>;
 
-export const VaccineTableRefreshContext = createContext<string | undefined>(undefined);
-
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
@@ -43,19 +41,6 @@ export const VaccinesTable = ({
   );
 
   const scrollViewRef = useRef(null);
-  const latestAdministeredVaccineId = useContext(VaccineTableRefreshContext);
-  const queryClient = useQueryClient();
-
-  // Temporary bridge: recording a vaccine navigates back here with the new administered
-  // vaccine id as a route param (via VaccineTableRefreshContext). Until that write becomes
-  // a useMutation with its own invalidation, invalidate the cached vaccine reads here.
-  useEffect(() => {
-    if (latestAdministeredVaccineId) {
-      queryClient.invalidateQueries({
-        queryKey: patientKeys.administeredVaccines(selectedPatient.id),
-      });
-    }
-  }, [queryClient, latestAdministeredVaccineId, selectedPatient.id]);
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate

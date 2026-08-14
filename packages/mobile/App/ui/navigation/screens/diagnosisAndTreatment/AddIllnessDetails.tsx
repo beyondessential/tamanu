@@ -14,7 +14,9 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { withPatient } from '~/ui/containers/Patient';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { Certainty, CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
@@ -48,8 +50,9 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(
-    async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: recordIllness } = useMutation({
+    mutationFn: async ({ diagnosis, certainty, clinicalNote }: any) => {
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -75,10 +78,20 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
           author: user.id,
         });
       }
+    },
+    onSuccess: () => {
+      // The new encounter/diagnosis/note feed visit history and reports.
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
 
+  const onRecordIllness = useCallback(
+    async (values: any): Promise<void> => {
+      await recordIllness(values);
       navigateToHistory();
     },
-    [],
+    [recordIllness, navigateToHistory],
   );
 
   const diagnosisSuggester = useMemo(

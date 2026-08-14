@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { IPatient } from '~/types';
 import { Database } from '~/infra/db';
-import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
+import { returnToVaccineTable } from '~/ui/helpers/navigators';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
@@ -56,8 +56,8 @@ export const VaccineModalScreen = ({
   );
 
   const onNavigateBack = useCallback(() => {
-    returnToVaccineTableWithRefresh(navigation, administeredVaccineId);
-  }, [navigation, administeredVaccineId]);
+    returnToVaccineTable(navigation);
+  }, [navigation]);
 
   const onNavigateToEditDetails = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {

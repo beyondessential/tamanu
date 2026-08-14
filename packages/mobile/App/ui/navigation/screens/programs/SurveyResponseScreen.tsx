@@ -12,9 +12,14 @@ import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/Sur
 import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import {
+  patientKeys,
+  registrationKeys,
+  reportKeys,
+  surveyKeys,
+} from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import { useBackend } from '~/ui/hooks';
 import { GenericFormValues, IPatientAdditionalData, SurveyTypes } from '~/types';
@@ -121,10 +126,13 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   });
 
   const { models } = useBackend();
-  const onSubmit = useCallback(
-    async (values: GenericFormValues) => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: submitSurveyResponse } = useMutation({
+    // Referral.submit and SurveyResponse.submit return different record types; the
+    // caller only relies on the shared id field.
+    mutationFn: (values: GenericFormValues): Promise<{ id: string } | null> => {
       const model = isReferral ? models.Referral : models.SurveyResponse;
-      const response = await model.submit(
+      return model.submit(
         selectedPatientId,
         user.id,
         {
@@ -135,6 +143,20 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         },
         values,
       );
+    },
+    onSuccess: response => {
+      if (!response) return;
+      // A submission writes an encounter, answers and possibly a program registration,
+      // and feeds the program reports.
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatientId) });
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
+
+  const onSubmit = useCallback(
+    async (values: GenericFormValues) => {
+      const response = await submitSurveyResponse(values);
 
       if (!response) return;
       if (isReferral) {
@@ -143,7 +165,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         resetToProgramSurveyHistory(navigation, response.id);
       }
     },
-    [survey, components],
+    [submitSurveyResponse, isReferral, navigation],
   );
 
   const closeModalCallback = useCallback(async () => {
