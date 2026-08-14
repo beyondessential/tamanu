@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
@@ -172,6 +172,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
   const api = useApi();
   const { getTranslation } = useTranslation();
   const [error, setError] = useState(false);
+  const isUploading = useRef(false);
 
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -179,6 +180,10 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
+      // Ignore repeat submissions (e.g. double-clicking Add) while an upload is
+      // in flight so the document is only created once.
+      if (isUploading.current) return;
+      isUploading.current = true;
       onStart();
 
       // Read file metadata
@@ -201,6 +206,9 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
           setError(e.message);
           return;
         }
+      } finally {
+        // eslint-disable-next-line require-atomic-updates -- ref latch guarding against repeat submissions
+        isUploading.current = false;
       }
 
       onSubmit();
