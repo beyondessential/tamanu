@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+import { Formik } from 'formik';
 import { RequiredOrnament } from '@tamanu/ui-components';
 
 // Registers yup's translatedLabel method, which the medication schema uses.
@@ -9,7 +11,9 @@ import '../../app/utils/errorMessages';
 import {
   getMedicationsValidationSchema,
   MEDICATION_COLUMNS,
+  OrderingPrescriberField,
 } from '../../app/forms/DischargeMedicationColumns';
+import { renderElementWithTranslatedText } from '../helpers/render';
 
 const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = () => '';
@@ -126,6 +130,43 @@ describe('MEDICATION_COLUMNS pharmacy ordering', () => {
       'stock',
       'Discontinued',
     ]);
+  });
+});
+
+// The ordering prescriber is only required, and only marked so, once a medication is actually being
+// sent to pharmacy. While nothing is selected the field is disabled and must not show the required
+// asterisk (RequiredOrnament renders visually-hidden "Required" copy).
+describe('OrderingPrescriberField required asterisk', () => {
+  const mockSuggester = {
+    fetchSuggestions: async () => [],
+    fetchCurrentOption: async () => undefined,
+  };
+
+  const renderOrderingPrescriber = medications =>
+    renderElementWithTranslatedText(
+      <Formik
+        initialValues={{ medications, pharmacyOrder: { orderingClinicianId: '' } }}
+        initialStatus={{}}
+        onSubmit={() => {}}
+      >
+        <OrderingPrescriberField practitionerSuggester={mockSuggester} />
+      </Formik>,
+    );
+
+  it('is not marked required when nothing is being sent to pharmacy', () => {
+    const { queryByText } = renderOrderingPrescriber({
+      'medication-1': { sendToPharmacy: false },
+    });
+
+    expect(queryByText('Required')).toBeNull();
+  });
+
+  it('is marked required once a medication is being sent to pharmacy', () => {
+    const { queryByText } = renderOrderingPrescriber({
+      'medication-1': { sendToPharmacy: true },
+    });
+
+    expect(queryByText('Required')).not.toBeNull();
   });
 });
 
