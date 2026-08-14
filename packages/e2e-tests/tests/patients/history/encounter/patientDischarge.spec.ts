@@ -3,6 +3,8 @@ import {
   createEncounterPrescriptionViaApi,
   createHospitalAdmissionEncounterViaAPI,
   getDrugSuggestions,
+  getPractitioners,
+  getUser,
 } from '@utils/apiHelpers';
 
 test.describe('Patient discharge', () => {
@@ -143,5 +145,70 @@ test.describe('Patient discharge', () => {
 
     await dischargeModal.sendToPharmacyCheckbox(prescription.id).check();
     await expect(dischargeModal.orderingPrescriberInput).toBeEnabled();
+  });
+
+  // Regression guard: discontinuing a medication used to reinitialise the whole discharge form,
+  // reverting the ordering prescriber the user had chosen back to the auto-populated current user.
+  test('Discontinuing a medication keeps the chosen ordering prescriber and the other rows edits', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const currentUser = await getUser(api);
+
+    // The regression is only observable by moving the prescriber off its auto-populated default,
+    // which needs someone else to move it to. Some environments seed a single user.
+    const practitioners = await getPractitioners(api);
+    const otherPractitioners = practitioners.filter(({ name }) => name !== currentUser.displayName);
+    test.skip(
+      otherPractitioners.length === 0,
+      'Requires a second practitioner to switch the ordering prescriber to',
+    );
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    // Two distinct drugs: one to discontinue, one that must survive with its edits intact. Keeping
+    // a medication listed also keeps the ordering prescriber field active after the discontinue.
+    const [keptDrug, discontinuedDrug] = await getDrugSuggestions(api, 2);
+    const keptPrescription = await createEncounterPrescriptionViaApi(api, encounter.id, undefined, {
+      medicationId: keptDrug.id,
+    });
+    const discontinuedPrescription = await createEncounterPrescriptionViaApi(
+      api,
+      encounter.id,
+      undefined,
+      { medicationId: discontinuedDrug.id },
+    );
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    // Edits the discontinue must not disturb: a prescriber other than the default, and a quantity.
+    const chosenPrescriber = await dischargeModal.changeOrderingPrescriber(currentUser.displayName);
+    expect(chosenPrescriber).not.toBe(currentUser.displayName);
+    await dischargeModal.setDispensingQuantity(keptPrescription.id, 7);
+
+    // "Discontinued by" is left on its own auto-populated default, as in the reported steps.
+    const discontinueModal = await dischargeModal.clickDiscontinue(discontinuedPrescription.id);
+    await expect(discontinueModal.discontinuedByInput).toHaveValue(currentUser.displayName);
+    await discontinueModal.fillReason('No longer required on discharge');
+    await discontinueModal.submit();
+
+    // The discontinued medication drops out of the discharge, which is what refreshes the form.
+    await expect(dischargeModal.medicationRow(discontinuedPrescription.id)).toHaveCount(0);
+
+    // The regression: the prescriber silently reverted to the current user here.
+    await expect(dischargeModal.orderingPrescriberInput).toHaveValue(chosenPrescriber);
+    await expect(dischargeModal.dispensingQuantityInput(keptPrescription.id)).toHaveValue('7');
+
+    // The surviving edits are what actually gets discharged.
+    await dischargeModal.finaliseDischarge();
+    await patientDetailsPage.navigateToFirstEncounter();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
   });
 });
