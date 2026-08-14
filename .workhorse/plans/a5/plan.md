@@ -36,7 +36,13 @@ a migration into a patch release for a feature gap. That was judged not worth th
 Instead the display falls back on `isManual`, which already exists on the model and is already
 returned by the invoice GET (the `discount` association carries no attribute filter): a manual
 discount shows its recorded reason, and a sliding fee scale discount is labelled as coming from the
-patient assessment. Web and printout share the same string id so they cannot drift.
+patient assessment.
+
+The rule deciding which of those applies lives in one place, `getInvoiceDiscountReason` in
+`@tamanu/utils/invoice`, so the web panel and the printout cannot drift apart. It returns a kind
+rather than a label — `recorded` with the text, `assessment`, or nothing — because each surface
+resolves its own copy: the web app renders `TranslatedText`, the PDF calls `getTranslation`. Both
+use the same string id.
 
 If the assessment detail (family size, income band) is wanted in that label, it needs the migration
 above and should target `main` rather than this release branch.
@@ -50,6 +56,7 @@ above and should target `main` rather than this release branch.
 - [x] Fall back to naming the patient assessment for sliding fee scale discounts
 - [x] Mirror the same fallback on the printed invoice
 - [x] Cover the tooltip and the summary panel reason with unit tests
+- [x] Pull the reason rule into `@tamanu/utils/invoice` so web and print share it (review feedback)
 - [ ] Decide whether recording the assessment detail should be a follow-up card on `main`
 
 ## Not addressed

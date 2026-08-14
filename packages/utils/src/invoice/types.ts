@@ -15,6 +15,7 @@ export interface InvoiceDiscount {
   id?: string;
   percentage?: number;
   reason?: string;
+  isManual?: boolean;
 }
 
 export interface InvoiceItemDiscount {

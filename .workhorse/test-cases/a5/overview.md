@@ -21,6 +21,15 @@ summary panel and the printed invoice.
 - [ ] The reason line is absent when the sliding fee scale feature is switched off
 - [ ] A long manual reason wraps within the summary panel rather than overflowing it
 
+## Which reason applies (shared rule)
+
+- [x] A manual discount with a reason reports that recorded text
+- [x] A sliding fee scale discount reports the patient assessment
+- [x] A manual discount without a reason reports nothing
+- [x] An absent discount reports nothing
+- [x] A zero-percent discount reports nothing, so no reason sits against a zero adjustment
+- [x] A recorded reason takes precedence over the assessment fallback
+
 ## Printed invoice
 
 - [ ] A manual discount prints its reason under "Discount reason"

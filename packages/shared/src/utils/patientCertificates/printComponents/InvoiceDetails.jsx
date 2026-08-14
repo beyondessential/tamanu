@@ -7,6 +7,7 @@ import {
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
+import { getInvoiceDiscountReason } from '@tamanu/utils/invoice';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
@@ -45,14 +46,12 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
   const showInsurer = hasInvoicePlans || enablePatientInsurer;
   const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
 
-  // Mirrors the web summary panel: a manual discount prints the reason the cashier typed,
-  // a sliding fee scale discount prints the assessment it was derived from.
-  const hasDiscount = Boolean(invoice?.discount?.percentage);
+  const discountReason = getInvoiceDiscountReason(invoice?.discount);
   const discountReasonValue =
-    invoice?.discount?.reason ??
-    (hasDiscount && !invoice?.discount?.isManual
-      ? getTranslation('invoice.summary.discountReason.assessment', 'Based on patient assessment')
-      : undefined);
+    discountReason?.kind === 'recorded'
+      ? discountReason.text
+      : discountReason &&
+        getTranslation('invoice.summary.discountReason.assessment', 'Based on patient assessment');
 
   return (
     <>
