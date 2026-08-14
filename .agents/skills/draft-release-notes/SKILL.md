@@ -63,7 +63,7 @@ git fetch origin release/2.44
 git diff --name-status origin/release/2.44...origin/release/2.45 -- specs/
 ```
 
-**Use the three-dot form.** Two dots compares the two branch tips directly, but Tamanu keeps servicing older release branches after a newer one is cut, so a spec added on `release/2.44` post-cut would surface inverted — an addition reading as `D`, an edit as a reversed `M` — and the previous version's hotfix work would be attributed to this release. Three dots diffs from the merge base, giving exactly what landed on this line since it diverged.
+**Use the three-dot form.** Two dots compares the two branch tips directly, and Tamanu keeps servicing older release branches after a newer one is cut. A spec **edited** on `release/2.44` post-cut then shows as `M` against `release/2.45`, so the previous version's hotfix work gets read as this version's; the diff is also reversed, describing the change backwards. A spec **added** on `release/2.44` post-cut shows as `D`, which is merely ignored. Three dots diffs from the merge base, giving exactly what landed on this line since it diverged.
 
 Fetch each branch in its own command: a single `git fetch` naming both refs fails atomically if one doesn't exist yet, which is precisely the uncut-branch case below.
 
@@ -103,6 +103,8 @@ Classify every included item into one of the six sections. Judge by significance
 4. **🐛 Tweaks and Bug Fixes** — everything else, **all of it listed**. Group by platform (`## Desktop`, `## Mobile`), with a `## System` group for backend, sync, and infrastructure fixes that aren't tied to one client. Each area within a group is a `**_Bold-italic heading_**` with terse bullets. Group related fixes together.
 5. **⚠️ Critical Upgrade Notes** — split **Required** and **Optional**, per feature. Name settings keys and reference-data values literally here (e.g. `appointments.bookingSlots.slotDuration`, `isBookable`) — this is the one place concrete configuration belongs.
 6. **Upgrade Steps and Recommended Testing** — split **Required** and **Optional**, per feature, closing with a **General** block. Concrete things a PM can test.
+
+Give **Required** and **Optional** the same heading level as each other in both sections — `### Required` and `### Optional`. The v2.44 example sets Optional in bold rather than as a heading, which renders it inside the Required section; don't carry that across.
 
 Separate major sections with `---` as the example does. Keep the emoji markers (🌟 🔧 🐛 ⚠️) — they are load-bearing.
 
