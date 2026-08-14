@@ -1,3 +1,5 @@
+import { settingsCache } from '@tamanu/settings/cache';
+
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../../app/ApplicationContext';
 import { AIService } from '../../app/services/AIService';
 
@@ -64,17 +66,42 @@ describe('AIService.init', () => {
 });
 
 describe('ApplicationContext.refreshAiService', () => {
-  // A settings save and the NOTIFY it raises both refresh, so two can overlap.
-  it('keeps the result of the refresh that read the newest settings', async () => {
-    getSettingSecret.mockResolvedValue('sk-test');
+  const contextFor = settings => {
     const context = Object.create(ApplicationContext.prototype);
     context.appType = CENTRAL_SERVER_APP_TYPES.API;
     context.store = { models: {} };
+    context.settings = settings;
+    return context;
+  };
+
+  // Setting.set commits each key separately, so a cached snapshot can hold half
+  // a save. Reading one would leave the service built from it until the next write.
+  it('drops the settings cache before reading', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    const order = [];
+    const reset = jest.spyOn(settingsCache, 'reset').mockImplementation(() => order.push('reset'));
+
+    const context = contextFor({
+      get: async path => {
+        if (path !== 'ai') return PROMPT_SETTINGS[path];
+        order.push('read');
+        return { enabled: true, anthropicModel: 'claude-opus-5' };
+      },
+    });
+    await context.refreshAiService();
+
+    expect(order).toEqual(['reset', 'read']);
+    reset.mockRestore();
+  });
+
+  // A settings save and the NOTIFY it raises both refresh, so two can overlap.
+  it('keeps the result of the refresh that read the newest settings', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
 
     // The first refresh reads slowly, so without serialising it would land last
     // and overwrite the second refresh's newer model.
     let isFirstRead = true;
-    context.settings = {
+    const context = contextFor({
       get: async path => {
         if (path !== 'ai') return PROMPT_SETTINGS[path];
         if (isFirstRead) {
@@ -86,7 +113,7 @@ describe('ApplicationContext.refreshAiService', () => {
         }
         return { enabled: true, anthropicModel: 'claude-fresh' };
       },
-    };
+    });
 
     await Promise.all([context.refreshAiService(), context.refreshAiService()]);
 
