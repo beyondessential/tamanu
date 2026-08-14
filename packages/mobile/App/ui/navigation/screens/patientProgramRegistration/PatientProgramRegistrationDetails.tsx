@@ -9,7 +9,10 @@ import {
 import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
@@ -149,22 +152,26 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   const patientProgramRegistrationId =
     route.params.patientProgramRegistrationId ?? preloadedRegistration?.id;
 
-  const [fetchedRegistration, registrationError, isRegistrationLoading] = useBackendEffect(
-    async ({ models }) => {
-      if (preloadedRegistration) {
-        return preloadedRegistration;
-      }
-      return models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId);
-    },
-    [patientProgramRegistrationId, preloadedRegistration],
-  );
+  const {
+    data: fetchedRegistration,
+    error: registrationError,
+    isPending: isRegistrationLoading,
+  } = useFullProgramRegistrationQuery(patientProgramRegistrationId, {
+    enabled: !preloadedRegistration,
+  });
   const patientProgramRegistration = preloadedRegistration ?? fetchedRegistration;
 
-  const [pprCondition, conditionsError, isConditionsLoading] = useBackendEffect(
-    async ({ models }) =>
-      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistrationId),
-    [patientProgramRegistrationId],
-  );
+  const {
+    data: pprCondition,
+    error: conditionsError,
+    isPending: isConditionsLoading,
+  } = useQuery({
+    queryKey: registrationKeys.conditions(patientProgramRegistrationId),
+    queryFn: () =>
+      Database.models.PatientProgramRegistrationCondition.findForRegistration(
+        patientProgramRegistrationId,
+      ),
+  });
 
   if ((!preloadedRegistration && isRegistrationLoading) || isConditionsLoading) {
     return <LoadingScreen />;

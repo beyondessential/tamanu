@@ -4,7 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -235,15 +238,16 @@ export const PatientProgramRegistrationConditionsField = ({
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
 
-  const [conditionCategories] = useBackendEffect(({ models }) => 
-    models.ProgramRegistryConditionCategory.find({
-      where: {
-        programRegistry: { id: programRegistryId },
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    }),
-    [programRegistryId],
-  );
+  const { data: conditionCategories } = useQuery({
+    queryKey: programRegistryKeys.conditionCategories(programRegistryId),
+    queryFn: () =>
+      Database.models.ProgramRegistryConditionCategory.find({
+        where: {
+          programRegistry: { id: programRegistryId },
+          visibilityStatus: VisibilityStatus.Current,
+        },
+      }),
+  });
 
   // Filter out recorded in error category and map to options
   const conditionCategoryOptions = getConditionCategoryOptions(
