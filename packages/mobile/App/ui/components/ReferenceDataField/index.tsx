@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ReferenceDataType } from '~/types';
-import { useBackend } from '~/ui/hooks';
+import { Database } from '~/infra/db';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
 import { BaseInputProps } from '~/ui/interfaces/BaseInputProps';
 import { Dropdown } from '../Dropdown';
 
@@ -16,21 +18,16 @@ export const ReferenceDataField = React.memo(({
   onChange,
   referenceDataType,
 }: ReferenceDataFieldProps): JSX.Element => {
-  const { models } = useBackend();
-  const [dropdownItems, setDropdownItems] = useState([]);
-
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const repo = models.ReferenceData.getRepository();
-      const data = await repo.find({
+  const { data } = useQuery({
+    queryKey: referenceKeys.dataByType(referenceDataType),
+    queryFn: () =>
+      Database.models.ReferenceData.getRepository().find({
         where: {
           type: referenceDataType,
         },
-      });
-
-      setDropdownItems(data.map(item => ({ label: item.name, value: item.id })));
-    })();
-  }, []);
+      }),
+  });
+  const dropdownItems = (data ?? []).map(item => ({ label: item.name, value: item.id }));
 
   return (
     <Dropdown
