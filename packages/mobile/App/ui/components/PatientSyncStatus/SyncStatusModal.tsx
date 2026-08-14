@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { StyledText} from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { syncKeys } from '~/ui/hooks/queries/queryKeys';
 import { useBackend } from '../../hooks';
@@ -33,12 +33,19 @@ export const SyncStatusModal = ({
     queryFn: () =>
       Database.models.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
   });
+  const { mutateAsync: markPatientForSync } = useMutation({
+    mutationFn: () => Patient.markForSync(selectedPatient.id),
+    onSuccess: () => {
+      syncManager.triggerUrgentSync();
+      // The parent invalidates the patient's sync-status query.
+      onSyncPatient();
+    },
+  });
+
   const handleSyncPatient = useCallback(async (): Promise<void> => {
-    await Patient.markForSync(selectedPatient.id);
-    syncManager.triggerUrgentSync();
+    await markPatientForSync();
     onClose();
-    onSyncPatient();
-  }, [syncManager, selectedPatient, onClose, onSyncPatient]);
+  }, [markPatientForSync, onClose]);
 
   if (isMarkedForSync === false) {
     return (

@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
@@ -15,6 +16,7 @@ import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import { NavigationProp } from '@react-navigation/native';
 
 interface PatientAdditionalDataFormProps {
@@ -40,10 +42,11 @@ export const PatientAdditionalDataForm = ({
   customSectionFields,
 }: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
+  const queryClient = useQueryClient();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
-  const onCreateOrEditAdditionalData = useCallback(
-    async values => {
+  const { mutateAsync: saveAdditionalData } = useMutation({
+    mutationFn: async (values: any) => {
       const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
         relations: ['category'],
         order: {
@@ -70,10 +73,21 @@ export const PatientAdditionalDataForm = ({
           ),
         ),
       );
+    },
+    onSuccess: () => {
+      // The form updates the patient record itself as well as additional data,
+      // so patient search/list results may change too.
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(patient.id) });
+      queryClient.invalidateQueries({ queryKey: patientListKeys.all });
+    },
+  });
 
+  const onCreateOrEditAdditionalData = useCallback(
+    async (values: any) => {
+      await saveAdditionalData(values);
       navigation.goBack();
     },
-    [navigation, patient.id],
+    [navigation, saveAdditionalData],
   );
 
   // Get the field group for this section of the additional data template
