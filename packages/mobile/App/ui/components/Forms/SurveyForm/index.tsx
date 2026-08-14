@@ -18,7 +18,9 @@ import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
@@ -162,13 +164,17 @@ export const SurveyForm = ({
       ),
     [components, currentUser, patient, patientAdditionalData, patientProgramRegistration, customPatientFieldValues],
   );
-  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
-    async ({ models }) => {
-      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
+  const {
+    data: encounterResult,
+    error: encounterError,
+    isPending: isEncounterLoading,
+  } = useQuery({
+    queryKey: [...patientKeys.encounters(patient.id), 'current'],
+    queryFn: async () => {
+      const encounter = await Database.models.Encounter.getCurrentEncounterForPatient(patient.id);
       return { encounter };
     },
-    [patient.id],
-  );
+  });
 
   const { encounter } = encounterResult || {};
   const encounterProp = useMemo(

@@ -11,7 +11,9 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { IPatient, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { Survey } from '~/models/Survey';
@@ -37,10 +39,23 @@ type SurveyListScreenProps = {
 const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement => {
   const navigation = useNavigation();
   const { programId, programName } = route.params;
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
 
-  const [filteredSurveys, error, isLoading] = useBackendEffect(
-    async ({ models }: { models: any }) => {
+  const {
+    data: filteredSurveys,
+    error,
+    isPending: isLoading,
+    // The CASL ability object is derived entirely from the signed-in user, so the user id
+    // stands in for it in the key; the ability instance itself isn't stably comparable.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: surveyKeys.list({
+      programId,
+      patientId: selectedPatient?.id,
+      userId: user?.id,
+    }),
+    queryFn: async () => {
+      const { models } = Database;
       const allSurveys = await models.Survey.find({
         relations: ['program'],
         where: {
@@ -55,14 +70,9 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
 
       const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
 
-      return getProgramSurveysWithFormVisibility(
-        models,
-        filteredByAbility,
-        selectedPatient?.id,
-      );
+      return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
     },
-    [programId, selectedPatient?.id, ability],
-  );
+  });
 
   const goBack = useCallback(() => {
     navigation.goBack();

@@ -1,25 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useFormikContext } from 'formik';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useBackend } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { Field } from '../FormField';
 import { SurveyResultBadge } from '../../SurveyResultBadge';
-import { SurveyResponse } from '~/models/SurveyResponse';
 
 export const SurveyResult = ({ patient, config, name }) => {
-  const [surveyResponse, setSurveyResponse] = useState<SurveyResponse | undefined>();
   const { setFieldValue } = useFormikContext();
-  const { models } = useBackend();
+
+  const { data: responses } = useQuery({
+    queryKey: patientKeys.surveyResponses(patient.id, config.source),
+    queryFn: () => Database.models.SurveyResponse.getForPatient(patient.id, config.source),
+  });
+  // getForPatient returns responses sorted by most recent, we want the most recent.
+  const surveyResponse = responses?.[0];
 
   useEffect(() => {
-    (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(patient.id, config.source);
-      if (responses.length === 0) return;
-      setSurveyResponse(responses[0]); // getForPatient returns responses sorted by most recent, we want the most recent.
-      setFieldValue(name, responses[0].resultText || responses[0].resultText);
-    })();
-  }, [patient, config.source]);
+    if (surveyResponse) {
+      setFieldValue(name, surveyResponse.resultText);
+    }
+  }, [surveyResponse, name, setFieldValue]);
 
   if (!surveyResponse)
     return (
