@@ -36,17 +36,18 @@ export class PrepareDischargeModal {
     // The autocomplete helper drives the field container (it reads its test id to find the
     // suggestions list), while assertions read the input the selection lands in.
     this.dischargeDateInput = page.locator('input[name="endDate"]');
-    this.dischargingClinicianField = page.getByTestId('field-6we6');
+    this.dischargingClinicianField = page.getByTestId('field-6we6-input');
     this.dischargingClinicianInput = page.locator('input[name="discharge.dischargerId"]');
-    this.dispositionField = page.getByTestId('localisedfield-d7fu');
+    this.dispositionField = page.getByTestId('localisedfield-d7fu-input');
     this.dispositionInput = page.locator('input[name="discharge.dispositionId"]');
 
     this.orderingPrescriberInput = page.locator(
       'input[name="pharmacyOrder.orderingClinicianId"]',
     );
     
-    // Action buttons (these would need to be updated with actual test IDs from the modal)
-    this.confirmButton = page.getByTestId('box-p5wr');
+    this.confirmButton = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Finalise discharge', exact: true });
     // Only closes the modal outright on an untouched form. A form with edits steps forward to
     // the unsaved-changes screen instead, so use cancelAndDiscardChanges() for that.
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
@@ -170,7 +171,9 @@ export class PrepareDischargeModal {
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */
   async finaliseDischarge() {
     await this.attemptFinaliseDischarge();
-    const confirmDischargeButton = this.page.getByRole('button', { name: 'Confirm' });
+    const confirmDischargeButton = this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Confirm', exact: true });
     await confirmDischargeButton.waitFor({ state: 'visible' });
     await confirmDischargeButton.click();
     await this.waitForModalToClose();

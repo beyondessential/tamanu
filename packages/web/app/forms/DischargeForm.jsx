@@ -483,7 +483,7 @@ export const DischargeForm = ({
               dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
               dispositionId: getLocalisedSchema({
                 name: 'dischargeDisposition',
-              }),
+              }).nullable(),
               note: dischargeNoteMandatory
                 ? foreignKey().translatedLabel(
                     <TranslatedText
