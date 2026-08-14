@@ -13,9 +13,9 @@ import { SubmitButton } from '/components/Forms/SubmitButton';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientFacilityQuery from '~/ui/hooks/queries/usePatientFacilityQuery';
 import { Database } from '~/infra/db';
 import { withPatient } from '~/ui/containers/Patient';
@@ -93,54 +93,68 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   });
   const patientAllergies = patientAllergiesData ?? [];
 
-  const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const [encounter, referenceDrug] = await Promise.all([
-      models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
-      models.ReferenceDrug.findOne({
-        where: { referenceData: { id: values.medicationId } },
-        select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
-      }),
-    ]);
+  const queryClient = useQueryClient();
+  const { mutateAsync: prescribeMedication } = useMutation({
+    mutationFn: async (values: any) => {
+      const [encounter, referenceDrug] = await Promise.all([
+        models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
+        models.ReferenceDrug.findOne({
+          where: { referenceData: { id: values.medicationId } },
+          select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+        }),
+      ]);
 
-    const idealTimes =
-      values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-        ? ''
-        : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
-    const data = {
-      ...values,
-      doseAmount: values.doseAmount || null,
-      durationValue: values.durationValue || null,
-      durationUnit: values.durationUnit || null,
-      dosingUnit: referenceDrug?.dosingUnit || null,
-      dispensingUnit: referenceDrug?.dispensingUnit || null,
-      unitConversion: referenceDrug?.unitConversion ?? 1,
-      idealTimes,
-      prescriber: values.prescriberId,
-      medication: values.medicationId,
-    };
+      const idealTimes =
+        values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
+        values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
+          ? ''
+          : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
+      const data = {
+        ...values,
+        doseAmount: values.doseAmount || null,
+        durationValue: values.durationValue || null,
+        durationUnit: values.durationUnit || null,
+        dosingUnit: referenceDrug?.dosingUnit || null,
+        dispensingUnit: referenceDrug?.dispensingUnit || null,
+        unitConversion: referenceDrug?.unitConversion ?? 1,
+        idealTimes,
+        prescriber: values.prescriberId,
+        medication: values.medicationId,
+      };
 
-    if (values.durationValue && values.durationUnit) {
-      data.endDate = add(new Date(values.startDate), {
-        [values.durationUnit]: values.durationValue,
-      }).toISOString();
-    }
+      if (values.durationValue && values.durationUnit) {
+        data.endDate = add(new Date(values.startDate), {
+          [values.durationUnit]: values.durationValue,
+        }).toISOString();
+      }
 
-    const prescription = (await models.Prescription.createAndSaveOne({
-      ...data,
-    })) as Prescription;
+      const prescription = (await models.Prescription.createAndSaveOne({
+        ...data,
+      })) as Prescription;
 
-    await models.EncounterPrescription.createAndSaveOne({
-      encounter,
-      prescription,
-    });
+      await models.EncounterPrescription.createAndSaveOne({
+        encounter,
+        prescription,
+      });
 
-    await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-      prescription,
-    );
+      await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+    },
+    onSuccess: () => {
+      // Prescribing may create an encounter, which feeds visit history and reports.
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
 
-    navigateToHistory();
-  }, []);
+  const onPrescribeMedication = useCallback(
+    async (values: any): Promise<void> => {
+      await prescribeMedication(values);
+      navigateToHistory();
+    },
+    [prescribeMedication, navigateToHistory],
+  );
 
   const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = useMemo(

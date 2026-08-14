@@ -2,7 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
 import { ErrorScreen } from '/components/ErrorScreen';
@@ -29,6 +31,33 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
+  const queryClient = useQueryClient();
+  const { mutateAsync: submitVitals } = useMutation({
+    mutationFn: ({
+      surveyId,
+      components,
+      values,
+    }: {
+      surveyId: string;
+      components: any[];
+      values: any;
+    }) =>
+      models.SurveyResponse.submit(
+        selectedPatient.id,
+        user.id,
+        {
+          surveyId,
+          components,
+          surveyType: SurveyTypes.Vitals,
+          encounterReason: 'Form response',
+        },
+        values,
+      ),
+    onSuccess: () => {
+      // A vitals submission writes an encounter plus the response feeding the vitals table.
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+    },
+  });
   const {
     data: vitalsSurvey,
     error: vitalsError,
@@ -62,17 +91,11 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { id, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
-    const responseRecord = await models.SurveyResponse.submit(
-      selectedPatient.id,
-      user.id,
-      {
-        surveyId: id,
-        components,
-        surveyType: SurveyTypes.Vitals,
-        encounterReason: 'Form response',
-      },
-      { ...values, [dateComponent.dataElement.code]: new Date() },
-    );
+    const responseRecord = await submitVitals({
+      surveyId: id,
+      components,
+      values: { ...values, [dateComponent.dataElement.code]: new Date() },
+    });
 
     if (responseRecord) {
       onAfterSubmit();
