@@ -9,7 +9,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistrationDetails } from '../screens/patientProgramRegistration/PatientProgramRegistrationDetails';
 import { PatientProgramRegistryRegistrationStatus } from '../screens/patientProgramRegistration/PatientProgramRegistryRegistrationStatus';
-import { useBackendEffect } from '~/ui/hooks/index';
+import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -22,11 +22,11 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
     route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
   const { ability } = useAuth();
 
-  const [registration, registrationError, isRegistrationLoading] = useBackendEffect(
-    async ({ models }) =>
-      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId),
-    [patientProgramRegistrationId],
-  );
+  const {
+    data: registration,
+    error: registrationError,
+    isPending: isRegistrationLoading,
+  } = useFullProgramRegistrationQuery(patientProgramRegistrationId);
 
   if (isRegistrationLoading) return <LoadingScreen />;
   if (registrationError) return <ErrorScreen error={registrationError} />;

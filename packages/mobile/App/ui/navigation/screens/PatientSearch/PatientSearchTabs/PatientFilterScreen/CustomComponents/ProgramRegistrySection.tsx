@@ -8,7 +8,10 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
 import { Suggester } from '~/ui/helpers/suggester';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -39,18 +42,22 @@ export const ProgramRegistrySection = (): ReactElement => {
     [models.ProgramRegistry, ability],
   );
 
-  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) => {
-      const rawData = await models.ProgramRegistry.getAllProgramRegistries();
-      return rawData.map(({ name, id }) => ({
-        label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
-        value: id,
-      }));
-    },
-    [],
-  );
+  const {
+    data: rawProgramRegistries,
+    error: programRegistryError,
+    isPending: isProgramRegistryLoading,
+  } = useQuery({
+    queryKey: programRegistryKeys.list(),
+    queryFn: () => Database.models.ProgramRegistry.getAllProgramRegistries(),
+  });
 
   if (isProgramRegistryLoading || programRegistryError) return;
+
+  // Translation happens outside the queryFn so the query is fully described by its key
+  const programRegistries = rawProgramRegistries.map(({ name, id }) => ({
+    label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
+    value: id,
+  }));
 
   const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
 

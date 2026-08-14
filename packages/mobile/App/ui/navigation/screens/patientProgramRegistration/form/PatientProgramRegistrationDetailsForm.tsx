@@ -20,7 +20,9 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { getCompleteRegistrationConditions } from '~/ui/helpers/programRegistration';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
-import { useBackendEffect } from '~/ui/hooks/index';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -56,27 +58,27 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [models.Facility],
   );
 
-  const [clinicalStatusOptions] = useBackendEffect(
-    async ({ models }) => {
-      const statuses = await models.ProgramRegistryClinicalStatus.find({
+  const { data: clinicalStatuses } = useQuery({
+    queryKey: programRegistryKeys.clinicalStatuses(programRegistry.id),
+    queryFn: () =>
+      Database.models.ProgramRegistryClinicalStatus.find({
         where: {
           visibilityStatus: VisibilityStatus.Current,
           programRegistry: { id: programRegistry.id },
         },
-      });
-
-      return statuses.map((status) => {
-        const translatedName = getTranslation(
+      }),
+  });
+  // Translation happens outside the queryFn so the query is fully described by its key
+  const clinicalStatusOptions = useMemo(
+    () =>
+      clinicalStatuses?.map((status) => ({
+        ...status,
+        translatedName: getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
-        );
-        return {
-          ...status,
-          translatedName,
-        };
-      });
-    },
-    [programRegistry.id],
+        ),
+      })),
+    [clinicalStatuses, getTranslation],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
     const newPpr: any = await PatientProgramRegistration.upsertRegistration(

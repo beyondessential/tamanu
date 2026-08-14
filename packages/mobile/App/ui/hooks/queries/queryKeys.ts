@@ -67,8 +67,8 @@ export const programKeys = {
 
 export const registrationKeys = {
   all: ['registrations'] as const,
-  detail: (registrationId: string) => [...registrationKeys.all, registrationId] as const,
-  conditions: (registrationId: string) =>
+  detail: (registrationId: MaybeId) => [...registrationKeys.all, registrationId] as const,
+  conditions: (registrationId: MaybeId) =>
     [...registrationKeys.detail(registrationId), 'conditions'] as const,
 };
 
@@ -79,6 +79,8 @@ export const programRegistryKeys = {
     [...programRegistryKeys.all, programRegistryId, 'conditions', params ?? {}] as const,
   conditionCategories: (programRegistryId: string) =>
     [...programRegistryKeys.all, programRegistryId, 'conditionCategories'] as const,
+  clinicalStatuses: (programRegistryId: string) =>
+    [...programRegistryKeys.all, programRegistryId, 'clinicalStatuses'] as const,
 };
 
 export const referenceKeys = {
