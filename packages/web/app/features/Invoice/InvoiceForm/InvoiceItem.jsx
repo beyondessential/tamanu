@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
@@ -41,6 +41,14 @@ const Button = styled(IconButton).attrs({ size: 'small' })`
   }
   &[aria-expanded='true'] svg {
     transform: rotate(90deg);
+  }
+`;
+
+const RemoveButton = styled(IconButton).attrs({ size: 'small' })`
+  color: ${Colors.softText};
+  margin-block: -6px;
+  svg {
+    width: 18px;
   }
 `;
 
@@ -221,7 +229,20 @@ export const InvoiceItemRow = ({
         cellWidths={cellWidths}
       />
       <NetCostCell item={item} cellWidths={cellWidths} />
-      {!isEditing && (
+      {isEditing ? (
+        <td style={{ textAlign: 'end' }}>
+          {/* Only rows that aren't saved lines yet can be discarded here. A saved line is removed
+              through the Delete action on the invoice view, so editing can't silently drop it. */}
+          {!item.isExistingItem && (
+            <RemoveButton onClick={() => formArrayMethods.remove(index)}>
+              <X aria-hidden />
+              <VisuallyHidden>
+                <TranslatedText stringId="invoice.action.removeItem" fallback="Remove item" />
+              </VisuallyHidden>
+            </RemoveButton>
+          )}
+        </td>
+      ) : (
         <td>
           {!isCancelled && (
             <InvoiceItemActionsMenu

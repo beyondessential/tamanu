@@ -64,13 +64,11 @@ export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS, isEditing }) => {
       <ItemHeadCell style={{ minInlineSize: cellWidths.NET_COST, textAlign: 'end' }}>
         <TranslatedText stringId="invoice.modal.editInvoice.netCost.label" fallback="Net cost" />
       </ItemHeadCell>
-      {!isEditing && (
-        <ItemHeadCell style={{ minInlineSize: cellWidths.ACTIONS, textAlign: 'end' }}>
-          <VisuallyHidden>
-            <TranslatedText stringId="general.actions.label" fallback="Actions" />
-          </VisuallyHidden>
-        </ItemHeadCell>
-      )}
+      <ItemHeadCell style={{ minInlineSize: cellWidths.ACTIONS, textAlign: 'end' }}>
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      </ItemHeadCell>
     </StyledItemHeader>
   );
 };
