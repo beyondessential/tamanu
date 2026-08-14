@@ -242,7 +242,7 @@ const ImagingResultRow = ({ result }) => {
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}
         data-testid="textinput-xfsd"
       />
-      <hr />
+      <hr style={{ gridColumn: '1 / -1' }} />
     </BottomAlignFormGrid>
   );
 };
