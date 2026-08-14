@@ -217,7 +217,7 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           path: ~/.cache/ms-playwright
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
+        run: npx playwright test --shard=${{ matrix.shard }} --workers=100%
         working-directory: packages/e2e-tests
         env:
           # Load the tsx loader so the specs can import @tamanu workspace TypeScript
