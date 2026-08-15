@@ -97,7 +97,7 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
       required={required}
     />
   );
@@ -146,16 +146,17 @@ export const PatientAdditionalDataFields = ({
     select: definitions => definitions.map(d => d.id),
   });
 
+  if (isCustomSection) {
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+  }
+
+  if (loading) return [];
+
   const padFields = getConfiguredPatientAdditionalDataFields(
     fields as string[],
     showMandatory,
     getSetting,
   );
-
-  if (isCustomSection)
-    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
-
-  if (loading) return [];
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);
