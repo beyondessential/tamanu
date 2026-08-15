@@ -145,9 +145,7 @@ export const SurveyQuestion = memo(
     ]);
 
     const handleLayout = useCallback(
-      ({ nativeEvent }) => {
-        onLayout(nativeEvent.layout.y);
-      },
+      ({ nativeEvent }) => void onLayout(nativeEvent.layout.y),
       [onLayout],
     );
 
