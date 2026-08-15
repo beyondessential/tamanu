@@ -132,7 +132,6 @@ export const DumbAddLabRequestScreen = ({
         type: 'default',
         backgroundColor: theme.colors.BRIGHT_BLUE,
       });
-
       await submitLabRequest(values);
       navigateToHistory();
     },
