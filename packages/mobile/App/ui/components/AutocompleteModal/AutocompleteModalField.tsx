@@ -1,6 +1,6 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
 import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
@@ -51,14 +51,20 @@ export const AutocompleteModalField = ({
   fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  // Remembers the option the user just picked so the label shows immediately,
-  // without waiting for the lookup query below to refetch.
-  const [selectedOption, setSelectedOption] = useState(null);
+  const queryClient = useQueryClient();
   const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value, selectedItem);
-    setSelectedOption({ value: selectedItem.value, label: selectedItem.label });
+    // Optimistic update for immediate UI feedback
+    queryClient.setQueryData(
+      suggestionKeys.currentOption(suggester?.model?.name, {
+        options: suggester?.options,
+        value: selectedItem.value,
+        language,
+      }),
+      { value: selectedItem.value, label: selectedItem.label },
+    );
   };
 
   const openModal = (): void =>
@@ -77,10 +83,7 @@ export const AutocompleteModalField = ({
     enabled: Boolean(suggester && value),
   });
 
-  const label =
-    selectedOption != null && selectedOption.value === value
-      ? selectedOption.label
-      : (currentOption?.label ?? null);
+  const label = currentOption?.label ?? null;
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
