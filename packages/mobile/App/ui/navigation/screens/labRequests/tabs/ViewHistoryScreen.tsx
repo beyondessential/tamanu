@@ -100,15 +100,13 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { ability, user } = useAuth();
   const canListSensitive = ability.can('create', 'SensitiveLabRequest');
-  const {
-    data,
-    error,
-    // canListSensitive is derived from the signed-in user; encoded in the query key by user.id
+  const { data, error } =
+    // `canListSensitive` is derived from the signed-in user; encoded in the query key by `user.id`
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  } = useQuery({
-    queryKey: patientKeys.labRequests(selectedPatient.id, { userId: user?.id }),
-    queryFn: () => Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
-  });
+    useQuery({
+      queryKey: patientKeys.labRequests(selectedPatient.id, { userId: user?.id }),
+      queryFn: () => Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
+    });
 
   const { data: lastSuccessfulPushTick } = useQuery({
     queryKey: syncKeys.lastSuccessfulPushTick(),
