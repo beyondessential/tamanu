@@ -35,9 +35,7 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
   const sourceQuestion = data?.sourceQuestion;
 
   useEffect(() => {
-    if (data) {
-      setFieldValue(name, data.answer?.body);
-    }
+    if (data) setFieldValue(name, data.answer?.body);
   }, [data, name, setFieldValue]);
 
   return (
