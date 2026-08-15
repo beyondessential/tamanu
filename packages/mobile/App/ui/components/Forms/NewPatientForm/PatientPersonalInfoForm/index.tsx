@@ -87,8 +87,10 @@ const getPatientInitialValues = (
   );
 };
 
-const containsAdditionalData = values =>
-  ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
+const ADDITIONAL_DATA_FIELD_SET = new Set<string>(ALL_ADDITIONAL_DATA_FIELDS);
+function containsAdditionalData(values: Record<string, unknown>): boolean {
+  return Object.keys(values).some(key => ADDITIONAL_DATA_FIELD_SET.has(key));
+}
 
 class PartialPatientSaveError extends Error {
   constructor(cause?: unknown) {
