@@ -9,13 +9,10 @@ export default function usePatientIsMarkedForSyncQuery(patientId: IPatient['id']
   return useQuery<boolean>({
     queryKey: patientKeys.syncStatus(patientId),
     queryFn: async () => {
-      const patientFacility = await Database.models.PatientFacility.findOne({
-        where: {
-          patient: { id: patientId },
-          facility: { id: await readConfig('facilityId', '') },
-        },
+      return Database.models.PatientFacility.existsBy({
+        patient: { id: patientId },
+        facility: { id: await readConfig('facilityId', '') },
       });
-      return patientFacility != null;
     },
     enabled: Boolean(patientId),
   });
