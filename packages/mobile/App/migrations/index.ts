@@ -93,6 +93,7 @@ import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 import { addProgramFormQueryIndexes1785739800000 } from './1785739800000-addProgramFormQueryIndexes';
 import { addHotPathQueryIndexes1786664141000 } from './1786664141000-addHotPathQueryIndexes';
+import { addLatestAnswerLookupIndex1786827247000 } from './1786827247000-addLatestAnswerLookupIndex';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -189,4 +190,5 @@ export const migrationList = [
   addDosingAndDispensingUnitColumns1779900000001,
   addProgramFormQueryIndexes1785739800000,
   addHotPathQueryIndexes1786664141000,
+  addLatestAnswerLookupIndex1786827247000,
 ];
