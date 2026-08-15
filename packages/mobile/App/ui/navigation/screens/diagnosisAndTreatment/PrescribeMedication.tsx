@@ -65,6 +65,11 @@ const styles = StyleSheet.create({
   },
 });
 
+const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
   const { ability } = useAuth();
@@ -190,12 +195,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       }),
     [models.User],
   );
-
-  // Convert constants to dropdown options
-  const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
 
   const durationUnitOptions = Object.keys(MEDICATION_DURATION_UNITS_LABELS).map(value => ({
     value,
