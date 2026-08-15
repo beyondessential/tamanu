@@ -25,15 +25,12 @@ jest.mock('./utils/manageSnapshotTable', () => ({
 jest.mock('../../infra/db', () => ({
   Database: {
     models: {},
-    refreshQueryPlannerStats: jest.fn().mockResolvedValue(undefined),
     client: {
       transaction: jest.fn(),
       query: jest.fn(),
     },
   },
 }));
-
-const { Database } = jest.requireMock('../../infra/db');
 
 const mockSessionId = 'xxx';
 const mockSyncTick = 5;
@@ -168,63 +165,6 @@ describe('MobileSyncManager', () => {
 
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
-    });
-
-    it('should refresh query planner stats after a sync that pulled records', async () => {
-      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPushedRecordsCount = 0;
-      });
-      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPulledRecordsCount = 5;
-      });
-      jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(
-          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
-        );
-      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
-
-      await mobileSyncManager.runSync();
-
-      expect(Database.refreshQueryPlannerStats).toBeCalledTimes(1);
-    });
-
-    it('should refresh query planner stats after a sync that only pushed records', async () => {
-      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPushedRecordsCount = 3;
-      });
-      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPulledRecordsCount = 0;
-      });
-      jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(
-          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
-        );
-      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
-
-      await mobileSyncManager.runSync();
-
-      expect(Database.refreshQueryPlannerStats).toBeCalledTimes(1);
-    });
-
-    it('should skip the query planner stats refresh when the sync changed nothing', async () => {
-      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPushedRecordsCount = 0;
-      });
-      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(async () => {
-        mobileSyncManager.lastSyncPulledRecordsCount = 0;
-      });
-      jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(
-          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
-        );
-      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
-
-      await mobileSyncManager.runSync();
-
-      expect(Database.refreshQueryPlannerStats).not.toBeCalled();
     });
 
     it('should report the sync error to central when a step fails', async () => {

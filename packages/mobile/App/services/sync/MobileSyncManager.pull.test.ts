@@ -37,7 +37,6 @@ jest.mock('../../infra/db', () => ({
     models: {} as any,
     setUnsafePragma: jest.fn().mockResolvedValue(undefined),
     setDefaultPragma: jest.fn().mockResolvedValue(undefined),
-    refreshQueryPlannerStats: jest.fn().mockResolvedValue(undefined),
     client: {
       transaction: jest.fn(async (cb: any) => {
         const repo = {
@@ -139,8 +138,6 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(insertSnapshotRecords).not.toHaveBeenCalled();
-    // records were pulled, so planner stats should have been refreshed
-    expect(Database.refreshQueryPlannerStats).toHaveBeenCalled();
   });
 
   it('incremental sync saves from snapshot', async () => {

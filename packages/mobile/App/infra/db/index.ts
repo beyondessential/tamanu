@@ -34,6 +34,11 @@ const TEST_CONNECTION_CONFIG = {
   entities: MODELS_ARRAY,
 } as const;
 
+export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
+
+/** 4 hours */
+const PLANNER_STATS_REFRESH_INTERVAL_MS = 14_400_000;
+
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
   if (isJest) {
@@ -132,17 +137,56 @@ class DatabaseHelper {
     }
   }
 
-  async refreshQueryPlannerStats(): Promise<void> {
+  /** @returns whether the refresh succeeded */
+  async refreshQueryPlannerStats(): Promise<boolean> {
     const start = performance.now();
     try {
       await this.client.query('PRAGMA analysis_limit = 400;');
       await this.client.query('ANALYZE;');
       console.log(`Refreshed query planner stats in ${performance.now() - start}ms`);
+      return true;
     } catch (e) {
       console.error(
         `Refreshing query planner stats failed after ${performance.now() - start}ms:`,
         e,
       );
+      return false;
+    }
+  }
+
+  /**
+   * - Throttled to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   *   opportunistically without repeatedly taking ANALYZE’s write lock.
+   * - With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
+   *   which would take care of running ANALYZE as needed. Our version of react-native-quick-sqlite
+   *   gives us SQLite 3.39.
+   * @see https://sqlite.org/lang_analyze.html
+   */
+  async requestQueryPlannerStatsRefresh(): Promise<void> {
+    try {
+      const fact = await this.models.LocalSystemFact.findOne({
+        where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+      });
+      const lastRefresh = fact ? Number.parseInt(fact.value, 10) : null;
+      if (lastRefresh !== null && Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS) {
+        return;
+      }
+
+      const succeeded = await this.refreshQueryPlannerStats();
+      if (!succeeded) return;
+
+      if (fact) {
+        fact.value = Date.now().toString();
+        await fact.save();
+      } else {
+        await this.models.LocalSystemFact.createAndSaveOne({
+          key: PLANNER_STATS_REFRESHED_AT_KEY,
+          value: Date.now().toString(),
+        });
+      }
+    } catch (e) {
+      // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
+      console.error('Error checking/recording query planner stats refresh:', e);
     }
   }
 
