@@ -4,8 +4,10 @@ import { Database } from '~/infra/db';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { patientKeys } from './queryKeys';
 
-// The bare PatientAdditionalData record, unlike usePatientAdditionalData which also
-// loads custom field definitions and values.
+/**
+ * The bare PatientAdditionalData record, unlike usePatientAdditionalData which also loads custom
+ * field definitions and values.
+ */
 export default function usePatientAdditionalDataRecordQuery(
   patientId: string | undefined,
 ): UseQueryResult<PatientAdditionalData | null> {

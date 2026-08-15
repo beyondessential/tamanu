@@ -4,7 +4,7 @@ import { Database } from '~/infra/db';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { patientKeys } from './queryKeys';
 
-// Program registries the patient can (still) be registered into.
+/** Program registries the patient can (still) be registered into. */
 export default function usePatientProgramRegistriesQuery(patientId: string | undefined) {
   const { ability, user } = useAuth();
 
