@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect } from 'react';
-import { Platform } from 'react-native';
 import { compose } from 'redux';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 // Containers
@@ -66,7 +65,7 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
   return (
     <FullView>
       <FlatList
-        showsVerticalScrollIndicator={Platform.OS === 'android'}
+        showsVerticalScrollIndicator
         data={recentlyViewedPatients}
         keyExtractor={(item): string => item.id.toString()}
         renderItem={({ item }: { item: any }): ReactElement => {
