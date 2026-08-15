@@ -16,9 +16,13 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
 
   const { data: responses } = useQuery({
     queryKey: patientKeys.surveyResponses(patient.id, source),
-    queryFn: () => Database.models.SurveyResponse.getForPatient(patient.id, source),
+    queryFn: () =>
+      Database.models.SurveyResponse.getForPatient({
+        patientId: patient.id,
+        surveyId: source,
+        limit: 1,
+      }),
   });
-  // getForPatient returns responses sorted by most recent, we want the most recent.
   const surveyResponse = responses?.[0];
 
   useEffect(() => {
