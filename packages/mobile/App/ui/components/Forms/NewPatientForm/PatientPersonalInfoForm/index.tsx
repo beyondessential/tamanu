@@ -223,10 +223,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
-
-      // Mark patient for sync
       await Patient.markForSync(editedPatient.id);
-
       return editedPatient;
     },
     onSuccess: () => {
