@@ -13,9 +13,13 @@ export const SurveyResult = ({ patient, config, name }) => {
 
   const { data: responses } = useQuery({
     queryKey: patientKeys.surveyResponses(patient.id, config.source),
-    queryFn: () => Database.models.SurveyResponse.getForPatient(patient.id, config.source),
+    queryFn: () =>
+      Database.models.SurveyResponse.getForPatient({
+        patientId: patient.id,
+        surveyId: config.source,
+        limit: 1,
+      }),
   });
-  /** getForPatient returns responses sorted by most recent, we want the most recent */
   const surveyResponse = responses?.[0];
 
   useEffect(() => {

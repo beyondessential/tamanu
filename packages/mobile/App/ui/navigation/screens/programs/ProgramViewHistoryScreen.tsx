@@ -44,7 +44,9 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
 
     queryFn: async () => {
       const { models } = Database;
-      const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
+      const surveyResponses = await models.SurveyResponse.getForPatient({
+        patientId: selectedPatient.id,
+      });
       const surveys = await models.Survey.find({
         where: {
           surveyType: SurveyTypes.Programs,

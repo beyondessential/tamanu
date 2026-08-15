@@ -37,7 +37,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
-    (q) => q.dataElement.type === FieldTypes.PATIENT_DATA,
+    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const config = question.getConfigObject();
@@ -95,12 +95,17 @@ async function writeToPatientFields(
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.upsertRegistration(patientId, programRegistryDetail.id, {
-      ...valuesByModel.PatientProgramRegistration,
-      registeringFacilityId:
-        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
-      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    }, submittedTime);
+    await PatientProgramRegistration.upsertRegistration(
+      patientId,
+      programRegistryDetail.id,
+      {
+        ...valuesByModel.PatientProgramRegistration,
+        registeringFacilityId:
+          valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
+        clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+      },
+      submittedTime,
+    );
   }
 }
 
@@ -126,22 +131,22 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ nullable: true })
   notified?: boolean;
 
-  @ManyToOne(() => Survey, (survey) => survey.responses)
+  @ManyToOne(() => Survey, survey => survey.responses)
   survey: Survey;
 
   @RelationId(({ survey }) => survey)
   surveyId: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.surveyResponses)
+  @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @OneToMany(() => Referral, (referral) => referral.surveyResponse)
+  @OneToMany(() => Referral, referral => referral.surveyResponse)
   referral: Referral;
 
-  @OneToMany(() => SurveyResponseAnswer, (answer) => answer.response)
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
   answers: SurveyResponseAnswer[];
 
   static async getFullResponse(surveyResponseId: string) {
@@ -221,9 +226,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         // use optional chaining because vitals survey might not exist
         const isVitalSurvey = surveyId === vitalsSurvey?.id;
 
-        const componentsByCode = new Map(
-          components.map((c) => [c.dataElement.code, c]),
-        );
+        const componentsByCode = new Map(components.map(c => [c.dataElement.code, c]));
 
         for (const a of Object.entries(finalValues)) {
           const [dataElementCode, value] = a;
@@ -279,7 +282,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     }
   }
 
-  static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {
+  static async getForPatient({
+    patientId,
+    surveyId,
+    limit = 80,
+  }: {
+    patientId: string;
+    surveyId?: string;
+    limit?: number;
+  }): Promise<SurveyResponse[]> {
     const query = this.getRepository()
       .createQueryBuilder('survey_response')
       // the encounter is only here to filter by patient, so don't pay to hydrate it
@@ -291,7 +302,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         'NOT EXISTS (SELECT 1 FROM procedure_survey_responses psr WHERE psr.surveyResponseId = survey_response.id)',
       )
       .orderBy('survey_response.endTime', 'DESC')
-      .take(80);
+      .take(limit);
 
     if (surveyId) {
       query.andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() });
