@@ -16,7 +16,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
-import usePatientFacilityQuery from '~/ui/hooks/queries/usePatientFacilityQuery';
+import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { Database } from '~/infra/db';
 import { withPatient } from '~/ui/containers/Patient';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -84,8 +84,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
   }, [navigation]);
 
-  const { data: patientFacility } = usePatientFacilityQuery(selectedPatient.id);
-  const isMarkedForSync = Boolean(patientFacility);
+  const { data: isMarkedForSync } = usePatientIsMarkedForSyncQuery(selectedPatient.id);
 
   const { data: patientAllergies } = useQuery({
     queryKey: patientKeys.allergies(selectedPatient?.id),
