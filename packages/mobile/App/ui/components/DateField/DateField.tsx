@@ -17,6 +17,13 @@ import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 // See https://github.com/react-native-datetimepicker/datetimepicker/issues/543
 const ANDROID_PICKER_BUTTON_COLOR = '#009688';
 
+/**
+ * Android spans back to epoch when given `maximumDate` without `minimumDate`. Fall back to earliest
+ * date supported by platform picker.
+ * @see https://github.com/react-native-datetimepicker/datetimepicker/issues/935
+ */
+const EARLIEST_SUPPORTED_DATE = new Date(1900, 0, 1);
+
 const styles = StyleSheet.create({
   androidPickerStyles: {
     backgroundColor: 'red',
@@ -48,6 +55,8 @@ const DatePicker = ({
 }: DatePickerProps): ReactElement => {
   if (!isVisible) return null;
 
+  const minimumDate = min ?? (max && mode !== 'time' ? EARLIEST_SUPPORTED_DATE : undefined);
+
   return (
     <DateTimePicker
       value={value}
@@ -56,7 +65,7 @@ const DatePicker = ({
       onChange={onDateChange}
       style={styles.androidPickerStyles}
       maximumDate={max}
-      minimumDate={min}
+      minimumDate={minimumDate}
       {...(Platform.OS === 'android' && {
         positiveButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
         negativeButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
