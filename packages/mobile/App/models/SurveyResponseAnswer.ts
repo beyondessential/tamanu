@@ -22,19 +22,19 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @DateTimeStringColumn({ nullable: true })
   editedTime?: string;
 
-  @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
+  @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;
 
   @RelationId(({ response }) => response)
   responseId: string;
 
-  @ManyToOne(() => ProgramDataElement, (dataElement) => dataElement.answers)
+  @ManyToOne(() => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.answer)
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.answer)
   vitalLogs: VitalLog[];
 
   static async getLatestAnswerForPatient(
@@ -63,33 +63,41 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   ): Promise<Record<string, string>> {
     if (!questionCodes.length) return {};
 
-    const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
+    const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(',');
+    /**
+     * Expensive query, backed by a bespoke partial index.
+     *
+     * SQLite specific: CROSS JOIN order matters! Taking manual control of of loop order, rather
+     * than trusting the query planner to land on this join order by analysing INNER JOINs.
+     * @see `addLatestAnswerLookupIndex1786827247000` migration
+     * @see https://www.sqlite.org/optoverview.html#manual_control_of_query_plans_using_cross_join
+     */
     const rows: { code: string; body: string }[] = await this.getRepository().query(
       `
-      SELECT code, body
-      FROM (
-        SELECT
-          pde.code AS code,
-          answer.body AS body,
-          ROW_NUMBER() OVER (
-            PARTITION BY pde.code
-            ORDER BY response.startTime DESC, answer.id DESC
-          ) AS rn
-        FROM survey_response_answers answer
-        INNER JOIN survey_responses response
-          ON response.id = answer.responseId
-        INNER JOIN encounters encounter
-          ON encounter.id = response.encounterId
-        INNER JOIN program_data_elements pde
-          ON pde.id = answer.dataElementId
-        WHERE encounter.patientId = $1
-          AND pde.code IN (${codePlaceholders})
-          AND answer.body IS NOT NULL
-          AND answer.body <> ''
-          AND answer.deletedAt IS NULL
-      ) ranked_answers
-      WHERE rn = 1
-    `,
+        SELECT code, body
+        FROM (
+          SELECT
+            pde.code AS code,
+            answer.body AS body,
+            ROW_NUMBER() OVER (
+              PARTITION BY pde.code
+              ORDER BY response.startTime DESC, answer.id DESC
+            ) AS rn
+          FROM encounters encounter
+          CROSS JOIN survey_responses response
+            ON response.encounterId = encounter.id
+          CROSS JOIN survey_response_answers answer
+            ON answer.responseId = response.id
+          CROSS JOIN program_data_elements pde
+            ON pde.id = answer.dataElementId
+          WHERE encounter.patientId = $1
+            AND pde.code IN (${codePlaceholders})
+            AND answer.body IS NOT NULL
+            AND answer.body <> ''
+            AND answer.deletedAt IS NULL
+        ) ranked_answers
+        WHERE rn = 1
+      `,
       [patientId, ...questionCodes],
     );
 
