@@ -282,6 +282,13 @@ export class MobileSyncManager {
     // clear persisted cache from this session
     await dropSnapshotTable();
 
+    if (
+      this.lastSyncPulledRecordsCount > 0 || // Sync has changed table size
+      this.lastSyncPushedRecordsCount > 0 // Table sizes have changed since last sync
+    ) {
+      await Database.refreshQueryPlannerStats();
+    }
+
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
   }
