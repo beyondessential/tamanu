@@ -82,7 +82,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { data: patientFacility } = usePatientFacilityQuery(selectedPatient.id);
   const isMarkedForSync = Boolean(patientFacility);
 
-  const { data: patientAllergiesData } = useQuery({
+  const { data: patientAllergies } = useQuery({
     queryKey: patientKeys.allergies(selectedPatient?.id),
     queryFn: () =>
       Database.models.PatientAllergy.find({
@@ -91,7 +91,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       }),
     enabled: Boolean(selectedPatient?.id),
   });
-  const patientAllergies = patientAllergiesData ?? [];
 
   const queryClient = useQueryClient();
   const { mutateAsync: prescribeMedication } = useMutation({
@@ -272,7 +271,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />
                     :{' '}
                   </StyledText>
-                  {patientAllergies.length ? (
+                  {patientAllergies !== undefined ? (
                     patientAllergies.map((allergy, index) => (
                       <Fragment key={allergy.id}>
                         <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>
