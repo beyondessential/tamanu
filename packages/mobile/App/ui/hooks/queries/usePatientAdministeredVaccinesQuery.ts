@@ -10,6 +10,6 @@ export default function usePatientAdministeredVaccinesQuery(
   return useQuery({
     queryKey: patientKeys.administeredVaccines(patientId),
     queryFn: () => Database.models.AdministeredVaccine.getForPatient(patientId),
-    enabled: !!patientId,
+    enabled: Boolean(patientId),
   });
 }
