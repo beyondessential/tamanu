@@ -206,24 +206,14 @@ export const DateField = React.memo(
             </InputContainer>
           </TouchableWithoutFeedback>
         </StyledView>
-        {
-          // see: https://github.com/react-native-datetimepicker/datetimepicker/issues/182#issuecomment-643156239
-          React.useMemo(
-            () => (
-              <DatePicker
-                onDateChange={onAndroidDateChange}
-                mode={mode === 'datetime' ? currentPickerMode : mode}
-                isVisible={isDatePickerVisible}
-                value={
-                  currentPickerMode === 'time' && tempDate ? tempDate : dateValue || new Date()
-                }
-                min={min}
-                max={max}
-              />
-            ),
-            [isDatePickerVisible, currentPickerMode, tempDate],
-          )
-        }
+        <DatePicker
+          onDateChange={onAndroidDateChange}
+          mode={mode === 'datetime' ? currentPickerMode : mode}
+          isVisible={isDatePickerVisible}
+          value={currentPickerMode === 'time' && tempDate ? tempDate : dateValue || new Date()}
+          min={min}
+          max={max}
+        />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>
     );
