@@ -92,6 +92,35 @@ function containsAdditionalData(values: Record<string, unknown>): boolean {
   return Object.keys(values).some(key => ADDITIONAL_DATA_FIELD_SET.has(key));
 }
 
+async function createOrUpdateOtherPatientData(values, patientId) {
+  if (containsAdditionalData(values)) {
+    await PatientAdditionalData.updateForPatient(patientId, values);
+  }
+
+  const customPatientFieldDefinitionIds = new Set(
+    (
+      await PatientFieldDefinition.findVisible<PatientFieldDefinition>({
+        select: ['id'],
+      })
+    ).map(definition => definition.id),
+  );
+
+  // Update any custom field definitions contained in this form
+  const customValuesToUpdate = Object.keys(values).filter(key =>
+    customPatientFieldDefinitionIds.has(key),
+  );
+
+  await Promise.all(
+    customValuesToUpdate.map(definitionId =>
+      PatientFieldValue.updateOrCreateForPatientAndDefinition(
+        patientId,
+        definitionId,
+        values[definitionId],
+      ),
+    ),
+  );
+};
+
 class PartialPatientSaveError extends Error {
   constructor(cause?: unknown) {
     super(
@@ -110,36 +139,6 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   );
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-
-  const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
-    const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
-      relations: ['category'],
-      order: {
-        // Nested ordering only works with typeorm version > 0.3.0
-        // category: { name: 'DESC' },
-        name: 'DESC',
-      },
-    });
-
-    if (containsAdditionalData(values)) {
-      await PatientAdditionalData.updateForPatient(patientId, values);
-    }
-
-    // Update any custom field definitions contained in this form
-    const customValuesToUpdate = Object.keys(values).filter(key =>
-      customPatientFieldDefinitions.map(({ id }) => id).includes(key),
-    );
-
-    await Promise.all(
-      customValuesToUpdate.map(definitionId =>
-        PatientFieldValue.updateOrCreateForPatientAndDefinition(
-          patientId,
-          definitionId,
-          values[definitionId],
-        ),
-      ),
-    );
-  }, []);
 
   const queryClient = useQueryClient();
 
