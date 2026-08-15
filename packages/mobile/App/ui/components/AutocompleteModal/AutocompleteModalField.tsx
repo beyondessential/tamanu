@@ -83,7 +83,9 @@ export const AutocompleteModalField = ({
   });
 
   const label =
-    selectedOption?.value === value ? selectedOption.label : (currentOption?.label ?? null);
+    selectedOption != null && selectedOption.value === value
+      ? selectedOption.label
+      : (currentOption?.label ?? null);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
