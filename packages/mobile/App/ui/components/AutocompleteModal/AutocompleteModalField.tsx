@@ -67,12 +67,7 @@ export const AutocompleteModalField = ({
       suggester,
     });
 
-  const {
-    data: currentOption,
-    // The Suggester instance isn't stably comparable (callers often construct it per
-    // render); its model name and find options describe the lookup and are in the key.
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  } = useQuery({
+  const { data: currentOption } = useQuery({
     queryKey: suggestionKeys.currentOption(suggester?.model?.name, {
       options: suggester?.options,
       value,
