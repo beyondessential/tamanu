@@ -14,7 +14,7 @@ interface ReferenceDataFieldProps extends BaseInputProps {
   disabled: boolean;
 }
 
-function selectDropdownItems(data: ReferenceData[]) {
+function refDataToOptions(data: ReferenceData[]) {
   return data.map(item => ({ label: item.name, value: item.id }));
 }
 
@@ -27,7 +27,7 @@ export const ReferenceDataField = React.memo(
         const where = { type: referenceDataType };
         return repo.find({ where });
       },
-      select: selectDropdownItems,
+      select: refDataToOptions,
     });
 
     return <Dropdown value={value} onChange={onChange} options={dropdownItems} />;
