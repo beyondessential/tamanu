@@ -137,14 +137,14 @@ export const PatientAdditionalDataFields = ({
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getSetting } = useSettings();
-  const { data: customFieldDefinitions, isPending: loading } = useQuery({
+  const { data: customFieldIds, isPending: loading } = useQuery({
     queryKey: patientFieldDefinitionKeys.ids(),
     queryFn: () =>
       Database.models.PatientFieldDefinition.getRepository().find({
         select: ['id'],
       }),
+    select: definitions => definitions.map(d => d.id),
   });
-  const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
   const padFields = getConfiguredPatientAdditionalDataFields(
     fields as string[],
@@ -153,7 +153,7 @@ export const PatientAdditionalDataFields = ({
   );
 
   if (isCustomSection)
-    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 
