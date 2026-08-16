@@ -229,9 +229,9 @@ export class Patient extends BaseModel implements IPatient {
       WHERE encounters.patientId = $1
         AND answer.body IS NOT NULL
         AND answer.deletedAt IS NULL
-      ORDER BY answer.createdAt desc LIMIT $2
+      ORDER BY answer.createdAt desc LIMIT 500
     `,
-      [patientId, 500],
+      [patientId],
     );
 
     const library = groupBy(results, 'responseId');
