@@ -48,6 +48,8 @@ const getConnectionConfig = (): ConnectionOptions => {
 };
 
 class DatabaseHelper {
+  private isAnalyzing = false;
+
   client: Connection = null;
 
   models = MODELS_MAP;
@@ -163,12 +165,19 @@ class DatabaseHelper {
    * opportunistically without repeatedly taking ANALYZE’s write lock.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
+    // Prevent background → foreground → background cycle from causing overlapping calls
+    if (this.isAnalyzing) return;
+    this.isAnalyzing = true;
     try {
       const fact = await this.models.LocalSystemFact.findOne({
+        select: ['value'],
         where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
       });
-      const lastRefresh = fact ? Number.parseInt(fact.value, 10) : null;
-      if (lastRefresh !== null && Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS) {
+      const lastRefresh = Number.parseInt(fact.value, 10);
+      if (
+        Number.isFinite(lastRefresh) &&
+        Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
+      ) {
         return;
       }
 
@@ -187,6 +196,8 @@ class DatabaseHelper {
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);
+    } finally {
+      this.isAnalyzing = false;
     }
   }
 

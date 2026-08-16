@@ -78,6 +78,23 @@ describe('DatabaseHelper', () => {
       expect(parseInt(fact.value, 10)).toBeGreaterThan(parseInt(staleTimestamp, 10));
     });
 
+    it('coalesces overlapping calls so ANALYZE only runs once', async () => {
+      const querySpy = jest.spyOn(Database.client, 'query');
+
+      try {
+        await Promise.all([
+          Database.requestQueryPlannerStatsRefresh(),
+          Database.requestQueryPlannerStatsRefresh(),
+        ]);
+        const analyzeCalls = querySpy.mock.calls.filter(
+          ([sql]) => typeof sql === 'string' && sql.toUpperCase().includes('ANALYZE;'),
+        );
+        expect(analyzeCalls).toHaveLength(1);
+      } finally {
+        querySpy.mockRestore();
+      }
+    });
+
     it('does not persist a timestamp when ANALYZE fails', async () => {
       const originalQuery = Database.client.query.bind(Database.client);
       const querySpy = jest
