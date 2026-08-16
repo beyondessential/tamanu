@@ -87,15 +87,13 @@ export const VitalsTable = memo(
       return <ErrorScreen error={error} />;
     }
 
-    // Create object that checks if a question has historical answers
-    const hasHistoricalAnswer = Object.values(data).reduce((dict, entries) => {
-      const mapped = { ...dict };
-      entries.forEach(entry => {
-        const { dataElementId, body } = entry;
-        mapped[dataElementId] = mapped[dataElementId] || Boolean(body);
-      });
-      return mapped;
-    }, {});
+  // Create object that checks if a question has historical answers
+  const hasHistoricalAnswer = Object.values(data).reduce((dict, entries) => {
+    for (const { dataElementId, body } of entries) {
+      dict[dataElementId] ||= Boolean(body);
+    }
+    return dict;
+  }, {});
 
     // Date is the column so remove it from rows
     const components = vitalsSurvey.components

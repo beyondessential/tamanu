@@ -236,13 +236,11 @@ export class Patient extends BaseModel implements IPatient {
 
     const library = groupBy(results, 'responseId');
 
-    const data = Object.keys(library).reduce((state, key) => {
+    const data = Object.keys(library).reduce((acc, key) => {
       const records = library[key];
-      const newKey = records.find((x) => x.dataElementId === VitalsDataElements.dateRecorded);
-      if (newKey) {
-        return { ...state, [newKey.body]: records };
-      }
-      return state;
+      const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
+      if (newKey) acc[newKey.body] = records;
+      return acc;
     }, {});
 
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());

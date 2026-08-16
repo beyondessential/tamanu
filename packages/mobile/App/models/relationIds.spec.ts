@@ -1,3 +1,5 @@
+import { keyBy } from 'es-toolkit';
+
 import { Database } from '~/infra/db';
 import { BaseModel } from '~/models/BaseModel';
 import { MODELS_ARRAY } from '~/models/modelsMap';
@@ -5,15 +7,8 @@ import { MODELS_ARRAY } from '~/models/modelsMap';
 const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
   const { relationIds, columns, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
 
-  const columnsIndex = columns.reduce((memo, column) => ({
-    ...memo,
-    [column.propertyName]: column,
-  }), {});
-
-  const relationIdsIndex = relationIds.reduce((memo, relationId) => ({
-    ...memo,
-    [relationId.propertyName]: relationId,
-  }), {});
+  const columnsIndex = keyBy(columns, column => column.propertyName);
+  const relationIdsIndex = keyBy(relationIds, relationId => relationId.propertyName);
 
   return [
     ...manyToOneRelations.map(relation => {
