@@ -119,7 +119,7 @@ async function createOrUpdateOtherPatientData(values, patientId) {
       ),
     ),
   );
-};
+}
 
 class PartialPatientSaveError extends Error {
   constructor(cause?: unknown) {
