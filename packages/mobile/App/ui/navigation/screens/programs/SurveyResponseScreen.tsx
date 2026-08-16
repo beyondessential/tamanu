@@ -118,7 +118,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       return canReadProgramRegistry ? patientProgramRegistry : null;
     },
-    enabled: !!survey,
+    enabled: survey != null,
   });
 
   const { models } = useBackend();
