@@ -150,7 +150,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   answers: SurveyResponseAnswer[];
 
   static async getFullResponse(surveyResponseId: string) {
-    const repo = this.getRepository();
+    const repo = SurveyResponse.getRepository();
     const response = await repo.findOne({
       where: { id: surveyResponseId },
       relations: ['survey', 'encounter', 'encounter.patient'],
@@ -291,7 +291,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     surveyId?: string;
     limit?: number;
   }): Promise<SurveyResponse[]> {
-    const query = this.getRepository()
+    const query = SurveyResponse.getRepository()
       .createQueryBuilder('survey_response')
       // the encounter is only here to filter by patient, so don't pay to hydrate it
       .innerJoin('survey_response.encounter', 'encounter')

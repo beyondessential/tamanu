@@ -31,7 +31,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   referenceDrug?: ReferenceDrug;
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     return repo.findOne({
       where: {
@@ -67,7 +67,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     },
     relationType = ReferenceDataRelationType.AddressHierarchy,
   ) {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     let recordWithParents = await repo.findOne({
       where: qb => {
@@ -110,7 +110,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     searchTerm: string,
     limit = 10,
   ): Promise<ReferenceData[]> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     return repo.find({
       where: {
@@ -126,7 +126,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   static async getSelectOptionsForType(
     referenceDataType: ReferenceDataType,
   ): Promise<{ label: string; value: string }[]> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     const results = await repo.find({
       where: {

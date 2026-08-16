@@ -36,7 +36,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   clinicianId: string;
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
-    return this.getRepository()
+    return Diagnosis.getRepository()
       .createQueryBuilder('diagnosis')
       .leftJoin('diagnosis.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })

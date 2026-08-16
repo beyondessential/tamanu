@@ -88,7 +88,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   tests: LabTest[];
 
   static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
-    const query = this.getRepository()
+    const query = LabRequest.getRepository()
       .createQueryBuilder('labRequest')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
@@ -113,7 +113,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       throw new Error('A request must have at least one test');
     }
 
-    const labRequest = await this.createAndSaveOne(data);
+    const labRequest = await LabRequest.createAndSaveOne(data);
 
     // then create tests
     await Promise.all(

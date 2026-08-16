@@ -41,7 +41,7 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
     patientId: string,
     dataElementCode: string,
   ): Promise<ISurveyResponseAnswer> {
-    return this.getRepository()
+    return SurveyResponseAnswer.getRepository()
       .createQueryBuilder('survey_response_answer')
       .leftJoin('survey_response_answer.response', 'response')
       .leftJoin('response.encounter', 'encounter')
@@ -64,7 +64,7 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
     if (!questionCodes.length) return {};
 
     const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
-    const rows: { code: string; body: string }[] = await this.getRepository().query(
+    const rows: { code: string; body: string }[] = await SurveyResponseAnswer.getRepository().query(
       `
       SELECT code, body
       FROM (

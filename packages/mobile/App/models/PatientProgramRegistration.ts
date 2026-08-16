@@ -129,7 +129,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     patientId?: string,
   ): Promise<PatientProgramRegistration> {
     if (!programId || !patientId) return null;
-    return this.getRepository()
+    return PatientProgramRegistration.getRepository()
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
@@ -139,7 +139,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   }
 
   static async getMostRecentRegistrationsForPatient(patientId: string) {
-    const registrationRepository = this.getRepository();
+    const registrationRepository = PatientProgramRegistration.getRepository();
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
       .where('registration.registrationStatus != :status', {
@@ -156,7 +156,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   }
 
   static async getFullPprById(id: string) {
-    const registrationRepository = this.getRepository();
+    const registrationRepository = PatientProgramRegistration.getRepository();
     const fullPpr = await registrationRepository
       .createQueryBuilder('registration')
       .where('registration.id = :id', { id })
