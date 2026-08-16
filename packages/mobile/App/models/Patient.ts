@@ -239,7 +239,7 @@ export class Patient extends BaseModel implements IPatient {
     const data = Object.keys(library).reduce((acc, key) => {
       const records = library[key];
       const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
-      if (newKey) acc[newKey.body] = records;
+      if (newKey !== undefined) acc[newKey.body] = records;
       return acc;
     }, {});
 
