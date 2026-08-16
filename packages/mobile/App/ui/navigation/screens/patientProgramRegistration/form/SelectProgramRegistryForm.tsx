@@ -92,12 +92,10 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
         <SearchInput
           value={searchValue}
           onChange={(text: string) => setSearchValue(text)}
-          placeholder={
-            getTranslation(
-              'programRegistry.search.programRegistry',
-              'Search program registry...',
-            )
-          }
+          placeholder={getTranslation(
+            'programRegistry.search.programRegistry',
+            'Search program registry...',
+          )}
         />
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>

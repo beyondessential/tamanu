@@ -9,10 +9,7 @@ const Stack = createStackNavigator();
 export const LabRequestStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name={Routes.HomeStack.LabRequestStack.View}
-        component={LabRequestTabs}
-      />
+      <Stack.Screen component={LabRequestTabs} name={Routes.HomeStack.LabRequestStack.View} />
     </Stack.Navigator>
   </ErrorBoundary>
 );

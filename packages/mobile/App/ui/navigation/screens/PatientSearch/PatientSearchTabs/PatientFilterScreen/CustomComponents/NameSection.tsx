@@ -5,7 +5,7 @@ import { TextField } from '~/ui/components/TextField/TextField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
-const fontSize = screenPercentageToDP(2, Orientation.Height)
+const fontSize = screenPercentageToDP(2, Orientation.Height);
 
 export const NameSection = (): ReactElement => (
   <StyledView marginTop={30}>

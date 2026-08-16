@@ -53,8 +53,7 @@ const hasMoreContentBelow = (
   contentHeight: number,
   layoutHeight: number,
   scrollOffset: number,
-): boolean =>
-  contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
+): boolean => contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
 
 export const FormScreenView = ({
   children,
@@ -106,9 +105,7 @@ export const FormScreenView = ({
   const onScroll = useCallback(({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
     scrollOffsetRef.current = contentOffset.y;
-    setAnimated(
-      hasMoreContentBelow(contentSize.height, layoutMeasurement.height, contentOffset.y),
-    );
+    setAnimated(hasMoreContentBelow(contentSize.height, layoutMeasurement.height, contentOffset.y));
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({

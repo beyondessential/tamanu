@@ -16,7 +16,7 @@ export class PatientAllergy extends BaseModel {
   @DateTimeStringColumn({ nullable: false })
   recordedDate: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.allergies)
+  @ManyToOne(() => Patient, patient => patient.allergies)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;

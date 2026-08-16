@@ -22,19 +22,19 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @DateTimeStringColumn({ nullable: true })
   editedTime?: string;
 
-  @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
+  @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;
 
   @RelationId(({ response }) => response)
   responseId: string;
 
-  @ManyToOne(() => ProgramDataElement, (dataElement) => dataElement.answers)
+  @ManyToOne(() => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.answer)
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.answer)
   vitalLogs: VitalLog[];
 
   static async getLatestAnswerForPatient(

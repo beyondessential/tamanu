@@ -43,7 +43,7 @@ const StatusDot = styled.View<{ $registrationStatus: string }>`
   border-radius: 100px;
   height: 7px;
   width: 7px;
-  background-color: ${(props) =>
+  background-color: ${props =>
     props.$registrationStatus === 'active' ? theme.colors.SAFE : theme.colors.DISABLED_GREY};
 `;
 
@@ -86,7 +86,7 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  const accessibleRegistries = registrations.filter((registration) =>
+  const accessibleRegistries = registrations.filter(registration =>
     ability.can('read', subject('ProgramRegistry', { id: registration.programRegistryId })),
   );
   if (accessibleRegistries.length === 0) {

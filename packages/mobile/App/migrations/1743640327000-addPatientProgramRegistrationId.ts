@@ -9,10 +9,10 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
     // Remove old columns
     const tableObject = await queryRunner.getTable('patient_program_registration_conditions');
     const patientIdForeignKey = tableObject.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('patientId') !== -1,
+      fk => fk.columnNames.indexOf('patientId') !== -1,
     );
     const programRegistryIdForeignKey = tableObject.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('programRegistryId') !== -1,
+      fk => fk.columnNames.indexOf('programRegistryId') !== -1,
     );
     if (patientIdForeignKey) {
       await queryRunner.dropForeignKey(

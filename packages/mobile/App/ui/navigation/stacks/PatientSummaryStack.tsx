@@ -33,10 +33,7 @@ const PatientSummary = ({
     <ErrorBoundary>
       <StackHeader
         title={
-          <TranslatedText
-            stringId="programRegistry.header.title"
-            fallback="Program registries"
-          />
+          <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />
         }
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}

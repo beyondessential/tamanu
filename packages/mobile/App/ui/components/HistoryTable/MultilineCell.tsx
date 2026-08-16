@@ -26,11 +26,10 @@ type Props = $RemoveChildren<typeof TouchableRipple> & {
 };
 
 const MultilineCell = ({ children, style, numeric, ...rest }: Props) => (
-  <TouchableRipple
-    {...rest}
-    style={[styles.container, numeric && styles.right, style]}
-  >
-    <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>{children}</Text>
+  <TouchableRipple {...rest} style={[styles.container, numeric && styles.right, style]}>
+    <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>
+      {children}
+    </Text>
   </TouchableRipple>
 );
 

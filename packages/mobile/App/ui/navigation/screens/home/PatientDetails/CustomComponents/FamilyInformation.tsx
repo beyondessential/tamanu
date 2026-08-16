@@ -11,13 +11,8 @@ interface FamilyInformationProps extends PatientParentsDataProps {
   onEdit: () => void;
 }
 
-export const FamilyInformation = (
-  props: FamilyInformationProps,
-): ReactElement => (
-  <PatientSection
-    onEdit={props.onEdit}
-    title="Family Information"
-  >
+export const FamilyInformation = (props: FamilyInformationProps): ReactElement => (
+  <PatientSection onEdit={props.onEdit} title="Family Information">
     <StyledView marginTop={20}>
       <RowView alignItems="center" justifyContent="space-between">
         <InformationBox title="Mother" info={props.parentsInfo.motherName} />

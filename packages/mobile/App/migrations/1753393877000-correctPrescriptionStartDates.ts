@@ -11,16 +11,23 @@ export class correctPrescriptionStartDates1753393877000 implements MigrationInte
       WHERE startDate = ''
     `);
     // Remove the empty string default value
-    await queryRunner.changeColumn(prescriptionTable, 'startDate', new TableColumn({
-      name: 'startDate',
-      type: 'string',
-      isNullable: false,
-    }));
+    await queryRunner.changeColumn(
+      prescriptionTable,
+      'startDate',
+      new TableColumn({
+        name: 'startDate',
+        type: 'string',
+        isNullable: false,
+      }),
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
     const prescriptionTable = await getTable(queryRunner, 'prescriptions');
-    await queryRunner.changeColumn(prescriptionTable, 'startDate', new TableColumn({
+    await queryRunner.changeColumn(
+      prescriptionTable,
+      'startDate',
+      new TableColumn({
         name: 'startDate',
         type: 'string',
         isNullable: false,

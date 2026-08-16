@@ -18,16 +18,12 @@ describe('<UserAvatar/>', () => {
 
   it(' when no image provided should render user initials', async () => {
     const { getByText } = await render(<UserAvatar {...withoutImageProps} />);
-    expect(
-      getByText(getUserInitials(withImageProps.displayName!)),
-    ).not.toBeNull();
+    expect(getByText(getUserInitials(withImageProps.displayName!))).not.toBeNull();
   });
 
   it('when image is provided should render user initials', async () => {
     const { queryByText } = await render(<UserAvatar {...withImageProps} />);
-    expect(
-      queryByText(getUserInitials(withImageProps.displayName!)),
-    ).toBeNull();
+    expect(queryByText(getUserInitials(withImageProps.displayName!))).toBeNull();
   });
 
   it('should render "user" when no displayName is provided', async () => {

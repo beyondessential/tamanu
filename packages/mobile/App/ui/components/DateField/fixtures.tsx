@@ -16,13 +16,5 @@ export function BaseDateTextFieldStory({
   const onChangeDate = (newDate: Date): void => {
     setDate(newDate);
   };
-  return (
-    <DateField
-      mode={mode}
-      label={label}
-      value={date}
-      error={error}
-      onChange={onChangeDate}
-    />
-  );
+  return <DateField mode={mode} label={label} value={date} error={error} onChange={onChangeDate} />;
 }

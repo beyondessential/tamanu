@@ -42,16 +42,14 @@ export const Alert = ({
   severity = AlertSeverity.Info,
   children,
   open,
-  onClose
+  onClose,
 }: SyncInactiveBannerProps): JSX.Element => {
   const { background, color } = SEVERITY_TO_COLORS[severity];
 
   if (!open) return null;
 
   return (
-    <StyledView
-      padding={screenPercentageToDP(3.6, Orientation.Width)}
-    >
+    <StyledView padding={screenPercentageToDP(3.6, Orientation.Width)}>
       <StyledView
         width="100%"
         height={screenPercentageToDP(6, Orientation.Height)}

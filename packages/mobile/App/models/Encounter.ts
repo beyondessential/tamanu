@@ -141,18 +141,20 @@ export class Encounter extends BaseModel implements IEncounter {
     // boundary is yesterday's cutover — otherwise it would sit in the future and match nothing.
     const dayStart = now < cutover ? subDays(cutover, 1) : cutover;
 
-    return repo
-      .createQueryBuilder('encounter')
-      .where('patientId = :patientId', { patientId })
-      // startDate is stored as a local ISO 9075 string, so compare against a local ISO 9075
-      // boundary directly. datetime(:epoch, 'unixepoch') renders UTC and would be offset.
-      .andWhere('startDate >= :date', {
-        date: toDateTimeString(dayStart),
-      })
-      .orderBy('startDate', 'DESC')
-      .addOrderBy('createdAt', 'DESC')
-      .addOrderBy('id', 'DESC')
-      .getOne();
+    return (
+      repo
+        .createQueryBuilder('encounter')
+        .where('patientId = :patientId', { patientId })
+        // startDate is stored as a local ISO 9075 string, so compare against a local ISO 9075
+        // boundary directly. datetime(:epoch, 'unixepoch') renders UTC and would be offset.
+        .andWhere('startDate >= :date', {
+          date: toDateTimeString(dayStart),
+        })
+        .orderBy('startDate', 'DESC')
+        .addOrderBy('createdAt', 'DESC')
+        .addOrderBy('id', 'DESC')
+        .getOne()
+    );
   }
 
   static async getActiveEncounterForPatient(patientId: string): Promise<Encounter | undefined> {

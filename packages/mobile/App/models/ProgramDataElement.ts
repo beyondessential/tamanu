@@ -24,12 +24,9 @@ export class ProgramDataElement extends BaseModel implements IProgramDataElement
   @Column('text')
   type: DataElementType;
 
-  @OneToMany(() => SurveyResponseAnswer, (answer) => answer.dataElement)
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.dataElement)
   answers: SurveyResponseAnswer[];
 
-  @OneToOne(
-    () => SurveyScreenComponent,
-    (surveyScreenComponent) => surveyScreenComponent.dataElement,
-  )
+  @OneToOne(() => SurveyScreenComponent, surveyScreenComponent => surveyScreenComponent.dataElement)
   surveyScreenComponent: SurveyScreenComponent;
 }

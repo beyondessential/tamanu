@@ -13,7 +13,8 @@ Dimensions.addEventListener('change', ({ window }) => {
 });
 
 const widthPercentageToDP = (widthPercent: string | number): number => {
-  const elemWidth = typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
+  const elemWidth =
+    typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
   return PixelRatio.roundToNearestPixel((screenWidth * elemWidth) / 100);
 };
 

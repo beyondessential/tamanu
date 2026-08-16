@@ -47,13 +47,11 @@ const usePrepareLanguageData = async () => {
         languagesInDb.map(({ language }) =>
           language === DEFAULT_LANGUAGE_CODE ? ENGLISH_LANGUAGE_CODE : language,
         ),
-      ).map(
-        (language): LanguageOption => ({
-          label: languageDisplayNames[language],
-          languageCode: language,
-          countryCode: languageCountryCodes[language] ?? null,
-        }),
-      );
+      ).map((language): LanguageOption => ({
+        label: languageDisplayNames[language],
+        languageCode: language,
+        countryCode: languageCountryCodes[language] ?? null,
+      }));
       if (
         !selectedLanguage ||
         JSON.stringify(languageOptions) != JSON.stringify(languagesInDbDefaulted)

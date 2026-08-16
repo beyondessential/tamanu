@@ -41,7 +41,7 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @Column({ nullable: true })
   options?: string;
 
-  @ManyToMany(() => LabTestPanel, (labTestPanel) => labTestPanel.tests)
+  @ManyToMany(() => LabTestPanel, labTestPanel => labTestPanel.tests)
   labTestPanels: LabTestPanel[];
 
   // TODO: What to do with relations with no "as"

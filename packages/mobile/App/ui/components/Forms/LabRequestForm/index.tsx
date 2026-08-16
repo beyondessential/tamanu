@@ -79,7 +79,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     [models.User],
   );
 
-  const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
+  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
     const where: any = {
       labTestCategory: { id: selectedValue },
       visibilityStatus: VisibilityStatus.Current,
@@ -91,7 +91,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       where,
       order: { name: 'ASC' },
     });
-    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
+    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
       id: labTestType.id,
       text: (
         <TranslatedReferenceData

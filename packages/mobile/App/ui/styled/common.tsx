@@ -111,11 +111,7 @@ interface VisibilityProps {
 
 export interface StyledTextProps extends SpacingProps, FlexProps, BorderProps, TextProps {}
 export interface StyledViewProps
-  extends PositionProps,
-    SpacingProps,
-    VisibilityProps,
-    FlexProps,
-    BorderProps {
+  extends PositionProps, SpacingProps, VisibilityProps, FlexProps, BorderProps {
   children?: ReactNode | Element[];
   background?: string;
   overflow?: string;

@@ -78,12 +78,7 @@ export const PatientDetails = [
 ];
 
 const Separator = (): ReactElement => (
-  <StyledView
-    alignSelf="center"
-    height={1}
-    background={theme.colors.DEFAULT_OFF}
-    width="90.24%"
-  />
+  <StyledView alignSelf="center" height={1} background={theme.colors.DEFAULT_OFF} width="90.24%" />
 );
 
 const styles = StyleSheet.create({

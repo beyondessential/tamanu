@@ -37,88 +37,76 @@ const axesSvg = {
 };
 const verticalContentInset = { top: 10, bottom: 10, right: 0 };
 
-export const YearlyChart = memo(
-  ({ data }: BarChartProps): JSX.Element => {
-    const { formatDate } = useDateFormatter();
-    const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), [data]);
+export const YearlyChart = memo(({ data }: BarChartProps): JSX.Element => {
+  const { formatDate } = useDateFormatter();
+  const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), [data]);
 
-    const yearRange = `${getYear(data[0].date)} - ${getYear(
-      data[data.length - 1].date,
-    )}`;
+  const yearRange = `${getYear(data[0].date)} - ${getYear(data[data.length - 1].date)}`;
 
-    return (
-      <StyledView>
-        <RowView
-          marginTop={35}
-          paddingLeft={20}
-          paddingRight={20}
-          justifyContent="space-between"
-          alignItems="center"
-          marginBottom={15}
-        >
-          <StyledView>
-            <StyledText color={theme.colors.TEXT_MID} fontSize={12}>
-              TOTAL
-            </StyledText>
-
-            <StyledText
-              fontWeight="bold"
-              color={theme.colors.TEXT_DARK}
-              fontSize={28}
-            >
-              {totalVisits}
-              <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
-                {' '}
-                Visits
-              </StyledText>
-            </StyledText>
-          </StyledView>
-          <StyledText
-            fontSize={14}
-            color={theme.colors.PRIMARY_MAIN}
-            fontWeight={500}
-          >
-            {yearRange}
+  return (
+    <StyledView>
+      <RowView
+        marginTop={35}
+        paddingLeft={20}
+        paddingRight={20}
+        justifyContent="space-between"
+        alignItems="center"
+        marginBottom={15}
+      >
+        <StyledView>
+          <StyledText color={theme.colors.TEXT_MID} fontSize={12}>
+            TOTAL
           </StyledText>
-        </RowView>
-        <RowView
-          height={screenPercentageToDP(29.5, Orientation.Height)}
-          marginLeft={20}
-          overflow="visible"
-        >
-          <StyledView flex={1} marginRight={10}>
-            <StyledView
-              flex={1}
-              borderRightWidth={StyleSheet.hairlineWidth}
-              borderLeftWidth={StyleSheet.hairlineWidth}
-            >
-              <BarChart
-                yAccessor={({ item }: { item: BarChartData }): number => item.value}
-                style={styles.barChartStyles}
-                data={data}
-                contentInset={verticalContentInset}
-                svg={svgBarStyle}
-              />
-            </StyledView>
-            <XAxis
-              style={styles.xAxis}
-              formatLabel={
-                (_, index: number): string => formatDate(data[index].date, DateFormats.SHORT_MONTH)
-              }
+
+          <StyledText fontWeight="bold" color={theme.colors.TEXT_DARK} fontSize={28}>
+            {totalVisits}
+            <StyledText fontSize={16} color={theme.colors.TEXT_MID}>
+              {' '}
+              Visits
+            </StyledText>
+          </StyledText>
+        </StyledView>
+        <StyledText fontSize={14} color={theme.colors.PRIMARY_MAIN} fontWeight={500}>
+          {yearRange}
+        </StyledText>
+      </RowView>
+      <RowView
+        height={screenPercentageToDP(29.5, Orientation.Height)}
+        marginLeft={20}
+        overflow="visible"
+      >
+        <StyledView flex={1} marginRight={10}>
+          <StyledView
+            flex={1}
+            borderRightWidth={StyleSheet.hairlineWidth}
+            borderLeftWidth={StyleSheet.hairlineWidth}
+          >
+            <BarChart
+              yAccessor={({ item }: { item: BarChartData }): number => item.value}
+              style={styles.barChartStyles}
               data={data}
-              contentInset={styles.xAxisContent}
-              svg={axesSvg}
+              contentInset={verticalContentInset}
+              svg={svgBarStyle}
             />
           </StyledView>
-          <YAxis
-            yAccessor={({ item }: { item: BarChartData }): number => item.value}
+          <XAxis
+            style={styles.xAxis}
+            formatLabel={(_, index: number): string =>
+              formatDate(data[index].date, DateFormats.SHORT_MONTH)
+            }
             data={data}
-            style={styles.yAxis}
-            contentInset={verticalContentInset}
+            contentInset={styles.xAxisContent}
             svg={axesSvg}
           />
-        </RowView>
-      </StyledView>
-    );
-  },
-);
+        </StyledView>
+        <YAxis
+          yAccessor={({ item }: { item: BarChartData }): number => item.value}
+          data={data}
+          style={styles.yAxis}
+          contentInset={verticalContentInset}
+          svg={axesSvg}
+        />
+      </RowView>
+    </StyledView>
+  );
+});

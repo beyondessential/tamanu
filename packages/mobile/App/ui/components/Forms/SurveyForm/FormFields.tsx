@@ -28,16 +28,16 @@ import { TranslatedText } from '../../Translations/TranslatedText';
 const useScrollToFirstError = () => {
   const questionPositionsRef = useRef<Record<string, number>>({});
 
-  const scrollToQuestion = useCallback((
-    scrollViewRef: MutableRefObject<ScrollView>,
-    questionCode: string,
-  ): void => {
-    const yPosition = questionPositionsRef.current[questionCode];
-    if (scrollViewRef.current !== null) {
-      const offset = 20;
-      scrollViewRef.current?.scrollTo({ x: 0, y: yPosition - offset, animated: true });
-    }
-  }, []);
+  const scrollToQuestion = useCallback(
+    (scrollViewRef: MutableRefObject<ScrollView>, questionCode: string): void => {
+      const yPosition = questionPositionsRef.current[questionCode];
+      if (scrollViewRef.current !== null) {
+        const offset = 20;
+        scrollViewRef.current?.scrollTo({ x: 0, y: yPosition - offset, animated: true });
+      }
+    },
+    [],
+  );
 
   const setQuestionPosition = useCallback((questionCode: string, yPosition: number) => {
     if (yPosition) {
@@ -85,12 +85,15 @@ export const FormFields = ({
   // Stable per-question onLayout callbacks keyed by component code.
   // Uses a ref-map so SurveyQuestion receives the same function identity across renders.
   const layoutCallbacksRef = useRef<Record<string, (y: number) => void>>({});
-  const getLayoutCallback = useCallback((code: string) => {
-    if (!layoutCallbacksRef.current[code]) {
-      layoutCallbacksRef.current[code] = (y: number) => setQuestionPosition(code, y);
-    }
-    return layoutCallbacksRef.current[code];
-  }, [setQuestionPosition]);
+  const getLayoutCallback = useCallback(
+    (code: string) => {
+      if (!layoutCallbacksRef.current[code]) {
+        layoutCallbacksRef.current[code] = (y: number) => setQuestionPosition(code, y);
+      }
+      return layoutCallbacksRef.current[code];
+    },
+    [setQuestionPosition],
+  );
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
@@ -117,9 +120,10 @@ export const FormFields = ({
   );
 
   const screenComponents = useMemo(
-    () => components
-      .filter((x) => x.screenIndex === currentScreenIndex)
-      .sort((a, b) => a.componentIndex - b.componentIndex),
+    () =>
+      components
+        .filter(x => x.screenIndex === currentScreenIndex)
+        .sort((a, b) => a.componentIndex - b.componentIndex),
     [components, currentScreenIndex],
   );
 
@@ -129,7 +133,7 @@ export const FormFields = ({
   );
 
   const screenCodeSet = useMemo(
-    () => new Set(screenComponents.map((c) => c.dataElement.code)),
+    () => new Set(screenComponents.map(c => c.dataElement.code)),
     [screenComponents],
   );
 
@@ -143,7 +147,7 @@ export const FormFields = ({
   const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
     const formErrors = await validateForm();
 
-    const pageErrors = Object.keys(formErrors).filter((x) => screenCodeSet.has(x));
+    const pageErrors = Object.keys(formErrors).filter(x => screenCodeSet.has(x));
 
     if (pageErrors.length === 0) {
       setStatus(null);

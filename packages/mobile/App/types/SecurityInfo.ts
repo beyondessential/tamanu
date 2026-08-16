@@ -1,6 +1,13 @@
 export interface StorageEncryptionStatus {
   status: number;
-  statusText: 'UNSUPPORTED' | 'INACTIVE' | 'ACTIVATING' | 'ACTIVE' | 'ACTIVE_DEFAULT_KEY' | 'ACTIVE_PER_USER' | 'UNKNOWN';
+  statusText:
+    | 'UNSUPPORTED'
+    | 'INACTIVE'
+    | 'ACTIVATING'
+    | 'ACTIVE'
+    | 'ACTIVE_DEFAULT_KEY'
+    | 'ACTIVE_PER_USER'
+    | 'UNKNOWN';
 }
 
 export interface SecurityInfo {
@@ -33,4 +40,4 @@ export const ENCRYPTION_STATUS = {
   UNKNOWN: 6,
 } as const;
 
-export type EncryptionStatusValue = typeof ENCRYPTION_STATUS[keyof typeof ENCRYPTION_STATUS];
+export type EncryptionStatusValue = (typeof ENCRYPTION_STATUS)[keyof typeof ENCRYPTION_STATUS];

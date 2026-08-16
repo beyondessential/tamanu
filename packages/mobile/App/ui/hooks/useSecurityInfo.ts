@@ -26,7 +26,7 @@ async function getStorageEncryptionStatus(): Promise<StorageEncryptionStatus> {
     return {
       status: 6,
       statusText: 'UNKNOWN',
-    }
+    };
   }
 }
 
@@ -59,9 +59,7 @@ function getSecurityIssues(
     );
   }
   if (!isPasscodeCompliant) {
-    issues.push(
-      getTranslation('general.device.security.issues.passcode', 'No passcode is set'),
-    );
+    issues.push(getTranslation('general.device.security.issues.passcode', 'No passcode is set'));
   }
   return issues;
 }
@@ -76,7 +74,9 @@ export const useSecurityInfo = () => {
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
 
-  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
+  const allowUnencryptedStorage = getSetting(
+    SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE,
+  );
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   const fetchSecurityInfo = useCallback(async () => {

@@ -1,10 +1,4 @@
-import React, {
-  isValidElement,
-  PropsWithChildren,
-  ReactElement,
-  ReactNode,
-  useState,
-} from 'react';
+import React, { isValidElement, PropsWithChildren, ReactElement, ReactNode, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';

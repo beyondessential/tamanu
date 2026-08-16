@@ -18,9 +18,7 @@ export const getSnapshotBatchIds = async (): Promise<number[]> => {
   return result.map(row => row.id);
 };
 
-export const getSnapshotBatchesByIds = async (
-  batchIds: number[],
-): Promise<SyncRecord[]> => {
+export const getSnapshotBatchesByIds = async (batchIds: number[]): Promise<SyncRecord[]> => {
   if (batchIds.length === 0) {
     return [];
   }

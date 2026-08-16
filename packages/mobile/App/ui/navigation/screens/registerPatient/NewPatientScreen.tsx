@@ -88,8 +88,7 @@ export const NewPatientScreen = ({
           {joinNames(patient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {getGender(patient.sex)}{' '}
-          {getDisplayAge(patient.dateOfBirth, ageDisplayFormat)} old{' '}
+          {getGender(patient.sex)} {getDisplayAge(patient.dateOfBirth, ageDisplayFormat)} old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}

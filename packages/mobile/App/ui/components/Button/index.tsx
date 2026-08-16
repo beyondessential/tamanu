@@ -5,7 +5,11 @@ import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
 import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedTextElement, getTranslatedTextFallback, getTranslatedTextStringId } from '/components/Translations/TranslatedText';
+import {
+  TranslatedTextElement,
+  getTranslatedTextFallback,
+  getTranslatedTextStringId,
+} from '/components/Translations/TranslatedText';
 
 type StrNumType = number | string;
 
@@ -112,7 +116,9 @@ export const Button = ({
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
     testID={id || getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
-    accessibilityLabel={getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
+    accessibilityLabel={
+      getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)
+    }
     flex={flex}
     onPress={onPress}
     {...rest}

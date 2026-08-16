@@ -1,4 +1,4 @@
-import { VaccineStatus } from "~/ui/helpers/patient";
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 export const givenOnTimeProps = {
   status: VaccineStatus.GIVEN,
