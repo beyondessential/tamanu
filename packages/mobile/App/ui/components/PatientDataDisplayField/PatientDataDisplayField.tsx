@@ -55,7 +55,7 @@ const getPatientDataFieldAssociationData = async ({
       data: result,
       targetModel: targetModelName,
     };
-  } catch (error) {
+  } catch {
     return { data: answer, targetModel: null };
   }
 };

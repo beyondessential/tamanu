@@ -22,7 +22,7 @@ export function runCalculations(components: ISurveyScreenComponent[], values: an
         }
         inputValues[c.dataElement.code] = value;
         calculatedValues[c.dataElement.code] = value;
-      } catch (e) {
+      } catch {
         calculatedValues[c.dataElement.code] = null;
       }
     }

@@ -75,7 +75,7 @@ function mapOptionsToValues(optionsString: string) {
     } else if (Array.isArray(options)) {
       result = options.map(x => ({ label: x, value: x }));
     }
-  } catch (e) {
+  } catch {
     // invalid JSON — leave as null
   }
   optionsCache.set(optionsString, result);
