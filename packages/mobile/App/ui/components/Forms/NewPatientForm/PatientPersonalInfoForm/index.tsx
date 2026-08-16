@@ -44,7 +44,7 @@ const getPatientInitialValues = (
   patientAdditionalData: PatientAdditionalData,
   customPatientFieldValues: CustomPatientFieldValues,
   getSetting: <T>(key: string) => T,
-): {} => {
+) => {
   if (!isEdit || !patient) {
     return {};
   }

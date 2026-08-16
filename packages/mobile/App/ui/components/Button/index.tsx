@@ -113,7 +113,7 @@ export const Button = ({
   padding,
   disabled,
   ...rest
-}: StyledButtonProps): FunctionComponentElement<{}> => (
+}: StyledButtonProps) => (
   <StyledTouchableOpacity
     testID={id || getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
     accessibilityLabel={
