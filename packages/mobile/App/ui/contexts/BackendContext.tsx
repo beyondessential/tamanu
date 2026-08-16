@@ -5,7 +5,7 @@ import { BackendManager } from '../../services/BackendManager';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { SYNC_EVENT_ACTIONS } from '../../services/sync/types';
-import { queryClient } from '../queryClient';
+import queryClient from '../queryClient';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
