@@ -61,7 +61,7 @@ export class PatientProgramRegistrationCondition
   deletionClinicianId?: ID;
 
   static async findForRegistration(patientProgramRegistrationId: string) {
-    const conditionsRepository = this.getRepository();
+    const conditionsRepository = PatientProgramRegistrationCondition.getRepository();
     return conditionsRepository
       .createQueryBuilder('condition')
       .where('condition.patientProgramRegistrationId = :patientProgramRegistrationId', {

@@ -54,7 +54,7 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
       .getRawMany();
 
-    const programRegistryRepository = this.getRepository();
+    const programRegistryRepository = ProgramRegistry.getRepository();
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
       .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`);
@@ -63,6 +63,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   }
 
   static async getAllProgramRegistries() {
-    return this.getRepository().find();
+    return ProgramRegistry.getRepository().find();
   }
 }

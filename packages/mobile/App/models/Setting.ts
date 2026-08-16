@@ -45,7 +45,7 @@ export class Setting extends BaseModel {
 
     const scope = determineScope();
 
-    const settingsQueryBuilder = this.getRepository()
+    const settingsQueryBuilder = Setting.getRepository()
       .createQueryBuilder('setting')
       .where(
         new Brackets(qb => {
@@ -95,8 +95,8 @@ export class Setting extends BaseModel {
 
   static async getByKey(key = '') {
     const facilityId = await readConfig('facilityId', '');
-    const settingWithFacilityScope = await this.get('', facilityId);
-    const settingWithGlobalScope = await this.get('');
+    const settingWithFacilityScope = await Setting.get('', facilityId);
+    const settingWithGlobalScope = await Setting.get('');
     const settings = merge(settingWithGlobalScope, settingWithFacilityScope);
     return getAtPath(settings, key);
   }

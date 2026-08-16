@@ -28,6 +28,16 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   return Object.fromEntries(Object.entries(data).filter(([key]) => columns.has(key)));
 }
 
+/**
+ * @privateRemarks In the static methods below, use of `this` is significant and cannot simply be
+ * swapped for the class name. TypeORM's `BaseEntity` statics dispatch on the calling entity class,
+ * so the `this` in `this.getRepository()` ends up referencing a concrete instance. This abstract
+ * base class is not registered with the DataSource, so `BaseModelWithoutId.getRepository()` throws
+ * "DataSource is not set for this entity."
+ *
+ * A longer-term solution would be to refactor this abstract class to behave more like… an abstract
+ * class.
+ */
 export abstract class BaseModelWithoutId extends BaseEntity {
   static allModels = undefined;
 

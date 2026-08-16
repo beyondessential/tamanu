@@ -90,7 +90,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   vaccineName?: string;
 
   static async getById(id: string): Promise<IAdministeredVaccine | null> {
-    return this.getRepository()
+    return AdministeredVaccine.getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.examiner', 'examiner')
@@ -105,7 +105,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
-    return this.getRepository()
+    return AdministeredVaccine.getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.examiner', 'examiner')

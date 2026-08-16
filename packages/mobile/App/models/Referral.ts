@@ -48,7 +48,7 @@ export class Referral extends BaseModel implements IReferral {
   }
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
-    return this.getRepository()
+    return Referral.getRepository()
       .createQueryBuilder('referral')
       .leftJoin('referral.initiatingEncounter', 'initiatingEncounter')
       .leftJoinAndSelect('referral.surveyResponse', 'surveyResponse')

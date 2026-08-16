@@ -90,7 +90,7 @@ export class Vitals extends BaseModel implements IVitals {
   encounterId?: string;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
-    return this.getRepository()
+    return Vitals.getRepository()
       .createQueryBuilder('vitals')
       .leftJoin('vitals.encounter', 'encounter')
       .where('encounter.patient = :patient', { patient: patientId })

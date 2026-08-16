@@ -131,7 +131,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
@@ -158,7 +158,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getActiveEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     return repo
       .createQueryBuilder('encounter')
@@ -254,7 +254,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     const encounters = await repo.find({
       where: { patient: { id: patientId } },
@@ -274,7 +274,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
     // 28 days ago for report
     const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28);
     const query = repo
