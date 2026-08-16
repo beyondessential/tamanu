@@ -1,4 +1,4 @@
-import React, { type FunctionComponentElement, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
