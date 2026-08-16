@@ -25,12 +25,13 @@ describe('DatabaseHelper', () => {
     });
 
     it('resolves with failure rather than throwing when ANALYZE fails', async () => {
-      const originalQuery = Database.client.query;
-      Database.client.query = jest.fn().mockRejectedValue(new Error('database is locked'));
+      const querySpy = jest
+        .spyOn(Database.client, 'query')
+        .mockRejectedValue(new Error('database is locked'));
       try {
         await expect(Database.refreshQueryPlannerStats()).resolves.toBe(false);
       } finally {
-        Database.client.query = originalQuery;
+        querySpy.mockRestore();
       }
     });
   });
