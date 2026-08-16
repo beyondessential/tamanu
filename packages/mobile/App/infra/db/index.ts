@@ -137,30 +137,30 @@ class DatabaseHelper {
     }
   }
 
-  /** @returns whether the refresh succeeded */
-  async refreshQueryPlannerStats(): Promise<boolean> {
+  /**
+   * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
+   * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
+   * gives us SQLite 3.39.
+   * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
+   * @returns Whether the refresh succeeded
+   */
+  private async refreshQueryPlannerStats(): Promise<boolean> {
     const start = performance.now();
     try {
+      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none
       await this.client.query('PRAGMA analysis_limit = 400;');
       await this.client.query('ANALYZE;');
-      console.log(`Refreshed query planner stats in ${performance.now() - start}ms`);
+      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
       return true;
     } catch (e) {
-      console.error(
-        `Refreshing query planner stats failed after ${performance.now() - start}ms:`,
-        e,
-      );
+      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
       return false;
     }
   }
 
   /**
-   * - Throttled to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
-   *   opportunistically without repeatedly taking ANALYZE’s write lock.
-   * - With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
-   *   which would take care of running ANALYZE as needed. Our version of react-native-quick-sqlite
-   *   gives us SQLite 3.39.
-   * @see https://sqlite.org/lang_analyze.html
+   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * opportunistically without repeatedly taking ANALYZE’s write lock.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     try {

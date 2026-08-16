@@ -61,7 +61,7 @@ export class BackendManager {
   }
 
   /**
-   * - Run ANALYZE when app gets backgrounded to mitigate user-facing latency.
+   * - Run approximate ANALYZE when app gets backgrounded to mitigate user-facing latency.
    * - No queries should run so ANALYZE’s write lock should cause no visible latency. (Unless app is
    *   frozen and resumed at next launch, at which point user may see a little delay.)
    * - Fire-and-forget. ANALYZE is transactional; recovery is automatic if OS kills app.
@@ -70,7 +70,9 @@ export class BackendManager {
     const wasActive = this.prevAppState === 'active';
     this.prevAppState = next;
     if (!wasActive || this.syncManager.isSyncing) return;
-    if (next === 'background' || next === 'inactive') void Database.requestQueryPlannerStatsRefresh();
+    if (next === 'background' || next === 'inactive') {
+      void Database.requestQueryPlannerStatsRefresh();
+    }
   }
 
   async startSyncService(): Promise<void> {
