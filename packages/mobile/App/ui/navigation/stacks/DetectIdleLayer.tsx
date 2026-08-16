@@ -77,7 +77,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
     return () => {
       clearInterval(intervalId);
-      subscriptions.forEach(subscription => subscription?.remove());
+      for (const subscription of subscriptions) subscription?.remove();
       debouncedResetIdle.cancel();
     };
   }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);
