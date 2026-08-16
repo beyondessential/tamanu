@@ -8,14 +8,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export function KeyboardAwareView({
-  children,
-}: PropsWithChildren<{}>): JSX.Element {
+export function KeyboardAwareView({ children }: PropsWithChildren<{}>): JSX.Element {
   return (
-    <KeyboardAwareScrollView
-      scrollEnabled={false}
-      contentContainerStyle={styles.full}
-    >
+    <KeyboardAwareScrollView scrollEnabled={false} contentContainerStyle={styles.full}>
       {children}
     </KeyboardAwareScrollView>
   );

@@ -12,14 +12,14 @@ export class ReferenceDataRelation extends BaseModel implements IReferenceDataRe
   type: ReferenceDataRelationType;
 
   // PARENTS
-  @ManyToOne(() => ReferenceData, (referenceData) => referenceData.children)
+  @ManyToOne(() => ReferenceData, referenceData => referenceData.children)
   referenceDataParent: ReferenceData;
   @JoinColumn({ name: 'referenceDataParentId' })
   @RelationId(({ referenceDataParent }) => referenceDataParent)
   referenceDataParentId: string;
 
   // CHILDREN
-  @ManyToOne(() => ReferenceData, (referenceData) => referenceData.parents)
+  @ManyToOne(() => ReferenceData, referenceData => referenceData.parents)
   referenceData: ReferenceData;
   @RelationId(({ referenceData }) => referenceData)
   referenceDataId: string;

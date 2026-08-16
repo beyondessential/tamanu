@@ -34,7 +34,7 @@ export interface TextFieldProps extends Omit<BaseInputProps, 'label'> {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
-  label?: TranslatedTextElement
+  label?: TranslatedTextElement;
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string | number;
@@ -77,7 +77,7 @@ export const TextField = React.memo(
     labelFontSize,
     fieldFontSize,
     readOnly,
-    endAdornment
+    endAdornment,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const defaultRef: RefObject<any> = useRef(null);

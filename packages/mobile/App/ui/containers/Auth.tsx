@@ -12,8 +12,6 @@ export const withAuth = (WrappedComponent: FC<any>): FC<any> => {
     dispatch,
     ...bindActionCreators(actions, dispatch),
   });
-  const Wrapper = (props: any): React.ReactElement => (
-    <WrappedComponent {...props} />
-  );
+  const Wrapper = (props: any): React.ReactElement => <WrappedComponent {...props} />;
   return connect(mapStateToProps, mapDispatchToProps)(Wrapper);
 };

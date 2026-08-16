@@ -102,7 +102,8 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const initConditions = Array.isArray(conditions) ? conditions : [];
   const filteredConditions = initConditions.filter(
     ({ programRegistryConditionCategory }) =>
-      programRegistryConditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+      programRegistryConditionCategory.code !==
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 
   const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {

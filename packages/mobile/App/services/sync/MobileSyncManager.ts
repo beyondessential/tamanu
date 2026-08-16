@@ -296,7 +296,10 @@ export class MobileSyncManager {
       const message = error instanceof Error ? error.message : String(error);
       await this.centralServer.markSessionErrored(sessionId, message);
     } catch (reportError) {
-      console.error('MobileSyncManager.reportSyncError(): Failed to report sync error', reportError);
+      console.error(
+        'MobileSyncManager.reportSyncError(): Failed to report sync error',
+        reportError,
+      );
     }
   }
 

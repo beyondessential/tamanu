@@ -31,11 +31,7 @@ export function BaseStory(): ReactElement {
           Something called after debounce.
         </StyledText>
       )}
-      <SearchInput
-        placeholder="Search for patients"
-        value={text}
-        onChange={onChangeText}
-      />
+      <SearchInput placeholder="Search for patients" value={text} onChange={onChangeText} />
     </>
   );
 }

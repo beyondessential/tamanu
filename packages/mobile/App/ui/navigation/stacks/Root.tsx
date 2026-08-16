@@ -18,29 +18,29 @@ export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <SafeAreaProvider>
-      <Root>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <NavigationContainer ref={navigationRef}>
-              <LocalisationProvider>
-                <TranslationProvider>
-                  <AuthProvider navRef={navigationRef}>
-                    <SettingsProvider>
-                      <FacilityProvider>
-                        <DetectIdleLayer>
-                          <Core />
-                        </DetectIdleLayer>
-                      </FacilityProvider>
-                    </SettingsProvider>
-                  </AuthProvider>
-                </TranslationProvider>
-              </LocalisationProvider>
-            </NavigationContainer>
-          </PersistGate>
-        </Provider>
-      </Root>
-    </SafeAreaProvider>
+      <SafeAreaProvider>
+        <Root>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <NavigationContainer ref={navigationRef}>
+                <LocalisationProvider>
+                  <TranslationProvider>
+                    <AuthProvider navRef={navigationRef}>
+                      <SettingsProvider>
+                        <FacilityProvider>
+                          <DetectIdleLayer>
+                            <Core />
+                          </DetectIdleLayer>
+                        </FacilityProvider>
+                      </SettingsProvider>
+                    </AuthProvider>
+                  </TranslationProvider>
+                </LocalisationProvider>
+              </NavigationContainer>
+            </PersistGate>
+          </Provider>
+        </Root>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };

@@ -26,19 +26,17 @@ interface StepMarkerProps {
   step: number;
 }
 
-export const StepMarker: FC<StepMarkerProps> = React.memo(
-  ({ step }: StepMarkerProps) => {
-    const circles = [1, 2, 3];
-    return (
-      <RowView
-        justifyContent="space-around"
-        width={screenPercentageToDP(8.59, Orientation.Width)}
-        marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-      >
-        {circles.map(value => (
-          <Circle key={value} currentStep={value === step} />
-        ))}
-      </RowView>
-    );
-  },
-);
+export const StepMarker: FC<StepMarkerProps> = React.memo(({ step }: StepMarkerProps) => {
+  const circles = [1, 2, 3];
+  return (
+    <RowView
+      justifyContent="space-around"
+      width={screenPercentageToDP(8.59, Orientation.Width)}
+      marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+    >
+      {circles.map(value => (
+        <Circle key={value} currentStep={value === step} />
+      ))}
+    </RowView>
+  );
+});

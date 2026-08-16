@@ -28,12 +28,15 @@ export const Field = ({
   const showError = status === SUBMIT_ATTEMPTED_STATUS || submitCount > 0;
   const error = showError ? meta.error : null;
 
-  const combinedOnChange = useCallback((newValue: any, selectedItem: any): any => {
-    if (onChange) {
-      onChange(newValue, selectedItem);
-    }
-    return field.onChange({ target: { name, value: newValue } });
-  }, [field.onChange, name, onChange]);
+  const combinedOnChange = useCallback(
+    (newValue: any, selectedItem: any): any => {
+      if (onChange) {
+        onChange(newValue, selectedItem);
+      }
+      return field.onChange({ target: { name, value: newValue } });
+    },
+    [field.onChange, name, onChange],
+  );
 
   return (
     <FormikField

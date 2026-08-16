@@ -23,7 +23,6 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
     return <StyledView flex={1} />;
   }
 
-
   return (
     <>
       <SyncStatusModal

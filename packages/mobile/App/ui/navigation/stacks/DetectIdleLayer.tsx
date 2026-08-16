@@ -41,10 +41,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     return false;
   };
 
-  const stableHandleResetIdle = useCallback(
-    (): boolean => handleResetIdleRef.current(),
-    [],
-  );
+  const stableHandleResetIdle = useCallback((): boolean => handleResetIdleRef.current(), []);
 
   useEffect(() => {
     if (!signedIn) return;
@@ -52,7 +49,10 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     const handleStateChange = (nextAppState: AppStateStatus): void => {
       if (appStateRef.current === 'active' && nextAppState.match(/^(inactive|background)$/)) {
         screenOffTimeRef.current = Date.now();
-      } else if (appStateRef.current.match(/^(inactive|background)$/) && nextAppState === 'active') {
+      } else if (
+        appStateRef.current.match(/^(inactive|background)$/) &&
+        nextAppState === 'active'
+      ) {
         if (screenOffTimeRef.current) {
           screenOffTimeRef.current = null;
           if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {

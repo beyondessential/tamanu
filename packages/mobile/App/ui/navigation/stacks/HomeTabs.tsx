@@ -8,12 +8,7 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
-import {
-  RowView,
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '/styled/common';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
@@ -49,12 +44,14 @@ export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps
   );
 }
 
-const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
-  focused: boolean;
-  focusedColor: string;
-  strokeColor: string;
-  color: string;
-}): ReactElement => <TabIcon Icon={Icon} {...props} />;
+const TabScreenIcon =
+  (Icon: FC<SvgProps>) =>
+  (props: {
+    focused: boolean;
+    focusedColor: string;
+    strokeColor: string;
+    color: string;
+  }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 

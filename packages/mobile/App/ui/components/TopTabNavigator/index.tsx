@@ -82,12 +82,7 @@ function TabNavigator({
   });
 
   return (
-    <MaterialTopTabView
-      {...rest}
-      state={state}
-      navigation={navigation}
-      descriptors={descriptors}
-    />
+    <MaterialTopTabView {...rest} state={state} navigation={navigation} descriptors={descriptors} />
   );
 }
 

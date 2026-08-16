@@ -1,12 +1,6 @@
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
-import {
-  fake,
-  fakeEncounter,
-  fakePatient,
-  fakeSurvey,
-  fakeUser,
-} from '/root/tests/helpers/fake';
+import { fake, fakeEncounter, fakePatient, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
 describe('SurveyResponse', () => {
@@ -61,7 +55,7 @@ describe('SurveyResponse', () => {
       encounter.examiner = user;
       await Database.models.Encounter.insert(encounter);
 
-      await Database.models.SurveyResponse.submit(
+      (await Database.models.SurveyResponse.submit(
         patient.id,
         user.id,
         {
@@ -74,7 +68,7 @@ describe('SurveyResponse', () => {
           [dataElement.code]: 'alastair@bes.au',
         },
       ),
-        await patient.reload();
+        await patient.reload());
       expect(patient).toMatchObject({
         email: 'alastair@bes.au',
       });

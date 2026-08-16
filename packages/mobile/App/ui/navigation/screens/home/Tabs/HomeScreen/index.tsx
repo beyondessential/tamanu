@@ -108,7 +108,11 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              <TranslatedReferenceData category='facility' value={facilityId} fallback={facilityName} />
+              <TranslatedReferenceData
+                category="facility"
+                value={facilityId}
+                fallback={facilityName}
+              />
             </StyledText>
           </StyledView>
         </StyledView>

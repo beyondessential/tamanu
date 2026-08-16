@@ -5,9 +5,7 @@ import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
-import {
-  SYNC_EVENT_ACTIONS,
-} from '../../../../../services/sync';
+import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';

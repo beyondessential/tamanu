@@ -5,7 +5,8 @@ import { BaseModel } from '~/models/BaseModel';
 import { MODELS_ARRAY } from '~/models/modelsMap';
 
 const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
-  const { relationIds, columns, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
+  const { relationIds, columns, manyToOneRelations, oneToOneRelations } =
+    model.getRepository().metadata;
 
   const columnsIndex = keyBy(columns, column => column.propertyName);
   const relationIdsIndex = keyBy(relationIds, relationId => relationId.propertyName);
@@ -24,18 +25,16 @@ const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
       }
     }),
   ];
-}
+};
 
 const verifyModel = (model: typeof BaseModel): string[] | null => {
-  return [
-    ...verifyModelHasIdsForRelations(model),
-  ];
-}
+  return [...verifyModelHasIdsForRelations(model)];
+};
 
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toHaveRelationIdsForApplicableRelations(): R,
+      toHaveRelationIdsForApplicableRelations(): R;
     }
   }
 }
@@ -54,7 +53,7 @@ expect.extend({
         pass: true,
       };
     }
-  }
+  },
 });
 
 beforeAll(async () => {

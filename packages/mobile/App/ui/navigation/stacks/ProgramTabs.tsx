@@ -38,7 +38,9 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
         />
         <Tabs.Screen
           options={{
-            tabBarLabel: () => <TranslatedText stringId="program.action.newForm" fallback="New form" />,
+            tabBarLabel: () => (
+              <TranslatedText stringId="program.action.newForm" fallback="New form" />
+            ),
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
           component={ProgramListScreen}

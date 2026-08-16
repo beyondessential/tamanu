@@ -93,10 +93,7 @@ const SurveyFormInner = ({
         ...lastAppliedCalculatedValuesRef.current,
         ...changedCalculatedValues,
       };
-      setValues(
-        { ...values, ...changedCalculatedValues },
-        false,
-      );
+      setValues({ ...values, ...changedCalculatedValues }, false);
     }
   }, [calculatedValues, setValues, values]);
 
@@ -149,9 +146,7 @@ export const SurveyForm = ({
 }: SurveyFormProps): ReactElement => {
   const { getTranslation } = useTranslation();
   const currentUser = useSelector(authUserSelector);
-  const { customPatientFieldValues } = usePatientAdditionalData(
-    patient?.id,
-  );
+  const { customPatientFieldValues } = usePatientAdditionalData(patient?.id);
   const initialValues = useMemo(
     () =>
       getFormInitialValues(
@@ -162,7 +157,14 @@ export const SurveyForm = ({
         patientProgramRegistration,
         customPatientFieldValues,
       ),
-    [components, currentUser, patient, patientAdditionalData, patientProgramRegistration, customPatientFieldValues],
+    [
+      components,
+      currentUser,
+      patient,
+      patientAdditionalData,
+      patientProgramRegistration,
+      customPatientFieldValues,
+    ],
   );
   const {
     data: encounterResult,
@@ -178,18 +180,15 @@ export const SurveyForm = ({
 
   const { encounter } = encounterResult || {};
   const encounterProp = useMemo(
-    () => encounter ? { encounterType: encounter.encounterType } : undefined,
+    () => (encounter ? { encounterType: encounter.encounterType } : undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [encounter?.encounterType],
   );
-  const hasCalculations = useMemo(
-    () => components.some(c => c.calculation),
-    [components],
-  );
+  const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
 
   const formValuesRef = useRef(initialValues);
-  const [visibleComponentKey, setVisibleComponentKey] = useState(
-    () => computeVisibleKey(components, initialValues),
+  const [visibleComponentKey, setVisibleComponentKey] = useState(() =>
+    computeVisibleKey(components, initialValues),
   );
 
   const formValidationSchema = useMemo(() => {
