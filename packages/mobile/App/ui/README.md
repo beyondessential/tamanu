@@ -1,6 +1,8 @@
 # UI folder
 
-All files related from UI rendering to ui state logic. The files and folder names should be "screaming architecture" based. This way, by navigating through the folders should follow the same mental steps to understand the logic in the files.
+All files related from UI rendering to ui state logic. The files and folder names should be
+“screaming architecture” based. This way, by navigating through the folders should follow the same
+mental steps to understand the logic in the files.
 
 |            |                                                                                                         |
 | ---------- | ------------------------------------------------------------------------------------------------------- |
@@ -18,9 +20,11 @@ All files related from UI rendering to ui state logic. The files and folder name
 
 ### interfaces
 
-The idea behind this folder is to make screens, stateful or stateless components as clean as possible and move all interfaces and types to this folder.
+The idea behind this folder is to make screens, stateful or stateless components as clean as
+possible and move all interfaces and types to this folder.
 
-The structure is basically the same structure as the UI folder where screens should have screen interfaces and so on.
+The structure is basically the same structure as the UI folder where screens should have screen
+interfaces and so on.
 
 ### styled
 
@@ -38,37 +42,40 @@ The approached used widely in this project is based in 2 libraries:
 - [styled-components](https://styled-components.com/)
 - [styled-system](https://styled-system.com/)
 
-The idea is to avoid the common problem that happens in styled-components where due to declaration of blocks are separated from instantiation, component files becomes bigger than it should even if we use composition.
-Using a common base block to create the UI in a "inline style" makes it more readable and avoid jumping between files
-to understand.
+The idea is to avoid the common problem that happens in styled-components where due to declaration
+of blocks are separated from instantiation, component files becomes bigger than it should even if we
+use composition. Using a common base block to create the UI in a "inline style" makes it more
+readable and avoid jumping between files to understand.
 
 Blocks:
 
-|                        |                                                          |
-| ---------------------- | -------------------------------------------------------- |
-| StyledView             | Base building block                                      |
-| StyledImage            | Image                                                    |
-| FullView               | Component with flex: 1, i.e, fill all available space.   |
-| CenterView             | Component that centers children elements                 |
-| RotateView             | Component that rotates 90 degrees the children elements  |
-| HalfSizeView           | Component that gets 50% of width of the parent component |
-| RowView                | Component with flex-direction row                        |
-| ColumnView             | Component with flex-direction column                     |
-| StyledScrollView       | Component with scroll                                    |
-| StyledTouchableOpacity | TouchableOpacity component with StyledView properties.   |
+|                          |                                                          |
+| ------------------------ | -------------------------------------------------------- |
+| `StyledView`             | Base building block                                      |
+| `StyledImage`            | Image                                                    |
+| `FullView`               | Component with flex: 1, i.e, fill all available space.   |
+| `CenterView`             | Component that centers children elements                 |
+| `RotateView`             | Component that rotates 90 degrees the children elements  |
+| `HalfSizeView`           | Component that gets 50% of width of the parent component |
+| `RowView`                | Component with flex-direction row                        |
+| `ColumnView`             | Component with flex-direction column                     |
+| `StyledScrollView`       | Component with scroll                                    |
+| `StyledTouchableOpacity` | TouchableOpacity component with StyledView properties.   |
 
 ### store
 
-Folder responsible for redux configuration and it's dependencies.
-Redux usually requires a lot of boilerplate and repetitive code. Thinking about this problem redux community created [redux-toolkit](https://redux-toolkit.js.org/usage/usage-with-typescript) with helper methods and interfaces to make the actions and reducers cleaner than the traditional code split.
-This library gives a more opinionated strategy with redux, which can help to give consistency in the long run.
+Folder responsible for redux configuration and its dependencies. Redux usually requires a lot of
+boilerplate and repetitive code. Thinking about this problem redux community created
+[redux-toolkit](https://redux-toolkit.js.org/usage/usage-with-typescript) with helper methods and
+interfaces to make the actions and reducers cleaner than the traditional code split. This library
+gives a more opinionated strategy with redux, which can help to give consistency in the long run.
 
 Methods used in this project so far:
 
-|                |                                       |
-| -------------- | ------------------------------------- |
-| CreateSlice    | Creates both actions and reducers.    |
-| configureStore | Helper method to create store object. |
+|                  |                                       |
+| ---------------- | ------------------------------------- |
+| `CreateSlice`    | Creates both actions and reducers.    |
+| `configureStore` | Helper method to create store object. |
 
 |       |                                                                 |
 | ----- | --------------------------------------------------------------- |
@@ -77,8 +84,8 @@ Methods used in this project so far:
 
 ### navigation
 
-This project uses the version 5 of [react-navigation](https://reactnavigation.org/docs/getting-started) lib.
-Useful links:
+This project uses the version 5 of
+[react-navigation](https://reactnavigation.org/docs/getting-started) lib. Useful links:
 
 - [navigation hooks](https://reactnavigation.org/docs/use-navigation)
 - [Stack Navigator](https://reactnavigation.org/docs/stack-navigator/)
@@ -97,19 +104,19 @@ Useful links:
 
 #### On Creating Screens
 
-A single file can handle if the screen has low complexity.
-The current approach when screens are too big is to split the code between Container, Screen, CustomComponents and helpers.
+A single file can handle if the screen has low complexity. The current approach when screens are too
+big is to split the code between Container, Screen, CustomComponents and helpers.
 
-|                               |                                                                                                  |
-| ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| Container                     | UI components for each screens based on the stack they are in.                                   |
-| Screen                        | instantiation of the UI components                                                               |
-| CustomComponents              | folder with the UI components. Should be used only if screen file becomes too big or if there is |
-| an opportunity to code reuse. |
-| helpers                       | Declaration of the navigators components and the screen hierarchy/sequence.                      |
+|                  |                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Container        | UI components for each screens based on the stack they are in.                                                                 |
+| Screen           | instantiation of the UI components                                                                                             |
+| CustomComponents | folder with the UI components. Should be used only if screen file becomes too big or if there is an opportunity to code reuse. |
+| helpers          | Declaration of the navigators components and the screen hierarchy/sequence.                                                    |
 
 ### context
 
-Since Context API has improved it makes sense to use it as a pattern to make Context.Provider components to centralize access of redux actions and implementation of methods that requires access from redux actions.
-This way using useContext we can isolate the implementation from screen containers.
-Check authContext for an example.
+Since Context API has improved it makes sense to use it as a pattern to make Context.Provider
+components to centralize access of redux actions and implementation of methods that requires access
+from redux actions. This way using useContext we can isolate the implementation from screen
+containers. Check authContext for an example.
