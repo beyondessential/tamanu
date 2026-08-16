@@ -103,7 +103,7 @@ export const AdditionalInfo = ({
       {sections.map(({ title, fields, onEditCallback }, i) => {
         return (
           <PatientSection
-            key={'additional-info-section-' + i}
+            key={`additional-info-section-${i}`}
             title={title}
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable
