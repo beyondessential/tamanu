@@ -195,15 +195,15 @@ class DatabaseHelper {
   async setUnsafePragma(): Promise<void> {
     try {
       // Disables rollback journal - no transaction rollback or crash recovery
-      await this.client.query(`PRAGMA journal_mode = OFF;`);
+      await this.client.query('PRAGMA journal_mode = OFF;');
       // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
-      await this.client.query(`PRAGMA synchronous = 0;`);
+      await this.client.query('PRAGMA synchronous = 0;');
       // Sets page cache to 1M pages (~1GB with default 1KB pages)
-      await this.client.query(`PRAGMA cache_size = 1000000;`);
+      await this.client.query('PRAGMA cache_size = 1000000;');
       // Locks database exclusively - prevents other processes from accessing
-      await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`);
+      await this.client.query('PRAGMA locking_mode = EXCLUSIVE;');
       // Stores temporary tables, indices, and views in RAM instead of disk
-      await this.client.query(`PRAGMA temp_store = MEMORY;`);
+      await this.client.query('PRAGMA temp_store = MEMORY;');
       console.log('Applied unsafe pragma settings');
     } catch (e) {
       console.error('Error applying unsafe pragma settings:', e);
