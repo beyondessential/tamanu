@@ -1,3 +1,5 @@
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
 import { createTestContext } from './utilities';
 import { clearAnthropicModelCache } from '../app/anthropicModelSuggestions';
 
@@ -171,6 +173,60 @@ describe('anthropicModel suggester', () => {
     mockModelsRequest();
     await adminApp.get('/api/suggestions/anthropicModel');
     await adminApp.get('/api/suggestions/anthropicModel');
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetches again once the cached list has expired', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    mockModelsRequest();
+    const start = Date.now();
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(start);
+
+    await adminApp.get('/api/suggestions/anthropicModel');
+    clock.mockReturnValue(start + 61 * 1000);
+    await adminApp.get('/api/suggestions/anthropicModel');
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    clock.mockRestore();
+  });
+
+  // an empty list is what a transient failure looks like, so caching one would
+  // hold the dropdown empty for the whole TTL
+  it('never caches an empty list', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    mockModelsRequest({ data: [] });
+
+    await adminApp.get('/api/suggestions/anthropicModel');
+    await adminApp.get('/api/suggestions/anthropicModel');
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('serves one upstream call to requests that overlap', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+
+    // hold the upstream call open so the second request is inside the suggester
+    // before the first has anything to cache
+    let release;
+    const held = new Promise(resolve => {
+      release = resolve;
+    });
+    global.fetch = jest.fn(async () => {
+      await held;
+      return { ok: true, status: 200, json: async () => MODELS_RESPONSE };
+    });
+
+    const both = Promise.all([
+      adminApp.get('/api/suggestions/anthropicModel'),
+      adminApp.get('/api/suggestions/anthropicModel'),
+    ]);
+    await sleepAsync(50);
+    release();
+    const [first, second] = await both;
+
+    expect(first).toHaveSucceeded();
+    expect(second).toHaveSucceeded();
+    expect(first.body).toEqual(second.body);
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
