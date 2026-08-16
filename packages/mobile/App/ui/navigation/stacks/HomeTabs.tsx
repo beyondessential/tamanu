@@ -130,13 +130,21 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
-                    focused: isFocused,
-                    focusedColor: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
-                    strokeColor: isFocused ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE,
-                    color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
-                  })}
+                {Icon?.(
+                  isFocused
+                    ? {
+                        focused: true,
+                        focusedColor: theme.colors.SECONDARY_MAIN,
+                        strokeColor: theme.colors.PRIMARY_MAIN,
+                        color: theme.colors.SECONDARY_MAIN,
+                      }
+                    : {
+                        focused: false,
+                        focusedColor: theme.colors.WHITE,
+                        strokeColor: theme.colors.WHITE,
+                        color: 'none',
+                      },
+                )}
                 <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}>
                   {label}
                 </StyledText>
