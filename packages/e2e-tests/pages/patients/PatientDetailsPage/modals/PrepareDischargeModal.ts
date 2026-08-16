@@ -1,6 +1,7 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField, formatForMuiDateTimePicker } from '@utils/dateTimeHelpers';
 
 export class PrepareDischargeModal {
   readonly page: Page;
@@ -36,17 +37,18 @@ export class PrepareDischargeModal {
     // The autocomplete helper drives the field container (it reads its test id to find the
     // suggestions list), while assertions read the input the selection lands in.
     this.dischargeDateInput = page.locator('input[name="endDate"]');
-    this.dischargingClinicianField = page.getByTestId('field-6we6');
+    this.dischargingClinicianField = page.getByTestId('field-6we6-input');
     this.dischargingClinicianInput = page.locator('input[name="discharge.dischargerId"]');
-    this.dispositionField = page.getByTestId('localisedfield-d7fu');
+    this.dispositionField = page.getByTestId('localisedfield-d7fu-input');
     this.dispositionInput = page.locator('input[name="discharge.dispositionId"]');
 
     this.orderingPrescriberInput = page.locator(
       'input[name="pharmacyOrder.orderingClinicianId"]',
     );
     
-    // Action buttons (these would need to be updated with actual test IDs from the modal)
-    this.confirmButton = page.getByTestId('box-p5wr');
+    this.confirmButton = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Finalise discharge', exact: true });
     // Only closes the modal outright on an untouched form. A form with edits steps forward to
     // the unsaved-changes screen instead, so use cancelAndDiscardChanges() for that.
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
@@ -101,13 +103,23 @@ export class PrepareDischargeModal {
   }
 
   /**
-   * Sets the discharge date. The field is a native datetime-local, so the value is read back in
-   * the same form it is written — callers compare against what they set rather than a stored
-   * representation, which the facility timezone may shift.
+   * Sets the discharge date, given as `yyyy-MM-dd'T'HH:mm`. The field is a masked text input the
+   * picker only reads on blur, and one that silently keeps its previous value when what it is
+   * given does not parse, so the write is confirmed before the caller moves on.
    */
-  async setDischargeDate(value: string) {
+  async setDischargeDate(dateTime: string) {
     await this.dischargeDateInput.waitFor({ state: 'visible' });
-    await this.dischargeDateInput.fill(value);
+    await fillMuiDateTimeField(this.dischargeDateInput, dateTime);
+    await this.expectDischargeDate(dateTime);
+  }
+
+  /**
+   * Asserts the discharge date the field shows, given as `yyyy-MM-dd'T'HH:mm`. Compares against
+   * what the field displays rather than what is stored: the two differ whenever the facility
+   * timezone does, and the display is what the clinician reads back.
+   */
+  async expectDischargeDate(dateTime: string) {
+    await expect(this.dischargeDateInput).toHaveValue(formatForMuiDateTimePicker(dateTime));
   }
 
   /**
@@ -170,7 +182,9 @@ export class PrepareDischargeModal {
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */
   async finaliseDischarge() {
     await this.attemptFinaliseDischarge();
-    const confirmDischargeButton = this.page.getByRole('button', { name: 'Confirm' });
+    const confirmDischargeButton = this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Confirm', exact: true });
     await confirmDischargeButton.waitFor({ state: 'visible' });
     await confirmDischargeButton.click();
     await this.waitForModalToClose();
