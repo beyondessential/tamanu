@@ -5,6 +5,7 @@ Cards are grouped loosely by thread: sync, performance, over-the-air updates, da
 ## Characterise IRD sync failures from central sync session data
 
 Query the central `sync_sessions` table to establish the shape of IRD's sync problems: clusters of failed sessions, and sessions with long tails in the download or persist-to-local phases. The snapshot phase should be consistent between Karachi and the field, so a long tail there is the signal. Needs nothing from IRD to start. Delivers a written characterisation — which users, which facilities, which phase, how often — that the other sync cards work from.
+Query the central `sync_sessions` table to establish the shape of IRD's sync problems: clusters of failed sessions, and sessions with long tails in the download or persist-to-local phases. The snapshot phase should be consistent between Karachi and the field, so a long tail there is the signal. Needs nothing from IRD to start. Delivers a written characterisation — which users, which facilities, which phase, how often — that the other sync cards work from.
 
 ## Fix mobile sync crashes caused by memory pressure
 
