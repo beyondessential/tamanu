@@ -108,7 +108,7 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
             </StyledText>
           );
         }
-        return <></>;
+        return null;
       }}
     />
   );
