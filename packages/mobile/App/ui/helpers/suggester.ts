@@ -112,7 +112,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       if (!result) return undefined;
 
       return this.formatter(result);
-    } catch (e) {
+    } catch (_e) {
       return undefined;
     }
   };
@@ -174,7 +174,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       const filteredData = this.filter ? data.filter(this.filter) : data;
       return filteredData.map(this.formatter);
-    } catch (e) {
+    } catch {
       return [];
     }
   };
