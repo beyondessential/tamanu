@@ -399,6 +399,9 @@ export class MobileSyncManager {
     } else {
       await this.pullIncrementalSync(pullParams);
     }
+
+    this.lastSyncPulledRecordsCount = totalToPull;
+
     console.log(
       `MobileSyncManager.pullIncomingChanges(): End sync incoming changes, incoming changes count: ${totalToPull}`,
     );
