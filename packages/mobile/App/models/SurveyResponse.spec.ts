@@ -55,7 +55,7 @@ describe('SurveyResponse', () => {
       encounter.examiner = user;
       await Database.models.Encounter.insert(encounter);
 
-      (await Database.models.SurveyResponse.submit(
+      await Database.models.SurveyResponse.submit(
         patient.id,
         user.id,
         {
@@ -64,14 +64,10 @@ describe('SurveyResponse', () => {
           surveyId: survey.id,
           encounterReason: 'Test survey response',
         },
-        {
-          [dataElement.code]: 'alastair@bes.au',
-        },
-      ),
-        await patient.reload());
-      expect(patient).toMatchObject({
-        email: 'alastair@bes.au',
-      });
+        { [dataElement.code]: 'alastair@bes.au' },
+      );
+      await patient.reload();
+      expect(patient).toMatchObject({ email: 'alastair@bes.au' });
     });
   });
 
