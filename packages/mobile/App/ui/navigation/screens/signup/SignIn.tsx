@@ -87,7 +87,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            <>
+            
               <HomeBottomLogoIcon
                 size={screenPercentageToDP(7.29, Orientation.Height)}
                 fill={theme.colors.SECONDARY_MAIN}
@@ -101,7 +101,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               >
                 tamanu
               </StyledText>
-            </>
+            
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
