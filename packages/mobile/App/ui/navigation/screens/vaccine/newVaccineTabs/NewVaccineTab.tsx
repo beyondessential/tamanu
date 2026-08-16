@@ -142,7 +142,6 @@ export const NewVaccineTabComponent = ({
       return { updatedVaccine, scheduledVaccine, encounter, notGivenReason, location, department };
     },
     onSuccess: () => {
-      // Refresh the vaccines table (and the vaccination encounter in visit history).
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
     },
   });
