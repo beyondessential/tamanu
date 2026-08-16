@@ -93,6 +93,8 @@ import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 import { addProgramFormQueryIndexes1785739800000 } from './1785739800000-addProgramFormQueryIndexes';
 import { addHotPathQueryIndexes1786664141000 } from './1786664141000-addHotPathQueryIndexes';
+import { dedupeLocalSystemFacts1786847785000 } from './1786847785000-dedupeLocalSystemFacts';
+import { enforceUniqueLocalSystemFactKeys1786847786000 } from './1786847786000-enforceUniqueLocalSystemFactKeys';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -189,4 +191,6 @@ export const migrationList = [
   addDosingAndDispensingUnitColumns1779900000001,
   addProgramFormQueryIndexes1785739800000,
   addHotPathQueryIndexes1786664141000,
+  dedupeLocalSystemFacts1786847785000,
+  enforceUniqueLocalSystemFactKeys1786847786000,
 ];
