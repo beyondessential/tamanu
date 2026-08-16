@@ -173,7 +173,7 @@ class DatabaseHelper {
         select: ['value'],
         where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
       });
-      const lastRefresh = Number.parseInt(fact.value, 10);
+      const lastRefresh = Number.parseInt(fact?.value, 10);
       if (
         Number.isFinite(lastRefresh) &&
         Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
@@ -184,14 +184,14 @@ class DatabaseHelper {
       const succeeded = await this.refreshQueryPlannerStats();
       if (!succeeded) return;
 
-      if (fact) {
-        fact.value = Date.now().toString();
-        await fact.save();
-      } else {
-        await this.models.LocalSystemFact.createAndSaveOne({
-          key: PLANNER_STATS_REFRESHED_AT_KEY,
-          value: Date.now().toString(),
-        });
+      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
+      const value = Date.now().toString();
+      const { affected } = await this.models.LocalSystemFact.update(
+        { key: PLANNER_STATS_REFRESHED_AT_KEY },
+        { value },
+      );
+      if (!affected) {
+        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
       }
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
