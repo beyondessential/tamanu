@@ -29,7 +29,7 @@ const HeaderRightIconContainer = ({ isActive }: HeaderRightIconContainerProps): 
   </StyledView>
 );
 
-export const Header = (section: any, index: number, isActive: boolean): ReactElement => (
+export const Header = (section: any, _index: number, isActive: boolean): ReactElement => (
   <StyledView>
     <RowView
       width="100%"

@@ -118,7 +118,7 @@ export const DateField = React.memo(
     }, [mode]);
 
     const onAndroidDateChange = useCallback(
-      (event, selectedDate) => {
+      (_event, selectedDate) => {
         if (selectedDate) {
           if (mode === 'datetime') {
             if (currentPickerMode === 'date') {

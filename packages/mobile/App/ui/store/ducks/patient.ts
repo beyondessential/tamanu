@@ -38,7 +38,7 @@ export const PatientSlice = createSlice({
   name: 'patient',
   initialState: initialState,
   reducers: {
-    setSelectedPatient(state, { payload: patient }: PayloadAction<IPatient>): PatientStateProps {
+    setSelectedPatient(_state, { payload: patient }: PayloadAction<IPatient>): PatientStateProps {
       if (patient?.id) addPatientToRecentlyViewed(patient.id);
 
       return {

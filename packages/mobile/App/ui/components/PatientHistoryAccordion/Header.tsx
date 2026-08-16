@@ -105,7 +105,7 @@ const HeaderDescription = ({
   </ColumnView>
 );
 
-const Header = (section: IEncounter, index: number, isActive: boolean): JSX.Element => (
+const Header = (section: IEncounter, _index: number, isActive: boolean): JSX.Element => (
   <StyledView>
     <RowView
       width="100%"
