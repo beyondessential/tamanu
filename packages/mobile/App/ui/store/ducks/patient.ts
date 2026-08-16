@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { readConfig, writeConfig } from '~/services/config';
 import { IPatient } from '~/types';
-import { queryClient } from '~/ui/queryClient';
+import queryClient from '~/ui/queryClient';
 import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
 export type WithPatientStoreProps = WithPatientActions & PatientStateProps;

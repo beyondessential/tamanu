@@ -7,7 +7,7 @@ import { BackendProvider } from './ui/contexts/BackendContext';
 import { RootStack } from './ui/navigation/stacks/Root';
 import { theme } from './ui/styled/theme';
 import { themeSystem } from './ui/styled/common';
-import { queryClient } from './ui/queryClient';
+import queryClient from './ui/queryClient';
 
 const paperTheme = {
   ...DefaultTheme,
