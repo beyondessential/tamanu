@@ -108,9 +108,7 @@ export const NewVaccineTabComponent = ({
       // If id exists then it means user is updating an existing vaccine record
       if (administeredVaccine?.id) {
         const existingVaccine = await models.AdministeredVaccine.findOne({
-          where: {
-            id: administeredVaccine.id,
-          },
+          where: { id: administeredVaccine.id },
         });
 
         // If it is an existing vaccine record, and the previous status was NOT_GIVEN
@@ -127,17 +125,17 @@ export const NewVaccineTabComponent = ({
         }
       }
 
-      const updatedVaccine =
-        await models.AdministeredVaccine.createAndSaveOne<AdministeredVaccine>(vaccineData);
-
-      const notGivenReason = await models.ReferenceData.findOne({
-        where: { id: notGivenReasonId },
-      });
-      const location = await models.Location.findOne({
-        where: { id: locationId },
-        relations: ['locationGroup'],
-      });
-      const department = await models.Department.findOne({ where: { id: departmentId } });
+      const [updatedVaccine, notGivenReason, location, department] = await Promise.all([
+        models.AdministeredVaccine.createAndSaveOne<AdministeredVaccine>(vaccineData),
+        models.ReferenceData.findOne({
+          where: { id: notGivenReasonId },
+        }),
+        models.Location.findOne({
+          where: { id: locationId },
+          relations: ['locationGroup'],
+        }),
+        models.Department.findOne({ where: { id: departmentId } }),
+      ]);
 
       return { updatedVaccine, scheduledVaccine, encounter, notGivenReason, location, department };
     },
@@ -149,14 +147,8 @@ export const NewVaccineTabComponent = ({
   const recordVaccination = useCallback(
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
-      const {
-        updatedVaccine,
-        scheduledVaccine,
-        encounter,
-        notGivenReason,
-        location,
-        department,
-      } = await saveVaccination(values);
+      const { updatedVaccine, scheduledVaccine, encounter, notGivenReason, location, department } =
+        await saveVaccination(values);
       const { departmentId, locationId } = values;
 
       if (values.administeredVaccine) {
