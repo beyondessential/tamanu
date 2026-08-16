@@ -1,6 +1,7 @@
 # App Folder
 
-The idea is to separate concerns the best as possible although Domain Driven Design might be more suitable for backend development due to business logic.
+The idea is to separate concerns the best as possible although Domain Driven Design might be more
+suitable for backend development due to business logic.
 
 |               |                                                                                                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
