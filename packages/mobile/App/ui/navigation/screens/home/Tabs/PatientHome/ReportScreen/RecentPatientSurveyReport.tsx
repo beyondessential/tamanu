@@ -196,15 +196,14 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
               <TranslatedText stringId="report.table.column.referredTo" fallback="Referred to" />
             </DataCell>
           </HeaderRow>
-          {referralsData &&
-            referralsData.map(patient => (
-              <Row key={patient.id}>
-                <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
-                <DataCell>{patient.sex}</DataCell>
-                <DataCell>{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}</DataCell>
-                <DataCell>{patient.referredTo}</DataCell>
-              </Row>
-            ))}
+          {referralsData?.map(patient => (
+            <Row key={patient.id}>
+              <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
+              <DataCell>{patient.sex}</DataCell>
+              <DataCell>{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}</DataCell>
+              <DataCell>{patient.referredTo}</DataCell>
+            </Row>
+          ))}
         </Table>
       </StyledView>
     </StyledView>
