@@ -54,7 +54,7 @@ const usePrepareLanguageData = async () => {
       }));
       if (
         !selectedLanguage ||
-        JSON.stringify(languageOptions) != JSON.stringify(languagesInDbDefaulted)
+        JSON.stringify(languageOptions) !== JSON.stringify(languagesInDbDefaulted)
       ) {
         setLanguage(languagesInDbDefaulted[0].languageCode);
         setLanguageOptions(languagesInDbDefaulted);
