@@ -78,6 +78,17 @@ The single-sample requirement falls out of the merge itself: `FhirSpecimen` is
 materialised one per lab request (`Specimen/getValues.ts`), so merging the
 requests merges the samples with no further mapping work.
 
+**Panel category is mandatory**, mirroring lab test types. The pattern to follow
+is `LabTestType.mustHaveCategory` (`LabTestType.ts:102`) — a model-level
+validator that exempts soft-deleted rows, not a `NOT NULL` column. That keeps the
+change small and avoids a destructive migration, and reference-data import picks
+the rule up for free by going through the model.
+
+**Existing panels with no category** can be derived rather than guessed. The
+refinement note assumes every test in a panel shares a category, so a panel's
+category is its test types' category. Unlike the `lab_tests` backfill this one is
+cheap: `lab_test_panels` is small reference data.
+
 ## Open questions
 
 **Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
@@ -93,12 +104,26 @@ while others survive — so the request should presumably be created without tha
 panel rather than rejected, but that is a behaviour change nobody has asked for
 yet.
 
-**Carried from the card description, still unresolved.**
+**Panels that resist the category derivation.** A panel with no test types, or
+one whose test types span categories in breach of the refinement assumption, has
+nothing to derive from. Needs a rule before the migration can be written.
 
-- Whether a lab test panel's category is mandatory (mirroring lab test types) or
-  stays optional with a defined fallback. Grouping a panel under its own category
-  needs this. @MeganLane29 following up.
-- If mandatory, whether the validation, admin-panel and reference-data-import
-  work lands here or in a separate reference-data card this one depends on.
-- Whether SENAITE can return the same result to two panels sharing a test, and
-  how it shows once rather than twice in the patient results table. For Rohan.
+**Does the panel-category enforcement land in this card?** Validator, admin panel
+and reference-data import. The validator is small, but the admin-panel and import
+surfaces may argue for a separate reference-data card this one depends on.
+
+**Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
+changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this
+is entirely a question about what SENAITE accepts, and it needs confirming before
+the change ships. For Rohan.
+
+**Can SENAITE return the same result to two panels sharing a test,** and how does
+it show once rather than twice in the patient results table. Also for Rohan.
+
+**A panel whose tests are all unavailable at the requesting facility.** Test types
+are filtered by `availableFacilities` at creation. Today a panel with no
+surviving tests fails the whole submission, because `createWithTests` rejects an
+empty test list. Once a request holds several panels, one panel can be emptied
+while others survive — so the request should presumably be created without that
+panel rather than rejected, but that is a behaviour change nobody has asked for
+yet.

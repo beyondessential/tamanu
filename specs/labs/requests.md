@@ -10,6 +10,7 @@ billing and the external laboratory integration.
 
 ## Composing a request
 
+- [ ] A lab test panel belongs to a lab test category, as a lab test type does. A panel that is not deleted and has no category is rejected.
 - [ ] A submission produces one lab request per lab test category, holding both the panels and the individual tests ordered from that category.
 - [ ] A panel joins the request for the panel's own category.
 - [ ] Each panel ordered in a submission is recorded as a panel request against the lab request it joins, so one request can hold several panel requests.
