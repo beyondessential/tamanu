@@ -78,16 +78,15 @@ The single-sample requirement falls out of the merge itself: `FhirSpecimen` is
 materialised one per lab request (`Specimen/getValues.ts`), so merging the
 requests merges the samples with no further mapping work.
 
-**Panel category is mandatory**, mirroring lab test types. The pattern to follow
-is `LabTestType.mustHaveCategory` (`LabTestType.ts:102`) — a model-level
-validator that exempts soft-deleted rows, not a `NOT NULL` column. That keeps the
-change small and avoids a destructive migration, and reference-data import picks
-the rule up for free by going through the model.
+**Panel category is required for newly authored panels, but not enforced on the
+model.** Validation sits at the reference-data import schema rather than as a
+`LabTestType.mustHaveCategory`-style model validator, so existing category-less
+panels are left alone and no backfill is needed.
 
-**Existing panels with no category** can be derived rather than guessed. The
-refinement note assumes every test in a panel shares a category, so a panel's
-category is its test types' category. Unlike the `lab_tests` backfill this one is
-cheap: `lab_test_panels` is small reference data.
+Note there is no admin front-end form for lab test panels — they are created only
+through the reference-data spreadsheet importer (`labTestPanelLoader`,
+`loaders.js:309`). The import schema *is* the authoring surface, so that is the
+only place the rule can be enforced at authoring time.
 
 ## Open questions
 
@@ -104,13 +103,16 @@ while others survive — so the request should presumably be created without tha
 panel rather than rejected, but that is a behaviour change nobody has asked for
 yet.
 
-**Panels that resist the category derivation.** A panel with no test types, or
-one whose test types span categories in breach of the refinement assumption, has
-nothing to derive from. Needs a rule before the migration can be written.
+**What category does a category-less legacy panel group under?** Soft validation
+plus no backfill means such panels persist and can still be ordered, so grouping
+needs a defined fallback. Enforcing at the lab request API would reject the order
+outright, which is worse than falling back. Candidates: derive the category from
+the panel's test types at order time (no write, uses the refinement assumption
+that a panel's tests share a category), or let the panel keep forming its own
+request as it does today.
 
-**Does the panel-category enforcement land in this card?** Validator, admin panel
-and reference-data import. The validator is small, but the admin-panel and import
-surfaces may argue for a separate reference-data card this one depends on.
+**Does the panel-category enforcement land in this card?** With no admin form in
+play it is just the import schema, which is small enough to keep here.
 
 **Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
 changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this
