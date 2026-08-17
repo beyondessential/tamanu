@@ -16,7 +16,7 @@ Every sync after the first is a single unphased session pulling the changes sinc
 - [ ] The catalogue phase carries the rest of the data that is not scoped to a patient: reference data relations, programs and surveys, scheduled vaccines, and templates.
 - [ ] The catalogue phase also carries patient records themselves, without the data recorded against them, together with the records marking which patients are synced to this facility.
 - [ ] The records phase carries the data scoped to a patient or an encounter: encounters, notes, vitals, lab requests and tests, imaging, invoices, documents, appointments, and program responses.
-- [ ] A user can log in once the boot phase has completed, search for and open patients once the catalogue phase has completed, and see a patient's clinical history once the records phase has completed.
+- [ ] A user can log in once the boot phase has completed (but sees only a progress bar), search for and open patients once the catalogue phase has completed, and see a patient's clinical history once the records phase has completed.
 
 ## Declaring a model's phase
 
