@@ -17,6 +17,25 @@ export interface ResponseErrorData {
   [key: string]: any;
 }
 
+/** Describe why a fetch never got a response.
+ *
+ * `fetch` reports every transport failure as a bare `TypeError: fetch failed` and puts the real
+ * reason further down the cause chain, which for a hostname resolving to several addresses
+ * (`localhost` being both `::1` and `127.0.0.1`) is an AggregateError holding one error per
+ * address tried.
+ */
+function describeTransportFailure(error: Error): string {
+  let cause = error;
+  while (cause.cause instanceof Error) {
+    cause = cause.cause;
+  }
+
+  if (cause instanceof AggregateError && cause.errors?.length) {
+    return cause.errors.map((each: Error) => each.message).join('; ');
+  }
+  return cause.message || error.message;
+}
+
 export async function fetchOrThrowIfUnavailable(
   url: string,
   { fetch: fetchFn = fetch, timeout = false, ...config }: BaseFetchOptions = {},
@@ -40,10 +59,9 @@ export async function fetchOrThrowIfUnavailable(
       );
     }
 
-    // some other unhandled error. `fetch` reports every transport failure as a bare
-    // `TypeError: fetch failed` and puts the real reason (a refused connection, a DNS
-    // failure) in `cause`, so keep it: the message alone doesn't say what went wrong.
-    throw new RemoteUnreachableError(e.message).withCause(e);
+    // some other unhandled error: report the reason underneath rather than the bare
+    // `fetch failed`, which doesn't say what went wrong, and keep the cause for the log.
+    throw new RemoteUnreachableError(describeTransportFailure(e)).withCause(e);
   }
 }
 

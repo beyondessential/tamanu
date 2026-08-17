@@ -9,25 +9,6 @@ import { log } from '@tamanu/shared/services/logging';
 // masked as "sync is taking a while".
 const MAX_ATTEMPTS = 4;
 
-/** Describe why a fetch never got a response.
- *
- * `fetch` reports every transport failure as a bare `TypeError: fetch failed` and puts the real
- * reason further down the cause chain, which for a hostname resolving to several addresses
- * (`localhost` being both `::1` and `127.0.0.1`) is an AggregateError holding one error per
- * address tried.
- */
-function describeTransportFailure(error) {
-  let cause = error;
-  while (cause.cause) {
-    cause = cause.cause;
-  }
-
-  if (cause instanceof AggregateError && cause.errors?.length) {
-    return cause.errors.map(each => each.message).join('; ');
-  }
-  return cause.message || error.message;
-}
-
 /**
  * The sync triggering api is non-authed, and generally protected by making it
  * only accessible on localhost via the reverse proxy. This is ok because it doesn't
@@ -61,7 +42,7 @@ export class FacilitySyncConnection {
       return await fetchWithRetryBackoff(url, options, { log, maxAttempts: MAX_ATTEMPTS });
     } catch (error) {
       throw new RemoteUnreachableError(
-        `Could not reach the sync process at ${this.host} (${describeTransportFailure(error)}). It may still be starting up, in which case sync resumes on its own once it is listening.`,
+        `Could not reach the sync process at ${this.host} (${error.message}). It may still be starting up, in which case sync resumes on its own once it is listening.`,
       ).withCause(error);
     }
   }
