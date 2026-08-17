@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
@@ -13,7 +14,6 @@ import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
-import { useFormikContext } from 'formik';
 import {
   CategoryHeader,
   MemberTestRow,
@@ -108,13 +108,14 @@ const EmptyText = styled(BodyText)`
   padding: 8px 0;
 `;
 
+const collator = new Intl.Collator();
 // A single alphabetical order mixing tests and panels within a category.
-const byName = (a, b) => a.name.localeCompare(b.name);
+const byName = (a, b) => collator.compare(a.name, b.name);
+const byCategoryName = (a, b) => collator.compare(a.category?.name ?? '', b.category?.name ?? '');
 
 const buildPanelItem = panel => {
   const members = [...(panel.labTestTypes ?? [])].sort(
-    (a, b) =>
-      (a.LabTestPanelLabTestTypes?.order ?? 0) - (b.LabTestPanelLabTestTypes?.order ?? 0),
+    (a, b) => (a.LabTestPanelLabTestTypes?.order ?? 0) - (b.LabTestPanelLabTestTypes?.order ?? 0),
   );
   return {
     kind: 'panel',
@@ -135,6 +136,19 @@ const buildTestItem = test => ({
   category: test.category,
 });
 
+// Group items by category, categories alphabetical, items alphabetical within each.
+const groupByCategory = items => {
+  const groups = new Map();
+  items.forEach(item => {
+    const key = item.category?.id ?? 'uncategorised';
+    if (!groups.has(key)) groups.set(key, { category: item.category, items: [] });
+    groups.get(key).items.push(item);
+  });
+  return [...groups.values()]
+    .sort(byCategoryName)
+    .map(group => ({ ...group, items: [...group.items].sort(byName) }));
+};
+
 const referenceName = (item, category) => (
   <TranslatedReferenceData
     category={category}
@@ -144,16 +158,28 @@ const referenceName = (item, category) => (
   />
 );
 
+const CategoryGroupHeader = ({ category }) => (
+  <CategoryHeader>
+    {category ? (
+      referenceName(category, category.type)
+    ) : (
+      <TranslatedText stringId="lab.testSelect.uncategorised" fallback="Uncategorised" />
+    )}
+  </CategoryHeader>
+);
+
 export const CombinedTestSelector = ({ onSelectionChange }) => {
   const api = useApi();
   const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const onlyAllowLabPanels = getSetting('features.onlyAllowLabPanels');
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, setValues } = useFormikContext();
 
   const labTestTypeIds = useMemo(() => values.labTestTypeIds ?? [], [values.labTestTypeIds]);
   const panelIds = useMemo(() => values.panelIds ?? [], [values.panelIds]);
+  const labTestTypeIdSet = useMemo(() => new Set(labTestTypeIds), [labTestTypeIds]);
+  const panelIdSet = useMemo(() => new Set(panelIds), [panelIds]);
 
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -175,6 +201,10 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   const panelItems = useMemo(() => (panelsQuery.data ?? []).map(buildPanelItem), [
     panelsQuery.data,
   ]);
+  const testsById = useMemo(
+    () => Object.fromEntries(testItems.map(test => [test.id, test])),
+    [testItems],
+  );
   const panelsById = useMemo(
     () => Object.fromEntries(panelItems.map(panel => [panel.id, panel])),
     [panelItems],
@@ -199,26 +229,26 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   }, [allItems, categoryId, search]);
 
   // While searching, the list flattens to matching rows with no category grouping.
-  const groupedItems = useMemo(() => {
-    if (search) return null;
-    const groups = new Map();
-    visibleItems.forEach(item => {
-      const key = item.category?.id ?? 'uncategorised';
-      if (!groups.has(key)) groups.set(key, { category: item.category, items: [] });
-      groups.get(key).items.push(item);
-    });
-    return [...groups.values()]
-      .sort((a, b) => (a.category?.name ?? '').localeCompare(b.category?.name ?? ''))
-      .map(group => ({ ...group, items: group.items.sort(byName) }));
-  }, [search, visibleItems]);
+  const flatItems = useMemo(() => (search ? [...visibleItems].sort(byName) : null), [
+    search,
+    visibleItems,
+  ]);
+  const groupedItems = useMemo(() => (search ? null : groupByCategory(visibleItems)), [
+    search,
+    visibleItems,
+  ]);
 
   const selectedPanels = useMemo(
     () => panelIds.map(id => panelsById[id]).filter(Boolean),
     [panelIds, panelsById],
   );
   const selectedTests = useMemo(
-    () => labTestTypeIds.map(id => testItems.find(test => test.id === id)).filter(Boolean),
-    [labTestTypeIds, testItems],
+    () => labTestTypeIds.map(id => testsById[id]).filter(Boolean),
+    [labTestTypeIds, testsById],
+  );
+  const selectedGroups = useMemo(
+    () => groupByCategory([...selectedPanels, ...selectedTests]),
+    [selectedPanels, selectedTests],
   );
 
   // Feed sample-details: one entry per selected panel (keyed by panelId downstream) and one per
@@ -255,12 +285,13 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   const togglePanel = (id, checked) => {
     if (checked) {
-      const covered = panelsById[id]?.memberTestIds ?? [];
-      setFieldValue('panelIds', [...panelIds, id]);
-      setFieldValue(
-        'labTestTypeIds',
-        labTestTypeIds.filter(testId => !covered.includes(testId)),
-      );
+      const covered = new Set(panelsById[id]?.memberTestIds ?? []);
+      // One update so the step schema validates once and the samples effect fires once.
+      setValues(current => ({
+        ...current,
+        panelIds: [...(current.panelIds ?? []), id],
+        labTestTypeIds: (current.labTestTypeIds ?? []).filter(testId => !covered.has(testId)),
+      }));
     } else {
       setFieldValue(
         'panelIds',
@@ -279,10 +310,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
     else toggleTest(id, false);
   };
 
-  const clearAll = () => {
-    setFieldValue('labTestTypeIds', []);
-    setFieldValue('panelIds', []);
-  };
+  const clearAll = () => setValues(current => ({ ...current, labTestTypeIds: [], panelIds: [] }));
 
   const coveredTooltip = getTranslation(
     'lab.testSelect.coveredByPanel',
@@ -291,6 +319,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   const renderItem = item => {
     if (item.kind === 'panel') {
+      const isExpanded = expandedPanelIds.includes(item.id);
       return (
         <PanelRow
           key={item.id}
@@ -304,16 +333,17 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
               data-testid={`panelcount-${item.code}`}
             />
           }
-          checked={panelIds.includes(item.id)}
-          expanded={expandedPanelIds.includes(item.id)}
+          checked={panelIdSet.has(item.id)}
+          expanded={isExpanded}
           onToggleExpand={toggleExpanded}
           onChange={togglePanel}
         >
-          {item.members.map(member => (
-            <MemberTestRow key={member.id} data-testid={`member-${member.code}`}>
-              {referenceName(member, 'labTestType')}
-            </MemberTestRow>
-          ))}
+          {isExpanded &&
+            item.members.map(member => (
+              <MemberTestRow key={member.id} data-testid={`member-${member.code}`}>
+                {referenceName(member, 'labTestType')}
+              </MemberTestRow>
+            ))}
         </PanelRow>
       );
     }
@@ -322,7 +352,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
         key={item.id}
         id={item.id}
         label={referenceName(item, 'labTestType')}
-        checked={labTestTypeIds.includes(item.id)}
+        checked={labTestTypeIdSet.has(item.id)}
         disabled={coveredTestIds.has(item.id)}
         disabledTooltip={coveredTooltip}
         onChange={toggleTest}
@@ -331,17 +361,6 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   };
 
   const selectedCount = labTestTypeIds.length + panelIds.length;
-  const selectedGroups = useMemo(() => {
-    const groups = new Map();
-    [...selectedPanels, ...selectedTests].forEach(item => {
-      const key = item.category?.id ?? 'uncategorised';
-      if (!groups.has(key)) groups.set(key, { category: item.category, items: [] });
-      groups.get(key).items.push(item);
-    });
-    return [...groups.values()].sort((a, b) =>
-      (a.category?.name ?? '').localeCompare(b.category?.name ?? ''),
-    );
-  }, [selectedPanels, selectedTests]);
 
   return (
     <Wrapper data-testid="test-selector">
@@ -396,21 +415,12 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
               />
             </EmptyText>
           )}
-          {!isLoading && search && [...visibleItems].sort(byName).map(renderItem)}
+          {!isLoading && search && flatItems.map(renderItem)}
           {!isLoading &&
             !search &&
             groupedItems?.map(group => (
               <React.Fragment key={group.category?.id ?? 'uncategorised'}>
-                <CategoryHeader>
-                  {group.category ? (
-                    referenceName(group.category, group.category.type)
-                  ) : (
-                    <TranslatedText
-                      stringId="lab.testSelect.uncategorised"
-                      fallback="Uncategorised"
-                    />
-                  )}
-                </CategoryHeader>
+                <CategoryGroupHeader category={group.category} />
                 {group.items.map(renderItem)}
               </React.Fragment>
             ))}
@@ -436,13 +446,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
         <ScrollList>
           {selectedGroups.map(group => (
             <React.Fragment key={group.category?.id ?? 'uncategorised'}>
-              <CategoryHeader>
-                {group.category ? (
-                  referenceName(group.category, group.category.type)
-                ) : (
-                  <TranslatedText stringId="lab.testSelect.uncategorised" fallback="Uncategorised" />
-                )}
-              </CategoryHeader>
+              <CategoryGroupHeader category={group.category} />
               {group.items.map(item => (
                 <SelectedItemRow
                   key={item.id}

@@ -220,6 +220,77 @@ describe('Labs', () => {
     expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
   });
 
+  it('records both panel and individual requests from a mixed submission', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: `Mixed panel ${chance.guid()}`,
+      code: chance.guid(),
+    });
+    await createTestTypesForPanel(models, labTestPanel);
+
+    const { id: labTestCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: `Category ${chance.guid()}`,
+      code: chance.guid(),
+    });
+    const individualTest = await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId,
+      isSensitive: false,
+      availableFacilities: null,
+    });
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const response = await app.post('/api/labRequest').send({
+      panelIds: [labTestPanel.id],
+      labTestTypeIds: [individualTest.id],
+      encounterId: encounter.id,
+    });
+
+    expect(response).toHaveSucceeded();
+    // One request from the panel, one from the individual test's category — previously the
+    // individual test was silently dropped when panels were present.
+    expect(response.body).toHaveLength(2);
+
+    const createdRequests = await models.LabRequest.findAll({
+      where: { id: response.body.map(request => request.id) },
+    });
+    const panelRequest = createdRequests.find(request => request.labTestPanelRequestId);
+    const individualRequest = createdRequests.find(request => !request.labTestPanelRequestId);
+    expect(panelRequest).toBeTruthy();
+    expect(individualRequest).toBeTruthy();
+    expect(individualRequest.labTestCategoryId).toBe(labTestCategoryId);
+
+    const individualTests = await models.LabTest.findAll({
+      where: { labRequestId: individualRequest.id },
+    });
+    expect(individualTests).toHaveLength(1);
+    expect(individualTests[0].labTestTypeId).toBe(individualTest.id);
+  });
+
+  it('includes panel member tests on GET /api/labTestPanel', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: `Contract panel ${chance.guid()}`,
+      code: chance.guid(),
+    });
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
+    const response = await app.get('/api/labTestPanel');
+    expect(response).toHaveSucceeded();
+
+    const panel = response.body.find(item => item.id === labTestPanel.id);
+    expect(panel).toBeTruthy();
+    expect(panel.labTestTypes).toHaveLength(labTestTypes.length);
+    const member = panel.labTestTypes[0];
+    expect(member).toHaveProperty('id');
+    expect(member).toHaveProperty('code');
+    expect(member).toHaveProperty('name');
+    expect(member.LabTestPanelLabTestTypes).toHaveProperty('order');
+  });
+
   describe('sensitive test type via panel', () => {
     // `app` uses the practitioner role, which does NOT hold `create SensitiveLabRequest`.
     const createPanelWithTestType = async ({ isSensitive }) => {
@@ -265,6 +336,22 @@ describe('Labs', () => {
       const panel = await createPanelWithTestType({ isSensitive: false });
       const response = await postPanelLabRequest(panel);
       expect(response).toHaveSucceeded();
+    });
+
+    it('excludes sensitive panel members from GET /api/labTestPanel without permission', async () => {
+      const panel = await createPanelWithTestType({ isSensitive: true });
+      const response = await app.get('/api/labTestPanel');
+      expect(response).toHaveSucceeded();
+      const returnedPanel = response.body.find(item => item.id === panel.id);
+      expect(returnedPanel).toBeTruthy();
+      expect(returnedPanel.labTestTypes).toHaveLength(0);
+    });
+
+    it('includes non-sensitive panel members on GET /api/labTestPanel', async () => {
+      const panel = await createPanelWithTestType({ isSensitive: false });
+      const response = await app.get('/api/labTestPanel');
+      const returnedPanel = response.body.find(item => item.id === panel.id);
+      expect(returnedPanel.labTestTypes).toHaveLength(1);
     });
   });
 
