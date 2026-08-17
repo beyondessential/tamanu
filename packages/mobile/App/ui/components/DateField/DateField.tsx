@@ -18,7 +18,7 @@ import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 const ANDROID_PICKER_BUTTON_COLOR = '#009688';
 
 /**
- * Android spans back to epoch when given `maximumDate` without `minimumDate`. Fall back to earliest
+ * Android snaps back to epoch when given `maximumDate` without `minimumDate`. Fall back to earliest
  * date supported by platform picker.
  * @see https://github.com/react-native-datetimepicker/datetimepicker/issues/935
  */
