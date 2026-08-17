@@ -111,7 +111,13 @@ export function useIsDiscontinued({
  * @param {string} [props.recordedAt]
  * @param {(date: string) => string | null | undefined} props.toFacilityDateTime
  */
-export function getIsPaused({ pauseRecords, timeSlot, selectedDate, recordedAt, toFacilityDateTime }) {
+export function getIsPaused({
+  pauseRecords,
+  recordedAt,
+  selectedDate,
+  timeSlot,
+  toFacilityDateTime,
+}) {
   if (!timeSlot || !pauseRecords?.length) return false;
 
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
@@ -175,12 +181,19 @@ export function useMarDoseScheduleStatus({
     timeSlot,
     selectedDate,
   });
-  const isPaused = useIsPaused({
-    pauseRecords: pauseRecords?.data,
-    timeSlot,
-    selectedDate,
-    recordedAt,
-  });
+  /**
+   * If a medication is discontinued during an ongoing pause period, these hooks will flag it as
+   * both paused and discontinued during the period that these overlap. I don’t think it’s
+   * meaningful to think of a discontinued medication as also being paused, so don’t let it leak
+   * outside `useMarDoseScheduleStatus`.
+   */
+  const isPaused =
+    useIsPaused({
+      pauseRecords: pauseRecords?.data,
+      timeSlot,
+      selectedDate,
+      recordedAt,
+    }) && !isDiscontinued;
 
   return { isDiscontinued, isEnd, isPaused };
 }
