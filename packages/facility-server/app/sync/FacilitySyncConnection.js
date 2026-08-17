@@ -1,7 +1,13 @@
 import config from 'config';
 
-import { extractErrorFromFetchResponse } from '@tamanu/errors';
+import { fetchWithRetryBackoff } from '@tamanu/api-client';
+import { extractErrorFromFetchResponse, RemoteUnreachableError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
+
+// Backs off over 1.2s before giving up, well inside the 10s the api route races a trigger
+// against, so a request that can't get through reports the real error rather than being
+// masked as "sync is taking a while".
+const MAX_ATTEMPTS = 4;
 
 /**
  * The sync triggering api is non-authed, and generally protected by making it
@@ -16,18 +22,45 @@ export class FacilitySyncConnection {
     }`;
   }
 
+  /** Make the request, retrying if the sync process can't be reached at all.
+   *
+   * The sync process runs separately to the api process and only starts listening once it has
+   * checked migrations, opened its reporting stores and set up the sync runtime, so this hop
+   * fails outright for a stretch after any restart while the api process is already serving the
+   * web app. Retrying rides over the tail of that window, and over a connection dropped as the
+   * sync process closes an idle socket.
+   *
+   * Retrying a trigger is safe: `FacilitySyncManager.triggerSync` collapses concurrent requests
+   * into the running sync rather than starting a second one.
+   *
+   * There's deliberately no request timeout: `POST /sync/run` stays open for the whole sync,
+   * which legitimately runs for minutes. A connect that hangs rather than being refused is
+   * already bounded by undici's own connect timeout.
+   */
+  async #fetchOrThrowUnreachable(url, options) {
+    try {
+      return await fetchWithRetryBackoff(url, options, { log, maxAttempts: MAX_ATTEMPTS });
+    } catch (error) {
+      throw new RemoteUnreachableError(
+        `Could not reach the sync process at ${this.host} (${error.message}). It may still be starting up, in which case sync resumes on its own once it is listening.`,
+      ).withCause(error);
+    }
+  }
+
   async fetch(endpoint, params = {}) {
     const { body, method = 'GET' } = params;
 
     const url = `${this.host}/sync/${endpoint}`;
     log.debug(`[FacilitySyncConnection] ${method} ${url}`);
 
-    const response = await fetch(url, {
+    const headers = { Accept: 'application/json' };
+    if (body) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const response = await this.#fetchOrThrowUnreachable(url, {
       method,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': body ? 'application/json' : undefined,
-      },
+      headers,
       body: body && JSON.stringify(body),
     });
 
