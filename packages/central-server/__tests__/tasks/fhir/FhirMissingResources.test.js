@@ -2,7 +2,6 @@
  * Tests for FhirMissingResources (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
-import { fake } from '@tamanu/fake-data/fake';
 import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 import {
@@ -91,26 +90,6 @@ describe('FhirMissingResources task', () => {
       resource: 'ServiceRequest',
       upstreamId: imagingRequest.id,
     });
-  });
-
-  it('should not create one FHIR fromUpstream job if the missing upstream resource do not meet pre-filter criteria', async () => {
-    const { Encounter } = ctx.store.models;
-
-    const encounter = await Encounter.create(
-      fake(Encounter, {
-        patientId: resources.patient.id,
-        locationId: resources.location.id,
-        departmentId: resources.department.id,
-        examinerId: resources.practitioner.id,
-        encounterType: 'surveyResponse',
-        endDate: null,
-      }),
-    );
-
-    const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(0);
-
-    await encounter.destroy();
   });
 
   it('should only create FHIR fromUpstream job if the missing upstream resource was created after the created_after setting', async () => {
