@@ -34,8 +34,26 @@ which currently reaches up to the request to find the panel.
 Reflex tests added by SENAITE arrive with no panel attribution, which places them
 in the individual-tests section — matching what the PRD asks for.
 
+**A result for a test type applies to every row of that type in the request.**
+SENAITE returns one result per test type, and a lab officer entering results
+manually should not have to fill the same test twice and risk the two
+disagreeing. This reaches into results entry, so it pushes the card past its
+stated backend-only scope.
+
+**The link is to the panel request, not the panel.** The `LabTestPanelRequest`
+is the per-request instance of the panel and is already the invoicing source
+record, so attributing a test to it keeps the request's panel set and the tests'
+attribution consistent by foreign key rather than by invariant. Linking straight
+to `LabTestPanel` would leave "test points at a panel the request doesn't hold"
+representable.
+
+This makes the request's panel set derivable from its tests, but the panel
+requests are still kept as records: a panel whose tests are all filtered out by
+`availableFacilities` still has to exist for invoicing.
+
 **A test type appearing in two panels of the same request gets a row per panel,**
-with the copies kept in step rather than deduplicated at creation.
+with the copies kept in step rather than deduplicated at creation. Deduplicating
+would lose the fact that two panels were ordered.
 
 ## Open questions
 
@@ -51,13 +69,6 @@ lab request, then a request holding exactly one panel whose tests carry no panel
 attribution can be read as "all these tests belong to that panel". Every
 historical request is single-panel by construction, so this covers them with no
 migration.
-
-**The fan-out rule for shared test types.** SENAITE returns one result for a test
-type. Proposed rule, not yet confirmed: a result for a test type applies to every
-row of that type within the request, covering both SENAITE ingestion and manual
-entry. Without it a lab officer enters the test twice in the results modal and
-the two can disagree. Note this reaches into results entry, so it may push the
-card past its stated backend-only scope.
 
 **Double billing on shared test types.** Where a shared test type has a
 lab-test-type invoice product and neither panel has a panel product, today's
