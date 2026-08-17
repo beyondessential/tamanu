@@ -72,8 +72,26 @@ that type. Panel-level products still bill per panel request.
 
 **The single-sample requirement falls out of the merge itself.** `FhirSpecimen` is
 materialised one per lab request (`Specimen/getValues.ts`), so merging the
-requests merges the samples with no further mapping work. Where the panel codings
-go is still open — see below.
+requests merges the samples with no further mapping work.
+
+**The FHIR `ServiceRequest.code` becomes the lab test category, with panels and
+tests both in `orderDetail`.** `code` is 0..1 and a merged request has several
+panels, so the panel can no longer be the headline. The category is the honest
+answer once the request is defined by its category, and it keeps `code` populated
+rather than nulling it for every consumer. Panels and tests stay distinguishable
+within `orderDetail` by their code systems.
+
+Rejected: putting every panel coding in the one `code` CodeableConcept, since
+FHIR reserves multiple codings for one concept across systems and a conformant
+consumer may take the first and silently drop the rest. Also rejected: emitting
+one ServiceRequest per panel sharing a Specimen, which preserves today's contract
+but means materialisation no longer keys one resource per upstream record.
+
+This needs a new FHIR data dictionary setting for the lab test category code
+system — panels and tests have `serviceRequestLabPanelCodeSystem` and
+`serviceRequestLabTestCodeSystem`, but a category has never needed one. Imaging
+types use a Tamanu data-dictionary URL rather than a SENAITE one, which is the
+safer default here unless Rohan confirms SENAITE has a category code namespace.
 
 **Panel category stays optional on the model, and is required at import.** The
 import half already ships: `baseSchemas.js:193` has carried
@@ -105,27 +123,13 @@ test list — merging does not soften that.
 
 ## Open questions
 
-**Where do the panel codings go on the FHIR `ServiceRequest`?** Today `code`
-(0..1) carries the one panel, `orderDetail` (0..*) the individual tests, and
-`category` a fixed SNOMED `108252007`. With several panels there is no single
-`code`. Options considered:
+**Can SENAITE read a request whose `code` is a category rather than a panel,** and
+find its panels in `orderDetail`? This is the outbound contract changing, and
+nothing inside Tamanu reads either field, so it is entirely a question about what
+SENAITE accepts. It also settles what the new category code system should be set
+to. For Rohan, alongside the X5 question.
 
-- **a.** Panels join `orderDetail`, `code` left empty. No data loss, and the two
-  kinds stay distinguishable by code system, but `code` is the field a consumer
-  reads first and nulling it degrades the resource for every consumer.
-- **b.** All panel codings inside one `code` CodeableConcept. Ruled out: FHIR
-  reserves multiple codings for one concept across systems, so a conformant
-  consumer may pick any single coding and silently drop the rest.
-- **c.** `code` becomes the lab test category, panels and tests both go to
-  `orderDetail`. The request now is a category's worth of work, so this keeps
-  `code` meaningful and populated.
-- **d.** Keep one ServiceRequest per panel, sharing one Specimen. `Specimen.request`
-  is an array, so this is legal FHIR and preserves the SENAITE contract exactly.
-  Costly: materialisation keys one resource per upstream record
-  (`FhirServiceRequest.upstreamId` is the lab request id, looked up with
-  `findOne`), so this changes how materialisation works, not just what it emits.
-
-The choice turns on whether SENAITE's model is one order per profile or one order
-per sample — if the former, (d) needs no SENAITE change at all. Ranked (c) > (d) >
-(a) pending Rohan's answer, which could invert (c) and (d).
+If the answer is that SENAITE needs one order per panel, the fallback is to emit
+one ServiceRequest per panel sharing a single Specimen, which preserves today's
+contract at the cost of changing how materialisation keys resources.
 

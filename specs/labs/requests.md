@@ -40,4 +40,6 @@ See `invoicing/overview.md` for how invoice products and price lists work.
 
 ## External laboratory integration
 
-- [ ] A lab request maps to a single specimen, so a request holding several panels maps to one sample at the laboratory.
+- [ ] A lab request maps to a single service request and a single specimen, so a request holding several panels maps to one sample at the laboratory.
+- [ ] The service request's code identifies the lab test category the request is grouped under, drawn from a configurable lab test category code system.
+- [ ] The service request's order detail carries both the panels and the individual tests on the request, each drawn from its own configurable code system so the two can be told apart: the lab panel code system for panels, the lab test code system for tests.
