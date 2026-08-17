@@ -5,7 +5,12 @@ import path from 'node:path';
 import config from 'config';
 import supertest from 'supertest';
 
-import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
+import {
+  COMMUNICATION_STATUSES,
+  JWT_TOKEN_TYPES,
+  REPORT_DB_CONNECTION_VALUES,
+  SERVER_TYPES,
+} from '@tamanu/constants';
 import { BlobStore } from '@tamanu/database/blobStore';
 import { seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
@@ -25,6 +30,11 @@ class MockApplicationContext {
 
   async init({ initFhir = false, initFhirTriggers = false } = {}) {
     this.store = await initDatabase({ testMode: true });
+    // Report SQL runs on the main test connection rather than dedicated reporting
+    // roles, but the stores have to be present or write routes refuse to run.
+    this.reportSchemaStores = Object.fromEntries(
+      REPORT_DB_CONNECTION_VALUES.map(connection => [connection, this.store]),
+    );
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
     // Mirrors startScheduledTasks, so tests can construct tasks directly
