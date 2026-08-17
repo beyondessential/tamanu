@@ -3,6 +3,7 @@ import { omit } from 'es-toolkit/compat';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
+import { settingsCache } from '@tamanu/settings/cache';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -48,6 +49,12 @@ export class ApplicationContext {
   /** @type {AIService | null} */
   aiService = null;
 
+  /** @type {(typeof CENTRAL_SERVER_APP_TYPES)[keyof typeof CENTRAL_SERVER_APP_TYPES] | null} */
+  appType = null;
+
+  /** @type {Promise<void> | null} */
+  aiServiceRefresh = null;
+
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
@@ -62,6 +69,7 @@ export class ApplicationContext {
   closeHooks = [];
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
+    this.appType = appType;
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -112,12 +120,7 @@ export class ApplicationContext {
       );
     }
 
-    if (appType === CENTRAL_SERVER_APP_TYPES.API) {
-      this.aiService = await AIService.init({
-        settings: this.settings,
-        models: this.store.models,
-      });
-    }
+    await this.refreshAiService();
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       models: this.store.models,
@@ -147,6 +150,26 @@ export class ApplicationContext {
 
     await initIntegrations(this);
     return this;
+  }
+
+  // API app only. Rebuilt rather than mutated: init already resolves every
+  // enabled/key/model combination, including having no service at all.
+  // Serialised because a settings save and the NOTIFY it raises both land here,
+  // and the refresh that read the newest settings has to be the one that sticks.
+  // Setting.set commits each key separately, so it drops the settings cache and
+  // re-reads: a cached snapshot can be half a save, and enabled-without-a-key
+  // reads as "no AI service" rather than as a value still on its way.
+  async refreshAiService() {
+    if (this.appType !== CENTRAL_SERVER_APP_TYPES.API) return;
+    const refresh = (this.aiServiceRefresh ?? Promise.resolve()).then(async () => {
+      settingsCache.reset();
+      this.aiService = await AIService.init({
+        settings: this.settings,
+        models: this.store.models,
+      });
+    });
+    this.aiServiceRefresh = refresh.catch(() => {});
+    await refresh;
   }
 
   onClose(hook) {

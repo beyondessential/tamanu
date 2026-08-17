@@ -45,6 +45,9 @@ class MockApplicationContext {
     return this;
   }
 
+  // Tests inject a fixed aiService, or none at all; keep whatever was injected.
+  async refreshAiService() {}
+
   onClose(hook) {
     this.closeHooks.push(hook);
   }

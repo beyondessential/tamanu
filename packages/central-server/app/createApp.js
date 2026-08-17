@@ -1,11 +1,15 @@
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
+import {
+  registerSettingsCacheInvalidator,
+  registerSettingsPathListener,
+} from '@tamanu/settings/cache';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createApi } from './createApi';
 import { createWebsocket } from './createWebsocket';
 import { registerSyncLookupUpdateListener } from './sync';
+import { AI_SETTING_PATHS } from './services/AIService';
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -18,13 +22,16 @@ export async function createApp(ctx) {
   ]);
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
-  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
-    if (payload.table !== 'settings') return;
-    try {
-      await ctx.aiService?.refreshContexts(ctx.settings);
-    } catch (error) {
-      log.warn({ error }, 'Failed to refresh AI contexts after settings change');
-    }
+  registerSettingsPathListener(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    paths: AI_SETTING_PATHS,
+    resolveChangedKey: async ({ newId, oldId }) => {
+      const id = newId ?? oldId;
+      if (!id) return null;
+      const setting = await ctx.store.models.Setting.findByPk(id, { paranoid: false });
+      return setting?.key ?? null;
+    },
+    onChange: () => ctx.refreshAiService(),
+    onError: error => log.warn({ error }, 'Failed to refresh the AI service after a settings change'),
   });
 
   if (await ctx.settings.get('websocket.enabled')) {

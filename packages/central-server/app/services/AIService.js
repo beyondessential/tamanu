@@ -10,6 +10,15 @@ import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
+// Every settings path init and refreshContexts read. A path missing here goes on
+// needing a restart to take effect, so add to it alongside any new settings read.
+export const AI_SETTING_PATHS = [
+  'ai',
+  'formBuilder.prompts',
+  'patientSummary',
+  'encounterSummary',
+];
+
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
 // where a smaller model is generally sufficient and latency dominates user
@@ -79,7 +88,7 @@ export class AIService {
     const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
 
     if (!enabled) {
-      log.info('AIService: disabled, skipping initialisation');
+      log.debug('AIService: disabled, skipping initialisation');
       return null;
     }
 
@@ -88,14 +97,14 @@ export class AIService {
       anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
     } catch (error) {
       if (error instanceof SecretNotConfiguredError) {
-        log.info('AIService: no Anthropic API key configured, skipping initialisation');
+        log.debug('AIService: no Anthropic API key configured, skipping initialisation');
         return null;
       }
       throw error;
     }
 
     if (!anthropicApiKey) {
-      log.info('AIService: no Anthropic API key configured, skipping initialisation');
+      log.debug('AIService: no Anthropic API key configured, skipping initialisation');
       return null;
     }
 

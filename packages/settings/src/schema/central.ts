@@ -49,9 +49,6 @@ export const centralSettings = {
     ai: {
       name: 'AI',
       description: 'Settings for AI-powered features',
-      // The chat models are built once at startup (AIService.init in
-      // ApplicationContext); saving here only re-registers the system prompts.
-      requiresRestart: true,
       infoBanner:
         'The model settings below offer a dropdown of available models once an API key is saved. Model IDs are also listed at https://platform.claude.com/docs/en/about-claude/models/overview',
       properties: {
