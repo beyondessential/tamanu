@@ -210,7 +210,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const canModifyPrescription = ability.can('write', 'MedicationDispense');
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+    const { presetLabelSuggester, hasPresetLabels } = usePresetLabelsQuery({
       enabled: open,
       facilityId,
     });
@@ -372,14 +372,14 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
-    const handlePresetLabelChange = (rowIndex, { target: { value: presetId } }) => {
+    const handlePresetLabelChange = (rowIndex, { target: { value: presetId, presetName } }) => {
       setItems(prev => {
         const next = [...prev];
         const current = next[rowIndex];
         if (!current) return prev;
 
         const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
-        const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, fallback);
+        const nextLabelText = resolvePresetLabelText(presetId, presetName, fallback);
 
         next[rowIndex] = {
           ...current,

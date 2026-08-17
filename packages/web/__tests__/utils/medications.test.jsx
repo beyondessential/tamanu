@@ -5,6 +5,7 @@ import {
   buildLabelText,
   getDispensedMedication,
   isDispenseModifiedByPharmacy,
+  resolvePresetLabelText,
 } from '../../app/utils/medications';
 
 // Mirror the real translation helpers closely enough for formatting assertions:
@@ -96,6 +97,22 @@ describe('isDispenseModifiedByPharmacy', () => {
   it('is false for a nullish dispense', () => {
     expect(isDispenseModifiedByPharmacy(undefined)).toBe(false);
     expect(isDispenseModifiedByPharmacy(null)).toBe(false);
+  });
+});
+
+describe('resolvePresetLabelText', () => {
+  it('returns the fallback text when no preset is selected', () => {
+    expect(resolvePresetLabelText(null, 'Preset name', 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText(undefined, 'Preset name', 'Default label')).toBe('Default label');
+  });
+
+  it('resolves to the selected preset name', () => {
+    expect(resolvePresetLabelText('preset-1', 'Preset name', 'Default label')).toBe('Preset name');
+  });
+
+  it('falls back to the fallback text when the preset name is missing', () => {
+    expect(resolvePresetLabelText('preset-1', undefined, 'Default label')).toBe('Default label');
+    expect(resolvePresetLabelText('preset-1', null, 'Default label')).toBe('Default label');
   });
 });
 

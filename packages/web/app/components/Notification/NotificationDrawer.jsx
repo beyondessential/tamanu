@@ -19,7 +19,7 @@ import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
-import { reloadImagingRequest, reloadPatient } from '../../store';
+import { reloadImagingRequest } from '../../store';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
@@ -192,7 +192,6 @@ const Card = ({ notification }) => {
       await dispatch(reloadImagingRequest(metadata.id));
     }
     await loadEncounter(encounterId);
-    if (patient?.id) await dispatch(reloadPatient(patient.id));
 
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(

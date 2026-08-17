@@ -241,7 +241,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   );
 };
 
-export const PatientHistory = ({ patient, onItemClick }) => {
+export const PatientHistory = ({ patient, onItemClick, refreshCount: externalRefreshCount = 0 }) => {
   const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
@@ -370,7 +370,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
-        refreshCount={refreshCount}
+        refreshCount={refreshCount + externalRefreshCount}
         TableHeader={
           <Box display="flex" alignItems="center" justifyContent="space-between">
             <EncounterHistoryHeading data-testid="heading4-ssa1">
