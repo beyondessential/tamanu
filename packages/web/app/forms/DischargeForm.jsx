@@ -300,8 +300,16 @@ export const DischargeForm = ({
   // ongoing prescriptions, and discharge notes. Waiting for all of it before mounting means the
   // form never needs to reinitialise later, so a medication being discontinued can't clobber the
   // clinician's edits to fields like the ordering prescriber.
-  const isInitialDataReady =
+  //
+  // The gate is one-way. Rendering a loader in place of the form swaps the element type at this
+  // position, which unmounts Formik and loses every edit the clinician has made; going back to
+  // loading after the form is up would re-mount it against freshly defaulted initial values.
+  const hasInitialData =
     !isLoadingEncounterMedications && !isLoadingOngoingPrescriptions && dischargeNotes !== null;
+  const [isInitialDataReady, setIsInitialDataReady] = useState(false);
+  if (hasInitialData && !isInitialDataReady) {
+    setIsInitialDataReady(true);
+  }
 
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
