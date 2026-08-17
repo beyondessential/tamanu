@@ -55,25 +55,43 @@ requests are still kept as records: a panel whose tests are all filtered out by
 with the copies kept in step rather than deduplicated at creation. Deduplicating
 would lose the fact that two panels were ordered.
 
+**Historical requests are read by inference, not backfilled.** A request holding
+exactly one panel whose tests carry no attribution is read as "all these tests
+belong to that panel". Every historical request is single-panel by construction,
+so this covers them with no migration. The alternative was a bulk `UPDATE` on
+`lab_tests`, which re-stamps the sync tick on every touched row and triggers FHIR
+rematerialisation on one of the largest tables.
+
+Note this is distinct from the schema migration, which does relocate the existing
+request-to-panel links into the new one-to-many structure. That is moving data
+that already exists, not a backfill.
+
+**Billing deduplicates by test type within a request.** One thing is run, so one
+thing is charged — the same logic as propagating a single result to every row of
+that type. Panel-level products still bill per panel request.
+
+**FHIR carries panels in `orderDetail`, leaving `code` empty.** Panel codings use
+the lab panel code system and test codings the lab test code system, so the two
+stay distinguishable within the one array.
+
+The single-sample requirement falls out of the merge itself: `FhirSpecimen` is
+materialised one per lab request (`Specimen/getValues.ts`), so merging the
+requests merges the samples with no further mapping work.
+
 ## Open questions
 
-**Historical requests, given no backfill.** The refinement note rules out
-backfilling. Existing panel requests' tests would then have no panel attribution
-and would render as individual tests, so historical requests look wrong under the
-new display. A real backfill is unattractive: a bulk `UPDATE` on `lab_tests`
-re-stamps the sync tick on every touched row and triggers FHIR rematerialisation,
-on one of the largest tables.
+**Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
+changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this
+is entirely a question about what SENAITE accepts, and it needs confirming before
+the change ships. For Rohan, alongside the shared-result question below.
 
-Proposed cheap alternative, not yet accepted: if the panel request links to its
-lab request, then a request holding exactly one panel whose tests carry no panel
-attribution can be read as "all these tests belong to that panel". Every
-historical request is single-panel by construction, so this covers them with no
-migration.
-
-**Double billing on shared test types.** Where a shared test type has a
-lab-test-type invoice product and neither panel has a panel product, today's
-fallback bills each test row, so two rows would bill twice. Needs a rule on
-whether billing deduplicates by test type within a request.
+**A panel whose tests are all unavailable at the requesting facility.** Test types
+are filtered by `availableFacilities` at creation. Today a panel with no
+surviving tests fails the whole submission, because `createWithTests` rejects an
+empty test list. Once a request holds several panels, one panel can be emptied
+while others survive — so the request should presumably be created without that
+panel rather than rejected, but that is a behaviour change nobody has asked for
+yet.
 
 **Carried from the card description, still unresolved.**
 
