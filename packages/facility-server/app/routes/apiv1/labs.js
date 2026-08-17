@@ -142,9 +142,14 @@ labRequest.post(
       req.checkPermission('create', 'SensitiveLabRequest');
     }
 
-    const response = panelIds?.length
-      ? await createPanelLabRequests(models, body, note, user)
-      : await createIndividualLabRequests(models, body, note, user);
+    // Run whichever create paths apply and merge; a mixed submission must not drop either kind.
+    const response = [];
+    if (panelIds?.length) {
+      response.push(...(await createPanelLabRequests(models, body, note, user)));
+    }
+    if (labTestTypeIds?.length) {
+      response.push(...(await createIndividualLabRequests(models, body, note, user)));
+    }
 
     res.send(response);
   }),
@@ -797,6 +802,12 @@ labTestPanel.get('/', async (req, res) => {
       {
         model: models.ReferenceData,
         as: 'category',
+      },
+      {
+        model: models.LabTestType,
+        as: 'labTestTypes',
+        attributes: ['id', 'code', 'name'],
+        through: { attributes: ['order'] },
       },
     ],
     where,
