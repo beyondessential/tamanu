@@ -15,6 +15,7 @@ billing and the external laboratory integration.
 - [ ] A panel joins the request for the panel's own category.
 - [ ] A panel that has no category of its own joins the request for the category its test types share.
 - [ ] A panel that has no category of its own and whose test types do not share a single category forms its own lab request.
+- [ ] A submission is rejected if any panel it orders has no test types available at the requesting facility.
 - [ ] Each panel ordered in a submission is recorded as a panel request against the lab request it joins, so one request can hold several panel requests.
 
 ## Attributing tests to panels
@@ -27,7 +28,6 @@ billing and the external laboratory integration.
 ## Test types shared between panels
 
 - [ ] A test type belonging to two panels on the same request has one lab test per panel.
-- [ ] A result recorded against a test type applies to every lab test of that type on the request, whether the result arrives from the external laboratory or is entered manually.
 
 ## Billing
 
