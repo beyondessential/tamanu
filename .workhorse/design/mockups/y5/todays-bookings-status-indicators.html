@@ -1,0 +1,289 @@
+<!-- spec: scheduling/overview.md -->
+<!-- Source of truth: Design (Flic), Figma "Tamanu Desktop 1" nodes 42141-107929 / 42141-107976 / 42143-108520 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Today's bookings status indicators</title>
+<style>
+  /* Tamanu web uses Roboto (typeface-roboto, loaded in App.jsx). */
+  :root {
+    --outline: #dedede;
+    --white: #ffffff;
+    --darkest-text: #444444;
+    --dark-text: #666666;
+    --mid-text: #888888;
+    --primary: #326699;
+    /* Status colours from APPOINTMENT_STATUS_COLORS */
+    --green: #19934e;   /* SEEN */
+    --blue: #1172d1;    /* CONFIRMED */
+    --purple: #4101c9;  /* ARRIVED */
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px;
+    background: #f3f5f7;
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--darkest-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .board {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    align-items: flex-start;
+  }
+
+  .scenario-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mid-text);
+    margin: 0 0 12px 2px;
+  }
+  .scenario-label small {
+    display: block;
+    font-weight: 400;
+    color: #b8b8b8;
+    margin-top: 2px;
+  }
+
+  /* ---- Today's bookings pane (mirrors TodayBookingsPane.jsx) ---- */
+  .pane {
+    min-width: 366px;
+    width: 366px;
+    border: 1px solid var(--outline);
+    border-radius: 3px;
+    padding-top: 15px;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+  }
+  .pane.narrow { width: 244px; min-width: 0; }
+
+  .pane-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--outline);
+    padding-bottom: 6px;
+    margin: 0 20px 11px;
+  }
+  .pane-title h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--darkest-text);
+  }
+  .view-all {
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--darkest-text);
+  }
+
+  /* One grid for the whole list; each row is a subgrid so the time column is a
+     single track and every card starts at the same place. */
+  .timeline {
+    display: grid;
+    grid-template-columns: auto minmax(12ch, max-content) 1fr;
+    column-gap: 5px;
+    padding: 0 20px 0 12px;
+    margin: 0;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+    min-height: 60px;
+  }
+
+  /* Rail + dot column */
+  .rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rail .lead { flex: 0 0 21px; width: 1px; background: var(--outline); }
+  .rail .dot {
+    flex: 0 0 auto;
+    width: 13px; height: 13px;
+    display: grid;
+    place-items: center;
+  }
+  .rail .tail { flex: 1 0 12px; width: 1px; background: var(--outline); }
+  .row:last-child .rail .tail { flex: 0 0 12px; }
+
+  .dot svg { display: block; }
+
+  /* The content half of the row: [time] [card], vertically centred. */
+  .content {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 2 / -1;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  /* Y5: the time cell. Single line by default; centred so that when it flows onto
+     two lines on a narrow pane the pieces stay horizontally centred. */
+  .time {
+    padding-left: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    column-gap: 0.25em;
+    text-align: center;
+    color: var(--darkest-text);
+    line-height: 1.35;
+  }
+  .time .part { white-space: nowrap; }
+
+  .card {
+    min-block-size: 3lh;
+    border-radius: 3px;
+    padding-block: 8px;
+    padding-inline: 1rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .card .loc {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card .patient {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--dark-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card.seen    { background: rgba(25, 147, 78, 0.10); }
+  .card.confirmed { background: rgba(17, 114, 209, 0.10); }
+  .card.arrived { background: rgba(65, 1, 201, 0.10); }
+
+  .pane-footer {
+    margin: 4px 20px 0;
+    min-height: 20px;
+    border-top: 1px solid var(--outline);
+  }
+</style>
+</head>
+<body>
+  <div class="board">
+
+    <!-- ============ Single regular booking ============ -->
+    <section>
+      <p class="scenario-label">Single booking
+        <small>Start time – end time, one line</small>
+      </p>
+      <div class="pane">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">8:00am&nbsp;&ndash;&nbsp;9:00am</span></div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+    <!-- ============ Single overnight booking ============ -->
+    <section>
+      <p class="scenario-label">Single booking · overnight
+        <small>Start time – end date. No end time, no overnight icon.</small>
+      </p>
+      <div class="pane">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">8:00am&nbsp;&ndash;&nbsp;12 Aug</span></div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+    <!-- ============ Two-line overflow (very small screen) ============ -->
+    <section>
+      <p class="scenario-label">Two line overflow
+        <small>Very small screen: wraps to two lines, stays centred.</small>
+      </p>
+      <div class="pane narrow">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time">
+                <span class="part">8:00am&nbsp;&ndash;</span>
+                <span class="part">12 Aug</span>
+              </div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
