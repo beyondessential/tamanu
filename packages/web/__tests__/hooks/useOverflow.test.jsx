@@ -12,6 +12,7 @@ import useOverflow from '../../app/hooks/useOverflow';
  */
 let observed;
 let liveObservers;
+let watchedForContent;
 
 class SpyResizeObserver {
   constructor() {
@@ -29,16 +30,37 @@ class SpyResizeObserver {
   }
 }
 
+class SpyMutationObserver {
+  constructor() {
+    liveObservers.add(this);
+  }
+
+  observe(element, options) {
+    watchedForContent.push({ element, options });
+  }
+
+  disconnect() {
+    liveObservers.delete(this);
+  }
+}
+
+/** One watches the element's box, the other the text inside it. */
+const WATCHERS_PER_ELEMENT = 2;
+
 const originalResizeObserver = globalThis.ResizeObserver;
+const originalMutationObserver = globalThis.MutationObserver;
 
 beforeEach(() => {
   observed = [];
   liveObservers = new Set();
+  watchedForContent = [];
   globalThis.ResizeObserver = SpyResizeObserver;
+  globalThis.MutationObserver = SpyMutationObserver;
 });
 
 afterEach(() => {
   globalThis.ResizeObserver = originalResizeObserver;
+  globalThis.MutationObserver = originalMutationObserver;
 });
 
 /**
@@ -71,12 +93,31 @@ describe('useOverflow', () => {
 
     expect(after).not.toBe(before);
     expect(observed).toEqual([before, after]);
-    expect(liveObservers.size).toBe(1);
+    // The pair watching the old element is let go, so only the replacement is watched.
+    expect(liveObservers.size).toBe(WATCHERS_PER_ELEMENT);
+  });
+
+  /**
+   * Text that grows without its box moving is still clipped, and a row re-rendering
+   * with a longer name does exactly that. Watching only for resizes missed it, leaving
+   * the reader on an ellipsis the code believed wasn't there.
+   */
+  it('watches the text as well as the box', () => {
+    render(<Probe wrapped={false} />);
+    const element = screen.getByTestId('target');
+
+    expect(watchedForContent).toHaveLength(1);
+    expect(watchedForContent[0].element).toBe(element);
+    expect(watchedForContent[0].options).toMatchObject({
+      subtree: true,
+      childList: true,
+      characterData: true,
+    });
   });
 
   it('lets go of the element when the caller unmounts', () => {
     const { unmount } = render(<Probe wrapped={false} />);
-    expect(liveObservers.size).toBe(1);
+    expect(liveObservers.size).toBe(WATCHERS_PER_ELEMENT);
 
     unmount();
     expect(liveObservers.size).toBe(0);
