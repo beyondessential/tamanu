@@ -1,5 +1,11 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW, LOCATION_BOOKABLE_VIEW_VALUES } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  SYNC_PHASES,
+  VISIBILITY_STATUSES,
+  LOCATION_BOOKABLE_VIEW,
+  LOCATION_BOOKABLE_VIEW_VALUES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -50,6 +56,7 @@ export class LocationGroup extends Model {
           },
         },
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );

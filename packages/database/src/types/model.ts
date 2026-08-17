@@ -2,7 +2,7 @@ import { DataTypes, type InitOptions as BaseInitOptions, type Model as BaseModel
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import * as models from '../models';
 import type { Model } from '../models/Model';
-import type { SyncDirectionValues } from './sync';
+import type { SyncDirectionValues, SyncPhaseValues } from './sync';
 
 type PrimaryKey = {
   type: typeof DataTypes.STRING;
@@ -13,6 +13,7 @@ type PrimaryKey = {
 
 export interface InitOptions extends BaseInitOptions {
   syncDirection: SyncDirectionValues;
+  initialSyncPhase?: SyncPhaseValues;
   primaryKey: PrimaryKey;
   hackToSkipEncounterValidation?: boolean;
 }

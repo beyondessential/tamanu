@@ -343,6 +343,11 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
+    // an empty model set would build `record_type IN ()`, which is a SQL error rather than no results
+    if (Object.keys(outgoingModels).length === 0) {
+      return 0;
+    }
+
     return config.sync.lookupTable.enabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,

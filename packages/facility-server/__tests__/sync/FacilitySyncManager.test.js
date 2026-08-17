@@ -141,7 +141,8 @@ describe('FacilitySyncManager', () => {
             ...centralServerOverrides,
           },
         });
-        jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+        // pullChanges resolves to the next initial sync phase, or null when there isn't one
+        jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => null);
         jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
         return { syncManager, secretStore, factStore };
       };
@@ -163,7 +164,11 @@ describe('FacilitySyncManager', () => {
         });
         const { syncManager, secretStore } = makeSyncManager({ fetch });
 
-        await expect(syncManager.runSync()).resolves.toEqual({ queued: false, ran: true });
+        await expect(syncManager.runSync()).resolves.toEqual({
+          queued: false,
+          ran: true,
+          nextPhase: null,
+        });
         expect(secretStore.has(FACT_SETTINGS_PSK)).toBe(false);
       });
 
@@ -207,7 +212,11 @@ describe('FacilitySyncManager', () => {
           },
         );
 
-        await expect(syncManager.runSync()).resolves.toEqual({ queued: false, ran: true });
+        await expect(syncManager.runSync()).resolves.toEqual({
+          queued: false,
+          ran: true,
+          nextPhase: null,
+        });
       });
     });
   });

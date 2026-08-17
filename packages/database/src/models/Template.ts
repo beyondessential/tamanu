@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, SYNC_PHASES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { dateType, type InitOptions, type Models } from '../types/model';
@@ -43,6 +43,7 @@ export class Template extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

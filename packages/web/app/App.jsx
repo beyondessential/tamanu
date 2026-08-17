@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 import {
+  InitialSyncStatusPage,
   LoadingStatusPage,
   UnavailableStatusPage,
   UnsupportedBrowserStatusPage,
@@ -33,9 +34,16 @@ const AppContentsContainer = styled.div`
   flex: 1;
 `;
 
+// In session storage rather than component state: a remount of this layout mustn't put the progress
+// screen back in front of someone already working.
+const ENTERED_DURING_INITIAL_SYNC = 'enteredDuringInitialSync';
+
 export function App({ sidebar, children }) {
   const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
   const isServerAlive = Boolean(serverStatus);
+  const [hasEnteredDuringInitialSync, setHasEnteredDuringInitialSync] = useState(
+    () => window?.sessionStorage?.getItem(ENTERED_DURING_INITIAL_SYNC) === 'true',
+  );
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
   const location = useLocation();
@@ -71,6 +79,24 @@ export function App({ sidebar, children }) {
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
+
+  // A facility part-way through its first sync can be logged into but not worked in. Sits ahead of
+  // facility selection: there may be no facility to select yet, and selecting one wouldn't help.
+  const initialSyncPhase = serverStatus?.initialSyncPhase;
+  const canEnterDuringInitialSync = initialSyncPhase === 'records';
+  if (initialSyncPhase && !(canEnterDuringInitialSync && hasEnteredDuringInitialSync)) {
+    return (
+      <InitialSyncStatusPage
+        phase={initialSyncPhase}
+        canContinue={canEnterDuringInitialSync}
+        onContinue={() => {
+          window?.sessionStorage?.setItem(ENTERED_DURING_INITIAL_SYNC, 'true');
+          setHasEnteredDuringInitialSync(true);
+        }}
+      />
+    );
+  }
+
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
   return (

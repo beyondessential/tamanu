@@ -1,6 +1,12 @@
 import { DataTypes, Op } from 'sequelize';
 
-import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  OBJECT_ID_PERMISSION_SCHEMA,
+  PERMISSION_SCHEMA,
+  PermissionVerb,
+  SYNC_DIRECTIONS,
+  SYNC_PHASES,
+} from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
 import { Model } from './Model';
@@ -30,6 +36,7 @@ export class Permission extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         // creating partial indexes as objectId can be null
         indexes: [
           {
@@ -73,18 +80,26 @@ export class Permission extends Model {
     };
   }
 
-  static generatePermissionId(roleId: string, verb: string, noun: string, objectId?: string | null): string {
+  static generatePermissionId(
+    roleId: string,
+    verb: string,
+    noun: string,
+    objectId?: string | null,
+  ): string {
     return `${roleId}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
   }
 
-  static validatePermissionSchema(verb: PermissionVerb, noun: string, roleId: string, objectId: string) {
+  static validatePermissionSchema(
+    verb: PermissionVerb,
+    noun: string,
+    roleId: string,
+    objectId: string,
+  ) {
     if (!verb || !noun || !roleId) {
       throw new ValidationError('Each permission requires verb, noun, and roleId');
     }
 
-    const allowedVerbs = objectId
-      ? OBJECT_ID_PERMISSION_SCHEMA[noun]
-      : PERMISSION_SCHEMA[noun];
+    const allowedVerbs = objectId ? OBJECT_ID_PERMISSION_SCHEMA[noun] : PERMISSION_SCHEMA[noun];
 
     if (!allowedVerbs) {
       throw new ValidationError(
@@ -94,7 +109,9 @@ export class Permission extends Model {
       );
     }
     if (!allowedVerbs.includes(verb)) {
-      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`);
+      throw new ValidationError(
+        `Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`,
+      );
     }
   }
 

@@ -234,11 +234,14 @@ export class CentralServerConnection {
     tablesForFullResync: string[],
   ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
+    const fullResync = tablesForFullResync ?? [];
     const body = {
       since,
       facilityIds: [facilityId],
-      tablesToInclude: tableNames,
-      tablesForFullResync,
+      tablesToPull: {
+        incremental: tableNames.filter(tableName => !fullResync.includes(tableName)),
+        full: fullResync,
+      },
       deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});

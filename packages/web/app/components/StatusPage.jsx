@@ -1,7 +1,9 @@
 import React from 'react';
+import { SYNC_PHASE_SEQUENCE } from '@tamanu/constants';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
+import { Button } from './Button';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
@@ -47,7 +49,7 @@ const handleRefreshPage = () => {
   window.location.reload();
 };
 
-export const StatusPage = ({ message, description }) => {
+export const StatusPage = ({ message, description, children }) => {
   return (
     <Container data-testid="container-1hqo">
       <Logo onClick={handleRefreshPage} size="140px" data-testid="logo-4eba" />
@@ -56,6 +58,7 @@ export const StatusPage = ({ message, description }) => {
         <ErrorDescription color="textTertiary" data-testid="errordescription-6s2k">
           {description}
         </ErrorDescription>
+        {children}
       </Content>
     </Container>
   );
@@ -225,6 +228,95 @@ export const MobileStatusPage = ({ platformType }) => {
         )}
       </ErrorDescription>
     </MobileContainer>
+  );
+};
+
+const ProgressTrack = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-top: 30px;
+  width: 320px;
+`;
+
+const ProgressStep = styled.div`
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: ${props => (props.$done ? Colors.primary : Colors.outline)};
+`;
+
+const ProgressCaption = styled(LargeBodyText)`
+  margin-top: 12px;
+`;
+
+const ContinueButton = styled(Button)`
+  margin-top: 30px;
+`;
+
+const PHASE_CAPTIONS = {
+  boot: (
+    <TranslatedText
+      stringId="splash.initialSync.phase.boot"
+      fallback="Setting up users, facilities and settings"
+    />
+  ),
+  catalogue: (
+    <TranslatedText
+      stringId="splash.initialSync.phase.catalogue"
+      fallback="Loading reference data, forms and the patient list"
+    />
+  ),
+  records: (
+    <TranslatedText
+      stringId="splash.initialSync.phase.records"
+      fallback="Loading patient records — you can start working while this finishes"
+    />
+  ),
+};
+
+/**
+ * Shown to a logged-in user while this facility's first sync is still running. It holds them out
+ * until the patient list has arrived, then offers to let them in while the records keep coming.
+ */
+export const InitialSyncStatusPage = ({ phase, canContinue, onContinue }) => {
+  const brandName = getBrandName();
+  const stepsDone = SYNC_PHASE_SEQUENCE.indexOf(phase) + 1;
+
+  return (
+    <StatusPage
+      message={
+        <TranslatedText
+          stringId="splash.initialSync.message"
+          fallback="This server is being set up"
+        />
+      }
+      description={
+        <TranslatedText
+          stringId="splash.initialSync.description"
+          fallback=":brandName is loading this facility's data for the first time. Please do not navigate away from this page."
+          replacements={{ brandName }}
+        />
+      }
+      data-testid="statuspage-initialsync"
+    >
+      <ProgressTrack data-testid="progresstrack-initialsync">
+        {SYNC_PHASE_SEQUENCE.map((step, index) => (
+          <ProgressStep key={step} $done={index < stepsDone} data-testid={`progressstep-${step}`} />
+        ))}
+      </ProgressTrack>
+      <ProgressCaption color="textTertiary" data-testid="progresscaption-initialsync">
+        {PHASE_CAPTIONS[phase]}
+      </ProgressCaption>
+      {canContinue && (
+        <ContinueButton onClick={onContinue} data-testid="continuebutton-initialsync">
+          <TranslatedText
+            stringId="splash.initialSync.continue"
+            fallback="Continue to :brandName"
+            replacements={{ brandName }}
+          />
+        </ContinueButton>
+      )}
+    </StatusPage>
   );
 };
 

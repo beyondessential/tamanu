@@ -5,6 +5,7 @@ import * as jose from 'jose';
 import ms from 'ms';
 import * as z from 'zod';
 import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
+import { FACT_INITIAL_SYNC_PHASE } from '@tamanu/constants/facts';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { AuthPermissionError, ERROR_TYPE, MissingCredentialError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -246,7 +247,13 @@ export async function loginHandler(req, res, next) {
       allowedFacilities,
       serverFacilities,
     );
-    if (availableFacilities.length === 0) {
+    // A facility part-way through its first sync may have no facilities to match a user against yet,
+    // or may have them without the data that makes them usable. Either way that is a server which
+    // isn't ready rather than a user without access, so the login succeeds and the client holds the
+    // user on the initial sync progress screen until the facility is far enough along.
+    const isFirstSyncInProgress =
+      (await models.LocalSystemFact.get(FACT_INITIAL_SYNC_PHASE)) !== null;
+    if (availableFacilities.length === 0 && !isFirstSyncInProgress) {
       throw new AuthPermissionError('User does not have access to any facilities on this server');
     }
 

@@ -17,6 +17,7 @@ import {
   LOGIN_ATTEMPT_OUTCOMES,
   SERVER_TYPES,
   SYNC_DIRECTIONS,
+  SYNC_PHASES,
   SYSTEM_USER_UUID,
   USER_KINDS,
   VISIBILITY_STATUSES,
@@ -179,6 +180,7 @@ export class User extends Model {
         },
         indexes: [{ fields: ['email'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         hooks: {
           async beforeUpdate(user: User) {
             if (user.changed('password')) {
@@ -486,10 +488,14 @@ export class User extends Model {
 
     const shouldReturnSettings =
       clientHeader &&
-      ([SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]).includes(clientHeader) &&
+      ([SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]).includes(
+        clientHeader,
+      ) &&
       !facilityIds;
 
-    const frontEndSettings = shouldReturnSettings ? await settings.getFrontEndSettings() : undefined;
+    const frontEndSettings = shouldReturnSettings
+      ? await settings.getFrontEndSettings()
+      : undefined;
 
     return {
       token,
@@ -533,11 +539,11 @@ export class User extends Model {
       impersonateRoleId: z.string().min(1).optional(),
     });
 
-    const { userId, deviceId, facilityId, impersonateRoleId } = await TokenPayload.parseAsync(contents.payload).catch(
-      error => {
-        throw new InvalidTokenError('Invalid token payload').withCause(error);
-      },
-    );
+    const { userId, deviceId, facilityId, impersonateRoleId } = await TokenPayload.parseAsync(
+      contents.payload,
+    ).catch(error => {
+      throw new InvalidTokenError('Invalid token payload').withCause(error);
+    });
 
     const user = await this.findByPk(userId);
     if (!user) {

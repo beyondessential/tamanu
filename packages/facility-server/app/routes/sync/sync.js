@@ -6,6 +6,8 @@ import {
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
 } from '@tamanu/constants/facts';
 
+import { getInitialSyncPhaseLabel } from '../../sync/initialSyncPhase';
+
 export const sync = express.Router();
 
 /**
@@ -54,6 +56,9 @@ sync.get(
     const isSyncRunning = syncManager.isSyncRunning();
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
+    // null once the first sync has completed all its phases
+    const initialSyncPhase = await getInitialSyncPhaseLabel(models);
+
     res.send({
       lastCompletedPull,
       lastCompletedPush,
@@ -62,6 +67,7 @@ sync.get(
       lastCompletedDurationMs,
       currentDuration,
       isSyncRunning,
+      initialSyncPhase,
     });
   }),
 );

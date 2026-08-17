@@ -15,6 +15,10 @@ export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';
 export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
 
+// Set while a facility's first sync is in progress, and cleared when it completes.
+export const FACT_INITIAL_SYNC_PHASE = 'initialSyncPhase'; // the phase it is up to
+export const FACT_INITIAL_SYNC_PULLED_UP_TO = 'initialSyncPulledUpTo'; // tick the last phase reached
+
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
 export const FACT_SYNC_EMAIL = 'syncEmail';

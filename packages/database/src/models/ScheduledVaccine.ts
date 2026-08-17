@@ -1,5 +1,10 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VACCINE_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  SYNC_PHASES,
+  VACCINE_CATEGORIES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { ReferenceData } from './ReferenceData';
@@ -44,6 +49,7 @@ export class ScheduledVaccine extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        initialSyncPhase: SYNC_PHASES.CATALOGUE,
       },
     );
   }

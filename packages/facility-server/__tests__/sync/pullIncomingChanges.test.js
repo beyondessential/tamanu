@@ -27,7 +27,7 @@ describe('pullIncomingChanges', () => {
     };
     const sequelize = {};
 
-    const result = await pullIncomingChanges(centralServer, sequelize, 'sessionId', 1);
+    const result = await pullIncomingChanges(centralServer, sequelize, 'sessionId', { since: 1 });
 
     expect(centralServer.pull).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ totalPulled: 10, pullUntil: 42 });
@@ -44,7 +44,7 @@ describe('pullIncomingChanges', () => {
       pull: jest.fn().mockResolvedValueOnce(page).mockResolvedValue([]),
     };
 
-    await pullIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', 1);
+    await pullIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', { since: 1 });
 
     expect(centralServer.pull).toHaveBeenNthCalledWith(
       2,
@@ -62,7 +62,7 @@ describe('pullIncomingChanges', () => {
         .mockResolvedValueOnce([fakeChange({ id: '1', sortOrder: 1, recordType: 'facilities' })]),
     };
 
-    await pullIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+    await pullIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', { since: 1 });
 
     const [, insertedRows] = bulkInsert.mock.calls[0];
     expect(insertedRows[0]).not.toHaveProperty('sort_order');
@@ -90,7 +90,7 @@ describe('streamIncomingChanges', () => {
       }),
     };
 
-    await streamIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', 1);
+    await streamIncomingChanges(centralServer, fakeSequelize(jest.fn()), 'sessionId', { since: 1 });
 
     expect(resumeQuery.fromId).toBe(encodeSnapshotCursor(change));
   });
@@ -102,7 +102,9 @@ describe('streamIncomingChanges', () => {
       stream: streamOf([fakeChange({ id: '7', sortOrder: 2, recordType: 'users' })], () => {}),
     };
 
-    await streamIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', 1);
+    await streamIncomingChanges(centralServer, fakeSequelize(bulkInsert), 'sessionId', {
+      since: 1,
+    });
 
     const [, insertedRows] = bulkInsert.mock.calls[0];
     expect(insertedRows[0]).not.toHaveProperty('sort_order');

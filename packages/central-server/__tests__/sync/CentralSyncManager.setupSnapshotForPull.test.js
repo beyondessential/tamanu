@@ -432,7 +432,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
-      
+
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
         [facility, program, survey].map(r => r.id).sort(),
@@ -589,6 +589,30 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
   });
 
   describe('handles sync special case configurations', () => {
+    it('snapshots only the tables a session asks for', async () => {
+      const facility = await models.Facility.create(fake(models.Facility));
+      const program = await models.Program.create(fake(models.Program));
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          tablesToPull: { incremental: ['programs'] },
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+      expect(outgoingChanges.map(({ recordId }) => recordId)).toEqual([program.id]);
+      expect(outgoingChanges.map(({ recordType }) => recordType)).not.toContain('facilities');
+    });
+
     describe('syncAllLabRequests', () => {
       let facility;
       let otherFacility;
@@ -780,6 +804,51 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         );
       });
 
+      it('does not sync all lab requests during an initial sync, even when enabled', async () => {
+        // The entire lab history is not part of initial sync: it's a lot of data, and it's for old
+        // requests that probably don't need to be processed.
+        await models.Setting.create({
+          facilityId: facility.id,
+          key: SETTING_KEYS.SYNC_ALL_LAB_REQUESTS,
+          value: true,
+          scope: SETTINGS_SCOPES.FACILITY,
+        });
+
+        const centralSyncManager = initializeCentralSyncManager();
+
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [facility.id],
+            isInitialSync: true,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+        // the lab requests of patients this facility hasn't marked for sync stay out
+        expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
+          expect.arrayContaining([
+            encounter1.id,
+            labTestPanelRequest1.id,
+            labRequest1.id,
+            ...labRequest1Tests.map(lt => lt.id),
+            encounter2.id,
+            labRequest2.id,
+            ...labRequest2Tests.map(lt => lt.id),
+          ]),
+        );
+        // the marked-for-sync patient's own lab requests still come through
+        expect(outgoingChanges.map(r => r.recordId)).toEqual(
+          expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
+        );
+      });
+
       it('does not sync all lab requests when disabled', async () => {
         // Disable syncAllLabRequests
         await models.Setting.create({
@@ -805,7 +874,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-        // Test that the outgoingChanges don't contain the lab requests of the patients that are not marked for sync
+        // the lab requests of patients this facility hasn't marked for sync stay out
         expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
           expect.arrayContaining([
             encounter1.id,
@@ -817,7 +886,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
             ...labRequest2Tests.map(lt => lt.id),
           ]),
         );
-        // Test that the outgoingChanges contain the lab requests of the patients that are marked for sync
+        // the marked-for-sync patient's own lab requests still come through
         expect(outgoingChanges.map(r => r.recordId)).toEqual(
           expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
         );

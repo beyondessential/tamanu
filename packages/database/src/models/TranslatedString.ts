@@ -1,5 +1,6 @@
 import {
   SYNC_DIRECTIONS,
+  SYNC_PHASES,
   COUNTRY_CODE_STRING_ID,
   LANGUAGE_NAME_STRING_ID,
 } from '@tamanu/constants';
@@ -65,6 +66,7 @@ export class TranslatedString extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        initialSyncPhase: SYNC_PHASES.BOOT,
         indexes: [
           {
             name: 'string_language_unique',

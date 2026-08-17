@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import type { SYNC_DIRECTIONS } from '@tamanu/constants';
+import type { SYNC_DIRECTIONS, SYNC_PHASES } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
 import type { ChangeLog } from 'models/ChangeLog';
@@ -10,6 +10,8 @@ export interface SessionConfig {
 }
 
 export type SyncDirectionValues = (typeof SYNC_DIRECTIONS)[keyof typeof SYNC_DIRECTIONS];
+
+export type SyncPhaseValues = (typeof SYNC_PHASES)[keyof typeof SYNC_PHASES];
 
 export type SyncSessionDirectionValues =
   (typeof SYNC_SESSION_DIRECTION)[keyof typeof SYNC_SESSION_DIRECTION];
