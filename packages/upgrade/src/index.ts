@@ -9,6 +9,7 @@ import {
 } from '@tamanu/database/services/migrations';
 import type { Transaction } from 'sequelize';
 import { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
+import { checkConfigKey } from './checkConfigKey.js';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
 import type { MigrationStr, StepArgs } from './step.ts';
@@ -76,6 +77,8 @@ async function runUpgrade({
 
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
+
+  await checkConfigKey(sequelize);
 
   // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
   // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).
