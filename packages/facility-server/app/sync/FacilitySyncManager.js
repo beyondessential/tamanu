@@ -289,7 +289,7 @@ export class FacilitySyncManager {
   startNextPhaseInBackground(phase) {
     log.info('FacilitySyncManager.startingNextPhase', { phase: SYNC_PHASE_LABELS[phase] });
     // not urgent: a facility mid-initial-sync already keeps its place at the front of the queue by
-    // reporting itself as never-synced, and urgent is for syncs a person is waiting on
+    // reporting itself as never-synced, whereas urgent is for syncs a person is waiting on
     const reason = { type: 'initialSyncPhase', phase: SYNC_PHASE_LABELS[phase], urgent: false };
     this.initialSyncContinuation = this.triggerSync(reason).catch(error => {
       log.warn('FacilitySyncManager.startNextPhaseFailed', {
