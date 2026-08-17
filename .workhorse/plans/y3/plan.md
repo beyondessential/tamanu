@@ -1,7 +1,8 @@
 # One lab request per category
 
-Working notes for folding panels into a per-category lab request. Nothing here is
-committed to a spec yet; the interview that produced these notes was cut short.
+Working notes for folding panels into a per-category lab request. The settled
+behaviour is written up in `specs/labs/requests.md`; this file keeps the
+reasoning behind those decisions and the questions still outstanding.
 
 ## Where the current behaviour lives
 
@@ -78,41 +79,28 @@ The single-sample requirement falls out of the merge itself: `FhirSpecimen` is
 materialised one per lab request (`Specimen/getValues.ts`), so merging the
 requests merges the samples with no further mapping work.
 
-**Panel category is required for newly authored panels, but not enforced on the
-model.** Validation sits at the reference-data import schema rather than as a
-`LabTestType.mustHaveCategory`-style model validator, so existing category-less
-panels are left alone and no backfill is needed.
+**Panel category is required at import, and that already ships.**
+`baseSchemas.js:193` has carried `categoryId: yup.string().required()` on
+`LabTestPanel` since June 2023 (`NASS-790`, 7ecd68a094). No validation work is
+needed for this card.
 
-Note there is no admin front-end form for lab test panels — they are created only
-through the reference-data spreadsheet importer (`labTestPanelLoader`,
-`loaders.js:309`). The import schema *is* the authoring surface, so that is the
-only place the rule can be enforced at authoring time.
+Deliberately not enforced on the model, so existing category-less panels are left
+alone and nothing is backfilled. Note there is no admin front-end form for lab
+test panels — they are created only through the reference-data spreadsheet
+importer (`labTestPanelLoader`, `loaders.js:309`), so the import schema is the
+only authoring surface there is to enforce on.
+
+A panel is reference data, not an order, so a category-less panel keeps producing
+new orders until its deployment re-imports its panel sheet. The population is
+bounded to panels imported before mid-2023 and never re-imported since — small
+and shrinking, but not provably empty, which is what the order-time fallback
+below is for.
+
+**A category-less panel groups under the category its test types share.** Derived
+at order time, so nothing is written. Where the test types do not agree on a
+category, the panel forms its own request as it does today.
 
 ## Open questions
-
-**Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
-changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this
-is entirely a question about what SENAITE accepts, and it needs confirming before
-the change ships. For Rohan, alongside the shared-result question below.
-
-**A panel whose tests are all unavailable at the requesting facility.** Test types
-are filtered by `availableFacilities` at creation. Today a panel with no
-surviving tests fails the whole submission, because `createWithTests` rejects an
-empty test list. Once a request holds several panels, one panel can be emptied
-while others survive — so the request should presumably be created without that
-panel rather than rejected, but that is a behaviour change nobody has asked for
-yet.
-
-**What category does a category-less legacy panel group under?** Soft validation
-plus no backfill means such panels persist and can still be ordered, so grouping
-needs a defined fallback. Enforcing at the lab request API would reject the order
-outright, which is worse than falling back. Candidates: derive the category from
-the panel's test types at order time (no write, uses the refinement assumption
-that a panel's tests share a category), or let the panel keep forming its own
-request as it does today.
-
-**Does the panel-category enforcement land in this card?** With no admin form in
-play it is just the import schema, which is small enough to keep here.
 
 **Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
 changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this

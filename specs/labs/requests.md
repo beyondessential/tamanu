@@ -13,6 +13,8 @@ billing and the external laboratory integration.
 - [ ] Importing a lab test panel that has no lab test category is rejected as an import error, so newly authored panels always carry a category.
 - [ ] A submission produces one lab request per lab test category, holding both the panels and the individual tests ordered from that category.
 - [ ] A panel joins the request for the panel's own category.
+- [ ] A panel that has no category of its own joins the request for the category its test types share.
+- [ ] A panel that has no category of its own and whose test types do not share a single category forms its own lab request.
 - [ ] Each panel ordered in a submission is recorded as a panel request against the lab request it joins, so one request can hold several panel requests.
 
 ## Attributing tests to panels
