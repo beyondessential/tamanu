@@ -11,6 +11,7 @@ billing and the external laboratory integration.
 ## Composing a request
 
 - [ ] Importing a lab test panel that has no lab test category is rejected as an import error, so newly authored panels always carry a category.
+- [ ] Importing a lab test panel whose test types do not all belong to one lab test category is rejected as an import error.
 - [ ] A submission produces one lab request per lab test category, holding both the panels and the individual tests ordered from that category.
 - [ ] A panel joins the request for the panel's own category.
 - [ ] A panel that has no category of its own joins the request for the category its test types share.
@@ -39,5 +40,4 @@ See `invoicing/overview.md` for how invoice products and price lists work.
 
 ## External laboratory integration
 
-- [ ] A lab request maps to a single service request and a single specimen, so a request holding several panels maps to one sample at the laboratory.
-- [ ] The service request's order detail carries both the panels and the individual tests on the request, each identified by its own code system: the lab panel code system for panels and the lab test code system for tests.
+- [ ] A lab request maps to a single specimen, so a request holding several panels maps to one sample at the laboratory.

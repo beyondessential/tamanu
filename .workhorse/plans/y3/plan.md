@@ -35,11 +35,10 @@ which currently reaches up to the request to find the panel.
 Reflex tests added by SENAITE arrive with no panel attribution, which places them
 in the individual-tests section — matching what the PRD asks for.
 
-**A result for a test type applies to every row of that type in the request.**
-SENAITE returns one result per test type, and a lab officer entering results
-manually should not have to fill the same test twice and risk the two
-disagreeing. This reaches into results entry, so it pushes the card past its
-stated backend-only scope.
+**A result for a test type applies to every row of that type in the request** —
+split out to card X5, "Handle shared test results from SENAITE". It reaches into
+results ingestion and the results modal, which would push this card past its
+backend-only scope, so it is deliberately not delivered here.
 
 **The link is to the panel request, not the panel.** The `LabTestPanelRequest`
 is the per-request instance of the panel and is already the invoicing source
@@ -71,24 +70,23 @@ that already exists, not a backfill.
 thing is charged — the same logic as propagating a single result to every row of
 that type. Panel-level products still bill per panel request.
 
-**FHIR carries panels in `orderDetail`, leaving `code` empty.** Panel codings use
-the lab panel code system and test codings the lab test code system, so the two
-stay distinguishable within the one array.
-
-The single-sample requirement falls out of the merge itself: `FhirSpecimen` is
+**The single-sample requirement falls out of the merge itself.** `FhirSpecimen` is
 materialised one per lab request (`Specimen/getValues.ts`), so merging the
-requests merges the samples with no further mapping work.
+requests merges the samples with no further mapping work. Where the panel codings
+go is still open — see below.
 
-**Panel category is required at import, and that already ships.**
-`baseSchemas.js:193` has carried `categoryId: yup.string().required()` on
-`LabTestPanel` since June 2023 (`NASS-790`, 7ecd68a094). No validation work is
-needed for this card.
+**Panel category stays optional on the model, and is required at import.** The
+import half already ships: `baseSchemas.js:193` has carried
+`categoryId: yup.string().required()` on `LabTestPanel` since June 2023
+(`NASS-790`, 7ecd68a094). No model-level validator and no backfill, so existing
+category-less panels are left alone.
 
-Deliberately not enforced on the model, so existing category-less panels are left
-alone and nothing is backfilled. Note there is no admin front-end form for lab
-test panels — they are created only through the reference-data spreadsheet
-importer (`labTestPanelLoader`, `loaders.js:309`), so the import schema is the
-only authoring surface there is to enforce on.
+**The importer also rejects a panel whose test types span categories,** turning
+the refinement note's assumption into an enforced rule. This is new work. Note
+there is no admin front-end form for lab test panels — they are created only
+through the reference-data spreadsheet importer (`labTestPanelLoader`,
+`loaders.js:309`), so the import schema is the only authoring surface there is to
+enforce on.
 
 A panel is reference data, not an order, so a category-less panel keeps producing
 new orders until its deployment re-imports its panel sheet. The population is
@@ -100,20 +98,34 @@ below is for.
 at order time, so nothing is written. Where the test types do not agree on a
 category, the panel forms its own request as it does today.
 
+**A panel with no test types available at the requesting facility rejects the
+whole submission,** preserving today's behaviour. Test types are filtered by
+`availableFacilities` at creation, and `createWithTests` already rejects an empty
+test list — merging does not soften that.
+
 ## Open questions
 
-**Does SENAITE read panel codes from `orderDetail`?** Moving panels out of `code`
-changes the outbound contract. Nothing inside Tamanu reads `orderDetail`, so this
-is entirely a question about what SENAITE accepts, and it needs confirming before
-the change ships. For Rohan.
+**Where do the panel codings go on the FHIR `ServiceRequest`?** Today `code`
+(0..1) carries the one panel, `orderDetail` (0..*) the individual tests, and
+`category` a fixed SNOMED `108252007`. With several panels there is no single
+`code`. Options considered:
 
-**Can SENAITE return the same result to two panels sharing a test,** and how does
-it show once rather than twice in the patient results table. Also for Rohan.
+- **a.** Panels join `orderDetail`, `code` left empty. No data loss, and the two
+  kinds stay distinguishable by code system, but `code` is the field a consumer
+  reads first and nulling it degrades the resource for every consumer.
+- **b.** All panel codings inside one `code` CodeableConcept. Ruled out: FHIR
+  reserves multiple codings for one concept across systems, so a conformant
+  consumer may pick any single coding and silently drop the rest.
+- **c.** `code` becomes the lab test category, panels and tests both go to
+  `orderDetail`. The request now is a category's worth of work, so this keeps
+  `code` meaningful and populated.
+- **d.** Keep one ServiceRequest per panel, sharing one Specimen. `Specimen.request`
+  is an array, so this is legal FHIR and preserves the SENAITE contract exactly.
+  Costly: materialisation keys one resource per upstream record
+  (`FhirServiceRequest.upstreamId` is the lab request id, looked up with
+  `findOne`), so this changes how materialisation works, not just what it emits.
 
-**A panel whose tests are all unavailable at the requesting facility.** Test types
-are filtered by `availableFacilities` at creation. Today a panel with no
-surviving tests fails the whole submission, because `createWithTests` rejects an
-empty test list. Once a request holds several panels, one panel can be emptied
-while others survive — so the request should presumably be created without that
-panel rather than rejected, but that is a behaviour change nobody has asked for
-yet.
+The choice turns on whether SENAITE's model is one order per profile or one order
+per sample — if the former, (d) needs no SENAITE change at all. Ranked (c) > (d) >
+(a) pending Rohan's answer, which could invert (c) and (d).
+
