@@ -30,17 +30,6 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @OneToOne(() => ReferenceDrug, referenceDrug => referenceDrug.referenceData) // Inverse side
   referenceDrug?: ReferenceDrug;
 
-  static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
-    const repo = ReferenceData.getRepository();
-
-    return repo.findOne({
-      where: {
-        type: referenceDataType,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    });
-  }
-
   // ----------------------------------
   // Reference data hierarchy utilities
   // ----------------------------------
