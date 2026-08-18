@@ -8,7 +8,9 @@ export const PATIENT_SORT_KEYS = {
   dateOfBirth: 'patients.date_of_birth',
   villageName: 'village_name',
   locationName: 'location.name',
+  locationGroupName: 'location_group.name',
   departmentName: 'department.name',
+  clinician: 'clinician.display_name',
   encounterType: 'encounters.encounter_type',
   sex: 'patients.sex',
 };
