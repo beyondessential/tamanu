@@ -11,7 +11,6 @@ export const Routes = {
   Forms: {
     Index: '',
     AutocompleteModal: '',
-    MultiSelectModal: '',
     SelectModal: '',
     FrequencySearchModal: '',
   },
