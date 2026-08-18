@@ -1,6 +1,6 @@
-import { Repository } from 'typeorm';
+import type { Repository } from 'typeorm';
 import { chunk } from 'es-toolkit/compat';
-import { DataToPersist } from '../types';
+import type { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
 
 const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>

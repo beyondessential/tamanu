@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { type ReactElement, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Formik } from 'formik';
 // Helpers

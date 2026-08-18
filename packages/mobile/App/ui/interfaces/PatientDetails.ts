@@ -1,4 +1,4 @@
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 export interface AllergiesProps {
   allergies: {

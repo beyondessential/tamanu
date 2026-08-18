@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import {
@@ -14,7 +14,7 @@ import { theme } from '/styled/theme';
 
 import { Routes } from '/helpers/routes';
 import { Button } from '/components/Button';
-import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
+import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 
 import { Form } from '~/ui/components/Forms/Form';

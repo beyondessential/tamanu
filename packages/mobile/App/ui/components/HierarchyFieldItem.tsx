@@ -4,7 +4,7 @@ import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalFie
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
 import { useBackend } from '~/ui/hooks';
-import { IReferenceData } from '~/types';
+import type { IReferenceData } from '~/types';
 
 export const HierarchyFieldItem = ({
   isFirstLevel,

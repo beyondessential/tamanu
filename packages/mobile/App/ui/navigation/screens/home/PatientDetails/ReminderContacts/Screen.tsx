@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   CenterView,
   FullView,
@@ -19,7 +19,7 @@ import { theme } from '~/ui/styled/theme';
 import { ContactCard } from '../CustomComponents/ContactCard';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { IPatientContact } from '~/types';
+import type { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '~/ui/components/Button';

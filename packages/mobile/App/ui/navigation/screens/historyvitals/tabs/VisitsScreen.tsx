@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import { useQuery } from '@tanstack/react-query';
 import { FullView, StyledSafeAreaView } from '/styled/common';
@@ -10,7 +10,7 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { IDiagnosis, INote } from '~/types';
+import type { IDiagnosis, INote } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 

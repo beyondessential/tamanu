@@ -1,4 +1,4 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { Patient } from '~/models/Patient';
 import { patientListKeys } from './queries/queryKeys';

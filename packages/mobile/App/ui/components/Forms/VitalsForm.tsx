@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '/store/ducks/patient';
+import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '/store/ducks/patient';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';

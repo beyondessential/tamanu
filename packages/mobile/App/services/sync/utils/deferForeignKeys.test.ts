@@ -4,7 +4,7 @@ import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
 import { deferForeignKeys } from './deferForeignKeys';
-import { IPatient, IUser } from '~/types';
+import type { IPatient, IUser } from '~/types';
 
 describe('deferForeignKeys', () => {
   let encounterId: string;

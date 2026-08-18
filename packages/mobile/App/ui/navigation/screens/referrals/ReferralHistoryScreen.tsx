@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { List } from 'react-native-paper';
@@ -11,8 +11,8 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { StyledScrollView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
-import { PatientStateProps } from '../../../store/ducks/patient';
+import type { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '../../../store/ducks/patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { renderAnswer } from '../programs/SurveyResponseDetailsScreen';

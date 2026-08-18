@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import {
+import type {
   AVPUType,
   DetectedPresenceType,
   IVitals,

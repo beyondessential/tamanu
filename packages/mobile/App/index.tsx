@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { ThemeProvider } from 'styled-components/native';
 import { MD2LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';

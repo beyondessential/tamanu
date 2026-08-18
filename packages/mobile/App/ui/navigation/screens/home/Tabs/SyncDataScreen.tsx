@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';

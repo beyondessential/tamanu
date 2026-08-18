@@ -1,6 +1,6 @@
-import React, { ReactElement, memo, useMemo, useCallback } from 'react';
+import React, { type ReactElement, memo, useMemo, useCallback } from 'react';
 import { StyledText, StyledView } from '/styled/common';
-import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
+import type { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';

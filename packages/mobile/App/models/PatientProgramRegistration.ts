@@ -8,7 +8,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
-import {
+import type {
   DateTimeString,
   ID,
   IFacility,

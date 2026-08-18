@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import {
   CenterView,
   FullView,
@@ -18,7 +18,7 @@ import { Field } from '/components/Forms/FormField';
 import { SubmitButton } from '/components/Forms/SubmitButton';
 import { Button } from '/components/Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
+import type { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 

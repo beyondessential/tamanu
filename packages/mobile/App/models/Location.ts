@@ -1,5 +1,5 @@
 import { Column, OneToMany, RelationId, Entity, ManyToOne } from 'typeorm';
-import { ILocation } from '../types';
+import type { ILocation } from '../types';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { Facility } from './Facility';

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 

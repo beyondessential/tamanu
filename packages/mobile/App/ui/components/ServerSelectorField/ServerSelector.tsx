@@ -1,13 +1,13 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { type ReactElement, useEffect, useState } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { keyBy, mapValues, uniq } from 'es-toolkit/compat';
 
-import { Dropdown, SelectOption } from '../Dropdown';
+import { Dropdown, type SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import * as overrides from '/root/serverOverrides.json';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { LanguageOption } from '~/models/TranslatedString';
+import type { LanguageOption } from '~/models/TranslatedString';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 type Server = {

@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
-import React, { FunctionComponent, ReactElement } from 'react';
+import React, { type FunctionComponent, type ReactElement } from 'react';
 import { Form } from '../Form';
 import { ResetPasswordFields } from './ResetPasswordFields';
-import { ResetPasswordFormProps } from '/interfaces/forms/ResetPasswordFormProps';
+import type { ResetPasswordFormProps } from '/interfaces/forms/ResetPasswordFormProps';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedText } from '../../Translations/TranslatedText';
 

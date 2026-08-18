@@ -1,5 +1,5 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useState } from 'react';
+import type { NavigationProp } from '@react-navigation/native';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

@@ -1,10 +1,10 @@
 import { Entity, OneToOne, JoinColumn, RelationId, Column, OneToMany } from 'typeorm';
 
-import { IProgramRegistry, ID } from '~/types';
+import type { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
+import { type CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';

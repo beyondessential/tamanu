@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import styled from 'styled-components/native';
 import { subject } from '@casl/ability';

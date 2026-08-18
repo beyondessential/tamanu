@@ -1,7 +1,7 @@
 import React, {
   createContext,
-  PropsWithChildren,
-  ReactElement,
+  type PropsWithChildren,
+  type ReactElement,
   useContext,
   useEffect,
   useMemo,
@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { LocalisationService } from '~/services/localisation';
+import type { LocalisationService } from '~/services/localisation';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;

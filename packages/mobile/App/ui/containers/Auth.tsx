@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { actions, AuthStateProps } from '/store/ducks/auth';
-import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
+import { bindActionCreators, type Dispatch } from 'redux';
+import { actions, type AuthStateProps } from '/store/ducks/auth';
+import type { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
 
 export const withAuth = (WrappedComponent: FC<any>): FC<any> => {
   const mapStateToProps = (state: ReduxStoreProps): AuthStateProps => ({

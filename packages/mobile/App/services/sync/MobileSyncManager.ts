@@ -1,9 +1,9 @@
 import mitt from 'mitt';
-import { type EntityManager } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 
 import { Database } from '../../infra/db';
-import { MODELS_MAP } from '../../models/modelsMap';
-import { CentralServerConnection } from './CentralServerConnection';
+import type { MODELS_MAP } from '../../models/modelsMap';
+import type { CentralServerConnection } from './CentralServerConnection';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -21,13 +21,13 @@ import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
-import { SettingsService } from '../settings';
+import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
-import { type TransactingModel } from './utils/getModelsForDirection';
-import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
+import type { TransactingModel } from './utils/getModelsForDirection';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
 import { deferForeignKeys } from './utils/deferForeignKeys';
 import { checkForeignKeys } from './utils/checkForeignKeys';
 

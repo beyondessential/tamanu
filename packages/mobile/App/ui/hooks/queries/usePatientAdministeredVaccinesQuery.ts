@@ -1,7 +1,7 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { Database } from '~/infra/db';
-import { IAdministeredVaccine } from '~/types';
+import type { IAdministeredVaccine } from '~/types';
 import { patientKeys } from './queryKeys';
 
 export default function usePatientAdministeredVaccinesQuery(

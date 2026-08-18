@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { type FunctionComponent } from 'react';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';

@@ -1,10 +1,10 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { CurrentlyAtType } from '~/constants/programRegistries';
-import { IProgram } from './IProgram';
-import { ID } from './ID';
-import { IProgramRegistryClinicalStatus } from './IProgramRegistryClinicalStatus';
-import { IPatientProgramRegistration } from './IPatientProgramRegistration';
-import { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { CurrentlyAtType } from '~/constants/programRegistries';
+import type { IProgram } from './IProgram';
+import type { ID } from './ID';
+import type { IProgramRegistryClinicalStatus } from './IProgramRegistryClinicalStatus';
+import type { IPatientProgramRegistration } from './IPatientProgramRegistration';
+import type { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
 
 export interface IProgramRegistry {
   id: ID;

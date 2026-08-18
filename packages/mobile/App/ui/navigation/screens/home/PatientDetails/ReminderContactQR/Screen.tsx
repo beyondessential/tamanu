@@ -7,7 +7,7 @@ import { theme } from '~/ui/styled/theme';
 import { CrossIcon } from '~/ui/components/Icons';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';

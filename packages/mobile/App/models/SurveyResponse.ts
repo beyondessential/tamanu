@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
 
-import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
+import { EncounterType, type ICreateSurveyResponse, type ISurveyResponse } from '~/types';
 
 import {
   FieldTypes,

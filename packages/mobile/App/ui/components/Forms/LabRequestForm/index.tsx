@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo, useState } from 'react';
+import React, { type ReactElement, useCallback, useMemo, useState } from 'react';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';

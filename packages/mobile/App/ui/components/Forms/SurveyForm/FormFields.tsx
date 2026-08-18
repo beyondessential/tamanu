@@ -1,7 +1,7 @@
 import React, {
   Fragment,
-  MutableRefObject,
-  ReactElement,
+  type MutableRefObject,
+  type ReactElement,
   useCallback,
   useEffect,
   useMemo,
@@ -9,8 +9,8 @@ import React, {
   useState,
 } from 'react';
 import { useFormikContext } from 'formik';
-import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { IPatient, ISurveyScreenComponent, GenericFormValues } from '../../../../types';
+import { type ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import type { IPatient, ISurveyScreenComponent, GenericFormValues } from '../../../../types';
 import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';

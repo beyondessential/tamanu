@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -11,7 +11,7 @@ import { withPatient } from '~/ui/containers/Patient';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
-import { ILabRequest } from '~/types';
+import type { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';

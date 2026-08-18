@@ -1,7 +1,7 @@
-import React, { FC, FunctionComponent, PropsWithChildren, useMemo } from 'react';
+import React, { type FC, type FunctionComponent, type PropsWithChildren, useMemo } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
-import { IAdministeredVaccine } from '~/types';
+import type { IAdministeredVaccine } from '~/types';
 import { NotGivenFields } from './NotGivenFields';
 import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';

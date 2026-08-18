@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 import { StyledScrollView } from '/styled/common';
 import Header from './Header';
 import { HistoryTable } from '../HistoryTable';
-import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
+import type { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
 import { Spacer } from '../Spacer';
-import { Encounter } from '~/models/Encounter';
+import type { Encounter } from '~/models/Encounter';
 
 interface AccordionListProps {
   dataArray: Encounter[];

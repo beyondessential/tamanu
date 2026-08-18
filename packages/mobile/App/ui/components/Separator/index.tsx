@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { StyledView, StyledViewProps } from '/styled/common';
+import React, { type ReactElement } from 'react';
+import { StyledView, type StyledViewProps } from '/styled/common';
 import { theme } from '/styled/theme';
 
 interface SeparatorProps extends StyledViewProps {

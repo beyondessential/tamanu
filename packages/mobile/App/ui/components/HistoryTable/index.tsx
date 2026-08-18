@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { DataTable } from 'react-native-paper';
 import MultilineCell from './MultilineCell';
-import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
+import type { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
 
 /**
  * @param data Object

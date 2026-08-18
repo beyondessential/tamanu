@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 
-import { IPatientFieldValue } from '~/types';
+import type { IPatientFieldValue } from '~/types';
 import { Patient } from './Patient';
 import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { SYNC_DIRECTIONS } from './types';

@@ -1,9 +1,9 @@
 import React, { memo, useState } from 'react';
 import { differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from 'date-fns';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
-import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
-import { PatientStateProps } from '../../store/ducks/patient';
-import { Table, TableCells } from '../Table';
+import type { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
+import type { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '../../store/ducks/patient';
+import { Table, type TableCells } from '../Table';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
 import { LoadingScreen } from '/components/LoadingScreen';
@@ -15,9 +15,9 @@ import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
-import { SurveyScreenValidationCriteria } from '~/types';
+import type { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
+import type { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { useSelector } from 'react-redux';
 import { VisibilityStatus } from '~/visibilityStatuses';
 

@@ -1,7 +1,7 @@
 import { keyBy } from 'es-toolkit';
 
 import { Database } from '~/infra/db';
-import { BaseModel } from '~/models/BaseModel';
+import type { BaseModel } from '~/models/BaseModel';
 import { MODELS_ARRAY } from '~/models/modelsMap';
 
 const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {

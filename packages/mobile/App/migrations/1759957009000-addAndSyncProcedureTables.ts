@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
 
 import { triggerFullResync } from './utils/triggerFullResync';
 

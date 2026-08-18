@@ -3,7 +3,7 @@ import {
   getQuestionCodesFromFormVisibilityCriteria,
   checkFormVisibilityCriteria,
 } from '@tamanu/utils';
-import { Survey } from '~/models/Survey';
+import type { Survey } from '~/models/Survey';
 
 /**
  * Filters program surveys to those that pass form visibility criteria for the patient.

@@ -5,14 +5,14 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Repository,
+  type Repository,
   UpdateDateColumn,
 } from 'typeorm';
 import { getSyncTick } from '../services/sync/utils';
-import { ObjectType } from 'typeorm/browser/common/ObjectType';
-import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
+import type { ObjectType } from 'typeorm/browser/common/ObjectType';
+import type { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
 import { VisibilityStatus } from '../visibilityStatuses';
-import { BaseModel } from './BaseModel';
+import type { BaseModel } from './BaseModel';
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't

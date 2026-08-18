@@ -1,6 +1,6 @@
 import { Database } from '~/infra/db';
 import { chunk } from 'es-toolkit/compat';
-import { SyncRecord } from '../types';
+import type { SyncRecord } from '../types';
 
 export const insertSnapshotRecords = async (
   records: Record<string, any>[],

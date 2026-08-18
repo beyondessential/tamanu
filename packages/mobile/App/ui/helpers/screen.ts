@@ -1,5 +1,5 @@
 import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
-import { VerticalPosition } from '/interfaces/VerticalPosition';
+import type { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 

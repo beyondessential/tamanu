@@ -1,8 +1,8 @@
-import React, { FunctionComponent, ReactElement, useCallback, useMemo, useState } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationProp, RouteProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
@@ -10,11 +10,11 @@ import { NewVaccineTab } from '../screens/vaccine/newVaccineTabs/NewVaccineTab';
 import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
 import { FullView, RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
-import { VaccineDataProps } from '/components/VaccineCard';
+import type { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { CenterView } from '../../styled/common';
-import { SceneRendererProps } from 'react-native-tab-view';
+import type { SceneRendererProps } from 'react-native-tab-view';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 type NewVaccineHeaderProps = {

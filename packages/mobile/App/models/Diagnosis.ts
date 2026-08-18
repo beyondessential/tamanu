@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { Certainty, IDiagnosis } from '~/types';
+import type { Certainty, IDiagnosis } from '~/types';
 import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';

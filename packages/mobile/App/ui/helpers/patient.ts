@@ -1,4 +1,4 @@
-import { IPatientAdditionalData } from '~/types';
+import type { IPatientAdditionalData } from '~/types';
 
 export const PATIENT_DATA_FIELDS = {
   FIRST_NAME: 'firstName',

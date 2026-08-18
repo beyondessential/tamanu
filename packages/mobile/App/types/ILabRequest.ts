@@ -1,10 +1,10 @@
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
-import { ID } from './ID';
-import { IEncounter } from './IEncounter';
-import { ILabTest } from './ILabTest';
-import { IReferenceData } from './IReferenceData';
-import { IUser } from './IUser';
-import { IDepartment } from './IDepartment';
+import type { ID } from './ID';
+import type { IEncounter } from './IEncounter';
+import type { ILabTest } from './ILabTest';
+import type { IReferenceData } from './IReferenceData';
+import type { IUser } from './IUser';
+import type { IDepartment } from './IDepartment';
 
 export const LabRequestStatus = {
   RECEPTION_PENDING: 'reception_pending',
