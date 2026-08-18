@@ -169,20 +169,6 @@ export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`
   ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
 `;
 
-export const StyledNavigationView = styled(SafeAreaView)<StyledViewProps>`
-  ${size}
-  ${margin}
-  ${padding}
-  ${flexbox}
-  ${background}
-  ${overflow}
-  ${position}
-  ${({ borderLeftWidth = 0 }): string => `border-left-width: ${borderLeftWidth}`};
-  ${({ borderRightWidth = 0 }): string => `border-right-width: ${borderRightWidth}`};
-  ${({ borderTopWidth = 0 }): string => `border-top-width: ${borderTopWidth}`};
-  ${({ borderBottomWidth = 0 }): string => `border-bottom-width: ${borderBottomWidth}`};
-`;
-
 export const StyledText = styled.Text<StyledTextProps>`
   ${color}
   ${fontWeight}
@@ -241,14 +227,6 @@ export const CenterView = styled(StyledView)`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-export const RotateView = styled(StyledView)`
-  transform: rotate(90deg);
-`;
-
-export const HalfSizeView = styled(StyledView)`
-  width: 50%;
 `;
 
 export const RowView = styled(StyledView).attrs<{ flexDirection?: string }>(props => ({

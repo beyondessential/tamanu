@@ -34,13 +34,6 @@ export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   RECORDED_IN_ERROR: 'recordedInError',
 } as const;
 
-export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN]: 'Unknown',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN]: 'Disproven',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED]: 'Resolved',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
-} as const;
-
 /**
  * @deprecated This exists for backwards compatibility with the old enum values
  */

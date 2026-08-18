@@ -1,4 +1,3 @@
-import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import type { ID } from './ID';
 import type { IEncounter } from './IEncounter';
 import type { ILabTest } from './ILabTest';
@@ -16,8 +15,6 @@ export const LabRequestStatus = {
 } as const;
 
 export type LabRequestStatus = (typeof LabRequestStatus)[keyof typeof LabRequestStatus];
-
-export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabRequestStatus);
 
 export interface ILabRequest {
   id: ID;

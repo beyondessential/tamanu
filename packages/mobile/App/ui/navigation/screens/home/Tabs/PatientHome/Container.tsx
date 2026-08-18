@@ -6,7 +6,7 @@ import { Popup } from 'popup-ui';
 import { type IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
 import * as Icons from '/components/Icons';
-import type { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
+import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
 import { Screen } from './Screen';
 // Helpers
 import { Routes } from '/helpers/routes';
