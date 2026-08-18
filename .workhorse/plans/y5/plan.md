@@ -93,15 +93,26 @@ keep in sync with the card's padding or line-height. This is also what makes the
 where it should: the 21px spacer was placing it a pixel or two high, because a hand-tuned constant can
 only ever approximate a value the layout already knows.
 
-**Paint the rail, don't lay it out.** Make it a pseudo-element positioned over the dot column
-(`inset-block: 0`, 1px wide) instead of two sibling connector elements. Its extent is then free to
-differ from the row's height, which is what the first and last rows need — `inset-block-start: 50%` on
-the first and `inset-block-end: 50%` on the last, so the rail begins and ends at the dot centres — with
-`:only-child { content: none }` for the no-rail case. Crucially this **dissolves the trap in L3's
-comment**: the reason a mis-sized rail could leave the row 21px taller than it drew — and turn into
-phantom scrollable overflow — was that the rail was a laid-out element. A pseudo-element contributes
-nothing to layout height, so that whole class of bug stops being possible rather than being avoided by
-convention.
+**Put the rail in the dot's own grid cell, and let the same centring do both.** Make it a pseudo-element
+that shares the dot's grid area (`grid-template-areas: 'dot'`, both items on `dot`), sized
+`inline-size: 1px; block-size: 100%` with `justify-self: center; align-self: stretch`. Extent for the
+first and last rows is then `block-size: 50%` anchored to the side the next dot is on (`align-self: end`
+on the first, `start` on the last), so the rail begins and ends exactly at the dot centres, with
+`:only-child { content: none }` for the no-rail case.
+
+⚠️ **Do not centre it with `inset-inline-start: 50%` + `translate: -50%`.** That was the first attempt
+and it is what put the rail a pixel right of the dots. Measured at 1× on the rendered mockup: the
+translate lands a 1px line on a half pixel, so the renderer smears it across **two** columns (x=29 and
+x=30) centred on 29.5 against a dot centre of 30.0 — off *and* blurry. Sharing the dot's cell measures
+one crisp column exactly on centre. The general point: centring the dot and the rail by two different
+mechanisms means two different roundings, so use one mechanism for both.
+
+This also keeps the safety property that made the pseudo-element attractive. The rail is sized purely as
+a percentage of a cell it shares, and has no content, so its intrinsic contribution to the row's height
+is zero — it cannot push the row taller than what is drawn. That is precisely the trap in L3's comment
+(`flex: 0 0 21px` was a *definite* contribution to the separator's height, so a mis-sized rail left the
+row 21px taller than it looked and the overhang became phantom scrollable overflow). Here that class of
+bug stops being possible rather than being avoided by convention.
 
 ⚠️ One gotcha the mockup surfaced: with a single rail spanning the row, the line passes *behind* the dot,
 and the outlined status icons (`CircleIconOutlined`, `CircleIconDashed`) are transparent in the middle,
@@ -206,7 +217,7 @@ alone-ness as a data attribute if it's worth asserting in the unit test.
 - [ ] Decide: full layout rewrite vs minimal change (see scope note)
 - [ ] Replace MUI `Timeline` parts with plain elements
 - [ ] Centre the dot by alignment; delete the 21px spacer and its warning comment
-- [ ] Redraw the rail as a pseudo-element; mask it behind the dot
+- [ ] Redraw the rail as a pseudo-element in the dot's own grid cell; mask it behind the dot
 - [ ] Contain the rail to the dots: no lead-in above the first, no run-out below the last
 - [ ] Hide the rail when the pane lists one booking
 - [ ] Update the component's comments to the new intent, replacing L3's reasoning

@@ -130,30 +130,35 @@
      it can push the row's real height away from what is drawn. The dot is simply
      centred in the row like everything else beside it — no spacer sets its position. */
   .rail {
-    position: relative;
     display: grid;
+    grid-template-areas: 'dot';
     place-items: center;
   }
+  /* The rail shares the dot's grid cell and is centred by the same mechanism, so it
+     lands exactly on the dot's centre rather than near it. Centring it by a
+     percentage inset and a -50% translate instead puts a 1px line on a half pixel,
+     which the renderer smears across two columns — visibly off, and blurry with it. */
   .rail::before {
     content: '';
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 50%;
-    translate: -50% 0;
-    width: 1px;
+    grid-area: dot;
+    inline-size: 1px;
+    block-size: 100%;
+    justify-self: center;
+    align-self: stretch;
     background: var(--outline);
   }
   /* The rail spans the dots and nothing more: it begins at the first dot and ends at
-     the last, with no lead-in above the first or run-out below the last. It is what
-     connects the dots, so it exists only where there are dots to connect. */
-  .row:first-child .rail::before { inset-block-start: 50%; }
-  .row:last-child .rail::before { inset-block-end: 50%; }
+     the last, with no lead-in above the first or run-out below the last. Half a row,
+     anchored to the side the next dot is on. */
+  .row:first-child .rail::before { block-size: 50%; align-self: end; }
+  .row:last-child .rail::before { block-size: 50%; align-self: start; }
   /* Which is why a lone booking has no rail at all: with nothing to connect it to,
      the line reads as an artefact rather than as a timeline. Falls out of the two
      rules above, and is stated outright so it cannot be lost. */
   .row:only-child .rail::before { content: none; }
 
   .dot {
+    grid-area: dot;
     /* Sits over the rail rather than letting it show through an outlined dot, which
        is transparent in the middle. The pane is white, so this reads as nothing. */
     position: relative;
