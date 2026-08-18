@@ -42,18 +42,18 @@ export const useDocumentActions = () => {
   const onDownload = useCallback(
     async (document) => {
       try {
-        // Give feedback to user that download is starting
-        notify(
-          <TranslatedText
-            stringId="document.notification.downloadStart"
-            fallback="Your download has started, please wait"
-          />,
-          { replacement: { type: 'info' } },
-        );
-
         const saved = await saveFile({
           defaultFileName: document.name,
           getData: async () => {
+            // Runs once the save picker is accepted, so cancelling it says nothing started.
+            notify(
+              <TranslatedText
+                stringId="document.notification.downloadStart"
+                fallback="Your download has started, please wait"
+              />,
+              { replacement: { type: 'info' } },
+            );
+
             const response = await api.get(`attachment/${document.attachmentId}`, { base64: true });
             const unavailableMessage = getAttachmentUnavailableMessage(response);
             if (unavailableMessage) {
