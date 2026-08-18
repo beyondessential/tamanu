@@ -52,6 +52,19 @@
     margin-top: 2px;
   }
 
+  .group-heading {
+    width: 100%;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mid-text);
+    margin: 0 0 -24px;
+    padding-top: 8px;
+  }
+  .group-heading span {
+    font-weight: 400;
+    color: #b8b8b8;
+  }
+
   /* ---- Today's bookings pane (mirrors TodayBookingsPane.jsx) ---- */
   .pane {
     min-width: 366px;
@@ -94,6 +107,13 @@
     column-gap: 5px;
     padding: 0 20px 0 12px;
     margin: 0;
+  }
+
+  /* On a very small pane the time track drops to its min-content width — the wider of
+     the two nowrap parts — so the range wraps onto two lines and the card keeps its
+     room, rather than the card being crushed to fit the range on one line. */
+  .pane.narrow .timeline {
+    grid-template-columns: auto min-content 1fr;
   }
 
   .row {
@@ -185,6 +205,10 @@
 <body>
   <div class="board">
 
+    <p class="group-heading">Booking starting today
+      <span>— an end on today shows its time, an end on another day shows its date</span>
+    </p>
+
     <!-- ============ Single regular booking ============ -->
     <section>
       <p class="scenario-label">Single booking
@@ -273,6 +297,74 @@
                 <span class="part">8:00am&nbsp;&ndash;</span>
                 <span class="part">12 Aug</span>
               </div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+    <p class="group-heading">The other days a stay covers
+      <span>— same rule, same booking (12 Aug 10:00am to 14 Aug 11:30am), seen on each of its days</span>
+    </p>
+
+    <!-- ============ Mid-stay: neither end is today ============ -->
+    <section>
+      <p class="scenario-label">Viewed on 13 Aug · mid-stay
+        <small>Neither end is today, so both show as dates.</small>
+      </p>
+      <div class="pane">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">12 Aug&nbsp;&ndash;&nbsp;14 Aug</span></div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+    <!-- ============ Last day: the end is today ============ -->
+    <section>
+      <p class="scenario-label">Viewed on 14 Aug · last day
+        <small>The end falls on today, so it shows its time.</small>
+      </p>
+      <div class="pane">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">12 Aug&nbsp;&ndash;&nbsp;11:30am</span></div>
               <div class="card seen">
                 <div class="loc">Ward 1 Bed 4</div>
                 <div class="patient">Sarah Smith</div>

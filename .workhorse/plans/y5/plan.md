@@ -9,37 +9,43 @@ This builds on L3, which fixed the *wrong times* on overnight bookings by dating
 overnight icon. Y5 keeps L3 correct everywhere else but replaces that treatment **in the dashboard pane
 only** with a lighter snapshot.
 
-## The design (exact)
+## The rule
 
 Only the time column changes. Everything else in the pane (title, "View all…", rail + dots, card tint,
 location + patient text) is unchanged.
 
-- **Single regular booking** — start time – end time, e.g. `8:00am – 9:00am`. One line. (Unchanged.)
-- **Overnight booking** — start **time** – end **date**, e.g. `8:00am – 12 Aug`. One line.
-  - No today's date, no end time, no overnight icon. The end *date* is itself the signal that the booking
-    is overnight ("showing the end date implies overnight").
-- **Very small screen** — the same content may flow onto two lines, but the pieces stay horizontally
-  centred (`8:00am –` / `12 Aug`).
+**Each end of the range is displayed independently: an end falling on today shows as just its time, an
+end falling on any other day shows as just its date.** Nothing else is shown — no today's date, no
+second component on either end, and no overnight icon. The pane is a snapshot of one day, so the reader
+already knows what today is; a date appearing at either end is itself the signal that the booking
+reaches beyond today.
+
+The three designs are this rule applied to a booking that starts today:
+
+- **Single regular booking** — both ends today: `8:00am – 9:00am`.
+- **Overnight booking** — start today, end elsewhere: `8:00am – 12 Aug`.
+- **Very small screen** — the same content flows onto two lines, pieces stay horizontally centred
+  (`8:00am –` / `12 Aug`).
+
+Applied to the other days a multi-day booking covers (12 Aug 10:00am → 14 Aug 11:30am, as in L3):
+
+| Viewed on | Start end | End end | Renders |
+|---|---|---|---|
+| 12 Aug (first day) | today → time | 14 Aug → date | `10:00am – 14 Aug` |
+| 13 Aug (mid-stay) | 12 Aug → date | 14 Aug → date | `12 Aug – 14 Aug` |
+| 14 Aug (last day) | 12 Aug → date | today → time | `12 Aug – 11:30am` |
+
+Every day of the stay reads as a distinct, unambiguous statement of the span, and the row is one line
+throughout. This is the property L3 was reaching for, achieved by showing *less* rather than more.
 
 ## Behaviour rules
 
-- Same-day booking: two times, no date, no icon (as today).
-- Overnight booking: start time then end date; drop the end time and the `Brightness2` overnight icon.
-- No end time at all (open-ended booking): single start time, as today.
+- Date format is day and month (`12 Aug`) — the `dayMonth` format, as L3 established.
+- A booking with no end time shows its start alone; its start is necessarily today, so a single time.
+- No overnight icon anywhere in this pane.
 - Time cell is centred so a wrap on a narrow pane keeps both parts centred rather than left-ragged.
 - All rows are now single-line, so overnight rows are the same height as same-day rows — this is the
   alignment fix the card is really about.
-
-## Open question for Design (snapshots don't cover it)
-
-The three snapshots all show a booking that **starts today**. The dashboard also lists a multi-day
-booking on the *middle* and *last* days it covers (this is exactly the L3 scenario: a 12 Aug → 14 Aug
-stay shows on 13 and 14 Aug too). The design doesn't say what the start shows on those days.
-
-Recommended default (pending confirmation): show the booking's **actual** start time and **actual** end
-date on every day it covers — e.g. `10:00am – 14 Aug` on all of 12/13/14 Aug. It's consistent, and the
-end date still communicates the span. The alternative (showing only the portion that falls on the viewed
-day) reintroduces the ambiguity L3 removed. **Confirm with Flic before finalising.**
 
 ## Implementation approach
 
@@ -47,23 +53,37 @@ Change is confined to `packages/web/app/views/dashboard/components/TodayBookings
 
 - **Do not reuse the shared L3 primitives here.** `useDateRangeSpan` / `RangeEndDisplay`
   (`packages/ui-components/src/components/DateDisplay/DateDisplay.jsx`) encode the both-ends-dated +
-  icon treatment that the other appointment surfaces still want. Y5's dashboard shape (time → date, no
-  icon, centred, wrap-on-narrow) is different enough that reuse would mean threading flags through a
-  shared component. Build a small **view-local** component/helper for the dashboard time cell instead,
-  and leave the shared primitives untouched.
+  icon treatment that the other appointment surfaces still want. Y5's dashboard shape is a different
+  rule, not a variant of that one: `useDateRangeSpan` answers "does this range span days, and which ends
+  need a date *alongside* their time", whereas Y5 asks, per end, "is this end today — time, or not today
+  — date, exclusively". Reusing it would mean threading flags through a shared component to invert its
+  premise. Build a small **view-local** helper/component for the dashboard time cell and leave the shared
+  primitives untouched.
   - The dashboard is the **only** consumer of `useDateRangeSpan` / `RangeEndDisplay`
     (`DateTimeRangeDisplay` is what the other surfaces use), so this change is safely scoped to the pane.
-  - Reuse the leaf display atoms — `TimeDisplay` for the time, `DateDisplay format="dayMonth"` for the
-    end date, wrapped in `<bdi>` for RTL safety exactly as `RangeEndDisplay` does. It's the *composition*
-    (`spansMultipleDays → time + dayMonth date`, no icon) that's view-local, not the atoms.
-- Keep the whole time cell as its own component so start-of-current-day vs multi-day is one clear
-  decision, and it reads as a snapshot rather than a range.
+  - Reuse the leaf display atoms — `TimeDisplay` for a today end, `DateDisplay format="dayMonth"` for a
+    non-today end, each wrapped in `<bdi>` for RTL safety exactly as `RangeEndDisplay` does. It's the
+    *composition* that's view-local, not the atoms.
+  - The per-end predicate is `trimToDate(toFacilityDateTime(end)) === today` — the same day-comparison
+    `useDateRangeSpan` does internally, and it must stay in the **display** timezone (a booking can sit
+    within one day in the primary timezone and straddle midnight in the facility's). `today` is already
+    passed into the row as `getCurrentDate()`.
+  - `spansMultipleDays` is no longer needed by the pane at all — each end decides for itself.
+- Keep the whole time cell as its own component so the per-end decision is stated once and applied to
+  both ends, rather than branching on booking shape.
 - Centre the time cell (flex, `justify-content: center`, `flex-wrap: wrap`) so the very-small-screen wrap
   stays centred. Drop the current `RangeLine` two-line-per-end structure — every row is one logical line
   now.
-- The grid time-track floor (`minmax(15ch, max-content)`) was sized for the widest L3 string
-  (`12 Aug 10:00am –`). The widest Y5 string is `8:00am – 12 Aug`, so the floor can come down; measure and
-  set it so the single-line case never wraps at 366px and the wrap only kicks in on genuinely small panes.
+- **The grid time-track floor needs rethinking, not just retuning.** It is currently
+  `minmax(15ch, max-content)`; a `ch` floor that large means the track can never shrink below the content,
+  so the wrap the design asks for on small screens can't happen — the pane instead crushes the card,
+  which is the wrong thing to sacrifice (confirmed while building the mockup: Design's third panel keeps
+  the card's location and patient fully readable).
+  - What works is letting the track fall to **`min-content`** on a narrow pane. With each end marked
+    nowrap, min-content is the wider of the two ends, so the range wraps to two centred lines and the
+    card keeps its width. Widest Y5 string is around `10:00am – 11:30am` (~17ch).
+  - Verify the single line still holds comfortably at the pane's 366px min-width and that the wrap only
+    engages on genuinely narrow panes.
 - Remove the now-unused `Brightness2Icon` import / `OvernightIcon` styled component from the pane.
 - Preserve the rail/dot layout and the `3lh` card min-height exactly (see L3 notes baked into the file's
   comments — the lead-connector height is load-bearing for scroll overflow).
@@ -85,16 +105,22 @@ Draft this spec edit as part of implementation (behavioural change, so the spec 
 ## Tests
 
 `packages/web/__tests__/views/dashboard/TodayBookingsPane.test.jsx` currently asserts the L3 output for
-this pane and will need rewriting to the Y5 shape:
+this pane and will need rewriting to the Y5 shape. Its existing fixtures already cover the right days —
+`OVERNIGHT_BOOKING` is 12 Aug 10:00am → 14 Aug 11:30am and the suite renders it on each of 12, 13 and
+14 Aug — so the cases carry over with new expectations:
 
-- Overnight row renders one line `8:00am – 12 Aug` (start time, end date), on every day the stay covers.
+- First day of the stay → `10:00am – 14 Aug`; mid-stay → `12 Aug – 14 Aug`; last day → `12 Aug – 11:30am`.
+- The existing "states the same span on every day" test inverts: each day now states the span
+  *differently* but unambiguously. Replace it with a test that no day renders two bare times (the L3
+  `10:00am – 11:30am` misreading) — that assertion is still exactly the regression worth holding.
 - No `overnighticon-*` in the pane anymore.
 - Same-day row unchanged (`8:30am – 9:00am`); open-ended booking unchanged (single time).
 - Rail-into-every-dot assertions still hold.
+- Worth adding: an end at midnight, and a booking whose ends straddle midnight only in the facility
+  timezone, to hold the display-timezone comparison.
 
 ## Checklist
 
-- [ ] Confirm mid-stay display with Design (open question above)
 - [ ] Update `specs/scheduling/overview.md` to split general vs dashboard-snapshot behaviour
 - [ ] Add view-local time-cell component in `TodayBookingsPane.jsx`; drop overnight icon + `RangeLine`
 - [ ] Centre the time cell and let it wrap on narrow panes
