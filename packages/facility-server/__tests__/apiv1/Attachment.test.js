@@ -13,6 +13,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
@@ -104,6 +105,25 @@ describe('Attachment (facility-server)', () => {
       attachmentId: attachment.id,
       availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
     });
+  });
+
+  it('presents a record that has not reached either server as awaiting its content', async () => {
+    CentralServerConnection.mockImplementation(() => ({
+      fetch: async () => {
+        throw Object.assign(new Error('forbidden'), { status: 403 });
+      },
+    }));
+
+    try {
+      const result = await app.get('/api/attachment/not-synced-here-yet');
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: 'not-synced-here-yet',
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+      });
+    } finally {
+      CentralServerConnection.mockReset();
+    }
   });
 
   // spec: AV

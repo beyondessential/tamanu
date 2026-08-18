@@ -4,6 +4,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
+import { BLOB_AVAILABILITY_STATES } from '@tamanu/constants';
 import { readBlobAsBase64, serveBlob } from '@tamanu/shared/utils/serveBlob';
 
 import { resolveBlobForRead } from '../../blobServing';
@@ -78,13 +79,23 @@ attachment.get(
     // Legacy attachments reside only on the central server, so an attachment
     // with no local record is served by reading it through central.
     const centralServer = new CentralServerConnection({ deviceId });
-    const response = await centralServer.fetch(
-      `attachment/${encodeURIComponent(id)}?base64=${base64}`,
-      {
-        method: 'GET',
-        backoff: { maxAttempts: 5, maxWaitMs: 1000 },
-      },
-    );
-    res.send(response);
+    try {
+      const response = await centralServer.fetch(
+        `attachment/${encodeURIComponent(id)}?base64=${base64}`,
+        {
+          method: 'GET',
+          backoff: { maxAttempts: 5, maxWaitMs: 1000 },
+        },
+      );
+      res.send(response);
+    } catch (error) {
+      // Central answers an id it doesn't hold as forbidden, which is also what a
+      // row still on its way here looks like.
+      if (error?.status !== 403 && error?.status !== 404) throw error;
+      res.status(202).send({
+        attachmentId: id,
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+      });
+    }
   }),
 );
