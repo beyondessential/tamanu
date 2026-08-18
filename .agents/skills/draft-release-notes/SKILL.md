@@ -1,59 +1,57 @@
 ---
 name: draft-release-notes
 description: >-
-  Draft public Tamanu release notes for a given version. Use when the user wants release notes, a
-  changelog, or "what's in vX.YY" for a Tamanu release (e.g. "draft release notes for v2.45"). Pulls
-  work from two sources — Linear issues on the Tamanu team labelled with the version, and the committed
-  specs that landed in that version's release/X.Y branch — reconciles them (committed specs are
-  authoritative), and writes docs/releasenotes/vX.YY.md in the canonical v2.44 format for project
-  managers and system administrators. Not for developer changelogs or QA test scoping (use
-  scope-tamanu-release-tests for the latter).
+  Draft public Tamanu release notes for a given version. Use when the user wants release notes for a
+  Tamanu release (e.g. "draft release notes for v2.45"). Pulls work from the specs and code that landed
+  in that version's release/X.Y branch, plus the matching issues in the trackers (Linear's Tamanu team
+  and Workhorse's Tamanu workspace), reconciles them, and writes docs/release-notes/vX.YY.md in the
+  canonical v2.44 format for project managers and system administrators. Not for developer changelogs
+  or QA test scoping (use scope-tamanu-release-tests for the latter).
 label: "Draft release notes"
 ---
 
 # Draft release notes
 
-Produce **public release notes** for one Tamanu version and write them to `docs/releasenotes/vX.YY.md`.
+Produce **public release notes** for one Tamanu version and write them to `docs/release-notes/vX.YY.md`.
 
 The audience is **project managers and system administrators**, not developers. They read these notes to understand what new capabilities their teams gain, what workflows change, what configuration is required, and what to prepare and test before upgrading. Write to that audience throughout: user-facing capabilities and benefits, not implementation detail.
 
-The canonical format is the published **v2.44** notes, kept alongside this skill at `example-v2.44.md`. Read it first — it is the reference for section order, headings, emoji markers, voice, and how much detail each section carries. A new draft should be indistinguishable in shape from that example.
+The canonical format is the published **v2.44** notes, kept alongside this skill at `example-v2.44.md`. Read it first — it is the reference for section order, headings, emoji markers, voice, and how much detail each section carries.
+
+If `docs/release-notes/vX.YY.md` already exists, that version has been written up — deliver the existing notes rather than redrafting them, unless the user asks for a rewrite.
 
 ## Input
 
 The user specifies the **version** (e.g. `v2.45`, or `2.45`). Normalise it to:
 
 - **Release branch** `release/2.45`
-- **Output file** `docs/releasenotes/v2.45.md`
-- **Linear version label** — the label for that version (often `v2.45.0`); confirm the exact label against the Tamanu team's labels rather than assuming.
+- **Output file** `docs/release-notes/v2.45.md`
+- **Linear version label** — the label for that version (often `v2.45.0`); confirm the exact label against the Tamanu team's labels rather than assuming. Version labels also drift, so ground the notes in what code shipped rather than assuming Linear is correct.
 
 Ask for the **release date** if the user hasn't given it. Format it `DD-MM-YYYY` in the header. If it's genuinely not known yet, leave `Released [RELEASE_DATE_PLACEHOLDER]`.
 
 ## Sourcing: two places to look
 
-Work included in a version comes from **both** of these. Gather from each, then reconcile.
+Work included in a version comes from **both** of these. The repo is the primary source for what shipped and how it behaves; the trackers supply the human framing. Gather from each, then reconcile.
 
-### 1. Linear — the Tamanu team
+Cards live in **both** trackers — Linear for older work, Workhorse for recent cycles — so check both. A single version often draws on each.
 
-Pull issues that meet **all** of:
+### 1. Issue trackers (Linear — the Tamanu team, and Workhorse — the Tamanu workspace)
 
-- On the **Tamanu** team.
-- Labelled with the version (e.g. `v2.45.0`).
-- **Completed.** A version label records intent to ship, not the outcome — an issue can carry the label while still in progress, or after being cancelled or bumped to a later release. Include only issues whose status type is `completed`, and drop anything cancelled. Never describe work that didn't land.
+**In Linear**, pull issues on the **Tamanu** team labelled with the version (e.g. `v2.45.0`). Filter issues directly by the label string; the label-search tool is unreliable for version labels, so read the labels on a returned issue to confirm the exact spelling rather than trusting a label lookup. Filtering to the Tamanu team already excludes DataTrak, Tupaia, and other non-Tamanu product work — they live on separate teams.
 
-**Filter issues directly by the label string** (list issues with `team: Tamanu`, `label: v2.45.0`). The label-search tool is unreliable for version labels — don't depend on it to confirm the label exists; instead read the labels on a returned issue to confirm the exact spelling for that version.
+**In Workhorse**, cards carry no version label, so version membership comes from the release branch instead: collect the card codes from the branch's commit history (commit subjects carry them, e.g. `feat(web): F3: …`) and read each card. Listing cards in a shipped status — Merged to Main, Release: Regression Ready, Complete: Docs Required, Complete — gives a second list to cross-check that against, catching anything whose commits you missed.
 
-Filtering to the Tamanu team already excludes DataTrak, Tupaia, and other non-Tamanu product work — they live on separate teams. If you surface an issue that is clearly one of those, drop it.
+Then, in **either** tracker:
 
-**Exclude internal / non-user-facing work.** Developer-only issues — E2E or test changes, build tooling, dependency bumps, internal readmes and developer docs — do not belong in public release notes. Judge by whether a project manager or administrator would notice the change; if not, leave it out.
+- **Only include work that landed.** A version label or a spec branch records intent to ship, not the outcome. Drop anything cancelled, still in progress, or bumped to a later release, and confirm against the branch. Never describe work that didn't ship.
+- **Exclude internal / non-user-facing work.** E2E or test changes, build tooling, dependency bumps, internal readmes and developer docs do not belong in public release notes. Judge by whether a project manager or administrator would notice the change; if not, leave it out.
+- A card sitting in **"Complete: Docs Required"** is explicitly flagged as awaiting release-notes coverage — treat that as a strong signal it belongs in the notes.
+- Use the card's title, description, and comments for the human-readable framing of a feature — what it is and why it matters to a user.
 
-A completed issue whose status is **"Complete: Docs Required"** is explicitly flagged as awaiting release-notes coverage — treat that as a strong signal it belongs in the notes.
+### 2. Specs and code that landed in the release branch
 
-Use each issue's title, description, and comments for the human-readable framing of a feature — what it is and why it matters to a user.
-
-### 2. Workhorse — specs that landed in the release branch
-
-A Workhorse card is part of a version when it **landed in that version's `release/2.xx` branch**. The committed specs are the content source for that work — read the specs, not card titles.
+Start with the specs that landed in this release: they describe the behaviour as the product intends it, which is how release notes should read. Then follow the same process across the rest of the repo to ground each claim and fill in missing detail, keeping the specs as the primary framing.
 
 Find the spec delta for the version with git:
 
@@ -63,15 +61,9 @@ git fetch origin release/2.44
 git diff --name-status origin/release/2.44...origin/release/2.45 -- specs/
 ```
 
-**Use the three-dot form.** Two dots compares the two branch tips directly, and Tamanu keeps servicing older release branches after a newer one is cut. A spec **edited** on `release/2.44` post-cut then shows as `M` against `release/2.45`, so the previous version's hotfix work gets read as this version's; the diff is also reversed, describing the change backwards. A spec **added** on `release/2.44` post-cut shows as `D`, which is merely ignored. Three dots diffs from the merge base, giving exactly what landed on this line since it diverged.
+**Diff from the merge base (three dots), not between the tips.** Tamanu keeps servicing older release branches after a newer one is cut, so a two-dot diff reads the previous version's hotfixes as this version's work.
 
-Fetch each branch in its own command: a single `git fetch` naming both refs fails atomically if one doesn't exist yet, which is precisely the uncut-branch case below.
-
-Added (`A`) and modified (`M`) files under `specs/` are the work that landed in this version. Read each changed spec to understand the behaviour. Use `git log` on a spec path to recover the Linear card and PR that introduced it (two dots is correct here — `git log` takes a real commit range):
-
-```
-git log --oneline origin/release/2.44..origin/release/2.45 -- specs/administration/settings/secret-encryption.md
-```
+Read each added or modified spec to understand the behaviour, and use `git log` on a spec path to recover the card and PR that introduced it.
 
 Notes on refs:
 
@@ -83,15 +75,14 @@ Notes on refs:
 
   Confirm the line shipped by checking it has tags (`git tag --list 'v2.44.*'`). Compare against that branch so the delta is exactly this version's work, not an accumulation. State which refs you used.
 - If `release/2.45` **hasn't been cut yet**, the work is still on `main` — use `origin/release/2.44...origin/main` instead, and say so. This is an upper-bound-free view: `main` may already carry work destined for a later version, so check each spec's introducing commit and drop anything that isn't part of the version being written up.
-- `git fetch` does not create local branches — reference fetched branches as `origin/release/2.45`.
 
 ## Reconciling the two sources
 
-The same piece of work often appears in both places — a spec-driven card usually originates from a Linear issue. Match them on the **Linear card id** (the spec's introducing commits reference it; the Linear issues carry it).
+The same piece of work often appears in both places — a spec-driven card usually originates from an issue in a tracker. Match them on the card id carried in the spec's introducing commits.
 
-- **Committed specs are authoritative.** Where both describe the same work, the spec's description of the behaviour drives the write-up. Use the Linear issue only for supporting framing (a readable title, the "why") and for team/version confirmation.
-- **Linear-only work** (labelled for the version but with no spec that landed) is included once you've confirmed it actually shipped in this version. The issue's status is the first check; confirm it against the release branch by looking for its card id in the history, e.g. `git log --oneline origin/release/2.45 --grep TAM-6786`. If the work isn't in the branch, leave it out — a label alone is not evidence it shipped.
-- **Never list the same feature twice.** One entry per piece of work.
+- **Committed specs are authoritative.** Where both describe the same work, the spec's description of the behaviour drives the write-up. Use the tracker card only for supporting framing (a readable title, the "why") and for version confirmation.
+- **Tracker-only work** (labelled or staged for the version but with no spec that landed) is included once you've confirmed it actually shipped. The card's status is the first check; confirm it against the release branch by looking for its card id in the history, e.g. `git log --oneline origin/release/2.45 --grep TAM-6786`. If the work isn't in the branch, leave it out — a label alone is not evidence it shipped.
+- **Never list the same feature twice.** One entry per piece of work, even where the same work appears in both trackers.
 
 ## Structuring the notes
 
@@ -133,13 +124,13 @@ Keep the descriptive label before each placeholder so the person filling them in
 
 1. Resolve the version to its release branch, output path, and Linear label. Get the release date, or use the placeholder.
 2. Read `example-v2.44.md` for the target shape.
-3. Pull the Linear Tamanu-team issues for the version.
-4. [parallel with 3] Fetch the release branches and diff `specs/` to get the landed specs; read them; recover their cards/PRs from git log.
-5. Reconcile the two sets on card id — committed specs win on overlap; Linear-only work is kept; dedup.
+3. Pull the tracker cards for the version — Linear's Tamanu team by version label, and Workhorse's Tamanu workspace by the card codes in the release branch.
+4. [parallel with 3] Fetch the release branches and diff `specs/` to get the landed specs; read them; ground and deepen using the code changes as required; recover their cards/PRs from git log.
+5. Reconcile the two sets on card id — committed specs win on overlap; tracker-only work is kept once confirmed shipped; dedup.
 6. Classify each item into the six sections and draft the notes in the canonical format, leaving `[SLAB_LINK_PLACEHOLDER]` for every supporting-documentation link.
-7. Write `docs/releasenotes/vX.YY.md` (create `docs/releasenotes/` on the first version).
+7. Write `docs/release-notes/vX.YY.md` (create `docs/release-notes/` on the first version).
 8. Tell the user the path, and list what still needs a human: the Slab links, the release date if placeholdered, and anything you couldn't confidently classify.
 
 ## Source of truth
 
-The committed specs and the Tamanu commit history are authoritative for what shipped; Linear supplies framing. This skill encodes the method, not a fixed answer — the surfaces, sections, and format can evolve. If the repo or a newer published release disagrees with this skill, the repo wins; update the skill and refresh the canonical example.
+The committed specs and the Tamanu commit history are authoritative for what shipped; the trackers supply framing. This skill encodes the method, not a fixed answer — the surfaces, sections, and format can evolve. If the repo or a newer published release disagrees with this skill, the repo wins; update the skill and refresh the canonical example.
