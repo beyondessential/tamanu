@@ -139,6 +139,13 @@
   .rail .tail { flex: 1 0 12px; width: 1px; background: var(--outline); }
   .row:last-child .rail .tail { flex: 0 0 12px; }
 
+  /* A lone booking shows no rail at all: with nothing to connect it to, the line
+     reads as an artefact rather than as a timeline. The lead segment stays in place
+     as an invisible spacer — its height is what puts the dot level with the first
+     line of the card beside it. */
+  .row:only-child .lead,
+  .row:only-child .tail { background: transparent; }
+
   .dot svg { display: block; }
 
   /* The content half of the row: [time] [card], vertically centred. */
@@ -194,6 +201,7 @@
   .card.seen    { background: rgba(25, 147, 78, 0.10); }
   .card.confirmed { background: rgba(17, 114, 209, 0.10); }
   .card.arrived { background: rgba(65, 1, 201, 0.10); }
+  .card.assessed { background: rgba(209, 5, 128, 0.10); }
 
   .pane-footer {
     margin: 4px 20px 0;
@@ -371,6 +379,95 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="pane-footer"></div>
+      </div>
+    </section>
+
+    <p class="group-heading">More than one booking
+      <span>— the rail is drawn here, and only here; unchanged from what ships today</span>
+    </p>
+
+    <!-- ============ Several bookings: the rail still runs ============ -->
+    <section>
+      <p class="scenario-label">Several bookings
+        <small>Two or more dots to connect, so the rail runs through them.</small>
+      </p>
+      <div class="pane">
+        <div class="pane-title">
+          <h4>Today's bookings</h4>
+          <span class="view-all">View all…</span>
+        </div>
+        <div class="timeline">
+
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="#19934e"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">8:00am&nbsp;&ndash;&nbsp;9:00am</span></div>
+              <div class="card seen">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="#4101c9" fill="none"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">9:30am&nbsp;&ndash;&nbsp;10:00am</span></div>
+              <div class="card arrived">
+                <div class="loc">Maternity Ward, Bed 1</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="#1172d1" stroke-width="2" stroke-dasharray="4 4" fill="none"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">9:30am&nbsp;&ndash;&nbsp;12 Aug</span></div>
+              <div class="card confirmed">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Sarah Smith</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="rail">
+              <span class="lead"></span>
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.9167 15.9167L17.5833 9.25C17.9167 8.91667 17.9167 8.41667 17.5833 8.08333C17.25 7.75 16.75 7.75 16.4167 8.08333L10.3333 14.1667L7.58333 11.4167C7.25 11.0833 6.75 11.0833 6.41667 11.4167C6.08333 11.75 6.08333 12.25 6.41667 12.5833L9.75 15.9167C9.91667 16.0833 10.0833 16.1667 10.3333 16.1667C10.5833 16.1667 10.75 16.0833 10.9167 15.9167Z" fill="#d10580"/><circle cx="12" cy="12" r="9" stroke="#d10580" stroke-width="2" fill="none"/></svg>
+              </span>
+              <span class="tail"></span>
+            </div>
+            <div class="content">
+              <div class="time"><span class="part">9:30am&nbsp;&ndash;&nbsp;10:00am</span></div>
+              <div class="card assessed">
+                <div class="loc">Ward 1 Bed 4</div>
+                <div class="patient">Yolanda Hadid</div>
+              </div>
+            </div>
+          </div>
+
         </div>
         <div class="pane-footer"></div>
       </div>

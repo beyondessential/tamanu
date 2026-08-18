@@ -1,9 +1,10 @@
 # Y5 — Bookings status indicators
 
-Simplify how the dashboard **Today's bookings** pane displays an overnight (multi-day) booking, so its
-time column is a single line and every row's status dot and card line up. Design owns the display; the
-three scenarios below are exact from Flic (Figma "Tamanu Desktop 1", nodes 42141-107929 / 42141-107976 /
-42143-108520). Mockup: **Today's bookings status indicators**.
+Simplify the dashboard **Today's bookings** pane: show less about an overnight (multi-day) booking so
+its time column is a single line and every row's dot and card line up, and drop the rail when there is
+only one booking. Design owns the display; the scenarios below are exact from Flic (Figma "Tamanu
+Desktop 1", nodes 42141-107929 / 42141-107976 / 42143-108520). Mockup: **Today's bookings status
+indicators**.
 
 This builds on L3, which fixed the *wrong times* on overnight bookings by dating both ends and adding an
 overnight icon. Y5 keeps L3 correct everywhere else but replaces that treatment **in the dashboard pane
@@ -46,6 +47,27 @@ throughout. This is the property L3 was reaching for, achieved by showing *less*
 - Time cell is centred so a wrap on a narrow pane keeps both parts centred rather than left-ragged.
 - All rows are now single-line, so overnight rows are the same height as same-day rows — this is the
   alignment fix the card is really about.
+
+## The rail
+
+**When the pane lists exactly one booking, no rail is drawn — just the status dot.** With two or more
+bookings the rail runs through the dots exactly as it does today; that case is unchanged.
+
+⚠️ **This deliberately reverses an L3 decision, so don't let it get "fixed" back.** L3 added the lead
+connector precisely so a lone dot had rail running into it — see the `LeadConnector` doc comment in
+`TodayBookingsPane.jsx` ("A lone dot with nothing running into it reads as misplaced rather than as the
+first of a list") and commit `24a79b3080`. Design has now looked at it and wants the opposite: with
+nothing to connect to, the line reads as an artefact. Record the new intent in the component comment
+and replace the old reasoning rather than leaving both in the file.
+
+**Keep the lead segment as an invisible spacer; do not remove the element.** Its `flex: 0 0 21px` is
+what puts the dot level with the first line of text in the card beside it. The same doc comment records
+what happened last time that offset was expressed differently: nudging the separator with relative
+positioning left the row's real height 21px short of what was drawn, and the overhang became scrollable
+overflow — a scrollbar on a list that plainly fit. So make it transparent, don't delete it.
+
+`.row:only-child` (rows are direct children of the timeline grid) expresses this in CSS with no extra
+component state, which is what the mockup does.
 
 ## Implementation approach
 
@@ -115,15 +137,24 @@ this pane and will need rewriting to the Y5 shape. Its existing fixtures already
   `10:00am – 11:30am` misreading) — that assertion is still exactly the regression worth holding.
 - No `overnighticon-*` in the pane anymore.
 - Same-day row unchanged (`8:30am – 9:00am`); open-ended booking unchanged (single time).
-- Rail-into-every-dot assertions still hold.
 - Worth adding: an end at midnight, and a booking whose ends straddle midnight only in the facility
   timezone, to hold the display-timezone comparison.
+
+⚠️ **`runs the rail into every dot, down to a lone one` must be deleted, not left to pass.** It asserts
+that `leadconnector-*` elements are present. Since the lead segment stays in the DOM as a spacer and only
+its paint changes, that assertion would keep passing while asserting the opposite of the intended
+behaviour — a silently vacuous test, worse than no test. The file's own comment already notes that where
+the rail stops "is left to CSS, which this renderer does not apply", so paint is not assertable at this
+level. Cover the lone-booking rail visually in the card's test cases instead, or expose the row's
+alone-ness as a data attribute if it's worth asserting in the unit test.
 
 ## Checklist
 
 - [ ] Update `specs/scheduling/overview.md` to split general vs dashboard-snapshot behaviour
 - [ ] Add view-local time-cell component in `TodayBookingsPane.jsx`; drop overnight icon + `RangeLine`
 - [ ] Centre the time cell and let it wrap on narrow panes
-- [ ] Retune the grid time-track floor for the shorter strings
-- [ ] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape
+- [ ] Retune the grid time-track floor so the narrow case can actually wrap
+- [ ] Hide the rail when the pane lists one booking, keeping the lead segment as a spacer
+- [ ] Update the `LeadConnector` comment to the new intent, replacing L3's reasoning
+- [ ] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape, deleting the rail-into-lone-dot case
 - [ ] Verify unit tests + lint locally
