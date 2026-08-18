@@ -10,7 +10,13 @@
     {
       "id": "imagingType-xRay",
       "code": "xRay",
-      "name": "X-Ray",
+      "name": "X-ray",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "imagingType-xRayPortable",
+      "code": "xRayPortable",
+      "name": "X-ray (portable)",
       "visibilityStatus": "current"
     },
     {
