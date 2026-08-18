@@ -10,7 +10,6 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
-import { MultiSelectModalScreen } from '~/ui/components/MultiSelectModal';
 import { SelectModalScreen } from '~/ui/components/SelectModal';
 import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal';
 import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
@@ -49,7 +48,6 @@ export const Core: FunctionComponent<any> = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
-      <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
       <Stack.Screen
         component={FrequencySearchModalScreen}
