@@ -31,7 +31,7 @@ A trial run against **v2.61** was done during development and its output landed 
 
 - [ ] Output matches the six-section order from `example-v2-44.md`: header → 🌟 Major → 🔧 Enhancements → 🐛 Tweaks & Bug Fixes → ⚠️ Critical Upgrade Notes → Upgrade Steps and Recommended Testing.
 - [ ] Major features are grouped by surface (Tamanu Desktop / Tamanu Mobile / Patient Portal / System Administration), using only surfaces with content.
-- [ ] Tweaks and Bug Fixes lists **all** smaller items, grouped by platform.
+- [ ] Tweaks and Bug Fixes summarises at area level, grouped by platform, rather than enumerating individual fixes.
 - [ ] Critical Upgrade Notes and Upgrade Steps are each split Required / Optional, with both at the same heading level so Optional does not render inside Required.
 - [ ] Emoji section markers (🌟 🔧 🐛 ⚠️) and `---` separators are present.
 
