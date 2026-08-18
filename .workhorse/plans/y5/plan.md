@@ -50,15 +50,19 @@ throughout. This is the property L3 was reaching for, achieved by showing *less*
 
 ## The rail
 
-**When the pane lists exactly one booking, no rail is drawn — just the status dot.** With two or more
-bookings the rail runs through the dots exactly as it does today; that case is unchanged.
+**The rail spans the dots and nothing more.** It begins at the first dot and ends at the last, with no
+lead-in above the first and no run-out below the last. It is what connects the dots, so it exists only
+where there are dots to connect — which is also why **a pane listing exactly one booking draws no rail
+at all**, just the status dot. One rule, and the single-booking case falls out of it.
 
-⚠️ **This deliberately reverses an L3 decision, so don't let it get "fixed" back.** L3 added the lead
-connector precisely so a lone dot had rail running into it — see the `LeadConnector` doc comment in
-`TodayBookingsPane.jsx` ("A lone dot with nothing running into it reads as misplaced rather than as the
-first of a list") and commit `24a79b3080`. Design has now looked at it and wants the opposite: with
-nothing to connect to, the line reads as an artefact. Record the new intent in the component comment
-and replace the old reasoning rather than leaving both in the file.
+⚠️ **This reverses both of L3's rail decisions, so don't let either get "fixed" back.** L3 deliberately
+ran the rail *above* the first dot — see the `LeadConnector` doc comment ("A lone dot with nothing
+running into it reads as misplaced rather than as the first of a list") — and then deliberately ran it
+*past* the last dot in commit `24a79b3080` ("run the bookings rail out of the last dot, not just into
+it"), which is what the `&:last-child … flex: 0 0 12px` rule in the file exists for. Design has since
+looked at the pane and wants the rail contained to the dots. Both the `LeadConnector` rationale and the
+last-child rule go; replace the old reasoning in the component's comments rather than leaving it
+alongside the new behaviour.
 
 `.row:only-child` (rows are direct children of the timeline grid) expresses this in CSS with no extra
 component state, which is what the mockup does.
@@ -85,18 +89,19 @@ the vertical hacks inside it are.
 
 **Place the dot by alignment, not by a spacer.** With the row's content centred, the dot is simply
 centred too — `place-items: center` on the dot cell and nothing else. No offset constant, and nothing to
-keep in sync with the card's padding or line-height. (If Design instead wants the dot on the card's
-*first line* rather than its centre, derive it from the card's own metrics — the card's block padding
-plus `1lh`, centred — rather than a magic number.)
+keep in sync with the card's padding or line-height. This is also what makes the dot land *exactly*
+where it should: the 21px spacer was placing it a pixel or two high, because a hand-tuned constant can
+only ever approximate a value the layout already knows.
 
 **Paint the rail, don't lay it out.** Make it a pseudo-element positioned over the dot column
 (`inset-block: 0`, 1px wide) instead of two sibling connector elements. Its extent is then free to
-differ from the row's height, which is what the last-row case wants (`block-size: calc(50% + 12px)` to
-run out of the last dot and stop short of the footer rule), and `:only-child { content: none }` gives
-the no-rail case. Crucially this **dissolves the trap in L3's comment**: the reason a mis-sized rail
-could leave the row 21px taller than it drew — and turn into phantom scrollable overflow — was that the
-rail was a laid-out element. A pseudo-element contributes nothing to layout height, so that whole class
-of bug stops being possible rather than being avoided by convention.
+differ from the row's height, which is what the first and last rows need — `inset-block-start: 50%` on
+the first and `inset-block-end: 50%` on the last, so the rail begins and ends at the dot centres — with
+`:only-child { content: none }` for the no-rail case. Crucially this **dissolves the trap in L3's
+comment**: the reason a mis-sized rail could leave the row 21px taller than it drew — and turn into
+phantom scrollable overflow — was that the rail was a laid-out element. A pseudo-element contributes
+nothing to layout height, so that whole class of bug stops being possible rather than being avoided by
+convention.
 
 ⚠️ One gotcha the mockup surfaced: with a single rail spanning the row, the line passes *behind* the dot,
 and the outlined status icons (`CircleIconOutlined`, `CircleIconDashed`) are transparent in the middle,
@@ -202,6 +207,7 @@ alone-ness as a data attribute if it's worth asserting in the unit test.
 - [ ] Replace MUI `Timeline` parts with plain elements
 - [ ] Centre the dot by alignment; delete the 21px spacer and its warning comment
 - [ ] Redraw the rail as a pseudo-element; mask it behind the dot
+- [ ] Contain the rail to the dots: no lead-in above the first, no run-out below the last
 - [ ] Hide the rail when the pane lists one booking
 - [ ] Update the component's comments to the new intent, replacing L3's reasoning
 - [ ] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape, deleting the rail-into-lone-dot case

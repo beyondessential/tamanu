@@ -143,14 +143,14 @@
     width: 1px;
     background: var(--outline);
   }
-  /* Past the last dot the rail carries on far enough to read as running out of it,
-     then stops short of the footer's rule rather than running into it. */
-  .row:last-child .rail::before {
-    inset-block-end: auto;
-    block-size: calc(50% + 12px);
-  }
-  /* A lone booking shows no rail at all: with nothing to connect it to, the line
-     reads as an artefact rather than as a timeline. */
+  /* The rail spans the dots and nothing more: it begins at the first dot and ends at
+     the last, with no lead-in above the first or run-out below the last. It is what
+     connects the dots, so it exists only where there are dots to connect. */
+  .row:first-child .rail::before { inset-block-start: 50%; }
+  .row:last-child .rail::before { inset-block-end: 50%; }
+  /* Which is why a lone booking has no rail at all: with nothing to connect it to,
+     the line reads as an artefact rather than as a timeline. Falls out of the two
+     rules above, and is stated outright so it cannot be lost. */
   .row:only-child .rail::before { content: none; }
 
   .dot {
@@ -389,13 +389,13 @@
     </section>
 
     <p class="group-heading">More than one booking
-      <span>— the rail is drawn here, and only here; unchanged from what ships today</span>
+      <span>— the rail is drawn here, and only here, spanning the dots and nothing more</span>
     </p>
 
-    <!-- ============ Several bookings: the rail still runs ============ -->
+    <!-- ============ Several bookings: the rail runs dot to dot ============ -->
     <section>
       <p class="scenario-label">Several bookings
-        <small>Two or more dots to connect, so the rail runs through them.</small>
+        <small>Rail begins at the first dot and ends at the last.</small>
       </p>
       <div class="pane">
         <div class="pane-title">
