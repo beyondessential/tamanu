@@ -88,5 +88,51 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.patientTable.waitForTableToLoad();
       await outpatientsPage.validateSortOrder(false, 'displayId');
     });
+
+    //sorting by sex is opposite of other sorting in the app, with one click it is sorting in ascending.
+    test('Sort table by Sex in ascending order', async ({
+      outpatientsPage,
+      newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
+    }) => {
+      await outpatientsPage.sortBySex();
+      await outpatientsPage.patientTable.waitForTableToLoad();
+      await outpatientsPage.validateSortOrder(true, 'sex');
+    });
+
+    test('Sort table by Area in ascending order', async ({
+      outpatientsPage,
+      newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
+    }) => {
+      await outpatientsPage.sortByArea();
+      await outpatientsPage.patientTable.waitForTableToLoad();
+      await outpatientsPage.validateSortOrder(true, 'locationGroupName');
+    });
+
+    test('Sort table by Location in ascending order', async ({
+      outpatientsPage,
+      newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
+    }) => {
+      await outpatientsPage.sortByLocation();
+      await outpatientsPage.patientTable.waitForTableToLoad();
+      await outpatientsPage.validateSortOrder(true, 'locationName');
+    });
+
+    test('Sort table by Department in ascending order', async ({
+      outpatientsPage,
+      newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
+    }) => {
+      await outpatientsPage.sortByDepartment();
+      await outpatientsPage.patientTable.waitForTableToLoad();
+      await outpatientsPage.validateSortOrder(true, 'departmentName');
+    });
+
+    test('Sort table by Clinician in ascending order', async ({
+      outpatientsPage,
+      newPatientWithClinicAdmission: _newPatientWithClinicAdmission,
+    }) => {
+      await outpatientsPage.sortByClinician();
+      await outpatientsPage.patientTable.waitForTableToLoad();
+      await outpatientsPage.validateSortOrder(true, 'clinician');
+    });
   });
 });
