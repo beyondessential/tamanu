@@ -31,9 +31,10 @@ something is being sent to pharmacy.
 ## Discharge route, end to end
 
 These need a running facility server and database, so they were not exercised locally — the local
-facility test database is not set up and its integration suites fail with or without this change.
+facility test database is not set up and its integration suites fail with or without this change. The
+ticked case is covered by a Playwright case in `patientDischarge.spec.ts`, which CI runs.
 
-- [ ] Discharging with every medication unticked and every quantity blank completes, and does not
+- [x] Discharging with every medication unticked and every quantity blank completes, and does not
       error on the dispensing quantity.
 - [ ] Discharging with a blank quantity records zero against that prescription.
 - [ ] An unticked row records its quantity against the prescription (zero where blank), including
@@ -44,6 +45,7 @@ facility test database is not set up and its integration suites fail with or wit
 
 ## Manual verification
 
-- [ ] Reproduce the original report: open the discharge modal for an encounter with medications,
-      leave "send to pharmacy" unselected, and confirm the discharge completes.
+- [x] Reproduce the original report: open the discharge modal for an encounter with medications,
+      leave "send to pharmacy" unselected, and confirm the discharge completes. Covered by the
+      Playwright case above.
 - [ ] With all checkboxes cleared, the ordering prescriber shows no red asterisk and is disabled.
