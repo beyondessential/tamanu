@@ -8,16 +8,43 @@ set -euxo pipefail
 
 pgversion="${1:?version must be provided}"
 
+# The runner image leaves apt's acquire timeouts unset, and its retry setting
+# uses a key apt doesn't read (apt reads Acquire::Retries, not
+# APT::Acquire::Retries). A mirror that accepts the connection and then stalls
+# mid-transfer therefore blocks with no deadline instead of failing over to the
+# next mirror in the list.
+sudo tee /etc/apt/apt.conf.d/99-ci-acquire >/dev/null <<'CONF'
+Acquire::Retries "3";
+Acquire::http::Timeout "15";
+Acquire::https::Timeout "15";
+CONF
+
+# apt only fails over once the stalled mirror has timed out, so bound each
+# attempt as well and retry the command as a whole.
+apt_get() {
+	local attempt
+	for attempt in 1 2 3; do
+		if sudo timeout 300 apt-get "$@"; then
+			return 0
+		fi
+		echo "apt-get $* failed, attempt $attempt of 3" >&2
+		sleep $((attempt * 10))
+	done
+	return 1
+}
+
 # configure official upstream apt repo
 # from https://wiki.postgresql.org/wiki/Apt
-sudo apt install -y curl ca-certificates gnupg
-curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
+apt_get install -y curl ca-certificates gnupg
+curl --fail --silent --show-error --location --max-time 60 --retry 3 \
+	https://www.postgresql.org/media/keys/ACCC4CF8.asc |
+	gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
 echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 
 # remove existing postgresql and install desired version
-sudo apt update
-sudo apt remove -y postgresql\*
-sudo apt install -y "postgresql-$pgversion"
+apt_get update
+apt_get remove -y postgresql\*
+apt_get install -y "postgresql-$pgversion"
 
 # add postgresql binaries to path
 echo "/usr/lib/postgresql/$pgversion/bin" >> $GITHUB_PATH

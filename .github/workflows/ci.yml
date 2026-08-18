@@ -121,6 +121,7 @@ jobs:
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -183,6 +184,7 @@ jobs:
 
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -233,6 +235,7 @@ jobs:
     if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -289,6 +292,7 @@ jobs:
     if: needs.plan.outputs.run-dbt-model == 'true'
     name: DBT model up to date
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
