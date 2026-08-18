@@ -49,15 +49,15 @@ server instead.
 A blank quantity is now stored as `0` rather than `NULL`. Existing rows are untouched; this only
 affects prescriptions written or discharged from here on.
 
-## Open question — unticked rows still overwrite the stored quantity
+## Settled — an unticked row records zero against its prescription
 
 `encounter.js` writes `prescription.update({ quantity, repeats })` for **every** listed prescription,
 with no `sendToPharmacy` check. So a row the clinician is not dispensing still stamps its quantity
-onto the prescription — including rows in the "Other ongoing medication" table, whose prescriptions
-belong to the patient rather than to this encounter.
+onto the prescription — zero, where the field was left blank — including rows in the "Other ongoing
+medication" table, whose prescriptions belong to the patient rather than to this encounter.
 
-Not changed here, because it is a product decision rather than a defect: should an unticked row record
-its quantity against the prescription at all? Raised with the user; still open.
+**Confirmed with Design as the intended behaviour**, so the unconditional write stays. No code change:
+the normalisation above already makes a blank row record zero rather than failing.
 
 ## Test coverage
 
