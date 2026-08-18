@@ -1,8 +1,8 @@
 # Draft release notes skill — test cases
 
-Concrete scenarios for verifying the `draft-release-notes` skill. A skill is a prompt, so these are run manually by invoking the skill against a real (or recent) Tamanu version and inspecting the drafted `docs/release-notes/vX.YY.md`.
+Concrete scenarios for verifying the `draft-release-notes` skill. A skill is a prompt, so these are run manually by invoking the skill against a real (or recent) Tamanu version and inspecting the drafted `docs/release-notes/vX-YY.md`.
 
-A trial run against **v2.61** was done during development and its output landed at `docs/release-notes/v2.61.md`. Ticks below reflect that trial, which predates the Workhorse-tracker cases.
+A trial run against **v2.61** was done during development and its output landed at `docs/release-notes/v2-61.md`. Ticks below reflect that trial, which predates the Workhorse-tracker cases.
 
 ## Sourcing
 
@@ -29,7 +29,7 @@ A trial run against **v2.61** was done during development and its output landed 
 
 ## Format fidelity
 
-- [ ] Output matches the six-section order from `example-v2.44.md`: header → 🌟 Major → 🔧 Enhancements → 🐛 Tweaks & Bug Fixes → ⚠️ Critical Upgrade Notes → Upgrade Steps and Recommended Testing.
+- [ ] Output matches the six-section order from `example-v2-44.md`: header → 🌟 Major → 🔧 Enhancements → 🐛 Tweaks & Bug Fixes → ⚠️ Critical Upgrade Notes → Upgrade Steps and Recommended Testing.
 - [ ] Major features are grouped by surface (Tamanu Desktop / Tamanu Mobile / Patient Portal / System Administration), using only surfaces with content.
 - [ ] Tweaks and Bug Fixes lists **all** smaller items, grouped by platform.
 - [ ] Critical Upgrade Notes and Upgrade Steps are each split Required / Optional, with both at the same heading level so Optional does not render inside Required.
@@ -39,8 +39,8 @@ A trial run against **v2.61** was done during development and its output landed 
 
 - [ ] Every Supporting documentation link is left as `[SLAB_LINK_PLACEHOLDER]` with its descriptive label intact.
 - [ ] The release date renders `DD-MM-YYYY`, or a clearly marked placeholder when unknown.
-- [ ] The file is written to `docs/release-notes/vX.YY.md`, creating `docs/release-notes/` on the first run.
-- [ ] Asked for a version that already has notes at `docs/release-notes/vX.YY.md`, the skill delivers the existing file instead of redrafting.
+- [ ] The file is written to `docs/release-notes/vX-YY.md`, creating `docs/release-notes/` on the first run.
+- [ ] Asked for a version that already has notes at `docs/release-notes/vX-YY.md`, the skill delivers the existing file instead of redrafting.
 
 ## Voice
 

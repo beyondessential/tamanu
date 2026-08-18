@@ -4,7 +4,7 @@ description: >-
   Draft public Tamanu release notes for a given version. Use when the user wants release notes for a
   Tamanu release (e.g. "draft release notes for v2.45"). Pulls work from the specs and code that landed
   in that version's release/X.Y branch, plus the matching issues in the trackers (Linear's Tamanu team
-  and Workhorse's Tamanu workspace), reconciles them, and writes docs/release-notes/vX.YY.md in the
+  and Workhorse's Tamanu workspace), reconciles them, and writes docs/release-notes/vX-YY.md in the
   canonical v2.44 format for project managers and system administrators. Not for developer changelogs
   or QA test scoping (use scope-tamanu-release-tests for the latter).
 label: "Draft release notes"
@@ -12,20 +12,20 @@ label: "Draft release notes"
 
 # Draft release notes
 
-Produce **public release notes** for one Tamanu version and write them to `docs/release-notes/vX.YY.md`.
+Produce **public release notes** for one Tamanu version and write them to `docs/release-notes/vX-YY.md`.
 
 The audience is **project managers and system administrators**, not developers. They read these notes to understand what new capabilities their teams gain, what workflows change, what configuration is required, and what to prepare and test before upgrading. Write to that audience throughout: user-facing capabilities and benefits, not implementation detail.
 
-The canonical format is the published **v2.44** notes, kept alongside this skill at `example-v2.44.md`. Read it first — it is the reference for section order, headings, emoji markers, voice, and how much detail each section carries.
+The canonical format is the published **v2.44** notes, kept alongside this skill at `example-v2-44.md`. Read it first — it is the reference for section order, headings, emoji markers, voice, and how much detail each section carries.
 
-If `docs/release-notes/vX.YY.md` already exists, that version has been written up — deliver the existing notes rather than redrafting them, unless the user asks for a rewrite.
+If `docs/release-notes/vX-YY.md` already exists, that version has been written up — deliver the existing notes rather than redrafting them, unless the user asks for a rewrite.
 
 ## Input
 
 The user specifies the **version** (e.g. `v2.45`, or `2.45`). Normalise it to:
 
 - **Release branch** `release/2.45`
-- **Output file** `docs/release-notes/v2.45.md`
+- **Output file** `docs/release-notes/v2-45.md` — the filename hyphenates the version, so the only dot in it is the extension's
 - **Linear version label** — the label for that version (often `v2.45.0`); confirm the exact label against the Tamanu team's labels rather than assuming. Version labels also drift, so ground the notes in what code shipped rather than assuming Linear is correct.
 
 Ask for the **release date** if the user hasn't given it. Format it `DD-MM-YYYY` in the header. If it's genuinely not known yet, leave `Released [RELEASE_DATE_PLACEHOLDER]`.
@@ -123,12 +123,12 @@ Keep the descriptive label before each placeholder so the person filling them in
 ## Workflow
 
 1. Resolve the version to its release branch, output path, and Linear label. Get the release date, or use the placeholder.
-2. Read `example-v2.44.md` for the target shape.
+2. Read `example-v2-44.md` for the target shape.
 3. Pull the tracker cards for the version — Linear's Tamanu team by version label, and Workhorse's Tamanu workspace by the card codes in the release branch.
 4. [parallel with 3] Fetch the release branches and diff `specs/` to get the landed specs; read them; ground and deepen using the code changes as required; recover their cards/PRs from git log.
 5. Reconcile the two sets on card id — committed specs win on overlap; tracker-only work is kept once confirmed shipped; dedup.
 6. Classify each item into the six sections and draft the notes in the canonical format, leaving `[SLAB_LINK_PLACEHOLDER]` for every supporting-documentation link.
-7. Write `docs/release-notes/vX.YY.md` (create `docs/release-notes/` on the first version).
+7. Write `docs/release-notes/vX-YY.md` (create `docs/release-notes/` on the first version).
 8. Tell the user the path, and list what still needs a human: the Slab links, the release date if placeholdered, and anything you couldn't confidently classify.
 
 ## Source of truth
