@@ -86,6 +86,7 @@ treated as a hard pre-filter on any suggested action.
 | [sync-restart-loop](runbooks/sync-restart-loop.md) | A facility's sync keeps restarting (`sync_restart_loop` check) | Complete |
 | [sync-pull-page-limit](runbooks/sync-pull-page-limit.md) | Sync pull page limit stuck in a degenerate low loop | Complete |
 | [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup, sync throwing fkey conflicts | Complete |
+| [restored-database-key-mismatch](runbooks/restored-database-key-mismatch.md) | Database restored from another deployment, secrets will not decrypt | Complete |
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
 
