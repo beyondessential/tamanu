@@ -12,7 +12,7 @@ import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
 import { Routes } from '/helpers/routes';
 //Props
-import type { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+import type { ViewAllScreenProps } from '/interfaces/Screens/PatientSearchStack/ViewAllScreenProps';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';

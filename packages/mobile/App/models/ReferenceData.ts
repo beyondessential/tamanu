@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { type IReferenceData, type ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
@@ -94,24 +94,6 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     }
     return ReferenceData.getParentRecursive(parentId, [], relationType);
   }
-  static async searchDataByType(
-    referenceDataType: ReferenceDataType,
-    searchTerm: string,
-    limit = 10,
-  ): Promise<ReferenceData[]> {
-    const repo = ReferenceData.getRepository();
-
-    return repo.find({
-      where: {
-        name: Like(`%${searchTerm}%`),
-        type: referenceDataType,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-      skip: 0,
-      take: limit,
-    });
-  }
-
   static async getSelectOptionsForType(
     referenceDataType: ReferenceDataType,
   ): Promise<{ label: string; value: string }[]> {

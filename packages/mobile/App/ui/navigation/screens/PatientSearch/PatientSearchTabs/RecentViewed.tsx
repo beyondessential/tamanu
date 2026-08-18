@@ -9,7 +9,7 @@ import { PatientTile } from '/components/PatientTile';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 // props
-import type { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
+import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { FullView, StyledText, StyledView } from '/styled/common';

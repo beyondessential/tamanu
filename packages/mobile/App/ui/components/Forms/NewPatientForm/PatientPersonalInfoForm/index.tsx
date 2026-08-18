@@ -28,10 +28,6 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
-export type FormSection = {
-  scrollToField: (fieldName: string) => () => void;
-};
-
 const styles = StyleSheet.create({
   KeyboardAvoidingView: { flex: 1 },
   ScrollView: { flex: 1 },
