@@ -144,7 +144,6 @@ export const Routes = {
       EditPatientAdditionalData: '',
     },
     PatientActions: '',
-    ExportDataScreen: '',
   },
 };
 
