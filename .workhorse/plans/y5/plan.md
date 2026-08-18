@@ -60,14 +60,58 @@ first of a list") and commit `24a79b3080`. Design has now looked at it and wants
 nothing to connect to, the line reads as an artefact. Record the new intent in the component comment
 and replace the old reasoning rather than leaving both in the file.
 
-**Keep the lead segment as an invisible spacer; do not remove the element.** Its `flex: 0 0 21px` is
-what puts the dot level with the first line of text in the card beside it. The same doc comment records
-what happened last time that offset was expressed differently: nudging the separator with relative
-positioning left the row's real height 21px short of what was drawn, and the overhang became scrollable
-overflow — a scrollbar on a list that plainly fit. So make it transparent, don't delete it.
-
 `.row:only-child` (rows are direct children of the timeline grid) expresses this in CSS with no extra
 component state, which is what the mockup does.
+
+## Layout: remove the positioning hacks rather than preserve them
+
+The 21px spacer that places the dot, and the "its height is load-bearing, don't touch it" warning around
+it, are not inherent to the design — they are fallout from bending MUI v4 lab's `Timeline` into a grid.
+Y5 should clear them out, not work around them.
+
+**Drop MUI `Timeline` for plain elements.** The pane wraps all six Timeline parts in styled-components
+that cancel essentially everything the library contributes: `Timeline` becomes `display: grid`,
+`TimelineItem` becomes a subgrid with MUI's opposite-content `::before` killed by `content: none`,
+`TimelineDot` has its padding, margin, background and box-shadow all zeroed out, and `TimelineContent`
+its padding. What survives is `div`s. This pane is the **only** `Timeline` consumer in the repo, and
+`@material-ui/lab` is the legacy v4 alpha (`^4.0.0-alpha.61`) sitting alongside `@mui/material` v6 — so
+there's no consistency argument for keeping it either. Replacing it with semantic elements removes the
+`:before` cancellation, the dot de-styling, and the separator's flex column in one go.
+
+**Keep the grid, it is doing real work.** The time column must be one track as wide as the widest row
+needs, so every card starts at the same place. That is a cross-row constraint, so the container grid
+plus `subgrid` rows is correct and a per-row flex genuinely cannot express it. The grid is not the hack;
+the vertical hacks inside it are.
+
+**Place the dot by alignment, not by a spacer.** With the row's content centred, the dot is simply
+centred too — `place-items: center` on the dot cell and nothing else. No offset constant, and nothing to
+keep in sync with the card's padding or line-height. (If Design instead wants the dot on the card's
+*first line* rather than its centre, derive it from the card's own metrics — the card's block padding
+plus `1lh`, centred — rather than a magic number.)
+
+**Paint the rail, don't lay it out.** Make it a pseudo-element positioned over the dot column
+(`inset-block: 0`, 1px wide) instead of two sibling connector elements. Its extent is then free to
+differ from the row's height, which is what the last-row case wants (`block-size: calc(50% + 12px)` to
+run out of the last dot and stop short of the footer rule), and `:only-child { content: none }` gives
+the no-rail case. Crucially this **dissolves the trap in L3's comment**: the reason a mis-sized rail
+could leave the row 21px taller than it drew — and turn into phantom scrollable overflow — was that the
+rail was a laid-out element. A pseudo-element contributes nothing to layout height, so that whole class
+of bug stops being possible rather than being avoided by convention.
+
+⚠️ One gotcha the mockup surfaced: with a single rail spanning the row, the line passes *behind* the dot,
+and the outlined status icons (`CircleIconOutlined`, `CircleIconDashed`) are transparent in the middle,
+so it shows through. Give the dot wrapper the pane's white background to mask it — invisible against the
+white pane, and it makes the "dot sits on the rail" relationship explicit.
+
+### Scope note
+
+This is a layout rewrite of one component on a **release branch** (`release/2.62`), which is more than a
+regression fix strictly needs. Arguments for doing it here anyway: it is confined to a single file with
+no other consumers, the component already has unit test coverage, and the alternative is shipping the Y5
+changes *through* the hack while carrying a comment warning the next person not to disturb it. Arguments
+against: any layout rewrite risks visual regressions a release branch would rather not take. Worth a
+call before starting — if the answer is "minimal change", the fallback is the transparent-spacer
+approach, which works but leaves the fragility in place.
 
 ## Implementation approach
 
@@ -154,7 +198,11 @@ alone-ness as a data attribute if it's worth asserting in the unit test.
 - [ ] Add view-local time-cell component in `TodayBookingsPane.jsx`; drop overnight icon + `RangeLine`
 - [ ] Centre the time cell and let it wrap on narrow panes
 - [ ] Retune the grid time-track floor so the narrow case can actually wrap
-- [ ] Hide the rail when the pane lists one booking, keeping the lead segment as a spacer
-- [ ] Update the `LeadConnector` comment to the new intent, replacing L3's reasoning
+- [ ] Decide: full layout rewrite vs minimal change (see scope note)
+- [ ] Replace MUI `Timeline` parts with plain elements
+- [ ] Centre the dot by alignment; delete the 21px spacer and its warning comment
+- [ ] Redraw the rail as a pseudo-element; mask it behind the dot
+- [ ] Hide the rail when the pane lists one booking
+- [ ] Update the component's comments to the new intent, replacing L3's reasoning
 - [ ] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape, deleting the rail-into-lone-dot case
 - [ ] Verify unit tests + lint locally
