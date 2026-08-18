@@ -14,26 +14,59 @@ the field was disabled (nothing selected to send to pharmacy). The actual valida
 asterisk contradicted the real rule. Fixed by making `required` track `isSendingAnyMedication`, which
 the component already computes.
 
-### Problem 1 — dispensing qty always required (confirmed as-designed, no fix)
+### Problem 1 — dispensing qty always required (changed, on Design's call)
 
-The complaint is that "Dispensing qty" blocks discharge even when nothing is sent to pharmacy. This is
-**deliberate, documented behaviour**, not a coding defect:
+Initially settled as as-designed: the schema required a quantity for every listed medication, with
+tests asserting a blank was rejected even when not sending to pharmacy. **Design then asked for blank
+or zero to be accepted when "send to pharmacy" is unticked**, so that decision was reversed.
 
-- The schema requires a quantity for every listed medication, with an explicit comment: the discharge
-  records a dispensing quantity against the prescription whether or not it goes to pharmacy; only the
-  floor changes (zero is fine unless the row is being sent, where it must be at least one).
-- Tests assert exactly this (`DischargeForm.test.jsx`): a blank quantity is rejected as required even
-  when not sending to pharmacy, while zero is accepted.
+The prescription form was already the precedent for this: its quantity is only required when
+`sendToPharmacy` is set, and its field marks itself `required={values.sendToPharmacy}`. The discharge
+form was the odd one out.
 
-So the intended workflow is: enter a quantity (zero is acceptable when not dispensing) or discontinue
-the line to remove it. The reporter hit friction because medications with no pre-existing quantity
-start blank, and a blank field blocks discharge.
+The field stays able to be empty — no blur-to-zero coercion. A blank is normalised to zero on the
+server instead.
 
-Changing this would contradict the shipped spec (TAM-6895) and its tests. **Settled: confirmed
-as-designed, no code change.** The card's "settle first" open question is closed — the reported
-symptom is the intended workflow, not a defect.
+#### What changed
+
+- **Shared frontend rule** — `dispensingQuantitySchema` in `packages/web/app/utils/validation.js`,
+  used by both `MedicationForm.jsx` and `DischargeMedicationColumns.jsx` so the two cannot drift. A
+  quantity may be blank; it is only demanded, and only has to be at least one, when the row is being
+  sent to pharmacy.
+- **Shared backend normalisation** — `DISPENSING_QUANTITY_SCHEMA` and `REPEATS_SCHEMA` in
+  `medicationValidationSchema.js` map every spelling of "nothing entered" (`''`, `null`, `undefined`,
+  absent key) to zero. Used by the prescription input schema and by the new
+  `DISCHARGE_MEDICATIONS_SCHEMA`.
+- **The discharge route now parses its medications payload.** `PUT /encounter/:id` previously read
+  `req.body.medications` raw and handed values straight to `prescription.update()`. That is why a
+  blank quantity would have reached Sequelize as `''` and failed its integer validation mid
+  transaction, rolling the whole discharge back. It now goes through the shared schema.
+- **The quantity column header no longer carries a required ornament**, since a quantity is only
+  required of the rows being sent to pharmacy — marking the whole column would overstate the rule.
+
+#### Consequence worth knowing
+
+A blank quantity is now stored as `0` rather than `NULL`. Existing rows are untouched; this only
+affects prescriptions written or discharged from here on.
+
+## Open question — unticked rows still overwrite the stored quantity
+
+`encounter.js` writes `prescription.update({ quantity, repeats })` for **every** listed prescription,
+with no `sendToPharmacy` check. So a row the clinician is not dispensing still stamps its quantity
+onto the prescription — including rows in the "Other ongoing medication" table, whose prescriptions
+belong to the patient rather than to this encounter.
+
+Not changed here, because it is a product decision rather than a defect: should an unticked row record
+its quantity against the prescription at all? Raised with the user; still open.
 
 ## Test coverage
 
-- Added two regression guards in `DischargeForm.test.jsx` for the ordering-prescriber asterisk state
-  (not marked required with nothing selected; marked required once a medication is being sent).
+- Two regression guards in `DischargeForm.test.jsx` for the ordering-prescriber asterisk state.
+- `DischargeForm.test.jsx` quantity cases flipped to assert blank is accepted when not sending.
+- New `packages/facility-server/__tests__/medicationValidationSchema.test.js` covering the shared
+  normalisation: blank/null/undefined to zero, negatives and non-numerics rejected, discharge rows
+  normalised without dropping medications.
+
+Note: the facility-server **integration** suites (`__tests__/apiv1/*`) do not run on this machine —
+the local facility test database is not set up, and they fail identically with and without these
+changes. The schema unit test above runs fine.

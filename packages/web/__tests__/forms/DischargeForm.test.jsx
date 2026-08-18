@@ -208,25 +208,27 @@ describe('MEDICATION_COLUMNS dispensing quantity', () => {
     );
   });
 
-  // RequiredOrnament supplies its "Required" copy through styled-components attrs, which are only
-  // applied when it renders — so the ornament is matched by element type rather than by stringId.
+  // A quantity is only required of the rows being sent to pharmacy, so the column header must not
+  // carry a blanket required ornament. RequiredOrnament supplies its "Required" copy through
+  // styled-components attrs, which are only applied when it renders — so the ornament is matched by
+  // element type rather than by stringId.
   it.each([true, false])(
-    'marks the column required with pharmacy orders enabled: %s',
+    'leaves the column unmarked with pharmacy orders enabled: %s',
     isPharmacyOrderEnabled => {
       const { title } = buildColumns({ isPharmacyOrderEnabled }).find(
         column => column.key === 'quantity',
       );
 
       expect([title.props.children].flat().some(child => child?.type === RequiredOrnament)).toBe(
-        true,
+        false,
       );
     },
   );
 });
 
-// The discharge records a dispensing quantity against every listed prescription, so one is always
-// needed. Only the rows going to pharmacy have to be dispensing something, so zero is acceptable
-// elsewhere — including in the other ongoing medication table, whose rows start unselected.
+// A dispensing quantity can be left blank on any row — the server records a blank as zero. Only the
+// rows going to pharmacy have to be dispensing something, so blank and zero are both acceptable
+// elsewhere, including in the other ongoing medication table, whose rows start unselected.
 describe('getMedicationsValidationSchema', () => {
   const validate = medications =>
     getMedicationsValidationSchema('*Required')
@@ -235,12 +237,12 @@ describe('getMedicationsValidationSchema', () => {
       .catch(error => error.message);
 
   // Prescriptions without a quantity start the form blank, and clearing a number input leaves ''.
-  it.each([null, ''])(
-    'rejects a quantity of %p even when the medication is not being sent to pharmacy',
+  it.each([null, '', undefined])(
+    'accepts a quantity of %p when the medication is not being sent to pharmacy',
     async quantity => {
       await expect(
         validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: false } }),
-      ).resolves.toBe('*Required');
+      ).resolves.toBeNull();
     },
   );
 
