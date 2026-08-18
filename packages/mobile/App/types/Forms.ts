@@ -1,5 +1,5 @@
-import { FormikHelpers } from 'formik';
-import * as Yup from 'yup';
+import type { FormikHelpers } from 'formik';
+import type * as Yup from 'yup';
 
 export type GenericFormValues = {
   [key: string]: any;

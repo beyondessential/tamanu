@@ -1,8 +1,8 @@
-import React, { useEffect, useState, ReactElement, useCallback } from 'react';
+import React, { useEffect, useState, type ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { Suggester, BaseModelSubclass, OptionType } from '../../helpers/suggester';
+import type { Suggester, BaseModelSubclass, OptionType } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';

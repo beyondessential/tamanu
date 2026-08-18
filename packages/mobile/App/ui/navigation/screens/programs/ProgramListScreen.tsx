@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { programKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Program } from '~/models/Program';
+import type { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
 import { VisibilityStatus } from '~/visibilityStatuses';

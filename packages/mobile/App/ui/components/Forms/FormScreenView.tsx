@@ -1,7 +1,7 @@
 import React, {
-  PropsWithChildren,
-  ReactElement,
-  Ref,
+  type PropsWithChildren,
+  type ReactElement,
+  type Ref,
   useCallback,
   useEffect,
   useRef,
@@ -9,9 +9,9 @@ import React, {
 } from 'react';
 import {
   KeyboardAvoidingView,
-  LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   StyleSheet,
 } from 'react-native';
 import { FullView, StyledSafeAreaView } from '/styled/common';

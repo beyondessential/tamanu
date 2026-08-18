@@ -9,7 +9,7 @@ import { theme } from '/styled/theme';
 import { StyledImage, StyledText, StyledView } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
-import { BaseInputProps } from '../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;

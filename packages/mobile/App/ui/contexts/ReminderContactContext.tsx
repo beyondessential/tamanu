@@ -1,11 +1,11 @@
-import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '../hooks/queries/queryKeys';
-import { IPatientContact } from '~/types';
+import type { IPatientContact } from '~/types';
 import { compose } from 'redux';
 import { withPatient } from '../containers/Patient';
-import { BaseAppProps } from '../interfaces/BaseAppProps';
+import type { BaseAppProps } from '../interfaces/BaseAppProps';
 import { useSocket } from '../hooks/useSocket';
 import { PatientContact } from '~/models/PatientContact';
 import { WS_EVENTS } from '~/constants/webSocket';

@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { OnGoingConditionsDataProps } from '../../../../../interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { OnGoingConditionsDataProps } from '../../../../../interfaces/PatientDetails';
 import { RowView, StyledText } from '/styled/common';
 import { Dot } from './Dot';
 import { theme } from '/styled/theme';

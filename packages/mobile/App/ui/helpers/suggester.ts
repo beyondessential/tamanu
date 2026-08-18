@@ -1,7 +1,7 @@
-import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
+import { Brackets, type FindManyOptions, type ObjectLiteral } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
-import { BaseModel } from '~/models/BaseModel';
+import type { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export interface OptionType {

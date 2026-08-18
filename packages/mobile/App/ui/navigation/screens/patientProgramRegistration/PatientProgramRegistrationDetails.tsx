@@ -6,7 +6,7 @@ import {
   TranslatedReferenceData,
   getReferenceDataStringId,
 } from '~/ui/components/Translations/TranslatedReferenceData';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
 import { useQuery } from '@tanstack/react-query';

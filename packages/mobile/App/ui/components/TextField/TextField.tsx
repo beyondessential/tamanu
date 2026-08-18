@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { KeyboardType, ReturnKeyTypeOptions, StyleSheet, TextInput } from 'react-native';
+import { type KeyboardType, type ReturnKeyTypeOptions, StyleSheet, type TextInput } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
+import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;

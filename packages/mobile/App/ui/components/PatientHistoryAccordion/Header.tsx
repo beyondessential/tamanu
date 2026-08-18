@@ -1,11 +1,11 @@
-import React, { FunctionComponent } from 'react';
-import { SvgProps } from 'react-native-svg';
+import React, { type FunctionComponent } from 'react';
+import type { SvgProps } from 'react-native-svg';
 import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { DateFormats, EncounterTypeNames, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter, ILocation } from '~/types';
+import { EncounterType, type IEncounter, type ILocation } from '~/types';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 

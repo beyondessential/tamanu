@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import { isEmpty, snakeCase } from 'es-toolkit/compat';
 import { BaseModel, IdRelation } from './BaseModel';
-import { IPatientAdditionalData } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import type { IPatientAdditionalData } from '~/types';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
 import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';

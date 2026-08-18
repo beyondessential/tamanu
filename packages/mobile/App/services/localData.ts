@@ -1,4 +1,4 @@
-import { AuthService } from './auth';
+import type { AuthService } from './auth';
 import { readConfig, writeConfig } from './config';
 
 /*

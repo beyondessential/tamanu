@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
+import { type IReferenceData, type ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';

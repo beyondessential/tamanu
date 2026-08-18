@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useCallback } from 'react';
+import React, { type ReactElement, type ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId, generateIdFromPattern } from '@tamanu/utils';
@@ -17,7 +17,7 @@ import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import {
-  CustomPatientFieldValues,
+  type CustomPatientFieldValues,
   usePatientAdditionalData,
 } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';

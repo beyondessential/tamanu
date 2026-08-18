@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, RelationId, Column } from 'typeorm';
 
-import {
+import type {
   DateTimeString,
   IPatientProgramRegistrationCondition,
   ID,
@@ -15,7 +15,7 @@ import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 import { ProgramRegistryConditionCategory } from './ProgramRegistryConditionCategory';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 @Entity('patient_program_registration_conditions')
 export class PatientProgramRegistrationCondition

@@ -1,9 +1,9 @@
-import { ID } from './ID';
-import { DateTimeString } from './DateString';
-import { IUser } from '.';
-import { IProgramRegistryCondition } from './IProgramRegistryCondition';
-import { IProgramRegistryConditionCategory } from './IProgramRegistryConditionCategory';
-import { IPatientProgramRegistration } from './IPatientProgramRegistration';
+import type { ID } from './ID';
+import type { DateTimeString } from './DateString';
+import type { IUser } from '.';
+import type { IProgramRegistryCondition } from './IProgramRegistryCondition';
+import type { IProgramRegistryConditionCategory } from './IProgramRegistryConditionCategory';
+import type { IPatientProgramRegistration } from './IPatientProgramRegistration';
 
 export interface IPatientProgramRegistrationCondition {
   id: ID;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  GestureResponderEvent,
+  type GestureResponderEvent,
   Image,
   StyleSheet,
   Text,

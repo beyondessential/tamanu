@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { Text } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { DateFormats } from '~/ui/helpers/constants';

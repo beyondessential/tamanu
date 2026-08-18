@@ -1,4 +1,4 @@
-import { EntityManager } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 
 /**
  * Defer foreign key checks for the duration of the current transaction.

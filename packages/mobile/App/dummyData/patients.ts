@@ -2,7 +2,7 @@ import { Chance } from 'chance';
 import { sample } from 'es-toolkit/compat';
 import { GenderOptions } from '/helpers/constants';
 import { bloodOptions } from '/helpers/additionalData';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
 

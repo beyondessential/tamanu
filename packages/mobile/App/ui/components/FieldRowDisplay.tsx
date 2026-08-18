@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { chunk, keyBy } from 'es-toolkit/compat';
 import { isTablet } from 'react-native-device-info';
 
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { labels } from '../navigation/screens/home/PatientDetails/labels';
 import { useSettings } from '../contexts/SettingsContext';
 

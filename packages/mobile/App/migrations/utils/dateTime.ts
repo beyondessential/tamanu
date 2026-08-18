@@ -4,7 +4,7 @@
 // THESE FUNCTIONS ARE TEMPLATES, COPY PASTE THEM TO YOUR MIGRATION
 // DON'T EXPORT
 // IF THE TEMPLATE CHANGES OLD MIGRATIONS SHOULD NOT CHANGE WITH IT
-import { QueryRunner, TableColumn } from 'typeorm';
+import { type QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './queryRunner';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;

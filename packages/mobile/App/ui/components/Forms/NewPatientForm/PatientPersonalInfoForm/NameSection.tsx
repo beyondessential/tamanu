@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { TextField } from '../../../TextField/TextField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';

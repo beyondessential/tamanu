@@ -1,4 +1,4 @@
-import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import { type Connection, type ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
 import { typeORMDriver } from 'react-native-quick-sqlite';
 import { DevSettings } from 'react-native';
 

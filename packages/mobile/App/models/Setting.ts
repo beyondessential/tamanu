@@ -4,7 +4,7 @@ import { get as getAtPath, merge, set as setAtPath } from 'es-toolkit/compat';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
-import { IFacility } from '../types';
+import type { IFacility } from '../types';
 import { SETTINGS_SCOPES } from '~/constants';
 import { readConfig } from '~/services/config';
 import { parseOrKeep } from '~/utils/parseOrKeep';

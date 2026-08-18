@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { ThemeProvider } from 'styled-components';
 import { StyledView, themeSystem } from '/styled/common';
@@ -12,7 +12,7 @@ import {
   SettingsIcon,
 } from '../Icons';
 import { MenuOptionButton } from './index';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MoreMenuOptions = [
   {

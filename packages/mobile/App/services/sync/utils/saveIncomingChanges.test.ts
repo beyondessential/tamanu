@@ -1,6 +1,6 @@
 import { saveChangesForModel } from './saveIncomingChanges';
 import * as preparedQueryModules from './executePreparedQuery';
-import { MobileSyncSettings } from '../MobileSyncManager';
+import type { MobileSyncSettings } from '../MobileSyncManager';
 
 jest.mock('./executePreparedQuery');
 jest.mock('./buildFromSyncRecord', () => ({

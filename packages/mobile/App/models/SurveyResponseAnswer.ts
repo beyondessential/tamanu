@@ -6,7 +6,7 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { SurveyResponse } from './SurveyResponse';
 import { VitalLog } from './VitalLog';
 
-import { ISurveyResponseAnswer } from '~/types';
+import type { ISurveyResponseAnswer } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_response_answers')

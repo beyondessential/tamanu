@@ -7,7 +7,7 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { DateTimeStringColumn, DateStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
-import { IProcedure } from '~/types/IProcedure';
+import type { IProcedure } from '~/types/IProcedure';
 
 @Entity('procedures')
 export class Procedure extends BaseModel implements IProcedure {

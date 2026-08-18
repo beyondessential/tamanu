@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { type ReactElement, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 

@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
-import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
+import type { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 

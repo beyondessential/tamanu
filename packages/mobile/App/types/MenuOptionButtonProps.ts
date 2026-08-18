@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { IconWithSizeProps } from '~/ui/interfaces/WithSizeProps';
+import type { FC } from 'react';
+import type { IconWithSizeProps } from '~/ui/interfaces/WithSizeProps';
 
 export interface MenuOptionButtonProps {
   Icon?: FC<IconWithSizeProps>;

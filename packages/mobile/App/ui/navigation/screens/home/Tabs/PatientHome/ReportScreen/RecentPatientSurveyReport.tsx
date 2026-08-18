@@ -1,5 +1,5 @@
 import { differenceInYears, parseISO } from 'date-fns';
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';

@@ -2,8 +2,8 @@ import React from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '../Button';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
-import { BaseModal, BaseModalProps } from './BaseModal';
+import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { BaseModal, type BaseModalProps } from './BaseModal';
 
 export interface ConfirmModalProps extends BaseModalProps {
   confirmButtonText: TranslatedTextElement;

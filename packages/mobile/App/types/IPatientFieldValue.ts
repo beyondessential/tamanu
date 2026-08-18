@@ -1,5 +1,5 @@
-import { IPatient } from './IPatient';
-import { IPatientFieldDefinition } from './IPatientFieldDefinition';
+import type { IPatient } from './IPatient';
+import type { IPatientFieldDefinition } from './IPatientFieldDefinition';
 
 export interface IPatientFieldValue {
   patient: IPatient;

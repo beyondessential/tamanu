@@ -9,7 +9,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ConfirmModal } from '../Modals/ConfirmModal';
 import { Patient } from '~/models/Patient';
 import { LAST_SUCCESSFUL_PULL } from '~/services/sync';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 interface SyncStatusModalModalProps {

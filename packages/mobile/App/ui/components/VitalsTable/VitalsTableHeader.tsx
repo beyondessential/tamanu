@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { parseISO } from 'date-fns';
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TableHeader } from '../Table';
+import type { TableHeader } from '../Table';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const VitalsHeaderCell = ({ date }: { date: string }): ReactElement => {

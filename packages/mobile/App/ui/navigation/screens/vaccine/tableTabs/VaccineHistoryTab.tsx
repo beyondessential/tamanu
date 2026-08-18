@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { StatusBar } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '/components/VaccinesTable';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineHistoryTabProps {

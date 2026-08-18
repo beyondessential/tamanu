@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
 
 const tableName = 'patient_additional_data';
 const columnName = 'secondaryVillageId';
