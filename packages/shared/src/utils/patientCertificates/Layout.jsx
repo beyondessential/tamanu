@@ -97,6 +97,8 @@ export const styles = StyleSheet.create({
   },
   lightDivider: {
     borderTop: '0.5 solid #000000',
+    marginTop: 6,
+    marginBottom: 4,
   },
   fixedFooterDivider: {
     borderTop: '0.5 solid #888888',
