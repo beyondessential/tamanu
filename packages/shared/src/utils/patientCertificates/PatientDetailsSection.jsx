@@ -53,7 +53,7 @@ export const PatientDetailsSection = ({
       </H3>
       <LightDivider />
       <Row>
-        <Col>
+        <Col style={{ width: '100%' }}>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
