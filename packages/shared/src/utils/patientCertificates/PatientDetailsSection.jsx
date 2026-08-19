@@ -79,7 +79,7 @@ export const PatientDetailsSection = ({
           </Row>
         </Col>
       </Row>
-      <LightDivider style={{ marginBottom: 10 }} />
+      <LightDivider style={{ marginTop: 0, marginBottom: 10 }} />
     </>
   );
 };

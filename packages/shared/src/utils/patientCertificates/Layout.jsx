@@ -144,7 +144,9 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
-export const LightDivider = props => <View style={styles.lightDivider} {...props} />;
+export const LightDivider = ({ style, ...props }) => (
+  <View style={[styles.lightDivider, style]} {...props} />
+);
 export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
 
 export const FixedHeader = ({ children, props }) => (
