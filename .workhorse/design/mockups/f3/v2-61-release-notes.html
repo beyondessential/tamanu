@@ -132,7 +132,7 @@
 
   <p class="released">Released 10-08-2026</p>
 
-  <p class="summary">Tamanu v2.61 brings automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand. It also delivers a substantial set of medication improvements: pharmacy can now modify a prescription at the point of dispensing, and dispensing quantities can be calculated automatically from the prescription. Encounter notes gain search and filtering, and the Emergency patients board gains filters and a clinician column.</p>
+  <p class="summary">Tamanu v2.61 brings automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand. It also delivers a substantial set of medication improvements: pharmacy can now modify a prescription at the point of dispensing, and dispensing quantities can be calculated automatically from the prescription. Encounter notes gain search and filtering, and the 'Emergency patients' board gains filters and a clinician column.</p>
 
   <hr>
 
@@ -174,7 +174,7 @@
 
   <h4>Key features</h4>
   <ul>
-    <li><strong>Modify prescription during dispensing</strong> - A 'Modify prescription' option on the dispense medication modal opens the prescription for editing, including changing to or from a variable dose.</li>
+    <li><strong>Modify prescription during dispensing</strong> - A 'Modify prescription' option on the 'Dispense medication' modal opens the prescription for editing, including changing to or from a variable dose.</li>
     <li><strong>Reason for modification captured</strong> - Every modification records a reason from a configurable list, along with the user who made it.</li>
     <li><strong>Original prescription preserved</strong> - Changes apply to the dispensing record only, so the prescriber's original intent remains on the record.</li>
     <li><strong>Prescriber notified</strong> - A pharmacy note is added to the original prescription and the prescriber receives a notification on their clinician dashboard, where they can see what changed.</li>
@@ -223,9 +223,9 @@
     <li><strong>Free text search of note content</strong> - Type a word or phrase to show only notes containing it.</li>
     <li><strong>Results update as you type</strong> - There is no search button. The free text box applies after a short pause and the other filters apply immediately.</li>
     <li><strong>Filter by note type and author</strong> - The author filter matches whoever wrote the note and anyone who later edited it, including edits made on behalf of another user.</li>
-    <li><strong>Date range in advanced search</strong> - Set a from date, a to date, or just one. An open-ended boundary returns everything up to today or back to the first note.</li>
-    <li><strong>Treatment plan stays pinned</strong> - Newest first ordering is preserved and the treatment plan remains at the top when it matches the filters.</li>
-    <li><strong>One-click clear</strong> - A Clear action resets every filter at once.</li>
+    <li><strong>Date range in 'Advanced search'</strong> - Set a from date, a to date, or just one. An open-ended boundary returns everything up to today or back to the first note.</li>
+    <li><strong>Treatment plan stays pinned</strong> - Newest first ordering is preserved and the 'Treatment plan' note remains at the top when it matches the filters.</li>
+    <li><strong>One-click clear</strong> - A 'Clear' action resets every filter at once.</li>
   </ul>
 
   <h4>Supporting documentation</h4>
@@ -236,18 +236,18 @@
 
   <hr>
 
-  <h3>Emergency Patients Board Enhancements</h3>
+  <h3>'Emergency Patients' Board Enhancements</h3>
 
-  <p>The Emergency patients board gains search filters and a clinician column, so emergency department staff can cut a long waiting list down to the patients they are responsible for. Several display changes make the board easier to read at a glance. This addresses feedback that clinicians were avoiding moving patients into active ED care because acuity became less visible once they did.</p>
+  <p>The 'Emergency patients' board gains search filters and a clinician column, so emergency department staff can cut a long waiting list down to the patients they are responsible for. Several display changes make the board easier to read at a glance. This addresses feedback that clinicians were avoiding moving patients into active ED care because acuity became less visible once they did.</p>
 
   <h4>Key features</h4>
   <ul>
     <li><strong>Search and clinician filter</strong> - Filter the board by patient ID, first name or last name, or narrow it to one clinician's patients.</li>
-    <li><strong>Advanced filters</strong> - Filter by triage category, area and location. Triage category options come from the deployment's own configured categories, and a location can only be chosen once its area is selected.</li>
+    <li><strong>Advanced filters</strong> - Filter by 'Triage category', 'Area' and 'Location'. Triage category options come from the deployment's own configured categories, and a location can only be chosen once its area is selected.</li>
     <li><strong>Filters persist across navigation</strong> - Leaving the board and returning keeps your filters, matching the other patient listing pages.</li>
-    <li><strong>Clinician column</strong> - A sortable clinician column, with a tooltip where the name is too long to display in full.</li>
-    <li><strong>Clearer display</strong> - Grey tiles for patients already seen now state whether they moved to 'Active ED' or 'Emerg. short stay', and the sex column shows M, F or O rather than the full word.</li>
-    <li><strong>Refreshed default triage colours</strong> - The Urgent, Non-urgent and Deceased categories use new default colours with better contrast, and remain fully configurable.</li>
+    <li><strong>Clinician column</strong> - A sortable 'Clinician' column, with a tooltip where the name is too long to display in full.</li>
+    <li><strong>Clearer display</strong> - Grey tiles for patients already seen now state whether they moved to 'Active ED' or 'Emerg. short stay', and the 'Sex' column shows M, F or O rather than the full word.</li>
+    <li><strong>Refreshed default triage colours</strong> - The 'Urgent', 'Non-urgent' and 'Deceased' categories use new default colours with better contrast, and remain fully configurable.</li>
   </ul>
 
   <h4>Supporting documentation</h4>
@@ -275,7 +275,7 @@
     <li><strong>Tasks</strong> - Text size, column width and alignment corrections across the task tables.</li>
     <li><strong>Labs</strong> - Historical categories and panels a patient has results for are now shown, plus fixes to results entry and display.</li>
     <li><strong>Patients and encounters</strong> - Fixed duplicate patient creation, triage wait time calculation, and 'Place of death' on certificates for deaths outside a facility. 'Record death' now requires patient write access.</li>
-    <li><strong>Forms, charts and programs</strong> - Corrections to question rendering, validation and changelog display.</li>
+    <li><strong>Forms, charts and programs</strong> - Corrections to question rendering, validation and changelog display in the 'Charts' tab and program registries.</li>
     <li><strong>Reports and imaging</strong> - Report parameters clear correctly, load failures show a readable message, and saving an imaging request no longer creates a blank result.</li>
     <li><strong>General</strong> - More reliable table loading and error states, correct handling of special characters in translation search, and accessibility improvements to buttons and required-field markers.</li>
   </ul>
@@ -302,9 +302,9 @@
 
   <h2>Required</h2>
 
-  <h4 class="em">Emergency patients board</h4>
+  <h4 class="em">'Emergency patients' board</h4>
   <ul>
-    <li>Default triage category colours have changed for Urgent, Non-urgent and Deceased. Deployments on the defaults will see the board change colour after upgrade; those that have customised their triage colours are unaffected. Review and customise if your states expect the previous colours.</li>
+    <li>Default triage category colours have changed for 'Urgent', 'Non-urgent' and 'Deceased'. Deployments on the defaults will see the board change colour after upgrade; those that have customised their triage colours are unaffected. Review and customise if your states expect the previous colours.</li>
   </ul>
 
   <h4 class="em">Prescription modification at dispensing</h4>
@@ -342,9 +342,9 @@
     <li>If your deployment uses the mSupply integration, verify it sends the medication that was actually dispensed rather than the original prescription.</li>
   </ul>
 
-  <h4 class="em">Emergency patients board</h4>
+  <h4 class="em">'Emergency patients' board</h4>
   <ul>
-    <li>Review the refreshed triage colours on the board and confirm they suit your deployment, or customise them to keep your existing colours.</li>
+    <li>Review the refreshed triage colours on the 'Emergency patients' board and confirm they suit your deployment, or customise them to keep your existing colours.</li>
   </ul>
 
   <h2>Optional</h2>

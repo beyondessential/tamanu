@@ -46,4 +46,6 @@ A trial run against **v2.61** was done during development and its output landed 
 ## Voice
 
 - [ ] Overviews describe user-facing capability and benefit, with no API / schema / internal-architecture detail.
+- [ ] No coded language anywhere: no settings keys, reference-data codes, permission identifiers or file paths.
+- [ ] Every feature and interface name carries inverted commas, spelled as it appears on screen; product surfaces and general concepts do not.
 - [ ] Australian/NZ English spelling throughout.
