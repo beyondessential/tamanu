@@ -33,7 +33,7 @@ A trial run against **v2.61** was done during development and its output landed 
 - [ ] Major features are grouped by surface (Tamanu Desktop / Tamanu Mobile / Patient Portal / System Administration), using only surfaces with content.
 - [ ] Tweaks and Bug Fixes summarises at area level, grouped by platform, rather than enumerating individual fixes.
 - [ ] Critical Upgrade Notes and Upgrade Steps are each split Required / Optional, with both at the same heading level so Optional does not render inside Required.
-- [ ] Critical Upgrade Notes read as a checklist of what to review or decide, naming settings and reference data without walking through the setup procedure.
+- [ ] Critical Upgrade Notes read as a checklist of what to review or decide, in plain language, without naming settings keys or reference-data codes.
 - [ ] Emoji section markers (🌟 🔧 🐛 ⚠️) and `---` separators are present.
 
 ## Placeholders and output

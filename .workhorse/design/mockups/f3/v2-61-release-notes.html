@@ -100,15 +100,6 @@
 
   li:last-child { margin-bottom: 0; }
 
-  code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.88em;
-    background: var(--page);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 1px 5px;
-  }
-
   .docs { list-style: none; padding-left: 0; }
 
   .docs li { color: var(--text-soft); }
@@ -313,28 +304,28 @@
 
   <h4 class="em">Emergency patients board</h4>
   <ul>
-    <li>Default triage category colours have changed for Urgent, Non-urgent and Deceased. Deployments on the defaults will see the board change colour after upgrade; those that have overridden <code>triageCategories</code> are unaffected. Review and override if your states expect the previous colours.</li>
+    <li>Default triage category colours have changed for Urgent, Non-urgent and Deceased. Deployments on the defaults will see the board change colour after upgrade; those that have customised their triage colours are unaffected. Review and customise if your states expect the previous colours.</li>
   </ul>
 
   <h4 class="em">Prescription modification at dispensing</h4>
   <ul>
-    <li>Set up the <code>Medication Dispense Modify Reason</code> reference data with the reasons your pharmacy teams should choose from. Pharmacy cannot record a modification until this exists.</li>
-    <li>Review which staff hold <code>MedicationDispense</code> <code>Write</code> permission, as it now also allows modifying a prescription during dispensing.</li>
+    <li>Set up the modification reason list with the reasons your pharmacy teams should choose from. Pharmacy cannot record a modification until this exists.</li>
+    <li>Review which staff can dispense medications, as that permission now also allows modifying a prescription during dispensing.</li>
   </ul>
 
   <h2>Optional</h2>
 
   <h4 class="em">Automatic encounter fees</h4>
   <ul>
-    <li>Invoicing remains off by default (<code>features.invoicing.enabled</code>). Decide whether your deployment adopts encounter fees this release.</li>
+    <li>Invoicing remains off by default. Decide whether your deployment adopts encounter fees this release.</li>
     <li>If adopting, plan the reference data and price list work with your project manager: the encounter fee products, an optional walk-in pharmacy fee, and a bed fee product for each chargeable location. See the configuration guide for the codes and the price list matrix.</li>
     <li>Decide the per-facility settings each state needs: the standard-hours windows for outpatient and emergency, the overnight bed fee check time, and which item categories are bundled into the inpatient fee.</li>
   </ul>
 
   <h4 class="em">Medication dispensing quantity autocalculation</h4>
   <ul>
-    <li>Off by default (<code>medications.dispensing.dispensingQuantityAutocalculation</code>). Decide whether to enable it per deployment.</li>
-    <li>Before enabling, check that <code>unitConversion</code> is populated on your Drug reference data. It defaults to 1, so drugs where it is unset will calculate in dosing units rather than packs or bottles.</li>
+    <li>Off by default. Decide whether to enable it per deployment.</li>
+    <li>Before enabling, check that the dispensing unit conversion is filled in on your medication reference data. Where it is left unset, quantities calculate in dosing units rather than packs or bottles.</li>
   </ul>
 
   <hr>
@@ -353,7 +344,7 @@
 
   <h4 class="em">Emergency patients board</h4>
   <ul>
-    <li>Review the refreshed triage colours on the board and confirm they suit your deployment, or override <code>triageCategories</code> to keep your existing colours.</li>
+    <li>Review the refreshed triage colours on the board and confirm they suit your deployment, or customise them to keep your existing colours.</li>
   </ul>
 
   <h2>Optional</h2>
@@ -370,7 +361,7 @@
 
   <h4 class="em">Medication dispensing quantity autocalculation</h4>
   <ul>
-    <li>Populate <code>unitConversion</code> for your drug reference data, then confirm calculated quantities come out in packs or bottles as expected.</li>
+    <li>Fill in the dispensing unit conversion for your medication reference data, then confirm calculated quantities come out in packs or bottles as expected.</li>
     <li>Confirm a manually entered quantity is not overwritten by later edits to the prescription.</li>
     <li>Confirm the quantity is left blank for a variable dose, an 'As directed' frequency, and a duration in hours.</li>
   </ul>
