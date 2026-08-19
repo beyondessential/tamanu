@@ -17,12 +17,14 @@ test.describe('Admin panel report editor', () => {
     // Required fields
     await page.getByTestId('styledfield-pb9c-input').fill('Test DHIS2 Report');
 
-    // SQL query editor (Ace) — select-all then type
-    // react-ace only passes id/style to the DOM div (not data-testid), so use the id from name="sqlEditor"
+    // SQL query editor (Ace). react-ace only passes id/style to the DOM div (not
+    // data-testid), so target the hidden textarea via the id from name="sqlEditor".
+    // insertText, not type: per-keystroke input double-registers the first character
+    // in headless CI (produced "SSELECT 1"), and triggers Ace's bracket auto-closing.
     const sqlTextarea = page.locator('#sqlEditor .ace_text-input');
     await sqlTextarea.focus({ force: true });
     await page.keyboard.press('Control+a');
-    await page.keyboard.type('SELECT 1');
+    await page.keyboard.insertText('SELECT 1');
 
     // Add one parameter
     await page.getByTestId('textbutton-4yah').click();
@@ -41,7 +43,7 @@ test.describe('Admin panel report editor', () => {
       .locator('.ace_text-input');
     await jsonTextarea.focus({ force: true });
     await page.keyboard.press('Control+a');
-    await page.keyboard.type('{"dhis2DataSet": "some-dataset-id"}');
+    await page.keyboard.insertText('{"dhis2DataSet": "some-dataset-id"}');
 
     // Submit
     await page.getByTestId('button-dbqt').click();
