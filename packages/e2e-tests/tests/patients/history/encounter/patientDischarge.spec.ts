@@ -40,8 +40,9 @@ test.describe('Patient discharge', () => {
     await expect(dischargeModal.sendToPharmacyCheckbox(sentPrescription.id)).toBeChecked();
     await expect(dischargeModal.sendToPharmacyCheckbox(notSentPrescription.id)).toBeChecked();
 
-    // A dispensing quantity is required for every listed medication, including the one that is not
-    // being sent — prescriptions are created without one.
+    // A dispensing quantity is required of the medication being sent. The one left behind is given
+    // a quantity too, so that what reaches pharmacy is what was selected rather than what was
+    // filled in — prescriptions are created without a quantity.
     await dischargeModal.setDispensingQuantity(sentPrescription.id, 12);
     await dischargeModal.setDispensingQuantity(notSentPrescription.id, 8);
     await dischargeModal.sendToPharmacyCheckbox(notSentPrescription.id).uncheck();
@@ -84,6 +85,38 @@ test.describe('Patient discharge', () => {
     await patientDetailsPage.navigateToFirstEncounter();
     await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
 
+    await expect(medicationRequestsPage.rowForPatient(newPatient.displayId)).toHaveCount(0);
+  });
+
+  // The reported regression: a medication left out of the pharmacy order has nothing to dispense,
+  // so its quantity can be left blank and the discharge still completes. The server records the
+  // blank as zero against the prescription.
+  test('A blank dispensing quantity does not block a discharge that sends nothing to pharmacy', async ({
+    api,
+    newPatient,
+    patientDetailsPage,
+    medicationRequestsPage,
+  }) => {
+    test.setTimeout(60000);
+
+    const encounter = await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
+    const prescription = await createEncounterPrescriptionViaApi(api, encounter.id);
+
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.navigateToFirstEncounter();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await dischargeModal.waitForModalToLoad();
+
+    // Prescriptions are created without a quantity, so the row starts blank and stays that way.
+    await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('');
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
+
+    await dischargeModal.finaliseDischarge();
+
+    await patientDetailsPage.navigateToFirstEncounter();
+    await expect(patientDetailsPage.dischargeSummaryButton).toBeVisible();
     await expect(medicationRequestsPage.rowForPatient(newPatient.displayId)).toHaveCount(0);
   });
 

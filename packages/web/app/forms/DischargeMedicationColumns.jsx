@@ -15,7 +15,6 @@ import {
   DateDisplay,
   Field,
   NumberInput,
-  RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
   useTranslation,
@@ -25,7 +24,7 @@ import { CheckField } from '../components/Field';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
-import { atLeastOneWhenSendingToPharmacy, emptyToNull } from '../utils/validation';
+import { dispensingQuantitySchema, emptyToNull } from '../utils/validation';
 
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
@@ -49,25 +48,18 @@ export const orderingPrescriberLabel = (
 );
 
 /**
- * Every listed medication needs a dispensing quantity, in both tables and whether or not pharmacy
- * orders are enabled — the discharge records it against the prescription either way. Zero only
- * stops being acceptable once the row is actually being sent to pharmacy.
+ * A dispensing quantity can be left blank on any row, in both tables and whether or not pharmacy
+ * orders are enabled — the server records a blank as zero against the prescription. A quantity is
+ * only demanded, and only has to be at least one, once the row is actually being sent to pharmacy.
  */
 export const getMedicationsValidationSchema = requiredInlineMessage =>
   yup.lazy(medications =>
     yup.object(
       Object.keys(medications ?? {}).reduce((schemas, key) => {
         schemas[key] = yup.object().shape({
-          quantity: yup
-            .number()
-            .transform(emptyToNull)
-            .integer()
-            .min(0)
-            // Nullable so a blank field fails as required rather than as a bad number.
-            .nullable()
-            .required(requiredInlineMessage)
-            .translatedLabel(dispensingQuantityLabel)
-            .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage)),
+          quantity: dispensingQuantitySchema(requiredInlineMessage).translatedLabel(
+            dispensingQuantityLabel,
+          ),
           repeats: yup
             .number()
             .transform(emptyToNull)
@@ -132,7 +124,8 @@ const NumberFieldWithoutLabel = ({ field, unitKey, ...props }) => {
   );
 };
 
-/** Mirrors getMedicationsValidationSchema: the floor lifts to 1 only once the row is being sent. */
+/** Mirrors getMedicationsValidationSchema: a quantity is only required, and the floor only lifts to
+ * 1, once the row is being sent to pharmacy. */
 const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => {
   const { values } = useFormikContext();
   const isSentToPharmacy = Boolean(values.medications?.[medicationId]?.sendToPharmacy);
@@ -143,7 +136,7 @@ const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => 
       component={NumberFieldWithoutLabel}
       unitKey={dispensingUnit ?? undefined}
       min={isSentToPharmacy ? 1 : 0}
-      required
+      required={isSentToPharmacy}
       disabled={disabled}
       data-testid="field-ksmf"
     />
@@ -277,12 +270,9 @@ export const MEDICATION_COLUMNS = ({
   },
   {
     key: 'quantity',
-    title: (
-      <>
-        {dispensingQuantityLabel}
-        <RequiredOrnament />
-      </>
-    ),
+    // No required ornament on the header: a quantity is only required of the rows being sent to
+    // pharmacy, so marking the whole column would overstate the rule.
+    title: dispensingQuantityLabel,
     accessor: ({ id, medication, dispensingUnit }) => (
       <DispensingQuantityField
         medicationId={id}
