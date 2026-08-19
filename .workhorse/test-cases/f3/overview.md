@@ -47,5 +47,5 @@ A trial run against **v2.61** was done during development and its output landed 
 
 - [ ] Overviews describe user-facing capability and benefit, with no API / schema / internal-architecture detail.
 - [ ] No coded language anywhere: no settings keys, reference-data codes, permission identifiers or file paths.
-- [ ] Every feature and interface name carries inverted commas, spelled as it appears on screen; product surfaces and general concepts do not.
+- [ ] Feature and interface names the reader must find on screen carry inverted commas, spelled as displayed; product surfaces, clinical artefacts and self-evident labels do not.
 - [ ] Australian/NZ English spelling throughout.
