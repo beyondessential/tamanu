@@ -14,6 +14,7 @@ import {
   mergePatientProgramRegistrations,
   mergePortalUser,
   mergePatientInvoiceInsurancePlans,
+  refreshEncounterPrescriptionsForSync,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -91,6 +92,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
   async updateDependentRecordsForResync(merges) {
     const encounters = merges['Encounter'] || [];
     await refreshMultiChildRecordsForSync(this.models.Encounter, encounters);
+    await refreshEncounterPrescriptionsForSync(this.models, encounters);
 
     // Patient Care Plans
     const patientCarePlans = merges['PatientCarePlan'] || [];

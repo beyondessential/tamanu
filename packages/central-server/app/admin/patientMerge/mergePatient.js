@@ -448,6 +448,28 @@ export async function refreshMultiChildRecordsForSync(model, records) {
   }
 }
 
+// A prescription takes its sync scope from its encounter across encounter_prescriptions, and the
+// child-association walk can't cross that join, so it needs refreshing from the encounter side.
+export async function refreshEncounterPrescriptionsForSync(models, encounters) {
+  if (encounters.length === 0) return;
+
+  const [prescriptions] = await models.Prescription.sequelize.query(
+    `
+      UPDATE prescriptions
+      SET updated_at_sync_tick = 1
+      WHERE id IN (
+        SELECT prescription_id FROM encounter_prescriptions WHERE encounter_id IN (:encounterIds)
+      )
+      RETURNING id;
+    `,
+    { replacements: { encounterIds: encounters.map(encounter => encounter.id) } },
+  );
+
+  for (const prescription of prescriptions) {
+    await refreshChildRecordsForSync(models.Prescription, prescription.id);
+  }
+}
+
 /**
  * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
  * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
@@ -462,6 +484,7 @@ async function updateDependentRecordsForResync(models, unwantedPatientId) {
     attributes: ['id'],
   });
   await refreshMultiChildRecordsForSync(models.Encounter, encounters);
+  await refreshEncounterPrescriptionsForSync(models, encounters);
 
   // Patient Care Plans
   const patientCarePlans = await models.PatientCarePlan.findAll({
