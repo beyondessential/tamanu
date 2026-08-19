@@ -463,10 +463,9 @@ export async function refreshMultiChildRecordsForSync(model, records) {
  * scope also draws on other tables' patient_id (e.g. patient_ongoing_prescriptions) is swept, since
  * a join-derived scope can go stale without the row itself being touched.
  *
- * Pass patientIds to sweep specific merged patients (the merge itself), or omit it to sweep
- * everything still scoped to any merged patient (the maintainer's backlog pass). Both drive off
- * the sync_lookup patient_id index, and a healed row leaves the stale set, so repeat sweeps
- * converge to no work.
+ * Takes the merged patient ids to sweep: the merge passes its one patient, the maintainer passes
+ * every merged patient. Everything drives off the sync_lookup patient_id index, and a healed row
+ * leaves the stale set, so repeat sweeps converge to no work.
  */
 const lookupScopeIsOwnPatientIdColumn = async model => {
   // a model with no lookup query details never reaches the lookup table
@@ -491,20 +490,17 @@ export async function getLookupSweepExcludedTables(models) {
   return excluded;
 }
 
-export async function refreshLookupScopedRecordsForSync(models, patientIds = null) {
-  if (patientIds?.length === 0) return;
+export async function refreshLookupScopedRecordsForSync(models, patientIds) {
+  if (patientIds.length === 0) return;
 
   const { sequelize } = models.SyncLookup;
-  const mergedPatientsPredicate = patientIds
-    ? 'IN (:patientIds)'
-    : 'IN (SELECT id FROM patients WHERE merged_into_id IS NOT NULL)';
   const ownScopeTables = await getLookupSweepExcludedTables(models);
 
   const [staleRecordTypes] = await sequelize.query(
     `
       SELECT DISTINCT record_type AS "recordType"
       FROM sync_lookup
-      WHERE patient_id ${mergedPatientsPredicate}
+      WHERE patient_id IN (:patientIds)
         AND record_type NOT IN (:ownScopeTables);
     `,
     { replacements: { patientIds, ownScopeTables } },
@@ -525,7 +521,7 @@ export async function refreshLookupScopedRecordsForSync(models, patientIds = nul
         SET updated_at_sync_tick = 1
         WHERE id IN (
           SELECT record_id FROM sync_lookup
-          WHERE record_type = :recordType AND patient_id ${mergedPatientsPredicate}
+          WHERE record_type = :recordType AND patient_id IN (:patientIds)
         );
       `,
       { replacements: { recordType, patientIds } },

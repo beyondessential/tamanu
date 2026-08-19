@@ -142,9 +142,16 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
       // Sweep everything still scoped to a merged patient, not just this run's repoints: records
       // stranded by past merges stay invisible to every facility until re-queued, and a healed row
-      // leaves the stale set, so the sweep converges to empty index probes.
+      // leaves the stale set, so the sweep converges to empty index probes. The ids are fetched
+      // once here so the sweep's queries don't each rescan patients.
       if (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled')) {
-        await refreshLookupScopedRecordsForSync(this.models);
+        const [mergedPatients] = await this.sequelize.query(
+          'SELECT id FROM patients WHERE merged_into_id IS NOT NULL;',
+        );
+        await refreshLookupScopedRecordsForSync(
+          this.models,
+          mergedPatients.map(patient => patient.id),
+        );
       }
 
       return counts;
