@@ -187,7 +187,10 @@ jobs:
         with:
           target: ${{ matrix.target }}
           rules_file_name: .zap/rules.tsv
-          cmd_options: ${{ env.ZAP_CMD_OPTIONS }}
+          # Pin the proxy port: left to itself the scan script picks a random one
+          # from the kernel's ephemeral range and can lose it to another socket in
+          # the ~10s before ZAP binds.
+          cmd_options: -P 8090 ${{ env.ZAP_CMD_OPTIONS }}
           # Fail the job on any non-ignored alert (suppress false positives in
           # .zap/rules.tsv). Don't open GitHub issues from CI.
           fail_action: true
