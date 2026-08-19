@@ -142,4 +142,38 @@ describe('Sync lookup after patient merge', () => {
 
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
   });
+
+  it('rescopes records stranded by an earlier merge even when this run repoints nothing', async () => {
+    const [keep, merge] = await makeTwoPatients(models);
+    await mergePatient(models, keep.id, merge.id);
+
+    const { encounter, prescription } = await makeEncounterRecords(merge.id);
+    await centralSyncManager.updateLookupTable();
+
+    // A past run repointed the encounter but never re-queued the records scoped through it;
+    // raw SQL as the maintainer does it, since the model forbids changing an encounter's patient
+    await models.Encounter.sequelize.query(
+      `UPDATE encounters SET patient_id = :keepId WHERE id = :encounterId`,
+      { replacements: { keepId: keep.id, encounterId: encounter.id } },
+    );
+    await centralSyncManager.updateLookupTable();
+    expect(await lookupPatientIdFor('encounters', encounter.id)).toBe(keep.id);
+    expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
+
+    await new PatientMergeMaintainer(ctx).remergePatientRecords();
+    await centralSyncManager.updateLookupTable();
+
+    expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
+  });
+
+  it('leaves records alone when dependent record resync is disabled', async () => {
+    const [keep, merge] = await makeTwoPatients(models);
+    const { prescription } = await makeEncounterRecords(merge.id);
+    await centralSyncManager.updateLookupTable();
+
+    await mergePatient(models, keep.id, merge.id, false);
+    await centralSyncManager.updateLookupTable();
+
+    expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
+  });
 });

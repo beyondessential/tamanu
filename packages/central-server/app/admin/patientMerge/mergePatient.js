@@ -449,25 +449,43 @@ export async function refreshMultiChildRecordsForSync(model, records) {
 }
 
 /**
- * A record reaches sync_lookup with a patient_id derived through joins its own table doesn't own,
- * so walking child associations cannot find all of them: prescriptions sit on the far side of a
- * belongsToMany, lab_request_logs hang off an association nobody declared. Any lookup row still
- * scoped to a merged-away patient is stale whatever the shape of the join, so re-queue those
- * records from their own tables and let the next lookup build re-derive the scope. Without this
- * they keep a patient that syncs to no facility, and a facility holding a child record that does
- * sync hits a foreign key violation that halts its whole pull.
+ * A record can reach sync_lookup with a patient_id derived through joins its own table doesn't
+ * own, and walking child associations cannot find all of those: prescriptions sit on the far side
+ * of a belongsToMany, lab_request_logs hang off an association nobody declared. Any lookup row for
+ * such a record still scoped to a merged-away patient is stale whatever the shape of the join, so
+ * re-queue those records from their own tables and let the next lookup build re-derive the scope.
+ * Without this they keep a patient that syncs to no facility, and a facility holding a child
+ * record that does sync hits a foreign key violation that halts its whole pull.
+ *
+ * Tables with their own patient_id column are excluded: repointing already re-queues those, their
+ * lookup scope follows the column, and the merged patient's deletion tombstones legitimately keep
+ * the old id, so re-queueing them here would repeat every run instead of converging.
+ *
+ * Pass patientIds to sweep specific merged patients (the merge itself), or omit it to sweep
+ * everything still scoped to any merged patient (the maintainer's backlog pass). Both drive off
+ * the sync_lookup patient_id index, and a healed row leaves the stale set, so repeat sweeps
+ * converge to no work.
  */
-export async function refreshLookupScopedRecordsForSync(models, patientIds) {
-  if (patientIds.length === 0) return;
+export async function refreshLookupScopedRecordsForSync(models, patientIds = null) {
+  if (patientIds?.length === 0) return;
 
   const { sequelize } = models.SyncLookup;
+  const mergedPatientsPredicate = patientIds
+    ? 'IN (:patientIds)'
+    : 'IN (SELECT id FROM patients WHERE merged_into_id IS NOT NULL)';
+  const ownScopeTables = Object.values(models)
+    .filter(model => model.getAttributes().patientId)
+    .map(model => model.tableName)
+    .concat(['patients']);
+
   const [staleRecordTypes] = await sequelize.query(
     `
       SELECT DISTINCT record_type AS "recordType"
       FROM sync_lookup
-      WHERE patient_id IN (:patientIds);
+      WHERE patient_id ${mergedPatientsPredicate}
+        AND record_type NOT IN (:ownScopeTables);
     `,
-    { replacements: { patientIds } },
+    { replacements: { patientIds, ownScopeTables } },
   );
 
   const modelsByTableName = Object.fromEntries(
@@ -485,7 +503,7 @@ export async function refreshLookupScopedRecordsForSync(models, patientIds) {
         SET updated_at_sync_tick = 1
         WHERE id IN (
           SELECT record_id FROM sync_lookup
-          WHERE record_type = :recordType AND patient_id IN (:patientIds)
+          WHERE record_type = :recordType AND patient_id ${mergedPatientsPredicate}
         );
       `,
       { replacements: { recordType, patientIds } },
@@ -565,9 +583,10 @@ export async function mergePatient(
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    // See the function's documentation for more details on why this is needed
+    // See the functions' documentation for more details on why these are needed
     if (updateDependentRecordsForResyncEnabled) {
       await updateDependentRecordsForResync(models, unwantedPatientId);
+      await refreshLookupScopedRecordsForSync(models, [unwantedPatientId]);
     }
 
     updates.Patient = 2;
@@ -657,8 +676,6 @@ export async function mergePatient(
     if (facilityUpdates.length > 0) {
       updates.PatientFacility = facilityUpdates.length;
     }
-
-    await refreshLookupScopedRecordsForSync(models, [unwantedPatientId]);
 
     // Destroy at the end to avoid cascade deleting everything referencing the patient
     await unwantedPatient.destroy();

@@ -36,6 +36,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
     this.config = conf;
     this.models = context.store.models;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   checkModelsMissingSpecificUpdateCoverage() {
@@ -64,7 +65,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
         patients.id = ${tableName}.${patientFieldName} 
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING ${tableName}.id, patients.id AS "mergedPatientId";
+      RETURNING ${tableName}.id;
     `);
     return result.rows;
   }
@@ -139,11 +140,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
       await this.updateDependentRecordsForResync(merges);
 
-      const repointedPatientIds = Object.values(merges)
-        .flat()
-        .map(record => record.mergedPatientId)
-        .filter(Boolean);
-      await refreshLookupScopedRecordsForSync(this.models, [...new Set(repointedPatientIds)]);
+      // Sweep everything still scoped to a merged patient, not just this run's repoints: records
+      // stranded by past merges stay invisible to every facility until re-queued, and a healed row
+      // leaves the stale set, so the sweep converges to empty index probes.
+      if (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled')) {
+        await refreshLookupScopedRecordsForSync(this.models);
+      }
 
       return counts;
     });
