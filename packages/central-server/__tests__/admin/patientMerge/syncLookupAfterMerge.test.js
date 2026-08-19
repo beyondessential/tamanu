@@ -3,6 +3,7 @@ import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
 import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
+import { PatientMergeMaintainer } from '../../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../../utilities';
 import { makeTwoPatients } from './makeTwoPatients';
 
@@ -126,5 +127,19 @@ describe('Sync lookup after patient merge', () => {
         keep.id,
       ]);
     }
+  });
+
+  it('rescopes records that arrive for a patient already merged', async () => {
+    const [keep, merge] = await makeTwoPatients(models);
+    await mergePatient(models, keep.id, merge.id);
+
+    const { prescription } = await makeEncounterRecords(merge.id);
+    await centralSyncManager.updateLookupTable();
+    expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
+
+    await new PatientMergeMaintainer(ctx).remergePatientRecords();
+    await centralSyncManager.updateLookupTable();
+
+    expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
   });
 });

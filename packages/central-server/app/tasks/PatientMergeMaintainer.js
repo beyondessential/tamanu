@@ -5,7 +5,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
-import { Op, QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import {
   mergePatientAdditionalData,
   mergePatientBirthData,
@@ -64,7 +64,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
         patients.id = ${tableName}.${patientFieldName} 
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING ${tableName}.id;
+      RETURNING ${tableName}.id, patients.id AS "mergedPatientId";
     `);
     return result.rows;
   }
@@ -139,15 +139,11 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
       await this.updateDependentRecordsForResync(merges);
 
-      const mergedPatients = await this.models.Patient.findAll({
-        attributes: ['id'],
-        where: { mergedIntoId: { [Op.ne]: null } },
-        paranoid: false,
-      });
-      await refreshLookupScopedRecordsForSync(
-        this.models,
-        mergedPatients.map(patient => patient.id),
-      );
+      const repointedPatientIds = Object.values(merges)
+        .flat()
+        .map(record => record.mergedPatientId)
+        .filter(Boolean);
+      await refreshLookupScopedRecordsForSync(this.models, [...new Set(repointedPatientIds)]);
 
       return counts;
     });
