@@ -8,7 +8,7 @@ import { useDateTime } from '../pdf/withDateTimeContext';
 const patientFields = getTranslation => [
   {
     key: 'firstName',
-    label: getTranslation('pdf.vaccineCertificate.patientDetails.firstName', 'First Name'),
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.firstName', 'First name'),
   },
   {
     key: 'displayId',
@@ -16,7 +16,7 @@ const patientFields = getTranslation => [
   },
   {
     key: 'lastName',
-    label: getTranslation('pdf.vaccineCertificate.patientDetails.lastName', 'Last Name'),
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.lastName', 'Last name'),
   },
   {
     key: 'sex',

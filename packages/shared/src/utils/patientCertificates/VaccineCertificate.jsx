@@ -153,7 +153,7 @@ const VaccineCertificateComponent = ({
   const birthCertificateField = displayBirthCertificateNumber
     ? {
         key: 'birthCertificate',
-        label: getTranslation('pdf.vaccineCertificate.patientDetails.birthCertificate', 'Birth Certificate Number'),
+        label: getTranslation('pdf.vaccineCertificate.patientDetails.birthCertificateNo', 'Birth certificate no'),
         accessor: patientData => patientData?.additionalData?.birthCertificate || '',
       }
     : null;
