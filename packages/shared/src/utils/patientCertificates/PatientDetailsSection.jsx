@@ -49,11 +49,11 @@ export const PatientDetailsSection = ({
   return (
     <>
       <H3 style={{ marginBottom: 0 }}>
-        {getTranslation('pdf.vaccineCertificate.patientDetails.title', 'Patient Details')}
+        {getTranslation('pdf.vaccineCertificate.patientDetails.title', 'Patient details')}
       </H3>
       <LightDivider />
       <Row>
-        <Col style={{ marginBottom: 5 }}>
+        <Col>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
@@ -79,7 +79,7 @@ export const PatientDetailsSection = ({
           </Row>
         </Col>
       </Row>
-      <LightDivider />
+      <LightDivider style={{ marginBottom: 10 }} />
     </>
   );
 };

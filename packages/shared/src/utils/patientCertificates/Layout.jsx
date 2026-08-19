@@ -97,6 +97,9 @@ export const styles = StyleSheet.create({
   },
   lightDivider: {
     borderTop: '0.5 solid #000000',
+  },
+  fixedFooterDivider: {
+    borderTop: '0.5 solid #888888',
     marginTop: 10,
     marginBottom: 10,
   },
@@ -150,7 +153,7 @@ export const FixedHeader = ({ children, props }) => (
 
 export const FixedFooter = ({ children, props }) => (
   <View fixed style={styles.fixedFooter} {...props}>
-    <View style={{ ...styles.lightDivider, borderTopColor: '#888888' }} />
+    <View style={styles.fixedFooterDivider} />
     {children}
   </View>
 );
