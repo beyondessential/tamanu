@@ -210,16 +210,18 @@ alone-ness as a data attribute if it's worth asserting in the unit test.
 
 ## Checklist
 
-- [ ] Update `specs/scheduling/overview.md` to split general vs dashboard-snapshot behaviour
-- [ ] Add view-local time-cell component in `TodayBookingsPane.jsx`; drop overnight icon + `RangeLine`
-- [ ] Centre the time cell and let it wrap on narrow panes
-- [ ] Retune the grid time-track floor so the narrow case can actually wrap
-- [ ] Decide: full layout rewrite vs minimal change (see scope note)
-- [ ] Replace MUI `Timeline` parts with plain elements
-- [ ] Centre the dot by alignment; delete the 21px spacer and its warning comment
-- [ ] Redraw the rail as a pseudo-element in the dot's own grid cell; mask it behind the dot
-- [ ] Contain the rail to the dots: no lead-in above the first, no run-out below the last
-- [ ] Hide the rail when the pane lists one booking
-- [ ] Update the component's comments to the new intent, replacing L3's reasoning
-- [ ] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape, deleting the rail-into-lone-dot case
-- [ ] Verify unit tests + lint locally
+- [x] Update `specs/scheduling/overview.md` to split general vs dashboard-snapshot behaviour
+- [x] Add view-local time-cell component in `TodayBookingsPane.jsx`; drop overnight icon + `RangeLine`
+- [x] Centre the time cell and let it wrap on narrow panes
+- [x] Retune the grid time-track floor so the narrow case can actually wrap
+- [x] Decide: full layout rewrite vs minimal change (see scope note)
+- [x] Replace MUI `Timeline` parts with plain elements
+- [x] Centre the dot by alignment; delete the 21px spacer and its warning comment
+- [x] Redraw the rail as a pseudo-element in the dot's own grid cell; mask it behind the dot
+- [x] Contain the rail to the dots: no lead-in above the first, no run-out below the last
+- [x] Hide the rail when the pane lists one booking
+- [x] Update the component's comments to the new intent, replacing L3's reasoning
+- [x] Rewrite `TodayBookingsPane.test.jsx` to the Y5 shape, deleting the rail-into-lone-dot case
+- [x] Verify unit tests + lint locally
+- [x] Trim the now-unused `onDate`/`showStartDate`/`showEndDate` from the shared `useDateRangeSpan`
+- [ ] Manual visual pass against the mockup (see `.workhorse/test-cases/y5/overview.md`)

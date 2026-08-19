@@ -73,7 +73,7 @@ const renderPane = ({ onDate, withBookings }) => {
 /** Each row's range as one string, with the non-breaking space before the dash normalised. */
 const ranges = () =>
   [...document.querySelectorAll('[data-testid="rangetext-4k7e"]')].map(range =>
-    range.textContent.replace(/ /g, ' '),
+    range.textContent.replace(/\u00a0/g, ' '),
   );
 
 describe('TodayBookingsPane booking ranges', () => {
