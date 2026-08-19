@@ -12,7 +12,7 @@ export const registerSyncLookupUpdateListener = async (models, dbNotifier) => {
   onTableChanged(async payload => {
     if (payload.event === 'UPDATE' && payload.changedColumns?.includes('patient_id')) {
       const model = Object.values(models).find(model => model.tableName === payload.table);
-      await refreshChildRecordsForSync(model, payload.newId);
+      await refreshChildRecordsForSync(model, [payload.newId]);
     }
   });
 };
