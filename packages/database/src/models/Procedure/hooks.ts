@@ -1,4 +1,4 @@
-import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import type { Procedure } from './Procedure';
 
 const addToInvoice = async (instance: Procedure) => {
@@ -6,6 +6,7 @@ const addToInvoice = async (instance: Procedure) => {
     where: {
       category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
       sourceRecordId: instance.procedureTypeId,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
   if (!invoiceProduct) {
