@@ -449,6 +449,51 @@ export async function refreshMultiChildRecordsForSync(model, records) {
 }
 
 /**
+ * A record reaches sync_lookup with a patient_id derived through joins its own table doesn't own,
+ * so walking child associations cannot find all of them: prescriptions sit on the far side of a
+ * belongsToMany, lab_request_logs hang off an association nobody declared. Any lookup row still
+ * scoped to a merged-away patient is stale whatever the shape of the join, so re-queue those
+ * records from their own tables and let the next lookup build re-derive the scope. Without this
+ * they keep a patient that syncs to no facility, and a facility holding a child record that does
+ * sync hits a foreign key violation that halts its whole pull.
+ */
+export async function refreshLookupScopedRecordsForSync(models, patientIds) {
+  if (patientIds.length === 0) return;
+
+  const { sequelize } = models.SyncLookup;
+  const [staleRecordTypes] = await sequelize.query(
+    `
+      SELECT DISTINCT record_type AS "recordType"
+      FROM sync_lookup
+      WHERE patient_id IN (:patientIds);
+    `,
+    { replacements: { patientIds } },
+  );
+
+  const modelsByTableName = Object.fromEntries(
+    Object.values(models).map(model => [model.tableName, model]),
+  );
+
+  for (const { recordType } of staleRecordTypes) {
+    const model = modelsByTableName[recordType];
+    if (!model) continue;
+
+    // tableName comes from the model registry rather than from the lookup row, so it is safe inline
+    await sequelize.query(
+      `
+        UPDATE "${model.tableName}"
+        SET updated_at_sync_tick = 1
+        WHERE id IN (
+          SELECT record_id FROM sync_lookup
+          WHERE record_type = :recordType AND patient_id IN (:patientIds)
+        );
+      `,
+      { replacements: { recordType, patientIds } },
+    );
+  }
+}
+
+/**
  * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
  * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
  * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
@@ -612,6 +657,8 @@ export async function mergePatient(
     if (facilityUpdates.length > 0) {
       updates.PatientFacility = facilityUpdates.length;
     }
+
+    await refreshLookupScopedRecordsForSync(models, [unwantedPatientId]);
 
     // Destroy at the end to avoid cascade deleting everything referencing the patient
     await unwantedPatient.destroy();
