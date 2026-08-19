@@ -16,7 +16,6 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-import { Box } from '@mui/material';
 import {
   getPatientNameAsString,
   NumberInput,
@@ -26,7 +25,6 @@ import {
   ThemedTooltip,
   TranslatedReferenceData,
   TranslatedText,
-  useDateTime,
 } from '@tamanu/ui-components';
 import { AutocompleteInput } from '../components/Field';
 import { TranslatedEnum } from '../components';
@@ -375,66 +373,6 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   return content;
 };
 
-// A prescription discontinued after it was sent to pharmacy stays in the queue and stays
-// dispensable — the pharmacist is warned rather than blocked, so every surface that lists a
-// pharmacy request flags it with this tag (spec: PHDIS).
-export const DiscontinuedTag = ({ prescription }) => {
-  const { formatShort } = useDateTime();
-  if (!prescription?.discontinued) return null;
-
-  const { discontinuedDate, discontinuingReason } = prescription;
-  const tag = (
-    <StyledTag $color={TAMANU_COLORS.alert} noWrap>
-      <TranslatedText stringId="medication.status.discontinued" fallback="Discontinued" />
-    </StyledTag>
-  );
-
-  // Date and reason are what the pharmacist needs to judge whether dispensing is still
-  // appropriate; neither is guaranteed to be recorded, so the tooltip adapts to what exists.
-  const tooltipLines = [
-    discontinuedDate ? (
-      <div key="date">
-        <TranslatedText
-          stringId="medication.discontinued.tooltip.date"
-          fallback="Discontinued :date"
-          replacements={{ date: formatShort(discontinuedDate) }}
-        />
-      </div>
-    ) : null,
-    discontinuingReason ? (
-      <div key="reason">
-        <TranslatedText
-          stringId="medication.discontinued.tooltip.reason"
-          fallback="Reason: :reason"
-          replacements={{ reason: discontinuingReason }}
-        />
-      </div>
-    ) : null,
-  ].filter(Boolean);
-
-  if (tooltipLines.length === 0) return tag;
-
-  return (
-    <ThemedTooltip title={<>{tooltipLines}</>}>
-      <span>{tag}</span>
-    </ThemedTooltip>
-  );
-};
-
-// Every pharmacy surface lists the medication name with its discontinued flag alongside.
-// `medication` is the drug actually shown — a pharmacy substitution differs from the one
-// prescribed — while `prescription` is what carries the discontinuation.
-export const MedicationNameWithDiscontinuedTag = ({ medication, prescription }) => (
-  <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-    <TranslatedReferenceData
-      fallback={medication?.name}
-      value={medication?.id}
-      category={medication?.type ?? 'drug'}
-    />
-    <DiscontinuedTag prescription={prescription} />
-  </Box>
-);
-
 // A fill can be modified by pharmacy at dispensing time, recorded via `modifiedAt` on the
 // medication dispense. When set, dispensed medication rows are flagged with an asterisk and the
 // table shows a "*Prescription modified by pharmacy" footnote. The original prescription is
@@ -467,19 +405,14 @@ export const getDisplayedPharmacyNote = medication => {
 export const DispensedMedicationName = ({ dispense }) => {
   const medication = getDispensedMedication(dispense);
   return (
-    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-      {/* The pharmacy-modified asterisk belongs to the name, so it stays inside the same span
-          rather than drifting to the far side of the discontinued tag. */}
-      <span>
-        <TranslatedReferenceData
-          fallback={medication?.name}
-          value={medication?.id}
-          category={medication?.type ?? 'drug'}
-        />
-        {isDispenseModifiedByPharmacy(dispense) && ' *'}
-      </span>
-      <DiscontinuedTag prescription={dispense?.pharmacyOrderPrescription?.prescription} />
-    </Box>
+    <>
+      <TranslatedReferenceData
+        fallback={medication?.name}
+        value={medication?.id}
+        category={medication?.type ?? 'drug'}
+      />
+      {isDispenseModifiedByPharmacy(dispense) && ' *'}
+    </>
   );
 };
 

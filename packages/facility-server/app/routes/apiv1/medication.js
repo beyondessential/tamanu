@@ -1905,9 +1905,7 @@ medication.get(
         {
           association: 'prescription',
           where: prescriptionFilters,
-          // A prescription discontinued after the order was placed stays in the queue, flagged
-          // rather than filtered, so the pharmacist can see it and decide (spec: PHDIS).
-          attributes: ['id', 'discontinued'],
+          attributes: ['id'],
           include: [
             {
               association: 'medication',
@@ -2119,11 +2117,6 @@ medication.get(
                 'notes',
                 'isVariableDose',
                 'isPrn',
-                // A fill can be dispensed against a prescription that was discontinued after the
-                // order was placed, so dispensed records carry the flag too (spec: PHDIS).
-                'discontinued',
-                'discontinuedDate',
-                'discontinuingReason',
               ],
               include: [
                 {
@@ -2516,11 +2509,6 @@ medication.get(
             'isVariableDose',
             'isOngoing',
             'date',
-            // Dispensing a discontinued prescription is warned about, not blocked, so the
-            // pharmacist needs the discontinuation context to decide (spec: PHDIS).
-            'discontinued',
-            'discontinuedDate',
-            'discontinuingReason',
           ],
           required: true,
           include: [

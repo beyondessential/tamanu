@@ -842,11 +842,6 @@ patientRoute.get(
                 'notes',
                 'isVariableDose',
                 'isPrn',
-                // A fill can be dispensed against a prescription that was discontinued after the
-                // order was placed, so dispensed records carry the flag too (spec: PHDIS).
-                'discontinued',
-                'discontinuedDate',
-                'discontinuingReason',
               ],
               required: true,
               include: [
