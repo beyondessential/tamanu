@@ -11,6 +11,7 @@ import {
   INVOICE_STATUSES,
   REFERENCE_TYPES,
   SETTINGS_SCOPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -40,6 +41,7 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     {
       referenceType = REFERENCE_TYPES.ENCOUNTER_FEE,
       category = INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE,
+      visibilityStatus = VISIBILITY_STATUSES.CURRENT,
     } = {},
   ) => {
     const referenceData = await models.ReferenceData.create(
@@ -50,6 +52,7 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
         category,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[category],
         sourceRecordId: referenceData.id,
+        visibilityStatus,
       }),
     );
   };
@@ -218,6 +221,21 @@ describe('Encounter fee (Invoice.addEncounterFee)', () => {
     const items = await addFeeFor({
       encounterType: ENCOUNTER_TYPES.CLINIC,
       startDate: '2024-06-22 11:00:00', // Saturday → clinic weekend → resolves the hidden product
+    });
+    expect(items).toHaveLength(0);
+  });
+
+  it('does not add a clinic/ED fee whose product has been marked historical', async () => {
+    // A facility retiring a fee code marks the product historical; it should stop being picked
+    // up automatically, the same as if it were hidden on the price list.
+    const clinicWeekendProduct = await createFeeProduct(ENCOUNTER_FEE_CODES.WEEKEND, {
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+    await priceListItem(facilityPriceList.id, clinicWeekendProduct.id);
+
+    const items = await addFeeFor({
+      encounterType: ENCOUNTER_TYPES.CLINIC,
+      startDate: '2024-06-22 11:00:00', // Saturday → clinic weekend → resolves the historical product
     });
     expect(items).toHaveLength(0);
   });
