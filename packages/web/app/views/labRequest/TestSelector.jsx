@@ -404,7 +404,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
         <ScrollList>
           {isLoading && (
             <EmptyText data-testid="test-selector-loading">
-              <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+              <TranslatedText stringId="general.table.loading" fallback="Loading…" />
             </EmptyText>
           )}
           {!isLoading && visibleItems.length === 0 && (
