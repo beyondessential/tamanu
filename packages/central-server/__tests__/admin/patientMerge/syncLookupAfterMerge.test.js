@@ -2,7 +2,10 @@ import { fake } from '@tamanu/fake-data/fake';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
-import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
+import {
+  getLookupSweepExcludedTables,
+  mergePatient,
+} from '../../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../../utilities';
 import { makeTwoPatients } from './makeTwoPatients';
@@ -164,6 +167,27 @@ describe('Sync lookup after patient merge', () => {
     await centralSyncManager.updateLookupTable();
 
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
+  });
+
+  it('sweeps join-derived scope tables and skips own-column scope tables', async () => {
+    const excluded = await getLookupSweepExcludedTables(models);
+
+    // scope derived through joins can go stale without the row being touched, so these must be swept
+    for (const table of [
+      'prescriptions',
+      'encounter_prescriptions',
+      'medication_administration_records',
+      'lab_request_logs',
+      'patient_ongoing_prescriptions',
+    ]) {
+      expect(excluded).not.toContain(table);
+    }
+
+    // scope that follows the row's own column heals through repointing, and the merged patient's
+    // tombstones legitimately keep the old id, so sweeping these would repeat forever
+    for (const table of ['patients', 'patient_additional_data', 'patient_issues']) {
+      expect(excluded).toContain(table);
+    }
   });
 
   it('leaves records alone when dependent record resync is disabled', async () => {

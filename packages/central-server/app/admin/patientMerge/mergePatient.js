@@ -457,15 +457,40 @@ export async function refreshMultiChildRecordsForSync(model, records) {
  * Without this they keep a patient that syncs to no facility, and a facility holding a child
  * record that does sync hits a foreign key violation that halts its whole pull.
  *
- * Tables with their own patient_id column are excluded: repointing already re-queues those, their
- * lookup scope follows the column, and the merged patient's deletion tombstones legitimately keep
- * the old id, so re-queueing them here would repeat every run instead of converging.
+ * Tables whose lookup scope is exactly their own patient_id column are excluded: repointing that
+ * column already re-queues those, and the merged patient's deletion tombstones legitimately keep
+ * the old id, so re-queueing them here would repeat every run instead of converging. A table whose
+ * scope also draws on other tables' patient_id (e.g. patient_ongoing_prescriptions) is swept, since
+ * a join-derived scope can go stale without the row itself being touched.
  *
  * Pass patientIds to sweep specific merged patients (the merge itself), or omit it to sweep
  * everything still scoped to any merged patient (the maintainer's backlog pass). Both drive off
  * the sync_lookup patient_id index, and a healed row leaves the stale set, so repeat sweeps
  * converge to no work.
  */
+const lookupScopeIsOwnPatientIdColumn = async model => {
+  // a model with no lookup query details never reaches the lookup table
+  if (typeof model.buildSyncLookupQueryDetails !== 'function') return true;
+  const details = await model.buildSyncLookupQueryDetails({});
+  // no select means the default one, which derives no patient scope at all
+  if (!details?.select) return true;
+  const patientIdReferences =
+    details.select.replace(/json_build_object\([^)]*\)/, '').match(/\w+\.patient_id/g) ?? [];
+  return patientIdReferences.every(
+    reference => reference === `${model.tableName}.patient_id`,
+  );
+};
+
+export async function getLookupSweepExcludedTables(models) {
+  const excluded = ['patients'];
+  for (const model of Object.values(models)) {
+    if (model.getAttributes().patientId && (await lookupScopeIsOwnPatientIdColumn(model))) {
+      excluded.push(model.tableName);
+    }
+  }
+  return excluded;
+}
+
 export async function refreshLookupScopedRecordsForSync(models, patientIds = null) {
   if (patientIds?.length === 0) return;
 
@@ -473,10 +498,7 @@ export async function refreshLookupScopedRecordsForSync(models, patientIds = nul
   const mergedPatientsPredicate = patientIds
     ? 'IN (:patientIds)'
     : 'IN (SELECT id FROM patients WHERE merged_into_id IS NOT NULL)';
-  const ownScopeTables = Object.values(models)
-    .filter(model => model.getAttributes().patientId)
-    .map(model => model.tableName)
-    .concat(['patients']);
+  const ownScopeTables = await getLookupSweepExcludedTables(models);
 
   const [staleRecordTypes] = await sequelize.query(
     `
