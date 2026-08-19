@@ -5,7 +5,7 @@ import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { DateDisplay, TimeDisplay, TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { RangeEndDisplay, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -218,11 +218,12 @@ const Link = styled.div`
  * end is then itself what tells them the booking reaches beyond today, and every day
  * a booking covers states its span without ambiguity.
  *
+ * Which of the two an end gets is all this adds: the end itself is rendered by the
+ * shared {@link RangeEndDisplay}, which owns how a date and a time sit together in a
+ * right-to-left locale.
+ *
  * Days are compared as they are displayed, not as they are stored: a booking can sit
  * within one day in the primary timezone and straddle midnight in the facility's.
- *
- * `bdi` isolates the end as a whole, date and time together, so a right-to-left month
- * name cannot absorb the digits beside it and strand the am/pm marker.
  */
 const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
   const { toFacilityDateTime } = useDateTime();
@@ -230,13 +231,11 @@ const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
 
   return (
     <RangeEnd {...props}>
-      <bdi>
-        {fallsToday ? (
-          <TimeDisplay date={date} noTooltip />
-        ) : (
-          <DateDisplay date={date} format="dayMonth" noTooltip />
-        )}
-      </bdi>
+      <RangeEndDisplay
+        date={date}
+        dateFormat={fallsToday ? null : 'dayMonth'}
+        timeFormat={fallsToday ? 'default' : null}
+      />
       {/* Held against this end rather than standing between the two, so a range that
           wraps cannot leave the separator stranded at the head of the second line */}
       {withSeparator && <>&nbsp;&ndash;</>}
