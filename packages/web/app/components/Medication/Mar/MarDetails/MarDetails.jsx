@@ -256,9 +256,7 @@ export const MarDetails = ({
           suppressErrorDialog
           onSubmit={onSubmit}
           formType={FORM_TYPES.EDIT_FORM}
-          initialValues={{
-            doses: [],
-          }}
+          initialValues={{ doses: [] }}
           validationSchema={yup.object().shape({
             doses: yup.array().of(
               yup.object().shape({
