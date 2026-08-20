@@ -88,7 +88,11 @@ const renderSampleDetails = () =>
         <>
           <SampleDetailsField
             initialSamples={[
-              { categoryId: IDENTIFIER, categoryName: 'Category One', testNames: ['FBC'] },
+              {
+                categoryId: IDENTIFIER,
+                category: { id: IDENTIFIER, name: 'Category One' },
+                testNames: ['FBC'],
+              },
             ]}
             practitionerSuggester={noopSuggester}
             specimenTypeSuggester={noopSuggester}

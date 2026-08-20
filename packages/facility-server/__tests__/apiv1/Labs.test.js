@@ -418,6 +418,69 @@ describe('Labs', () => {
     expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
+  it('shares one category sample between a panel and an individual test in the same category', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const labTestPanel = await models.LabTestPanel.create({
+      name: `Shared category panel ${chance.guid()}`,
+      code: chance.guid(),
+      categoryId: category.id,
+    });
+    await createTestTypesForPanel(models, labTestPanel);
+    const individualTest = await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: category.id,
+      isSensitive: false,
+      availableFacilities: null,
+    });
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const sampleTime = '2023-06-09 00:00:00';
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+
+    // A single sample keyed by the shared category should apply to both the panel request and the
+    // individual-tests request that live in that category.
+    const response = await app.post('/api/labRequest').send({
+      panelIds: [labTestPanel.id],
+      labTestTypeIds: [individualTest.id],
+      encounterId: encounter.id,
+      sampleDetails: {
+        [category.id]: { sampleTime, specimenTypeId: specimenType.id },
+      },
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveLength(2);
+
+    const createdRequests = await models.LabRequest.findAll({
+      where: { id: response.body.map(request => request.id) },
+    });
+    const panelRequest = createdRequests.find(request => request.labTestPanelRequestId);
+    const individualRequest = createdRequests.find(request => !request.labTestPanelRequestId);
+    expect(panelRequest).toBeTruthy();
+    expect(individualRequest).toBeTruthy();
+
+    // Both requests received the shared sample.
+    for (const request of [panelRequest, individualRequest]) {
+      expect(request.sampleTime).toBe(sampleTime);
+      expect(request.specimenTypeId).toBe(specimenType.id);
+      expect(request.specimenAttached).toBe(true);
+      expect(request.status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    }
+  });
+
   it('should not record a lab request with an invalid testTypeId', async () => {
     const labTestTypeIds = ['invalid-test-type-id', 'another-invalid-test-type-id'];
     const response = await app.post('/api/labRequest').send({

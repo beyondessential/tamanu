@@ -137,7 +137,7 @@ const buildTestItem = test => ({
 });
 
 // Group items by category, categories alphabetical, items alphabetical within each.
-const groupByCategory = items => {
+export const groupByCategory = items => {
   const groups = new Map();
   items.forEach(item => {
     const key = item.category?.id ?? 'uncategorised';
@@ -254,15 +254,13 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   // Feed sample-details: one entry per category (keyed by categoryId downstream), covering every
   // selected panel and individual test in that category. Categories alphabetical, and testNames is
   // the alphabetical list of the category's selected panel + test names shown in the Test column.
+  // One entry per category (keyed by the real categoryId the backend resolves — no client-only
+  // sentinel), carrying the raw category so the row decides how to render/translate it.
   const samples = useMemo(
     () =>
       selectedGroups.map(group => ({
-        categoryId: group.category?.id ?? 'uncategorised',
-        categoryName: group.category ? (
-          referenceName(group.category, group.category.type)
-        ) : (
-          <TranslatedText stringId="lab.testSelect.uncategorised" fallback="Uncategorised" />
-        ),
+        categoryId: group.category?.id,
+        category: group.category,
         testNames: group.items.map(item => item.name),
       })),
     [selectedGroups],

@@ -7,6 +7,7 @@ import { Heading4 } from '../../components';
 import { RequiredOrnament, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components/Translation/index.js';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';
 
@@ -45,9 +46,7 @@ export const SampleDetailsCell = styled.div`
 `;
 
 export const SampleDetailsLabelCell = styled(SampleDetailsCell)`
-  &:first-of-type {
-    padding-left: 32px;
-  }
+  padding-left: 32px;
 `;
 
 export const SampleDetailsStyledField = styled(Field)`
@@ -160,7 +159,18 @@ export const SampleDetailsField = ({
         <React.Fragment key={categoryId}>
           <SampleDetailsLabelCell data-testid="cell-category">
             <Typography variant="subtitle1" data-testid="typography-category">
-              {sample.categoryName}
+              {sample.category ? (
+                <TranslatedReferenceData
+                  category="labTestCategory"
+                  value={sample.category.id}
+                  fallback={sample.category.name}
+                />
+              ) : (
+                <TranslatedText
+                  stringId="lab.sampleDetail.uncategorised"
+                  fallback="Uncategorised"
+                />
+              )}
             </Typography>
           </SampleDetailsLabelCell>
           <SampleDetailsCell data-testid="cell-test">
