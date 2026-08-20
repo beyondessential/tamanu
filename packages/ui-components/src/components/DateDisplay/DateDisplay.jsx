@@ -290,42 +290,6 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
 );
 
 /**
- * Works out which ends of a range need a date, for callers laying a range out
- * themselves rather than taking {@link DateTimeRangeDisplay}'s inline shape.
- *
- * Days are compared as they are displayed, not as they are stored: a range can sit
- * within one day in the primary timezone and straddle midnight in the facility's,
- * or the reverse.
- *
- * @param {string|Date} start
- * @param {string|Date} end
- * @param {string} onDate - A `yyyy-MM-dd` date in the display timezone that the
- *   range is being shown against, if any. An end falling on it needs no date,
- *   unless the range spans days.
- */
-export const useDateRangeSpan = ({ start, end, onDate = null }) => {
-  const { toFacilityDateTime } = useDateTime();
-
-  const startDay = trimToDate(toFacilityDateTime(start));
-  const endDay = end ? trimToDate(toFacilityDateTime(end)) : null;
-  const spansMultipleDays = Boolean(endDay) && startDay !== endDay;
-
-  return {
-    spansMultipleDays,
-    // Whether the range has an end is a property of `end`, not of whether it could
-    // be converted: a value that fails to convert renders as the formatter's
-    // placeholder, which is visible, rather than the end silently disappearing.
-    hasEnd: Boolean(end),
-    // A range that spans days carries a date at both ends, including the end that
-    // falls on `onDate`. Dating only the other end reads as though the undated one
-    // were the whole of the range's day, which is the confusion `onDate` exists to
-    // avoid; a dated pair states the span outright on every day it covers.
-    showStartDate: spansMultipleDays || !onDate || startDay !== onDate,
-    showEndDate: spansMultipleDays,
-  };
-};
-
-/**
  * RangeEndDisplay - One end of a date/time range
  *
  * Renders the instant as a date with its time, or as a time alone when `dateFormat`
@@ -382,7 +346,19 @@ export const RangeEndDisplay = React.memo(
  */
 export const DateTimeRangeDisplay = React.memo(
   ({ start, end, weekdayFormat = null, dateFormat = 'short', timeFormat = 'default' }) => {
-    const { hasEnd, spansMultipleDays } = useDateRangeSpan({ start, end });
+    const { toFacilityDateTime } = useDateTime();
+
+    // Days are compared as they are displayed, not as they are stored: a range can sit
+    // within one day in the primary timezone and straddle midnight in the facility's,
+    // or the reverse.
+    const startDay = trimToDate(toFacilityDateTime(start));
+    const endDay = end ? trimToDate(toFacilityDateTime(end)) : null;
+    const spansMultipleDays = Boolean(endDay) && startDay !== endDay;
+
+    // Whether the range has an end is a property of `end`, not of whether it could be
+    // converted: a value that fails to convert renders as the formatter's placeholder,
+    // which is visible, rather than the end silently disappearing.
+    const hasEnd = Boolean(end);
 
     return (
       <span>
