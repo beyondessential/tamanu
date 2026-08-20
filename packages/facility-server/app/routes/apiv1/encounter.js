@@ -51,7 +51,6 @@ import {
   createPharmacyOrder,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
-import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
@@ -177,7 +176,7 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const prescriptions = DISCHARGE_MEDICATIONS_SCHEMA.parse(req.body.medications ?? {});
+        const prescriptions = req.body.medications || {};
         const pharmacyOrderLines = [];
         for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
           const { quantity, repeats, sendToPharmacy } = prescriptionValues;

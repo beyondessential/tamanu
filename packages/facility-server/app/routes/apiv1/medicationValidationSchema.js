@@ -9,42 +9,6 @@ import {
 } from '@tamanu/constants';
 import { dateCustomValidation, datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
-/**
- * Nothing entered, in every spelling the forms can produce: a field the form never filled in arrives
- * as null or not at all, and clearing a number input leaves an empty string behind. All of them mean
- * none, which is recorded as zero. Normalising here rather than at each call site keeps the
- * prescription and discharge routes reading a blank quantity identically, and keeps an empty string
- * away from Sequelize, whose integer validation rejects it.
- */
-const blankAsZero = value => (value === '' || value === null || value === undefined ? 0 : value);
-
-/** A dispensing quantity. Blank counts as zero; a quantity of at least one is only demanded of a
- * medication actually being sent to pharmacy, which each route checks for itself. */
-export const DISPENSING_QUANTITY_SCHEMA = z.preprocess(
-  blankAsZero,
-  z.coerce.number().int().min(0),
-);
-
-export const REPEATS_SCHEMA = z.preprocess(
-  blankAsZero,
-  z.coerce.number().int().min(0).max(MAX_REPEATS),
-);
-
-/**
- * The medications table of a discharge, keyed by prescription id. Every listed prescription records
- * a dispensing quantity and repeats against itself, whether or not it is being sent to pharmacy.
- */
-export const DISCHARGE_MEDICATIONS_SCHEMA = z.record(
-  z.string(),
-  z
-    .object({
-      quantity: DISPENSING_QUANTITY_SCHEMA,
-      repeats: REPEATS_SCHEMA,
-      sendToPharmacy: z.boolean().optional(),
-    })
-    .strip(),
-);
-
 const MEDICATION_INPUT_FIELDS = {
   encounterId: z.string().optional().nullable(),
   patientId: z.string().optional().nullable(),
@@ -54,7 +18,7 @@ const MEDICATION_INPUT_FIELDS = {
   route: z.enum(Object.values(DRUG_ROUTES)),
   medicationId: z.string(),
   prescriberId: z.string(),
-  quantity: DISPENSING_QUANTITY_SCHEMA,
+  quantity: z.coerce.number().int().optional().nullable(),
   isOngoing: z.boolean().optional().nullable(),
   isPrn: z.boolean().optional().nullable(),
   isVariableDose: z.boolean().optional().nullable(),
@@ -65,7 +29,7 @@ const MEDICATION_INPUT_FIELDS = {
   durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
   isPhoneOrder: z.boolean().optional(),
   idealTimes: z.array(z.string()).optional().nullable(),
-  repeats: REPEATS_SCHEMA,
+  repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
 };
 
 const refineMedicationInput = (val, ctx) => {
