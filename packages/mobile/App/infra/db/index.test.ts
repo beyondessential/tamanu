@@ -1,6 +1,6 @@
 import { Database, PLANNER_STATS_REFRESHED_AT_KEY } from './index';
 
-const FOUR_HOURS_MS = 14_400_000;
+const NINETY_MIN_MS = 5_400_000;
 
 const getRefreshedAtFact = () =>
   Database.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } });
@@ -47,7 +47,7 @@ describe('DatabaseHelper', () => {
     it('skips ANALYZE when the last run is within the refresh interval', async () => {
       await Database.models.LocalSystemFact.createAndSaveOne({
         key: PLANNER_STATS_REFRESHED_AT_KEY,
-        value: String(Date.now() - FOUR_HOURS_MS / 2),
+        value: String(Date.now() - NINETY_MIN_MS / 2),
       });
       const querySpy = jest.spyOn(Database.client, 'query');
 
@@ -60,7 +60,7 @@ describe('DatabaseHelper', () => {
     });
 
     it('runs ANALYZE again when the last run is older than the refresh interval', async () => {
-      const staleTimestamp = String(Date.now() - FOUR_HOURS_MS - 60_000);
+      const staleTimestamp = String(Date.now() - NINETY_MIN_MS - 60_000);
       await Database.models.LocalSystemFact.createAndSaveOne({
         key: PLANNER_STATS_REFRESHED_AT_KEY,
         value: staleTimestamp,

@@ -36,8 +36,8 @@ const TEST_CONNECTION_CONFIG = {
 
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
 
-/** 4 hours */
-const PLANNER_STATS_REFRESH_INTERVAL_MS = 14_400_000;
+/** 90 minutes */
+const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
 
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
