@@ -436,7 +436,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
   return (
     <StyledAccordion
-      defaultExpanded={!isOneTimeFrequency(values.frequency)}
+      defaultExpanded={false}
       data-testid="medication-accordion-medicationAdministration-5m2w"
     >
       <StyledAccordionSummary>
