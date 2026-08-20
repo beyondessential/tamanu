@@ -58,10 +58,14 @@ export const AutocompleteModalScreen = ({
   const { language, getTranslation } = useTranslation();
 
   const { data: displayedOptions } = useQuery({
-    queryKey: suggestionKeys.list(suggester, {
+    // The Suggester instance itself must stay out of the key: it holds non-serializable
+    // members (model class, filter/formatter functions), so it would hash incompletely.
+    // Its query-relevant state is captured by model name + options + filterCacheKey.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: suggestionKeys.list(suggester.model.name, {
+      options: suggester.options,
       search: searchTerm,
       language,
-      // Awkward hack because `Suggester.fetchSuggestions` is impure. See comments in Suggester.
       filterCacheKey: suggester.filterCacheKey,
     }),
     queryFn: () => suggester.fetchSuggestions(searchTerm, language),

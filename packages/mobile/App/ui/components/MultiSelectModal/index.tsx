@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { SearchInput } from '~/ui/components/SearchInput';
@@ -9,6 +10,8 @@ import { GreenTickIcon } from '~/ui/components/Icons';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
 import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '../Button/index';
 
 interface IMultiSelectModalScreen {
@@ -25,21 +28,42 @@ interface IMultiSelectModalScreen {
 }
 
 export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
-  const { callback, modalTitle, suggester, value, searchPlaceholder = 'Search...' } = props.route.params;
+  const {
+    callback,
+    modalTitle,
+    suggester,
+    value,
+    searchPlaceholder = 'Search...',
+  } = props.route.params;
+  const { language } = useTranslation();
   const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<{ value: string; label: string; selected: boolean }[]>([]);
 
+  const { data: suggestions } = useQuery({
+    // Keep {@link Suggester} instance out of the key; because methods don’t serialise and get
+    // dropped when used as a QueryKey. Here we care about `suggester.filter`, hence the slightly
+    // awkward {@link Suggester.filterCacheKey} hack.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: suggestionKeys.list(suggester.model.name, {
+      options: suggester.options,
+      search: searchValue,
+      language,
+      filterCacheKey: suggester.filterCacheKey,
+    }),
+    queryFn: () => suggester.fetchSuggestions(searchValue, language),
+    // Keep previous list on screen during reloads to prevent flicker
+    placeholderData: previousData => previousData ?? [],
+  });
+
   useEffect(() => {
-    (async (): Promise<void> => {
-      const data = await suggester.fetchSuggestions(searchValue);
-      setOptions(
-        data.map((x: any) => {
-          const selected = Array.isArray(value) && !!value.find(v => v.value === x.id);
-          return { ...x, selected };
-        }),
-      );
-    })();
-  }, [searchValue, value, suggester]);
+    if (!suggestions) return;
+    setOptions(
+      suggestions.map((x: any) => {
+        const selected = Array.isArray(value) && !!value.find(v => v.value === x.id);
+        return { ...x, selected };
+      }),
+    );
+  }, [suggestions, value]);
 
   return (
     <FullView background={theme.colors.WHITE}>
