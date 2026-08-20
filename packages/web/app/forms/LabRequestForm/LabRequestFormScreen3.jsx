@@ -16,7 +16,6 @@ const StyledBodyText = styled(BodyText)`
 export const LabRequestFormScreen3 = (props) => {
   const {
     values,
-    values: { requestFormType, labTestPanelId },
     setFieldValue,
     initialSamples,
     practitionerSuggester,
@@ -61,8 +60,6 @@ export const LabRequestFormScreen3 = (props) => {
         name="sampleDetails"
         component={SampleDetailsField}
         onSampleChange={setSamples}
-        requestFormType={requestFormType}
-        labTestPanelId={labTestPanelId}
         initialSamples={initialSamples}
         practitionerSuggester={practitionerSuggester}
         specimenTypeSuggester={specimenTypeSuggester}

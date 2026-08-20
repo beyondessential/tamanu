@@ -158,7 +158,9 @@ export const SampleDetailsField = ({
 
   const renderSampleDetails = useCallback(
     sample => {
-      const identifier = hasPanels ? sample.panelId : sample.categoryId;
+      // A mixed request has both panel rows (keyed by panelId) and individual-category rows
+      // (keyed by categoryId), so key per sample rather than off the table-level hasPanels flag.
+      const identifier = sample.panelId ?? sample.categoryId;
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
       return (

@@ -142,9 +142,18 @@ labRequest.post(
       req.checkPermission('create', 'SensitiveLabRequest');
     }
 
-    const response = panelIds?.length
-      ? await createPanelLabRequests(models, body, note, user)
-      : await createIndividualLabRequests(models, body, note, user);
+    // Run whichever create paths apply and merge; a mixed submission must not drop either kind.
+    // Deliberately not one shared transaction: createWithTests manages its own, and the panel path
+    // relies on its LabTestPanelRequest being committed before the LabRequest FK references it —
+    // forcing both onto one outer transaction breaks that (see PR #10845 review). Making this
+    // atomic needs a deeper refactor of the create helpers.
+    const response = [];
+    if (panelIds?.length) {
+      response.push(...(await createPanelLabRequests(models, body, note, user)));
+    }
+    if (labTestTypeIds?.length) {
+      response.push(...(await createIndividualLabRequests(models, body, note, user)));
+    }
 
     res.send(response);
   }),
@@ -781,6 +790,7 @@ export const labTestPanel = express.Router();
 labTestPanel.get('/', async (req, res) => {
   req.checkPermission('list', 'LabTestPanel');
   const { models, query } = req;
+  const canCreateSensitive = req.ability.can('create', 'SensitiveLabRequest');
   const where = {
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   };
@@ -792,14 +802,40 @@ labTestPanel.get('/', async (req, res) => {
       ),
     ];
   }
-  const response = await models.LabTestPanel.findAll({
+  const panels = await models.LabTestPanel.findAll({
     include: [
       {
         model: models.ReferenceData,
         as: 'category',
       },
+      {
+        model: models.LabTestType,
+        as: 'labTestTypes',
+        attributes: ['id', 'code', 'name', 'isSensitive', 'availableFacilities'],
+        through: { attributes: ['order'] },
+      },
     ],
     where,
+  });
+  // Panel members inherit the same sensitivity and facility gating as GET /labTestType, so a panel
+  // never exposes tests the user can't see or that aren't available at their facility.
+  const response = panels.map(panel => {
+    const plain = panel.toJSON();
+    plain.labTestTypes = (plain.labTestTypes ?? [])
+      .filter(
+        member =>
+          (canCreateSensitive || !member.isSensitive) &&
+          (!query.facilityId ||
+            !member.availableFacilities ||
+            member.availableFacilities.includes(query.facilityId)),
+      )
+      .map(({ id, code, name, LabTestPanelLabTestTypes }) => ({
+        id,
+        code,
+        name,
+        LabTestPanelLabTestTypes,
+      }));
+    return plain;
   });
   res.send(response);
 });
@@ -954,6 +990,8 @@ async function createIndividualLabRequests(models, body, note, user) {
   }
 
   const { sampleDetails = {}, ...labRequestBody } = body;
+  // A mixed submission still carries panelIds in the body; keep it out of the individual payload.
+  delete labRequestBody.panelIds;
 
   const response = await Promise.all(
     categories.map(async category => {

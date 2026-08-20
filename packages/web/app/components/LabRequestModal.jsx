@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import styled from 'styled-components';
 import { combineQueries, useApi, useSuggester } from '../api';
 import { useDateTime } from '@tamanu/ui-components';
@@ -15,11 +14,6 @@ const StyledModal = styled(FormModal)`
     max-width: 1200px;
   }
 `;
-
-const SECTION_TITLES = {
-  [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'Individual',
-  [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
-};
 
 const useLabRequestsQuery = labRequestIds => {
   const api = useApi();
@@ -36,7 +30,6 @@ const useLabRequestsQuery = labRequestIds => {
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
-  const [requestFormType, setRequestFormType] = useState(null);
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const api = useApi();
@@ -70,20 +63,13 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       setNewLabRequestIds([]);
       await loadEncounter(encounter.id);
     }
-
-    setRequestFormType(null);
     onClose();
-  };
-
-  const handleChangeStep = (step, values) => {
-    setRequestFormType(step === 0 ? null : values.requestFormType);
   };
 
   let ModalBody = (
     <LabRequestMultiStepForm
       isSubmitting={isLoading}
       onSubmit={handleSubmit}
-      onChangeStep={handleChangeStep}
       onCancel={handleClose}
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
@@ -99,7 +85,6 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       <LabRequestSummaryPane
         encounter={encounter}
         labRequests={newLabRequests}
-        requestFormType={requestFormType}
         onClose={handleClose}
         data-testid="labrequestsummarypane-uhfv"
       />
@@ -111,10 +96,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       title={
         <TranslatedText
           stringId="lab.modal.create.title"
-          fallback="New lab request :modalSectionTitle"
-          replacements={{
-            modalSectionTitle: requestFormType ? `| ${SECTION_TITLES[requestFormType]}` : ' ',
-          }}
+          fallback="New lab request"
           data-testid="translatedtext-2ldh"
         />
       }

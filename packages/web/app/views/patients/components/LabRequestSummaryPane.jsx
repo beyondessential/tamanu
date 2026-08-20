@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -58,7 +57,7 @@ const Actions = styled.div`
   }
 `;
 
-const getColumns = (type) => [
+const getColumns = (showPanelColumn) => [
   {
     key: 'displayId',
     title: (
@@ -70,7 +69,7 @@ const getColumns = (type) => [
     ),
     sortable: false,
   },
-  ...(type === LAB_REQUEST_FORM_TYPES.PANEL
+  ...(showPanelColumn
     ? [
         {
           key: 'panelId',
@@ -150,12 +149,16 @@ const MODALS = {
 };
 
 export const LabRequestSummaryPane = React.memo(
-  ({ encounter, labRequests, requestFormType, onClose }) => {
+  ({ encounter, labRequests, onClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
+    const showPanelColumn = useMemo(
+      () => labRequests.some(request => Boolean(request.labTestPanelRequest)),
+      [labRequests],
+    );
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
@@ -258,7 +261,7 @@ export const LabRequestSummaryPane = React.memo(
           </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
-            columns={[selectableColumn, ...getColumns(requestFormType)]}
+            columns={[selectableColumn, ...getColumns(showPanelColumn)]}
             data={labRequests}
             elevated={false}
             noDataMessage={
