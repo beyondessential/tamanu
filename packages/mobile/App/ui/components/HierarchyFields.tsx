@@ -58,9 +58,10 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
     },
   });
 
-  const configuredFieldTypes =
-    error || loading || !hierarchy ? [leafNodeType] : hierarchy.map(entity => entity.type);
-  return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
+  const configuredFieldTypes = new Set(
+    error || loading || !hierarchy ? [leafNodeType] : hierarchy.map(entity => entity.type),
+  );
+  return fields.filter(f => configuredFieldTypes.has(f.referenceType));
 };
 
 interface HierarchyFieldsProps {

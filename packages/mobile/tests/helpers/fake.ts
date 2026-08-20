@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { partition } from 'es-toolkit';
 import { random, sample } from 'es-toolkit/compat';
 import { formatISO9075 } from 'date-fns';
 
@@ -207,8 +208,10 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   }
 
   // assign chosen relations
-  const rootRelationNames = relations.filter(rn => !rn.includes('.')); // e.g. ['surveyResponse', 'administeredVaccines']
-  const multiLevelRelationNames = relations.filter(rn => rn.includes('.')); // e.g. ['surveyResponse.answers']
+  const [
+    multiLevelRelationNames, // e.g. ['surveyResponse.answers']
+    rootRelationNames, // e.g. ['surveyResponse', 'administeredVaccines']
+  ] = partition(relations, rn => rn.includes('.'));
 
   for (const relationName of rootRelationNames) {
     // traverse relations specific to the model itself
@@ -288,7 +291,11 @@ export const createWithRelations = async (model: typeof BaseModel, record: any) 
   }
 };
 
-export const fakeTask = (encounterId: string, requestedByUserId: string, overrides: Partial<Task> = {}): Partial<Task> => ({
+export const fakeTask = (
+  encounterId: string,
+  requestedByUserId: string,
+  overrides: Partial<Task> = {},
+): Partial<Task> => ({
   id: uuidv4(),
   name: 'test-task',
   dueTime: new Date().toISOString(),
