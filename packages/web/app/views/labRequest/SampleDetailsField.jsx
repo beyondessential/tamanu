@@ -1,25 +1,25 @@
 import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import { Heading4 } from '../../components';
 import { RequiredOrnament, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components/Translation/index.js';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';
-import { TranslatedReferenceData } from '../../components/Translation/index.js';
 
-const Container = styled.div`
+export const SampleDetailsContainer = styled.div`
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
   border-radius: 5px;
   display: grid;
-  grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
+  grid-template-columns: 150px minmax(200px, 1fr) repeat(4, 1fr);
   padding-bottom: 10px;
 
-  > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
+  > div:nth-last-child(-n + 6) {
     border-bottom: none;
   }
 `;
@@ -34,7 +34,7 @@ const HeaderCell = styled(Heading4)`
   }
 `;
 
-const Cell = styled.div`
+export const SampleDetailsCell = styled.div`
   display: flex;
   padding: 10px 16px 10px 0px;
   align-items: flex-start;
@@ -45,7 +45,11 @@ const Cell = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const StyledField = styled(Field)`
+export const SampleDetailsLabelCell = styled(SampleDetailsCell)`
+  padding-left: 32px;
+`;
+
+export const SampleDetailsStyledField = styled(Field)`
   width: 100%;
   .Mui-disabled {
     background: ${Colors.softOutline};
@@ -58,11 +62,44 @@ const StyledField = styled(Field)`
   }
 `;
 
-const DateTimeFieldWithWidth = styled(Field)`
+export const SampleDetailsDateTimeField = styled(Field)`
   width: 220px;
 `;
 
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
+
+export const SampleDetailsHeaders = ({ mandateSpecimenType }) => (
+  <>
+    <HeaderCell data-testid="headercell-category">
+      <TranslatedText stringId="lab.sampleDetail.table.column.category" fallback="Category" />
+    </HeaderCell>
+    <HeaderCell data-testid="headercell-test">
+      <TranslatedText stringId="lab.sampleDetail.table.column.test" fallback="Test" />
+    </HeaderCell>
+    <HeaderCell data-testid="headercell-collectiondatetime">
+      <TranslatedText
+        stringId="lab.sampleDetail.table.column.collectionDateTime"
+        fallback="Date & time collected"
+      />
+    </HeaderCell>
+    <HeaderCell data-testid="headercell-collectedby">
+      <TranslatedText
+        stringId="lab.sampleDetail.table.column.collectedBy"
+        fallback="Collected by"
+      />
+    </HeaderCell>
+    <HeaderCell data-testid="headercell-specimentype">
+      <TranslatedText
+        stringId="lab.sampleDetail.table.column.specimenType"
+        fallback="Specimen type"
+      />
+      {mandateSpecimenType && <RequiredOrnament />}
+    </HeaderCell>
+    <HeaderCell data-testid="headercell-site">
+      <TranslatedText stringId="lab.site.label" fallback="Site" />
+    </HeaderCell>
+  </>
+);
 
 export const SampleDetailsField = ({
   initialSamples,
@@ -78,49 +115,6 @@ export const SampleDetailsField = ({
 
   const [samples, setSamples] = useState({});
 
-  const hasPanels = useMemo(() => {
-    return initialSamples.some(sample => sample.panelId);
-  }, [initialSamples]);
-
-  const headers = useMemo(() => {
-    const columns = hasPanels
-      ? [
-          <TranslatedText
-            key="panel"
-            stringId="lab.sampleDetail.table.column.panel"
-            fallback="Panel"
-          />,
-        ]
-      : [];
-    columns.push(
-      <TranslatedText
-        key="category"
-        stringId="lab.sampleDetail.table.column.category"
-        fallback="Category"
-      />,
-      <TranslatedText
-        key="dateTimeCollected"
-        stringId="lab.sampleDetail.table.column.collectionDateTime"
-        fallback="Date & time collected"
-      />,
-      <TranslatedText
-        key="dateTimeCollected"
-        stringId="lab.sampleDetail.table.column.collectedBy"
-        fallback="Collected by"
-      />,
-      <>
-        <TranslatedText
-          key="specimentType"
-          stringId="lab.sampleDetail.table.column.specimenType"
-          fallback="Specimen type"
-        />
-        {mandateSpecimenType && <RequiredOrnament />}
-      </>,
-      <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
-    );
-    return columns;
-  }, [hasPanels, mandateSpecimenType]);
-
   useEffect(() => {
     if (samples && onSampleChange) {
       onSampleChange(samples);
@@ -128,17 +122,17 @@ export const SampleDetailsField = ({
   }, [samples, onSampleChange]);
 
   const setValue = useCallback(
-    (identifier, field, value) => {
+    (categoryId, field, value) => {
       // This set uses the previous value in order to add the value in a map.
-      // For instance, first time we call it with { identifier: 'category-1', 'sampleTime', '2023-06-12 00:00 }
+      // For instance, first time we call it with { categoryId: 'category-1', 'sampleTime', '2023-06-12 00:00 }
       // It's going to store in this state { category-1: { sampleTime: '2023-06-12 00:00'} }
-      // Next time when it's called with the specimenType, it will be something like it: { identifier: 'category-1', 'specimenType', 'specimen-type-id'}
+      // Next time when it's called with the specimenType, it will be something like it: { categoryId: 'category-1', 'specimenType', 'specimen-type-id'}
       // we need to store that { category-1: { sampleTime: '2023-06-12 00:00', specimenType: 'specimen-type-id'} }
       setSamples(previousState => {
-        const previousSample = previousState[identifier] || {};
+        const previousSample = previousState[categoryId] ?? {};
         return {
           ...previousState,
-          [identifier]: { ...previousSample, [field]: value },
+          [categoryId]: { ...previousSample, [field]: value },
         };
       });
     },
@@ -146,10 +140,10 @@ export const SampleDetailsField = ({
   );
 
   const removeSample = useCallback(
-    identifier => {
+    categoryId => {
       setSamples(previousState => {
         const value = { ...previousState };
-        delete value[identifier];
+        delete value[categoryId];
         return value;
       });
     },
@@ -158,93 +152,98 @@ export const SampleDetailsField = ({
 
   const renderSampleDetails = useCallback(
     sample => {
-      // A mixed request has both panel rows (keyed by panelId) and individual-category rows
-      // (keyed by categoryId), so key per sample rather than off the table-level hasPanels flag.
-      const identifier = sample.panelId ?? sample.categoryId;
-      const isSampleCollected = !!samples[identifier]?.sampleTime;
+      const { categoryId } = sample;
+      const isSampleCollected = Boolean(samples[categoryId]?.sampleTime);
 
       return (
-        <React.Fragment key={identifier}>
-          {hasPanels && (
-            <Cell style={{ marginLeft: '32px' }} data-testid="cell-ow83">
-              <Typography variant="subtitle1" data-testid="typography-ex0x">
+        <React.Fragment key={categoryId}>
+          <SampleDetailsLabelCell data-testid="cell-category">
+            <Typography variant="subtitle1" data-testid="typography-category">
+              {sample.category ? (
                 <TranslatedReferenceData
-                  category="labTestPanel"
-                  fallback={sample.panelName}
-                  value={sample.panelId}
-                  data-testid="translatedreferencedata-xa5y"
+                  category="labTestCategory"
+                  value={sample.category.id}
+                  fallback={sample.category.name}
                 />
-              </Typography>
-            </Cell>
-          )}
-          <Cell style={!hasPanels ? { marginLeft: '32px' } : {}} data-testid="cell-xzhc">
-            <Typography variant="subtitle1" data-testid="typography-772r">
-              {sample.categoryName}
+              ) : (
+                <TranslatedText
+                  stringId="lab.sampleDetail.uncategorised"
+                  fallback="Uncategorised"
+                />
+              )}
             </Typography>
-          </Cell>
-          <Cell data-testid="cell-o2z5">
-            <DateTimeFieldWithWidth
-              name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
+          </SampleDetailsLabelCell>
+          <SampleDetailsCell data-testid="cell-test">
+            <Typography variant="subtitle1" data-testid="typography-test">
+              {sample.testNames.join(', ')}
+            </Typography>
+          </SampleDetailsCell>
+          <SampleDetailsCell data-testid="cell-collectiondatetime">
+            <SampleDetailsDateTimeField
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${categoryId}`}
               component={DateTimeField}
               max={getCurrentDateTime()}
               onChange={({ target: { value } }) => {
                 if (value) {
-                  setValue(identifier, 'sampleTime', value);
+                  setValue(categoryId, 'sampleTime', value);
                 } else {
                   // Clearing the collection time abandons the whole sample. Also reset the sibling
                   // Formik fields so their stale values aren't validated (e.g. mandatory specimen
                   // type) or left displayed while the submitted sampleDetails no longer has them.
-                  removeSample(identifier);
-                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`, undefined);
-                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`, undefined);
+                  removeSample(categoryId);
+                  setFieldValue(`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${categoryId}`, undefined);
                   setFieldValue(
-                    `${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`,
+                    `${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${categoryId}`,
+                    undefined,
+                  );
+                  setFieldValue(
+                    `${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${categoryId}`,
                     undefined,
                   );
                 }
               }}
-              data-testid="styledfield-ratc"
+              data-testid="styledfield-sampletime"
             />
-          </Cell>
-          <Cell data-testid="cell-3kij">
-            <StyledField
-              name={`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`}
+          </SampleDetailsCell>
+          <SampleDetailsCell data-testid="cell-collectedby">
+            <SampleDetailsStyledField
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${categoryId}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[identifier]?.collectedBy ?? ''}
+              value={samples[categoryId]?.collectedBy ?? ''}
               onChange={({ target: { value } }) => {
-                setValue(identifier, 'collectedById', value);
+                setValue(categoryId, 'collectedById', value);
               }}
-              data-testid="styledfield-wifm"
+              data-testid="styledfield-collectedby"
             />
-          </Cell>
-          <Cell data-testid="cell-pbcg">
-            <StyledField
-              name={`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`}
+          </SampleDetailsCell>
+          <SampleDetailsCell data-testid="cell-specimentype">
+            <SampleDetailsStyledField
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${categoryId}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
-              value={samples[identifier]?.specimenType ?? ''}
+              value={samples[categoryId]?.specimenType ?? ''}
               onChange={({ target: { value } }) => {
-                setValue(identifier, 'specimenTypeId', value);
+                setValue(categoryId, 'specimenTypeId', value);
               }}
-              data-testid="styledfield-8g4b"
+              data-testid="styledfield-specimentype"
             />
-          </Cell>
-          <Cell data-testid="cell-fr2g">
-            <StyledField
-              name={`${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`}
+          </SampleDetailsCell>
+          <SampleDetailsCell data-testid="cell-site">
+            <SampleDetailsStyledField
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${categoryId}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
-              value={samples[identifier]?.labSampleSite ?? ''}
+              value={samples[categoryId]?.labSampleSite ?? ''}
               onChange={({ target: { value } }) => {
-                setValue(identifier, 'labSampleSiteId', value);
+                setValue(categoryId, 'labSampleSiteId', value);
               }}
-              data-testid="styledfield-mog8"
+              data-testid="styledfield-site"
             />
-          </Cell>
+          </SampleDetailsCell>
         </React.Fragment>
       );
     },
@@ -256,21 +255,14 @@ export const SampleDetailsField = ({
       removeSample,
       setValue,
       setFieldValue,
-      hasPanels,
       getCurrentDateTime,
     ],
   );
 
   return (
-    <Container hasPanels={hasPanels} data-testid="container-qasv">
-      {headers.map((columnName, index) => (
-        <HeaderCell key={`header-${index}`} data-testid={`headercell-vhy0-${index}`}>
-          {columnName}
-        </HeaderCell>
-      ))}
-      {initialSamples.map(request => {
-        return renderSampleDetails(request);
-      })}
-    </Container>
+    <SampleDetailsContainer data-testid="container-qasv">
+      <SampleDetailsHeaders mandateSpecimenType={mandateSpecimenType} />
+      {initialSamples.map(renderSampleDetails)}
+    </SampleDetailsContainer>
   );
 };

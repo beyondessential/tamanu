@@ -67,19 +67,18 @@ export const LabRequestMultiStepForm = ({
 
   const screen3ValidationSchema = yup.object().shape(
     initialSamples.reduce((acc, sample) => {
-      acc[`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.panelId || sample.categoryId}`] =
-        mandateSpecimenType
-          ? yup.string().when(`sampleDetails.${sample.panelId || sample.categoryId}.sampleTime`, {
-              is: value => !!value,
-              then: yup
-                .string()
-                .required()
-                .translatedLabel(
-                  <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
-                ),
-              otherwise: yup.string(),
-            })
-          : yup.string();
+      acc[`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.categoryId}`] = mandateSpecimenType
+        ? yup.string().when(`sampleDetails.${sample.categoryId}.sampleTime`, {
+            is: value => Boolean(value),
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
+              ),
+            otherwise: yup.string(),
+          })
+        : yup.string();
 
       return acc;
     }, {}),
