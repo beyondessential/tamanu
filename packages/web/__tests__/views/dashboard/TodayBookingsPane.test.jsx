@@ -51,18 +51,13 @@ const PRIMARY_TIME_ZONE = 'Pacific/Auckland';
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
-/**
- * Drives "today" through the real clock rather than a stubbed `useDateTime`, so the
- * date the pane compares against is the one the provider actually derives. 6:00 UTC
- * is mid-evening in Auckland, well inside the intended day.
- */
+/** Drives "today" through the real clock, so the pane derives it the way the app does. */
 const renderPane = ({ onDate, withBookings, at, facilityTimeZone }) => {
   vi.setSystemTime(new Date(at ?? `${onDate}T06:00:00Z`));
   bookings.value = withBookings;
   return renderElementWithTranslatedText(
     <AuthContext.Provider value={{ primaryTimeZone: PRIMARY_TIME_ZONE }}>
-      {/* The facility timezone reaches the provider as a setting, the same way it does
-          in the app — passing it through auth is silently ignored. */}
+      {/* The facility timezone reaches the provider as a setting, not through auth */}
       <SettingsContext.Provider
         value={{ getSetting: key => ({ dateTimeLocale: 'en-AU', facilityTimeZone })[key] }}
       >
@@ -81,10 +76,6 @@ const ranges = () =>
   );
 
 describe('TodayBookingsPane booking ranges', () => {
-  /* The pane is a snapshot of one day, so each end says only what the reader does not
-     already know: a time for an end falling on the day being listed, a date for any
-     other. A date at either end is then itself what says the booking reaches beyond
-     today. */
   it('gives an end on the day being listed as a time, and any other end as a date', () => {
     // Rows arrive sorted by start time, so on 12 Aug the 8:30am booking comes first
     renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING, OVERNIGHT_BOOKING] });
@@ -104,9 +95,7 @@ describe('TodayBookingsPane booking ranges', () => {
     expect(ranges()).toEqual(['12 Aug – 11:30am']);
   });
 
-  /* Each day of the stay states the span differently, but no day of it ambiguously:
-     the misreading being guarded against is the stay looking like a booking that both
-     began and ended today. */
+  /* The misreading guarded against: a stay looking like it began and ended today. */
   it('never states a multi-day stay as though it began and ended today', () => {
     for (const onDate of ['2026-08-12', '2026-08-13', '2026-08-14']) {
       const { unmount } = renderPane({ onDate, withBookings: [OVERNIGHT_BOOKING] });
@@ -116,12 +105,9 @@ describe('TodayBookingsPane booking ranges', () => {
     }
   });
 
-  /* The whole rule turns on comparing days as the reader sees them, not as they are
-     stored, and that half is only exercised when the two timezones disagree about the
-     date. Auckland (UTC+12) and Honolulu (UTC-10) are 22 hours apart, so a booking
-     stored as 12 Aug 10:00am in the primary zone is 11 Aug 12:00pm where it is read,
-     and 11 Aug is the reader's today. Comparing in the stored zone would make both ends
-     look like another day and render "12 Aug – 12 Aug". */
+  /* Auckland and Honolulu are 22 hours apart, so this booking is stored as 12 Aug
+     10:00am but read as 11 Aug 12:00pm, and 11 Aug is the reader's today. Comparing in
+     the stored zone would render "12 Aug – 12 Aug". */
   it('decides each end against the day the reader sees, not the day it is stored on', () => {
     renderPane({
       at: '2026-08-11T22:00:00Z',
@@ -141,20 +127,16 @@ describe('TodayBookingsPane booking ranges', () => {
     expect(ranges()).toEqual(['8:30am']);
   });
 
-  /* Queried by the status it announces rather than by a test id: the shared indicator
-     pins its own `data-testid` after spreading props, so the one this pane passes it
-     never reaches the DOM. */
+  /* Queried by announced status: the shared indicator pins its own test id after
+     spreading props, so the one passed in never reaches the DOM. */
   it('marks every booking with an indicator of its status', () => {
     renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING, OVERNIGHT_BOOKING] });
     expect(screen.getByLabelText(APPOINTMENT_STATUSES.SEEN)).toBeTruthy();
     expect(screen.getByLabelText(APPOINTMENT_STATUSES.ARRIVED)).toBeTruthy();
   });
 
-  /* The rail threads the indicators together. Where it starts and stops — including
-     not being drawn at all for a lone booking — is left to CSS, which this renderer
-     does not apply, so it is covered by the card's visual test cases instead. An
-     assertion here on the rail element's presence would hold either way and so would
-     prove nothing. */
+  /* Where the rail starts and stops is CSS, which this renderer does not apply, so it
+     is covered by the card's visual test cases rather than asserted here. */
   it('gives every booking a rail cell to thread the indicators through', () => {
     const { unmount } = renderPane({ onDate: '2026-08-12', withBookings: [SAME_DAY_BOOKING] });
     expect(screen.getAllByTestId('rail-3nqa')).toHaveLength(1);

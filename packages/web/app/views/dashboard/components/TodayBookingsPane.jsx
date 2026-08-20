@@ -48,22 +48,12 @@ const ActionLink = styled.span`
 `;
 
 /**
- * One grid for the whole list, with each row a subgrid of it, so the time column is
- * a single track as wide as the widest row needs and every card starts at the same
- * place.
+ * One grid for the whole list, each row a subgrid of it, so the time column is a single
+ * track and every card starts in the same place.
  *
- * The time track is sized from its content rather than given a floor: the times and
- * dates are locale-formatted, so their width belongs to the reader, and a floor wide
- * enough for the longest of them would stop the track ever shrinking.
- *
- * What makes the range wrap is the floor on the *card* track, not anything on the time
- * track. The card's contents carry `min-width: 0` so their headings can ellipsise,
- * which also lets the card shrink to nothing; without a floor the grid starves the card
- * long before it squeezes the time track, so the range never wraps and the card is
- * crushed to "War… / Sara…" instead. The floor is what states the priority the design
- * asks for: a bed and a name are worth more room than keeping a range on one line. It
- * is in `ch` for the same reason the rest of this is content-sized — it tracks the
- * reader's font, not a pixel guess.
+ * The floor is on the card track rather than the time track: the card's contents carry
+ * `min-width: 0` to ellipsise, so without it the grid starves the card to nothing before
+ * the range ever wraps.
  */
 const BookingsList = styled.div`
   display: grid;
@@ -71,8 +61,7 @@ const BookingsList = styled.div`
   column-gap: 5px;
   padding-right: 20px;
   padding-left: 12px;
-  /* Kept from the MUI Timeline root this replaced, whose 6px 16px padding had only its
-     top, left and right overridden. The -16px below is tuned against it. */
+  /* Inherited from the MUI Timeline root this replaced; the -16px is tuned against it */
   padding-bottom: 6px;
   margin-bottom: -16px;
   overflow-y: auto;
@@ -94,18 +83,10 @@ const RowContent = styled.div`
 `;
 
 /**
- * The status indicator, and the rail threading the indicators together.
- *
- * The rail shares the indicator's grid cell and is centred by the same mechanism, so
- * it lands exactly on the indicator's centre rather than near it. Centring it instead
- * with a percentage inset and a -50% translate puts a 1px line on a half pixel, which
- * renders smeared across two columns: visibly off, and blurry with it.
- *
- * It is also sized only as a percentage of a cell it shares, and has no content, so it
- * contributes nothing to the row's intrinsic height and cannot leave the row taller
- * than it draws. An earlier rail built from laid-out flex segments could, and did:
- * the overhang became scrollable overflow, which showed as a scrollbar on a list that
- * plainly fit.
+ * The rail shares the indicator's grid cell so one mechanism centres both. Centring it
+ * with an inset and `translate: -50%` instead lands a 1px line on a half pixel, which
+ * renders smeared across two columns. Sized only in percentages, it adds nothing to the
+ * row's height.
  */
 const Rail = styled.div`
   display: grid;
@@ -122,8 +103,8 @@ const Rail = styled.div`
     background-color: ${Colors.outline};
   }
 
-  /* The rail threads the indicators and goes no further, so it starts at the first and
-     stops at the last: half a row, anchored to the side the next indicator is on. */
+  /* Starts at the first indicator and stops at the last: half a row, anchored towards
+     the next one along */
   ${BookingRow}:first-child &::before {
     block-size: 50%;
     align-self: end;
@@ -132,9 +113,7 @@ const Rail = styled.div`
     block-size: 50%;
     align-self: start;
   }
-  /* Which is why a lone booking shows no rail: with nothing to thread it to, the line
-     reads as an artefact rather than as a list. Implied by the two rules above, and
-     stated outright so it cannot be lost. */
+  /* A lone booking has nothing to thread to, so no rail */
   ${BookingRow}:only-child &::before {
     content: none;
   }
@@ -142,18 +121,15 @@ const Rail = styled.div`
 
 const StatusIndicator = styled.div`
   grid-area: indicator;
-  /* Sits over the rail rather than letting it show through an outlined indicator,
-     which is transparent in the middle. The pane is white, so this reads as nothing. */
+  /* Masks the rail, which would otherwise show through an outlined indicator */
   position: relative;
   background-color: ${Colors.white};
   padding-block: 3px;
   line-height: 0;
 `;
 
-/* Sized in lines of text, so it grows rather than clipping when a row wraps. Its two
-   lines are centred within that height rather than sitting at the top: the row's status
-   indicator and range are both centred, and text pinned to the top of a card taller
-   than it reads as sitting above them. */
+/* Sized in lines of text, so it grows rather than clipping when a row wraps. Its lines
+   are centred to sit level with the indicator and range, which are centred too. */
 const Card = styled.div`
   min-block-size: 3lh;
   display: flex;
@@ -177,29 +153,20 @@ const CardBody = styled(CardHeading)`
   font-weight: 400;
 `;
 
-/**
- * The range sits on one line, and is centred so that where the pane is too narrow to
- * hold it the two ends stack centred against each other rather than left-ragged.
- *
- * It stays ordinary inline text rather than becoming a flex row: the space between
- * the ends is then a real space, so the range reads and copies as "8:00am – 12 Aug"
- * rather than losing the separator's spacing to a CSS gap.
- */
+/* Inline text rather than a flex row, so the gap between the ends stays a real space and
+   the range copies as "8:00am – 12 Aug". Centred so a wrap stays centred. */
 const RangeText = styled.div`
   padding-left: 6px;
   text-align: center;
 `;
 
-/* Each end is unbreakable, so the track is as wide as the wider of the two and the
-   range can only ever wrap between them */
+/* Unbreakable, so the range can only wrap between its two ends */
 const RangeEnd = styled.span`
   white-space: nowrap;
 `;
 
-/* Holds the gap below the last booking and takes up whatever height is left, so a
-   short list sits at the top of the pane rather than stretching down it. It draws
-   nothing: a rule here reads as an underline beneath the last booking rather than as
-   the foot of the pane, which already has its own border. */
+/* Holds the gap below the last booking and absorbs the leftover height. Draws nothing:
+   a rule here reads as an underline on the last booking, not the foot of the pane. */
 const Footer = styled.div`
   margin: 4px 20px 0;
   flex-grow: 1;
@@ -228,20 +195,9 @@ const Link = styled.div`
 `;
 
 /**
- * One end of a booking's range, as this list states it.
- *
- * The list is a snapshot of a single day, so it says only what the reader does not
- * already know: they know the day they are looking at, so an end falling on it is
- * given as a time alone, and any other end as the date it falls on. A date at either
- * end is then itself what tells them the booking reaches beyond today, and every day
- * a booking covers states its span without ambiguity.
- *
- * Which of the two an end gets is all this adds: the end itself is rendered by the
- * shared {@link RangeEndDisplay}, which owns how a date and a time sit together in a
- * right-to-left locale.
- *
- * Days are compared as they are displayed, not as they are stored: a booking can sit
- * within one day in the primary timezone and straddle midnight in the facility's.
+ * The list is a snapshot of one day, so an end falling on that day shows its time alone
+ * and any other end shows its date — a date at either end is then what says the booking
+ * reaches beyond today. Days are compared as displayed, not as stored.
  */
 const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
   const { toFacilityDateTime } = useDateTime();
@@ -254,8 +210,7 @@ const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
         dateFormat={fallsToday ? null : 'dayMonth'}
         timeFormat={fallsToday ? 'default' : null}
       />
-      {/* Held against this end rather than standing between the two, so a range that
-          wraps cannot leave the separator stranded at the head of the second line */}
+      {/* Held against this end so a wrap cannot strand it on the second line */}
       {withSeparator && <>&nbsp;&ndash;</>}
     </RangeEnd>
   );
