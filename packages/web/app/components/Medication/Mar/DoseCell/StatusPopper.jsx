@@ -22,7 +22,10 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../../../api/mutations/useMarMutation';
+import {
+  useGivenMarMutation,
+  useNotGivenMarMutation,
+} from '../../../../api/mutations/useMarMutation';
 import { useSuggestionsQuery } from '../../../../api/queries/useSuggestionsQuery';
 import { MAR_WARNING_MODAL } from '../../../../constants/medication';
 import { useEncounter } from '../../../../contexts/Encounter';
@@ -40,7 +43,6 @@ const StyledPaper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  inline-size: 8rem;
   min-inline-size: 8rem;
   padding: 10px;
   position: relative;
@@ -394,6 +396,7 @@ export const GivenScreen = ({
           />
         </>
       )}
+      style={{ inlineSize: '8rem' }}
       initialValues={{
         doseAmount: Number(prescriptionDoseAmount) || '',
         timeGiven: isPast ? getSubSlotDueAt(timeSlot, selectedDate) : getFacilityNowDate(),
