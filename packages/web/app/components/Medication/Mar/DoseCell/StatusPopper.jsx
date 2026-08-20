@@ -326,21 +326,35 @@ const GivenScreen = ({
 
           <DoseContainer>
             <DoseButton
-              onClick={() => doseInputRef.current?.stepDown()}
+              onClick={() => {
+                const input = doseInputRef.current;
+                input.stepDown();
+                setFieldValue('doseAmount', input.valueAsNumber);
+              }}
               disabled={values.doseAmount <= 0.25}
               style={isVariableDose ? { visibility: 'hidden' } : undefined}
             >
               <RemoveCircleOutlineIcon />
             </DoseButton>
             <StyledNumberFieldWrapper $units={dosingUnit}>
-              <Field name="doseAmount" component={NumberField} min={0.25} step={0.25} />
+              <Field
+                name="doseAmount"
+                component={NumberField}
+                min={0.25}
+                step={0.25}
+                inputRef={doseInputRef}
+              />
               <InputSuffix>
                 <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
                 <RequiredOrnament />
               </InputSuffix>
             </StyledNumberFieldWrapper>
             <DoseButton
-              onClick={() => doseInputRef.current?.stepUp()}
+              onClick={() => {
+                const input = doseInputRef.current;
+                input.stepUp();
+                setFieldValue('doseAmount', input.valueAsNumber);
+              }}
               style={isVariableDose ? { visibility: 'hidden' } : undefined}
             >
               <AddCircleOutlineIcon />
