@@ -197,11 +197,14 @@ const RangeEnd = styled.span`
   white-space: nowrap;
 `;
 
+/* Holds the gap below the last booking and takes up whatever height is left, so a
+   short list sits at the top of the pane rather than stretching down it. It draws
+   nothing: a rule here reads as an underline beneath the last booking rather than as
+   the foot of the pane, which already has its own border. */
 const Footer = styled.div`
   margin: 4px 20px 0;
   flex-grow: 1;
   min-height: 20px;
-  border-top: 1px solid ${Colors.outline};
   position: sticky;
   background-color: ${Colors.white};
 `;

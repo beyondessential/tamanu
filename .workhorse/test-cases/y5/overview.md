@@ -24,6 +24,7 @@ is CSS-dependent and the unit renderer does not apply CSS, so those cases are ma
 - [ ] Every row is the same height, and overnight rows line up with same-day rows.
 - [ ] The card's two lines sit centred against the indicator and range, not pinned to the top of the card.
 - [ ] Spacing below the last row matches what shipped before (the pane's bottom padding was inherited from the MUI Timeline root that was removed).
+- [ ] No rule is drawn beneath the last booking — the space below the list is plain, with only the pane's own border closing it.
 - [ ] The status indicator sits level with the range beside it.
 
 ## Narrow pane (manual)
@@ -35,6 +36,6 @@ is CSS-dependent and the unit renderer does not apply CSS, so those cases are ma
 ## Regressions worth re-checking
 
 - [ ] No scrollbar appears on a list that fits (the overflow defect the previous rail layout caused).
-- [ ] A list long enough to overflow still scrolls, and the footer rule stays put.
+- [ ] A list long enough to overflow still scrolls, and the pane's own bottom border stays put.
 - [ ] Long location or patient names still ellipsise, and their tooltip still appears.
 - [ ] Appointment detail, cancellation modals, past bookings and the location bookings table still date both ends of a multi-day booking and still show the overnight indicator. Verifies spec: SCHEDULING
