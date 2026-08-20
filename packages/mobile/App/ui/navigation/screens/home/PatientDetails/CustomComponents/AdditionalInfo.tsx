@@ -43,7 +43,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -64,15 +64,16 @@ export const AdditionalInfo = ({
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
-    const fields = dataFields || displayFields;
-    const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+  const additionalSections = dataSections.map(
+    ({ title, dataFields, fields: displayFields, sectionKey }) => {
+      const fields = dataFields || displayFields;
+      const onEditCallback = (): void =>
+        onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = fields.map(field => {
         if (field === 'villageId' || field.name === 'villageId') {
           return ['villageId', patient.village?.name];
-        } else if (Object.keys(customDataById).includes(field)) {
+        } else if (field in customDataById) {
           return [field, customDataById[field]];
         } else {
           return [field, getPadFieldData(patientAdditionalData, field)];
@@ -85,7 +86,8 @@ export const AdditionalInfo = ({
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues, null);
+    const onEditCallback = (): void =>
+      onEdit(null, title, true, fields, customPatientFieldValues, null);
     const mappedFields = fields.map(field => {
       const { id, name } = field;
       const [customFieldValue] = customPatientFieldValues[id] || [];
