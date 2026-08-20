@@ -112,5 +112,15 @@ test.describe('All patient table tests', () => {
       await allPatientsPage.patientTable.waitForTableToLoad();
       await allPatientsPage.validateDateSortOrder(false);
     });
+
+    //sorting by sex is opposite of other sorting in the app, with one click it is sorting in ascending.
+    test('Sort table by Sex in ascending order', async ({
+      newPatient: _newPatient,
+      allPatientsPage,
+    }) => {
+      await allPatientsPage.sortBySex();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(true, 'sex');
+    });
   });
 });

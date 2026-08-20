@@ -4,6 +4,7 @@ export * from './UserPreference';
 export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
 export * from './LocalSystemSecret';
+export * from './IdempotencyKey';
 export * from './PortalUser';
 export * from './Device';
 
@@ -54,6 +55,8 @@ export * from './EncounterPausePrescription';
 export * from './EncounterPausePrescriptionHistory';
 
 export * from './EncounterDiet';
+export * from './EncounterDischargeDraft';
+export * from './EncounterDischargeDraftMedication';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
 export * from './LabTest';

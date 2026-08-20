@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { SETTING_KEYS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
@@ -7,6 +6,7 @@ import { getReferenceDataOptionStringId, getReferenceDataStringId } from '@taman
 
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { useVitalsTableColumns } from './VitalsAndChartsTableColumns';
@@ -19,7 +19,7 @@ const StyledDynamicColumnTable = styled(DynamicColumnTable)`
 `;
 
 export const VitalsTable = React.memo(() => {
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitalsQuery(encounter.id);

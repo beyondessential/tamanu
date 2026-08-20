@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.62.2",
+  "version": "2.63.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -112,7 +112,6 @@
     "@types/chance": "^1.0.8",
     "@types/jest": "^29.2.1",
     "@types/mathjs": "^6.0.11",
-    "@types/node": "^20.9.2",
     "@types/react": "^19.1.1",
     "@types/react-native-svg-charts": "^5.0.3",
     "@types/react-redux": "^7.1.7",

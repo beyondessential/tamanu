@@ -10,8 +10,11 @@ export const NON_SYNCING_TABLES = [
   'logs.fhir_writes',
   'public.ai_chat_sessions',
   'public.devices',
+  'public.encounter_discharge_draft_medications',
+  'public.encounter_discharge_drafts',
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
+  'public.idempotency_keys',
   'public.local_system_facts',
   'public.local_system_secrets',
   'public.one_time_logins',
@@ -54,6 +57,11 @@ export const NON_LOGGED_TABLES = [
   'public.ai_chat_sessions',
   'public.form_builder_chat_jobs',
 
+  // a clinician's part-finished discharge form, cleared once the discharge is recorded — the
+  // discharge itself is the audited record, and these rows are removed rather than soft-deleted
+  'public.encounter_discharge_drafts',
+  'public.encounter_discharge_draft_medications',
+
   // historical signer records retained for compliance, no sensitive data remains
   'public.signers_historical',
 
@@ -62,4 +70,7 @@ export const NON_LOGGED_TABLES = [
 
   // server-only secrets (device key, reporting-role secret) — never log values
   'public.local_system_secrets',
+
+  // request idempotency records — ephemeral, and response bodies may hold PII
+  'public.idempotency_keys',
 ];

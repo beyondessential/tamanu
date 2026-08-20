@@ -62,18 +62,16 @@ jobs:
           ref: ${{ inputs.ref || github.ref }}
 
       - name: Install Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          build-root-directory: packages/mobile/android
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
@@ -141,6 +139,70 @@ jobs:
             ARCH_ARGS="-PreactNativeArchitectures=${{ inputs.architectures }}"
           fi
           ./gradlew app:assembleRelease $ARCH_ARGS
+
+      # Apps targeting API 35+ must support 16 KB memory page sizes on 64-bit devices,
+      # enforced by Google Play from 1 Feb 2027. NDK r27 aligns shared libraries to 4 KB
+      # unless a module opts in (see ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES in
+      # packages/mobile/android/build.gradle), so assert it here: a native module that
+      # slips through should fail this build, not a Play upload months later.
+      # This checks ELF LOAD segment alignment, which is what the loader uses and what
+      # was actually at risk. zipalign -P below checks a different thing — where the .so
+      # sits inside the APK — and would pass even with 4 KB-aligned segments.
+      # https://developer.android.com/guide/practices/page-sizes
+      - name: Assert 16 KB alignment of 64-bit native libraries
+        working-directory: packages/mobile/android
+        run: |
+          set -euo pipefail
+          apk=app/build/outputs/apk/release/app-release.apk
+          workdir="$(mktemp -d)"
+          unzip -q "$apk" 'lib/*' -d "$workdir"
+
+          checked=0
+          failed=0
+          while IFS= read -r so; do
+            abi="$(basename "$(dirname "$so")")"
+            case "$abi" in
+              arm64-v8a | x86_64) ;;
+              *) continue ;;  # Play only enforces this for 64-bit ABIs
+            esac
+            checked=$((checked + 1))
+            # A library can have several LOAD segments; the smallest alignment governs.
+            min="$(readelf -lW "$so" | awk '$1 == "LOAD" { print $NF }' \
+              | while read -r a; do printf '%d\n' "$a"; done | sort -n | head -1)"
+            # No LOAD segments at all (unreadable or stub .so) must not pass silently:
+            # set -e does not fire on a command-substitution assignment, and a later
+            # `[ "" -lt 16384 ]` errors to stderr then takes the else branch, reporting ok.
+            if [ -z "$min" ]; then
+              echo "::error::$abi/$(basename "$so") has no readable LOAD segments; cannot verify alignment"
+              failed=$((failed + 1))
+              continue
+            fi
+            if [ "$min" -lt 16384 ]; then
+              echo "::error::$abi/$(basename "$so") is ${min}-byte aligned, need >= 16384"
+              failed=$((failed + 1))
+            else
+              echo "ok  $abi/$(basename "$so") ($min)"
+            fi
+          done < <(find "$workdir/lib" -type f -name '*.so' | sort)
+
+          if [ "$checked" -eq 0 ]; then
+            echo "::error::No 64-bit native libraries found in $apk — the check did not run"
+            exit 1
+          fi
+          echo "Checked $checked 64-bit libraries, $failed misaligned."
+          [ "$failed" -eq 0 ]
+
+          # Complementary: verifies the .so entries are page-aligned within the zip so
+          # they can be mapped directly from the APK. AGP handles this, so it is a guard
+          # against packaging regressions rather than the requirement above.
+          # Resolve the newest build-tools rather than pinning a version the runner's SDK
+          # may not have; sort -V so 36.0.0 beats 9.0.0 and 30.0.3 beats 30.0.2.
+          zipalign="$(find "$ANDROID_HOME/build-tools" -name zipalign -type f | sort -V | tail -1)"
+          if [ -z "$zipalign" ]; then
+            echo "::error::zipalign not found under $ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          "$zipalign" -c -P 16 -v 4 "$apk" > /dev/null
 
       - name: Upload final build
         id: artifact-upload

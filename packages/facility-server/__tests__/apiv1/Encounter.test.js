@@ -359,6 +359,331 @@ describe('Encounter', () => {
     expect(result.body.data.length).toBe(7);
   });
 
+  describe('discharge draft', () => {
+    const createOpenEncounter = async () =>
+      models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        endDate: null,
+      });
+
+    it('returns no draft when the clinician has not saved one', async () => {
+      const encounter = await createOpenEncounter();
+
+      const result = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.draft).toBe(null);
+    });
+
+    it('saves a draft and reads it back', async () => {
+      const encounter = await createOpenEncounter();
+      const endDate = getCurrentDateTimeString();
+      const disposition = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'dischargeDisposition',
+      });
+      const orderingClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+
+      const expected = {
+        endDate,
+        dischargerId: user.id,
+        dispositionId: disposition.id,
+        orderingClinicianId: orderingClinician.id,
+        note: 'plan so far',
+        seededNoteIds: ['note-a', 'note-b'],
+      };
+
+      const saved = await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send(expected);
+      expect(saved).toHaveSucceeded();
+      // The save response is the serialised draft too, so assert it rather than only the read-back.
+      expect(saved.body.draft).toMatchObject(expected);
+
+      const result = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.draft).toMatchObject(expected);
+    });
+
+    it('accepts number fields the clinician has emptied', async () => {
+      const encounter = await createOpenEncounter();
+      const medication = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'drug',
+      });
+      const prescription = await models.Prescription.create({
+        ...fake(models.Prescription),
+        medicationId: medication.id,
+      });
+
+      // A part-finished discharge is the normal case for a draft, and an emptied number input
+      // sends '' rather than null. The integer columns must not see it.
+      const saved = await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({
+        medications: [
+          { prescriptionId: prescription.id, quantity: '', repeats: '', sendToPharmacy: false },
+        ],
+      });
+      expect(saved).toHaveSucceeded();
+      expect(saved.body.draft.medications).toEqual([
+        { prescriptionId: prescription.id, quantity: null, repeats: null, sendToPharmacy: false },
+      ]);
+    });
+
+    it('reports an unresolvable id as a client error rather than failing', async () => {
+      const encounter = await createOpenEncounter();
+
+      const badPrescription = await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({
+        medications: [{ prescriptionId: 'not-a-real-prescription', sendToPharmacy: false }],
+      });
+      expect(badPrescription).toHaveRequestError();
+
+      const badClinician = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ dischargerId: 'not-a-real-user' });
+      expect(badClinician).toHaveRequestError();
+
+      const missingPrescription = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ medications: [{ quantity: 1, sendToPharmacy: true }] });
+      expect(missingPrescription).toHaveRequestError();
+    });
+
+    it('survives two saves racing from the same clinician', async () => {
+      const encounter = await createOpenEncounter();
+
+      // A double-clicked Save & exit: both requests miss any prior draft, and the pair is unique
+      // per encounter and clinician, so a plain find-then-create would fail the second insert.
+      const results = await Promise.all([
+        app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'first' }),
+        app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'second' }),
+      ]);
+      results.forEach(result => expect(result).toHaveSucceeded());
+
+      const drafts = await models.EncounterDischargeDraft.findAll({
+        where: { encounterId: encounter.id },
+      });
+      expect(drafts).toHaveLength(1);
+    });
+
+    it('leaves a cleared clinician cleared rather than refilling it', async () => {
+      const encounter = await createOpenEncounter();
+      await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ dischargerId: user.id, note: 'first pass' });
+
+      // An emptied autocomplete sends '', which is not a key the column can hold.
+      const cleared = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ dischargerId: '', note: 'second thoughts' });
+      expect(cleared).toHaveSucceeded();
+
+      const result = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result.body.draft.dischargerId).toBe(null);
+    });
+
+    it('clears drafts when the encounter itself is deleted', async () => {
+      const encounter = await createOpenEncounter();
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'in progress' });
+
+      const deleted = await app.delete(`/api/encounter/${encounter.id}`);
+      expect(deleted).toHaveSucceeded();
+
+      // Deleting an encounter soft-deletes it, so the foreign key cascade never runs and the
+      // draft would otherwise outlive the encounter it belongs to.
+      const drafts = await models.EncounterDischargeDraft.findAll({
+        where: { encounterId: encounter.id },
+      });
+      expect(drafts).toHaveLength(0);
+    });
+
+    it('replaces the draft rather than accumulating one per save', async () => {
+      const encounter = await createOpenEncounter();
+
+      await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ note: 'first' });
+      await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ note: 'second' });
+
+      const drafts = await models.EncounterDischargeDraft.findAll({
+        where: { encounterId: encounter.id },
+      });
+      expect(drafts).toHaveLength(1);
+      expect(drafts[0].note).toEqual('second');
+    });
+
+    it('round-trips medication lines and replaces them wholesale', async () => {
+      const encounter = await createOpenEncounter();
+      const medication = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'drug',
+      });
+      const prescription = await models.Prescription.create({
+        ...fake(models.Prescription),
+        medicationId: medication.id,
+      });
+
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({
+        medications: [
+          { prescriptionId: prescription.id, quantity: 3, repeats: 2, sendToPharmacy: true },
+        ],
+      });
+
+      const withLine = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(withLine.body.draft.medications).toEqual([
+        { prescriptionId: prescription.id, quantity: 3, repeats: 2, sendToPharmacy: true },
+      ]);
+
+      // A prescription the clinician has since dropped should not survive the next save.
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ medications: [] });
+      const withoutLine = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(withoutLine.body.draft.medications).toEqual([]);
+    });
+
+    it('does not show one clinician the draft of another', async () => {
+      const encounter = await createOpenEncounter();
+      const otherClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+      const otherApp = await baseApp.asUser(otherClinician);
+
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'mine' });
+
+      const result = await otherApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.draft).toBe(null);
+    });
+
+    it('does not let one clinician overwrite the draft of another', async () => {
+      const encounter = await createOpenEncounter();
+      const otherClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+      const otherApp = await baseApp.asUser(otherClinician);
+
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'mine' });
+      await otherApp.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'theirs' });
+
+      const mine = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(mine.body.draft.note).toEqual('mine');
+      const theirs = await otherApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(theirs.body.draft.note).toEqual('theirs');
+    });
+
+    it('ignores an attempt to write into another clinician draft by sending userId', async () => {
+      const encounter = await createOpenEncounter();
+      const otherClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+      const otherApp = await baseApp.asUser(otherClinician);
+      await otherApp.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'theirs' });
+
+      await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ note: 'hijacked', userId: otherClinician.id });
+
+      const theirs = await otherApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(theirs.body.draft.note).toEqual('theirs');
+      const mine = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(mine.body.draft.note).toEqual('hijacked');
+    });
+
+    it('discards only the requesting clinician own draft', async () => {
+      const encounter = await createOpenEncounter();
+      const otherClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+      const otherApp = await baseApp.asUser(otherClinician);
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'mine' });
+      await otherApp.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'theirs' });
+
+      const result = await app.delete(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(result).toHaveSucceeded();
+
+      const mine = await app.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(mine.body.draft).toBe(null);
+      const theirs = await otherApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+      expect(theirs.body.draft.note).toEqual('theirs');
+    });
+
+    it('refuses to save a draft on an encounter that is already discharged', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        endDate: getCurrentDateTimeString(),
+      });
+
+      const result = await app
+        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+        .send({ note: 'too late' });
+      expect(result).toHaveRequestError();
+    });
+
+    it('404s for an encounter that does not exist', async () => {
+      const missing = '/api/encounter/not-a-real-encounter/dischargeDraft';
+
+      expect(await app.get(missing)).toHaveStatus(404);
+      expect(await app.put(missing).send({ note: 'nowhere' })).toHaveStatus(404);
+      expect(await app.delete(missing)).toHaveStatus(404);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      // Opening the discharge form only needs write Encounter, so a clinician can reach the form
+      // without being able to save a draft from it.
+      const FORM_ONLY_PERMISSIONS = [
+        ['read', 'Encounter'],
+        ['write', 'Encounter'],
+      ];
+
+      it('rejects saving a draft without permission to write discharges', async () => {
+        const encounter = await createOpenEncounter();
+        const formOnlyApp = await baseApp.asNewRole(FORM_ONLY_PERMISSIONS);
+
+        const result = await formOnlyApp
+          .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+          .send({ note: 'not allowed' });
+        expect(result).toBeForbidden();
+      });
+
+      it('still lets that clinician read and discard, so an edited form can be left', async () => {
+        const encounter = await createOpenEncounter();
+        const formOnlyApp = await baseApp.asNewRole(FORM_ONLY_PERMISSIONS);
+
+        const read = await formOnlyApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(read).toHaveSucceeded();
+        expect(read.body.draft).toBe(null);
+
+        // Discarding is how a clinician gets out of a form they have edited. Gating it on the
+        // same permission as saving would leave them unable to close one.
+        const discarded = await formOnlyApp.delete(
+          `/api/encounter/${encounter.id}/dischargeDraft`,
+        );
+        expect(discarded).toHaveSucceeded();
+      });
+
+      it('rejects a draft read from a user who cannot read encounters', async () => {
+        const encounter = await createOpenEncounter();
+        const noPermsApp = await baseApp.asNewRole([]);
+
+        const result = await noPermsApp.get(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(result).toBeForbidden();
+      });
+
+      it('rejects a save from a user who cannot read encounters', async () => {
+        const encounter = await createOpenEncounter();
+        const noPermsApp = await baseApp.asNewRole([]);
+
+        const result = await noPermsApp
+          .put(`/api/encounter/${encounter.id}/dischargeDraft`)
+          .send({ note: 'not allowed' });
+        expect(result).toBeForbidden();
+      });
+
+      it('rejects a discard from a user who cannot read encounters', async () => {
+        const encounter = await createOpenEncounter();
+        const noPermsApp = await baseApp.asNewRole([]);
+
+        // Discarding is deliberately the weakest gate of the three, and it hard-deletes, so the
+        // floor under it is worth holding in place.
+        const result = await noPermsApp.delete(`/api/encounter/${encounter.id}/dischargeDraft`);
+        expect(result).toBeForbidden();
+      });
+    });
+  });
+
   describe('write', () => {
     it('should reject updating an encounter with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
@@ -657,6 +982,55 @@ describe('Encounter', () => {
         expect(notes).toHaveLength(1);
         expect(notes[0].content.includes('Patient discharged by')).toEqual(true);
         expect(notes[0].authorId).toEqual(app.user.id);
+      });
+
+      it('clears every discharge draft on the encounter when it is discharged', async () => {
+        const v = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          endDate: null,
+        });
+        const otherClinician = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+        const medication = await models.ReferenceData.create({
+          ...fake(models.ReferenceData),
+          type: 'drug',
+        });
+        const prescription = await models.Prescription.create({
+          ...fake(models.Prescription),
+          medicationId: medication.id,
+        });
+        const ownDraft = await models.EncounterDischargeDraft.create({
+          encounterId: v.id,
+          userId: user.id,
+          note: 'mine',
+        });
+        await models.EncounterDischargeDraftMedication.create({
+          dischargeDraftId: ownDraft.id,
+          prescriptionId: prescription.id,
+          quantity: 4,
+        });
+        await models.EncounterDischargeDraft.create({
+          encounterId: v.id,
+          userId: otherClinician.id,
+          note: 'theirs',
+        });
+
+        const result = await app.put(`/api/encounter/${v.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: v.id, dischargerId: app.user.id },
+        });
+        expect(result).toHaveSucceeded();
+
+        const remaining = await models.EncounterDischargeDraft.findAll({
+          where: { encounterId: v.id },
+        });
+        expect(remaining).toHaveLength(0);
+
+        // The medication lines go with their draft rather than being orphaned by the cascade.
+        const remainingLines = await models.EncounterDischargeDraftMedication.findAll({
+          where: { dischargeDraftId: ownDraft.id },
+        });
+        expect(remainingLines).toHaveLength(0);
       });
 
       it('should not update encounter to an invalid location or add a note', async () => {

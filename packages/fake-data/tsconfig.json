@@ -11,9 +11,10 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "es2020",
+    "lib": ["es2025", "ESNext.Collection", "ESNext.Temporal"],
+    "target": "es2025",
     "moduleResolution": "bundler",
-    "module": "ESNext",
+    "module": "nodenext",
     "incremental": true
   }
 }

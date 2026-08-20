@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/ui-components",
-  "version": "2.62.2",
+  "version": "2.63.0",
   "description": "Tamanu UI components",
   "private": true,
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -30,6 +30,7 @@
     "formik": "^2.2.9",
     "lucide-react": "^1.17.0",
     "react": "^18.2.0",
+    "react-ace": "^10.1.0",
     "react-autosuggest": "^10.1.0",
     "react-dom": "^18.2.0",
     "react-router": "^7.17.0",

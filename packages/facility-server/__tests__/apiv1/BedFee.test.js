@@ -8,6 +8,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -186,6 +187,27 @@ describe('Bed fee (Invoice.recalculateBedFee)', () => {
   it('does not charge a location with no bed-fee product (placeholder ward)', async () => {
     const items = await admitAndRecompute({
       locationId: placeholderLocation.id,
+      startDate: '2024-06-16 18:00:00',
+      endDate: '2024-06-19 06:00:00',
+    });
+    expect(items).toHaveLength(0);
+  });
+
+  it('does not charge a location whose bed-fee product has been marked historical', async () => {
+    const historicalLocation = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id, code: 'BED-LOC-HISTORICAL' }),
+    );
+    await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.BED_FEE],
+        sourceRecordId: historicalLocation.id,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
+
+    const items = await admitAndRecompute({
+      locationId: historicalLocation.id,
       startDate: '2024-06-16 18:00:00',
       endDate: '2024-06-19 06:00:00',
     });

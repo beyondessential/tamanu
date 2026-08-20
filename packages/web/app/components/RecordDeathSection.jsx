@@ -1,12 +1,10 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
-import { reloadPatient } from '../store/patient';
 import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
@@ -50,7 +48,6 @@ const customContent = (
 
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const api = useApi();
-  const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const queryClient = useQueryClient();
   const [isRevertModalOpen, setRevertModalOpen] = useState(false);
@@ -62,7 +59,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
     queryClient.resetQueries(['patientDeathSummary', patient.id]);
 
     closeRevertModal();
-    await dispatch(reloadPatient(patientId));
+    queryClient.invalidateQueries(['patientDetails', patientId]);
     navigateToPatient(patientId);
   };
 
