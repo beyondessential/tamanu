@@ -73,12 +73,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
    * serialized into a TanStack Query query key. Without this, two distinct {@link Suggester}s with
    * equivalent `model` and `options` but different `filter` would collide in the query client
    * cache.
+   *
+   * Use `model.name`, `options`, and `filterCacheKey` to key the query.
    */
   filterCacheKey?: string;
-
-  lastUpdatedAt: number;
-
-  cachedData: any;
 
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
@@ -89,8 +87,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = config.filter;
     this.filterCacheKey = config.filter ? `filter:${Suggester.nextFilterCacheKey++}` : undefined;
-    this.lastUpdatedAt = -Infinity;
-    this.cachedData = null;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -125,7 +121,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
@@ -178,14 +173,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       const data = await query.getRawMany();
 
       const filteredData = this.filter ? data.filter(this.filter) : data;
-      const formattedData = filteredData.map(this.formatter);
-
-      if (this.lastUpdatedAt < requestedAt) {
-        this.cachedData = formattedData;
-        this.lastUpdatedAt = requestedAt;
-      }
-
-      return this.cachedData;
+      return filteredData.map(this.formatter);
     } catch (e) {
       return [];
     }
