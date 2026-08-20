@@ -54,17 +54,26 @@ const ActionLink = styled.span`
  *
  * The time track is sized from its content rather than given a floor: the times and
  * dates are locale-formatted, so their width belongs to the reader, and a floor wide
- * enough for the longest of them would stop the track ever shrinking. On a pane too
- * narrow to hold a range on one line the track falls to the wider of the range's two
- * ends and the range wraps, which is what should give: the card's location and
- * patient are worth more room than keeping the range on one line.
+ * enough for the longest of them would stop the track ever shrinking.
+ *
+ * What makes the range wrap is the floor on the *card* track, not anything on the time
+ * track. The card's contents carry `min-width: 0` so their headings can ellipsise,
+ * which also lets the card shrink to nothing; without a floor the grid starves the card
+ * long before it squeezes the time track, so the range never wraps and the card is
+ * crushed to "War… / Sara…" instead. The floor is what states the priority the design
+ * asks for: a bed and a name are worth more room than keeping a range on one line. It
+ * is in `ch` for the same reason the rest of this is content-sized — it tracks the
+ * reader's font, not a pixel guess.
  */
 const BookingsList = styled.div`
   display: grid;
-  grid-template-columns: auto minmax(min-content, max-content) 1fr;
+  grid-template-columns: auto minmax(min-content, max-content) minmax(17ch, 1fr);
   column-gap: 5px;
   padding-right: 20px;
   padding-left: 12px;
+  /* Kept from the MUI Timeline root this replaced, whose 6px 16px padding had only its
+     top, left and right overridden. The -16px below is tuned against it. */
+  padding-bottom: 6px;
   margin-bottom: -16px;
   overflow-y: auto;
 `;
@@ -142,8 +151,15 @@ const StatusIndicator = styled.div`
 `;
 
 /* Sized in lines of text, so it grows rather than clipping when a row wraps */
+/* Sized in lines of text, so it grows rather than clipping when a row wraps. Its two
+   lines are centred within that height rather than sitting at the top: the row's status
+   indicator and range are both centred, and text pinned to the top of a card taller
+   than it reads as sitting above them. */
 const Card = styled.div`
   min-block-size: 3lh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-radius: 3px;
   padding-block: 8px;
   padding-inline: 1rem;
@@ -246,6 +262,7 @@ const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
 const BookingRowItem = ({ appointment, today }) => {
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
+  const hasEnd = Boolean(endTime);
 
   const [headingRef, isHeadingOverflowing] = useOverflow();
   const [bodyRef, isBodyOverflowing] = useOverflow();
@@ -268,10 +285,10 @@ const BookingRowItem = ({ appointment, today }) => {
           <BookingRangeEnd
             date={startTime}
             today={today}
-            withSeparator={Boolean(endTime)}
+            withSeparator={hasEnd}
             data-testid="rangeend-start-8ptz"
           />
-          {endTime && (
+          {hasEnd && (
             <>
               {' '}
               <BookingRangeEnd date={endTime} today={today} data-testid="rangeend-end-4vqx" />

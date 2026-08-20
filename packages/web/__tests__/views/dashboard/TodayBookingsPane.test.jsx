@@ -56,12 +56,16 @@ afterEach(() => vi.useRealTimers());
  * date the pane compares against is the one the provider actually derives. 6:00 UTC
  * is mid-evening in Auckland, well inside the intended day.
  */
-const renderPane = ({ onDate, withBookings }) => {
-  vi.setSystemTime(new Date(`${onDate}T06:00:00Z`));
+const renderPane = ({ onDate, withBookings, at, facilityTimeZone }) => {
+  vi.setSystemTime(new Date(at ?? `${onDate}T06:00:00Z`));
   bookings.value = withBookings;
   return renderElementWithTranslatedText(
     <AuthContext.Provider value={{ primaryTimeZone: PRIMARY_TIME_ZONE }}>
-      <SettingsContext.Provider value={{ getSetting: key => ({ dateTimeLocale: 'en-AU' })[key] }}>
+      {/* The facility timezone reaches the provider as a setting, the same way it does
+          in the app — passing it through auth is silently ignored. */}
+      <SettingsContext.Provider
+        value={{ getSetting: key => ({ dateTimeLocale: 'en-AU', facilityTimeZone })[key] }}
+      >
         <DateTimeProvider>
           <TodayBookingsPane />
         </DateTimeProvider>
@@ -110,6 +114,23 @@ describe('TodayBookingsPane booking ranges', () => {
       expect(ranges()[0]).not.toBe('10:00am – 11:30am');
       unmount();
     }
+  });
+
+  /* The whole rule turns on comparing days as the reader sees them, not as they are
+     stored, and that half is only exercised when the two timezones disagree about the
+     date. Auckland (UTC+12) and Honolulu (UTC-10) are 22 hours apart, so a booking
+     stored as 12 Aug 10:00am in the primary zone is 11 Aug 12:00pm where it is read,
+     and 11 Aug is the reader's today. Comparing in the stored zone would make both ends
+     look like another day and render "12 Aug – 12 Aug". */
+  it('decides each end against the day the reader sees, not the day it is stored on', () => {
+    renderPane({
+      at: '2026-08-11T22:00:00Z',
+      facilityTimeZone: 'Pacific/Honolulu',
+      withBookings: [
+        { ...SAME_DAY_BOOKING, startTime: '2026-08-12 10:00:00', endTime: '2026-08-12 11:00:00' },
+      ],
+    });
+    expect(ranges()).toEqual(['12:00pm – 1:00pm']);
   });
 
   it('shows a booking with no end time as a single time', () => {

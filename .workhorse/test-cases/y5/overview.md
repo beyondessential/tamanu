@@ -13,6 +13,7 @@ is CSS-dependent and the unit renderer does not apply CSS, so those cases are ma
 - [x] No day of a multi-day stay reads as a booking that began and ended today. Verifies spec: SCHEDULING
 - [x] A booking with no end time shows its start alone. Verifies spec: SCHEDULING
 - [x] Every booking carries an indicator of its status. Verifies spec: SCHEDULING
+- [x] Each end is decided against the day the reader sees, not the day it is stored on (facility timezone differing from primary). Verifies spec: SCHEDULING
 
 ## Layout and rail (manual)
 
@@ -21,12 +22,14 @@ is CSS-dependent and the unit renderer does not apply CSS, so those cases are ma
 - [ ] With exactly one booking, no rail is drawn at all. Verifies spec: SCHEDULING
 - [ ] The rail does not show through the middle of an outlined indicator (Confirmed, Arrived).
 - [ ] Every row is the same height, and overnight rows line up with same-day rows.
+- [ ] The card's two lines sit centred against the indicator and range, not pinned to the top of the card.
+- [ ] Spacing below the last row matches what shipped before (the pane's bottom padding was inherited from the MUI Timeline root that was removed).
 - [ ] The status indicator sits level with the range beside it.
 
 ## Narrow pane (manual)
 
 - [ ] At the pane's normal width every range sits on one line. Verifies spec: SCHEDULING
-- [ ] On a pane too narrow for a range, the range wraps onto two lines with its parts centred against each other, and the card keeps enough room to show its location and patient. Verifies spec: SCHEDULING
+- [x] On a pane too narrow for a range, the range wraps onto two lines with its parts centred against each other, and the card keeps enough room to show its location and patient. Verifies spec: SCHEDULING
 - [ ] The separator stays with the first line when a range wraps, rather than starting the second.
 
 ## Regressions worth re-checking
