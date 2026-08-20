@@ -65,7 +65,7 @@ export class LabRequestModal {
   readonly specimenTypeSuggestionsList: Locator;
   readonly siteInputs: Locator;
   readonly siteSuggestionsList: Locator;
-  readonly sampleDetailsPanels: Locator;
+  readonly sampleDetailsTests: Locator;
   readonly sampleDetailsCategories: Locator;
 
   // Request finalised summary
@@ -111,15 +111,15 @@ export class LabRequestModal {
     this.cancelButton = page.getByTestId('formsubmitcancelrow-aaiz-cancelButton');
 
     // Step 2: sample details
-    this.dateTimeCollectedInputs = page.getByTestId('styledfield-ratc-input');
-    this.collectedByInputs = page.getByTestId('styledfield-wifm-input');
-    this.collectedBySuggestionsList = page.getByTestId('styledfield-wifm-suggestionslist');
-    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input');
-    this.specimenTypeSuggestionsList = page.getByTestId('styledfield-8g4b-suggestionslist');
-    this.siteInputs = page.getByTestId('styledfield-mog8-input');
-    this.siteSuggestionsList = page.getByTestId('styledfield-mog8-option-typography');
-    this.sampleDetailsPanels = page.getByTestId('typography-ex0x');
-    this.sampleDetailsCategories = page.getByTestId('typography-772r');
+    this.dateTimeCollectedInputs = page.getByTestId('styledfield-sampletime-input');
+    this.collectedByInputs = page.getByTestId('styledfield-collectedby-input');
+    this.collectedBySuggestionsList = page.getByTestId('styledfield-collectedby-suggestionslist');
+    this.specimenTypeInputs = page.getByTestId('styledfield-specimentype-input');
+    this.specimenTypeSuggestionsList = page.getByTestId('styledfield-specimentype-suggestionslist');
+    this.siteInputs = page.getByTestId('styledfield-site-input');
+    this.siteSuggestionsList = page.getByTestId('styledfield-site-option-typography');
+    this.sampleDetailsTests = page.getByTestId('typography-test');
+    this.sampleDetailsCategories = page.getByTestId('typography-category');
 
     // Request finalised summary
     const clinicianLabel = page
@@ -357,11 +357,12 @@ export class LabRequestModal {
   // ---------------------------------------------------------------------------
 
   /**
-   * Assert a panel appears as a panel row in the sample details table.
+   * Assert an item (panel or test) appears in the Test column of the sample details table.
+   * Panels no longer get their own row — they appear in their category row's Test column.
    */
-  async validatePanelInSampleDetails(panelName: string) {
+  async validateTestInSampleDetails(name: string) {
     await this.dateTimeCollectedInputs.first().waitFor({ state: 'visible' });
-    await expect(this.sampleDetailsPanels.filter({ hasText: panelName })).toBeVisible();
+    await expect(this.sampleDetailsTests.filter({ hasText: name })).toBeVisible();
   }
 
   /**
@@ -504,7 +505,7 @@ export class LabRequestModal {
     await this.selectFirstSpecimenType(0);
     await this.selectFirstSite(0);
     for (const panel of panelsToSelect) {
-      await this.validatePanelInSampleDetails(panel);
+      await this.validateTestInSampleDetails(panel);
     }
     await this.finalise();
     const categories = await this.getFinalisedCategories(panelsToSelect.length);
