@@ -903,7 +903,9 @@ async function createPanelLabRequests(models, body, note, user) {
       });
       const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
-      const requestSampleDetails = sampleDetails[panelId] || {};
+      // Samples are recorded per category, so requests in the same category (panels and/or the
+      // individual-tests request) share the category's sample.
+      const requestSampleDetails = sampleDetails[panel.categoryId] || {};
       let labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
       if (facilityId) {
         labTestTypeIds = panel.labTestTypes

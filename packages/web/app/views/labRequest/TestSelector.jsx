@@ -251,27 +251,22 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
     [selectedPanels, selectedTests],
   );
 
-  // Feed sample-details: one entry per selected panel (keyed by panelId downstream) and one per
-  // category of selected individual tests (keyed by categoryId downstream).
-  const samples = useMemo(() => {
-    const entries = selectedPanels.map(panel => ({
-      categoryId: panel.category?.id,
-      categoryName: referenceName(panel.category ?? {}, panel.category?.type),
-      panelId: panel.id,
-      panelName: panel.name,
-    }));
-    const seenCategories = new Set();
-    selectedTests.forEach(test => {
-      const category = test.category;
-      if (!category?.id || seenCategories.has(category.id)) return;
-      seenCategories.add(category.id);
-      entries.push({
-        categoryId: category.id,
-        categoryName: referenceName(category, category.type),
-      });
-    });
-    return entries;
-  }, [selectedPanels, selectedTests]);
+  // Feed sample-details: one entry per category (keyed by categoryId downstream), covering every
+  // selected panel and individual test in that category. Categories alphabetical, and testNames is
+  // the alphabetical list of the category's selected panel + test names shown in the Test column.
+  const samples = useMemo(
+    () =>
+      selectedGroups.map(group => ({
+        categoryId: group.category?.id ?? 'uncategorised',
+        categoryName: group.category ? (
+          referenceName(group.category, group.category.type)
+        ) : (
+          <TranslatedText stringId="lab.testSelect.uncategorised" fallback="Uncategorised" />
+        ),
+        testNames: group.items.map(item => item.name),
+      })),
+    [selectedGroups],
+  );
 
   useEffect(() => {
     onSelectionChange?.(samples);

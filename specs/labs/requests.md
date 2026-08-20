@@ -44,3 +44,18 @@ Staff raise a lab request from a single screen that captures the request details
 
 - [ ] The Next action becomes available only once at least one test or panel is selected.
 - [ ] Notes can be added to the request.
+
+## Sample details
+
+Recording sample collection is grouped by category: each category the request covers is one row, whether its items were ordered individually or as panels.
+
+- [ ] The sample details step lists one row per category, with the columns Category, Test, Date & time collected, Collected by, Specimen type, and Site.
+- [ ] The Test column lists the category's selected panels and individual tests as a comma-separated list ordered alphabetically.
+- [ ] Categories are ordered alphabetically.
+- [ ] Collection details (date and time collected, collected by, specimen type, site) are recorded once per category and apply to every request created for that category.
+- [ ] Collected by, specimen type, and site can be entered only once a collection date and time is set; clearing the date and time clears them.
+- [ ] Where specimen type is mandated, a category with a collection date and time requires a specimen type.
+
+## Recording a sample from the lab request view
+
+- [ ] Recording a sample against an existing request from the lab request view uses the same category-grouped sample details, under a "Record sample details" heading, and shows the request's category.

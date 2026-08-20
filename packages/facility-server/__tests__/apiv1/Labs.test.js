@@ -356,9 +356,16 @@ describe('Labs', () => {
   });
 
   it('should record samples for panels', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
     const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
+      categoryId: category.id,
     });
     const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
 
@@ -375,8 +382,9 @@ describe('Labs', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
+    // Samples are keyed by category so every request in the category shares the sample.
     const sampleDetails = {
-      [labTestPanel.id]: {
+      [category.id]: {
         sampleTime,
         specimenTypeId: specimenType.id,
       },
