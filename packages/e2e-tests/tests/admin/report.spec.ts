@@ -14,8 +14,10 @@ test.describe('Admin panel report editor', () => {
   test('Create a report with a parameter and advanced config', async ({ page }) => {
     await page.getByTestId('tab-create').click();
 
-    // Required fields
-    await page.getByTestId('styledfield-pb9c-input').fill('Test DHIS2 Report');
+    // Required fields. Unique name so retries/reruns don't hit 422 "name already
+    // exists" from the report a previous attempt created.
+    const reportName = `Test DHIS2 Report ${Date.now()}`;
+    await page.getByTestId('styledfield-pb9c-input').fill(reportName);
 
     // SQL query editor (Ace). react-ace only passes id/style to the DOM div (not
     // data-testid), so target the hidden textarea via the id from name="sqlEditor".
@@ -34,9 +36,8 @@ test.describe('Admin panel report editor', () => {
       optionToSelect: 'FacilityField',
     });
 
-    // Expand Advanced Config and enter a value
+    // Expand Advanced Config and enter a value (click auto-scrolls and retries on detach)
     const advancedConfigSummary = page.getByTestId('accordionsummary-advanced-config');
-    await advancedConfigSummary.scrollIntoViewIfNeeded();
     await advancedConfigSummary.click();
     const jsonTextarea = page
       .getByTestId('accordiondetails-advanced-config')
@@ -51,9 +52,11 @@ test.describe('Admin panel report editor', () => {
     // After creation the app navigates to the edit view for the new version
     await expect(page).toHaveURL(/\/admin\/reports\/.+\/versions\/.+\/edit/, { timeout: 15000 });
 
-    // Confirm the advanced config round-tripped: re-open the accordion and check the saved value
+    // Confirm the advanced config round-tripped: re-open the accordion and check the saved value.
+    // Wait for the navigated edit view to settle first; scrolling immediately raced the
+    // re-render and detached the element ("Element is not attached to the DOM").
     const editAdvancedConfigSummary = page.getByTestId('accordionsummary-advanced-config');
-    await editAdvancedConfigSummary.scrollIntoViewIfNeeded();
+    await expect(editAdvancedConfigSummary).toBeVisible();
     await editAdvancedConfigSummary.click();
     await expect(page.getByTestId('accordiondetails-advanced-config')).toContainText(
       'some-dataset-id',
