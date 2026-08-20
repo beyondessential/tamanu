@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
 import { StyledText, StyledView } from '/styled/common';
@@ -57,10 +57,8 @@ const DatePicker = ({
       style={styles.androidPickerStyles}
       maximumDate={max}
       minimumDate={min}
-      {...(Platform.OS === 'android' && {
-        positiveButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
-        negativeButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
-      })}
+      positiveButton={{ textColor: ANDROID_PICKER_BUTTON_COLOR }}
+      negativeButton={{ textColor: ANDROID_PICKER_BUTTON_COLOR }}
     />
   );
 };

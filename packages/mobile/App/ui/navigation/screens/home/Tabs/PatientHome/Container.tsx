@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
 import { Popup } from 'popup-ui';
@@ -220,7 +220,7 @@ const PatientHomeContainer = ({
 
   useFocusEffect(
     useCallback(() => {
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor(theme.colors.PRIMARY_MAIN);
+      StatusBar.setBackgroundColor(theme.colors.PRIMARY_MAIN);
       StatusBar.setBarStyle('light-content');
     }, []),
   );

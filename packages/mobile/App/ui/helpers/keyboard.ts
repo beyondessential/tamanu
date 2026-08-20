@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
-import { Keyboard, KeyboardEventName, Platform } from 'react-native';
+import { Keyboard, KeyboardEventName } from 'react-native';
 
-export const keyboardListener = (
-  event: KeyboardEventName, callback: () => void,
-): void => {
+export const keyboardListener = (event: KeyboardEventName, callback: () => void): void => {
   useEffect(() => {
     const keyboardEventListener = Keyboard.addListener(event, callback);
     return (): void => {
@@ -14,10 +12,7 @@ export const keyboardListener = (
 
 export const onKeyboardCloseListener = (callback: () => void): void => {
   useEffect(() => {
-    const keyboardEventListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
-      callback,
-    );
+    const keyboardEventListener = Keyboard.addListener('keyboardDidHide', callback);
     return (): void => {
       keyboardEventListener.remove();
     };
@@ -26,10 +21,7 @@ export const onKeyboardCloseListener = (callback: () => void): void => {
 
 export const onKeyboardOpenListener = (callback: () => void): void => {
   useEffect(() => {
-    const keyboardEventListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
-      callback,
-    );
+    const keyboardEventListener = Keyboard.addListener('keyboardDidShow', callback);
     return (): void => {
       keyboardEventListener.remove();
     };

@@ -1,4 +1,4 @@
-import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
+import { Dimensions, PixelRatio, StatusBar } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -101,7 +101,7 @@ export const setStatusBar = (
 ): void =>
   useFocusEffect(
     useCallback(() => {
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
+      StatusBar.setBackgroundColor(backgroundColor);
       StatusBar.setBarStyle(barStyle);
     }, []),
   );
