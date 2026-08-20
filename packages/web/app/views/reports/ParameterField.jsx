@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants/suggesters';
 
 import { useSuggester } from '../../api';
-import { AutocompleteField, Field, SuggesterSelectField } from '../../components';
+import { AutocompleteField, CheckField, Field, SuggesterSelectField } from '../../components';
 import { BaseSelectField, BaseMultiselectField } from '@tamanu/ui-components';
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
@@ -99,6 +99,10 @@ const ParameterMultiselectField = ({ name, ...props }) => (
   <Field component={BaseMultiselectField} name={name} {...props} data-testid="field-qy3y" />
 );
 
+const ParameterCheckboxField = ({ name, ...props }) => (
+  <Field component={CheckField} name={name} {...props} data-testid="field-c9nk" />
+);
+
 const EmptyField = styled.div``;
 
 export const PARAMETER_FIELD_COMPONENTS = {
@@ -114,6 +118,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestTypeField,
   LocationField,
   ParameterAutocompleteField,
+  ParameterCheckboxField,
   ParameterMultiselectField,
   ParameterSelectField,
   ParameterSuggesterSelectField,
