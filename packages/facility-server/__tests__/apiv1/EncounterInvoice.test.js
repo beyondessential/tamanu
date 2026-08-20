@@ -13,6 +13,7 @@ import {
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
   REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { describe } from 'node:test';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -196,6 +197,43 @@ describe('Encounter invoice', () => {
           expect(result.body.items).toHaveLength(0);
         } finally {
           await priceListItem1.update({ isHidden: false });
+        }
+      });
+
+      // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
+      it('should NOT automatically add items to the invoice when a procedure is created if the invoice product is marked historical', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await procedureProduct1.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+
+          await app.post(`/api/procedure`).send({
+            encounterId: encounter.id,
+            procedureTypeId: procedureType1.id,
+            date: new Date(),
+            physicianId: user.id,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+            items: [],
+          });
+        } finally {
+          await procedureProduct1.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
         }
       });
 
@@ -645,6 +683,122 @@ describe('Encounter invoice', () => {
         });
       });
 
+      it('should NOT add a test product to the invoice when it has been marked historical', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await labTestBloodsProduct.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+
+          const {
+            body: [labRequest],
+          } = await app.post(`/api/labRequest`).send({
+            encounterId: encounter.id,
+            labTestTypeIds: [labTestBloodsType.id],
+            sampleDetails: {
+              [labTestCategory.id]: {
+                sampleTime: new Date(),
+              },
+            },
+            requestedById: user.id,
+            date: new Date(),
+          });
+
+          await app.put(`/api/labRequest/${labRequest.id}`).send({
+            status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+            userId: user.id,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+            items: [],
+          });
+        } finally {
+          await labTestBloodsProduct.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
+        }
+      });
+
+      it('should fall back to the individual test products when the panel product has been marked historical', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await labTestPanelGeneralProduct.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const {
+            body: [labRequest],
+          } = await app.post(`/api/labRequest`).send({
+            encounterId: encounter.id,
+            panelIds: [labTestPanelGeneral.id],
+            sampleDetails: {
+              [labTestPanelGeneral.id]: {
+                sampleTime: new Date(),
+              },
+            },
+            requestedById: user.id,
+            date: new Date(),
+          });
+
+          const labTestBloods = await models.LabTest.findOne({
+            where: { labTestTypeId: labTestBloodsType.id, labRequestId: labRequest.id },
+          });
+          const labTestFlu = await models.LabTest.findOne({
+            where: { labTestTypeId: labTestFluType.id, labRequestId: labRequest.id },
+          });
+
+          await app.put(`/api/labRequest/${labRequest.id}`).send({
+            status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+            userId: user.id,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body.items).toHaveLength(2);
+          expect(result.body.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                sourceRecordId: labTestBloods.id,
+                sourceRecordType: labTestBloods.getModelName(),
+                productId: labTestBloodsProduct.id,
+              }),
+              expect.objectContaining({
+                sourceRecordId: labTestFlu.id,
+                sourceRecordType: labTestFlu.getModelName(),
+                productId: labTestFluProduct.id,
+              }),
+            ]),
+          );
+        } finally {
+          await labTestPanelGeneralProduct.update({
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          });
+        }
+      });
+
       it('should automatically add/remove the test products to the invoice when a product is not configured for the panel', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -960,6 +1114,59 @@ describe('Encounter invoice', () => {
           status: INVOICE_STATUSES.IN_PROGRESS,
           items: [],
         });
+      });
+
+      it('should fall back to the imaging type product when an imaging area product has been marked historical', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await imagingAreaHeadProduct.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+            encounterId: encounter.id,
+            imagingType: IMAGING_TYPES.X_RAY,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            date: new Date(),
+            requestedById: user.id,
+            areas: JSON.stringify([imagingAreaHead.id]),
+          });
+
+          const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+            where: { imagingRequestId: imagingRequest.id, areaId: imagingAreaHead.id },
+          });
+
+          await app.put(`/api/imagingRequest/${imagingRequest.id}`).send({
+            status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body.items).toHaveLength(1);
+          expect(result.body.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                sourceRecordId: imagingRequestAreaHead.id,
+                sourceRecordType: imagingRequestAreaHead.getModelName(),
+                // Historical area product is skipped, so it falls back to the imaging type product
+                productId: imagingRequestProduct.id,
+              }),
+            ]),
+          );
+        } finally {
+          await imagingAreaHeadProduct.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
+        }
       });
 
       it('should not automatically add/remove items to the invoice when the transaction is rolled back', async () => {
@@ -1333,6 +1540,34 @@ describe('Encounter invoice', () => {
           status: INVOICE_STATUSES.IN_PROGRESS,
           items: [],
         });
+      });
+
+      it('should NOT add an invoice item for a medication whose product has been marked historical', async () => {
+        try {
+          await drugProduct.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+
+          const { encounter, prescription } = await createEncounterPrescription();
+
+          await app.post(`/api/medication/medication-administration-record/given`).send({
+            prescriptionId: prescription.id,
+            dose: {
+              doseAmount: 1,
+              givenTime: getCurrentDateTimeString(),
+            },
+            dueAt: getCurrentDateTimeString(),
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+            items: [],
+          });
+        } finally {
+          await drugProduct.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
+        }
       });
 
       it('should add a single invoice item as long as there is at least one MAR that is given', async () => {

@@ -15,7 +15,7 @@ import {
 // In-memory stand-ins for the models the resolver reads: LocalSystemFact (host,
 // email, facility ids) and LocalSystemSecret (the encrypted password, via
 // get/set).
-const makeModels = ({ facts = {}, secrets = {} } = {}) => {
+const makeModels = ({ facts = {}, secrets = {}, secretError = null } = {}) => {
   const factStore = new Map(Object.entries(facts));
   const secretStore = new Map(Object.entries(secrets));
   return {
@@ -27,7 +27,10 @@ const makeModels = ({ facts = {}, secrets = {} } = {}) => {
         set: async (key, value) => void factStore.set(key, value),
       },
       LocalSystemSecret: {
-        get: async key => (secretStore.has(key) ? secretStore.get(key) : null),
+        get: async key => {
+          if (secretError) throw secretError;
+          return secretStore.has(key) ? secretStore.get(key) : null;
+        },
         set: async (key, value) => void secretStore.set(key, value),
       },
     },
@@ -97,6 +100,31 @@ describe('serverConfig', () => {
   it('rejects a malformed SYNC_URL with a clear error', async () => {
     process.env.SYNC_URL = 'not a url';
     await expect(initWith(makeModels())).rejects.toThrow('SYNC_URL is not a valid URL');
+  });
+
+  it('leaves the server unconfigured when the stored password will not decrypt', async () => {
+    await initWith(
+      makeModels({
+        facts: {
+          [FACT_CENTRAL_HOST]: 'https://central.example.com',
+          [FACT_SYNC_EMAIL]: 'e@x.io',
+          [FACT_FACILITY_IDS]: JSON.stringify(['fac-a']),
+        },
+        secretError: new Error('Decryption failed'),
+      }),
+    );
+
+    expect(getSyncConfig().password).toBe(null);
+    expect(isServerConfigured()).toBe(false);
+  });
+
+  it('still uses the config password before the secret tables exist', async () => {
+    const undefinedTable = Object.assign(new Error('relation does not exist'), {
+      original: { code: '42P01' },
+    });
+    await initWith(makeModels({ secretError: undefinedTable }));
+
+    expect(getSyncConfig().password).toBeTruthy();
   });
 
   it('falls back to legacy config when there are no env vars or facts', async () => {
