@@ -2195,8 +2195,12 @@ export const globalSettings = {
               frequency =>
                 !(
                   [
+                    // Not true frequencies
                     ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
                     ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                    // So frequent, not meaningful to customise
+                    ADMINISTRATION_FREQUENCIES.HOURLY,
+                    ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
                   ] as AdministrationFrequency[]
                 ).includes(frequency),
             ),
