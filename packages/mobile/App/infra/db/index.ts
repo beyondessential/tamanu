@@ -149,7 +149,8 @@ class DatabaseHelper {
   private async refreshQueryPlannerStats(): Promise<boolean> {
     const start = performance.now();
     try {
-      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none
+      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
+      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
       await this.client.query('PRAGMA analysis_limit = 400;');
       await this.client.query('ANALYZE;');
       console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
