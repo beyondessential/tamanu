@@ -467,8 +467,10 @@ export class SurveyResponse extends Model {
       const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models, {
         encounterId: record.encounterId,
       });
-      // Don't create null answers
-      if (body === null) {
+      // Don't create empty answers. A blank measure is not a recorded value, so persisting it as
+      // an empty-bodied row would surface its creation in chart history as a spurious "Entry
+      // deleted" line (chart history is derived from the answer audit changelog).
+      if (body === null || body === '') {
         continue;
       }
 
@@ -477,7 +479,7 @@ export class SurveyResponse extends Model {
         body,
         responseId: record.id,
       });
-      if (!isVitalSurvey || body === '') continue;
+      if (!isVitalSurvey) continue;
       // Generate initial vital log
       await models.VitalLog.create({
         date: record.endTime || getCurrentDateTimeString(),
