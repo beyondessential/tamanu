@@ -12,8 +12,8 @@ import {
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { FormModal } from '../../FormModal';
+import { useDeleteDoseMutation } from '../../../../api/mutations/useMarMutation';
+import { FormModal } from '../../../FormModal';
 import DoseSummary from './DoseSummary';
 
 const StyledDivider = styled(Divider)`

@@ -30,18 +30,18 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
-import { useMarDoses } from '../../../api/queries/useMarDoses';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { CheckField } from '../../Field';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { FormModal } from '../../FormModal';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { WarningModal } from '../WarningModal';
+import { useUpdateMarMutation } from '../../../../api/mutations/useMarMutation';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { Colors } from '../../../../constants/styles';
+import { useAuth } from '../../../../contexts/Auth';
+import { useEncounter } from '../../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../../hooks/useIsEncounterDischarged';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { CheckField } from '../../../Field';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { FormModal } from '../../../FormModal';
+import { NoteModalActionBlocker } from '../../../NoteModalActionBlocker';
+import { WarningModal } from '../../WarningModal';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import KeyValueDisplay from './KeyValueDisplay';
@@ -49,6 +49,7 @@ import DoseEntry, { DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 import RemoveAdditionalDoseModal from './RemoveAdditionalDoseModal';
+import useMarDoses from '../useMarDoses';
 
 const Container = styled.div`
   display: flex;
@@ -204,7 +205,7 @@ export const MarDetails = ({
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
 
-  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo.id);
+  const { data: marDoses = [] } = useMarDoses(marInfo.id);
   const { mutateAsync: updateMar } = useUpdateMarMutation(marInfo?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
@@ -212,7 +213,7 @@ export const MarDetails = ({
     },
   });
 
-  const isEncounterDischarged = !!encounter?.endDate;
+  const isEncounterDischarged = useIsEncounterDischarged();
   const canEditMar = ability.can('write', 'MedicationAdministration') && !isEncounterDischarged;
 
   const onSubmit = async (data, { setFieldValue }) => {
@@ -255,9 +256,7 @@ export const MarDetails = ({
           suppressErrorDialog
           onSubmit={onSubmit}
           formType={FORM_TYPES.EDIT_FORM}
-          initialValues={{
-            doses: [],
-          }}
+          initialValues={{ doses: [] }}
           validationSchema={yup.object().shape({
             doses: yup.array().of(
               yup.object().shape({

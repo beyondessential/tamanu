@@ -1,22 +1,18 @@
-import ChevronLeft from '@mui/icons-material/ChevronLeft';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import IconButton from '@mui/material/IconButton';
-import {
-  ButtonWithPermissionCheck,
-  ConditionalTooltip,
-  DateDisplay as DateDisplayComponent,
-  TranslatedText,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { addDays, isSameDay, subDays } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import {
+  ButtonWithPermissionCheck,
+  ConditionalTooltip,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../hooks/useIsEncounterDischarged';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 import { Heading3 } from '../../Typography';
 import { MedicationModal } from '../MedicationModal';
+import { MarDateSelector } from './MarDateSelector';
 
 const Header = styled.header`
   align-items: center;
@@ -24,23 +20,6 @@ const Header = styled.header`
   justify-content: space-between;
   padding-block: 2px;
   padding-inline: 12px;
-`;
-
-const DateSelectWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-`;
-
-const DateDisplay = styled.div`
-  color: ${p => p.theme.palette.text.secondary};
-  font-size: 14px;
-  font-weight: 500;
-  padding-inline: 4px;
-`;
-
-const StepperButton = styled(IconButton)`
-  padding: 0.25rem;
 `;
 
 const ButtonWrapper = styled.div`
@@ -53,33 +32,8 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const { encounter } = useEncounter();
   const { ability } = useAuth();
-  const { getFacilityNowDate, toFacilityDateTime } = useDateTime();
   const canCreatePrescription = ability.can('create', 'Medication');
-
-  const toFacilityDate = dateStr => {
-    if (!dateStr) return null;
-    const converted = toFacilityDateTime(dateStr);
-    return converted ? new Date(converted) : null;
-  };
-
-  const facilityNow = getFacilityNowDate();
-  const encounterStart = toFacilityDate(encounter?.startDate);
-  const encounterEnd = toFacilityDate(encounter?.endDate);
-
-  const goToPreviousDay = () => {
-    onDateChange(prevDate => subDays(prevDate, 1));
-  };
-
-  const goToNextDay = () => {
-    onDateChange(prevDate => addDays(prevDate, 1));
-  };
-
-  const isPreviousDayDisabled = encounterStart && isSameDay(selectedDate, encounterStart);
-  const isNextDayHidden =
-    isSameDay(addDays(facilityNow, 2), selectedDate) ||
-    (encounterEnd && isSameDay(encounterEnd, selectedDate));
-
-  const isEncounterDischarged = !!encounter?.endDate;
+  const isEncounterDischarged = useIsEncounterDischarged();
 
   return (
     <Header>
@@ -94,44 +48,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
       <Heading3 flex={1}>
         <TranslatedText stringId="encounter.mar.title" fallback="Medication admin record" />
       </Heading3>
-      <DateSelectWrapper>
-        <ConditionalTooltip
-          visible={isPreviousDayDisabled}
-          title={
-            <TranslatedText
-              fallback="Can’t select date prior to encounter start date"
-              stringId="medication.mar.tooltip.encounterStartDate"
-            />
-          }
-          PopperProps={{
-            modifiers: {
-              flip: {
-                enabled: false,
-              },
-              offset: {
-                enabled: true,
-                offset: '0, -15',
-              },
-            },
-          }}
-        >
-          <StepperButton
-            onClick={goToPreviousDay}
-            disabled={isPreviousDayDisabled}
-            data-testid="iconbutton-previousdate-abc123"
-          >
-            <ChevronLeft />
-          </StepperButton>
-        </ConditionalTooltip>
-        <DateDisplay>
-          <DateDisplayComponent date={selectedDate} format="long" noTooltip />
-        </DateDisplay>
-        {!isNextDayHidden && (
-          <StepperButton onClick={goToNextDay} data-testid="iconbutton-nextdate-xyz789">
-            <ChevronRight />
-          </StepperButton>
-        )}
-      </DateSelectWrapper>
+      <MarDateSelector selectedDate={selectedDate} onDateChange={onDateChange} />
       <ButtonWrapper>
         {canCreatePrescription && (
           <NoteModalActionBlocker>
