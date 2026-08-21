@@ -1,156 +1,180 @@
-import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
+import Skeleton from '@mui/material/Skeleton';
+import { partition } from 'es-toolkit';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { isSameDay } from 'date-fns';
-import {
-  getDateFromTimeString,
-  findAdministrationTimeSlotFromIdealTime,
-} from '@tamanu/shared/utils/medication';
+import { TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { useDateTime } from '@tamanu/ui-components';
-
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../..';
-import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { useEncounter } from '../../../contexts/Encounter';
 import { MarTableRow } from './MarTableRow';
+import TableCellButton from './TableCellButton';
+import { useIsCurrentTimeSlot } from './useIsCurrentTimeSlot';
 
-const MEDICATION_CELL_WIDTH = 48;
-
-const HEADER_HEIGHT = 105;
-
-const Container = styled.div`
+const Table = styled.table`
+  --mar-border: 1px solid ${p => p.theme.palette.divider};
+  --mar-current-time-border: ${p => p.theme.palette.primary.main};
+  border: var(--mar-border);
+  border-collapse: collapse;
+  font-size: 12px;
+  inline-size: 100%;
+  line-height: 1.25;
   position: relative;
+
+  & tr {
+    border-block-start: var(--mar-border);
+  }
+
+  /* Hideous hack so children with ‘block-size: 100%’ actually fill table cells */
+  & :is(th, td) {
+    block-size: 0;
+  }
+
+  /* If cell is non-interactive, pad. Else let button(s) fill cell & delegate padding to them. */
+  & :is(th, td):not(:has(${TableCellButton})) {
+    padding: 10px;
+  }
+
+  & :where(th, td):not(:first-child) {
+    border-inline-start: var(--mar-border);
+  }
+
+  & :is(th, td)[aria-current='time'] {
+    border-inline: 1px solid var(--mar-current-time-border);
+  }
+  & thead tr:first-of-type :is(th, td)[aria-current='time'] {
+    border-block-start: 1px solid var(--mar-current-time-border);
+    color: ${p => p.theme.palette.primary.main};
+  }
+  & tbody:last-of-type tr:last-of-type :is(th, td)[aria-current='time'] {
+    border-block-end: 1px solid var(--mar-current-time-border);
+  }
 `;
 
-const MedicationContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 221px);
-  background-color: ${Colors.white};
-`;
-
-// Header row for the time slots
-const HeaderRow = styled.div`
-  padding-right: 5px;
-  display: grid;
-  grid-template-columns: minmax(50px, 1fr) repeat(
-      ${props => props.columns},
-      ${MEDICATION_CELL_WIDTH}px
-    );
+const TableHead = styled.thead.attrs({ role: 'rowgroup' })`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: ${Colors.white};
 `;
 
-const ScrollableContent = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
-  ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
-  /* Add these lines to handle scrollbar consistently across platforms */
-  scrollbar-gutter: stable;
-
-  &::-webkit-scrollbar {
-    width: 5px;
+const TableHeaderCell = styled.th.attrs({ scope: 'col' })`
+  &:not(:first-child) {
+    inline-size: 4em;
   }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${Colors.softText};
-    border-radius: 4px;
+  &:last-child {
+    border-inline-end: 1px solid ${p => p.theme.palette.divider};
   }
 `;
 
-const HeadingCell = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 12px;
+const HeadingCell = styled(TableHeaderCell)`
   font-size: 16px;
   font-weight: 500;
-  color: ${Colors.darkestText};
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  height: 100%;
 `;
 
-const TimeSlotHeaderContainer = styled.div`
-  padding: 24px 0px 10px 0px;
-  height: ${HEADER_HEIGHT}px;
-  display: flex;
-  justify-content: center;
+const TimeSlotHeaderContainer = styled(TableHeaderCell)`
   align-items: center;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  ${props =>
-    props.isCurrentTimeSlot
-      ? `background: #EBF0F5; color: ${Colors.primary};`
-      : `color: ${Colors.midText};`}
+  color: ${p => p.theme.palette.text.tertiary};
+  font-weight: 400;
+  min-block-size: 8.75em;
+  vertical-align: bottom;
+
+  &[aria-current='time'] {
+    background-color: #ebf0f5;
+    color: ${p => p.theme.palette.primary.main};
+  }
 `;
 
 const TimeSlotText = styled.div`
-  font-weight: 400;
-  font-size: 12px;
-  transform: rotate(-90deg);
-  white-space: nowrap;
+  block-size: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.25;
+  min-block-size: 2lh;
+  rotate: 0.5turn;
+  text-orientation: sideways;
+  writing-mode: vertical-rl;
 `;
 
 const TimeSlotLabel = styled.div`
+  color: ${p => p.theme.palette.text.primary};
+  font-weight: 500;
   text-transform: capitalize;
-  color: ${Colors.darkestText};
 `;
 
-const SubHeader = styled.div`
+const EmptyStateRow = styled(({ children, selectedDate, ...props }) => (
+  <tr {...props}>
+    <td>{children}</td>
+    {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+      <BorderlessCell
+        key={startTime}
+        startTime={startTime}
+        endTime={endTime}
+        selectedDate={selectedDate}
+      />
+    ))}
+  </tr>
+))`
+  font-weight: 500;
+`;
+
+function RowSkeleton({ selectedDate }) {
+  return Array.from({ length: 2 }).map((_, index) => (
+    <tr key={index}>
+      <th>
+        <Skeleton width="min(40ch, 100%)" />
+        <Skeleton width="min(25ch, 100%)" />
+      </th>
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+        <TableCell
+          key={startTime}
+          startTime={startTime}
+          endTime={endTime}
+          selectedDate={selectedDate}
+          style={{ padding: 0 }}
+        >
+          <Skeleton variant="rectangular" height="calc(2lh + 20px)" />
+        </TableCell>
+      ))}
+    </tr>
+  ));
+}
+
+const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
+  color: ${p => p.theme.palette.text.tertiary};
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.midText};
-  padding: 10px 8px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  border-bottom: 1px solid ${Colors.outline};
-  grid-column: 1 / -1;
   position: sticky;
-  top: 0;
   z-index: 5;
-  background-color: ${Colors.white};
 `;
 
-const EmptyMessage = styled.div`
-  color: ${Colors.darkestText};
-  font-size: 14px;
-  font-weight: 500;
-  padding: 10px 8px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  grid-column: 1 / -1;
+function TableCell({ startTime, endTime, selectedDate, ...props }) {
+  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
+  return <td aria-current={current ? 'time' : undefined} aria-hidden {...props} />;
+}
+
+const BorderlessCell = styled(TableCell)`
+  &:not([aria-current='time']) {
+    border-inline: none;
+  }
 `;
 
-const MedicationGrid = styled.div`
-  display: grid;
-  margin-top: -1px;
-  grid-template-columns: minmax(50px, 1fr) repeat(12, ${MEDICATION_CELL_WIDTH}px);
-`;
-
-const CurrentTimeOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  width: ${MEDICATION_CELL_WIDTH - 1}px;
-  height: ${p => p.$height || '100%'};
-  z-index: 11;
-  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH + 5}px;
-  border: 1px solid ${Colors.primary};
-  pointer-events: none;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  border-left: 1px solid ${Colors.outline};
-  height: 42px;
-`;
+function HeadingRow({ children, selectedDate, ...props }) {
+  return (
+    <tr {...props}>
+      <HeadingTableCell as="th">{children}</HeadingTableCell>
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime, endTime }) => (
+        <BorderlessCell
+          key={startTime}
+          startTime={startTime}
+          endTime={endTime}
+          selectedDate={selectedDate}
+        />
+      ))}
+    </tr>
+  );
+}
 
 // Convert time string to locale-specific time string no timezone conversion is applied
 const formatSlotTime = (timeStr, locale) =>
@@ -158,20 +182,17 @@ const formatSlotTime = (timeStr, locale) =>
     new Date(`2000-01-01T${timeStr === '24:00' ? '00:00' : timeStr}:00`),
   );
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
+  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
   const { locale } = useDateTime();
-  const now = facilityNow.getTime();
-  const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
-  const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
-  const isCurrentTimeSlot =
-    startDate <= now && now <= endDate && isSameDay(selectedDate, facilityNow);
-
   return (
-    <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
+    <TimeSlotHeaderContainer aria-current={current ? 'time' : undefined}>
       <TimeSlotText>
-        <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
+        {periodLabel && <TimeSlotLabel>{periodLabel}</TimeSlotLabel>}
         <div>
-          {formatSlotTime(startTime, locale)} - {formatSlotTime(endTime, locale)}
+          {formatSlotTime(startTime, locale)}
+          &thinsp;&ndash;&thinsp;
+          {formatSlotTime(endTime, locale)}
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
@@ -180,14 +201,6 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getFacilityNowDate } = useDateTime();
-  const facilityNow = getFacilityNowDate();
-  const scheduledSectionRef = useRef(null);
-  const scheduledHeaderRef = useRef(null);
-  const prnSectionRef = useRef(null);
-  const prnHeaderRef = useRef(null);
-  const scrollableContentRef = useRef(null);
-  const [overlayHeight, setOverlayHeight] = useState('100%');
   const [popperAnchorEl, setPopperAnchorEl] = useState(null);
 
   const { data: medicationsData, isLoading: isLoadingMedications } = useEncounterMedicationQuery(
@@ -198,219 +211,88 @@ export const MarTable = ({ selectedDate }) => {
       order: 'asc',
     },
   );
-  const medications = (medicationsData?.data || []).sort((a, b) => {
-    if (a.discontinued === b.discontinued) {
-      return 0;
-    }
-    return a.discontinued ? 1 : -1;
-  });
-  const prnMedications = medications.filter(medication => medication.isPrn);
-  const scheduledMedications = medications.filter(medication => !medication.isPrn);
-
-  // Determine overlay height based on medication content and visibility
-  const calculateAndSetOverlayHeight = useCallback(() => {
-    const scrollableContainer = scrollableContentRef.current;
-    const scheduledSection = scheduledSectionRef.current;
-
-    if (prnMedications.length > 0) {
-      setOverlayHeight('100%');
-      return;
-    }
-
-    if (scheduledMedications.length > 0 && scrollableContainer && scheduledSection) {
-      const scrollableRect = scrollableContainer.getBoundingClientRect();
-      const scheduledRect = scheduledSection.getBoundingClientRect();
-
-      // Calculate the visible height of the scheduled medications
-      const visibleTop = Math.max(scrollableRect.top, scheduledRect.top);
-      const visibleBottom = Math.min(scrollableRect.bottom, scheduledRect.bottom);
-      const visibleScheduledHeight = Math.max(0, visibleBottom - visibleTop);
-
-      setOverlayHeight(`calc(${HEADER_HEIGHT}px + ${visibleScheduledHeight}px)`);
-      return;
-    }
-
-    // Only header is visible or no scheduled meds
-    setOverlayHeight(`${HEADER_HEIGHT}px`);
-  }, [prnMedications.length, scheduledMedications.length]);
-
-  // Recalculate on mount, or selectedDate change
-  useLayoutEffect(() => {
-    calculateAndSetOverlayHeight();
-  }, [calculateAndSetOverlayHeight, selectedDate]);
-
-  // Add/Remove Scroll Listener
-  useLayoutEffect(() => {
-    const scrollableElement = scrollableContentRef?.current;
-
-    if (!scrollableElement) return;
-
-    // Add listener only if we need dynamic height (no PRN meds)
-    if (prnMedications.length === 0 && scheduledMedications.length > 0) {
-      scrollableElement.addEventListener('scroll', calculateAndSetOverlayHeight);
-
-      // Initial calculation after layout
-      calculateAndSetOverlayHeight();
-
-      return () => {
-        scrollableElement.removeEventListener('scroll', calculateAndSetOverlayHeight);
-      };
-    } else {
-      // Ensure correct height is set if conditions change (e.g., PRN meds added/removed)
-      calculateAndSetOverlayHeight();
-    }
-    // No cleanup needed if listener wasn't added
-    return undefined;
-  }, [prnMedications.length, scheduledMedications.length, calculateAndSetOverlayHeight]);
-
-  // Effect for sticky headers
-  useLayoutEffect(() => {
-    // Don't proceed if any required refs are missing
-    if (!scheduledHeaderRef.current || !prnHeaderRef.current) return;
-
-    const scheduledHeader = scheduledHeaderRef.current;
-    const prnHeader = prnHeaderRef.current;
-
-    // Common observer configuration
-    const observerOptions = {
-      threshold: 0,
-      rootMargin: `-${HEADER_HEIGHT}px 0px 0px 0px`,
-    };
-
-    // Helper function to create consistent observers
-    const createHeaderObserver = headerElement => {
-      return new IntersectionObserver(([entry]) => {
-        headerElement.style.position = entry.isIntersecting
-          ? 'sticky'
-          : entry.boundingClientRect.top < HEADER_HEIGHT
-          ? 'static'
-          : headerElement.style.position;
-      }, observerOptions);
-    };
-
-    // Create observers for both section headers
-    const scheduledObserver = createHeaderObserver(scheduledHeader);
-    const prnObserver = createHeaderObserver(prnHeader);
-
-    // Start observing sections if they exist
-    if (scheduledSectionRef.current) scheduledObserver.observe(scheduledSectionRef.current);
-    if (prnSectionRef.current) prnObserver.observe(prnSectionRef.current);
-
-    // Clean up observers when component unmounts
-    return () => {
-      scheduledObserver.disconnect();
-      prnObserver.disconnect();
-    };
-  }, []);
+  const medications =
+    medicationsData?.data?.toSorted((a, b) => {
+      if (a.discontinued === b.discontinued) return 0;
+      return a.discontinued ? 1 : -1;
+    }) ?? [];
+  const [prnMedications, scheduledMedications] = partition(
+    medications,
+    medication => medication.isPrn,
+  );
 
   return (
-    <Container>
-      {isSameDay(selectedDate, facilityNow) && (
-        <CurrentTimeOverlay
-          $index={findAdministrationTimeSlotFromIdealTime(facilityNow).index}
-          $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
-          $height={overlayHeight}
-        />
-      )}
-      <HeaderRow columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
-        <HeadingCell>
-          <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
-        </HeadingCell>
-        {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ periodLabel, startTime, endTime }, index) => (
-          <TimeSlotHeader
-            key={startTime}
-            periodLabel={periodLabel}
-            startTime={startTime}
-            endTime={endTime}
-            index={index}
-            selectedDate={selectedDate}
-            facilityNow={facilityNow}
+    <Table columns={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}>
+      <TableHead>
+        <tr>
+          <HeadingCell>
+            <TranslatedText fallback="Medication" stringId="medication.mar.medication.label" />
+          </HeadingCell>
+          {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ periodLabel, startTime, endTime }) => (
+            <TimeSlotHeader
+              key={startTime}
+              periodLabel={periodLabel}
+              startTime={startTime}
+              endTime={endTime}
+              selectedDate={selectedDate}
+            />
+          ))}
+        </tr>
+      </TableHead>
+      <tbody aria-busy={isLoadingMedications}>
+        <HeadingRow selectedDate={selectedDate}>
+          <TranslatedText
+            fallback="Scheduled medication"
+            stringId="medication.mar.scheduledMedication.label"
           />
-        ))}
-      </HeaderRow>
-      <MedicationContainer>
-        <ScrollableContent ref={scrollableContentRef}>
-          {/* Scheduled medications section */}
-          <div ref={scheduledSectionRef}>
-            <SubHeader ref={scheduledHeaderRef}>
-              <TranslatedText
-                fallback="Scheduled medication"
-                stringId="medication.mar.scheduledMedication.label"
-              />
-            </SubHeader>
-            {isLoadingMedications ? (
-              <LoadingContainer>
-                <TranslatedText
-                  stringId="general.table.loading"
-                  fallback="Loading…"
-                  data-testid="translatedtext-yvlt"
-                />
-              </LoadingContainer>
-            ) : (
-              <MedicationGrid>
-                {scheduledMedications.length ? (
-                  scheduledMedications.map(medication => (
-                    <MarTableRow
-                      key={medication?.id}
-                      medication={medication}
-                      selectedDate={selectedDate}
-                      popperAnchorEl={popperAnchorEl}
-                      onPopperAnchorElChange={setPopperAnchorEl}
-                    />
-                  ))
-                ) : (
-                  <EmptyMessage>
-                    <TranslatedText
-                      fallback="No scheduled medication to display"
-                      stringId="medication.mar.noScheduledMedication.label"
-                    />
-                  </EmptyMessage>
-                )}
-              </MedicationGrid>
-            )}
-          </div>
+        </HeadingRow>
+        {isLoadingMedications ? (
+          <RowSkeleton selectedDate={selectedDate} />
+        ) : scheduledMedications.length ? (
+          scheduledMedications.map(medication => (
+            <MarTableRow
+              key={medication?.id}
+              medication={medication}
+              selectedDate={selectedDate}
+              popperAnchorEl={popperAnchorEl}
+              onPopperAnchorElChange={setPopperAnchorEl}
+            />
+          ))
+        ) : (
+          <EmptyStateRow selectedDate={selectedDate}>
+            <TranslatedText
+              fallback="No scheduled medication to display"
+              stringId="medication.mar.noScheduledMedication.label"
+            />
+          </EmptyStateRow>
+        )}
+      </tbody>
+      <tbody aria-busy={isLoadingMedications}>
+        <HeadingRow selectedDate={selectedDate}>
+          <TranslatedText fallback="PRN medication" stringId="medication.mar.prnMedication.label" />
+        </HeadingRow>
 
-          {/* PRN medications section */}
-          <div ref={prnSectionRef}>
-            <SubHeader ref={prnHeaderRef}>
-              <TranslatedText
-                fallback="PRN medication"
-                stringId="medication.mar.prnMedication.label"
-              />
-            </SubHeader>
-            {isLoadingMedications ? (
-              <LoadingContainer>
-                <TranslatedText
-                  stringId="general.table.loading"
-                  fallback="Loading…"
-                  data-testid="translatedtext-yvlt"
-                />
-              </LoadingContainer>
-            ) : (
-              <MedicationGrid>
-                {prnMedications.length ? (
-                  prnMedications.map(medication => (
-                    <MarTableRow
-                      key={medication?.id}
-                      medication={medication}
-                      selectedDate={selectedDate}
-                      popperAnchorEl={popperAnchorEl}
-                      onPopperAnchorElChange={setPopperAnchorEl}
-                    />
-                  ))
-                ) : (
-                  <EmptyMessage>
-                    <TranslatedText
-                      fallback="No PRN medication to display"
-                      stringId="medication.mar.noPrnMedication.label"
-                    />
-                  </EmptyMessage>
-                )}
-              </MedicationGrid>
-            )}
-          </div>
-        </ScrollableContent>
-      </MedicationContainer>
-    </Container>
+        {isLoadingMedications ? (
+          <RowSkeleton selectedDate={selectedDate} />
+        ) : prnMedications.length ? (
+          prnMedications.map(medication => (
+            <MarTableRow
+              key={medication?.id}
+              medication={medication}
+              selectedDate={selectedDate}
+              popperAnchorEl={popperAnchorEl}
+              onPopperAnchorElChange={setPopperAnchorEl}
+            />
+          ))
+        ) : (
+          <EmptyStateRow selectedDate={selectedDate}>
+            <TranslatedText
+              fallback="No PRN medication to display"
+              stringId="medication.mar.noPrnMedication.label"
+            />
+          </EmptyStateRow>
+        )}
+      </tbody>
+    </Table>
   );
 };
