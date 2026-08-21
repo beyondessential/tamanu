@@ -18,7 +18,10 @@ const StyledModal = styled(Modal)`
     height: 100%;
     display: flex;
     flex-direction: column;
-    > :not(.MuiDialogTitle-root) {
+    // Everything below the fixed-height modal header fills the remaining space so the
+    // JSON editor grows to the full modal height. The header is a <header> element, not
+    // a .MuiDialogTitle-root direct child, so it must be excluded by tag.
+    > :not(header) {
       flex: 1;
       display: flex;
       flex-direction: column;
