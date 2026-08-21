@@ -3,6 +3,8 @@ import * as yup from 'yup';
 import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
+  BLOB_SERVE_POLICIES,
+  BLOB_SERVE_POLICIES_VALUES,
   BROWSER_SUPPORT_POLICIES,
   IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
@@ -161,6 +163,47 @@ export const globalSettings = {
       exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
+    },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      properties: {
+        freeDiskReserveGB: {
+          name: 'Free disk reserve',
+          description:
+            'Free disk space the blob store must leave available on its volume; as free space approaches this floor the store evicts cache, then refuses new blobs',
+          type: yup.number().positive(),
+          defaultValue: 10,
+          unit: 'GB',
+        },
+        // spec: AV — the posture is deployment-wide so a facility cannot serve
+        // what central withholds; which scanner each server drives is its own
+        // setting (central.ts, facility.ts)
+        antivirus: {
+          name: 'Antivirus',
+          description: 'Malware scanning of stored blobs',
+          properties: {
+            servePolicy: {
+              name: 'Serve policy',
+              description:
+                'How much of a scan verdict a server insists on before serving a blob. With no scanner configured anywhere, all three behave as off',
+              type: yup.string().oneOf(BLOB_SERVE_POLICIES_VALUES),
+              defaultValue: BLOB_SERVE_POLICIES.UNLESS_KNOWN_BAD,
+              options: [
+                { value: BLOB_SERVE_POLICIES.OFF, label: 'Off: serve without consulting a verdict' },
+                {
+                  value: BLOB_SERVE_POLICIES.UNLESS_KNOWN_BAD,
+                  label: 'Serve unless known-bad: withhold only infected content',
+                },
+                {
+                  value: BLOB_SERVE_POLICIES.ONLY_KNOWN_GOOD,
+                  label: 'Serve only when known-good: withhold until scanned clean',
+                },
+              ],
+            },
+          },
+        },
+      },
     },
     browserSupport: {
       name: 'Browser support',

@@ -1,4 +1,12 @@
-import { canUploadAttachment } from '../app/utils/getFreeDiskSpace';
+import { Readable } from 'node:stream';
+
+import {
+  BLOB_INTEGRITY_STATES,
+  BLOB_SCAN_VERDICTS,
+  MAX_INLINE_BLOB_BYTES,
+} from '@tamanu/constants';
+import { InsufficientStorageError } from '@tamanu/errors';
+
 import { createTestContext } from './utilities';
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
@@ -49,6 +57,32 @@ describe('Attachment (central-server)', () => {
     expect(Buffer.isBuffer(result.body)).toBeTruthy();
   });
 
+  // spec: BKFL
+  // A row the backfill has not reached yet is served the same way a moved one is,
+  // so a reader cannot tell which form it got. Ranged reads are what a PDF viewer
+  // does, and they used to work only once the row had moved.
+  it('serves a requested byte range of a row still holding its bytes', async () => {
+    // Taken from the response rather than the row's `size`, which the store no
+    // longer trusts either: the extent has to come from the bytes themselves.
+    const whole = await app.get(`/api/attachment/${attachment.id}`);
+    const bytes = Buffer.from(whole.body);
+
+    const result = await app.get(`/api/attachment/${attachment.id}`).set('range', 'bytes=5-14');
+    expect(result.status).toBe(206);
+    expect(result.headers['content-range']).toBe(`bytes 5-14/${bytes.length}`);
+    expect(result.headers['accept-ranges']).toBe('bytes');
+    expect(Buffer.from(result.body)).toEqual(bytes.subarray(5, 15));
+  });
+
+  // The one difference that remains, and it has a reason: a row that still holds
+  // its bytes has no content hash, so there is nothing to validate against.
+  it('serves a row still holding its bytes without a validator', async () => {
+    const result = await app.get(`/api/attachment/${attachment.id}`);
+    expect(result).toHaveSucceeded();
+    expect(result.headers.etag).toBeUndefined();
+    expect(result.headers['cache-control']).toBeUndefined();
+  });
+
   it('should read an attachment as a base64 string', async () => {
     const result = await app.get(`/api/attachment/${attachment.id}?base64=true`);
     expect(result).toHaveSucceeded();
@@ -61,22 +95,25 @@ describe('Attachment (central-server)', () => {
     expect(receivedStr).toBe(reEncodedStr);
   });
 
+  // spec: ATCH
+  // The store refuses admission rather than cross the host's free-disk reserve,
+  // and the route surfaces that as the upload's rejection (see capacity.md).
   it('should send error if there is no enough disk space', async () => {
-    canUploadAttachment.mockImplementationOnce(async () => false);
+    jest
+      .spyOn(ctx.blobStore, 'put')
+      .mockRejectedValueOnce(
+        new InsufficientStorageError('Document cannot be uploaded due to lack of storage space.'),
+      );
     const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
       data: FILEDATA,
     });
     expect(result.body.error).toBeTruthy();
-    expect(result.body.error.message).toBe(
-      'Document cannot be uploaded due to lack of storage space.',
-    );
     expect(result.body.error.name).toBe('InsufficientStorageError');
   });
 
   it('should create an attachment and receive its ID back', async () => {
-    canUploadAttachment.mockImplementationOnce(async () => true);
     const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
       size: 1002,
@@ -84,8 +121,219 @@ describe('Attachment (central-server)', () => {
     });
     expect(result).toHaveSucceeded();
     expect(result.body.attachmentId).toBeTruthy();
-    const createdAttachment = await models.Attachment.findByPk(result.body.id);
+    const createdAttachment = await models.Attachment.findByPk(result.body.attachmentId);
     expect(createdAttachment).toBeDefined();
+  });
+
+  // spec: ATCH, BLAC
+  // Scope cannot be set from the request body: a client must not be able to
+  // scope an attachment to an arbitrary patient or encounter.
+  it('ignores patient and encounter scope supplied in the request body', async () => {
+    const result = await app.post('/api/attachment').send({
+      type: 'image/jpeg',
+      size: 1002,
+      data: FILEDATA,
+      patientId: 'attacker-supplied-patient',
+      encounterId: 'attacker-supplied-encounter',
+    });
+    expect(result).toHaveSucceeded();
+    const created = await models.Attachment.findByPk(result.body.attachmentId);
+    expect(created.patientId).toBeFalsy();
+    expect(created.encounterId).toBeFalsy();
+  });
+
+  // spec: ATCH
+  describe('Blob-backed attachments', () => {
+    const CONTENT = Buffer.from('a stored attachment body, long enough to range over', 'utf8');
+    let stored;
+
+    beforeAll(async () => {
+      const { hash, size } = await ctx.blobStore.put(Readable.from([CONTENT]));
+      stored = await models.Attachment.create({ type: 'text/plain', hash, size });
+    });
+
+    it('stores an uploaded attachment in the blob store, not the database row', async () => {
+      const result = await app.post('/api/attachment').send({
+        type: 'image/jpeg',
+        size: 1002,
+        data: FILEDATA,
+      });
+      expect(result).toHaveSucceeded();
+      const created = await models.Attachment.findByPk(result.body.attachmentId);
+      expect(created.hash).toBeTruthy();
+      expect(created.data).toBeFalsy();
+      expect(await ctx.blobStore.has(created.hash)).toBe(true);
+    });
+
+    it('records the size of the bytes actually admitted, not the declared size', async () => {
+      const result = await app.post('/api/attachment').send({
+        type: 'image/jpeg',
+        size: 7, // a caller's declaration the admitted bytes contradict
+        data: FILEDATA,
+      });
+      expect(result).toHaveSucceeded();
+      const created = await models.Attachment.findByPk(result.body.attachmentId);
+      expect(Number(created.size)).toBe(Buffer.from(FILEDATA, 'base64').length);
+    });
+
+    it('serves the content from the store with the hash as entity tag', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.headers.etag).toBe(`"${stored.hash}"`);
+      expect(result.headers['accept-ranges']).toBe('bytes');
+      expect(result.headers['content-type']).toContain('text/plain');
+      expect(result.text).toBe(CONTENT.toString('utf8'));
+    });
+
+    // spec: SERVE — a hash names immutable content, so a client that already holds
+    // it is told so rather than sent the bytes a second time.
+    it('sends no bytes to a client that already holds the content', async () => {
+      const first = await app.get(`/api/attachment/${stored.id}`);
+      expect(first.headers['cache-control']).toBe('private, max-age=31536000, immutable');
+
+      const repeat = await app
+        .get(`/api/attachment/${stored.id}`)
+        .set('if-none-match', first.headers.etag);
+      expect(repeat.status).toBe(304);
+      expect(repeat.text).toBeFalsy();
+    });
+
+    it('serves a requested byte range of the content', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}`).set('range', 'bytes=5-14');
+      expect(result.status).toBe(206);
+      expect(result.headers['content-range']).toBe(`bytes 5-14/${CONTENT.length}`);
+      expect(result.text).toBe(CONTENT.subarray(5, 15).toString('utf8'));
+    });
+
+    it('refuses an unsatisfiable range with the content extent', async () => {
+      const result = await app
+        .get(`/api/attachment/${stored.id}`)
+        .set('range', `bytes=${CONTENT.length}-`);
+      expect(result.status).toBe(416);
+      expect(result.headers['content-range']).toBe(`bytes */${CONTENT.length}`);
+    });
+
+    it('serves the content base64-encoded for clients that consume it inline', async () => {
+      const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toBe(CONTENT.toString('base64'));
+    });
+
+    // spec: SERVE
+    // Inline encoding holds the whole content in memory, so content past the
+    // limit is refused that way and the caller directed to stream it.
+    it('refuses to encode content past the inline limit', async () => {
+      jest.spyOn(ctx.blobStore, 'servableStat').mockResolvedValueOnce({
+        size: MAX_INLINE_BLOB_BYTES + 1,
+        integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
+      });
+
+      const result = await app.get(`/api/attachment/${stored.id}?base64=true`);
+      expect(result).toHaveRequestError(422);
+
+      const streamed = await app.get(`/api/attachment/${stored.id}`);
+      expect(streamed).toHaveSucceeded();
+    });
+
+    // spec: ATCH
+    // Central holds the record but not yet the bytes: the origin has synced its
+    // attachment but not pushed its content. It presents as awaiting upload, not
+    // a crash on the missing blob.
+    it('presents a hash-backed attachment whose bytes central lacks as awaiting content', async () => {
+      const pending = await models.Attachment.create({
+        type: 'application/pdf',
+        hash: `sha256:${'c'.repeat(64)}`,
+        size: 10,
+      });
+
+      const result = await app.get(`/api/attachment/${pending.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: pending.id,
+        availability: 'awaiting-upload',
+      });
+    });
+
+    // spec: SCRUB
+    // A corrupt copy is retained but never served, and the transfer routes
+    // answer for it exactly as they do for content central does not hold. This
+    // route answers the same way, so reading an attachment neither serves the
+    // bad bytes nor discloses that it is corrupt.
+    it('presents a corrupt blob as awaiting content, without disclosing that it is corrupt', async () => {
+      const { hash, size } = await ctx.blobStore.put(
+        Readable.from([Buffer.from('bytes that later fail verification', 'utf8')]),
+      );
+      const corrupt = await models.Attachment.create({ type: 'text/plain', hash, size });
+      await ctx.blobStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+
+      const result = await app.get(`/api/attachment/${corrupt.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: corrupt.id,
+        availability: 'awaiting-upload',
+      });
+      expect(JSON.stringify(result.body)).not.toMatch(/corrupt/i);
+    });
+
+    // spec: AV
+    // Infected content is answered as its own state rather than as pending, so
+    // a reader is told the content is not coming instead of waiting on it.
+    it('presents a quarantined blob as withheld, not as pending', async () => {
+      const { hash, size } = await ctx.blobStore.put(
+        Readable.from([Buffer.from('content found to be malware', 'utf8')]),
+      );
+      const infected = await models.Attachment.create({ type: 'text/plain', hash, size });
+      await models.BlobQuarantine.create({ hash });
+
+      const result = await app.get(`/api/attachment/${infected.id}`);
+      expect(result.status).toBe(202);
+      expect(result.body).toMatchObject({
+        attachmentId: infected.id,
+        availability: 'withheld-infected',
+      });
+    });
+
+    // spec: AV
+    // Serve-only-when-known-good withholds content until it has been scanned
+    // clean, and answers it in the content-pending shape so a client can tell
+    // it apart from content that is gone.
+    describe('under serve-only-when-known-good', () => {
+      let unscanned;
+
+      beforeEach(async () => {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'only-known-good');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'clamd');
+        const { hash, size } = await ctx.blobStore.put(
+          Readable.from([Buffer.from('content admitted ahead of its scan', 'utf8')]),
+        );
+        unscanned = await models.Attachment.create({ type: 'text/plain', hash, size });
+      });
+
+      afterEach(async () => {
+        await models.Setting.set('blobStorage.antivirus.servePolicy', 'unless-known-bad');
+        await models.Setting.set('blobStorage.antivirus.scanner', 'none');
+      });
+
+      it('withholds not-yet-scanned content as awaiting its scan', async () => {
+        const result = await app.get(`/api/attachment/${unscanned.id}`);
+        expect(result.status).toBe(202);
+        expect(result.body).toMatchObject({
+          attachmentId: unscanned.id,
+          availability: 'awaiting-scan',
+        });
+      });
+
+      it('serves the same content once it has been scanned clean', async () => {
+        await ctx.blobStore.recordScanVerdict(unscanned.hash, {
+          verdict: BLOB_SCAN_VERDICTS.CLEAN,
+          scannerVersion: 'ClamAV 1.0.5',
+          signatureVersion: '27100',
+        });
+
+        const result = await app.get(`/api/attachment/${unscanned.id}`);
+        expect(result).toHaveSucceeded();
+      });
+    });
   });
 
   describe('Permissions', () => {
@@ -105,7 +353,6 @@ describe('Attachment (central-server)', () => {
         id: 'practitioner',
       });
 
-      canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
         type: 'image/jpeg',
         size: 1002,
@@ -123,10 +370,38 @@ describe('Attachment (central-server)', () => {
       expect(result).toBeForbidden();
     });
 
+    // spec: BLAC, ATCH
+    // The permission check governs the referencing record and runs ahead of the
+    // hash branch, so a blob-backed attachment is refused exactly as a row
+    // holding its own bytes is.
+    describe('on a hash-backed attachment', () => {
+      let blobBacked;
+
+      beforeEach(async () => {
+        const { hash, size } = await ctx.blobStore.put(
+          Readable.from([Buffer.from('content the permission check governs', 'utf8')]),
+        );
+        blobBacked = await models.Attachment.create({ type: 'text/plain', hash, size });
+      });
+
+      it('rejects reading it without read Attachment permission', async () => {
+        app = await baseApp.asNewRole([['create', 'Attachment']], { id: 'practitioner' });
+
+        const result = await app.get(`/v1/attachment/${blobBacked.id}`);
+        expect(result).toBeForbidden();
+      });
+
+      it('serves it with read Attachment permission', async () => {
+        app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
+
+        const result = await app.get(`/v1/attachment/${blobBacked.id}`);
+        expect(result).toHaveSucceeded();
+      });
+    });
+
     it('rejects getting an attachment if there is no create Attachment permission', async () => {
       app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
 
-      canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
         type: 'image/jpeg',
         size: 1002,

@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import fs, { promises as asyncFs } from 'fs';
+import fs from 'fs';
 import { NotFoundError } from '@tamanu/errors';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -36,16 +36,24 @@ export const createPatientLetter = (modelName, idField) =>
     });
 
     const { size } = fs.statSync(filePath);
-    const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
+
+    // spec: ATCH
+    // The generated letter is admitted to this server's outbox and its
+    // attachment record created together, so the letter exists without central
+    // connectivity and the blob always has its referencing record.
+    const { hash, size: storedSize } = await req.blobCache.putOutbox(
+      fs.createReadStream(filePath),
+      { sizeHint: size },
+    );
     fs.unlink(filePath, () => null);
 
-    const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForDatabase({
-        type: mimeType,
-        size,
-        data: fileData,
-      }),
-    );
+    const { id: attachmentId } = await models.Attachment.create({
+      type: mimeType,
+      hash,
+      size: storedSize,
+      [idField]: params.id,
+      ...(modelName === 'Encounter' ? { patientId: specifiedObject.patientId } : {}),
+    });
 
     const documentMetadataObject = await models.DocumentMetadata.create({
       name,

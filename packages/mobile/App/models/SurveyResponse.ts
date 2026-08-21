@@ -12,6 +12,7 @@ import {
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
+import { Attachment } from './Attachment';
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { Encounter } from './Encounter';
@@ -248,6 +249,17 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
             body,
             response: responseRecord.id,
           });
+
+          if (dataElement.type === FieldTypes.PHOTO && body) {
+            // spec: ATCH
+            // The attachment takes the patient linkage of the record it was
+            // created for, so its synchronisation scope matches the survey
+            // answer that references it.
+            await Attachment.updateValues(body, {
+              patientId,
+              encounterId: encounter.id,
+            });
+          }
 
           if (!isVitalSurvey || body === '') continue;
           setNote(`Attaching initial vital log for ${answerRecord.id}...`);

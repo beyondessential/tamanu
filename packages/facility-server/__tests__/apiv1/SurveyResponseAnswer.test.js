@@ -605,5 +605,64 @@ describe('SurveyResponseAnswer', () => {
         expect(result.status).toBe(422);
       });
     });
+
+    // spec: ATCH, CAS
+    // Blanking a photo overwrites its attachment with empty content, admitted to
+    // the store like any other blob, so the emptied attachment stays hash-backed
+    // and synchronises rather than reverting to an in-database row.
+    describe('PUT /photo/:id', () => {
+      // sha256 of zero bytes
+      const EMPTY_HASH = `sha256:${'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}`;
+
+      it('re-admits the photo attachment as empty, hash-backed content', async () => {
+        const patient = await models.Patient.create(await createDummyPatient(models));
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+        const program = await models.Program.create(fake(models.Program));
+        const survey = await models.Survey.create({ ...fake(models.Survey), programId: program.id });
+        const dataElement = await models.ProgramDataElement.create({
+          ...fake(models.ProgramDataElement),
+          type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+        });
+        await models.SurveyScreenComponent.create({
+          ...fake(models.SurveyScreenComponent),
+          dataElementId: dataElement.id,
+          surveyId: survey.id,
+        });
+        const response = await models.SurveyResponse.create({
+          ...fake(models.SurveyResponse),
+          surveyId: survey.id,
+          encounterId: encounter.id,
+        });
+        const attachment = await models.Attachment.create({
+          type: 'image/jpeg',
+          hash: `sha256:${'a'.repeat(64)}`,
+          size: 10,
+        });
+        const answer = await models.SurveyResponseAnswer.create({
+          ...fake(models.SurveyResponseAnswer),
+          dataElementId: dataElement.id,
+          responseId: response.id,
+          body: attachment.id,
+        });
+
+        const result = await app.put(`/api/surveyResponseAnswer/photo/${answer.id}`);
+        expect(result).toHaveSucceeded();
+
+        const blanked = await models.Attachment.findByPk(attachment.id);
+        expect(blanked.hash).toBe(EMPTY_HASH);
+        expect(blanked.data).toBeFalsy();
+        expect(Number(blanked.size)).toBe(0);
+        // spec: ATCH, BLAC — the upsert scopes the row it may be creating, so the
+        // emptied attachment stays inside the facility's scope and its blob is
+        // pushable rather than stranded in the outbox
+        expect(blanked.patientId).toBe(patient.id);
+        expect(blanked.encounterId).toBe(encounter.id);
+        await answer.reload();
+        expect(answer.body).toBe('');
+      });
+    });
   });
 });

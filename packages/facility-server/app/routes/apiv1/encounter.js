@@ -343,7 +343,10 @@ encounter.post(
     }
 
     // Create file on the central server
-    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT, {
+      encounterId: params.id,
+      patientId: specifiedEncounter.patientId,
+    });
 
     const documentMetadataObject = await createDocumentMetadata(
       req,

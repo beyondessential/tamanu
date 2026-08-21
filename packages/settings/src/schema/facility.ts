@@ -8,7 +8,11 @@ import {
 import { extractDefaults } from './utils';
 import {
   batchingProperties,
+  blobAntivirusProperties,
+  blobScanProperties,
+  blobScrubProperties,
   emailSchema,
+  errorCorrectionProperties,
   letterheadProperties,
   nationalityIdSchema,
   passportSchema,
@@ -24,6 +28,37 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage on this facility server',
+      properties: {
+        root: {
+          name: 'Store root',
+          description:
+            'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
+          type: yup.string(),
+          defaultValue: 'data/blobs',
+          highRisk: true,
+        },
+        cacheSizeBudgetGB: {
+          name: 'Cache size budget',
+          description:
+            'Target size for the evictable blob cache; least-recently-used blobs are evicted once the cache exceeds it. A target rather than a hard limit — un-pushed blobs and content in active use are retained regardless, and the free disk reserve is what protects the host',
+          type: yup.number().positive(),
+          defaultValue: 20,
+          unit: 'GB',
+        },
+        // spec: FEC — outbox blobs only: a cache copy is durable on central, so
+        // parity over it would spend disk the cache budget needs.
+        errorCorrection: {
+          name: 'Error correction',
+          description:
+            'Parity data over un-pushed blobs, so limited corruption is repaired in place',
+          properties: errorCorrectionProperties(),
+        },
+        ...blobAntivirusProperties(),
+      },
+    },
     appointments: {
       description: 'Settings related to scheduling patient appointments and location bookings',
       properties: {
@@ -213,6 +248,24 @@ export const facilitySettings = {
           { schedule: '0 * * * *' },
           batchingProperties(100, 50),
         ),
+        // every minute so a blob follows its record to central promptly; a push
+        // still in flight is skipped, not doubled up
+        blobOutboxPusher: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
+        // periodic backstop for the cache size budget; admission-time
+        // enforcement does the routine work
+        blobCacheEvictor: scheduledTaskSchema({ schedule: '23 * * * *' }),
+        // hourly and incremental: each pass takes the least-recently-scrubbed
+        // blobs, so the store is covered over many passes rather than one sweep
+        blobIntegrityScrub: scheduledTaskSchema(
+          { schedule: '41 * * * *', jitterTime: '5m' },
+          blobScrubProperties(),
+        ),
+        // spec: AV — a facility scans only what it holds, and only where it has
+        // a scanner of its own; without one it serves on central's verdict
+        blobAntivirusScan: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', jitterTime: '2m' },
+          blobScanProperties(),
+        ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
         // Enabled even where the FHIR worker is not: a facility that once ran one
         // has rows to prune, and where none ever ran there is nothing to match.
@@ -240,6 +293,12 @@ export const facilitySettings = {
           schedule: '0 * * * *',
           enabled: false,
         }),
+        // Seeds this server's store from the content it already holds, so a
+        // backfilled row arriving from central finds its blob already present.
+        blobBackfill: scheduledTaskSchema(
+          { schedule: '*/5 * * * *', jitterTime: '30s' },
+          batchingProperties(50, 1000),
+        ),
         cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
       },
     },

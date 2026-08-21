@@ -89,7 +89,9 @@ patientDocumentMetadataRoutes.post(
     }
 
     // Create file on the central server
-    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT, {
+      patientId: params.id,
+    });
 
     const documentMetadataObject = await createDocumentMetadata(
       req,

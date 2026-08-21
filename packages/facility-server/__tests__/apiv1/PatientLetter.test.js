@@ -1,7 +1,10 @@
+import { createHash, randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
 import fs from 'fs';
 import config from 'config';
 import ReactPDF from '@react-pdf/renderer';
 
+import { ASSET_NAMES, BLOB_TIERS } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -52,6 +55,67 @@ describe('PatientLetter', () => {
         },
       });
 
+  // spec: ATCH
+  it('stores the letter as a blob-backed attachment scoped to the patient', async () => {
+    const result = await createLetter();
+    expect(result).toHaveSucceeded();
+
+    const attachment = await models.Attachment.findByPk(result.body.attachmentId);
+    expect(attachment.hash).toBeTruthy();
+    expect(attachment.data).toBeFalsy();
+    expect(attachment.patientId).toBe(patient.id);
+    expect(await ctx.blobStore.has(attachment.hash)).toBe(true);
+  });
+
+  // spec: ATCH
+  it('admits the letter at the outbox tier with central unreachable', async () => {
+    ctx.blobCache.setTransferChannel({
+      fetchFromCentral: async () => {
+        throw new Error('central is unreachable');
+      },
+      pushToCentral: async () => {
+        throw new Error('central is unreachable');
+      },
+    });
+    try {
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const attachment = await models.Attachment.findByPk(result.body.attachmentId);
+      const blob = await models.Blob.findOne({ where: { hash: attachment.hash } });
+      expect(blob.tier).toBe(BLOB_TIERS.OUTBOX);
+    } finally {
+      ctx.blobCache.setTransferChannel(null);
+    }
+  });
+
+  // spec: CACHE
+  it('leaves no outbox blob when the attachment write fails', async () => {
+    const content = `not a real pdf ${randomUUID()}`;
+    renderSpy.mockImplementationOnce(async (_element, filePath) => {
+      fs.writeFileSync(filePath, content);
+    });
+    const createSpy = jest
+      .spyOn(models.Attachment, 'create')
+      .mockRejectedValueOnce(new Error('attachment write failed'));
+
+    try {
+      const result = await createLetter();
+      expect(result).toHaveStatus(500);
+    } finally {
+      createSpy.mockRestore();
+    }
+
+    const hash = `sha256:${createHash('sha256').update(content).digest('hex')}`;
+    await models.Blob.update(
+      { lastAccessedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+      { where: { hash }, silent: true },
+    );
+    await ctx.blobCache.demoteStrandedOutbox();
+
+    expect((await models.Blob.findOne({ where: { hash } })).tier).toBe(BLOB_TIERS.CACHE);
+  });
+
   it('renders the letter with the requesting browser locale', async () => {
     const result = await createLetter();
     expect(result).toHaveSucceeded();
@@ -75,5 +139,64 @@ describe('PatientLetter', () => {
       // keep formatting with the runtime default locale.
       await models.Setting.destroy({ where: { key: 'dateTimeLocale' }, force: true });
     }
+  });
+
+  describe('letterhead asset', () => {
+    const admit = async bytes => {
+      const { hash } = await ctx.blobStore.put(Readable.from([bytes]), { sizeHint: bytes.length });
+      return hash;
+    };
+
+    const createLetterhead = (hash, assetFacilityId = null) =>
+      models.Asset.create({
+        name: ASSET_NAMES.LETTERHEAD_LOGO,
+        type: 'image/png',
+        hash,
+        data: null,
+        facilityId: assetFacilityId,
+      });
+
+    afterEach(async () => {
+      // The letterhead name is shared with the asset endpoint suite, which runs
+      // against the same worker database.
+      await models.Asset.destroy({ where: { name: ASSET_NAMES.LETTERHEAD_LOGO }, force: true });
+    });
+
+    // spec: ASSET
+    it('resolves a hash-form letterhead from the blob store', async () => {
+      const image = Buffer.from(`letterhead logo ${randomUUID()}`);
+      await createLetterhead(await admit(image));
+
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const [element] = renderSpy.mock.calls[0];
+      expect(element.props.logoSrc).toEqual(image);
+    });
+
+    // spec: ASSET
+    it('fails rather than rendering unbranded when the letterhead bytes cannot resolve', async () => {
+      await createLetterhead(
+        'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      );
+
+      const result = await createLetter();
+      expect(result).toHaveStatus(502);
+      expect(renderSpy).not.toHaveBeenCalled();
+    });
+
+    // spec: ASSET
+    it('prefers a facility-specific letterhead over the deployment-wide one', async () => {
+      const deploymentWide = Buffer.from(`deployment-wide letterhead ${randomUUID()}`);
+      const facilitySpecific = Buffer.from(`facility letterhead ${randomUUID()}`);
+      await createLetterhead(await admit(deploymentWide));
+      await createLetterhead(await admit(facilitySpecific), facilityId);
+
+      const result = await createLetter();
+      expect(result).toHaveSucceeded();
+
+      const [element] = renderSpy.mock.calls[0];
+      expect(element.props.logoSrc).toEqual(facilitySpecific);
+    });
   });
 });

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 import { useApi } from '../api';
-import { getImageSourceFromData } from '../utils';
+import { getAttachmentUnavailableMessage, getImageSourceFromData } from '../utils';
 import {
   Button,
   ButtonRow,
@@ -102,9 +102,10 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
     }
 
     try {
-      const { data } = await api.get(`attachment/${imageId}`, { base64: true });
-      setImageData(data);
-      setErrorMessage(null);
+      const response = await api.get(`attachment/${imageId}`, { base64: true });
+      const unavailableMessage = getAttachmentUnavailableMessage(response);
+      setImageData(response.data);
+      setErrorMessage(unavailableMessage);
     } catch (error) {
       setImageData(null);
       const genericErrorMessage = getTranslation(
