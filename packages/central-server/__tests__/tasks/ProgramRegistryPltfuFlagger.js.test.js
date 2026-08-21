@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sub } from 'date-fns';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -11,7 +12,7 @@ import {
 import { ProgramRegistryPltfuFlagger } from '../../app/tasks/ProgramRegistryPltfuFlagger';
 import { createTestContext } from '../utilities';
 
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('ProgramRegistryPltfuFlagger', () => {
   let ctx;

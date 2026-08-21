@@ -77,7 +77,7 @@ import {
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
-import { atLeastOneWhenSendingToPharmacy, emptyToNull, foreignKey } from '../utils/validation';
+import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
 
 const requiredInlineMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
@@ -100,18 +100,9 @@ const validationSchema = yup.object().shape({
   ),
   sendToPharmacy: yup.boolean().optional(),
   prescriptionType: yup.string().oneOf(Object.values(PHARMACY_PRESCRIPTION_TYPES)).optional(),
-  // Only mandatory when the prescription is being sent to pharmacy; the floor of one is shared
-  // with the discharge form's medication tables.
-  quantity: yup
-    .number()
-    .transform(emptyToNull)
-    .integer()
-    .nullable()
-    .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage))
-    .when('sendToPharmacy', {
-      is: true,
-      then: schema => schema.required(requiredInlineMessage),
-    }),
+  // Only mandatory when the prescription is being sent to pharmacy; shared with the discharge
+  // form's medication tables so the two read the same.
+  quantity: dispensingQuantitySchema(requiredInlineMessage),
   patientWeight: yup.number().positive(),
 });
 
@@ -436,7 +427,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
   return (
     <StyledAccordion
-      defaultExpanded={!isOneTimeFrequency(values.frequency)}
+      defaultExpanded={false}
       data-testid="medication-accordion-medicationAdministration-5m2w"
     >
       <StyledAccordionSummary>

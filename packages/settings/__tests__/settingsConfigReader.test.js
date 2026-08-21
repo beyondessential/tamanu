@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 // Mock config as a plain nested object (like node-config exposes values, and like the
@@ -5,7 +6,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 // get/has rather than node-config's get()/has() methods. The factory returns its own
 // object (no outer reference, to avoid jest's hoisting TDZ); tests mutate the imported
 // `config` instance directly.
-jest.mock('config', () => ({ __esModule: true, default: {} }));
+vi.mock('config', () => ({ default: {} }));
 
 import config from 'config';
 import { SettingsConfigReader } from '../src/reader/readers/SettingsConfigReader';

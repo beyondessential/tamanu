@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 export const getPatientAuthToken = async (app, models, email) => {

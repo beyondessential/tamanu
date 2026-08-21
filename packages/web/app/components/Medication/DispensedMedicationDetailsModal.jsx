@@ -64,6 +64,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   const {
     prescription,
+    medication,
     quantity,
     instructions,
     remainingRepeats,
@@ -91,9 +92,9 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       ),
       value: (
         <TranslatedReferenceData
-          fallback={prescription?.medication?.name}
-          value={prescription?.medication?.id}
-          category={prescription?.medication?.type}
+          fallback={medication?.name}
+          value={medication?.id}
+          category={medication?.type}
         />
       ),
     },

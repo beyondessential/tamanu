@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -73,6 +74,7 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 
 export const MedicationDispensesTable = () => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { ability, facilityId } = useAuth();
   const { getReferenceDataTranslation, getEnumTranslation } = useTranslation();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
@@ -140,6 +142,9 @@ export const MedicationDispensesTable = () => {
     await api.delete(`medication/medication-dispenses/${selectedDispense.id}`);
     setIsCancelModalOpen(false);
     setSelectedDispense(null);
+    // Cancelling puts the request back in the patient's dispensable list, which the dispense
+    // modal reads from its own cache.
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
     // Trigger table refresh
     handleTableRefresh();
   };
@@ -160,6 +165,7 @@ export const MedicationDispensesTable = () => {
   };
 
   const handleEditConfirm = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
     // Trigger table refresh
     handleTableRefresh();
   };
@@ -317,6 +323,9 @@ export const MedicationDispensesTable = () => {
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
+      // The medication actually dispensed, which differs from the prescription's when
+      // pharmacy substituted it during dispensing (mirrors the table's Medication column).
+      medication: getDispensedMedication(dispenseData),
       // Full prescription so the modal can derive the original Instructions text.
       prescription: dispenseData.pharmacyOrderPrescription?.prescription,
       medicationPresetLabel: dispenseData.medicationPresetLabel,

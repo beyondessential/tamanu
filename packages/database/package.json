@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.63.0",
+  "version": "2.64.0",
   "private": true,
   "description": "BES - Database",
   "main": "./src/index",
@@ -25,7 +25,7 @@
   "scripts": {
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
-    "test": "vitest run --no-file-parallelism",
+    "test": "vitest run",
     "test:watch": "vitest watch"
   },
   "devDependencies": {
