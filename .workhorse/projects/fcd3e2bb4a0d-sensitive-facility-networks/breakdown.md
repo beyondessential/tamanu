@@ -2,7 +2,7 @@
 
 Four sequential backend cards, one per original Linear ticket (TAM-6886 to TAM-6889). Cards 1 and 2 are inert groundwork, card 3 flips the behaviour, and card 4 makes joining a network retroactive. Card 3 depends on card 1's schema, card 4 on card 3's filter. All four are Urgent, sized 5, 3, 5 and 5 points for one developer.
 
-## Sensitive network schema + migrate existing sensitive facilities
+## Sensitive network schema + migrate existing sensitive facilities · U6
 
 Establish the data model for sensitive networks, replacing the per-facility `is_sensitive` flag with network membership. Nothing changes behaviourally until card 3 lands.
 
