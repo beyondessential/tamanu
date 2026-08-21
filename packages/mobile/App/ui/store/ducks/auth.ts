@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUser } from '~/types';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { IUser } from '~/types';
 
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {

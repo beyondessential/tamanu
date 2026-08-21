@@ -3,7 +3,7 @@ import { camelCase } from 'es-toolkit/compat';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 import { checkJSONCriteria, parseSurveyTimeToHHmmss } from '@tamanu/utils';
-import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { DataElementType, type ISurveyScreenComponent } from '~/types/ISurvey';
 import { DateFormats } from './constants';
 import { formatDateForDisplay, parseDate } from './date';
 import { getPatientNameAsString } from './patient';

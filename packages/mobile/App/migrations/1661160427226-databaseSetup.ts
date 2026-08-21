@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';
 
 const ifNotExist = true;

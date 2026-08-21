@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 export class removeSettingsValueNotNullConstraint1724900789000 implements MigrationInterface {

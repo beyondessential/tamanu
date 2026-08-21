@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';

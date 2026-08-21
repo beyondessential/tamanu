@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { User } from './User';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { IVitalLog } from '~/types';
+import type { IVitalLog } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';

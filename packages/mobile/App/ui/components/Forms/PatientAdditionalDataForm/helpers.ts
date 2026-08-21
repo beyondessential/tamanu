@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models/ReferenceData';
-import { MODELS_MAP } from '~/models/modelsMap';
+import type { ReferenceData } from '~/models/ReferenceData';
+import type { MODELS_MAP } from '~/models/modelsMap';
 import {
   bloodOptions,
   educationalAttainmentOptions,
@@ -11,9 +11,9 @@ import {
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
-import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
-import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import type { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'es-toolkit/compat';
 
 // All PatientAdditionalData plain fields sorted alphabetically

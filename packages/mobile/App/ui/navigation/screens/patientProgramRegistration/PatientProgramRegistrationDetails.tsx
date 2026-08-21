@@ -6,7 +6,7 @@ import {
   TranslatedReferenceData,
   getReferenceDataStringId,
 } from '~/ui/components/Translations/TranslatedReferenceData';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
 import { useQuery } from '@tanstack/react-query';
@@ -133,13 +133,11 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
       </View>
       <View style={styles.valueContainer}>
         {initConditions.length === 0 && <Text style={styles.value}>—</Text>}
-        {groupedConditions.open &&
-          groupedConditions.open.map((condition, i) => (
+        {groupedConditions.open?.map((condition, i) => (
             <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
           ))}
         {needsDivider && <HorizontalLine marginBottom={10} />}
-        {groupedConditions.closed &&
-          groupedConditions.closed.map((condition, i) => (
+        {groupedConditions.closed?.map((condition, i) => (
             <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
           ))}
       </View>

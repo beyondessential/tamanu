@@ -1,8 +1,8 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { type ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
+import { type MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
 // italicised, smaller and light grey text
 const ErrorDetail = styled(StyledText)`

@@ -1,4 +1,4 @@
-import React, { ReactElement, FC, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { type ReactElement, type FC, useState, useEffect, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
@@ -17,7 +17,7 @@ import { CrossIcon } from '~/ui/components/Icons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
-import { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
+import type { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface FieldValue {

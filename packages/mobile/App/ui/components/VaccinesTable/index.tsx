@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
+import { type NativeScrollEvent, type NativeSyntheticEvent, ScrollView } from 'react-native';
 import { uniqBy } from 'es-toolkit/compat';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -12,8 +12,8 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { CellContent, VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
-import { IScheduledVaccine } from '~/types';
+import { CellContent, VaccineTableCell, type VaccineTableCellData } from './VaccinesTableCell';
+import type { IScheduledVaccine } from '~/types';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';

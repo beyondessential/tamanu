@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import {
   createNavigatorFactory,
-  DefaultNavigatorOptions,
-  TabNavigationState,
+  type DefaultNavigatorOptions,
+  type TabNavigationState,
   TabRouter,
-  TabRouterOptions,
+  type TabRouterOptions,
   useNavigationBuilder,
 } from '@react-navigation/native';
 import { MaterialTopTabView } from '@react-navigation/material-top-tabs';

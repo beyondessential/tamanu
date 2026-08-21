@@ -1,11 +1,11 @@
 import { debounce } from 'es-toolkit/compat';
-import React, { ReactElement, ReactNode, useCallback, useEffect, useRef } from 'react';
+import React, { type ReactElement, type ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   AppState,
-  AppStateStatus,
-  EmitterSubscription,
+  type AppStateStatus,
+  type EmitterSubscription,
   Keyboard,
-  NativeEventSubscription,
+  type NativeEventSubscription,
   PanResponder,
 } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
@@ -77,7 +77,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
     return () => {
       clearInterval(intervalId);
-      subscriptions.forEach(subscription => subscription?.remove());
+      for (const subscription of subscriptions) subscription?.remove();
       debouncedResetIdle.cancel();
     };
   }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);

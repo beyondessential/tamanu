@@ -1,5 +1,5 @@
 import { differenceInYears, parseISO } from 'date-fns';
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -196,15 +196,14 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
               <TranslatedText stringId="report.table.column.referredTo" fallback="Referred to" />
             </DataCell>
           </HeaderRow>
-          {referralsData &&
-            referralsData.map(patient => (
-              <Row key={patient.id}>
-                <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
-                <DataCell>{patient.sex}</DataCell>
-                <DataCell>{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}</DataCell>
-                <DataCell>{patient.referredTo}</DataCell>
-              </Row>
-            ))}
+          {referralsData?.map(patient => (
+            <Row key={patient.id}>
+              <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
+              <DataCell>{patient.sex}</DataCell>
+              <DataCell>{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}</DataCell>
+              <DataCell>{patient.referredTo}</DataCell>
+            </Row>
+          ))}
         </Table>
       </StyledView>
     </StyledView>

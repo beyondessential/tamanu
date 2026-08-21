@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
@@ -8,7 +8,7 @@ import { subject } from '@casl/ability';
 import { CenterView, FullView, RowView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
@@ -22,11 +22,11 @@ import {
 } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import { useBackend } from '~/ui/hooks';
-import { GenericFormValues, IPatientAdditionalData, SurveyTypes } from '~/types';
+import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { joinNames } from '~/ui/helpers/user';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';

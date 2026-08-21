@@ -1,4 +1,4 @@
-import { QueryRunner, Table, TableColumn } from 'typeorm';
+import { type QueryRunner, type Table, TableColumn } from 'typeorm';
 
 // typeORM uses a PRAGMA table_xinfo when getting a tables column definitions
 // This doesn't work on android, so typeORM thinks there's no columns defined

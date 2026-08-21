@@ -1,11 +1,11 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
 import { subject } from '@casl/ability';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import type { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '../../../helpers/routes';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../components/LoadingScreen';
@@ -18,8 +18,8 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 
 export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
@@ -108,7 +108,7 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
             </StyledText>
           );
         }
-        return <></>;
+        return null;
       }}
     />
   );

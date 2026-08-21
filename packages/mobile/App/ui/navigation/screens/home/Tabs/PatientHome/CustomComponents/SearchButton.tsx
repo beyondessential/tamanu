@@ -1,9 +1,9 @@
-import React, { FC, ReactElement } from 'react';
+import React, { type FC, type ReactElement } from 'react';
 import { Button } from '/components/Button';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { SearchIcon } from '/components/Icons';
 import { StyledText } from '/styled/common';
-import { ButtonProps } from './fixture';
+import type { ButtonProps } from './fixture';
 
 export const SearchButton: FC<ButtonProps> = ({ onPress }: ButtonProps): ReactElement => (
   <Button

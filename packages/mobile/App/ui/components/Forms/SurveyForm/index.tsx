@@ -1,8 +1,8 @@
 import React, {
-  Dispatch,
-  MutableRefObject,
-  ReactElement,
-  SetStateAction,
+  type Dispatch,
+  type MutableRefObject,
+  type ReactElement,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -12,7 +12,7 @@ import React, {
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
+import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
@@ -23,7 +23,7 @@ import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 

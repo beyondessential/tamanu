@@ -1,6 +1,6 @@
 import { ManyToOne, Column, Entity, RelationId, JoinColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IReferenceDataRelation, ReferenceDataRelationType } from '~/types';
+import type { IReferenceDataRelation, ReferenceDataRelationType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceData } from './ReferenceData';
 

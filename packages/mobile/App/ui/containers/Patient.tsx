@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { actions, PatientStateProps } from '/store/ducks/patient';
-import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
-import { IPatient } from '~/types/IPatient';
+import { bindActionCreators, type Dispatch } from 'redux';
+import { actions, type PatientStateProps } from '/store/ducks/patient';
+import type { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
+import type { IPatient } from '~/types/IPatient';
 
 export const withPatient = (WrappedComponent: FC<{ selectedPatient: IPatient }>) => {
   const mapStateToProps = (state: ReduxStoreProps): PatientStateProps => ({

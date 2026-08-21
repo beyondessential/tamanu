@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
@@ -8,7 +8,7 @@ import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as Icons from '../Icons';
 import { InputContainer } from '../TextField/styles';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
@@ -118,7 +118,7 @@ export const DateField = React.memo(
     }, [mode]);
 
     const onAndroidDateChange = useCallback(
-      (event, selectedDate) => {
+      (_event, selectedDate) => {
         if (selectedDate) {
           if (mode === 'datetime') {
             if (currentPickerMode === 'date') {

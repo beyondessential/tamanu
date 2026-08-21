@@ -1,5 +1,5 @@
-import React, { FunctionComponent, ReactElement } from 'react';
-import { SvgProps } from 'react-native-svg';
+import React, { type FunctionComponent, type ReactElement } from 'react';
+import type { SvgProps } from 'react-native-svg';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
@@ -29,7 +29,7 @@ const HeaderRightIconContainer = ({ isActive }: HeaderRightIconContainerProps): 
   </StyledView>
 );
 
-export const Header = (section: any, index: number, isActive: boolean): ReactElement => (
+export const Header = (section: any, _index: number, isActive: boolean): ReactElement => (
   <StyledView>
     <RowView
       width="100%"

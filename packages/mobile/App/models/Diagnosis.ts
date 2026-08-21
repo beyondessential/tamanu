@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { Certainty, IDiagnosis } from '~/types';
+import type { Certainty, IDiagnosis } from '~/types';
 import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
@@ -36,7 +36,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   clinicianId: string;
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
-    return this.getRepository()
+    return Diagnosis.getRepository()
       .createQueryBuilder('diagnosis')
       .leftJoin('diagnosis.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })

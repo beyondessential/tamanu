@@ -12,7 +12,7 @@ import {
   resizeImage,
 } from '/helpers/image';
 import { deleteFileInDocuments } from '/helpers/file';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 import { theme } from '~/ui/styled/theme';
 

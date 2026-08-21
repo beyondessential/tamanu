@@ -5,7 +5,7 @@ import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { VaccineDataProps } from '.';
+import type { VaccineDataProps } from '.';
 
 export interface CardHeaderProps {
   vaccineData: VaccineDataProps;

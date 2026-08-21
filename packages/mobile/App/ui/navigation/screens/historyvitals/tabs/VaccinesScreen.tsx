@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import { groupBy } from 'es-toolkit/compat';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';

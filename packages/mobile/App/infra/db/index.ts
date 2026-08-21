@@ -1,4 +1,9 @@
-import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import {
+  type Connection,
+  type ConnectionOptions,
+  createConnection,
+  getConnectionManager,
+} from 'typeorm';
 import { typeORMDriver } from 'react-native-quick-sqlite';
 import { DevSettings } from 'react-native';
 
@@ -57,7 +62,7 @@ class DatabaseHelper {
   syncError = null;
 
   constructor() {
-    MODELS_ARRAY.forEach(m => m.injectAllModels(this.models));
+    for (const m of MODELS_ARRAY) m.injectAllModels(this.models);
   }
 
   async forceSync(): Promise<any> {

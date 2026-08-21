@@ -1,10 +1,10 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ArrowForwardIcon } from '../Icons';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   Icon,

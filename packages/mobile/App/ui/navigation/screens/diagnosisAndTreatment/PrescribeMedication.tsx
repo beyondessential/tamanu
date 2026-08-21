@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useCallback, useMemo } from 'react';
+import React, { Fragment, type ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -42,7 +42,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
-import { Prescription } from '~/models/Prescription';
+import type { Prescription } from '~/models/Prescription';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Routes } from '~/ui/helpers/routes';
 

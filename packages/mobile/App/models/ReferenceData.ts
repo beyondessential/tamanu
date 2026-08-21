@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
+import { type IReferenceData, type ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
@@ -30,17 +30,6 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @OneToOne(() => ReferenceDrug, referenceDrug => referenceDrug.referenceData) // Inverse side
   referenceDrug?: ReferenceDrug;
 
-  static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
-    const repo = this.getRepository();
-
-    return repo.findOne({
-      where: {
-        type: referenceDataType,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    });
-  }
-
   // ----------------------------------
   // Reference data hierarchy utilities
   // ----------------------------------
@@ -67,7 +56,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     },
     relationType = ReferenceDataRelationType.AddressHierarchy,
   ) {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     let recordWithParents = await repo.findOne({
       where: qb => {
@@ -110,7 +99,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     searchTerm: string,
     limit = 10,
   ): Promise<ReferenceData[]> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     return repo.find({
       where: {
@@ -126,7 +115,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   static async getSelectOptionsForType(
     referenceDataType: ReferenceDataType,
   ): Promise<{ label: string; value: string }[]> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     const results = await repo.find({
       where: {

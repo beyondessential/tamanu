@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useRef } from 'react';
+import React, { type ReactElement, useCallback, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
@@ -15,9 +15,9 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import type { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;

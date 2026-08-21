@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 
 export class addDosingAndDispensingUnitColumns1779900000001 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {

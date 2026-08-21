@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet } from 'react-native';
 
@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export function KeyboardAwareView({ children }: PropsWithChildren<{}>): JSX.Element {
+export function KeyboardAwareView({ children }: Readonly<{ children?: ReactNode | undefined }>) {
   return (
     <KeyboardAwareScrollView scrollEnabled={false} contentContainerStyle={styles.full}>
       {children}

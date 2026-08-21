@@ -4,7 +4,7 @@ import { theme } from '~/ui/styled/theme';
 import { Popup } from 'popup-ui';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
-import { StackNavigationProp } from '@react-navigation/stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 interface ErrorComponentProps {
   error: string;

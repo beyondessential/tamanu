@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
 import { AVPUType } from '~/types';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
+import type { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 
 const chance = new Chance();
 

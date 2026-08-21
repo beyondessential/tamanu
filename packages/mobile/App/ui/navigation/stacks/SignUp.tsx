@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // helpers
 import { Routes } from '/helpers/routes';
 // Screens
 import { IntroScreen } from '../screens/signup/Intro';
 import { SignIn } from '../screens/signup/SignIn';
-import { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
+import type { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
 
 import { ResetPassword } from '../screens/signup/ResetPassword';
 import { ChangePassword } from '../screens/signup/ChangePassword';

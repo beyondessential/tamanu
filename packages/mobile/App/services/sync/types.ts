@@ -1,6 +1,6 @@
-import { IUser } from '../../types';
-import { callWithBackoffOptions } from './utils/callWithBackoff';
-import { SYNC_SESSION_DIRECTION } from './constants';
+import type { IUser } from '../../types';
+import type { callWithBackoffOptions } from './utils/callWithBackoff';
+import type { SYNC_SESSION_DIRECTION } from './constants';
 
 export type DownloadRecordsResponse = {
   count: number;

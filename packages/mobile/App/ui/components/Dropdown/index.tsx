@@ -1,16 +1,16 @@
-import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
 import { StyledText, StyledView } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
-import { MultiSelectProps } from './MultipleSelect/types';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { MultiSelectProps } from './MultipleSelect/types';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
-import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
+import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 

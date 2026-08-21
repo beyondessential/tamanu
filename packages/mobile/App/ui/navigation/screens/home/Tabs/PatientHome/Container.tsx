@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback, useEffect, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useMemo } from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
 import { Popup } from 'popup-ui';
-import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
+import { type IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
 import * as Icons from '/components/Icons';
-import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
+import type { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
 import { Screen } from './Screen';
 // Helpers
 import { Routes } from '/helpers/routes';

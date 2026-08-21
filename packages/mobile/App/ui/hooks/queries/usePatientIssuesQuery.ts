@@ -1,7 +1,7 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { Database } from '~/infra/db';
-import { PatientIssue } from '~/models/PatientIssue';
+import type { PatientIssue } from '~/models/PatientIssue';
 import { patientKeys } from './queryKeys';
 
 export default function usePatientIssuesQuery(
