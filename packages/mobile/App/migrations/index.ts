@@ -98,6 +98,8 @@ import { reshapeAttachmentsForBlobStore1785850000000 } from './1785850000000-res
 import { addBlobLastVerifiedAt1785910000000 } from './1785910000000-addBlobLastVerifiedAt';
 import { addBlobQuarantinesTable1785930000000 } from './1785930000000-addBlobQuarantinesTable';
 import { addHotPathQueryIndexes1786664141000 } from './1786664141000-addHotPathQueryIndexes';
+import { removeZeroBenefitIndexes1787214563000 } from './1787214563000-removeZeroBenefitIndexes';
+import { dropLegacyNoteTables1787220453000 } from './1787220453000-dropLegacyNoteTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -199,4 +201,6 @@ export const migrationList = [
   addBlobLastVerifiedAt1785910000000,
   addBlobQuarantinesTable1785930000000,
   addHotPathQueryIndexes1786664141000,
+  removeZeroBenefitIndexes1787214563000,
+  dropLegacyNoteTables1787220453000,
 ];

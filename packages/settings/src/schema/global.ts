@@ -2013,8 +2013,8 @@ export const globalSettings = {
       editor: SETTING_EDITORS.OBJECT_LIST,
     },
     upcomingVaccinations: {
-      name: 'Upcoming vaccinations',
-      description: 'Settings related to upcoming vaccinations',
+      name: 'Vaccinations',
+      description: 'Settings related to vaccinations',
       exposedToWeb: true,
       properties: {
         ageLimit: {
@@ -2028,6 +2028,12 @@ export const globalSettings = {
           description: '_',
           type: thresholdsSchema,
           defaultValue: thresholdsDefault,
+        },
+        displayBirthCertificateNumber: {
+          name: 'Display birth certificate number',
+          description: 'Display the birth certificate number on the vaccination certificate',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

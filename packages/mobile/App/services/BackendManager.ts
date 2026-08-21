@@ -1,3 +1,4 @@
+import { AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
 import RNFS from 'react-native-fs';
 
 import { Database } from '../infra/db';
@@ -51,6 +52,10 @@ export class BackendManager {
   blobPusher: BlobOutboxPusher;
 
   interval: NodeJS.Timeout;
+
+  appStateSubscription: NativeEventSubscription = null;
+
+  prevAppState: AppStateStatus = AppState.currentState;
 
   constructor() {
     const { models } = Database;
@@ -106,6 +111,25 @@ export class BackendManager {
     }
     await this.auth.initialise();
     await this.startSyncService();
+    // Guard against double registration: `initialise()` may be called again (e.g. on remount)
+    this.appStateSubscription ??= AppState.addEventListener('change', nextAppState =>
+      this.onAppStateChange(nextAppState),
+    );
+  }
+
+  /**
+   * - Run approximate ANALYZE when app gets backgrounded to mitigate user-facing latency.
+   * - No queries should run so ANALYZE’s write lock should cause no visible latency. (Unless app is
+   *   frozen and resumed at next launch, at which point user may see a little delay.)
+   * - Fire-and-forget. ANALYZE is transactional; recovery is automatic if OS kills app.
+   */
+  onAppStateChange(next: AppStateStatus): void {
+    const wasActive = this.prevAppState === 'active';
+    this.prevAppState = next;
+    if (!wasActive || this.syncManager.isSyncing) return;
+    if (next === 'background' || next === 'inactive') {
+      void Database.requestQueryPlannerStatsRefresh();
+    }
   }
 
   async runBlobMaintenance(): Promise<void> {

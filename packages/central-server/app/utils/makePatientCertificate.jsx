@@ -134,6 +134,9 @@ export const makeVaccineCertificate = async ({
 
   const { title, subTitle } = await settings.get('templates.letterhead');
   const { healthFacility } = await settings.get('templates.vaccineCertificate');
+  const displayBirthCertificateNumber = await settings.get(
+    'upcomingVaccinations.displayBirthCertificateNumber',
+  );
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -160,6 +163,7 @@ export const makeVaccineCertificate = async ({
       healthFacility={healthFacility}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone()}
+      displayBirthCertificateNumber={displayBirthCertificateNumber}
     />,
     fileName,
   );
