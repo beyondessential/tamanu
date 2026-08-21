@@ -44,19 +44,20 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
 
     queryFn: async () => {
       const { models } = Database;
-      const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
-      const surveys = await models.Survey.find({
-        where: {
-          surveyType: SurveyTypes.Programs,
-        },
+      const surveyResponses = await models.SurveyResponse.getForPatient({
+        patientId: selectedPatient.id,
       });
 
-      const surveyIds = surveys.map(survey => survey.id);
+      const surveys = await models.Survey.find({
+        select: ['id'],
+        where: { surveyType: SurveyTypes.Programs },
+      });
+      const surveyIds = new Set(surveys.map(survey => survey.id));
 
       return surveyResponses.filter(
         response =>
           ability.can('read', subject('Survey', { id: response.surveyId })) &&
-          surveyIds.includes(response.surveyId),
+          surveyIds.has(response.surveyId),
       );
     },
   });

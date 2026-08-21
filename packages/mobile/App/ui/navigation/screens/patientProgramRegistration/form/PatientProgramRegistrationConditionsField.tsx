@@ -48,17 +48,19 @@ const getConditionCategoryOptions = (
 ) => {
   if (!conditionCategories) return [];
 
-  return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
-    category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-  )
-  .map((category: IProgramRegistryConditionCategory) => ({
-    value: category.id,
-    label: getTranslation(
-      getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
-      category.name,
-    ),
-  }));
-}
+  return conditionCategories
+    .filter(
+      (category: IProgramRegistryConditionCategory) =>
+        category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    )
+    .map((category: IProgramRegistryConditionCategory) => ({
+      value: category.id,
+      label: getTranslation(
+        getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
+        category.name,
+      ),
+    }));
+};
 
 const PatientProgramRegistrationConditionsFieldItem = ({
   value,
@@ -84,7 +86,10 @@ const PatientProgramRegistrationConditionsFieldItem = ({
 
     const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
     const conditionLabel = getTranslation(conditionStringId, condition.label);
-    const categoryStringId = getReferenceDataStringId(category.value, 'programRegistryConditionCategory');
+    const categoryStringId = getReferenceDataStringId(
+      category.value,
+      'programRegistryConditionCategory',
+    );
     const categoryLabel = getTranslation(categoryStringId, category.label);
 
     return `${conditionLabel} (${categoryLabel})`;
@@ -97,7 +102,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   }, [setLabel, buildLabel]);
 
   const openCategoryScreen = useCallback(
-    (newCondition) => {
+    newCondition => {
       navigation.navigate(Routes.Forms.SelectModal, {
         callback: (newValue: FieldValue) => {
           // Submit values
@@ -105,7 +110,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
           setCondition(newCondition);
           onChange({ condition: newCondition, category: newValue });
         },
-        onClickBack: (newNavigation) => {
+        onClickBack: newNavigation => {
           Alert.alert(
             getTranslation(
               'programRegistry.category.categoryIsRequiredWarning.title',
@@ -142,7 +147,8 @@ const PatientProgramRegistrationConditionsFieldItem = ({
         modalTitle: getTranslation('programRegistry.category.addCategoryLabel', 'Add category'),
       });
     },
-    [setCategory,
+    [
+      setCategory,
       onChange,
       isNewlyCreated,
       onDelete,
@@ -250,38 +256,31 @@ export const PatientProgramRegistrationConditionsField = ({
   });
 
   // Filter out recorded in error category and map to options
-  const conditionCategoryOptions = getConditionCategoryOptions(
-    conditionCategories,
-    getTranslation,
-  );
+  const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories, getTranslation);
 
-  const conditionSuggester = useMemo(
-    () =>
-      new Suggester({
-        model: models.ProgramRegistryCondition,
-        options: {
-          where: {
-            programRegistry: programRegistryId,
-          },
+  const conditionSuggester = useMemo(() => {
+    const previouslySelected = new Set(conditions.map(value => value?.condition?.value));
+    return new Suggester({
+      model: models.ProgramRegistryCondition,
+      options: {
+        where: {
+          programRegistry: programRegistryId,
         },
-        filter: ({ entity_id }) => {
-          // hide previously selected conditions
-          return !conditions.map((value) => value?.condition?.value).includes(entity_id);
-        },
-      }),
-    [models.ProgramRegistryCondition, programRegistryId, conditions],
-  );
+      },
+      filter: ({ entity_id }) => !previouslySelected.has(entity_id),
+    });
+  }, [models.ProgramRegistryCondition, programRegistryId, conditions]);
 
   const addItem = (newValue: ConditionAndCategory) => {
     onChange([...conditions, newValue]);
     setConditions([...conditions, newValue]);
   };
-  const editItem = (index) => (newValue: ConditionAndCategory) => {
+  const editItem = index => (newValue: ConditionAndCategory) => {
     const newValues = conditions.map((value, i) => (i === index ? newValue : value));
     onChange(newValues);
     setConditions(newValues);
   };
-  const deleteItem = (index) => () => {
+  const deleteItem = index => () => {
     const newValues = conditions.slice(0, index).concat(conditions.slice(index + 1));
     onChange(newValues);
     setConditions(newValues);

@@ -63,7 +63,7 @@ export const VaccinesTable = ({
   const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];
     const cells: VaccineTableCells = {};
-    const filteredScheduledVaccines = [];
+    const filteredScheduledVaccines: IScheduledVaccine[] = [];
 
     for (const scheduledVaccine of scheduledVaccines) {
       const administeredVaccine = patientAdministeredVaccines.find(v => {
@@ -86,18 +86,16 @@ export const VaccinesTable = ({
           thresholds,
         );
 
-        cells[scheduledVaccine.doseLabel] = [
-          ...(cells[scheduledVaccine.doseLabel] || []),
-          {
-            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-            vaccineStatus,
-            administeredVaccine,
-            patientAdministeredVaccines,
-            patient: selectedPatient,
-            dueStatus,
-            label: scheduledVaccine.label,
-          },
-        ];
+        cells[scheduledVaccine.doseLabel] ??= [];
+        cells[scheduledVaccine.doseLabel].push({
+          scheduledVaccine,
+          vaccineStatus,
+          administeredVaccine,
+          patientAdministeredVaccines,
+          patient: selectedPatient,
+          dueStatus,
+          label: scheduledVaccine.label,
+        });
         filteredScheduledVaccines.push(scheduledVaccine);
       }
     }

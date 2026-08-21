@@ -48,6 +48,7 @@ export const PatientAdditionalDataForm = ({
   const { mutateAsync: saveAdditionalData } = useMutation({
     mutationFn: async (values: any) => {
       const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+        select: ['id'],
         relations: ['category'],
         order: {
           // Nested ordering only works with typeorm version > 0.3.0
@@ -55,6 +56,9 @@ export const PatientAdditionalDataForm = ({
           name: 'DESC',
         },
       });
+      const customPatientFieldDefinitionsIds = new Set(
+        customPatientFieldDefinitions.map(definition => definition.id),
+      );
 
       await Patient.updateValues(patient.id, values);
 
@@ -62,7 +66,7 @@ export const PatientAdditionalDataForm = ({
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter(key =>
-        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+        customPatientFieldDefinitionsIds.has(key),
       );
       await Promise.all(
         customValuesToUpdate.map(definitionId =>

@@ -16,14 +16,14 @@ export interface PatientStateProps {
 const MAX_STORED_RECENT_PATIENTS = 20;
 
 const addPatientToRecentlyViewed = async (patientId: string): Promise<void> => {
-  const oldRecentlyViewedPatients: string[] = JSON.parse(
-    await readConfig('recentlyViewedPatients', '[]'),
-  );
+  const prev: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
 
-  const updatedArray = [
-    patientId,
-    ...oldRecentlyViewedPatients.filter(id => id !== patientId),
-  ].slice(0, MAX_STORED_RECENT_PATIENTS);
+  if (prev[0] === patientId) return;
+
+  const updatedArray = [patientId, ...prev.filter(id => id !== patientId)].slice(
+    0,
+    MAX_STORED_RECENT_PATIENTS,
+  );
 
   await writeConfig('recentlyViewedPatients', JSON.stringify(updatedArray));
 

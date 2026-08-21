@@ -13,7 +13,7 @@ export type CustomPatientFieldValues = {
 const loadPatientAdditionalData = async (patientId: string) => {
   const { models } = Database;
   const [record, fieldDefinitions, fieldValues] = (await Promise.all([
-    models.PatientAdditionalData.find({
+    models.PatientAdditionalData.findOne({
       where: {
         patient: { id: patientId },
       },
@@ -29,7 +29,7 @@ const loadPatientAdditionalData = async (patientId: string) => {
     models.PatientFieldValue.find({
       where: { patient: { id: patientId } },
     }),
-  ])) as [PatientAdditionalData[], PatientFieldDefinition[], PatientFieldValue[]];
+  ])) as [PatientAdditionalData | null, PatientFieldDefinition[], PatientFieldValue[]];
 
   return {
     // Since nested ordering does not work on typeorm version < 0.3.0
@@ -42,7 +42,7 @@ const loadPatientAdditionalData = async (patientId: string) => {
     ),
     customPatientFieldDefinitions: fieldDefinitions,
     customPatientFieldValues: groupBy(fieldValues, 'definitionId') as CustomPatientFieldValues,
-    patientAdditionalData: record?.[0] ?? null,
+    patientAdditionalData: record ?? null,
   };
 };
 

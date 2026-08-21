@@ -16,7 +16,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
-import usePatientFacilityQuery from '~/ui/hooks/queries/usePatientFacilityQuery';
+import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { Database } from '~/infra/db';
 import { withPatient } from '~/ui/containers/Patient';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -65,6 +65,11 @@ const styles = StyleSheet.create({
   },
 });
 
+const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
   const { ability } = useAuth();
@@ -79,8 +84,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
   }, [navigation]);
 
-  const { data: patientFacility } = usePatientFacilityQuery(selectedPatient.id);
-  const isMarkedForSync = Boolean(patientFacility);
+  const { data: isMarkedForSync } = usePatientIsMarkedForSyncQuery(selectedPatient.id);
 
   const { data: patientAllergies } = useQuery({
     queryKey: patientKeys.allergies(selectedPatient?.id),
@@ -190,12 +194,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       }),
     [models.User],
   );
-
-  // Convert constants to dropdown options
-  const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
 
   const durationUnitOptions = Object.keys(MEDICATION_DURATION_UNITS_LABELS).map(value => ({
     value,

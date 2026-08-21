@@ -46,6 +46,12 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
+const signUpRoutes = new Set([
+  Routes.SignUpStack.Index,
+  Routes.SignUpStack.Intro,
+  Routes.SignUpStack.SignIn,
+]);
+
 const Provider = ({
   setToken,
   setRefreshToken,
@@ -141,12 +147,7 @@ const Provider = ({
   const signOutClient = (signedOutFromInactivity: boolean): void => {
     setSignedInStatus(false);
     const currentRoute = navRef.current?.getCurrentRoute().name;
-    const signUpRoutes = [
-      Routes.SignUpStack.Index,
-      Routes.SignUpStack.Intro,
-      Routes.SignUpStack.SignIn,
-    ];
-    if (!signUpRoutes.includes(currentRoute)) {
+    if (!signUpRoutes.has(currentRoute)) {
       navRef.current?.reset({
         index: 0,
         routes: [
@@ -190,9 +191,8 @@ const Provider = ({
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const errHandler = (): void => {
-      const { shouldSignOut, nextPreventSignOutOnFailure } = resolveAuthErrorAction(
-        preventSignOutOnFailure,
-      );
+      const { shouldSignOut, nextPreventSignOutOnFailure } =
+        resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped
       setPreventSignOutOnFailure(nextPreventSignOutOnFailure);
       if (shouldSignOut) {
