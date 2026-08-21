@@ -18,12 +18,7 @@ export const SectionHeader = styled(StyledText)<ISectionHeader>`
     if (h3) return `${screenPercentageToDP('1.59', Orientation.Height)}px`;
     return typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
   }};
-  font-weight: ${({
-    h1,
-    h2,
-    h3,
-    fontWeight,
-  }: ISectionHeader): string | number | undefined => {
+  font-weight: ${({ h1, h2, h3, fontWeight }: ISectionHeader): string | number | undefined => {
     if (h1) return 500;
     if (h2) return 400;
     if (h3) return 400;

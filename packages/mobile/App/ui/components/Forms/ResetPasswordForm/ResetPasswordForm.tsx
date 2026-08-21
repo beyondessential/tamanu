@@ -22,9 +22,7 @@ export const ResetPasswordForm: FunctionComponent<ResetPasswordFormProps> = ({
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .required()
-          .translatedLabel(
-            <TranslatedText stringId="login.email.label" fallback="Email" />
-          ),
+          .translatedLabel(<TranslatedText stringId="login.email.label" fallback="Email" />),
         server: Yup.string(),
       })}
       onSubmit={onSubmitForm}

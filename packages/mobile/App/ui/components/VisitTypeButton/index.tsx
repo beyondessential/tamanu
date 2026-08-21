@@ -38,9 +38,7 @@ export const VisitTypeButton = ({
           borderRadius={50}
           background={selected ? theme.colors.MAIN_SUPER_DARK : 'transparent'}
           borderWidth={1}
-          borderColor={
-            selected ? theme.colors.MAIN_SUPER_DARK : theme.colors.PRIMARY_MAIN
-          }
+          borderColor={selected ? theme.colors.MAIN_SUPER_DARK : theme.colors.PRIMARY_MAIN}
           justifyContent="center"
           alignItems="center"
         >
@@ -68,9 +66,7 @@ export const VisitTypeButton = ({
         </StyledView>
         <StyledText
           marginTop={10}
-          color={
-            selected ? theme.colors.MAIN_SUPER_DARK : theme.colors.PRIMARY_MAIN
-          }
+          color={selected ? theme.colors.MAIN_SUPER_DARK : theme.colors.PRIMARY_MAIN}
         >
           {subtitle || type}
         </StyledText>

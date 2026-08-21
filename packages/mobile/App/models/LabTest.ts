@@ -32,7 +32,7 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'text', nullable: true })
   referenceRangeText?: string;
 
-  @ManyToOne(() => LabRequest, (labRequest) => labRequest.tests)
+  @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
   labRequestId: string;

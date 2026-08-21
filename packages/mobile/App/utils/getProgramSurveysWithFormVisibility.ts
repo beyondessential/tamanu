@@ -17,9 +17,7 @@ export async function getProgramSurveysWithFormVisibility(
 ): Promise<Survey[]> {
   const questionCodes = [
     ...new Set(
-      surveys.flatMap(s =>
-        getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? ''),
-      ),
+      surveys.flatMap(s => getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? '')),
     ),
   ].filter(Boolean);
 

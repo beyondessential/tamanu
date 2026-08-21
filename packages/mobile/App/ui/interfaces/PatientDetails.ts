@@ -33,8 +33,7 @@ export interface PatientGeneralInformationDataProps {
   generalInfo: IPatient;
 }
 
-export type PatientDetails =
-  PatientGeneralInformationDataProps &
+export type PatientDetails = PatientGeneralInformationDataProps &
   ReminderWarnings &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &

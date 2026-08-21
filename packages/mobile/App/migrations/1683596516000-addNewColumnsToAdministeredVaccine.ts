@@ -3,8 +3,7 @@ import { getTable } from './utils/queryRunner';
 
 const tableName = 'administered_vaccine';
 
-export class addNewColumnsToAdministeredVaccine1683596516000
-  implements MigrationInterface {
+export class addNewColumnsToAdministeredVaccine1683596516000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const administeredVaccineTable = await getTable(queryRunner, tableName);
     await queryRunner.addColumn(

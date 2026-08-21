@@ -5,10 +5,7 @@ interface SpacerProps extends StyledViewProps {
   height?: string | number;
 }
 
-export const Spacer = ({
-  height,
-  ...props
-}: SpacerProps): ReactElement => (
+export const Spacer = ({ height, ...props }: SpacerProps): ReactElement => (
   <StyledView width="100%" background="transparent" height={height} {...props} />
 );
 

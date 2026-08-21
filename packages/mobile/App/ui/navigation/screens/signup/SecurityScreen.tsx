@@ -23,8 +23,12 @@ const IssueSection = ({ securityIssues }: { securityIssues: string[] }): ReactEl
       >
         <TranslatedText stringId="general.device.security.issues.title" fallback="Issues" />
       </StyledText>
-      {securityIssues.map((issue) => (
-        <StyledText key={issue} color={theme.colors.WHITE} fontSize={screenPercentageToDP(1.94, Orientation.Height)}>
+      {securityIssues.map(issue => (
+        <StyledText
+          color={theme.colors.WHITE}
+          fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+          key={issue}
+        >
           - {issue}
         </StyledText>
       ))}
@@ -45,10 +49,7 @@ export const SecurityScreen = ({
         fontWeight="bold"
         fontSize={screenPercentageToDP('2.18', Orientation.Height)}
       >
-        <TranslatedText
-          stringId="general.device.security.title"
-          fallback="Security check"
-        />
+        <TranslatedText stringId="general.device.security.title" fallback="Security check" />
       </StyledText>
       <StyledText
         marginLeft={screenPercentageToDP('12.16', Orientation.Width)}
@@ -58,18 +59,16 @@ export const SecurityScreen = ({
         color={theme.colors.WHITE}
         fontSize={screenPercentageToDP(1.94, Orientation.Height)}
       >
-        {isLoading
-          ? <TranslatedText
-            stringId="general.device.security.loading"
-            fallback="Loading..."
-          />
-          : <TranslatedText
+        {isLoading ? (
+          <TranslatedText stringId="general.device.security.loading" fallback="Loading..." />
+        ) : (
+          <TranslatedText
             stringId="general.device.security.message"
             fallback="This device does not comply with the security requirements of the tamanu system. Please contact your administrator."
           />
-        }
+        )}
       </StyledText>
-      {securityIssues.length > 0 && (<IssueSection securityIssues={securityIssues} />)}
+      {securityIssues.length > 0 && <IssueSection securityIssues={securityIssues} />}
       {!isLoading && (
         <StyledView>
           <Button

@@ -8,9 +8,7 @@ interface NotificationCheckboxProps {
   value: boolean;
 }
 
-export const NotificationCheckbox = (
-  props: NotificationCheckboxProps,
-): ReactElement => (
+export const NotificationCheckbox = (props: NotificationCheckboxProps): ReactElement => (
   <>
     <Separator marginTop={20} />
     <StyledView marginTop={20} marginBottom={20}>

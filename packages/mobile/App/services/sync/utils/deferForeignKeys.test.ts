@@ -42,7 +42,9 @@ describe('deferForeignKeys', () => {
       await deferForeignKeys(em);
 
       const repo = em.getRepository(Task);
-      await repo.save(fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: parentId }));
+      await repo.save(
+        fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: parentId }),
+      );
       await repo.save(fakeTask(encounterId, requestedByUserId, { id: parentId }));
     });
 

@@ -20,7 +20,10 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />
   ),
   [PATIENT_DATA_FIELDS.CULTURAL_NAME]: (
-    <TranslatedText stringId="general.localisedField.culturalName.label" fallback="Cultural/traditional name" />
+    <TranslatedText
+      stringId="general.localisedField.culturalName.label"
+      fallback="Cultural/traditional name"
+    />
   ),
   [PATIENT_DATA_FIELDS.EMAIL]: (
     <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />
@@ -113,7 +116,10 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.socialMedia.label" fallback="Social media" />
   ),
   [ADDITIONAL_DATA_FIELDS.PATIENT_BILLING_TYPE_ID]: (
-    <TranslatedText stringId="general.localisedField.patientBillingTypeId.label.short" fallback="Type" />
+    <TranslatedText
+      stringId="general.localisedField.patientBillingTypeId.label.short"
+      fallback="Type"
+    />
   ),
   [ADDITIONAL_DATA_FIELDS.STREET_VILLAGE]: (
     <TranslatedText

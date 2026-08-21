@@ -8,7 +8,10 @@ import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
  * @param rows Object where each key matches a key in data to render,
  *             and each value has a name and optional accessor function.
  */
-export const HistoryTable = ({ data, rows }: {
+export const HistoryTable = ({
+  data,
+  rows,
+}: {
   data: { [key: string]: any };
   rows: HistoryTableRows;
 }): ReactElement => (
@@ -16,7 +19,7 @@ export const HistoryTable = ({ data, rows }: {
     {Object.entries(rows).map(([key, row]): ReactElement => {
       const cellValue = row.accessor
         ? row.accessor(data[key])
-        : ((data[key] === null || data[key] === undefined) || '');
+        : data[key] === null || data[key] === undefined || '';
       return (
         <DataTable.Row key={key}>
           <MultilineCell>{row.name}</MultilineCell>

@@ -25,6 +25,6 @@ export class Department extends BaseModel implements IDepartment {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.department)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.department)
   administeredVaccines: AdministeredVaccine[];
 }

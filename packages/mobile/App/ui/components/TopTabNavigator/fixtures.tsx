@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { createTopTabNavigator } from './index';
 import * as Icons from '../Icons';
 import { VaccineTabNavigator } from './VaccineTabNavigator';
-import {NavigationContainer} from "@react-navigation/native";
+import { NavigationContainer } from '@react-navigation/native';
 
 export const routes = [
   {
@@ -57,12 +57,7 @@ export const ThirdRoute = (): JSX.Element => (
 );
 
 export const Visits = (): JSX.Element => (
-  <StyledView
-    flex={1}
-    background="#ff4081"
-    justifyContent="center"
-    alignItems="center"
-  >
+  <StyledView flex={1} background="#ff4081" justifyContent="center" alignItems="center">
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Visits
     </StyledText>
@@ -70,12 +65,7 @@ export const Visits = (): JSX.Element => (
 );
 
 export const Vitals = (): JSX.Element => (
-  <StyledView
-    flex={1}
-    background="#673ab7"
-    justifyContent="center"
-    alignItems="center"
-  >
+  <StyledView flex={1} background="#673ab7" justifyContent="center" alignItems="center">
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Vitals
     </StyledText>
@@ -83,12 +73,7 @@ export const Vitals = (): JSX.Element => (
 );
 
 export const Vaccines = (): JSX.Element => (
-  <StyledView
-    flex={1}
-    background="red"
-    justifyContent="center"
-    alignItems="center"
-  >
+  <StyledView flex={1} background="red" justifyContent="center" alignItems="center">
     <StyledText fontSize={30} color={theme.colors.WHITE}>
       Vaccines
     </StyledText>
@@ -100,10 +85,10 @@ const Tabs = createTopTabNavigator();
 export const App = (): ReactElement => (
   <NavigationContainer>
     <Tabs.Navigator>
-    <Tabs.Screen name="1" component={FirstRoute} />
-    <Tabs.Screen name="2" component={SecondRoute} />
-    <Tabs.Screen name="3" component={ThirdRoute} />
-  </Tabs.Navigator>
+      <Tabs.Screen name="1" component={FirstRoute} />
+      <Tabs.Screen name="2" component={SecondRoute} />
+      <Tabs.Screen name="3" component={ThirdRoute} />
+    </Tabs.Navigator>
   </NavigationContainer>
 );
 

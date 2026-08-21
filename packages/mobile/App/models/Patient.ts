@@ -55,19 +55,19 @@ export class Patient extends BaseModel implements IPatient {
   @IdRelation()
   villageId?: string | null;
 
-  @OneToMany(() => PatientAdditionalData, (additionalData) => additionalData.patient)
+  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;
 
-  @OneToMany(() => Encounter, (encounter) => encounter.patient)
+  @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[];
 
-  @OneToMany(() => PatientIssue, (issue) => issue.patient)
+  @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[];
 
-  @OneToMany(() => PatientSecondaryId, (secondaryId) => secondaryId.patient)
+  @OneToMany(() => PatientSecondaryId, secondaryId => secondaryId.patient)
   secondaryIds: PatientSecondaryId[];
 
-  @OneToMany(() => PatientContact, (contact) => contact.patient)
+  @OneToMany(() => PatientContact, contact => contact.patient)
   contacts: PatientContact[];
 
   @OneToMany(
@@ -76,7 +76,7 @@ export class Patient extends BaseModel implements IPatient {
   )
   patientOngoingPrescriptions: PatientOngoingPrescription[];
 
-  @OneToMany(() => PatientAllergy, (allergy) => allergy.patient)
+  @OneToMany(() => PatientAllergy, allergy => allergy.patient)
   allergies: PatientAllergy[];
 
   static async markForSync(patientId: string): Promise<void> {
@@ -99,9 +99,9 @@ export class Patient extends BaseModel implements IPatient {
     return (
       patientIds
         // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-        .map((storedId) => list.find(({ id }) => id === storedId))
+        .map(storedId => list.find(({ id }) => id === storedId))
         // filter removes patients who couldn't be found (which occurs when a patient was deleted)
-        .filter((patient) => !!patient)
+        .filter(patient => !!patient)
     );
   }
 
@@ -118,7 +118,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
@@ -146,7 +146,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
@@ -168,7 +168,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')

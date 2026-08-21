@@ -1,3 +1,3 @@
 export interface TouchableProps {
-    onPress: () => void;
+  onPress: () => void;
 }

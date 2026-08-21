@@ -7,10 +7,10 @@ import { TextField } from '../TextField/TextField';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface CurrentUserFieldProps {
-  name: string,
-  label: TranslatedTextElement,
-  labelFontSize: string,
-  valueKey?: string,
+  name: string;
+  label: TranslatedTextElement;
+  labelFontSize: string;
+  valueKey?: string;
 }
 
 export const CurrentUserField = ({

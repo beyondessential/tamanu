@@ -27,9 +27,7 @@ export class addDietIdForEncounter1713722796000 implements MigrationInterface {
 
   async down(queryRunner: QueryRunner): Promise<void> {
     const usersTable = await getTable(queryRunner, TABLE_NAME);
-    const foreignKey = usersTable.foreignKeys.find(
-      fk => fk.columnNames.indexOf(COLUMN_NAME) !== 0,
-    );
+    const foreignKey = usersTable.foreignKeys.find(fk => fk.columnNames.indexOf(COLUMN_NAME) !== 0);
     await queryRunner.dropForeignKey(usersTable, foreignKey);
     await queryRunner.dropColumn(usersTable, COLUMN_NAME);
   }

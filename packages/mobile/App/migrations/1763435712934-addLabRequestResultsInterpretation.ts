@@ -22,4 +22,3 @@ export class addLabRequestResultsInterpretation1763435712934 implements Migratio
     await queryRunner.dropColumn(tableObject, columnName);
   }
 }
-

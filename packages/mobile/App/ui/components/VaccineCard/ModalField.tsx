@@ -9,11 +9,7 @@ type ModalFieldProps = {
   Icon?: FC<any>;
 };
 
-export const ModalField: FC<ModalFieldProps> = ({
-  label,
-  value,
-  Icon,
-}: ModalFieldProps) => (
+export const ModalField: FC<ModalFieldProps> = ({ label, value, Icon }: ModalFieldProps) => (
   <RowView
     height={screenPercentageToDP(6.68, Orientation.Height)}
     alignItems="center"
