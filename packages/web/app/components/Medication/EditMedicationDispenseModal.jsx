@@ -92,7 +92,7 @@ export const EditMedicationDispenseModal = memo(
     const { facilityId } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+    const { presetLabelSuggester, hasPresetLabels } = usePresetLabelsQuery({
       enabled: open,
       facilityId,
     });
@@ -170,8 +170,8 @@ export const EditMedicationDispenseModal = memo(
     };
 
     // Functional setters so a quick preset-then-type doesn't lose the typing.
-    const handlePresetLabelChange = ({ target: { value: presetId } }) => {
-      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultLabelText);
+    const handlePresetLabelChange = ({ target: { value: presetId, presetName } }) => {
+      const nextLabelText = resolvePresetLabelText(presetId, presetName, defaultLabelText);
       setItem(prev => ({
         ...prev,
         medicationPresetLabelId: presetId || null,

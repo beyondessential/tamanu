@@ -281,6 +281,61 @@ describe('Appointments', () => {
         email,
       });
 
+    // A booking that spans days has to come back on every day it covers, not just
+    // the day it starts: that is what puts it in each day's dashboard list. The
+    // bounds below are the day boundaries the dashboard sends.
+    describe('listing a booking that spans days', () => {
+      const START_TIME = '2026-08-12 10:00:00';
+      const END_TIME = '2026-08-14 11:30:00';
+      let bookingId;
+
+      beforeAll(async () => {
+        const result = await makeBooking(START_TIME, END_TIME);
+        expect(result).toHaveSucceeded();
+        bookingId = result.body.id;
+      });
+
+      afterAll(async () => {
+        await models.Appointment.destroy({ where: { id: bookingId } });
+      });
+
+      const idsListedOn = async date => {
+        const after = encodeURIComponent(`${date} 00:00:00`);
+        const before = encodeURIComponent(`${date} 23:59:59`);
+        const result = await userApp.get(
+          `/api/appointments?all=true&locationId=&after=${after}&before=${before}&patientId=${patientId}&facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+        return result.body.data.map(({ id }) => id);
+      };
+
+      it.each([
+        ['the day it starts', '2026-08-12'],
+        ['a day it neither starts nor ends on', '2026-08-13'],
+        ['the day it ends', '2026-08-14'],
+      ])('returns the booking on %s', async (_, date) => {
+        expect(await idsListedOn(date)).toContain(bookingId);
+      });
+
+      it.each([
+        ['the day before it starts', '2026-08-11'],
+        ['the day after it ends', '2026-08-15'],
+      ])('does not return the booking on %s', async (_, date) => {
+        expect(await idsListedOn(date)).not.toContain(bookingId);
+      });
+
+      it('returns it with both of its times, so the reader can tell which day each falls on', async () => {
+        const after = encodeURIComponent('2026-08-13 00:00:00');
+        const before = encodeURIComponent('2026-08-13 23:59:59');
+        const result = await userApp.get(
+          `/api/appointments?all=true&locationId=&after=${after}&before=${before}&patientId=${patientId}&facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+        const booking = result.body.data.find(({ id }) => id === bookingId);
+        expect(booking).toMatchObject({ startTime: START_TIME, endTime: END_TIME });
+      });
+    });
+
     describe('booked time conflict checking', () => {
       beforeEach(async () => {
         await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');

@@ -118,7 +118,7 @@ export default async () => {
     test: {
       clearMocks: true,
       environment: 'jsdom',
-      setupFiles: ['./__tests__/setupTestingLibrary.js'],
+      setupFiles: ['./__tests__/setup.js', './__tests__/setupTestingLibrary.js'],
     },
   });
 };

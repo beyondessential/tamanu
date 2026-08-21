@@ -211,6 +211,92 @@ describe('Generic survey export line list report', () => {
     });
   });
 
+  describe('Soft-deleted survey responses', () => {
+    it('excludes soft-deleted survey responses from the report', async () => {
+      const {
+        Facility,
+        Location,
+        Department,
+        Patient,
+        User,
+        Encounter,
+        Program,
+        Survey,
+        SurveyResponse,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponseAnswer,
+      } = models;
+
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
+      const examiner = await User.create(fake(User));
+      const program = await Program.create(fake(Program));
+      const deletionSurvey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+      });
+      const dataElement = await ProgramDataElement.create(fake(ProgramDataElement));
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        dataElementId: dataElement.id,
+        surveyId: deletionSurvey.id,
+      });
+
+      const createResponseForPatient = async () => {
+        const patient = await Patient.create(fake(Patient));
+        const encounter = await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: examiner.id,
+        });
+        const response = await SurveyResponse.create({
+          ...fake(SurveyResponse),
+          surveyId: deletionSurvey.id,
+          encounterId: encounter.id,
+          endTime: getCurrentDateTimeString(),
+        });
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: dataElement.id,
+          responseId: response.id,
+          body: 'some answer',
+        });
+        return response;
+      };
+
+      const keptResponse = await createResponseForPatient();
+      const deletedResponse = await createResponseForPatient();
+      await deletedResponse.destroy();
+
+      const permissions = [
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['read', 'Survey', deletionSurvey.id],
+      ];
+      app = await baseApp.asNewRole(permissions);
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
+        parameters: { surveyId: deletionSurvey.id },
+      });
+
+      expect(result).toHaveSucceeded();
+      const [, ...rows] = result.body;
+      expect(rows).toHaveLength(1);
+
+      const patientIdColumnIndex = result.body[0].indexOf('Patient ID');
+      const keptPatient = await keptResponse.getEncounter().then(e => e.getPatient());
+      expect(rows[0][patientIdColumnIndex]).toBe(keptPatient.displayId);
+    });
+  });
+
   describe('Signature answers', () => {
     let signatureSurvey;
 

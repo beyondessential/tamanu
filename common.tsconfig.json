@@ -8,8 +8,8 @@
     "ignoreDeprecations": "5.0",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "module": "ES2022",
-    "lib": ["es2022"],
+    "module": "es2025",
+    "lib": ["es2025"],
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -17,12 +17,7 @@
     "pretty": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022"
+    "target": "es2025"
   },
-  "exclude": [
-    "build",
-    "dist",
-    "jest.config.js",
-    "node_modules"
-  ]
+  "exclude": ["build", "dist", "jest.config.js", "node_modules"]
 }

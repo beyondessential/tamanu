@@ -29,7 +29,7 @@
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@tamanu/build-tooling": "*",
     "@types/config": "^3.3.0",
-    "@types/node": "^18.14.6",
+    "@types/node": "^26.2.0",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
     "concurrently": "^9.2.1",

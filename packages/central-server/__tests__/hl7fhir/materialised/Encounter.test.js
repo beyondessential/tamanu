@@ -253,6 +253,36 @@ describe(`Materialised FHIR - Encounter`, () => {
       });
       expect(response).toHaveSucceeded();
     });
+
+    it('a survey response encounter', async () => {
+      // arrange
+      const [, mat] = await makeEncounter({
+        encounterType: 'surveyResponse',
+      });
+
+      // act
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Encounter',
+        id: expect.any(String),
+        status: 'in-progress',
+        class: [
+          {
+            coding: [
+              {
+                code: 'FLD',
+                display: 'field',
+                system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+              },
+            ],
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
   });
 
   describe('search', () => {
@@ -418,6 +448,80 @@ describe(`Materialised FHIR - Encounter`, () => {
         expect(response.body.entry).toHaveLength(6);
         expect(response).toHaveSucceeded();
       });
+    });
+  });
+
+  // date-start and end-date are the only search parameters whose path descends into a
+  // JSONB column and takes an ordering comparison, so they are the only exercise of that
+  // branch of the where-clause builder. Note that they cannot distinguish a converse
+  // operator mapping from a complement one: both parameters declare DAYS precision while
+  // actualPeriod holds full second precision, so a search value can never be equal to a
+  // stored value and the two mappings agree everywhere. The operator mapping itself is
+  // covered by the unit tests over singleMatch in @tamanu/shared.
+  describe('search by encounter period', () => {
+    const MIDDLE_DAY = '2031-03-05';
+    const encountersByDay = {};
+
+    beforeAll(async () => {
+      const { Encounter, Discharge, FhirEncounter } = ctx.store.models;
+      await Discharge.destroy({ where: {} });
+      await FhirEncounter.destroy({ where: {} });
+      await Encounter.destroy({ where: {} });
+
+      // 08:00 and 17:00 keep each encounter on its intended day under any plausible
+      // machine timezone, since actualPeriod is materialised with a local offset.
+      for (const day of ['2031-03-01', MIDDLE_DAY, '2031-03-10']) {
+        const [, mat] = await makeEncounter(
+          { encounterType: 'admission', startDate: `${day} 08:00:00` },
+          async (encounter) => {
+            // makeDischargedEncounter would overwrite this with a random past date
+            encounter.set('endDate', `${day} 17:00:00`);
+            await encounter.save();
+          },
+        );
+        encountersByDay[day] = mat.id;
+      }
+    });
+
+    async function searchIds(parameter, query) {
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/Encounter?${parameter}=${query}`,
+      );
+      expect(response).toHaveSucceeded();
+      return response.body.entry.map((entry) => entry.resource.id).sort();
+    }
+
+    // gt and le are asserted only against a day no encounter falls on. A search value at
+    // DAYS precision is compared as a bare `yyyy-MM-dd` string against a stored value
+    // carrying a time and an offset, so on a day an encounter does fall on, gt wrongly
+    // matches it and le wrongly misses it. That is the separate range-semantics defect
+    // tracked on card Q3, not something this suite should pin in place.
+    it('finds encounters starting after a day', async () => {
+      expect(await searchIds('date-start', 'gt2031-03-07')).toEqual([
+        encountersByDay['2031-03-10'],
+      ]);
+    });
+
+    it('finds encounters starting before a day', async () => {
+      expect(await searchIds('date-start', `lt${MIDDLE_DAY}`)).toEqual([
+        encountersByDay['2031-03-01'],
+      ]);
+    });
+
+    it('includes the boundary day when starting on or after it', async () => {
+      expect(await searchIds('date-start', `ge${MIDDLE_DAY}`)).toEqual(
+        [encountersByDay[MIDDLE_DAY], encountersByDay['2031-03-10']].sort(),
+      );
+    });
+
+    it('finds encounters ending after a day', async () => {
+      expect(await searchIds('end-date', 'gt2031-03-07')).toEqual([encountersByDay['2031-03-10']]);
+    });
+
+    it('finds encounters ending before a day', async () => {
+      expect(await searchIds('end-date', `lt${MIDDLE_DAY}`)).toEqual([
+        encountersByDay['2031-03-01'],
+      ]);
     });
   });
 

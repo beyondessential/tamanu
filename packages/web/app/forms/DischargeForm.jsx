@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 
 import { FORM_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import {
@@ -20,10 +22,13 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
+import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { TableFormFields } from '../components/Table';
 import { Colors } from '../constants';
@@ -32,6 +37,11 @@ import { useEncounter } from '../contexts/Encounter';
 import { createPrescriptionHash } from '../utils/medications';
 import { foreignKey } from '../utils/validation';
 import { EncounterOverview } from './DischargeEncounterOverview';
+import {
+  buildDischargeNote,
+  buildMedicationsInitialValues,
+  toDischargeDraftPayload,
+} from './dischargeDraft';
 import {
   Divider,
   DischargeFormScreen,
@@ -137,16 +147,16 @@ const dischargingClinicianLabel = (
 const getDischargeInitialValues = ({
   encounter,
   currentUser,
+  draft,
   dischargeNotes,
   medicationInitialValues,
   getCurrentDateTime,
   storedDateTimeToEpochMilliseconds,
 }) => {
-  const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
   const getInitialEndDate = () => {
-    if (!dischargeDraft) {
+    if (!draft) {
       if (encounterStartMs != null && encounterStartMs > Date.now()) {
         const primaryNow = getCurrentDateTime();
         const time = trimToTime(primaryNow);
@@ -155,54 +165,53 @@ const getDischargeInitialValues = ({
         return getCurrentDateTime();
       }
     }
-    return encounter?.dischargeDraft?.endDate;
+    return draft.endDate;
   };
 
+  // Whether a draft exists decides these, not whether its field is set: a clinician who cleared
+  // the discharging clinician before saving gets it back cleared, the same way the medication
+  // rows keep an emptied quantity empty. Only a form with no draft falls back to the live default.
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId || currentUser?.id,
-      dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
+      dischargerId: draft ? (draft.dischargerId ?? null) : currentUser?.id,
+      dispositionId: draft?.dispositionId ?? null,
+      note: buildDischargeNote({ draft, dischargeNotes }),
     },
     pharmacyOrder: {
-      orderingClinicianId:
-        encounter?.dischargeDraft?.pharmacyOrder?.orderingClinicianId || currentUser?.id,
+      orderingClinicianId: draft ? (draft.orderingClinicianId ?? null) : currentUser?.id,
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
   };
 };
 
-/*
-Creates an object to add initialValues to Formik that matches
-the table-like form fields.
-*/
-const getMedicationsInitialValues = ({
-  encounterMedications,
-  ongoingMedications,
-  encounter,
-  isPharmacyOrderEnabled,
-}) => {
-  const medicationDraft = encounter?.dischargeDraft?.medications;
-  const medicationsInitialValues = {};
+/**
+ * Keeps the form's per-medication values in step with the medications actually listed, without
+ * touching any other field. When a medication is discontinued it drops out of the list, so its
+ * entry is removed here rather than by reinitialising the whole form — which would otherwise revert
+ * the user's edits to sibling fields such as the ordering prescriber.
+ */
+const ReconcileMedicationValues = ({ medicationInitialValues }) => {
+  const { values, setFieldValue } = useFormikContext();
+  const medicationIdsKey = Object.keys(medicationInitialValues).sort().join(',');
 
-  const addMedication = (medication, isSentToPharmacyByDefault) => {
-    const key = medication.id;
-    medicationsInitialValues[key] = {
-      // Left blank rather than zeroed when the prescription has no quantity, so the clinician sees
-      // an empty field to fill in rather than a number nobody entered.
-      quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? null,
-      repeats: medicationDraft?.[key]?.repeats ?? medication?.repeats?.toString() ?? '0',
-      sendToPharmacy: medicationDraft?.[key]?.sendToPharmacy ?? isSentToPharmacyByDefault,
-    };
-  };
+  useEffect(() => {
+    const currentValues = values.medications ?? {};
+    const reconciled = {};
+    for (const id of Object.keys(medicationInitialValues)) {
+      // Preserve the clinician's edits for medications still listed; seed defaults for new ones.
+      reconciled[id] = currentValues[id] ?? medicationInitialValues[id];
+    }
+    const currentKeys = Object.keys(currentValues);
+    const hasStaleEntry = currentKeys.some(id => !(id in reconciled));
+    if (currentKeys.length !== Object.keys(reconciled).length || hasStaleEntry) {
+      setFieldValue('medications', reconciled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medicationIdsKey]);
 
-  // Medications prescribed during the encounter are sent to pharmacy on discharge by default; the
-  // patient's other ongoing medications are only sent when the clinician asks for them.
-  encounterMedications.forEach(medication => addMedication(medication, isPharmacyOrderEnabled));
-  ongoingMedications.forEach(medication => addMedication(medication, false));
-  return medicationsInitialValues;
+  return null;
 };
 
 /**
@@ -246,9 +255,9 @@ export const DischargeForm = ({
   const requiredInlineMessage = getTranslation('validation.required.inline', '*Required');
 
   const [dischargeNotes, setDischargeNotes] = useState(null);
+  const [dischargeNotesFailed, setDischargeNotesFailed] = useState(false);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
-  const [enableReinitialize, setEnableReinitialize] = useState(true);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -262,11 +271,35 @@ export const DischargeForm = ({
     d => !['error', 'disproven'].includes(d.certainty),
   );
 
-  const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
-  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
-    encounter.patientId,
-    facilityId,
-  );
+  const { data: encounterMedications, isLoading: isLoadingEncounterMedications } =
+    useEncounterMedicationQuery(encounter.id);
+  const { data: ongoingPrescriptions, isLoading: isLoadingOngoingPrescriptions } =
+    usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
+  const { data: dischargeDraftData, isFetched: isDischargeDraftFetched } =
+    useEncounterDischargeDraftQuery(encounter.id);
+  const draft = dischargeDraftData?.draft ?? null;
+
+  // The form is initialised once from data that arrives asynchronously — encounter medications,
+  // ongoing prescriptions, the saved draft, and discharge notes. Waiting for all of it before
+  // mounting means the form never needs to reinitialise later, so a medication being discontinued
+  // can't clobber the clinician's edits to fields like the ordering prescriber, and the draft is
+  // never seeded over by live data.
+  //
+  // The draft is gated on having settled rather than on having arrived: a query that ends in error
+  // never yields data, and the form still has to open.
+  //
+  // The gate is one-way. Rendering a loader in place of the form swaps the element type at this
+  // position, which unmounts Formik and loses every edit the clinician has made; going back to
+  // loading after the form is up would re-mount it against freshly defaulted initial values.
+  const hasInitialData =
+    !isLoadingEncounterMedications &&
+    !isLoadingOngoingPrescriptions &&
+    isDischargeDraftFetched &&
+    dischargeNotes !== null;
+  const [isInitialDataReady, setIsInitialDataReady] = useState(false);
+  if (hasInitialData && !isInitialDataReady) {
+    setIsInitialDataReady(true);
+  }
 
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
@@ -276,10 +309,10 @@ export const DischargeForm = ({
   const ongoingMedications = (ongoingPrescriptions?.data || []).filter(
     p => !p.discontinued && !activeMedicationHashes.has(createPrescriptionHash(p)),
   );
-  const medicationInitialValues = getMedicationsInitialValues({
+  const medicationInitialValues = buildMedicationsInitialValues({
     encounterMedications: activeMedications,
     ongoingMedications,
-    encounter,
+    draft,
     isPharmacyOrderEnabled,
   });
 
@@ -289,24 +322,68 @@ export const DischargeForm = ({
     medication => medication.medication?.referenceDrug?.facilities?.[0]?.stockStatus,
   );
 
+  const { saveDraft, discardDraft, forgetDraft } = useEncounterDischargeDraftMutation(
+    encounter.id,
+    { onSuccess: onCancel },
+  );
+
   const handleSubmit = useCallback(
-    async ({ isDischarged = true, ...data }) => {
+    async data => {
       // The server takes the order's facility from the discharging user's token, so only the
       // ordering prescriber travels with the request.
       const submitData = isPharmacyOrderEnabled ? data : { ...data, pharmacyOrder: undefined };
-      if (isDischarged) {
-        await onSubmit(submitData);
-        return;
-      }
-      await onSubmit({ dischargeDraft: submitData });
+      await onSubmit(submitData);
+      // Discharging clears every draft on the encounter, so the cached copy is gone too.
+      forgetDraft();
     },
-    [onSubmit, isPharmacyOrderEnabled],
+    [onSubmit, isPharmacyOrderEnabled, forgetDraft],
   );
+
+  // A failed save is the one failure this feature cannot swallow: the whole point is not losing
+  // the clinician's text, so the modal stays open and says so rather than closing on nothing.
+  const handleSaveDraft = useCallback(
+    async values => {
+      try {
+        await saveDraft(toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }));
+      } catch (error) {
+        toast.error(
+          <TranslatedText
+            stringId="discharge.draft.saveFailed.message"
+            fallback="Could not save the discharge draft. Your changes are still here, try again."
+          />,
+        );
+      }
+    },
+    [saveDraft, dischargeNotes, isPharmacyOrderEnabled],
+  );
+
+  const handleDiscardDraft = useCallback(async () => {
+    try {
+      await discardDraft();
+    } catch (error) {
+      toast.error(
+        <TranslatedText
+          stringId="discharge.draft.discardFailed.message"
+          fallback="Could not discard the discharge draft. Try again."
+        />,
+      );
+    }
+  }, [discardDraft]);
 
   useEffect(() => {
     (async () => {
-      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+      try {
+        const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+        setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+        setDischargeNotesFailed(false);
+      } catch (e) {
+        // Settling on an empty list keeps the form usable: leaving this null would hold the form
+        // behind its loading gate for good. The failure is tracked separately because an empty
+        // list here would otherwise be indistinguishable from an admission with no planning
+        // notes, and discharging on that assumption would drop them.
+        setDischargeNotes([]);
+        setDischargeNotesFailed(true);
+      }
     })();
   }, [api, encounter.id]);
 
@@ -322,20 +399,6 @@ export const DischargeForm = ({
     }
     onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
   }, [showWarningScreen, onTitleChange]);
-
-  useEffect(() => {
-    const hasEncounterMeds = Boolean(encounterMedications);
-    const hasOngoingMeds = Boolean(ongoingPrescriptions);
-    const hasNotes = Boolean(dischargeNotes);
-    if (enableReinitialize && hasEncounterMeds && hasOngoingMeds && hasNotes) {
-      setEnableReinitialize(false);
-    }
-  }, [
-    Boolean(encounterMedications),
-    Boolean(ongoingPrescriptions),
-    Boolean(dischargeNotes),
-    enableReinitialize,
-  ]);
 
   const handleDiscontinueMedication = medication => {
     setDiscontinuedMedication(medication);
@@ -356,6 +419,10 @@ export const DischargeForm = ({
     queryClient.invalidateQueries(['encounterMedication', encounter.id]);
   };
 
+  if (!isInitialDataReady) {
+    return <LoadingIndicator data-testid="dischargeform-loading" />;
+  }
+
   return (
     <>
       <PaginatedForm
@@ -364,6 +431,7 @@ export const DischargeForm = ({
         initialValues={getDischargeInitialValues({
           encounter,
           currentUser,
+          draft,
           dischargeNotes,
           medicationInitialValues,
           getCurrentDateTime,
@@ -373,8 +441,9 @@ export const DischargeForm = ({
           <DischargeFormScreen
             {...props}
             currentDiagnoses={currentDiagnoses}
-            onSubmit={handleSubmit}
+            onSaveDraft={handleSaveDraft}
             setShowWarningScreen={setShowWarningScreen}
+            dischargeNotesFailed={dischargeNotesFailed}
             data-testid="dischargeformscreen-z2zo"
           />
         )}
@@ -401,8 +470,15 @@ export const DischargeForm = ({
             : props => (
                 <UnsavedChangesScreen
                   {...props}
-                  showWarningScreen={showWarningScreen}
-                  onSubmit={handleSubmit}
+                  // Returning to the form has to clear the flag as well as step back, or the
+                  // summary screen stays stuck on this one and the discharge can never be
+                  // confirmed for the rest of the modal session.
+                  onStepBack={() => {
+                    setShowWarningScreen(false);
+                    props.onStepBack();
+                  }}
+                  onSaveDraft={handleSaveDraft}
+                  onDiscardDraft={handleDiscardDraft}
                   data-testid="unsavedchangesscreen-o64o"
                 />
               )
@@ -435,7 +511,7 @@ export const DischargeForm = ({
               dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
               dispositionId: getLocalisedSchema({
                 name: 'dischargeDisposition',
-              }),
+              }).nullable(),
               note: dischargeNoteMandatory
                 ? foreignKey().translatedLabel(
                     <TranslatedText
@@ -454,13 +530,14 @@ export const DischargeForm = ({
             ),
         })}
         formProps={{
-          enableReinitialize,
+          enableReinitialize: false,
           showInlineErrorsOnly: true,
           validateOnChange: true,
         }}
         data-testid="paginatedform-ghn7"
       >
         <FormGrid data-testid="formgrid-menu">
+          <ReconcileMedicationValues medicationInitialValues={medicationInitialValues} />
           <EncounterOverview
             encounter={encounter}
             currentDiagnoses={currentDiagnoses}

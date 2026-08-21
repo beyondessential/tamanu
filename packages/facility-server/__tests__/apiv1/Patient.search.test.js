@@ -625,6 +625,38 @@ describe('Patient search', () => {
       expectSorted(response.body.data, (x) => x.departmentName);
     });
 
+    it('should sort by area (not on all-patients listing)', async () => {
+      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+        orderBy: 'locationGroupName',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.locationGroupName);
+    });
+
+    it('should sort by clinician (not on all-patients listing)', async () => {
+      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+        orderBy: 'clinician',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.clinician);
+    });
+
+    it('should sort by sex', async () => {
+      const response = await app
+        .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)
+        .query({
+          orderBy: 'sex',
+        });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.sex);
+    });
+
     it('should sort by village', async () => {
       const response = await app
         .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)

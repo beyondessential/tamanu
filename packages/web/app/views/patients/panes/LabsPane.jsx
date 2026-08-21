@@ -10,7 +10,7 @@ import { PrintMultipleLabRequestsSelectionModal } from '../../../components/Pati
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-export const LabsPane = React.memo(({ encounter, disabled }) => {
+export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
@@ -32,7 +32,7 @@ export const LabsPane = React.memo(({ encounter, disabled }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setPrintRequestsModalOpen(true)}
-            disabled={disabled}
+            disabled={readonly}
             verb="read"
             noun="LabRequest"
             variant="outlined"
@@ -50,7 +50,7 @@ export const LabsPane = React.memo(({ encounter, disabled }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}
-            disabled={disabled}
+            disabled={readonly}
             verb="create"
             noun="LabRequest"
             size="small"

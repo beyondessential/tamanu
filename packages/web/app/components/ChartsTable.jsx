@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
@@ -7,6 +6,7 @@ import { subject } from '@casl/ability';
 import { Colors } from '../constants';
 import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { useChartsTableColumns } from './VitalsAndChartsTableColumns';
@@ -39,7 +39,7 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
 export const ChartsTable = React.memo(
   ({ selectedSurveyId, selectedChartSurveyName, noDataMessage, currentInstanceId }) => {
     const { ability } = useAuth();
-    const patient = useSelector(state => state.patient);
+    const { patient } = usePatient();
     const { encounter } = useEncounter();
     const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
       encounter.id,

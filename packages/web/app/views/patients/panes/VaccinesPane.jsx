@@ -18,6 +18,8 @@ import {
 import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
 import { useAdministeredVaccinesQuery } from '../../../api/queries';
 import { useSettings } from '../../../contexts/Settings';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -36,7 +38,7 @@ const TableWrapper = styled.div`
   }
 `;
 
-export const VaccinesPane = React.memo(({ patient, disabled }) => {
+export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const { getSetting } = useSettings();
   const [hideUpcomingVaccines, setHideUpcomingVaccines] = useState(
     getSetting('features.hideUpcomingVaccines'),
@@ -48,6 +50,14 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
+
+  const queryClient = useQueryClient();
+  const [vaccineRefreshCount, updateVaccineRefreshCount] = useRefreshCount();
+
+  const refreshVaccineData = useCallback(() => {
+    updateVaccineRefreshCount();
+    queryClient.invalidateQueries(['administeredVaccines', patient.id]);
+  }, [updateVaccineRefreshCount, queryClient, patient.id]);
 
   const handleShowUpcomingVaccines = useCallback(() => {
     setHideUpcomingVaccines(false);
@@ -76,7 +86,8 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
   const handleCloseRecordModal = useCallback(() => {
     setIsAdministerModalOpen(false);
     setVaccineData(null);
-  }, []);
+    refreshVaccineData();
+  }, [refreshVaccineData]);
 
   const { data: vaccines } = useAdministeredVaccinesQuery(patient.id);
   const vaccinations = vaccines?.data || [];
@@ -105,14 +116,20 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
         open={isEditAdministeredModalOpen}
         patientId={patient.id}
         vaccineRecord={vaccineData}
-        onClose={() => setIsEditAdministeredModalOpen(false)}
+        onClose={() => {
+          setIsEditAdministeredModalOpen(false);
+          refreshVaccineData();
+        }}
         data-testid="editadministeredvaccinemodal-krbw"
       />
       <DeleteAdministeredVaccineModal
         open={isDeleteAdministeredModalOpen}
         patientId={patient.id}
         vaccineRecord={vaccineData}
-        onClose={() => setIsDeleteAdministeredModalOpen(false)}
+        onClose={() => {
+          setIsDeleteAdministeredModalOpen(false);
+          refreshVaccineData();
+        }}
         data-testid="deleteadministeredvaccinemodal-k9i2"
       />
       <ContentPane data-testid="contentpane-9tqb">
@@ -154,7 +171,7 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
               verb="create"
               noun="PatientVaccine"
               onClick={() => setIsAdministerModalOpen(true)}
-              disabled={disabled}
+              disabled={readonly}
               data-testid="buttonwithpermissioncheck-zmgl"
             >
               <TranslatedText
@@ -165,6 +182,9 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
             </ButtonWithPermissionCheck>
           </NoteModalActionBlocker>
         </TableButtonRow>
+        {/* Both tables are keyed on vaccineRefreshCount so a record/edit/delete
+            remounts them for a clean refetch, resetting table-local state (the
+            "include not given" filter, lazy-loaded rows) as reloadPatient used to. */}
         <TableWrapper data-testid="tablewrapper-rbs7">
           {hideUpcomingVaccines ? (
               <Button onClick={handleShowUpcomingVaccines}>
@@ -175,6 +195,7 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
               </Button>
             ) : (
               <ImmunisationScheduleTable
+                key={vaccineRefreshCount}
                 patient={patient}
                 onItemEdit={id => handleOpenRecordModal(id)}
                 data-testid="immunisationscheduletable-8nat"
@@ -182,6 +203,7 @@ export const VaccinesPane = React.memo(({ patient, disabled }) => {
           )}
         </TableWrapper>
         <ImmunisationsTable
+          key={vaccineRefreshCount}
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}

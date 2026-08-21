@@ -209,6 +209,31 @@ describe('EncounterCharting', () => {
       expect(saved).toHaveProperty('body', '1234');
     });
 
+    it('should not create an answer record for a measure left blank', async () => {
+      const submissionDate = getCurrentDateTimeString();
+      const result = await app.post('/api/surveyResponse').send({
+        surveyId: 'simple-chart-survey-0',
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneA': 1234,
+          // Left blank in the form, submitted as an empty string
+          'pde-ChartQuestionTwoA': '',
+        },
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      // The blank measure must not be persisted as an empty-bodied answer, otherwise its creation
+      // shows up in the cell's history as a spurious "Entry deleted" line.
+      const blankAnswer = await models.SurveyResponseAnswer.findOne({
+        where: { dataElementId: 'pde-ChartQuestionTwoA' },
+      });
+      expect(blankAnswer).toBeNull();
+    });
+
     it('should get simple chart readings for an encounter', async () => {
       const surveyId = 'simple-chart-survey-0';
       const submissionDate = getCurrentDateTimeString();

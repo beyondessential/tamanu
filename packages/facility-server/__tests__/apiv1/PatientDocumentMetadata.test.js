@@ -290,4 +290,91 @@ describe('PatientDocumentMetadata', () => {
     expect(metadata).toBeDefined();
     expect(uploadAttachment.mock.calls.length).toBe(1);
   });
+
+  describe('repeat submissions', () => {
+    // A double-clicked Add button sends the same upload twice (card X4). Each arrives as
+    // its own request, so the document must be deduplicated server-side.
+    const documentPayload = {
+      name: 'duplicated document',
+      type: 'application/pdf',
+      documentOwner: 'someone',
+      documentCreatedAt: '2026-08-17 09:00:00',
+    };
+
+    const mockUpload = () =>
+      uploadAttachment.mockImplementation((req) => ({
+        metadata: { ...req.body },
+        type: 'application/pdf',
+        attachmentId: '123456789',
+      }));
+
+    const countDocuments = (patientId) =>
+      models.DocumentMetadata.count({ where: { patientId, name: documentPayload.name } });
+
+    it('creates one document when the same upload is submitted twice at once', async () => {
+      mockUpload();
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
+
+      // Fired together, so both requests are in flight before either has committed.
+      const [first, second] = await Promise.all([
+        app.post(endpoint).send(documentPayload),
+        app.post(endpoint).send(documentPayload),
+      ]);
+
+      expect(first).toHaveSucceeded();
+      expect(second).toHaveSucceeded();
+      expect(await countDocuments(patient.id)).toBe(1);
+      // Both callers are told about the same document.
+      expect(first.body.id).toBe(second.body.id);
+    });
+
+    it('creates one document when the same upload is submitted twice in sequence', async () => {
+      mockUpload();
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
+
+      const first = await app.post(endpoint).send(documentPayload);
+      const second = await app.post(endpoint).send(documentPayload);
+
+      expect(first).toHaveSucceeded();
+      expect(second).toHaveSucceeded();
+      expect(await countDocuments(patient.id)).toBe(1);
+      expect(first.body.id).toBe(second.body.id);
+    });
+
+    it('still creates a separate document for a different upload', async () => {
+      mockUpload();
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
+
+      const first = await app.post(endpoint).send(documentPayload);
+      const second = await app
+        .post(endpoint)
+        .send({ ...documentPayload, name: 'a genuinely different document' });
+
+      expect(first).toHaveSucceeded();
+      expect(second).toHaveSucceeded();
+      expect(first.body.id).not.toBe(second.body.id);
+    });
+
+    it('does not deduplicate across patients', async () => {
+      mockUpload();
+      const patientOne = await models.Patient.create(await createDummyPatient(models));
+      const patientTwo = await models.Patient.create(await createDummyPatient(models));
+
+      const first = await app
+        .post(`/api/patient/${patientOne.id}/documentMetadata`)
+        .send(documentPayload);
+      const second = await app
+        .post(`/api/patient/${patientTwo.id}/documentMetadata`)
+        .send(documentPayload);
+
+      expect(first).toHaveSucceeded();
+      expect(second).toHaveSucceeded();
+      expect(first.body.id).not.toBe(second.body.id);
+      expect(await countDocuments(patientOne.id)).toBe(1);
+      expect(await countDocuments(patientTwo.id)).toBe(1);
+    });
+  });
 });

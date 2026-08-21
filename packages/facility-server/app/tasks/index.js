@@ -14,6 +14,7 @@ import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
+import { CleanupIdempotencyKeys } from './CleanupIdempotencyKeys';
 
 export { startFhirWorkerTasks };
 
@@ -27,6 +28,7 @@ const DEFAULT_TASK_CLASSES = [
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
   BedFeeCharger,
+  CleanupIdempotencyKeys,
 ];
 
 // Resolved once at startup (idempotent); schedule changes apply on server restart.

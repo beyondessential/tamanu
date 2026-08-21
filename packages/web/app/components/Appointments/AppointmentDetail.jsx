@@ -1,7 +1,6 @@
 import { IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import Select from 'react-select';
 import styled from 'styled-components';
@@ -21,7 +20,6 @@ import {
 } from '@tamanu/ui-components';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
 import { Colors } from '../../constants/styles';
-import { reloadPatient } from '../../store/patient';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { EncounterModal } from '../EncounterModal';
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -68,15 +66,13 @@ const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(statu
 }));
 
 const PatientInfo = ({ patient }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
-  const handlePatientInfoContainerClick = useCallback(async () => {
-    await dispatch(reloadPatient(id));
+  const handlePatientInfoContainerClick = useCallback(() => {
     navigate(`/patients/all/${id}`);
-  }, [dispatch, id, navigate]);
+  }, [id, navigate]);
 
   return (
     <PatientInfoContainer
