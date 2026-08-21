@@ -6,7 +6,9 @@ import styled from 'styled-components';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 
 import { StyledView } from '/styled/common';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
 import { ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { theme } from '../styled/theme';
 
@@ -24,30 +26,36 @@ interface LocationHierarchyField {
 }
 
 const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: ReferenceDataType) => {
-  const [hierarchy, error, loading] = useBackendEffect(async ({ models }) => {
-    // pick a representative node from the requested leaf type; if not present, fall back
-    // through known address types so incomplete hierarchies still render correctly
-    const fallbackOrder = [
-      leafNodeType,
-      REFERENCE_TYPES.SETTLEMENT,
-      REFERENCE_TYPES.SUBDIVISION,
-      REFERENCE_TYPES.DIVISION,
-    ] as ReferenceDataType[];
+  const {
+    data: hierarchy,
+    error,
+    isPending: loading,
+  } = useQuery({
+    queryKey: referenceKeys.addressHierarchy(leafNodeType),
+    queryFn: async () => {
+      const { models } = Database;
+      // pick a representative node from the requested leaf type; if not present, fall back
+      // through known address types so incomplete hierarchies still render correctly
+      const fallbackOrder = [
+        leafNodeType,
+        REFERENCE_TYPES.SETTLEMENT,
+        REFERENCE_TYPES.SUBDIVISION,
+        REFERENCE_TYPES.DIVISION,
+      ] as ReferenceDataType[];
 
-    let entity = null as any;
-    for (const candidateType of fallbackOrder) {
-      const found = await models.ReferenceData.getNode({
-        type: candidateType,
-      });
-      if (found) {
-        entity = found;
-        break;
+      let entity = null as any;
+      for (const candidateType of fallbackOrder) {
+        const found = await models.ReferenceData.getNode({ type: candidateType });
+        if (found) {
+          entity = found;
+          break;
+        }
       }
-    }
 
-    if (!entity) return null;
-    const ancestors = await entity.getAncestors();
-    return [...ancestors, entity];
+      if (!entity) return null;
+      const ancestors = await entity.getAncestors();
+      return [...ancestors, entity];
+    },
   });
 
   const configuredFieldTypes =

@@ -8,11 +8,11 @@ import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { CircleAdd } from '~/ui/components/Icons';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistrationList } from './PatientProgramRegistrationList';
 import { withPatient } from '~/ui/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks/index';
+import usePatientProgramRegistriesQuery from '~/ui/hooks/queries/usePatientProgramRegistriesQuery';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -31,17 +31,14 @@ const Row = styled.View`
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const { ability } = useAuth();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
-  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) => {
-      if (canListRegistrations === false) return [];
-      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
-    },
-    [canListRegistrations, selectedPatient.id, isFocused],
-  );
+  const {
+    data: programRegistries,
+    error: programRegistryError,
+    isPending: isProgramRegistryLoading,
+  } = usePatientProgramRegistriesQuery(selectedPatient.id);
 
   if (isProgramRegistryLoading) return <LoadingScreen />;
   if (programRegistryError) return <ErrorScreen error={programRegistryError} />;

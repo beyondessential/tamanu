@@ -2,7 +2,11 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
+import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { FullView, StyledText } from '~/ui/styled/common';
 import { theme } from '/styled/theme';
@@ -27,16 +31,42 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
-    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
-  );
-  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models: m }) =>
-      m.PatientAdditionalData.getRepository().findOne({
-        where: { patient: { id: selectedPatient.id } },
-      }),
-    [selectedPatient.id],
-  );
+  const queryClient = useQueryClient();
+  const { mutateAsync: submitVitals } = useMutation({
+    mutationFn: ({
+      surveyId,
+      components,
+      values,
+    }: {
+      surveyId: string;
+      components: any[];
+      values: any;
+    }) =>
+      models.SurveyResponse.submit(
+        selectedPatient.id,
+        user.id,
+        {
+          surveyId,
+          components,
+          surveyType: SurveyTypes.Vitals,
+          encounterReason: 'Form response',
+        },
+        values,
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+    },
+  });
+  const {
+    data: vitalsSurvey,
+    error: vitalsError,
+    isPending: isVitalsLoading,
+  } = useVitalsSurveyQuery({ includeAllVitals: false });
+  const {
+    data: patientAdditionalData,
+    error: padError,
+    isPending: isPadLoading,
+  } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
 
   const error = vitalsError || padError;
   const isLoading = isVitalsLoading || isPadLoading;
@@ -60,17 +90,11 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { id, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
-    const responseRecord = await models.SurveyResponse.submit(
-      selectedPatient.id,
-      user.id,
-      {
-        surveyId: id,
-        components,
-        surveyType: SurveyTypes.Vitals,
-        encounterReason: 'Form response',
-      },
-      { ...values, [dateComponent.dataElement.code]: new Date() },
-    );
+    const responseRecord = await submitVitals({
+      surveyId: id,
+      components,
+      values: { ...values, [dateComponent.dataElement.code]: new Date() },
+    });
 
     if (responseRecord) {
       onAfterSubmit();
@@ -79,7 +103,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   // On mobile, date is programmatically submitted
   const visibleComponents = components.filter(
-    (c) => c.dataElementId !== VitalsDataElements.dateRecorded,
+    c => c.dataElementId !== VitalsDataElements.dateRecorded,
   );
 
   return (
@@ -91,7 +115,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       validate={(values: object): object => {
         const errors: { form?: string } = {};
 
-        if (Object.values(values).every((x) => x === '' || x === null)) {
+        if (Object.values(values).every(x => x === '' || x === null)) {
           errors.form = getTranslation(
             'validation.rule.atLeastOneRecording',
             'At least one recording is required',

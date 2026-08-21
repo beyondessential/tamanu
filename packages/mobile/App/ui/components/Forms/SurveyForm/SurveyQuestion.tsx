@@ -4,7 +4,9 @@ import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientDataDisplayField } from '../../PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_VALUES } from '@tamanu/constants';
@@ -41,17 +43,14 @@ function getField(
 
 const useGetConfig = component => {
   const configObject = component.getConfigObject();
-  const [survey] = useBackendEffect(({ models }) => {
-    const { source } = configObject;
-    if (source !== 'ProgramRegistryClinicalStatus') {
-      return null;
-    }
-    return models.Survey.findOne({
-      where: {
-        id: component.surveyId,
-      },
-      relations: ['program', 'program.registry'],
-    });
+  const { data: survey } = useQuery({
+    queryKey: [...surveyKeys.detail(component.surveyId), 'programRegistry'],
+    queryFn: () =>
+      Database.models.Survey.findOne({
+        where: { id: component.surveyId },
+        relations: ['program', 'program.registry'],
+      }),
+    enabled: configObject.source === 'ProgramRegistryClinicalStatus',
   });
   if (configObject.source === 'ProgramRegistryClinicalStatus' && survey) {
     configObject.where = { programRegistryId: survey.program.registry.id };
@@ -85,79 +84,89 @@ function mapOptionsToValues(optionsString: string) {
 
 const EMPTY_OPTIONS: any[] = [];
 
-export const SurveyQuestion = memo(({
-  component,
-  patient,
-  onLayout,
-  zIndex,
-  setDisableSubmit,
-}: SurveyQuestionProps): ReactElement => {
-  const { getSetting } = useSettings();
-  const { getTranslation, getEnumTranslation } = useTranslation();
-  const config = useGetConfig(component);
-  const { dataElement } = component;
-  const fieldInput: any = getField(dataElement.type, config);
+export const SurveyQuestion = memo(
+  ({
+    component,
+    patient,
+    onLayout,
+    zIndex,
+    setDisableSubmit,
+  }: SurveyQuestionProps): ReactElement => {
+    const { getSetting } = useSettings();
+    const { getTranslation, getEnumTranslation } = useTranslation();
+    const config = useGetConfig(component);
+    const { dataElement } = component;
+    const fieldInput: any = getField(dataElement.type, config);
 
-  const optionsString = component.options || component.dataElement.defaultOptions;
-  const options = mapOptionsToValues(optionsString);
-  const translatedOptions = useMemo(() => {
-    // if the question is a patient data question with a select field type,
-    // we need to get the options from the patient data field locations, so the users don't need to translate the options twice
-    // If the options aren't available, we'll use the options from the componentOptions
-    if (dataElement.type === FieldTypes.PATIENT_DATA) {
-      const config = component.getConfigObject();
-      const { writeToPatient, column } = config;
-      if (writeToPatient?.fieldType === FieldTypes.SELECT) {
-        const [, , constantOptions] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
-        if (constantOptions) {
-          const result = Object.keys(constantOptions).map(value => ({
-            label: getEnumTranslation(constantOptions, value),
-            value,
-          }));
+    const optionsString = component.options || component.dataElement.defaultOptions;
+    const options = mapOptionsToValues(optionsString);
+    const translatedOptions = useMemo(() => {
+      // if the question is a patient data question with a select field type,
+      // we need to get the options from the patient data field locations, so the users don't need to translate the options twice
+      // If the options aren't available, we'll use the options from the componentOptions
+      if (dataElement.type === FieldTypes.PATIENT_DATA) {
+        const config = component.getConfigObject();
+        const { writeToPatient, column } = config;
+        if (writeToPatient?.fieldType === FieldTypes.SELECT) {
+          const [, , constantOptions] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
+          if (constantOptions) {
+            const result = Object.keys(constantOptions).map(value => ({
+              label: getEnumTranslation(constantOptions, value),
+              value,
+            }));
 
-          if (column === 'sex' && getSetting('features.hideOtherSex')) {
-            return result.filter(option => option.value !== SEX_VALUES.OTHER);
+            if (column === 'sex' && getSetting('features.hideOtherSex')) {
+              return result.filter(option => option.value !== SEX_VALUES.OTHER);
+            }
+
+            return result;
           }
-
-          return result;
         }
       }
-    }
-    return options?.map(({ value }) => {
-      const stringId = getReferenceDataOptionStringId(dataElement.id, 'programDataElement', value);
-      return {
-        label: getTranslation(stringId, value),
-        value,
-      };
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getTranslation, dataElement.id, optionsString, dataElement.type, getEnumTranslation, component.config]);
+      return options?.map(({ value }) => {
+        const stringId = getReferenceDataOptionStringId(
+          dataElement.id,
+          'programDataElement',
+          value,
+        );
+        return {
+          label: getTranslation(stringId, value),
+          value,
+        };
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+      getTranslation,
+      dataElement.id,
+      optionsString,
+      dataElement.type,
+      getEnumTranslation,
+      component.config,
+    ]);
 
-  const handleLayout = useCallback(({ nativeEvent }) => {
-    onLayout(nativeEvent.layout.y);
-  }, [onLayout]);
+    const handleLayout = useCallback(
+      ({ nativeEvent }) => void onLayout(nativeEvent.layout.y),
+      [onLayout],
+    );
 
-  if (!fieldInput) return null;
-  const isMultiline = dataElement.type === FieldTypes.MULTILINE;
+    if (!fieldInput) return null;
+    const isMultiline = dataElement.type === FieldTypes.MULTILINE;
 
-  return (
-    <StyledView
-      marginTop={12}
-      zIndex={zIndex}
-      onLayout={handleLayout}
-    >
-      <Field
-        component={fieldInput}
-        name={dataElement.code}
-        defaultText={dataElement.defaultText}
-        options={translatedOptions || EMPTY_OPTIONS}
-        multiline={isMultiline}
-        patient={patient}
-        config={config}
-        setDisableSubmit={setDisableSubmit}
-      />
-    </StyledView>
-  );
-});
+    return (
+      <StyledView marginTop={12} zIndex={zIndex} onLayout={handleLayout}>
+        <Field
+          component={fieldInput}
+          name={dataElement.code}
+          defaultText={dataElement.defaultText}
+          options={translatedOptions || EMPTY_OPTIONS}
+          multiline={isMultiline}
+          patient={patient}
+          config={config}
+          setDisableSubmit={setDisableSubmit}
+        />
+      </StyledView>
+    );
+  },
+);
 
 SurveyQuestion.displayName = 'SurveyQuestion';

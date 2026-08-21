@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -13,7 +13,11 @@ import { SubmitButton } from '/components/Forms/SubmitButton';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientFacilityQuery from '~/ui/hooks/queries/usePatientFacilityQuery';
+import { Database } from '~/infra/db';
 import { withPatient } from '~/ui/containers/Patient';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { ReferenceDataType } from '~/types';
@@ -34,9 +38,7 @@ import {
   DRUG_UNIT_LABELS,
 } from '~/constants/medications';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
-import { PatientAllergy } from '~/models/PatientAllergy';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { readConfig } from '~/services/config';
 import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
@@ -67,7 +69,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { models } = useBackend();
   const { ability } = useAuth();
   const user = useSelector(authUserSelector);
-  const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -78,85 +79,80 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
   }, [navigation]);
 
-  const [patientFacility] = useBackendEffect(
-    async ({ models: m }) =>
-      m.PatientFacility.findOne({
-        where: {
-          patient: { id: selectedPatient.id },
-          facility: { id: await readConfig('facilityId', '') },
-        },
-      }),
-    [],
-  );
+  const { data: patientFacility } = usePatientFacilityQuery(selectedPatient.id);
   const isMarkedForSync = Boolean(patientFacility);
 
-  useEffect(() => {
-    const fetchPatientAllergies = async () => {
-      try {
-        const allergies = await models.PatientAllergy.find({
-          where: { patient: { id: selectedPatient.id } },
-          relations: ['allergy'],
-        });
-        setPatientAllergies(allergies);
-      } catch (error) {
-        console.error('Error fetching patient allergies:', error);
-        setPatientAllergies([]);
-      }
-    };
-
-    if (selectedPatient?.id) {
-      fetchPatientAllergies();
-    }
-  }, [selectedPatient?.id, models.PatientAllergy]);
-
-  const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const [encounter, referenceDrug] = await Promise.all([
-      models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
-      models.ReferenceDrug.findOne({
-        where: { referenceData: { id: values.medicationId } },
-        select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+  const { data: patientAllergies } = useQuery({
+    queryKey: patientKeys.allergies(selectedPatient?.id),
+    queryFn: () =>
+      Database.models.PatientAllergy.find({
+        where: { patient: { id: selectedPatient.id } },
+        relations: ['allergy'],
       }),
-    ]);
+    enabled: Boolean(selectedPatient?.id),
+  });
 
-    const idealTimes =
-      values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-        ? ''
-        : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
-    const data = {
-      ...values,
-      doseAmount: values.doseAmount || null,
-      durationValue: values.durationValue || null,
-      durationUnit: values.durationUnit || null,
-      dosingUnit: referenceDrug?.dosingUnit || null,
-      dispensingUnit: referenceDrug?.dispensingUnit || null,
-      unitConversion: referenceDrug?.unitConversion ?? 1,
-      idealTimes,
-      prescriber: values.prescriberId,
-      medication: values.medicationId,
-    };
+  const queryClient = useQueryClient();
+  const { mutateAsync: prescribeMedication } = useMutation({
+    mutationFn: async (values: any) => {
+      const [encounter, referenceDrug] = await Promise.all([
+        models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
+        models.ReferenceDrug.findOne({
+          where: { referenceData: { id: values.medicationId } },
+          select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+        }),
+      ]);
 
-    if (values.durationValue && values.durationUnit) {
-      data.endDate = add(new Date(values.startDate), {
-        [values.durationUnit]: values.durationValue,
-      }).toISOString();
-    }
+      const idealTimes =
+        values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
+        values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
+          ? ''
+          : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
+      const data = {
+        ...values,
+        doseAmount: values.doseAmount || null,
+        durationValue: values.durationValue || null,
+        durationUnit: values.durationUnit || null,
+        dosingUnit: referenceDrug?.dosingUnit || null,
+        dispensingUnit: referenceDrug?.dispensingUnit || null,
+        unitConversion: referenceDrug?.unitConversion ?? 1,
+        idealTimes,
+        prescriber: values.prescriberId,
+        medication: values.medicationId,
+      };
 
-    const prescription = (await models.Prescription.createAndSaveOne({
-      ...data,
-    })) as Prescription;
+      if (values.durationValue && values.durationUnit) {
+        data.endDate = add(new Date(values.startDate), {
+          [values.durationUnit]: values.durationValue,
+        }).toISOString();
+      }
 
-    await models.EncounterPrescription.createAndSaveOne({
-      encounter,
-      prescription,
-    });
+      const prescription = (await models.Prescription.createAndSaveOne({
+        ...data,
+      })) as Prescription;
 
-    await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-      prescription,
-    );
+      await models.EncounterPrescription.createAndSaveOne({
+        encounter,
+        prescription,
+      });
 
-    navigateToHistory();
-  }, []);
+      await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
+
+  const onPrescribeMedication = useCallback(
+    async (values: any): Promise<void> => {
+      await prescribeMedication(values);
+      navigateToHistory();
+    },
+    [prescribeMedication, navigateToHistory],
+  );
 
   const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = useMemo(
@@ -275,7 +271,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />
                     :{' '}
                   </StyledText>
-                  {patientAllergies.length ? (
+                  {patientAllergies !== undefined ? (
                     patientAllergies.map((allergy, index) => (
                       <Fragment key={allergy.id}>
                         <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>

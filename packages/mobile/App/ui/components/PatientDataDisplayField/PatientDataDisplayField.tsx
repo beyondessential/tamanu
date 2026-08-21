@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { StyledText } from '~/ui/styled/common';
-import { useBackend } from '~/ui/hooks';
+import { Database } from '~/infra/db';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
 import { getDisplayNameForModel } from '~/ui/helpers/fields';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
@@ -66,55 +68,45 @@ export const PatientDataDisplayField = ({
   config?: Record<string, any>;
 }) => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
-  const { models } = useBackend();
   const { locale } = useDateFormatter();
-  const [displayValue, setDisplayValue] = useState('');
 
-  useEffect(() => {
-    if (!value) return;
-    handleGetDisplayValue();
-  }, [value]);
+  const [modelName, fieldName, options] =
+    (config?.column && PATIENT_DATA_FIELD_LOCATIONS[config.column]) || [];
 
-  const handleGetDisplayValue = async () => {
-    if (!config?.column) {
-      setDisplayValue(value);
-      return;
-    }
-
-    const [modelName, fieldName, options] = PATIENT_DATA_FIELD_LOCATIONS[config.column] || [];
-
-    if (!modelName) {
-      // If the field is a custom field, we need to display the raw value
-      setDisplayValue(value);
-    } else if (options) {
-      // If the field is a standard field with options, we need to translate the value
-      const translation = getEnumTranslation(options, value);
-      setDisplayValue(translation || value);
-    } else {
-      // If the field is a standard field without options, we need to query the display value
-      const { data, targetModel } = await getPatientDataFieldAssociationData({
-        models,
+  const { data: association } = useQuery({
+    queryKey: referenceKeys.patientDataField({ modelName, fieldName, answer: value }),
+    queryFn: () =>
+      getPatientDataFieldAssociationData({
+        models: Database.models,
         modelName,
         fieldName,
         answer: value,
-      });
+      }),
+    /** Only standard fields without enum options need a database lookup  */
+    enabled: Boolean(value && modelName && !options),
+  });
 
-      if (!targetModel) {
-        setDisplayValue(data);
-        return;
-      }
+  const getDisplayValue = () => {
+    if (!value) return '';
 
-      setDisplayValue(
-        getDisplayNameForModel({
-          modelName: targetModel,
-          record: data,
+    // Custom fields (and fields with no configured location) display the raw value
+    if (!config?.column || !modelName) return value;
+
+    // Standard fields with options translate the value
+    if (options) return getEnumTranslation(options, value) || value;
+
+    if (!association) return '';
+
+    return association.targetModel
+      ? getDisplayNameForModel({
+          modelName: association.targetModel,
+          record: association.data,
           getReferenceDataTranslation,
           getEnumTranslation,
           locale,
-        }),
-      );
-    }
+        })
+      : association.data;
   };
 
-  return <StyledText>{displayValue}</StyledText>;
+  return <StyledText>{getDisplayValue()}</StyledText>;
 };

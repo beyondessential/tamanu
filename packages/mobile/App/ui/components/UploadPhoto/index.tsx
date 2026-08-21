@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
+import { useMutation } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
@@ -114,15 +115,30 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [imagePath, setImagePath] = useState(null);
   const { models, centralServer } = useBackend();
 
-  const removeAttachment = useCallback(async (value, imagePath) => {
-    if (value) {
-      await models.Attachment.delete(value);
-    }
-    if (imagePath) {
-      await deleteFileInDocuments(imagePath);
-      setImagePath(null);
-    }
-  }, []);
+  // No queries read attachments from the local database (they're synced up and
+  // deleted), so these mutations have nothing to invalidate.
+  const { mutateAsync: deleteAttachment } = useMutation({
+    mutationFn: (attachmentId: string) => models.Attachment.delete(attachmentId),
+  });
+  const { mutateAsync: createAttachment } = useMutation({
+    mutationFn: ({ filePath, size }: { filePath: string; size: number }) =>
+      models.Attachment.createAndSaveOne({
+        filePath,
+        size,
+        type: 'image/jpeg',
+      }),
+  });
+
+  const removeAttachment = useCallback(
+    async (value, imagePath) => {
+      if (value) await deleteAttachment(value);
+      if (imagePath) {
+        await deleteFileInDocuments(imagePath);
+        setImagePath(null);
+      }
+    },
+    [deleteAttachment],
+  );
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
@@ -176,11 +192,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         return;
       }
 
-      const { id } = await models.Attachment.createAndSaveOne({
-        filePath: path,
-        size,
-        type: 'image/jpeg',
-      });
+      const { id } = await createAttachment({ filePath: path, size });
 
       onChange(id);
       setImagePath(path);

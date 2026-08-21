@@ -8,7 +8,9 @@ import { FullView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { customAlphabet } from 'nanoid/non-secure';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
@@ -78,50 +80,63 @@ export const DumbAddLabRequestScreen = ({
     return {};
   }, []);
 
-  const recordLabRequest = useCallback(async (values: LabRequestFormData): Promise<void> => {
-    showMessage({
-      message: 'Submitting lab request',
-      type: 'default',
-      backgroundColor: theme.colors.BRIGHT_BLUE,
-    });
+  const queryClient = useQueryClient();
+  const { mutateAsync: submitLabRequest } = useMutation({
+    mutationFn: async (values: LabRequestFormData) => {
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        user.id,
+        { reasonForEncounter: 'Lab request from mobile' },
+      );
 
-    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-      selectedPatient.id,
-      user.id,
-      { reasonForEncounter: 'Lab request from mobile' },
-    );
+      const {
+        requestedDate,
+        requestedTime,
+        sampleDate,
+        sampleTime,
+        labSampleSiteId,
+        requestedById,
+        collectedById,
+        specimenTypeId,
+        labTestTypeIds,
+        displayId: generatedDisplayId,
+      } = values;
 
-    const {
-      requestedDate,
-      requestedTime,
-      sampleDate,
-      sampleTime,
-      labSampleSiteId,
-      requestedById,
-      collectedById,
-      specimenTypeId,
-      labTestTypeIds,
-      displayId: generatedDisplayId,
-    } = values;
+      // Convert requestedDate and sampleTime to strings
+      const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
+      const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
+      await models.LabRequest.createWithTests({
+        displayId: generatedDisplayId,
+        requestedDate: requestedDateString,
+        requestedBy: requestedById,
+        encounter: encounter.id,
+        labTestCategory: values.categoryId,
+        labTestPriority: values.priorityId,
+        sampleTime: sampleTimeString,
+        labTestTypeIds,
+        labSampleSite: labSampleSiteId,
+        collectedBy: collectedById,
+        specimenType: specimenTypeId,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
 
-    // Convert requestedDate and sampleTime to strings
-    const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
-    const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
-    await models.LabRequest.createWithTests({
-      displayId: generatedDisplayId,
-      requestedDate: requestedDateString,
-      requestedBy: requestedById,
-      encounter: encounter.id,
-      labTestCategory: values.categoryId,
-      labTestPriority: values.priorityId,
-      sampleTime: sampleTimeString,
-      labTestTypeIds,
-      labSampleSite: labSampleSiteId,
-      collectedBy: collectedById,
-      specimenType: specimenTypeId,
-    });
-    navigateToHistory();
-  }, [models, user.id, selectedPatient.id, navigateToHistory]);
+  const recordLabRequest = useCallback(
+    async (values: LabRequestFormData): Promise<void> => {
+      showMessage({
+        message: 'Submitting lab request',
+        type: 'default',
+        backgroundColor: theme.colors.BRIGHT_BLUE,
+      });
+      await submitLabRequest(values);
+      navigateToHistory();
+    },
+    [submitLabRequest, navigateToHistory],
+  );
 
   const initialValues = {
     sampleTime: new Date(),

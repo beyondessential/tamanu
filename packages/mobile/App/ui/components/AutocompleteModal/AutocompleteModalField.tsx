@@ -1,6 +1,8 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
@@ -49,12 +51,20 @@ export const AutocompleteModalField = ({
   fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  const [label, setLabel] = useState(null);
+  const queryClient = useQueryClient();
   const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value, selectedItem);
-    setLabel(selectedItem.label);
+    // Optimistic update for immediate UI feedback
+    queryClient.setQueryData(
+      suggestionKeys.currentOption(suggester?.model?.name, {
+        options: suggester?.options,
+        value: selectedItem.value,
+        language,
+      }),
+      { value: selectedItem.value, label: selectedItem.label },
+    );
   };
 
   const openModal = (): void =>
@@ -63,17 +73,17 @@ export const AutocompleteModalField = ({
       suggester,
     });
 
-  useEffect(() => {
-    if (!suggester) return;
-    (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value, language);
-      if (data) {
-        setLabel(data.label);
-      } else {
-        setLabel(null);
-      }
-    })();
-  }, [value, suggester, language]);
+  const { data: currentOption } = useQuery({
+    queryKey: suggestionKeys.currentOption(suggester?.model?.name, {
+      options: suggester?.options,
+      value,
+      language,
+    }),
+    queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
+    enabled: Boolean(suggester && value),
+  });
+
+  const label = currentOption?.label ?? null;
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;

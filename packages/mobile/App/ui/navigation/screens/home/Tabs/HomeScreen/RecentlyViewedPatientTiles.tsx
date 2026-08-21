@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { ReactElement, useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
 import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
@@ -13,39 +13,32 @@ import { theme } from '/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
-const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(
-  ({ displayedPatient, setSelectedPatient }: any): ReactElement => {
-    const navigation = useNavigation();
+const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(({
+  displayedPatient,
+  setSelectedPatient,
+}: any): ReactElement => {
+  const navigation = useNavigation();
 
-    return (
-      <StyledView marginRight={10}>
-        <PatientCard
-          onPress={(): void => {
-            setSelectedPatient(displayedPatient);
-            navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
-              screen: Routes.HomeStack.SearchPatientStack.Index,
-              from: PatientFromRoute.HOME,
-            });
-          }}
-          patient={displayedPatient}
-        />
-      </StyledView>
-    );
-  },
-);
+  return (
+    <StyledView marginRight={10}>
+      <PatientCard
+        onPress={(): void => {
+          setSelectedPatient(displayedPatient);
+          navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+            screen: Routes.HomeStack.SearchPatientStack.Index,
+            from: PatientFromRoute.HOME,
+          });
+        }}
+        patient={displayedPatient}
+      />
+    </StyledView>
+  );
+});
 
 const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
-  const [recentlyViewedPatients, , , refetchRecentlyViewedPatients] = useRecentlyViewedPatients();
-
-  // The home screen stays mounted, so refetch on focus to reflect patients
-  // viewed since the last visit (the mount-time fetch would otherwise be stale).
-  useFocusEffect(
-    useCallback(() => {
-      refetchRecentlyViewedPatients();
-    }, [refetchRecentlyViewedPatients]),
-  );
+  const { data: recentlyViewedPatients } = useRecentlyViewedPatients();
 
   if (!recentlyViewedPatients)
     return <StyledView flex={1} background={theme.colors.BACKGROUND_GREY} />;
