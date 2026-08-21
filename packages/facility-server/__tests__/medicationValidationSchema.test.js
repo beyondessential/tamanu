@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { MAX_REPEATS } from '@tamanu/constants';
 
 import {

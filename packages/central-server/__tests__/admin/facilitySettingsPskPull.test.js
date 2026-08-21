@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';

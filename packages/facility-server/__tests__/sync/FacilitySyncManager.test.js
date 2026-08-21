@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_DEVICE_ID,
@@ -53,7 +54,7 @@ describe('FacilitySyncManager', () => {
       let resolveSyncPromise;
 
       // set up promise so that sync cannot be finished until promise is resolved
-      syncManager.runSync = jest.fn().mockImplementation(async () => {
+      syncManager.runSync = vi.fn().mockImplementation(async () => {
         return new Promise(resolve => {
           resolveSyncPromise = async () => resolve(true);
         });
@@ -80,8 +81,8 @@ describe('FacilitySyncManager', () => {
 
   describe('runSync', () => {
     it('clears all snapshot tables before running', async () => {
-      const dropSchema = jest.fn();
-      const createSchema = jest.fn();
+      const dropSchema = vi.fn();
+      const createSchema = vi.fn();
 
       const syncManager = new FacilitySyncManager({
         models,
@@ -95,12 +96,12 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: jest.fn(),
+          endSyncSession: vi.fn(),
         },
       });
 
-      jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
-      jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+      vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+      vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
 
       await syncManager.runSync();
 
@@ -129,26 +130,26 @@ describe('FacilitySyncManager', () => {
             },
           },
           sequelize: {
-            getQueryInterface: () => ({ dropSchema: jest.fn(), createSchema: jest.fn() }),
+            getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
             query: () => true,
             transaction: async callback => callback(),
           },
           centralServer: {
             streaming: () => false,
             startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-            endSyncSession: jest.fn(),
-            setToken: jest.fn(),
+            endSyncSession: vi.fn(),
+            setToken: vi.fn(),
             ...centralServerOverrides,
           },
         });
-        jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
-        jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+        vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+        vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
         return { syncManager, secretStore, factStore };
       };
 
       it('pulls the PSK once the session has completed', async () => {
         const psk = 'ab'.repeat(32);
-        const fetch = jest.fn(async () => ({ settingsPsk: psk }));
+        const fetch = vi.fn(async () => ({ settingsPsk: psk }));
         const { syncManager, secretStore } = makeSyncManager({ fetch });
 
         await syncManager.runSync();
@@ -158,7 +159,7 @@ describe('FacilitySyncManager', () => {
       });
 
       it('completes the sync even when the pull fails', async () => {
-        const fetch = jest.fn(async () => {
+        const fetch = vi.fn(async () => {
           throw new Error('central unreachable');
         });
         const { syncManager, secretStore } = makeSyncManager({ fetch });
@@ -173,7 +174,7 @@ describe('FacilitySyncManager', () => {
       // buffer drop that gets a running process off a stale key.
       it('swaps the sync user and still reads the PSK', async () => {
         const psk = 'ab'.repeat(32);
-        const fetch = jest.fn(async endpoint =>
+        const fetch = vi.fn(async endpoint =>
           endpoint === 'admin/syncCredentials'
             ? { email: 'sync.abc@sync.tamanu', password: 'minted', settingsPsk: psk }
             : { settingsPsk: psk },
@@ -195,7 +196,7 @@ describe('FacilitySyncManager', () => {
       });
 
       it('completes the sync even when the swap fails', async () => {
-        const fetch = jest.fn(async endpoint => {
+        const fetch = vi.fn(async endpoint => {
           if (endpoint === 'admin/syncCredentials') throw new Error('central refused');
           return { settingsPsk: 'ab'.repeat(32) };
         });
@@ -214,21 +215,21 @@ describe('FacilitySyncManager', () => {
 
   describe('pushChanges', () => {
     beforeEach(() => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it("snapshots outgoing changes with the current 'lastSuccessfulSyncPush'", async () => {
       await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
 
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        snapshotOutgoingChanges: jest.fn().mockImplementation(() => []),
+      vi.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        snapshotOutgoingChanges: vi.fn().mockImplementation(() => []),
       }));
 
-      // Have to load test function within test scope so that we can mock dependencies per test case
+      // Imported inside the test so the doMock above is in place before the module is evaluated
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
+      } = await import('../../app/sync/FacilitySyncManager');
+      const { snapshotOutgoingChanges } = await import('../../app/sync/snapshotOutgoingChanges');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -236,8 +237,8 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: jest.fn(),
-          push: jest.fn(),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
         },
       });
 
@@ -251,25 +252,25 @@ describe('FacilitySyncManager', () => {
       const outgoingChanges = [{ test: 'test' }];
       await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
-        snapshotOutgoingChanges: jest.fn().mockImplementation(() => outgoingChanges),
+      vi.doMock('../../app/sync/snapshotOutgoingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/snapshotOutgoingChanges')),
+        snapshotOutgoingChanges: vi.fn().mockImplementation(() => outgoingChanges),
       }));
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
-        pushOutgoingChanges: jest.fn().mockImplementation(() => true),
+      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
+        pushOutgoingChanges: vi.fn().mockImplementation(() => true),
       }));
-      jest.doMock('@tamanu/database/utils/audit', () => ({
-        ...jest.requireActual('@tamanu/database/utils/audit'),
-        attachChangelogToSnapshotRecords: jest.fn().mockImplementation(() => outgoingChanges),
+      vi.doMock('@tamanu/database/utils/audit', async () => ({
+        ...(await vi.importActual('@tamanu/database/utils/audit')),
+        attachChangelogToSnapshotRecords: vi.fn().mockImplementation(() => outgoingChanges),
       }));
 
-      // Have to load test function within test scope so that we can mock dependencies per test case
+      // Imported inside the test so the doMock above is in place before the module is evaluated
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
-      const { attachChangelogToSnapshotRecords } = require('@tamanu/database/utils/audit');
+      } = await import('../../app/sync/FacilitySyncManager');
+      const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
+      const { attachChangelogToSnapshotRecords } = await import('@tamanu/database/utils/audit');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -277,8 +278,8 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: jest.fn(),
-          push: jest.fn(),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
         },
       });
 
@@ -305,30 +306,30 @@ describe('FacilitySyncManager', () => {
 
   describe('pullChanges', () => {
     beforeEach(() => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it("pull changes with current 'lastSuccessfulSyncPull'", async () => {
       await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '10');
 
-      jest.doMock('@tamanu/database/sync', () => ({
-        ...jest.requireActual('@tamanu/database/sync'),
-        createSnapshotTable: jest.fn(),
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')),
+        createSnapshotTable: vi.fn(),
       }));
-      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
-        pullIncomingChanges: jest.fn().mockImplementation(() => []),
+      vi.doMock('../../app/sync/pullIncomingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pullIncomingChanges')),
+        pullIncomingChanges: vi.fn().mockImplementation(() => []),
       }));
-      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
-        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
-        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
+      vi.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', async () => ({
+        ...(await vi.importActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot')),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: vi.fn(),
       }));
 
-      // Have to load test function within test scope so that we can mock dependencies per test case
+      // Imported inside the test so the doMock above is in place before the module is evaluated
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { createSnapshotTable } = require('@tamanu/database/sync');
+      } = await import('../../app/sync/FacilitySyncManager');
+      const { createSnapshotTable } = await import('@tamanu/database/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -336,8 +337,8 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: jest.fn(),
-          push: jest.fn(),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
         },
       });
 
@@ -350,25 +351,25 @@ describe('FacilitySyncManager', () => {
     it('save changes with current sessionId', async () => {
       await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
-      jest.doMock('@tamanu/database/sync', () => ({
-        ...jest.requireActual('@tamanu/database/sync'),
-        createSnapshotTable: jest.fn(),
-        saveIncomingChanges: jest.fn(),
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')),
+        createSnapshotTable: vi.fn(),
+        saveIncomingChanges: vi.fn(),
       }));
-      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
-        pullIncomingChanges: jest.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
+      vi.doMock('../../app/sync/pullIncomingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pullIncomingChanges')),
+        pullIncomingChanges: vi.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
       }));
-      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
-        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
-        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
+      vi.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', async () => ({
+        ...(await vi.importActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot')),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: vi.fn(),
       }));
 
-      // Have to load test function within test scope so that we can mock dependencies per test case
+      // Imported inside the test so the doMock above is in place before the module is evaluated
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
-      const { saveIncomingChanges } = require('@tamanu/database/sync');
+      } = await import('../../app/sync/FacilitySyncManager');
+      const { saveIncomingChanges } = await import('@tamanu/database/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -376,8 +377,8 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
-          endSyncSession: jest.fn(),
-          push: jest.fn(),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
         },
       });
 

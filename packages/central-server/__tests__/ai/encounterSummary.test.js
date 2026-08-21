@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import {
   setHardcodedPermissionsUseForTestsOnly,
@@ -25,7 +26,7 @@ describe('AI Encounter Summary (central-server)', () => {
 
     beforeAll(async () => {
       mockAiService = {
-        invoke: jest.fn(async () => ({ content: 'Generated encounter summary.' })),
+        invoke: vi.fn(async () => ({ content: 'Generated encounter summary.' })),
       };
       setHardcodedPermissionsUseForTestsOnly(true);
       ctx = await createTestContext({ aiService: mockAiService });

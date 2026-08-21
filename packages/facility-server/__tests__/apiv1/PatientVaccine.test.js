@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -558,7 +559,7 @@ describe('PatientVaccine', () => {
       const vaccine = await recordAdministeredVaccine(patient, scheduled1, {
         circumstanceIds: [],
       });
-      const findAllSpy = jest.spyOn(models.ReferenceData, 'findAll');
+      const findAllSpy = vi.spyOn(models.ReferenceData, 'findAll');
 
       const result = await app.get(
         `/api/patient/${patient.id}/administeredVaccine/${vaccine.id}/circumstances`,

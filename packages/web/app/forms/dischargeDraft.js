@@ -53,8 +53,9 @@ export const buildMedicationsInitialValues = ({
           sendToPharmacy: Boolean(draftLine.sendToPharmacy),
         }
       : {
-          // Left blank rather than zeroed when the prescription has no quantity, so the clinician
-          // sees an empty field to fill in rather than a number nobody entered.
+          // The quantity as recorded against the prescription. One created without a quantity is
+          // stored as zero, so those rows start at 0; prescriptions predating that normalisation
+          // still hold null and start empty.
           quantity: medication.quantity ?? null,
           repeats: medication?.repeats?.toString() ?? '0',
           sendToPharmacy: isSentToPharmacyByDefault,

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { createTestContext } from '../utilities';
 import { mSupplyMedIntegrationProcessor } from '../../app/tasks/mSupplyMedIntegrationProcessor';
@@ -15,13 +16,13 @@ import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-jest.mock('../../app/serverConfig', () => ({
-  ...jest.requireActual('../../app/serverConfig'),
-  getServerFacilityIds: jest.fn(() => ['balwyn']),
+vi.mock('../../app/serverConfig', async () => ({
+  ...(await vi.importActual('../../app/serverConfig')),
+  getServerFacilityIds: vi.fn(() => ['balwyn']),
 }));
 
-jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
-jest.mock('@tamanu/utils/sleepAsync', () => ({ sleepAsync: jest.fn(() => Promise.resolve()) }));
+vi.mock('@tamanu/api-client/fetchWithRetryBackoff');
+vi.mock('@tamanu/utils/sleepAsync', () => ({ sleepAsync: vi.fn(() => Promise.resolve()) }));
 
 const INTEGRATION_SETTINGS = {
   enabled: true,
@@ -199,7 +200,7 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
   // Reset mocks and config before each test
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     getServerFacilityIds.mockReturnValue([facilityId]);
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
     // Tasks read the schedule from the context snapshot (createTestContext resolves it

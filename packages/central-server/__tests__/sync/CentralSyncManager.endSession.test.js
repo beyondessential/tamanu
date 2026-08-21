@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
@@ -40,7 +41,7 @@ describe('CentralSyncManager.endSession', () => {
   afterAll(() => ctx.close());
 
   it('set completedAt when ending an existing session', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -50,7 +51,7 @@ describe('CentralSyncManager.endSession', () => {
   });
 
   it('throws an error when connecting to a session that already ended', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 

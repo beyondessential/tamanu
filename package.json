@@ -11,12 +11,12 @@
     "prepare": "node scripts/run-patch-package.mjs",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
-    "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "npm run build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
     "clean-build": "npm run clean-build --workspace=@tamanu/web-frontend --workspace=@tamanu/patient-portal",
-    "test": "npm run build && node scripts/test-all.mjs",
-    "test-coverage": "npm run test -- --coverage",
+    "test": "npm run build && vitest run && node scripts/test-all.mjs",
+    "test-watch": "vitest watch",
+    "test-coverage": "vitest run --coverage",
     "lint-all": "eslint .",
     "lint-fix": "npm run lint-all -- --fix",
     "admin-panel-start-dev": "npm run admin-start-dev --workspace @tamanu/web-frontend",
@@ -93,7 +93,8 @@
     "ts-morph": "^28.0.0",
     "tsx": "^4.22.4",
     "typescript": "^5.8.0",
-    "vite": "^7.3.5"
+    "vite": "^7.3.5",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "concurrently": "^9.2.1",
@@ -123,6 +124,9 @@
     "@types/react-native-svg-charts": {
       "react-native": "0.85.3",
       "react-native-svg": "15.15.5"
+    },
+    "vitest": {
+      "@opentelemetry/api": "1.4.1"
     }
   }
 }

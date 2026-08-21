@@ -66,9 +66,14 @@ const X_RAY_AREA_NAMES = X_RAY_IMAGING_AREAS.map(a => a.name);
 const CT_SCAN_AREA_NAMES = CT_SCAN_IMAGING_AREAS.map(a => a.name);
 const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 
-// this file is most commonly used within tests, but also outside them
-// jest won't always be defined, in which case we can use a random seed
-export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
+// This file is most commonly used within tests, but also outside them. Under the test suite
+// TAMANU_TEST_SEED is set for the whole run and printed at startup (see scripts/testSeed.mjs),
+// so a data-dependent failure can be reproduced by re-running with the same seed; elsewhere
+// there is no seed to honour. A seed of `0` is valid, hence testing the string not the number.
+const seedFromEnvironment = process.env.TAMANU_TEST_SEED?.trim();
+export const chance = new Chance(
+  seedFromEnvironment ? Number(seedFromEnvironment) : randomInt(2 ** 42),
+);
 
 export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();

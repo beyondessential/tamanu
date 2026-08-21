@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 

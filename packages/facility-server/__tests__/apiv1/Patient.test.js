@@ -1,4 +1,4 @@
-import { afterAll, beforeAll } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest';
 import { startOfDay, subDays } from 'date-fns';
 import config from 'config';
 

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
 import { settingsCache } from '@tamanu/settings';
 import { buildSettings } from '@tamanu/settings/reader';
@@ -9,11 +10,11 @@ import { createSetting } from './settingsUtils';
 // Outlast the NOTIFY listener's debounce so trailing resets don't fire in the next test.
 const NOTIFY_DEBOUNCE_DRAIN_MS = 100;
 
-jest.mock('@tamanu/settings/reader', () => {
-  const originalModule = jest.requireActual('@tamanu/settings/reader');
+vi.mock('@tamanu/settings/reader', async () => {
+  const originalModule = (await vi.importActual('@tamanu/settings/reader'));
   return {
     ...originalModule,
-    buildSettings: jest.fn(() => ({ timezone: 'gmt-3' })),
+    buildSettings: vi.fn(() => ({ timezone: 'gmt-3' })),
   };
 });
 
@@ -25,7 +26,7 @@ describe('Read Settings - Cache', () => {
     ctx = await createTestContext();
     settings = ctx.settings;
     models = ctx.store.models;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeEach(() => {
@@ -59,7 +60,7 @@ describe('Read Settings - Cache', () => {
     await createSetting(models, 'new-database-key', 'new-database-value', SETTINGS_SCOPES.GLOBAL);
 
     // Calling it after creating a new row should call build settings one more time
-    await settings.get(models, 'new-database-key');
+    await settings.get('new-database-key');
 
     // buildSettings should be called twice
     expect(buildSettings).toHaveBeenCalledTimes(2);
