@@ -11,7 +11,6 @@ export const Routes = {
   Forms: {
     Index: '',
     AutocompleteModal: '',
-    MultiSelectModal: '',
     SelectModal: '',
     FrequencySearchModal: '',
   },
@@ -145,7 +144,6 @@ export const Routes = {
       EditPatientAdditionalData: '',
     },
     PatientActions: '',
-    ExportDataScreen: '',
   },
 };
 

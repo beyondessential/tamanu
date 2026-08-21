@@ -5,8 +5,6 @@ import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
-import { Routes } from '/helpers/routes';
-import type { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -92,7 +90,7 @@ const ReportChart: FC<ReportChartProps> = ({
     </StyledView>
   );
 
-export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement => {
+export const ReportScreen = (): ReactElement => {
   const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
 
@@ -153,10 +151,6 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     }
   }, [isReportWeekly]);
 
-  const navigateToExportData = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.ExportDataScreen);
-  }, []);
-
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
@@ -174,17 +168,6 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
           justifyContent="space-between"
         >
           <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
-          <Button
-            height={screenPercentageToDP(4.25, Orientation.Height)}
-            width={screenPercentageToDP(25.54, Orientation.Width)}
-            outline
-            borderColor={theme.colors.WHITE}
-            fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-            buttonText={
-              <TranslatedText stringId="report.action.exportData" fallback="Export Data" />
-            }
-            onPress={navigateToExportData}
-          />
         </RowView>
         <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
           <StyledText

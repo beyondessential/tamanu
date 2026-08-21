@@ -2,17 +2,6 @@ import type { IUser } from '../../types';
 import type { callWithBackoffOptions } from './utils/callWithBackoff';
 import type { SYNC_SESSION_DIRECTION } from './constants';
 
-export type DownloadRecordsResponse = {
-  count: number;
-  cursor: string;
-  records: SyncRecord[];
-};
-
-export type UploadRecordsResponse = {
-  count: number;
-  requestedAt: number;
-};
-
 export interface SyncRecord {
   id: string;
   recordId: string;
@@ -22,10 +11,6 @@ export interface SyncRecord {
   isDeleted?: boolean;
   direction?: SYNC_SESSION_DIRECTION;
 }
-
-export type PersistResult = {
-  failures: string[];
-};
 
 export type DataToPersist = {
   id: string;

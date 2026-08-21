@@ -61,8 +61,6 @@ export const DRUG_UNITS = {
 
 export type DrugUnit = (typeof DRUG_UNITS)[keyof typeof DRUG_UNITS];
 
-export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS) as DrugUnit[];
-
 export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce(
   (prev, curr) => {
     prev[curr] = curr;

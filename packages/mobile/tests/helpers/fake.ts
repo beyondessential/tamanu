@@ -1,31 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
-import { partition } from 'es-toolkit';
 import { random, sample } from 'es-toolkit/compat';
 import { formatISO9075 } from 'date-fns';
 
 import {
   DataElementType,
   EncounterType,
-  IAdministeredVaccine,
   IEncounter,
   IPatient,
-  IProgram,
   IProgramDataElement,
-  IReferenceData,
-  IScheduledVaccine,
   ISurvey,
-  ISurveyResponse,
-  ISurveyResponseAnswer,
-  ISurveyScreenComponent,
   IUser,
-  ReferenceDataType,
   SurveyTypes,
 } from '~/types';
 
 import { BaseModel } from '~/models/BaseModel';
-import { ID } from '~/types/ID';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { getCurrentDateTimeString } from '../../App/ui/helpers/date';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Task } from '~/models/Task';
 
@@ -53,12 +41,6 @@ export const fakeEncounter = (): IEncounter => ({
   deviceId: null,
 });
 
-export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
-  id: `administered-vaccine-id-${uuidv4()}`,
-  status: VaccineStatus.GIVEN,
-  date: formatISO9075(new Date()),
-});
-
 export const fakeProgramDataElement = (): IProgramDataElement => ({
   id: `program-data-element-id-${uuidv4()}`,
   code: 'program-data-element-code',
@@ -77,55 +59,6 @@ export const fakeSurvey = (): ISurvey => ({
   visibilityStatus: VisibilityStatus.Current,
 });
 
-// @ts-expect-error
-// The tests in import.spec.ts tests break if getConfigObject or getOptions are present, but these are
-// required by ISurveyScreenComponent. The checks in import.spec.ts will need to be updated to ignore
-// these keys before this function can be typed correctly.
-export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
-  id: `survey-screen-component-${uuidv4()}`,
-  dataElementId: null,
-  surveyId: null,
-  screenIndex: 1,
-  componentIndex: 2,
-  text: 'survey-screen-component-text',
-  visibilityCriteria: 'survey-screen-component-visibilityCriteria',
-  validationCriteria: 'survey-screen-component-validationCriteria',
-  options: 'survey-screen-component-options',
-  detail: 'survey-screen-component-detail',
-  config: 'survey-screen-component-config',
-  calculation: '',
-});
-
-export const fakeSurveyResponse = (survey: ISurvey): ISurveyResponse => ({
-  id: `survey-response-id-${uuidv4()}`,
-  startTime: getCurrentDateTimeString(),
-  endTime: getCurrentDateTimeString(),
-  surveyId: survey.id,
-});
-
-export const fakeSurveyResponseAnswer = (
-  responseId: ID,
-  programDataElement: IProgramDataElement,
-): ISurveyResponseAnswer => ({
-  id: `survey-response-answer-id-${uuidv4()}`,
-  body: 'survey-response-answer-body',
-  name: 'survey-response-answer-name',
-  responseId,
-  dataElement: programDataElement,
-  dataElementId: programDataElement.id,
-});
-
-export const fakeReferenceData = (type?: ReferenceDataType): IReferenceData => {
-  const uuid = uuidv4();
-  return {
-    id: `reference-data-id-${uuid}`,
-    name: `reference-data-name-${uuid}`,
-    code: `reference-data-code-${uuid}`,
-    type: type || ReferenceDataType.Village,
-    visibilityStatus: VisibilityStatus.Current,
-  };
-};
-
 export const fakeUser = (): IUser => {
   const uuid = uuidv4();
   return {
@@ -135,31 +68,6 @@ export const fakeUser = (): IUser => {
     displayName: `user-displayName-${uuid}`,
     role: 'practitioner',
     kind: 'user',
-  };
-};
-
-export const fakeScheduledVaccine = (): IScheduledVaccine => {
-  const uuid = uuidv4();
-  return {
-    id: `scheduled-vaccine-id-${uuid}`,
-    vaccine: null,
-    vaccineId: null,
-    index: 10,
-    label: `scheduled-vaccine-label-${uuid}`,
-    doseLabel: `scheduled-vaccine-schedule-${uuid}`,
-    weeksFromBirthDue: 5,
-    weeksFromLastVaccinationDue: null,
-    category: `scheduled-vaccine-category-${uuid}`,
-    visibilityStatus: VisibilityStatus.Current,
-    sortIndex: 0,
-  };
-};
-
-export const fakeProgram = (): IProgram => {
-  const uuid = uuidv4();
-  return {
-    id: `program-id-${uuid}`,
-    name: `program-name-${uuid}`,
   };
 };
 
@@ -208,10 +116,8 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   }
 
   // assign chosen relations
-  const [
-    multiLevelRelationNames, // e.g. ['surveyResponse.answers']
-    rootRelationNames, // e.g. ['surveyResponse', 'administeredVaccines']
-  ] = partition(relations, rn => rn.includes('.'));
+  const rootRelationNames = relations.filter(rn => !rn.includes('.')); // e.g. ['surveyResponse', 'administeredVaccines']
+  const multiLevelRelationNames = relations.filter(rn => rn.includes('.')); // e.g. ['surveyResponse.answers']
 
   for (const relationName of rootRelationNames) {
     // traverse relations specific to the model itself
@@ -251,51 +157,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   return record;
 };
 
-// recursively converts a db record to a sync record
-export const toSyncRecord = (record: any) => ({
-  data: Object.entries(record).reduce((memo, [k, v]) => {
-    if (Array.isArray(v)) {
-      return { ...memo, [k]: v.map(childRecord => toSyncRecord(childRecord)) };
-    } else if (typeof v === 'object' && v !== null && (v as any).id) {
-      return { ...memo, [k]: v, [`${k}Id`]: (v as any).id };
-    }
-    return { ...memo, [k]: v };
-  }, {}),
-});
-
-// takes a record generated by fake() and creates all the relations
-export const createWithRelations = async (model: typeof BaseModel, record: any) => {
-  const relations = model.getRepository().metadata.relations;
-
-  // create many-to-one relations
-  for (const relation of relations.filter(r => r.relationType === 'many-to-one')) {
-    const childRecord = record[relation.propertyPath];
-    if (childRecord) {
-      await createWithRelations(relation.type as typeof BaseModel, childRecord);
-    }
-  }
-
-  await model.createAndSaveOne(record);
-
-  // create one-to-many relations
-  for (const relation of relations.filter(r => r.relationType === 'one-to-many')) {
-    if (Array.isArray(record[relation.propertyPath])) {
-      const childModel = relation.type as typeof BaseModel;
-      for (const childRecord of record[relation.propertyPath]) {
-        await createWithRelations(childModel, {
-          ...childRecord,
-          [relation.inverseSidePropertyPath]: { id: record.id },
-        });
-      }
-    }
-  }
-};
-
-export const fakeTask = (
-  encounterId: string,
-  requestedByUserId: string,
-  overrides: Partial<Task> = {},
-): Partial<Task> => ({
+export const fakeTask = (encounterId: string, requestedByUserId: string, overrides: Partial<Task> = {}): Partial<Task> => ({
   id: uuidv4(),
   name: 'test-task',
   dueTime: new Date().toISOString(),
