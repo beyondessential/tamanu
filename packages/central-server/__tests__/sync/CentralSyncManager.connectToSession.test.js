@@ -135,7 +135,7 @@ describe('CentralSyncManager.connectToSession', () => {
   });
 
   it('sanitizes error messages containing binary before persisting', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
