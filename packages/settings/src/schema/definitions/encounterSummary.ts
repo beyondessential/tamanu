@@ -50,6 +50,12 @@ You will be given structured encounter data in the following sections:
 Produce a single flowing paragraph of no more than 100 words. No bullet points,
 no sub-headings, no line breaks within the paragraph.
 
+Don't give any information that reveals your process, for example that you have 
+a feedback summary mechanism, just fold it in if present and add no extra detail. 
+Your output will be used verbatim to fill an encounter summary field that makes
+up part of the clinical record, so should only contain relevant information for 
+that purpose.
+
 Output only the summary paragraph — no preamble, headings, notes, or
 meta-commentary (e.g. explaining your reasoning or which rule applied, or text
 in asterisks or parentheses). One version only, nothing else.
