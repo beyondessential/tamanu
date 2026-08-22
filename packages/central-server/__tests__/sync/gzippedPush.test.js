@@ -1,9 +1,10 @@
 import { gzipSync } from 'node:zlib';
-import { beforeAll, describe, it } from '@jest/globals';
-import { fake } from '@tamanu/fake-data/fake';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
 import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 import { countSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
-
+import { fake } from '@tamanu/fake-data/fake';
+import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
 
 // Mobile clients gzip their push bodies and rely on body-parser's inflate
@@ -63,7 +64,6 @@ describe('sync push with gzipped request body', () => {
       }),
     );
 
-    const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
     // overrideConfig replaces the whole config object, so every key the sync
     // session code path reads must be present here
     CentralSyncManager.overrideConfig({
