@@ -27,8 +27,9 @@ export function calculateCacheSizeKiB(
 export default async function getCacheSizeKiB(
   unsafe: boolean | undefined = false,
 ): Promise<number> {
-  return calculateCacheSizeKiB(
-    await getTotalMemory(),
-    unsafe ? UNSAFE_CACHE_OPTIONS : DEFAULT_CACHE_OPTIONS,
-  );
+  const total = await getTotalMemory();
+  if (Number.isFinite(total)) {
+    return calculateCacheSizeKiB(total, unsafe ? UNSAFE_CACHE_OPTIONS : DEFAULT_CACHE_OPTIONS);
+  }
+  return unsafe ? 1_048_576 : 8_192; // Sensible fallbacks, hopefully never used
 }
