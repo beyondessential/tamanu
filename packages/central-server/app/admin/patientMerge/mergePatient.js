@@ -443,9 +443,10 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
 }
 
 export async function refreshMultiChildRecordsForSync(model, records) {
-  for (const record of records) {
-    await refreshChildRecordsForSync(model, record.id);
-  }
+  await refreshChildRecordsForSync(
+    model,
+    records.map(record => record.id),
+  );
 }
 
 /**
