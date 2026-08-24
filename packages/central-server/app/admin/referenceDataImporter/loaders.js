@@ -1,6 +1,7 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
+import { ReadSettings } from '@tamanu/settings';
 import {
   ENCOUNTER_TYPES,
   DRUG_STOCK_STATUSES,
@@ -589,6 +590,21 @@ export async function drugLoader(item, { models, pushError }) {
 
   for (const [key, value] of Object.entries(facilitiesData)) {
     const facilityId = key;
+
+    // mSupply is the source of truth for stock on hand at this facility: leave
+    // quantity/stockStatus out so the existing values (kept in sync by
+    // MSupplyStockOnHandProcessor) aren't overwritten by this import.
+    const stockOnHandEnabled = await new ReadSettings(models, facilityId).get(
+      'integrations.mSupplyMed.stockOnHandEnabled',
+    );
+    if (stockOnHandEnabled) {
+      rows.push({
+        model: 'ReferenceDrugFacility',
+        values: { referenceDrugId, facilityId },
+      });
+      continue;
+    }
+
     const parsedQuantity = parseInt(value, 10);
 
     let quantity = null;
