@@ -1,6 +1,10 @@
 import { DataTypes } from 'sequelize';
 
-import { SYNC_DIRECTIONS, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  FACT_LOOKUP_MODELS_TO_REBUILD,
+  FACT_LOOKUP_PATIENTS_TO_REBUILD,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
@@ -126,6 +130,42 @@ export class LocalSystemFact extends Model {
         replacements: {
           modelName,
           key: FACT_LOOKUP_MODELS_TO_REBUILD,
+        },
+      },
+    );
+  }
+
+  static async getLookupPatientsToRebuild(): Promise<string[]> {
+    const value = await this.get(FACT_LOOKUP_PATIENTS_TO_REBUILD);
+    if (!value) {
+      return [];
+    }
+    return value.split(',').map(patientId => patientId.trim());
+  }
+
+  static async flagLookupPatientsForRebuild(patientIds: string[]): Promise<void> {
+    for (const patientId of patientIds) {
+      await this.sequelize.query(`SELECT flag_lookup_patient_to_rebuild(:patientId);`, {
+        replacements: { patientId },
+      });
+    }
+  }
+
+  static async markLookupPatientsRebuilt(patientIds: string[]): Promise<void> {
+    await this.sequelize.query(
+      `
+        UPDATE local_system_facts
+        SET value = (
+          SELECT coalesce(string_agg(patient_id, ','), '')
+          FROM unnest(string_to_array(value, ',')) AS t(patient_id)
+          WHERE patient_id NOT IN (:patientIds)
+        )
+        WHERE key = :key
+    `,
+      {
+        replacements: {
+          patientIds,
+          key: FACT_LOOKUP_PATIENTS_TO_REBUILD,
         },
       },
     );

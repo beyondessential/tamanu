@@ -449,87 +449,6 @@ export async function refreshMultiChildRecordsForSync(model, records) {
 }
 
 /**
- * A record can reach sync_lookup with a patient_id derived through joins its own table doesn't
- * own, and walking child associations cannot find all of those: prescriptions sit on the far side
- * of a belongsToMany, lab_request_logs hang off an association nobody declared. Any lookup row for
- * such a record still scoped to a merged-away patient is stale whatever the shape of the join, so
- * re-queue those records from their own tables and let the next lookup build re-derive the scope.
- * Without this they keep a patient that syncs to no facility, and a facility holding a child
- * record that does sync hits a foreign key violation that halts its whole pull.
- *
- * Tables whose lookup scope is exactly their own patient_id column are excluded: repointing that
- * column already re-queues those, and the merged patient's deletion tombstones legitimately keep
- * the old id, so re-queueing them here would repeat every run instead of converging. A table whose
- * scope also draws on other tables' patient_id (e.g. patient_ongoing_prescriptions) is swept, since
- * a join-derived scope can go stale without the row itself being touched.
- *
- * Takes the merged patient ids to sweep: the merge passes its one patient, the maintainer passes
- * every merged patient. Everything drives off the sync_lookup patient_id index, and a healed row
- * leaves the stale set, so repeat sweeps converge to no work.
- */
-const lookupScopeIsOwnPatientIdColumn = async model => {
-  // a model with no lookup query details never reaches the lookup table
-  if (typeof model.buildSyncLookupQueryDetails !== 'function') return true;
-  const details = await model.buildSyncLookupQueryDetails({});
-  // no select means the default one, which derives no patient scope at all
-  if (!details?.select) return true;
-  const patientIdReferences =
-    details.select.replace(/json_build_object\([^)]*\)/, '').match(/\w+\.patient_id/g) ?? [];
-  return patientIdReferences.every(
-    reference => reference === `${model.tableName}.patient_id`,
-  );
-};
-
-export async function getLookupSweepExcludedTables(models) {
-  const excluded = ['patients'];
-  for (const model of Object.values(models)) {
-    if (model.getAttributes().patientId && (await lookupScopeIsOwnPatientIdColumn(model))) {
-      excluded.push(model.tableName);
-    }
-  }
-  return excluded;
-}
-
-export async function refreshLookupScopedRecordsForSync(models, patientIds) {
-  if (patientIds.length === 0) return;
-
-  const { sequelize } = models.SyncLookup;
-  const ownScopeTables = await getLookupSweepExcludedTables(models);
-
-  const [staleRecordTypes] = await sequelize.query(
-    `
-      SELECT DISTINCT record_type AS "recordType"
-      FROM sync_lookup
-      WHERE patient_id IN (:patientIds)
-        AND record_type NOT IN (:ownScopeTables);
-    `,
-    { replacements: { patientIds, ownScopeTables } },
-  );
-
-  const modelsByTableName = Object.fromEntries(
-    Object.values(models).map(model => [model.tableName, model]),
-  );
-
-  for (const { recordType } of staleRecordTypes) {
-    const model = modelsByTableName[recordType];
-    if (!model) continue;
-
-    // tableName comes from the model registry rather than from the lookup row, so it is safe inline
-    await sequelize.query(
-      `
-        UPDATE "${model.tableName}"
-        SET updated_at_sync_tick = 1
-        WHERE id IN (
-          SELECT record_id FROM sync_lookup
-          WHERE record_type = :recordType AND patient_id IN (:patientIds)
-        );
-      `,
-      { replacements: { recordType, patientIds } },
-    );
-  }
-}
-
-/**
  * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
  * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
  * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
@@ -601,10 +520,14 @@ export async function mergePatient(
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    // See the functions' documentation for more details on why these are needed
     if (updateDependentRecordsForResyncEnabled) {
+      // See the function's documentation for more details on why this is needed
       await updateDependentRecordsForResync(models, unwantedPatientId);
-      await refreshLookupScopedRecordsForSync(models, [unwantedPatientId]);
+      // Lookup rows can be scoped to this patient through joins their own tables don't declare
+      // (prescriptions across a belongsToMany, lab_request_logs with no association at all), so
+      // repointing alone strands them with a patient that syncs to no facility. Flagging the
+      // patient makes the next lookup build re-derive scope for every row still pointing at them.
+      await models.LocalSystemFact.flagLookupPatientsForRebuild([unwantedPatientId]);
     }
 
     updates.Patient = 2;

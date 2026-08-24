@@ -16,7 +16,6 @@ import {
   mergePatientInvoiceInsurancePlans,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
-  refreshLookupScopedRecordsForSync,
   simpleUpdateModels,
   specificUpdateModels,
 } from '../admin/patientMerge/mergePatient';
@@ -60,12 +59,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
     const [, result] = await model.sequelize.query(`
       UPDATE ${tableName}
       SET ${patientFieldName} = patients.merged_into_id
-      FROM patients 
-      WHERE 
-        patients.id = ${tableName}.${patientFieldName} 
+      FROM patients
+      WHERE
+        patients.id = ${tableName}.${patientFieldName}
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING ${tableName}.id;
+      RETURNING ${tableName}.id, patients.id AS "mergedPatientId";
     `);
     return result.rows;
   }
@@ -108,6 +107,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
       // set up an object for counting affected records
       const counts = {};
       const merges = {};
+      const mergedPatientIds = new Set();
       const updateCounts = (name, records) => {
         const len = records && records.length;
         if (len) {
@@ -119,6 +119,13 @@ export class PatientMergeMaintainer extends ScheduledTask {
           merges[name] = records;
         }
       };
+      const collectMergedPatients = records => {
+        for (const record of records ?? []) {
+          if (record.mergedPatientId) {
+            mergedPatientIds.add(record.mergedPatientId);
+          }
+        }
+      };
 
       // do all the simple model updates
       for (const modelName of simpleUpdateModels) {
@@ -126,6 +133,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
         const records = await this.mergeAllRecordsForModel(model);
         updateCounts(modelName, records);
         updateMerges(modelName, records);
+        collectMergedPatients(records);
       }
 
       // then the model updates that need specific updates:
@@ -135,23 +143,21 @@ export class PatientMergeMaintainer extends ScheduledTask {
           const records = await method.call(this);
           updateCounts(modelName, records);
           updateMerges(modelName, records);
+          collectMergedPatients(records);
         }
       }
 
       await this.updateDependentRecordsForResync(merges);
 
-      // Sweep everything still scoped to a merged patient, not just this run's repoints: records
-      // stranded by past merges stay invisible to every facility until re-queued, and a healed row
-      // leaves the stale set, so the sweep converges to empty index probes. The ids are fetched
-      // once here so the sweep's queries don't each rescan patients.
-      if (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled')) {
-        const [mergedPatients] = await this.sequelize.query(
-          'SELECT id FROM patients WHERE merged_into_id IS NOT NULL;',
-        );
-        await refreshLookupScopedRecordsForSync(
-          this.models,
-          mergedPatients.map(patient => patient.id),
-        );
+      // Repointing a record leaves lookup rows that derived their patient scope through it still
+      // scoped to the merged patient; flagging the patient makes the next lookup build re-derive
+      // them. Only patients repointed this run are flagged, since the merged patient's tombstones
+      // stay scoped to them legitimately and re-flagging would re-sync those every run.
+      if (
+        mergedPatientIds.size &&
+        (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled'))
+      ) {
+        await this.models.LocalSystemFact.flagLookupPatientsForRebuild([...mergedPatientIds]);
       }
 
       return counts;

@@ -379,7 +379,7 @@ export class CentralSyncManager {
           ? null
           : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
-        await updateLookupTable(
+        const { rebuiltPatientIds } = await updateLookupTable(
           this.store.models,
           getModelsForPull(this.store.models),
           previouslyUpToTick,
@@ -387,6 +387,14 @@ export class CentralSyncManager {
           syncLookupTick,
           debugObject,
         );
+
+        // Cleared with a remove of just these ids, so a patient flagged by a merge committing
+        // mid-build survives for the next build to pick up.
+        if (rebuiltPatientIds.length) {
+          transaction.afterCommit(async () => {
+            await store.models.LocalSystemFact.markLookupPatientsRebuilt(rebuiltPatientIds);
+          });
+        }
 
         // Self-heal pass: rebuild rows still flagged needs_rebuild (drifted without advancing the
         // sync clock, e.g. by a migration). Runs in the same transaction as the incremental build

@@ -2,10 +2,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
-import {
-  getLookupSweepExcludedTables,
-  mergePatient,
-} from '../../../app/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../../utilities';
 import { makeTwoPatients } from './makeTwoPatients';
@@ -20,8 +17,11 @@ describe('Sync lookup after patient merge', () => {
   let examiner;
   let medication;
 
+  const lookupRowFor = (recordType, recordId) =>
+    models.SyncLookup.findOne({ where: { recordType, recordId } });
+
   const lookupPatientIdFor = async (recordType, recordId) => {
-    const row = await models.SyncLookup.findOne({ where: { recordType, recordId } });
+    const row = await lookupRowFor(recordType, recordId);
     return row?.patientId;
   };
 
@@ -120,6 +120,8 @@ describe('Sync lookup after patient merge', () => {
         merge.id,
       ]);
     }
+    const tickBeforeMerge = (await lookupRowFor('prescriptions', records.prescription.id))
+      .updatedAtSyncTick;
 
     await mergePatient(models, keep.id, merge.id);
     await centralSyncManager.updateLookupTable();
@@ -130,6 +132,13 @@ describe('Sync lookup after patient merge', () => {
         keep.id,
       ]);
     }
+
+    // the rescoped rows carry a fresh lookup tick, so facilities re-pull them
+    const tickAfterMerge = (await lookupRowFor('prescriptions', records.prescription.id))
+      .updatedAtSyncTick;
+    expect(Number(tickAfterMerge)).toBeGreaterThan(Number(tickBeforeMerge));
+
+    expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([]);
   });
 
   it('rescopes records that arrive for a patient already merged', async () => {
@@ -144,9 +153,14 @@ describe('Sync lookup after patient merge', () => {
     await centralSyncManager.updateLookupTable();
 
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
+
+    // a run that repoints nothing flags nothing, so the merged patient's tombstones (which
+    // legitimately keep the old id) aren't re-queued every run
+    await new PatientMergeMaintainer(ctx).remergePatientRecords();
+    expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([]);
   });
 
-  it('rescopes records stranded by an earlier merge even when this run repoints nothing', async () => {
+  it('rescopes records stranded by an earlier merge when the patient is flagged for rebuild', async () => {
     const [keep, merge] = await makeTwoPatients(models);
     await mergePatient(models, keep.id, merge.id);
 
@@ -163,31 +177,11 @@ describe('Sync lookup after patient merge', () => {
     expect(await lookupPatientIdFor('encounters', encounter.id)).toBe(keep.id);
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
 
-    await new PatientMergeMaintainer(ctx).remergePatientRecords();
+    // as the deploy migration does for every already-merged patient
+    await models.LocalSystemFact.flagLookupPatientsForRebuild([merge.id]);
     await centralSyncManager.updateLookupTable();
 
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(keep.id);
-  });
-
-  it('sweeps join-derived scope tables and skips own-column scope tables', async () => {
-    const excluded = await getLookupSweepExcludedTables(models);
-
-    // scope derived through joins can go stale without the row being touched, so these must be swept
-    for (const table of [
-      'prescriptions',
-      'encounter_prescriptions',
-      'medication_administration_records',
-      'lab_request_logs',
-      'patient_ongoing_prescriptions',
-    ]) {
-      expect(excluded).not.toContain(table);
-    }
-
-    // scope that follows the row's own column heals through repointing, and the merged patient's
-    // tombstones legitimately keep the old id, so sweeping these would repeat forever
-    for (const table of ['patients', 'patient_additional_data', 'patient_issues']) {
-      expect(excluded).toContain(table);
-    }
   });
 
   it('leaves records alone when dependent record resync is disabled', async () => {

@@ -120,6 +120,7 @@ const updateLookupTableForModel = async (
   sessionConfig,
   syncLookupTick,
   shouldFullyRebuild,
+  patientIdsToRebuild,
 ) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
@@ -131,6 +132,17 @@ const updateLookupTableForModel = async (
   const attributes = model.getAttributes();
   const { select, joins, where } = (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
+  // A patient merge can leave lookup rows scoped to the merged patient without anything in this
+  // table advancing the sync clock (the scope is derived through other tables' joins), so rows
+  // still scoped to a flagged patient are rebuilt regardless of tick, re-deriving their scope and
+  // re-queueing them with a fresh tick.
+  const flaggedPatientsClause = patientIdsToRebuild.length
+    ? `OR ${table}.id::text IN (
+        SELECT record_id FROM sync_lookup
+        WHERE record_type = :recordType AND patient_id IN (:patientIdsToRebuild)
+      )`
+    : '';
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -144,7 +156,7 @@ const updateLookupTableForModel = async (
           (${
             shouldFullyRebuild
               ? `${table}.updated_at_sync_tick > -1`
-              : where || `${table}.updated_at_sync_tick > :since`
+              : `(${where || `${table}.updated_at_sync_tick > :since`}) ${flaggedPatientsClause}`
           })
           ${fromId ? `AND ${table}.id > :fromId` : ''}
         `,
@@ -157,6 +169,8 @@ const updateLookupTableForModel = async (
           fromId,
           perModelUpdateTimeoutMs,
           updatedAtSyncTick: syncLookupTick,
+          recordType: table,
+          patientIdsToRebuild,
         },
       },
     );
@@ -266,6 +280,8 @@ export const updateLookupTable = withConfig(
 
     let changesCount = 0;
 
+    const patientIdsToRebuild = await models.LocalSystemFact.getLookupPatientsToRebuild();
+
     for (const model of Object.values(outgoingModels)) {
       try {
         const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
@@ -278,6 +294,7 @@ export const updateLookupTable = withConfig(
           sessionConfig,
           syncLookupTick,
           shouldRebuildModel,
+          patientIdsToRebuild,
         );
 
         if (shouldRebuildModel) {
@@ -302,7 +319,9 @@ export const updateLookupTable = withConfig(
     await debugObject.addInfo({ changesCount });
     log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
-    return changesCount;
+    // rebuiltPatientIds are cleared by the caller after commit: clearing here would write the same
+    // fact row a concurrent merge appends to, aborting the whole repeatable-read build
+    return { changesCount, rebuiltPatientIds: patientIdsToRebuild };
   },
 );
 
