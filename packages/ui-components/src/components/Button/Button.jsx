@@ -79,6 +79,22 @@ const StyledCircularProgress = styled(CircularProgress)`
   margin-right: 5px;
 `;
 
+/**
+ * Stable root for BaseButton so MUI's `component` prop never changes identity between renders.
+ * It used to (recreated per-render, only present when `functionallyDisabled`), which unmounted
+ * MUI's ButtonBase/TouchRipple mid-click whenever Formik flipped `isSubmitting` on submit,
+ * racing MUI's own deferred ripple callback and throwing
+ * "Cannot read properties of null (reading 'pulsate')".
+ *
+ * MUI only auto-forwards `type`/`disabled` to the rendered element when `component` is the
+ * literal string 'button' (see @material-ui/core ButtonBase.js) — using any custom component
+ * means we forward them ourselves via `buttonType`/`nativeDisabled`.
+ */
+const ButtonRoot = forwardRef(({ nativeDisabled, buttonType, ...rest }, ref) => (
+  // eslint-disable-next-line react/button-has-type
+  <button type={buttonType} disabled={nativeDisabled} {...rest} ref={ref} data-testid="button-0nnt" />
+));
+
 const BaseButton = ({
   children,
   variant = 'contained',
@@ -94,27 +110,27 @@ const BaseButton = ({
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
+  const realDisabled = disabled || !hasPermission;
 
-  const buttonComponent = functionallyDisabled
-    ? forwardRef((buttonProps, ref) => (
-        // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
-        // see the disabled prop so it won't add its own styling, but the underlying button element
-        // is still disabled.
-        // eslint-disable-next-line react/button-has-type
-        <button type={type} {...buttonProps} ref={ref} disabled data-testid="button-0nnt" />
-      ))
-    : undefined;
+  // `getLocationProps` already supplies a stable `component: Link` when `to` is set — that path
+  // never had the remount bug (Link's reference doesn't change), so leave it untouched rather
+  // than overriding it with our own root.
+  const useStableRoot = !locationsProps.component;
 
   return (
     <StyledButton
       variant={variant}
       color={color}
       type={type}
-      disabled={disabled || !hasPermission}
+      disabled={realDisabled}
       functionallyDisabled={functionallyDisabled}
+      {...(useStableRoot && {
+        nativeDisabled: realDisabled || functionallyDisabled,
+        buttonType: type,
+      })}
       {...props}
       {...locationsProps}
-      {...(buttonComponent && { component: buttonComponent })}
+      {...(useStableRoot && { component: ButtonRoot })}
     >
       {displayLock && <Lock data-testid="lock-zz2l" />}
       {showLoadingIndicator && (
