@@ -39,7 +39,8 @@ describe('AI Patient Summary (central-server)', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body).toEqual({ content: 'Generated patient summary.' });
-      expect(mockAiService.invoke).toHaveBeenCalled();
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('TEST-001');
     });
 
     it('should include edit feedback in the AI prompt when provided', async () => {
@@ -48,8 +49,8 @@ describe('AI Patient Summary (central-server)', () => {
       const result = await patientSummaryApp.post(SUMMARY_URL).send({ patientData, editFeedback });
 
       expect(result).toHaveSucceeded();
-      const invokedMessage = mockAiService.invoke.mock.calls.at(-1)[1];
-      expect(invokedMessage).toContain('Corrected summary');
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('Corrected summary');
     });
 
     describe('with db-defined permissions', () => {
