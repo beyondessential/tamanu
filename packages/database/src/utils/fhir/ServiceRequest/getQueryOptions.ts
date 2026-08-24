@@ -92,6 +92,10 @@ export function getQueryOptions(models: Models) {
         as: 'priority',
       },
       {
+        model: ReferenceData,
+        as: 'category',
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -113,7 +117,7 @@ export function getQueryOptions(models: Models) {
       },
       {
         model: LabTestPanelRequest,
-        as: 'labTestPanelRequest',
+        as: 'labTestPanelRequests',
         include: [
           {
             model: LabTestPanel,

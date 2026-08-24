@@ -61,6 +61,7 @@ export class LabRequest extends Model {
   declare labTestLaboratoryId?: string;
   declare specimenTypeId?: string;
   declare priority?: ReferenceData;
+  declare category?: ReferenceData;
   declare tests: LabTest[];
   declare encounter?: Encounter;
   declare requestedBy?: User;
