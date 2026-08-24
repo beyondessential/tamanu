@@ -180,6 +180,7 @@ export const fhirDataDictionariesSchema = {
     serviceRequestImagingTypeCodeSystem: fhirDataDictionaryString('Imaging type code system', 'http://tamanu.io/data-dictionary/imaging-type-code.html'),
     serviceRequestLabDisplayId: fhirDataDictionaryString('ServiceRequest lab display ID system', 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html'),
     serviceRequestLabId: fhirDataDictionaryString('ServiceRequest lab ID system', 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html'),
+    serviceRequestLabCategoryCodeSystem: fhirDataDictionaryString('Lab test category code system', 'http://tamanu.io/data-dictionary/lab-test-category-code.html'),
     serviceRequestLabPanelCodeSystem: fhirDataDictionaryString('Lab panel code system', 'https://www.senaite.com/profileCodes.html'),
     serviceRequestLabPanelExternalCodeSystem: fhirDataDictionaryString('Lab panel external code system', 'http://loinc.org'),
     serviceRequestLabTestCodeSystem: fhirDataDictionaryString('Lab test code system', 'https://www.senaite.com/testCodes.html'),
