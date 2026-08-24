@@ -4,7 +4,6 @@ export {
   ButtonWithPermissionCheck,
   DefaultIconButton,
   LargeSubmitButton,
-  StyledPrimarySubmitButton,
   FormCancelButton,
   FormSubmitButton,
   BackButton,

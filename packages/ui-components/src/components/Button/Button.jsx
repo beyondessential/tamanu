@@ -215,13 +215,6 @@ export const FormCancelButton = ({ disabled, ...props }) => {
   );
 };
 
-export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
-  font-size: 16px;
-  line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-`;
-
 const StyledLargeSubmitButton = styled(FormSubmitButton)`
   font-size: 15px;
   line-height: 18px;
