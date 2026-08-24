@@ -15,7 +15,7 @@
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
     "pretest": "npm run package-default-translations",
-    "test": "vitest run --no-file-parallelism",
+    "test": "vitest run",
     "package-default-translations": "tsx scripts/scrapeTranslations.ts > default-translations.json",
     "test:watch": "vitest watch"
   },

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createTestContext } from '../utilities';
 
 describe('sync', () => {
@@ -18,7 +19,7 @@ describe('sync', () => {
       ['Sync queued and will run later', { enabled: true, ran: false, queued: true }],
       ['Sync completed', { enabled: true, ran: true, queued: false }],
     ])('triggers a sync and returns %s', async (message, info) => {
-      ctx.syncConnection.runSync = jest.fn().mockResolvedValueOnce(info);
+      ctx.syncConnection.runSync = vi.fn().mockResolvedValueOnce(info);
       const result = await app.post('/api/sync/run');
       expect(result).toHaveProperty('body.message', message);
     });

@@ -236,7 +236,8 @@ describe('getMedicationsValidationSchema', () => {
       .then(() => null)
       .catch(error => error.message);
 
-  // Prescriptions without a quantity start the form blank, and clearing a number input leaves ''.
+  // Clearing a number input leaves '', and a prescription recorded before blanks were normalised
+  // to zero still arrives as null.
   it.each([null, '', undefined])(
     'accepts a quantity of %p when the medication is not being sent to pharmacy',
     async quantity => {

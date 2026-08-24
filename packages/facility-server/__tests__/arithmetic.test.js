@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { runArithmetic } from '../app/utils/arithmetic';
 
 describe('Arithmetic', () => {

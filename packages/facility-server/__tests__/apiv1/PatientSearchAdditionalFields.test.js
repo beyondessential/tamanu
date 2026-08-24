@@ -3,7 +3,7 @@ import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { afterAll, beforeAll, describe, it, expect } from '@jest/globals';
+import { afterAll, beforeAll, describe, it, expect } from 'vitest';
 
 describe('Patient search - additional search fields', () => {
   let app;

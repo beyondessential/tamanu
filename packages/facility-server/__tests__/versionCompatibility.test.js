@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import path from 'path';
 import fs from 'fs';
 import { lte as semverLte } from 'semver';

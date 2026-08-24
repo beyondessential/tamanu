@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { ForeignkeyResolutionError, ValidationError } from '../../app/admin/errors';
 
 function toContainError(errors, { ofType = null, inSheet, atRow, withMessage }) {

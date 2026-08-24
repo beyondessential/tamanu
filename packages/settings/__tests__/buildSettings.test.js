@@ -1,8 +1,9 @@
+import { describe, expect, it, vi } from 'vitest';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { get } from 'es-toolkit/compat';
 
 // No local config: isolate the DB-override vs schema-default cascade.
-jest.mock('config', () => ({ __esModule: true, default: {} }));
+vi.mock('config', () => ({ default: {} }));
 
 import { buildSettings } from '../src/reader/buildSettings';
 import { globalDefaults } from '../src';

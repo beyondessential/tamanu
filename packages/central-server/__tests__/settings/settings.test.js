@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
@@ -46,7 +47,7 @@ describe('Read Settings', () => {
     ctx = await createTestContext();
     settings = ctx.settings;
     models = ctx.store.models;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // replace seeded settings for this test suite
     await seedMockSettings(models);
   });

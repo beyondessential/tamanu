@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
 import {
@@ -85,9 +86,9 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     patient = await models.Patient.create(fake(models.Patient));
     practitioner = await models.User.create(fake(models.User));
     // Reset modules to ensure fresh imports
-    jest.resetModules();
+    vi.resetModules();
     // The config override actually doesn't apply to snapshotOutgoingChanges which uses the test.json, so we need to mock it directly here
-    jest.doMock('@tamanu/shared/utils/withConfig', () => ({
+    vi.doMock('@tamanu/shared/utils/withConfig', () => ({
       withConfig: fn => {
         const inner = function inner(...args) {
           return fn(...args, lookupEnabledConfig);
@@ -149,7 +150,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   };
 
   it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
-    const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+    const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
     await centralSyncManager.updateLookupTable();
 
     const lookupData = await models.SyncLookup.findAll();
@@ -161,7 +162,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   });
 
   it('will sync sensitive encounters to itself', async () => {
-    const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+    const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
     await centralSyncManager.updateLookupTable();
 
     const encounterIds = await getOutgoingIdsForRecordType(
@@ -177,7 +178,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     // Every test in this describe block should use this function to check that the sensitive record
     // is not synced to the non-sensitive facility
     const checkSensitiveRecordFiltering = async ({ model, sensitiveId, nonSensitiveId }) => {
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       const recordIds = await getOutgoingIdsForRecordType(
@@ -1070,7 +1071,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
           scope: SETTINGS_SCOPES.FACILITY,
         });
 
-        const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+        const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
         const labRequestIds = await getOutgoingIdsForRecordType(
@@ -1133,7 +1134,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         endDate: null,
       });
 
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -1178,7 +1179,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       });
 
       // Initialize sync manager and update lookup table to capture the sensitive state
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       // Change facility to non-sensitive and update lookup table
@@ -1227,7 +1228,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       });
 
       // Initialize sync manager and update lookup table to capture the non-sensitive state
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       // Change facility to sensitive and update lookup table
@@ -1324,7 +1325,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       // Check that both prescriptions are in the lookup table

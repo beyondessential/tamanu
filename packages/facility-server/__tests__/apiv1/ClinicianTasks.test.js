@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';

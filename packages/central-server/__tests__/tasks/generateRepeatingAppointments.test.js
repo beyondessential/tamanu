@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { APPOINTMENT_STATUSES, REPEAT_FREQUENCY } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
