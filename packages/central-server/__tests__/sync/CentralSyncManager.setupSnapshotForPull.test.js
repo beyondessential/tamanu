@@ -670,18 +670,18 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           ...fake(models.LabTestPanel),
           categoryId: category.id,
         });
-        labTestPanelRequest1 = await models.LabTestPanelRequest.create({
-          ...fake(models.LabTestPanelRequest),
-          labTestPanelId: labTestPanel.id,
-          encounterId: encounter1.id,
-        });
         const labRequest1Data = await randomLabRequest(models, {
           patientId: patient1.id,
           encounterId: encounter1.id,
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-          labTestPanelRequestId: labTestPanelRequest1.id, // make one of them part of a panel
         });
         labRequest1 = await models.LabRequest.create(labRequest1Data);
+        labTestPanelRequest1 = await models.LabTestPanelRequest.create({
+          ...fake(models.LabTestPanelRequest),
+          labTestPanelId: labTestPanel.id,
+          encounterId: encounter1.id,
+          labRequestId: labRequest1.id, // make one of them part of a panel
+        });
         const labRequest1TestsData = labRequest1Data.labTestTypeIds.map(labTestTypeId => ({
           ...fake(models.LabTest),
           labRequestId: labRequest1.id,

@@ -38,6 +38,7 @@ See `invoicing/overview.md` for how invoice products and price lists work.
 - [ ] A panel that has an invoice product bills that product once for its panel request, and the tests belonging to that panel are not billed individually.
 - [ ] A panel that has no invoice product does not bill for the panel, and its tests bill individually against their test type products.
 - [ ] A test type appearing more than once on a request bills once, however many panels contributed it.
+- [ ] An individually ordered test bills against its test type product even when a panel on the same request covers the same test type through a panel product; the two are charged separately.
 
 ## External laboratory integration
 
