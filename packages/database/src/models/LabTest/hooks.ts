@@ -1,9 +1,13 @@
+import { Op } from 'sequelize';
 import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
 import { shouldAddLabRequestToInvoice } from '../LabRequest/hooks';
 import type { LabTest } from './LabTest';
 
 const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
-  const labRequest = await instance.sequelize.models.LabRequest.findByPk(instance.labRequestId);
+  const { LabRequest, LabTestPanelRequest, InvoiceProduct, InvoiceItem, Invoice } =
+    instance.sequelize.models;
+
+  const labRequest = await LabRequest.findByPk(instance.labRequestId);
   if (!labRequest || !labRequest.encounterId) {
     return;
   }
@@ -12,26 +16,24 @@ const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
     return;
   }
 
-  if (labRequest.labTestPanelRequestId) {
-    const labTestPanelRequest = await instance.sequelize.models.LabTestPanelRequest.findByPk(
-      labRequest.labTestPanelRequestId,
-    );
-    if (!labTestPanelRequest) {
-      return;
-    }
-
-    const labTestPanelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
-      where: {
-        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-        sourceRecordId: labTestPanelRequest.labTestPanelId,
-      },
-    });
+  // A test attributed to a panel whose panel has an invoice product is covered by that panel, so
+  // it is not billed individually.
+  if (instance.labTestPanelRequestId) {
+    const labTestPanelRequest = await LabTestPanelRequest.findByPk(instance.labTestPanelRequestId);
+    const labTestPanelProduct = labTestPanelRequest
+      ? await InvoiceProduct.findOne({
+          where: {
+            category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+            sourceRecordId: labTestPanelRequest.labTestPanelId,
+          },
+        })
+      : null;
     if (labTestPanelProduct) {
-      return; // There's a product for the panel, so no need to create invoice items for the individual tests
+      return;
     }
   }
 
-  const testProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+  const testProduct = await InvoiceProduct.findOne({
     where: {
       category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
       sourceRecordId: instance.labTestTypeId,
@@ -41,7 +43,29 @@ const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
     return;
   }
 
-  await instance.sequelize.models.Invoice.addItemToInvoice(
+  // A test type is billed once per request, however many panels contributed a row for it, so skip
+  // if a sibling test of the same type on this request is already invoiced.
+  const siblingTests = await instance.sequelize.models.LabTest.findAll({
+    where: {
+      labRequestId: instance.labRequestId,
+      labTestTypeId: instance.labTestTypeId,
+      id: { [Op.ne]: instance.id },
+    },
+    attributes: ['id'],
+  });
+  if (siblingTests.length) {
+    const alreadyBilled = await InvoiceItem.findOne({
+      where: {
+        sourceRecordType: instance.getModelName(),
+        sourceRecordId: siblingTests.map(test => test.id),
+      },
+    });
+    if (alreadyBilled) {
+      return;
+    }
+  }
+
+  await Invoice.addItemToInvoice(
     instance,
     labRequest.encounterId,
     testProduct,
