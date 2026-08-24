@@ -12,7 +12,6 @@ export {
   DeleteButton,
   LargeOutlineButton,
   LargeButton,
-  ButtonBase,
   Button,
   OutlinedButton,
   GreyOutlinedButton,

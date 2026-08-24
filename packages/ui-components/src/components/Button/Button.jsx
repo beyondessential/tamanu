@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  IconButton,
-  Button as MuiButton,
-  ButtonBase as MuiButtonBase,
-} from '@material-ui/core';
+import { CircularProgress, IconButton, Button as MuiButton } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
@@ -12,7 +7,7 @@ import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { useFormikContext } from 'formik';
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router';
 import styled from 'styled-components';
 
@@ -23,14 +18,7 @@ import { VisuallyHidden } from '../VisuallyHidden';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
-export const ButtonBase = props => {
-  delete props.functionallyDisabled;
-  const locationsProps = getLocationProps(props);
-  return <MuiButtonBase {...props} {...locationsProps} />;
-};
-
 const StyledButton = styled(({ ...props }) => {
-  delete props.functionallyDisabled;
   delete props.confirmStyle;
   return <MuiButton {...props} />;
 })`
@@ -41,10 +29,6 @@ const StyledButton = styled(({ ...props }) => {
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
-
-  /* Button is already disabled functionally,
-  this is only to visually make it more obvious that the button is disabled */
-  ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
   /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
   & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
@@ -79,22 +63,6 @@ const StyledCircularProgress = styled(CircularProgress)`
   margin-right: 5px;
 `;
 
-/**
- * Stable root for BaseButton so MUI's `component` prop never changes identity between renders.
- * It used to (recreated per-render, only present when `functionallyDisabled`), which unmounted
- * MUI's ButtonBase/TouchRipple mid-click whenever Formik flipped `isSubmitting` on submit,
- * racing MUI's own deferred ripple callback and throwing
- * "Cannot read properties of null (reading 'pulsate')".
- *
- * MUI only auto-forwards `type`/`disabled` to the rendered element when `component` is the
- * literal string 'button' (see @material-ui/core ButtonBase.js) — using any custom component
- * means we forward them ourselves via `buttonType`/`nativeDisabled`.
- */
-const ButtonRoot = forwardRef(({ nativeDisabled, buttonType, ...rest }, ref) => (
-  // eslint-disable-next-line react/button-has-type
-  <button type={buttonType} disabled={nativeDisabled} {...rest} ref={ref} data-testid="button-0nnt" />
-));
-
 const BaseButton = ({
   children,
   variant = 'contained',
@@ -102,7 +70,6 @@ const BaseButton = ({
   type = 'button',
   disabled = false,
   isSubmitting = false,
-  functionallyDisabled = false, // for disable the function of button, but still keep the visual the same
   hasPermission = true,
   loadingColor = TAMANU_COLORS.white,
   showLoadingIndicator,
@@ -110,27 +77,15 @@ const BaseButton = ({
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
-  const realDisabled = disabled || !hasPermission;
-
-  // `getLocationProps` already supplies a stable `component: Link` when `to` is set — that path
-  // never had the remount bug (Link's reference doesn't change), so leave it untouched rather
-  // than overriding it with our own root.
-  const useStableRoot = !locationsProps.component;
 
   return (
     <StyledButton
       variant={variant}
       color={color}
       type={type}
-      disabled={realDisabled}
-      functionallyDisabled={functionallyDisabled}
-      {...(useStableRoot && {
-        nativeDisabled: realDisabled || functionallyDisabled,
-        buttonType: type,
-      })}
+      disabled={disabled || !hasPermission}
       {...props}
       {...locationsProps}
-      {...(useStableRoot && { component: ButtonRoot })}
     >
       {displayLock && <Lock data-testid="lock-zz2l" />}
       {showLoadingIndicator && (
@@ -145,10 +100,10 @@ const BaseButton = ({
   );
 };
 
-export const Button = ({ isSubmitting = false, ...props }) => (
+export const Button = ({ isSubmitting = false, disabled, ...props }) => (
   <BaseButton
     isSubmitting={isSubmitting}
-    functionallyDisabled={isSubmitting}
+    disabled={disabled || isSubmitting}
     showLoadingIndicator={isSubmitting}
     {...props}
   />
@@ -248,6 +203,7 @@ export const BackButton = ({
 
 export const FormSubmitButton = ({
   children,
+  disabled,
   text = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   color = 'primary',
   onSubmit,
@@ -257,11 +213,11 @@ export const FormSubmitButton = ({
 
   return (
     <Button
+      disabled={disabled || isSubmitting}
       isSubmitting={isSubmitting}
       showLoadingIndicator={showLoadingIndicator}
       color={color}
       onClick={onSubmit}
-      functionallyDisabled={isSubmitting}
       type="submit"
       {...props}
     >
@@ -270,12 +226,11 @@ export const FormSubmitButton = ({
   );
 };
 
-export const FormCancelButton = props => {
+export const FormCancelButton = ({ disabled, ...props }) => {
   const { isSubmitting } = useFormikContext();
-
   return (
     <OutlinedButton
-      functionallyDisabled={isSubmitting}
+      disabled={disabled || isSubmitting}
       {...props}
       data-testid="outlinedbutton-8rnr"
     />
