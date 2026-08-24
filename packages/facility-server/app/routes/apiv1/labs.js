@@ -142,18 +142,7 @@ labRequest.post(
       req.checkPermission('create', 'SensitiveLabRequest');
     }
 
-    // Run whichever create paths apply and merge; a mixed submission must not drop either kind.
-    // Deliberately not one shared transaction: createWithTests manages its own, and the panel path
-    // relies on its LabTestPanelRequest being committed before the LabRequest FK references it —
-    // forcing both onto one outer transaction breaks that (see PR #10845 review). Making this
-    // atomic needs a deeper refactor of the create helpers.
-    const response = [];
-    if (panelIds?.length) {
-      response.push(...(await createPanelLabRequests(models, body, note, user)));
-    }
-    if (labTestTypeIds?.length) {
-      response.push(...(await createIndividualLabRequests(models, body, note, user)));
-    }
+    const response = await createLabRequestsByCategory(models, body, note, user);
 
     res.send(response);
   }),
@@ -463,18 +452,21 @@ labRelations.get(
       models;
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
-    // First, get the lab request to check if it's associated with a panel
+    // First, get the lab request to check its panel requests
     const labRequest = await LabRequest.findByPk(params.id, {
       include: [
         {
           model: LabTestPanelRequest,
-          as: 'labTestPanelRequest',
+          as: 'labTestPanelRequests',
         },
       ],
     });
 
-    // If this is a panel request, we need to order by the panel's test order
-    if (labRequest?.labTestPanelRequest?.labTestPanelId) {
+    // A request grouped under a single panel is ordered by that panel's test order. Ordering a
+    // request that holds several panels is handled with the lab request view (card D4).
+    const [singlePanelRequest] =
+      labRequest?.labTestPanelRequests?.length === 1 ? labRequest.labTestPanelRequests : [];
+    if (singlePanelRequest?.labTestPanelId) {
       req.checkPermission('list', 'LabTest');
 
       const { rowsPerPage, page } = query;
@@ -495,7 +487,7 @@ labRelations.get(
                 model: LabTestPanelLabTestTypes,
                 as: 'panelRelations',
                 where: {
-                  labTestPanelId: labRequest.labTestPanelRequest.labTestPanelId,
+                  labTestPanelId: singlePanelRequest.labTestPanelId,
                 },
                 required: false,
                 attributes: ['order'],
@@ -874,81 +866,121 @@ labTestPanel.get(
   }),
 );
 
-async function createPanelLabRequests(models, body, note, user) {
-  const { panelIds, sampleDetails = {}, ...labRequestBody } = body;
+// A panel joins the request for its own category. A panel with no category of its own joins the
+// request for the category its test types share; where they don't share one, it forms its own
+// request (a synthetic group key keeps it unmerged), matching how a category-less panel behaves.
+function resolvePanelGroup(panel, memberTestTypes) {
+  if (panel.categoryId) {
+    return { key: `category:${panel.categoryId}`, categoryId: panel.categoryId };
+  }
+  const sharedCategoryIds = [
+    ...new Set(memberTestTypes.map(testType => testType.labTestCategoryId).filter(Boolean)),
+  ];
+  if (sharedCategoryIds.length === 1) {
+    const [categoryId] = sharedCategoryIds;
+    return { key: `category:${categoryId}`, categoryId };
+  }
+  return { key: `panel:${panel.id}`, categoryId: null };
+}
+
+// A submission produces one lab request per lab test category, holding both the panels and the
+// individual tests ordered from that category.
+async function createLabRequestsByCategory(models, body, note, user) {
+  const { panelIds = [], labTestTypeIds = [], sampleDetails = {}, ...labRequestBody } = body;
+  // note is handled separately by the caller; keep it out of the request payload.
+  delete labRequestBody.note;
+
   const encounter = await models.Encounter.findByPk(labRequestBody.encounterId, {
     include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
   });
   const facilityId = encounter?.location?.facilityId;
+  const isAvailableAtFacility = testType =>
+    !facilityId || !testType.availableFacilities || testType.availableFacilities.includes(facilityId);
 
-  const panels = await models.LabTestPanel.findAll({
-    where: {
-      id: panelIds,
-    },
-    include: [
-      {
-        model: models.LabTestType,
-        as: 'labTestTypes',
-        attributes: ['id', 'availableFacilities'],
-      },
-    ],
-  });
+  const groups = new Map();
+  const groupFor = (key, categoryId) => {
+    if (!groups.has(key)) {
+      groups.set(key, { categoryId, panels: [], individualTestTypeIds: [] });
+    }
+    return groups.get(key);
+  };
 
-  const response = await Promise.all(
-    panels.map(async panel => {
-      const panelId = panel.id;
-      const testPanelRequest = await models.LabTestPanelRequest.create({
-        labTestPanelId: panelId,
-        encounterId: labRequestBody.encounterId,
-      });
-      const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
+  if (panelIds.length) {
+    const panels = await models.LabTestPanel.findAll({
+      where: { id: panelIds },
+      include: [
+        {
+          model: models.LabTestType,
+          as: 'labTestTypes',
+          attributes: ['id', 'availableFacilities', 'labTestCategoryId'],
+        },
+      ],
+    });
 
-      // Samples are recorded per category, so requests in the same category (panels and/or the
-      // individual-tests request) share the category's sample.
-      const requestSampleDetails = sampleDetails[panel.categoryId] || {};
-      let labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
-      if (facilityId) {
-        labTestTypeIds = panel.labTestTypes
-          ?.filter(
-            tt =>
-              !tt.availableFacilities || tt.availableFacilities.includes(facilityId),
-          )
-          .map(tt => tt.id) || [];
+    for (const panel of panels) {
+      const memberTestTypes = panel.labTestTypes ?? [];
+      const availableTestTypeIds = memberTestTypes
+        .filter(isAvailableAtFacility)
+        .map(testType => testType.id);
+      if (!availableTestTypeIds.length) {
+        throw new InvalidOperationError(
+          'A submission cannot include a panel with no test types available at this facility',
+        );
       }
-      const labTestCategoryId = panel.categoryId;
-      const newLabRequest = await createLabRequest(
-        innerLabRequestBody,
-        requestSampleDetails,
-        labTestTypeIds,
-        labTestCategoryId,
-        models,
-        note,
-        user,
+
+      const { key, categoryId } = resolvePanelGroup(panel, memberTestTypes);
+      groupFor(key, categoryId).panels.push({
+        labTestPanelId: panel.id,
+        labTestTypeIds: availableTestTypeIds,
+      });
+    }
+  }
+
+  if (labTestTypeIds.length) {
+    const categories = await models.LabTestType.findAll({
+      attributes: [
+        [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
+        'lab_test_category_id',
+      ],
+      where: { id: { [Op.in]: labTestTypeIds } },
+      group: ['lab_test_category_id'],
+    });
+
+    const validTestTypeCount = categories.reduce(
+      (total, category) => total + category.get('lab_test_type_ids').length,
+      0,
+    );
+    if (validTestTypeCount < labTestTypeIds.length) {
+      throw new InvalidOperationError('Invalid test type id');
+    }
+
+    for (const category of categories) {
+      const categoryId = category.get('lab_test_category_id');
+      groupFor(`category:${categoryId}`, categoryId).individualTestTypeIds.push(
+        ...category.get('lab_test_type_ids'),
       );
-      return newLabRequest;
-    }),
-  );
+    }
+  }
+
+  const response = [];
+  for (const group of groups.values()) {
+    const requestSampleDetails = (group.categoryId && sampleDetails[group.categoryId]) || {};
+    response.push(await createLabRequest(labRequestBody, requestSampleDetails, group, models, note, user));
+  }
   return response;
 }
 
-async function createLabRequest(
-  labRequestBody,
-  requestSampleDetails,
-  labTestTypeIds,
-  labTestCategoryId,
-  models,
-  note,
-  user,
-) {
+async function createLabRequest(labRequestBody, requestSampleDetails, group, models, note, user) {
   const labRequestData = {
     ...labRequestBody,
     ...requestSampleDetails,
-    specimenAttached: !!requestSampleDetails.specimenTypeId,
+    specimenAttached: Boolean(requestSampleDetails.specimenTypeId),
     status: requestSampleDetails.sampleTime
       ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    labTestTypeIds,
-    labTestCategoryId,
+    labTestTypeIds: group.individualTestTypeIds,
+    panels: group.panels,
+    labTestCategoryId: group.categoryId,
     userId: user.id,
   };
 
@@ -962,54 +994,4 @@ async function createLabRequest(
     });
   }
   return newLabRequest;
-}
-
-async function createIndividualLabRequests(models, body, note, user) {
-  const { labTestTypeIds } = body;
-
-  const categories = await models.LabTestType.findAll({
-    attributes: [
-      [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
-      'lab_test_category_id',
-    ],
-    where: {
-      id: {
-        [Op.in]: labTestTypeIds,
-      },
-    },
-    group: ['lab_test_category_id'],
-  });
-
-  // Check to see that all the test types are valid
-  const count = categories.reduce(
-    (validTestTypesCount, category) =>
-      validTestTypesCount + category.get('lab_test_type_ids').length,
-    0,
-  );
-
-  if (count < labTestTypeIds.length) {
-    throw new InvalidOperationError('Invalid test type id');
-  }
-
-  const { sampleDetails = {}, ...labRequestBody } = body;
-  // A mixed submission still carries panelIds in the body; keep it out of the individual payload.
-  delete labRequestBody.panelIds;
-
-  const response = await Promise.all(
-    categories.map(async category => {
-      const categoryId = category.get('lab_test_category_id');
-      const requestSampleDetails = sampleDetails[categoryId] || {};
-      const newLabRequest = await createLabRequest(
-        labRequestBody,
-        requestSampleDetails,
-        category.get('lab_test_type_ids'),
-        categoryId,
-        models,
-        note,
-        user,
-      );
-      return newLabRequest;
-    }),
-  );
-  return response;
 }
