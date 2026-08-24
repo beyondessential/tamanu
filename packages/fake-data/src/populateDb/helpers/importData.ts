@@ -8,7 +8,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
 import { fake } from '../../fake/index.js';
-import { REFERENCE_DATA_NAMES } from '../../fake/referenceDataNames.js';
+import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 
 import type {
   Department,

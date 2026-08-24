@@ -7,7 +7,7 @@ import { formatISO9075 } from 'date-fns';
 import {
   ADMINISTRATION_FREQUENCIES,
   ATTENDANT_OF_BIRTH_TYPES,
-  DRUG_UNITS,
+  DRUG_UNIT_VALUES,
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
   BLOOD_TYPES,
@@ -62,7 +62,43 @@ import {
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
 import { Model } from '@tamanu/database/models/Model';
-import { REFERENCE_DATA_NAMES } from './referenceDataNames.js';
+import {
+  ALLERGY_NOTES,
+  CONDITION_NOTES,
+  DEATH_CAUSE_NOTES,
+  DEPARTMENT_NAMES,
+  DISCHARGE_NOTES,
+  ENCOUNTER_REASONS,
+  IMAGING_RESULT_DESCRIPTIONS,
+  INVOICE_DISCOUNT_REASONS,
+  INVOICE_NOTES,
+  INVOICE_PRODUCT_NAMES,
+  LAB_RESULT_INTERPRETATIONS,
+  LOCATION_GROUP_NAMES,
+  LOCATION_NAMES,
+  NOTE_CONTENTS,
+  PAUSE_NOTES,
+  PRESCRIPTION_INDICATIONS,
+  PRESCRIPTION_NOTES,
+  PROCEDURE_COMPLETED_NOTES,
+  PROCEDURE_NOTES,
+  PROGRAM_DATA_ELEMENTS,
+  PROGRAM_DATA_ELEMENT_HINTS,
+  PROGRAM_NAMES,
+  PROGRAM_REGISTRY_CLINICAL_STATUS_NAMES,
+  PROGRAM_REGISTRY_CONDITION_NAMES,
+  PROGRAM_REGISTRY_NAMES,
+  QUALITATIVE_LAB_RESULTS,
+  REFERENCE_DATA_NAMES,
+  REGISTRATION_CHANGE_REASONS,
+  REPORT_DEFINITION_NAMES,
+  SCHEDULED_VACCINE_DOSE_LABELS,
+  SCHEDULED_VACCINE_LABELS,
+  SURVEY_NAMES,
+  SURVEY_SCREEN_COMPONENT_PROMPTS,
+  TASK_NOTES,
+  VACCINES,
+} from './names.js';
 
 // This file is most commonly used within tests, but also outside them. Under the test suite
 // TAMANU_TEST_SEED is set for the whole run and printed at startup (see scripts/testSeed.mjs),
@@ -73,479 +109,30 @@ export const chance = new Chance(
   seedFromEnvironment ? Number(seedFromEnvironment) : randomInt(2 ** 42),
 );
 
-const shuffledPools = new Map<string, string[]>();
+const shuffledPools = new Map<string[], string[]>();
 
 // Cycles a pool in shuffled order, so a seeded database shows a spread of names
 // instead of the same handful repeated.
-const pickDistinct = (poolName: string, pool: string[]): string => {
-  let remaining = shuffledPools.get(poolName);
+const pickDistinct = (pool: string[]): string => {
+  let remaining = shuffledPools.get(pool);
   if (!remaining?.length) {
     remaining = chance.shuffle([...pool]);
-    shuffledPools.set(poolName, remaining);
+    shuffledPools.set(pool, remaining);
   }
-  return remaining.pop() ?? pool[0];
+  return remaining.pop();
 };
 
 // Several of these models hold a unique index on code, so names alone can't fill it.
 const codeFor = (name: string) => `${kebabCase(name).slice(0, 40)}-${chance.hash({ length: 8 })}`;
 
+// Callers resolve the name first, so the code always matches the name that is stored.
+const named = (name: string) => ({ name, code: codeFor(name) });
+
 const referenceDataName = (type: string) => {
   const pool = REFERENCE_DATA_NAMES[type];
   if (!pool) return `${startCase(type)} ${chance.integer({ min: 1, max: 99 })}`;
-  return pickDistinct(`referenceData:${type}`, pool);
+  return pickDistinct(pool);
 };
-
-const VACCINES = [
-  { label: 'BCG', brand: 'BCG-SSI', disease: 'Tuberculosis' },
-  { label: 'Hepatitis B', brand: 'Euvax B', disease: 'Hepatitis B' },
-  { label: 'OPV', brand: 'bOPV', disease: 'Poliomyelitis' },
-  { label: 'IPV', brand: 'Imovax Polio', disease: 'Poliomyelitis' },
-  { label: 'DTP', brand: 'Infanrix hexa', disease: 'Diphtheria, tetanus and pertussis' },
-  { label: 'Measles', brand: 'Rouvax', disease: 'Measles' },
-  { label: 'MMR', brand: 'Priorix', disease: 'Measles, mumps and rubella' },
-  { label: 'Tetanus', brand: 'Tetavax', disease: 'Tetanus' },
-  { label: 'Pneumococcal', brand: 'Prevenar 13', disease: 'Pneumococcal disease' },
-  { label: 'Rotavirus', brand: 'Rotarix', disease: 'Rotavirus gastroenteritis' },
-  { label: 'HPV', brand: 'Gardasil 9', disease: 'Human papillomavirus' },
-  { label: 'Yellow Fever', brand: 'Stamaril', disease: 'Yellow fever' },
-  { label: 'Typhoid', brand: 'Typhim Vi', disease: 'Typhoid fever' },
-  { label: 'Influenza', brand: 'Fluarix Tetra', disease: 'Influenza' },
-  { label: 'Varicella', brand: 'Varivax', disease: 'Chickenpox' },
-  { label: 'Hepatitis A', brand: 'Havrix', disease: 'Hepatitis A' },
-  { label: 'Meningococcal', brand: 'Nimenrix', disease: 'Meningococcal disease' },
-  { label: 'Japanese Encephalitis', brand: 'Imojev', disease: 'Japanese encephalitis' },
-  { label: 'COVID-19', brand: 'Comirnaty', disease: 'COVID-19' },
-];
-
-const SCHEDULED_VACCINE_LABELS = VACCINES.map(({ label }) => label);
-
-const SCHEDULED_VACCINE_DOSE_LABELS = [
-  'Dose 1',
-  'Dose 2',
-  'Dose 3',
-  'Dose 4',
-  'Booster',
-  'Birth dose',
-  'Annual',
-];
-
-const SURVEY_NAMES = [
-  'Maternal Health Assessment',
-  'Nutrition Screening',
-  'Mental Health Questionnaire',
-  'Chronic Disease Follow-up',
-  'Community Health Survey',
-  'Immunisation Checklist',
-  'Antenatal Care Visit',
-  'Postnatal Care Assessment',
-  'TB Screening Form',
-  'Malaria Case Investigation',
-  'NCD Risk Assessment',
-  'Child Growth Monitoring',
-  'Family Planning Counselling',
-  'HIV Testing & Counselling',
-  'Outbreak Investigation Form',
-  'Patient Discharge Summary',
-];
-
-const SURVEY_SCREEN_COMPONENT_PROMPTS = [
-  { text: 'Systolic blood pressure (mmHg)', detail: 'Measure after 5 min rest, use left arm' },
-  { text: 'Diastolic blood pressure (mmHg)', detail: 'Record seated reading' },
-  { text: 'Temperature (°C)', detail: 'Use tympanic or oral thermometer' },
-  { text: 'Weight (kg)', detail: 'Remove shoes and heavy clothing' },
-  { text: 'Height (cm)', detail: 'Patient should be standing straight' },
-  { text: 'Heart rate (bpm)', detail: 'Count for 60 seconds at radial pulse' },
-  { text: 'Respiratory rate', detail: 'Count breaths per minute at rest' },
-  { text: 'Oxygen saturation (%)', detail: 'Use pulse oximeter on index finger' },
-  { text: 'Blood glucose (mmol/L)', detail: 'Record fasting or random, note which' },
-  { text: 'MUAC (cm)', detail: 'Mid-upper arm circumference, left arm' },
-  { text: 'Pain score (0-10)', detail: '0 = no pain, 10 = worst imaginable' },
-  { text: 'Urine dipstick result', detail: 'Record protein, glucose, blood, leukocytes' },
-  { text: 'Fundal height (cm)', detail: 'Measure from pubic symphysis' },
-  { text: 'Oedema', detail: 'Check ankles, shins, and sacral area' },
-  { text: 'Clinical notes', detail: 'Free text observations' },
-  { text: 'Presenting complaint', detail: "Chief complaint in patient's own words" },
-];
-
-const PROGRAM_DATA_ELEMENTS = [
-  { name: 'Systolic Blood Pressure', indicator: 'Vital Signs' },
-  { name: 'Diastolic Blood Pressure', indicator: 'Vital Signs' },
-  { name: 'Body Temperature', indicator: 'Vital Signs' },
-  { name: 'Respiratory Rate', indicator: 'Vital Signs' },
-  { name: 'Oxygen Saturation', indicator: 'Vital Signs' },
-  { name: 'Pulse Rate', indicator: 'Vital Signs' },
-  { name: 'Body Weight', indicator: 'Anthropometry' },
-  { name: 'Body Height', indicator: 'Anthropometry' },
-  { name: 'BMI', indicator: 'Anthropometry' },
-  { name: 'MUAC', indicator: 'Anthropometry' },
-  { name: 'Head Circumference', indicator: 'Anthropometry' },
-  { name: 'Haemoglobin Level', indicator: 'Lab Results' },
-  { name: 'Blood Glucose', indicator: 'Lab Results' },
-  { name: 'Malaria RDT Result', indicator: 'Lab Results' },
-  { name: 'HIV Test Result', indicator: 'Lab Results' },
-  { name: 'Urine Protein', indicator: 'Lab Results' },
-  { name: 'Cough Duration', indicator: 'Symptoms' },
-  { name: 'Fever Duration', indicator: 'Symptoms' },
-  { name: 'Pain Score', indicator: 'Symptoms' },
-  { name: 'Nausea Severity', indicator: 'Symptoms' },
-  { name: 'Pregnancy Status', indicator: 'Reproductive Health' },
-  { name: 'Gestational Age', indicator: 'Reproductive Health' },
-  { name: 'Fundal Height', indicator: 'Reproductive Health' },
-  { name: 'Gravidity', indicator: 'Reproductive Health' },
-];
-
-const PROGRAM_DATA_ELEMENT_HINTS = [
-  'Enter measured value',
-  'Select from options below',
-  'Record observation here',
-  'Measured at time of visit',
-  'Ask patient directly',
-  'Refer to lab slip',
-  'Use standard equipment',
-];
-
-const PROGRAM_NAMES = [
-  'Malaria Control Program',
-  'Maternal Health Program',
-  'Tuberculosis Program',
-  'HIV/AIDS Program',
-  'Child Health Program',
-  'Nutrition Program',
-  'Non-Communicable Disease Program',
-  'Expanded Programme on Immunization',
-  'Reproductive Health Program',
-  'Mental Health Program',
-  'Neglected Tropical Diseases Program',
-  'Water & Sanitation Program',
-  'Community Health Worker Program',
-  'Outbreak Surveillance Program',
-];
-
-const PROGRAM_REGISTRY_NAMES = [
-  'Tuberculosis Registry',
-  'HIV Care Registry',
-  'Diabetes Registry',
-  'Hypertension Registry',
-  'Antenatal Registry',
-  'Child Nutrition Registry',
-  'Leprosy Registry',
-  'Cervical Cancer Screening Registry',
-  'Mental Health Registry',
-  'Rheumatic Heart Disease Registry',
-  'Chronic Kidney Disease Registry',
-  'Immunisation Defaulter Registry',
-];
-
-const PROGRAM_REGISTRY_CONDITION_NAMES = [
-  'Pulmonary TB',
-  'Extrapulmonary TB',
-  'Type 1 Diabetes',
-  'Type 2 Diabetes',
-  'Gestational Diabetes',
-  'Stage 1 Hypertension',
-  'Stage 2 Hypertension',
-  'Asthma',
-  'Chronic Kidney Disease',
-  'Rheumatic Heart Disease',
-  'Severe Acute Malnutrition',
-  'Depression',
-];
-
-const PROGRAM_REGISTRY_CLINICAL_STATUS_NAMES = [
-  'Newly diagnosed',
-  'On treatment',
-  'Treatment complete',
-  'Lost to follow-up',
-  'Transferred out',
-  'In remission',
-  'Relapsed',
-  'Under review',
-];
-
-const DEPARTMENT_NAMES = [
-  'Emergency',
-  'General Medicine',
-  'Surgical',
-  'Paediatrics',
-  'Obstetrics & Gynaecology',
-  'Outpatients',
-  'Renal',
-  'Oncology',
-  'Radiology',
-  'Laboratory',
-  'Pharmacy',
-  'Physiotherapy',
-  'Mental Health',
-  'Intensive Care',
-];
-
-const LOCATION_GROUP_NAMES = [
-  'Ward A',
-  'Ward B',
-  'Emergency Department',
-  'Maternity Ward',
-  'Paediatric Ward',
-  'Surgical Ward',
-  'Intensive Care Unit',
-  'Outpatient Clinic',
-  'Day Procedure Unit',
-  'Isolation Unit',
-];
-
-const LOCATION_NAMES = [
-  'Bed 1',
-  'Bed 2',
-  'Bed 3',
-  'Bed 4',
-  'Bed 5',
-  'Bed 6',
-  'Resuscitation Bay',
-  'Treatment Room 1',
-  'Treatment Room 2',
-  'Consult Room 1',
-  'Consult Room 2',
-  'Triage Bay',
-  'Recovery Bay',
-  'Isolation Room',
-];
-
-const REPORT_TOPICS = [
-  'Encounter Summary',
-  'Patient Registrations',
-  'Vaccination Coverage',
-  'Lab Turnaround Times',
-  'Outstanding Imaging Requests',
-  'Antenatal Visit Compliance',
-  'Medication Dispensing Summary',
-  'Admissions by Diagnosis',
-  'Deaths by Cause',
-  'Task Completion Rates',
-  'Bed Occupancy',
-  'Referral Outcomes',
-  'Program Registry Activity',
-  'Outpatient Attendance',
-];
-
-const REPORT_PERIODS = ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annual'];
-
-const REPORT_DEFINITION_NAMES = REPORT_TOPICS.flatMap(topic =>
-  REPORT_PERIODS.flatMap(period =>
-    [2021, 2022, 2023, 2024, 2025, 2026].map(year => `${topic} - ${period} ${year}`),
-  ),
-);
-
-const INVOICE_PRODUCT_NAMES = [
-  'Standard consultation',
-  'Specialist consultation',
-  'Ward bed day',
-  'Theatre fee',
-  'Chest X-Ray',
-  'Ultrasound scan',
-  'Full blood count',
-  'Malaria rapid test',
-  'Dressing pack',
-  'Ambulance transfer',
-  'Dispensing fee',
-  'Physiotherapy session',
-];
-
-const NOTE_CONTENTS = [
-  'Reviewed on ward round, observations stable.',
-  'Complains of ongoing pain, analgesia given.',
-  'Wound reviewed, healing well, dressing changed.',
-  'Family updated on plan of care.',
-  'Awaiting lab results before next review.',
-  'Tolerating oral intake, IV fluids stopped.',
-  'Mobilising independently, physiotherapy to continue.',
-  'Afebrile overnight, antibiotics continued.',
-  'Discussed discharge planning with patient.',
-  'Referred to outpatient clinic for follow-up.',
-  'Medication chart reviewed, no changes required.',
-  'Patient declined further investigation today.',
-  'Vitals within normal range, no acute concerns.',
-  'Handover given to incoming shift.',
-];
-
-const PROCEDURE_NOTES = [
-  'Local anaesthetic used',
-  'Consent obtained prior to procedure',
-  'Sterile technique maintained throughout',
-  'Patient positioned supine',
-  'Antibiotic prophylaxis given',
-];
-
-const PROCEDURE_COMPLETED_NOTES = [
-  'Completed without complication',
-  'Patient tolerated procedure well',
-  'Minor bleeding controlled',
-  'Wound closed and dressed',
-  'Transferred to recovery in stable condition',
-];
-
-const ENCOUNTER_REASONS = [
-  'Routine check-up',
-  'Fever and headache',
-  'Follow-up visit',
-  'Injury assessment',
-  'Prenatal care',
-  'Chest pain',
-  'Abdominal pain',
-  'Vaccination',
-  'Persistent cough',
-  'Skin rash',
-  'Diarrhoea and vomiting',
-  'Wound dressing',
-  'Medication review',
-  'Shortness of breath',
-  'Joint pain',
-  'Eye infection',
-  'Ear pain',
-  'Dental referral',
-  'Post-surgical review',
-  'Counselling session',
-  'Growth monitoring',
-  'Lab result follow-up',
-];
-
-const PRESCRIPTION_NOTES = [
-  'Take with food',
-  'Avoid alcohol during course',
-  'Review in 2 weeks',
-  'Monitor for side effects',
-  'Reduce dose if drowsy',
-  'Continue until course complete',
-  'Take on an empty stomach',
-  'Do not crush or chew',
-  'Store in refrigerator',
-  'Apply to affected area only',
-  'Shake well before use',
-  'Complete full course even if symptoms improve',
-  'Take at bedtime',
-  'Avoid direct sunlight while using',
-];
-
-const PRESCRIPTION_INDICATIONS = [
-  'Bacterial infection',
-  'Pain management',
-  'Hypertension',
-  'Type 2 diabetes',
-  'Inflammation',
-  'Acid reflux',
-  'Malaria treatment',
-  'Asthma',
-  'Anxiety',
-  'Anaemia',
-  'Fungal infection',
-  'Fever',
-  'Allergic reaction',
-  'Wound prophylaxis',
-  'Tuberculosis',
-  'HIV antiretroviral therapy',
-];
-
-const ALLERGY_NOTES = [
-  'Reported by patient',
-  'Confirmed on previous admission',
-  'Family reports childhood reaction',
-  'Avoid all related agents',
-  'Reaction documented in paper notes',
-];
-
-const CONDITION_NOTES = [
-  'Diagnosed at district hospital',
-  'Managed in the community',
-  'Reviewed annually',
-  'Well controlled on current treatment',
-  'Under specialist follow-up',
-];
-
-const TASK_NOTES = [
-  'Patient asleep, will return',
-  'Deferred to next round',
-  'Equipment collected from store',
-  'Second nurse assisted',
-  'Patient off ward for imaging',
-  'Completed at bedside',
-];
-
-const QUALITATIVE_LAB_RESULTS = [
-  'Positive',
-  'Negative',
-  'Not detected',
-  'Reactive',
-  'Non-reactive',
-  'Inconclusive',
-  'No growth',
-];
-
-const LAB_RESULT_INTERPRETATIONS = [
-  'Within normal limits',
-  'Slightly elevated, repeat in 2 weeks',
-  'Consistent with iron deficiency',
-  'Suggests bacterial infection',
-  'Below reference range, correlate clinically',
-  'Haemolysed sample, recollection advised',
-  'No significant abnormality detected',
-];
-
-const IMAGING_RESULT_DESCRIPTIONS = [
-  'No acute abnormality detected.',
-  'Mild consolidation in the right lower lobe.',
-  'No fracture or dislocation seen.',
-  'Small pleural effusion on the left.',
-  'Cardiomegaly with clear lung fields.',
-  'Normal study for age.',
-  'Degenerative changes in the lumbar spine.',
-  'Single live intrauterine pregnancy.',
-];
-
-const INVOICE_NOTES = [
-  'Discussed with patient at reception',
-  'Awaiting insurer confirmation',
-  'Partial payment received',
-  'Approved by finance officer',
-  'Item added after discharge',
-];
-
-const INVOICE_DISCOUNT_REASONS = [
-  'Financial hardship',
-  'Staff discount',
-  'Community health card',
-  'Insurer agreement',
-  'Goodwill adjustment',
-];
-
-const DEATH_CAUSE_NOTES = [
-  'Fall from height at home',
-  'Road traffic incident',
-  'Drowning at the reef',
-  'Burns from a cooking fire',
-  'Struck by falling debris',
-];
-
-const REGISTRATION_CHANGE_REASONS = [
-  'Condition confirmed on review',
-  'Resolved after treatment',
-  'Recorded in error',
-  'Updated after specialist advice',
-  'Reclassified following lab results',
-];
-
-const PAUSE_NOTES = [
-  'Paused for procedure',
-  'Nil by mouth',
-  'Awaiting review by prescriber',
-  'Patient off ward',
-  'Adverse reaction under investigation',
-];
-
-const DISCHARGE_NOTES = [
-  'Discharged home with follow-up in 2 weeks',
-  'Medications dispensed and explained',
-  'Referred to community health worker',
-  'Self-discharged against medical advice',
-  'Transferred to provincial hospital',
-];
 
 export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();
@@ -610,13 +197,14 @@ export function fakeProgramDataElement(prefix: string = 'test-') {
 
 export function fakeReferenceData(prefix: string = 'test-') {
   const id = fakeUUID();
-  const type = chance.pickone(Object.keys(REFERENCE_DATA_NAMES));
+  const type = chance.pickone(REFERENCE_TYPE_VALUES);
+  const name = referenceDataName(type);
   return {
     id: `${prefix}referenceData_${id}`,
     type,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    name: chance.pickone(REFERENCE_DATA_NAMES[type]),
-    code: `REF-${chance.hash({ length: 6 }).toUpperCase()}`,
+    name,
+    code: codeFor(name),
   };
 }
 
@@ -826,7 +414,7 @@ const FIELD_HANDLERS = {
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 
 const MODEL_SPECIFIC_OVERRIDES = {
-  Facility: () => {
+  Facility: ({ name: passedName }) => {
     const facilityType = chance.pickone([
       'hospital',
       'clinic',
@@ -858,10 +446,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
       provincial_hospital: 'Provincial Hospital',
       urban_clinic: 'Urban Clinic',
     }[facilityType];
-    const name = `${namePrefix} ${nameSuffix}`;
     return {
-      name,
-      code: codeFor(name),
+      ...named(passedName ?? `${namePrefix} ${nameSuffix}`),
       email: chance.email(),
       contactNumber: chance.phone(),
       streetAddress: chance.address(),
@@ -1019,7 +605,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       mannerOfDeathDescription: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseNotes: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseLocation: chance.pickone(Object.values(PLACE_OF_DEATHS)),
-      pregnancyMoment: chance.pickone(Object.values(PREGNANCY_MOMENTS)),
+      pregnancyMoment: chance.pickone(Object.keys(PREGNANCY_MOMENTS)),
       motherConditionDescription: chance.pickone([
         'Healthy at time of birth',
         'Pre-eclampsia during pregnancy',
@@ -1041,8 +627,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
     indication: chance.pickone(PRESCRIPTION_INDICATIONS),
     route: chance.pickone(DRUG_ROUTE_VALUES),
     durationUnit: chance.pickone(Object.values(MEDICATION_DURATION_UNITS)),
-    dosingUnit: chance.pickone(Object.keys(DRUG_UNITS)),
-    dispensingUnit: chance.pickone(Object.keys(DRUG_UNITS)),
+    dosingUnit: chance.pickone(DRUG_UNIT_VALUES),
+    dispensingUnit: chance.pickone(DRUG_UNIT_VALUES),
     discontinuingReason: null,
     discontinuedDate: null,
     discontinued: false,
@@ -1058,24 +644,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
     role: 'practitioner',
     kind: 'user',
   }),
-  ReferenceData: ({ type }) => {
+  ReferenceData: ({ type, name }) => {
     const resolvedType = type ?? chance.pickone(REFERENCE_TYPE_VALUES);
-    const name = referenceDataName(resolvedType);
     return {
       type: resolvedType,
-      name,
-      code: codeFor(name),
+      ...named(name ?? referenceDataName(resolvedType)),
       availableFacilities: null,
     };
   },
-  Department: () => {
-    const name = pickDistinct('department', DEPARTMENT_NAMES);
-    return { name, code: codeFor(name) };
-  },
-  LocationGroup: () => {
-    const name = pickDistinct('locationGroup', LOCATION_GROUP_NAMES);
-    return { name, code: codeFor(name) };
-  },
+  Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
+  LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
   Discharge: () => ({
     note: chance.pickone(DISCHARGE_NOTES),
     facilityName: null,
@@ -1125,11 +703,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
     receiptNumber: `RCP${chance.natural({ min: 100000, max: 999999 })}`,
   }),
   InvoiceItem: () => {
-    const productName = pickDistinct('invoiceProduct', INVOICE_PRODUCT_NAMES);
+    const product = named(pickDistinct(INVOICE_PRODUCT_NAMES));
     return {
       note: chance.pickone(INVOICE_NOTES),
-      productNameFinal: productName,
-      productCodeFinal: codeFor(productName),
+      productNameFinal: product.name,
+      productCodeFinal: product.code,
       sourceRecordType: null,
       sourceRecordId: null,
     };
@@ -1137,8 +715,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
   InvoiceItemDiscount: () => ({
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
   }),
-  InvoiceProduct: () => ({
-    name: pickDistinct('invoiceProduct', INVOICE_PRODUCT_NAMES),
+  InvoiceProduct: ({ name }) => ({
+    name: name ?? pickDistinct(INVOICE_PRODUCT_NAMES),
   }),
   PatientAllergy: () => ({
     note: chance.pickone(ALLERGY_NOTES),
@@ -1157,34 +735,25 @@ const MODEL_SPECIFIC_OVERRIDES = {
     note: chance.pickone(PROCEDURE_NOTES),
     completedNote: chance.pickone(PROCEDURE_COMPLETED_NOTES),
   }),
-  Program: () => {
-    const name = pickDistinct('program', PROGRAM_NAMES);
-    return { name, code: codeFor(name) };
-  },
-  ProgramDataElement: () => {
-    const { name, indicator } = chance.pickone(PROGRAM_DATA_ELEMENTS);
+  Program: ({ name }) => named(name ?? pickDistinct(PROGRAM_NAMES)),
+  ProgramDataElement: ({ name }) => {
+    const element = chance.pickone(PROGRAM_DATA_ELEMENTS);
     return {
-      name,
-      indicator,
-      code: codeFor(name),
+      ...named(name ?? element.name),
+      indicator: element.indicator,
       defaultText: chance.pickone(PROGRAM_DATA_ELEMENT_HINTS),
       defaultOptions: null,
       visualisationConfig: null,
     };
   },
-  ProgramRegistryCondition: () => {
-    const name = pickDistinct('programRegistryCondition', PROGRAM_REGISTRY_CONDITION_NAMES);
-    return { name, code: codeFor(name) };
-  },
-  ProgramRegistryClinicalStatus: () => {
-    const name = pickDistinct(
-      'programRegistryClinicalStatus',
-      PROGRAM_REGISTRY_CLINICAL_STATUS_NAMES,
-    );
-    return { name, code: codeFor(name), color: chance.pickone(Object.keys(STATUS_COLOR)) };
-  },
-  ReportDefinition: () => ({
-    name: pickDistinct('reportDefinition', REPORT_DEFINITION_NAMES),
+  ProgramRegistryCondition: ({ name }) =>
+    named(name ?? pickDistinct(PROGRAM_REGISTRY_CONDITION_NAMES)),
+  ProgramRegistryClinicalStatus: ({ name }) => ({
+    ...named(name ?? pickDistinct(PROGRAM_REGISTRY_CLINICAL_STATUS_NAMES)),
+    color: chance.pickone(Object.keys(STATUS_COLOR)),
+  }),
+  ReportDefinition: ({ name }) => ({
+    name: name ?? pickDistinct(REPORT_DEFINITION_NAMES),
   }),
   ReportDefinitionVersion: () => ({
     query: 'SELECT p.display_id, p.first_name, p.last_name FROM patients p LIMIT 100',
@@ -1199,7 +768,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     frequencyUnit: chance.pickone(Object.values(TASK_FREQUENCY_UNIT)),
   }),
   Task: () => ({
-    name: pickDistinct('task', REFERENCE_DATA_NAMES[REFERENCE_TYPES.TASK_TEMPLATE]),
+    name: referenceDataName(REFERENCE_TYPES.TASK_TEMPLATE),
     frequencyUnit: chance.pickone(Object.values(TASK_FREQUENCY_UNIT)),
     durationUnit: chance.pickone(Object.values(TASK_DURATION_UNIT)),
     note: chance.pickone(TASK_NOTES),
@@ -1210,20 +779,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   ScheduledVaccine: () => ({
-    label: pickDistinct('scheduledVaccine', SCHEDULED_VACCINE_LABELS),
+    label: pickDistinct(SCHEDULED_VACCINE_LABELS),
     doseLabel: chance.pickone(SCHEDULED_VACCINE_DOSE_LABELS),
     category: chance.pickone(VACCINE_CATEGORIES_VALUES),
   }),
-  Survey: () => {
-    const name = pickDistinct('survey', SURVEY_NAMES);
-    return {
-      name,
-      code: codeFor(name),
-      isSensitive: false,
-      visibilityCriteria: null,
-      notifyEmailAddresses: [],
-    };
-  },
+  Survey: ({ name }) => ({
+    ...named(name ?? pickDistinct(SURVEY_NAMES)),
+    isSensitive: false,
+    visibilityCriteria: null,
+    notifyEmailAddresses: [],
+  }),
   SurveyScreenComponent: () => ({
     ...chance.pickone(SURVEY_SCREEN_COMPONENT_PROMPTS),
     calculation: null,
@@ -1246,22 +811,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
     revisedById: undefined,
     content: chance.pickone(NOTE_CONTENTS),
   }),
-  Location: () => {
-    const name = pickDistinct('location', LOCATION_NAMES);
-    return {
-      name,
-      code: codeFor(name),
-      maxOccupancy: chance.pickone([1, null]),
-    };
-  },
-  ProgramRegistry: () => {
-    const name = pickDistinct('programRegistry', PROGRAM_REGISTRY_NAMES);
-    return {
-      name,
-      code: codeFor(name),
-      currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
-    };
-  },
+  Location: ({ name }) => ({
+    ...named(name ?? pickDistinct(LOCATION_NAMES)),
+    maxOccupancy: chance.pickone([1, null]),
+  }),
+  ProgramRegistry: ({ name }) => ({
+    ...named(name ?? pickDistinct(PROGRAM_REGISTRY_NAMES)),
+    currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
+  }),
   AdministeredVaccine: () => {
     const status = chance.pickone(Object.values(VACCINE_STATUS));
     const vaccine = chance.pickone(VACCINES);
@@ -1276,7 +833,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       disease: vaccine.disease,
       reason:
         status === VACCINE_STATUS.NOT_GIVEN
-          ? chance.pickone(REFERENCE_DATA_NAMES[REFERENCE_TYPES.VACCINE_NOT_GIVEN_REASON])
+          ? referenceDataName(REFERENCE_TYPES.VACCINE_NOT_GIVEN_REASON)
           : null,
     };
   },
