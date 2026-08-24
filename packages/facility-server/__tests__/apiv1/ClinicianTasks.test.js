@@ -172,6 +172,84 @@ describe('GET user/tasks', () => {
     expect(result.body.count).toBe(ROWS_PER_PAGE + 3);
   });
 
+  it('counts correctly on a later page that comes back short', async () => {
+    const designation = await createDesignation();
+    await designateUser(app.user.id, designation);
+    for (let index = 0; index < ROWS_PER_PAGE + 3; index++) {
+      await createTask(`task ${index}`, [designation]);
+    }
+
+    const result = await app.get(tasksUrl({ page: 1 }));
+
+    expect(result).toHaveSucceeded();
+    expect(result.body.data).toHaveLength(3);
+    expect(result.body.count).toBe(ROWS_PER_PAGE + 3);
+  });
+
+  it('reports the real total when the requested page is past the end', async () => {
+    // The client may still be on a page whose tasks have since been completed, so the offset
+    // can land beyond the total. Deriving the total from the offset would invent one.
+    const designation = await createDesignation();
+    await designateUser(app.user.id, designation);
+    for (let index = 0; index < 5; index++) {
+      await createTask(`task ${index}`, [designation]);
+    }
+
+    const result = await app.get(tasksUrl({ page: 2 }));
+
+    expect(result).toHaveSucceeded();
+    expect(result.body.data).toHaveLength(0);
+    expect(result.body.count).toBe(5);
+  });
+
+  describe('filtered by designation', () => {
+    it('keeps tasks carrying the filtered designation when the user shares it', async () => {
+      const filtered = await createDesignation();
+      await designateUser(app.user.id, filtered);
+      await createTask('filtered task', [filtered]);
+
+      const result = await app.get(tasksUrl({ designationId: filtered.id }));
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(task => task.name)).toEqual(['filtered task']);
+      expect(result.body.count).toBe(1);
+    });
+
+    it('drops tasks whose filtered designation belongs to someone else', async () => {
+      const filtered = await createDesignation();
+      const otherUser = await models.User.create(fake(models.User));
+      await designateUser(otherUser.id, filtered);
+      await createTask('someone elses filtered task', [filtered]);
+
+      const result = await app.get(tasksUrl({ designationId: filtered.id }));
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(0);
+      expect(result.body.count).toBe(0);
+    });
+
+    it('still admits tasks carrying no designation matching the filter', async () => {
+      // Documented, deliberately preserved behaviour of the LEFT JOIN this replaced: the
+      // filter narrows which designations are considered, not which tasks are eligible, so a
+      // task designated elsewhere reads as unassigned for the filter's purposes.
+      const filtered = await createDesignation();
+      const unrelated = await createDesignation();
+      const otherUser = await models.User.create(fake(models.User));
+      await designateUser(otherUser.id, unrelated);
+      await createTask('undesignated task');
+      await createTask('task designated elsewhere', [unrelated]);
+
+      const result = await app.get(tasksUrl({ designationId: filtered.id }));
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(task => task.name).sort()).toEqual([
+        'task designated elsewhere',
+        'undesignated task',
+      ]);
+      expect(result.body.count).toBe(2);
+    });
+  });
+
   it('rejects a request without Tasking read permission', async () => {
     const unprivilegedApp = await ctx.baseApp.asNewRole([]);
 

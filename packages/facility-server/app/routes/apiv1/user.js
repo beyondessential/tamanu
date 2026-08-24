@@ -425,10 +425,17 @@ user.get(
 
     // Counting repeats every predicate above, including the correlated MAR probe, over the
     // whole match set with no LIMIT — the expensive half of this endpoint. Now that a task
-    // occupies exactly one row, a page that came back short is the last one, so the total
+    // occupies exactly one row, a short *non-empty* page is the last one, so the total
     // follows from the offset and needs no second pass.
+    //
+    // A short page that is also empty proves nothing: the offset may have run past a total
+    // that shrank since the client read it (tasks leave TODO constantly here), and deriving
+    // the total from the offset would invent one. Only page 0 is safe there, where an empty
+    // page means an empty result — and the same expression gives 0 for it.
+    const isLastPage = tasks.length > 0 && tasks.length < rowsPerPage;
+    const isEmptyFirstPage = page === 0 && tasks.length === 0;
     const count =
-      tasks.length < rowsPerPage
+      isLastPage || isEmptyFirstPage
         ? page * rowsPerPage + tasks.length
         : await models.Task.count(baseQueryOptions);
     res.send({ data: tasks, count });
