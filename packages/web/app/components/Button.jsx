@@ -3,7 +3,6 @@ export {
   UnstyledHtmlButton,
   ButtonWithPermissionCheck,
   DefaultIconButton,
-  LargeSubmitButton,
   FormCancelButton,
   FormSubmitButton,
   BackButton,

@@ -215,17 +215,6 @@ export const FormCancelButton = ({ disabled, ...props }) => {
   );
 };
 
-const StyledLargeSubmitButton = styled(FormSubmitButton)`
-  font-size: 15px;
-  line-height: 18px;
-  padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
-`;
-
-export const LargeSubmitButton = props => (
-  <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
-);
-
 export const DefaultIconButton = styled(IconButton).attrs({
   'data-testid': 'iconbutton-zsiq',
 })`
