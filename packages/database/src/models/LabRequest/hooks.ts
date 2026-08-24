@@ -101,42 +101,52 @@ export const pushNotificationAfterUpdateHook = async (
 };
 
 const getItemsForLabRequest = async (instance: LabRequest) => {
-  if (instance.labTestPanelRequestId) {
-    const labTestPanelRequest = await instance.sequelize.models.LabTestPanelRequest.findByPk(
-      instance.labTestPanelRequestId,
-    );
-    if (labTestPanelRequest) {
-      const panelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
-        where: {
-          category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-          sourceRecordId: labTestPanelRequest.labTestPanelId,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-      });
+  const { InvoiceProduct, LabTestPanelRequest } = instance.sequelize.models;
+  const items = [];
 
-      if (panelProduct) {
-        return [{ item: labTestPanelRequest, product: panelProduct }];
-      }
+  // Each panel request whose panel has an invoice product bills that product once; the tests
+  // belonging to that panel are not then billed individually.
+  const panelRequests = await LabTestPanelRequest.findAll({ where: { labRequestId: instance.id } });
+  const billedPanelRequestIds = new Set();
+  for (const panelRequest of panelRequests) {
+    const panelProduct = await InvoiceProduct.findOne({
+      where: {
+        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+        sourceRecordId: panelRequest.labTestPanelId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+    if (panelProduct) {
+      items.push({ item: panelRequest, product: panelProduct });
+      billedPanelRequestIds.add(panelRequest.id);
     }
   }
 
+  // Individual tests, and tests whose panel does not bill, are charged against their test type
+  // product once per request however many panels contributed the type.
   const tests = await instance.getTests();
-  const testItems = [];
+  const billedTestTypeIds = new Set();
   for (const test of tests) {
-    const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+    if (test.labTestPanelRequestId && billedPanelRequestIds.has(test.labTestPanelRequestId)) {
+      continue;
+    }
+    if (billedTestTypeIds.has(test.labTestTypeId)) {
+      continue;
+    }
+    const testProduct = await InvoiceProduct.findOne({
       where: {
         category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
         sourceRecordId: test.labTestTypeId,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
-
-    if (invoiceProduct) {
-      testItems.push({ item: test, product: invoiceProduct });
+    if (testProduct) {
+      items.push({ item: test, product: testProduct });
+      billedTestTypeIds.add(test.labTestTypeId);
     }
   }
 
-  return testItems;
+  return items;
 };
 
 const addToInvoice = async (instance: LabRequest) => {
