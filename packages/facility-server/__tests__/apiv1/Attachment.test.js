@@ -109,11 +109,13 @@ describe('Attachment (facility-server)', () => {
   });
 
   it('presents a record that has not reached either server as awaiting its content', async () => {
-    CentralServerConnection.mockImplementation(() => ({
-      fetch: async () => {
-        throw Object.assign(new Error('forbidden'), { status: 403 });
-      },
-    }));
+    CentralServerConnection.mockImplementation(function () {
+      return {
+        fetch: async () => {
+          throw Object.assign(new Error('forbidden'), { status: 403 });
+        },
+      };
+    });
 
     try {
       const result = await app.get('/api/attachment/not-synced-here-yet');

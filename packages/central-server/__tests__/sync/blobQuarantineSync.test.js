@@ -31,11 +31,7 @@ describe('Blob quarantine propagation', () => {
   const quarantinesPulledBy = async (centralSyncManager, { facilityIds, isMobile = false }) => {
     const { sessionId } = await centralSyncManager.startSession({ facilityIds, isMobile });
     await waitForSession(centralSyncManager, sessionId);
-    await centralSyncManager.setupSnapshotForPull(
-      sessionId,
-      { since: 1, facilityIds },
-      () => true,
-    );
+    await centralSyncManager.setupSnapshotForPull(sessionId, { since: 1, facilityIds }, () => true);
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     return changes.filter(change => change.recordType === 'blob_quarantines');
   };
@@ -74,7 +70,7 @@ describe('Blob quarantine propagation', () => {
 
   it('sends a quarantine to a facility with the versions behind the verdict', async () => {
     const facility = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManagerWithContext(ctx);
+    const centralSyncManager = await initializeCentralSyncManagerWithContext(ctx);
 
     const [quarantine, ...rest] = await quarantinesPulledBy(centralSyncManager, {
       facilityIds: [facility.id],
@@ -90,7 +86,7 @@ describe('Blob quarantine propagation', () => {
 
   it('sends it to a facility sharing neither content nor patients with the upload', async () => {
     const unrelatedFacility = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManagerWithContext(ctx);
+    const centralSyncManager = await initializeCentralSyncManagerWithContext(ctx);
 
     const quarantines = await quarantinesPulledBy(centralSyncManager, {
       facilityIds: [unrelatedFacility.id],
@@ -101,7 +97,7 @@ describe('Blob quarantine propagation', () => {
 
   it('sends it to a device session', async () => {
     const facility = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManagerWithContext(ctx);
+    const centralSyncManager = await initializeCentralSyncManagerWithContext(ctx);
 
     const quarantines = await quarantinesPulledBy(centralSyncManager, {
       facilityIds: [facility.id],
@@ -122,7 +118,10 @@ describe('Blob quarantine propagation', () => {
       },
     }));
     const facility = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManagerWithContext(ctx, lookupEnabledConfig);
+    const centralSyncManager = await initializeCentralSyncManagerWithContext(
+      ctx,
+      lookupEnabledConfig,
+    );
     await centralSyncManager.updateLookupTable();
 
     const lookup = await models.SyncLookup.findOne({
