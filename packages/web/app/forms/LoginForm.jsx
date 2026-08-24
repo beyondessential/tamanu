@@ -39,7 +39,10 @@ const LoginSubtext = styled(BodyText)`
   padding-top: 10px;
 `;
 
-const LoginButton = styled(FormSubmitButton)`
+const LoginButton = styled(FormSubmitButton).attrs({
+  'data-testid': 'loginbutton-gx21',
+  children: <TranslatedText stringId="login.login.label" fallback="Log in" />,
+})`
   font-size: 14px;
   line-height: 18px;
   padding: 14px 0;
@@ -151,10 +154,7 @@ const LoginFormComponent = ({
           />
         </RememberMeRow>
       </div>
-      <LoginButton
-        text={<TranslatedText stringId="login.login.label" fallback="Log in" />}
-        data-testid="loginbutton-gx21"
-      />
+      <LoginButton />
       <LanguageSelector data-testid="languageselector-9z0j" />
       <ForgotPasswordButton onClick={onNavToResetPassword} data-testid="forgotpasswordbutton-mbnb">
         <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot password?" />

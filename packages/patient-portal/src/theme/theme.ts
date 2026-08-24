@@ -106,6 +106,12 @@ const themeConfig = {
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
+    MuiButton: {
+      defaultProps: {
+        color: 'primary',
+        variant: 'contained',
+      },
+    },
     MuiCard: {
       root: {
         borderColor: TAMANU_COLORS.outline,
@@ -131,6 +137,6 @@ const themeConfig = {
       },
     },
   },
-};
+} as const;
 
 export const theme = createTheme(themeConfig);

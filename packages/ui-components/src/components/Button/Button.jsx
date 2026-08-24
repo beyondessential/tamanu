@@ -60,8 +60,6 @@ const StyledCircularProgress = styled(CircularProgress)`
 
 const BaseButton = ({
   children,
-  variant = 'contained',
-  color = 'primary',
   type = 'button',
   disabled = false,
   isSubmitting = false,
@@ -73,13 +71,7 @@ const BaseButton = ({
   const displayLock = !isSubmitting && !hasPermission;
 
   return (
-    <StyledButton
-      variant={variant}
-      color={color}
-      type={type}
-      disabled={disabled || !hasPermission}
-      {...props}
-    >
+    <StyledButton type={type} disabled={disabled || !hasPermission} {...props}>
       {displayLock && <Lock data-testid="lock-zz2l" />}
       {showLoadingIndicator && (
         <StyledCircularProgress
@@ -106,40 +98,34 @@ export const OutlinedButton = styled(StyledButton).attrs({
   color: 'primary',
   variant: 'outlined',
 })`
-  border-color: ${props => props.theme.palette.primary.main};
   :disabled {
     border-color: ${TAMANU_COLORS.softText};
   }
 `;
 
-export const GreyOutlinedButton = styled(StyledButton)`
+export const GreyOutlinedButton = styled(StyledButton).attrs(p => ({
+  color: p.theme.palette.text.secondary,
+  variant: 'outlined',
+}))`
   border: 1px solid #dedede;
-  color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(StyledButton)`
-  border: 1px solid ${TAMANU_COLORS.alert};
-  color: ${TAMANU_COLORS.alert};
-`;
+export const RedOutlinedButton = styled(StyledButton).attrs({
+  color: 'error',
+  variant: 'outlined',
+})``;
 
-const StyledLargeButton = styled(StyledButton)`
+export const LargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
   border: 1px solid ${props => props.theme.palette.primary.main};
 `;
 
-export const LargeButton = props => (
-  <StyledLargeButton variant="contained" color="primary" {...props} />
-);
-
-export const LargeOutlineButton = props => (
-  <StyledLargeButton variant="outlined" color="primary" {...props} />
-);
+export const LargeOutlineButton = props => <LargeButton variant="outlined" {...props} />;
 
 export const DeleteButton = styled(Button).attrs({
   children: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-  variant: 'contained',
 })`
   background-color: ${red[600]};
   color: ${TAMANU_COLORS.white};
@@ -149,7 +135,6 @@ export const DeleteButton = styled(Button).attrs({
 `;
 
 export const TextButton = styled(Button).attrs({
-  color: 'primary',
   variant: 'text',
 })`
   color: #5b84ad;
