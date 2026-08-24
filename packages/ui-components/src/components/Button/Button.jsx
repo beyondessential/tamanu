@@ -1,8 +1,8 @@
 import { CircularProgress, IconButton } from '@material-ui/core';
-import { red } from '@material-ui/core/colors';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
 import MuiButton, { buttonClasses } from '@mui/material/Button';
+import { red } from '@mui/material/colors';
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
