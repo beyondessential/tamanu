@@ -306,7 +306,7 @@ export async function permissionLoader(item, { models, pushError }) {
     });
 }
 
-export function labTestPanelLoader(item) {
+export async function labTestPanelLoader(item, { models, pushError }) {
   const { id, testTypesInPanel, availableFacilities, ...otherFields } = item;
   const rows = [];
 
@@ -319,20 +319,35 @@ export function labTestPanelLoader(item) {
     },
   });
 
-  (testTypesInPanel || '')
+  const testTypeIds = (testTypesInPanel || '')
     .split(',')
     .map(t => t.trim())
-    .forEach((testType, index) => {
-      rows.push({
-        model: 'LabTestPanelLabTestTypes',
-        values: {
-          id: `${id};${testType}`,
-          labTestPanelId: id,
-          labTestTypeId: testType,
-          order: index,
-        },
-      });
+    .filter(Boolean);
+
+  testTypeIds.forEach((testType, index) => {
+    rows.push({
+      model: 'LabTestPanelLabTestTypes',
+      values: {
+        id: `${id};${testType}`,
+        labTestPanelId: id,
+        labTestTypeId: testType,
+        order: index,
+      },
     });
+  });
+
+  // A panel's test types must all belong to one lab test category, so an ordered panel can be
+  // grouped under a single category.
+  if (testTypeIds.length) {
+    const testTypes = await models.LabTestType.findAll({
+      where: { id: { [Op.in]: testTypeIds } },
+      attributes: ['labTestCategoryId'],
+    });
+    const categoryIds = [...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean))];
+    if (categoryIds.length > 1) {
+      pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
+    }
+  }
 
   return rows;
 }
