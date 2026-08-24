@@ -4,6 +4,8 @@ import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSync
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
+import type { LabRequest } from './LabRequest';
+import type { LabTest } from './LabTest';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
@@ -13,7 +15,10 @@ export class LabTestPanelRequest extends Model {
   declare id: string;
   declare encounterId?: string;
   declare labTestPanelId?: string;
+  declare labRequestId?: string;
   declare labTestPanel?: LabTestPanel;
+  declare labRequest?: LabRequest;
+  declare tests?: LabTest[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -35,6 +40,14 @@ export class LabTestPanelRequest extends Model {
     this.belongsTo(models.LabTestPanel, {
       foreignKey: 'labTestPanelId',
       as: 'labTestPanel',
+    });
+    this.belongsTo(models.LabRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labRequest',
+    });
+    this.hasMany(models.LabTest, {
+      foreignKey: 'labTestPanelRequestId',
+      as: 'tests',
     });
   }
 
