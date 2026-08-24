@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import { Readable } from 'node:stream';
 import fs from 'fs';
@@ -22,7 +23,7 @@ describe('PatientLetter', () => {
 
   beforeAll(async () => {
     // The handler stats and reads the rendered file, so write a stand-in.
-    renderSpy = jest.spyOn(ReactPDF, 'render').mockImplementation(async (_element, filePath) => {
+    renderSpy = vi.spyOn(ReactPDF, 'render').mockImplementation(async (_element, filePath) => {
       fs.writeFileSync(filePath, 'not a real pdf');
     });
     ctx = await createTestContext();
@@ -95,7 +96,7 @@ describe('PatientLetter', () => {
     renderSpy.mockImplementationOnce(async (_element, filePath) => {
       fs.writeFileSync(filePath, content);
     });
-    const createSpy = jest
+    const createSpy = vi
       .spyOn(models.Attachment, 'create')
       .mockRejectedValueOnce(new Error('attachment write failed'));
 

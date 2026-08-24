@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { QueryTypes } from 'sequelize';
 
@@ -9,8 +10,8 @@ import { rollbackBlobBackfill } from '../../app/subCommands/rollbackBlobBackfill
 
 // The pause between batches is the whole of the command's pacing, so it is
 // observed rather than waited out.
-jest.mock('@tamanu/utils/sleepAsync', () => ({
-  sleepAsync: jest.fn().mockResolvedValue(undefined),
+vi.mock('@tamanu/utils/sleepAsync', () => ({
+  sleepAsync: vi.fn().mockResolvedValue(undefined),
 }));
 
 // spec: BKFL
@@ -111,8 +112,8 @@ describe('rollbackBlobBackfill', () => {
   });
 
   it('restores fifty rows a batch when no batch size is given', async () => {
-    const rollbackRows = jest.spyOn(BlobBackfill.prototype, 'rollbackReferenceRows');
-    const rollbackChangelog = jest.spyOn(BlobBackfill.prototype, 'rollbackChangelogEntries');
+    const rollbackRows = vi.spyOn(BlobBackfill.prototype, 'rollbackReferenceRows');
+    const rollbackChangelog = vi.spyOn(BlobBackfill.prototype, 'rollbackChangelogEntries');
     await insertAttachment(Buffer.from('one row is enough to size a batch'));
     await backfillEverything();
 

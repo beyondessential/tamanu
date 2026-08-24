@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { pick } from 'es-toolkit/compat';
 
 import { createTestContext } from '../utilities';
@@ -49,9 +50,9 @@ describe('DHIS2 integration processor', () => {
     models = ctx.store.models;
 
     logSpy = {
-      info: jest.spyOn(log, 'info'),
-      warn: jest.spyOn(log, 'warn'),
-      error: jest.spyOn(log, 'error'),
+      info: vi.spyOn(log, 'info'),
+      warn: vi.spyOn(log, 'warn'),
+      error: vi.spyOn(log, 'error'),
     };
 
     report = await models.ReportDefinition.create({
@@ -95,11 +96,11 @@ describe('DHIS2 integration processor', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     ctx.close();
   });
 
@@ -194,7 +195,7 @@ describe('DHIS2 integration processor', () => {
 
   describe('DHIS2 response', () => {
     it('should log.warn individual conflicts when DHIS2 returns conflicts', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
@@ -212,7 +213,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockSuccessResponse);
 
       await dhis2IntegrationProcessor.run();
 
@@ -238,7 +239,7 @@ describe('DHIS2 integration processor', () => {
 
     it('marks the data set complete when advancedConfig.dhis2DataSet is set', async () => {
       await reportVersion.update({ advancedConfig: { dhis2DataSet: 'test-dataset-id' } });
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockSuccessResponse);
 
       await dhis2IntegrationProcessor.run();
 
@@ -253,7 +254,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('does not set dataSet or completeDate when no dhis2DataSet is configured', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockSuccessResponse);
 
       await dhis2IntegrationProcessor.run();
 
@@ -276,7 +277,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should create a warning log when conflicts are returned in DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
@@ -293,7 +294,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should create a success log when dataValueSet is successfully sent to DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.postToDHIS2 = vi.fn().mockResolvedValue(mockSuccessResponse);
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });

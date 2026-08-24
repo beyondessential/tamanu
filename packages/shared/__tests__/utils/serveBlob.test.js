@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -51,7 +52,7 @@ describe('readBlobAsBase64', () => {
   });
 
   it('refuses content past the inline limit without reading it', async () => {
-    const openSpy = jest.fn(open);
+    const openSpy = vi.fn(open);
     await expect(
       readBlobAsBase64({ size: MAX_INLINE_BLOB_BYTES + 1, open: openSpy }),
     ).rejects.toMatchObject({ status: 422 });

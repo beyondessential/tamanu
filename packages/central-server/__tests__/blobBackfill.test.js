@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -202,7 +203,7 @@ describe('Blob backfill', () => {
       // hard-deleted after push would vanish mid-batch.
       const realQuery = sequelize.query.bind(sequelize);
       let deleted = false;
-      jest.spyOn(sequelize, 'query').mockImplementation(async (sql, opts) => {
+      vi.spyOn(sequelize, 'query').mockImplementation(async (sql, opts) => {
         if (!deleted && typeof sql === 'string' && sql.startsWith('SELECT data FROM attachments')) {
           deleted = true;
           await realQuery(`DELETE FROM attachments WHERE id = $id`, { bind: { id: vanishingId } });

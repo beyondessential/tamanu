@@ -1,37 +1,19 @@
-/* eslint-disable no-undef */
+import { afterAll, expect } from 'vitest';
 
-const { Problem } = require('@tamanu/errors');
-
-require('jest-expect-message');
-const jestExtendedMatchers = require('jest-extended');
-
-globalThis.crypto = require('crypto');
+import { Problem } from '@tamanu/errors';
 
 // Sets global.serverInfo (serverType: 'central') the way a booted server does,
 // so serviceContext() reports the server type under test as it would in production.
-require('../app/serverInfo');
+import '../app/serverInfo';
 
-// TextDecoder is undefined in jest environment
-// Required for cbor
-const { TextDecoder } = require('util');
-
-global.TextDecoder = TextDecoder;
-
-// 100s to match the other server packages: compiling @tamanu workspace TypeScript source
-// through swc per file makes heavy suites' createTestContext hooks slow enough under
-// parallel cold-start to need the headroom.
-jest.setTimeout(100 * 1000);
-jest.mock('../app/utils/getFreeDiskSpace');
-
-// Close any database connections opened during the file. Runs in-sandbox (so
-// module resolution goes through jest, not the bare CJS loader) rather than as
-// a global teardown; jest gives each test file its own module registry, so this
-// is correctly scoped per file.
+// Close any database connections opened during the file. Setup files run per test file, so
+// this is correctly scoped to the connections that file opened, and module resolution goes
+// through vitest rather than a bare loader.
 afterAll(async () => {
-  // Optional-call: some suites jest.mock('../app/database') with only the exports they
+  // Optional-call: some suites vi.mock('../app/database') with only the exports they
   // use (e.g. initDatabase), so closeDatabase may be absent — those suites hold no real
   // connection to close anyway.
-  const { closeDatabase } = require('../app/database');
+  const { closeDatabase } = await import('../app/database');
   await closeDatabase?.();
 });
 
@@ -49,8 +31,6 @@ ${JSON.stringify(response.body.error, null, 2)}
 `;
 };
 
-// Needs to be added explicitly because of the jest-expect-message import
-expect.extend(jestExtendedMatchers);
 expect.extend({
   toBeForbidden(response) {
     const { statusCode } = response;

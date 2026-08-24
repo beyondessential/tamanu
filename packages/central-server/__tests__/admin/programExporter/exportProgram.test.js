@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { exportProgram } from '../../../app/admin/programExporter';
 import { createTestContext } from '../../utilities';
 import { fake } from '@tamanu/fake-data/fake';
@@ -86,7 +87,11 @@ const buildExpectedSurveySheet = (surveyScreenComponentAndProgramDataElements) =
   ),
 ];
 
-jest.mock('xlsx', () => ({
+// Spread the real module so its other named exports still exist: modules elsewhere in this
+// graph import `read`, `readFile` and `set_fs`, and an ESM import of an export a mock doesn't
+// declare is a link error rather than the `undefined` CommonJS gave.
+vi.mock('xlsx', async () => ({
+  ...(await vi.importActual('xlsx')),
   utils: {
     book_new: () => ({}),
     aoa_to_sheet: (data) => data,

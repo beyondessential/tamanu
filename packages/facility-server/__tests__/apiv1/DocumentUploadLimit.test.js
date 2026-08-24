@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 
 import { DOCUMENT_SIZE_LIMIT, BLOB_TIERS } from '@tamanu/constants';
@@ -11,7 +12,7 @@ const hashOf = content => `sha256:${createHash('sha256').update(content).digest(
 // The route suites stand uploadAttachment down and assert it was called, so the
 // limit the route hands it has never been applied to a real request. This one
 // puts the real implementation back.
-const actual = jest.requireActual('../../app/utils/uploadAttachment');
+const actual = await vi.importActual('../../app/utils/uploadAttachment');
 
 describe('document upload size limit', () => {
   let ctx;

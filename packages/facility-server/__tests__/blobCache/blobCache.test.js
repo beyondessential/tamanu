@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -589,7 +590,7 @@ describe('facility blob outbox and LRU cache', () => {
       let errorLog;
 
       beforeEach(() => {
-        errorLog = jest.spyOn(log, 'error').mockImplementation(() => {});
+        errorLog = vi.spyOn(log, 'error').mockImplementation(() => {});
       });
 
       afterEach(() => {

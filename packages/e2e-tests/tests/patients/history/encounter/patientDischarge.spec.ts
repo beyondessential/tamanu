@@ -89,8 +89,8 @@ test.describe('Patient discharge', () => {
   });
 
   // The reported regression: a medication left out of the pharmacy order has nothing to dispense,
-  // so its quantity can be left blank and the discharge still completes. The server records the
-  // blank as zero against the prescription.
+  // so its quantity needs no value of its own and the discharge still completes. The server records
+  // a blank quantity as zero against the prescription.
   test('A blank dispensing quantity does not block a discharge that sends nothing to pharmacy', async ({
     api,
     newPatient,
@@ -109,8 +109,9 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
-    // Prescriptions are created without a quantity, so the row starts blank and stays that way.
-    await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('');
+    // A prescription created without a quantity is recorded as zero, so the row starts at 0 and
+    // stays there: there is nothing to dispense once it is out of the pharmacy order.
+    await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('0');
     await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
 
     await dischargeModal.finaliseDischarge();
@@ -137,7 +138,7 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
-    // Prescriptions are created without a quantity, so the row starts blank and selected to send.
+    // A prescription created without a quantity starts at zero, with the row selected to send.
     await dischargeModal.attemptFinaliseDischarge();
     await expect(dischargeModal.dispensingQuantityError(prescription.id)).toHaveText('*Required');
 

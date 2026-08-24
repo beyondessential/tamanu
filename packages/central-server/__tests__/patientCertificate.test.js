@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Readable } from 'node:stream';
 
 import ReactPDF from '@react-pdf/renderer';
@@ -209,7 +210,7 @@ describe('Certificate', () => {
     let render;
 
     beforeEach(() => {
-      render = jest.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
+      render = vi.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
     });
 
     afterEach(async () => {

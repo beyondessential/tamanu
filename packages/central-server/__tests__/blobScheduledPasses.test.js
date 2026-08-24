@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -13,9 +14,9 @@ import { ApplicationContext } from '../app/ApplicationContext';
 
 // The host daemon is the one part of a scan the context cannot supply, so the
 // driver is replaced and everything above it is the context's own wiring.
-jest.mock('@tamanu/database/blobStore', () => ({
-  ...jest.requireActual('@tamanu/database/blobStore'),
-  createScannerDriver: jest.fn(),
+vi.mock('@tamanu/database/blobStore', async () => ({
+  ...(await vi.importActual('@tamanu/database/blobStore')),
+  createScannerDriver: vi.fn(),
 }));
 
 const VERSIONS = { scannerVersion: 'test-scanner 1.0', signatureVersion: '27100' };

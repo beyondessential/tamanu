@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
@@ -5,7 +6,7 @@ import { InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 // Get the unmocked function to be able to test it
-const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
+const { uploadAttachment } = await vi.importActual('../app/utils/uploadAttachment');
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
 const FILEDATA =
@@ -14,7 +15,7 @@ const FILEDATA =
 // Function called inside uploadAttachment, it expects a network request
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
-jest.mock('@tamanu/shared/utils/getUploadedData');
+vi.mock('@tamanu/shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
   const fileName = path.resolve(__dirname, 'test-file.jpeg');
@@ -45,7 +46,7 @@ describe('UploadAttachment', () => {
       type: 'image/jpeg',
       deviceId: 'test-device-id',
       blobCache: {
-        putOutbox: jest.fn(async (source, options) => {
+        putOutbox: vi.fn(async (source, options) => {
           const content = await readAll(source);
           admitted.push({ content, options });
           return {
@@ -56,7 +57,7 @@ describe('UploadAttachment', () => {
       },
       models: {
         Attachment: {
-          create: jest.fn(async values => {
+          create: vi.fn(async values => {
             created.push(values);
             return { id: 'attachment-id', ...values };
           }),

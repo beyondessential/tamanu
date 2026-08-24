@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import {
   createSnapshotTable,

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -18,7 +19,7 @@ import { BlobTransferChannel } from '../../app/blobTransfer/BlobTransferChannel'
 
 // The shared test environment auto-mocks this, which would answer every call
 // with undefined; the point here is the request the real one builds.
-const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
+const { CentralServerConnection } = await vi.importActual('../../app/sync/CentralServerConnection');
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
@@ -298,7 +299,7 @@ describe('BlobTransferChannel', () => {
       const content = Buffer.from('bytes that make every round trip');
       const hash = hashOf(content);
       const sent = [];
-      const apiFetch = jest
+      const apiFetch = vi
         .spyOn(TamanuApi.prototype, 'fetch')
         .mockImplementation(async (endpoint, query) => {
           sent.push({ endpoint, query });

@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 
 import { ERROR_TYPE } from '@tamanu/errors';
@@ -5,7 +6,7 @@ import { ERROR_TYPE } from '@tamanu/errors';
 import { buildPrefetchWhere, prefetchAssets } from '../../app/sync/prefetchAssets';
 
 const makeModels = (rows) => ({
-  Asset: { findAll: jest.fn(async () => rows.map((hash) => ({ hash }))) },
+  Asset: { findAll: vi.fn(async () => rows.map((hash) => ({ hash }))) },
 });
 
 const remoteError = (type) => Object.assign(new Error(`failed: ${type}`), { type });
@@ -15,8 +16,8 @@ describe('prefetchAssets', () => {
   let blobCache;
 
   beforeEach(() => {
-    transferChannel = { fetchFromCentral: jest.fn(async () => ({ existed: false })) };
-    blobCache = { enforceBudget: jest.fn(async () => {}) };
+    transferChannel = { fetchFromCentral: vi.fn(async () => ({ existed: false })) };
+    blobCache = { enforceBudget: vi.fn(async () => {}) };
   });
 
   it('does nothing without a transfer channel', async () => {

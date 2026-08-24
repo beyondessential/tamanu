@@ -1,4 +1,5 @@
 /* eslint-disable global-require */
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -30,7 +31,7 @@ describe('FacilitySyncManager edge cases', () => {
   afterAll(() => ctx.close());
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
   });
 
   it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
@@ -45,20 +46,20 @@ describe('FacilitySyncManager edge cases', () => {
 
     const {
       FacilitySyncManager: TestFacilitySyncManager,
-    } = require('../../app/sync/FacilitySyncManager');
+    } = await import('../../app/sync/FacilitySyncManager');
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
       centralServer: {
         streaming: () => false,
-        startSyncSession: jest.fn().mockImplementation(async () => ({
+        startSyncSession: vi.fn().mockImplementation(async () => ({
           sessionId: TEST_SESSION_ID,
           startedAtTick: newSyncTick,
         })),
-        push: jest.fn(),
-        completePush: jest.fn(),
-        endSyncSession: jest.fn(),
-        initiatePull: jest.fn().mockImplementation(async () => ({
+        push: vi.fn(),
+        completePush: vi.fn(),
+        endSyncSession: vi.fn(),
+        initiatePull: vi.fn().mockImplementation(async () => ({
           totalToPull: 0,
           pullUntil: 0,
         })),
@@ -155,9 +156,9 @@ describe('FacilitySyncManager edge cases', () => {
       const isReleased = new Promise(resolve => {
         release = () => resolve(true);
       });
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
-        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+      vi.doMock('../../app/sync/pushOutgoingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pushOutgoingChanges')),
+        pushOutgoingChanges: vi.fn().mockImplementation(() => {
           started();
           return isReleased;
         }),
@@ -172,7 +173,7 @@ describe('FacilitySyncManager edge cases', () => {
       });
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = await import('../../app/sync/FacilitySyncManager');
       if (configToOverride) {
         TestFacilitySyncManager.overrideConfig(configToOverride);
       }
@@ -181,12 +182,12 @@ describe('FacilitySyncManager edge cases', () => {
         sequelize,
         centralServer: {
           streaming: () => false,
-          startSyncSession: jest.fn().mockImplementation(async () => ({
+          startSyncSession: vi.fn().mockImplementation(async () => ({
             sessionId: TEST_SESSION_ID,
             startedAtTick: NEW_SYNC_TICK,
           })),
-          push: jest.fn(),
-          pull: jest.fn().mockImplementation(async () => [
+          push: vi.fn(),
+          pull: vi.fn().mockImplementation(async () => [
             {
               id: 1,
               recordId: encounter.id,
@@ -198,10 +199,10 @@ describe('FacilitySyncManager edge cases', () => {
               },
             },
           ]),
-          markSessionErrored: jest.fn(),
-          completePush: jest.fn(),
-          endSyncSession: jest.fn(),
-          initiatePull: jest.fn().mockImplementation(async () => ({
+          markSessionErrored: vi.fn(),
+          completePush: vi.fn(),
+          endSyncSession: vi.fn(),
+          initiatePull: vi.fn().mockImplementation(async () => ({
             totalToPull: 1,
             pullUntil: 1,
           })),
@@ -212,7 +213,7 @@ describe('FacilitySyncManager edge cases', () => {
     };
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
 
       await models.Encounter.truncate({ force: true, cascade: true });
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
@@ -292,7 +293,7 @@ describe('FacilitySyncManager edge cases', () => {
 
   describe('Posts local errors back to central server', () => {
     beforeAll(async () => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it('Will notify central-server if the error occurred locally on the facility-server', async () => {
@@ -300,9 +301,9 @@ describe('FacilitySyncManager edge cases', () => {
 
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = await import('../../app/sync/FacilitySyncManager');
 
-      const markSessionErrored = jest.fn();
+      const markSessionErrored = vi.fn();
 
       // start the sync
       const syncManager = new TestFacilitySyncManager({
@@ -310,17 +311,17 @@ describe('FacilitySyncManager edge cases', () => {
         sequelize,
         centralServer: {
           streaming: () => false,
-          startSyncSession: jest.fn().mockImplementation(async () => ({
+          startSyncSession: vi.fn().mockImplementation(async () => ({
             sessionId: TEST_SESSION_ID,
             startedAtTick: '1',
           })),
-          push: jest.fn(),
-          pull: jest.fn().mockImplementation(async () => {
+          push: vi.fn(),
+          pull: vi.fn().mockImplementation(async () => {
             throw new Error(errorMessage);
           }),
-          completePush: jest.fn(),
-          endSyncSession: jest.fn(),
-          initiatePull: jest.fn().mockImplementation(async () => ({
+          completePush: vi.fn(),
+          endSyncSession: vi.fn(),
+          initiatePull: vi.fn().mockImplementation(async () => ({
             totalToPull: 1,
             pullUntil: 1,
           })),
@@ -338,22 +339,22 @@ describe('FacilitySyncManager edge cases', () => {
     it('Will not notify central-server if the error occurred remotely on the central-server', async () => {
       const errorMessage = 'Remote error';
 
-      jest.doMock('@tamanu/api-client/fetch', () => ({
-        ...jest.requireActual('@tamanu/api-client/fetch'),
-        fetchOrThrowIfUnavailable: jest.fn().mockImplementation(() => {
+      vi.doMock('@tamanu/api-client/fetch', async () => ({
+        ...(await vi.importActual('@tamanu/api-client/fetch')),
+        fetchOrThrowIfUnavailable: vi.fn().mockImplementation(() => {
           throw new Error(errorMessage);
         }),
       }));
 
       const {
         FacilitySyncManager: TestFacilitySyncManager,
-      } = require('../../app/sync/FacilitySyncManager');
+      } = await import('../../app/sync/FacilitySyncManager');
 
-      const { CentralServerConnection: TestCentralServerConnection } = jest.requireActual(
+      const { CentralServerConnection: TestCentralServerConnection } = (await vi.importActual(
         '../../app/sync/CentralServerConnection',
-      );
+      ));
 
-      const markSessionErrored = jest.fn();
+      const markSessionErrored = vi.fn();
 
       const centralServerConnection = new TestCentralServerConnection({
         deviceId: 'test',

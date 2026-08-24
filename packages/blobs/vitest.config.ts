@@ -1,13 +1,4 @@
-import { defineConfig } from 'vitest/config';
-// @ts-expect-error - plain .mjs vite plugin shared with the frontends
-import { tamanuSourceResolve } from '../../scripts/viteTamanuSourceResolve.mjs';
+// @ts-expect-error - plain .mjs config shared across the workspace
+import { config } from '../../common.vitest.config.mjs';
 
-export default defineConfig({
-  plugins: [tamanuSourceResolve],
-  resolve: {
-    conditions: ['source', 'module', 'development|production'],
-  },
-  test: {
-    server: { deps: { inline: [/@tamanu\//] } },
-  },
-});
+export default config();

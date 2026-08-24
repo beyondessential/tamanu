@@ -1,24 +1,25 @@
+import { describe, expect, it, vi } from 'vitest';
 import { Readable } from 'node:stream';
 
 import { resolveAssetImageData } from '../../src/utils/assets';
 
 describe('resolveAssetImageData', () => {
   it('returns undefined when there is no asset', async () => {
-    const openBlob = jest.fn();
+    const openBlob = vi.fn();
     expect(await resolveAssetImageData(undefined, openBlob)).toBeUndefined();
     expect(openBlob).not.toHaveBeenCalled();
   });
 
   it('reads inline bytes from a legacy row without touching the blob store', async () => {
     const data = Buffer.from('legacy-bytes');
-    const openBlob = jest.fn();
+    const openBlob = vi.fn();
     expect(await resolveAssetImageData({ data, hash: null }, openBlob)).toEqual(data);
     expect(openBlob).not.toHaveBeenCalled();
   });
 
   it('resolves a hash row from the blob store, buffering the stream', async () => {
     const bytes = Buffer.from('blob-store-bytes');
-    const openBlob = jest.fn(async () => Readable.from([bytes]));
+    const openBlob = vi.fn(async () => Readable.from([bytes]));
     const result = await resolveAssetImageData({ hash: 'sha256:abc', data: null }, openBlob);
     expect(openBlob).toHaveBeenCalledWith('sha256:abc');
     expect(result).toEqual(bytes);

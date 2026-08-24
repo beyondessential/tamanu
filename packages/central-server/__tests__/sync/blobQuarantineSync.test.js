@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
@@ -47,7 +48,7 @@ describe('Blob quarantine propagation', () => {
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
@@ -113,7 +114,7 @@ describe('Blob quarantine propagation', () => {
   it('sends it through the sync lookup table', async () => {
     // The deployed configuration snapshots from sync_lookup rather than the
     // source tables, so an unscoped record has to reach the lookup to propagate.
-    jest.doMock('@tamanu/shared/utils/withConfig', () => ({
+    vi.doMock('@tamanu/shared/utils/withConfig', () => ({
       withConfig: fn => {
         const inner = (...args) => fn(...args, lookupEnabledConfig);
         inner.overrideConfig = fn;

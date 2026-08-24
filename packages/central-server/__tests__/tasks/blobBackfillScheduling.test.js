@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ScheduledTask } from '@tamanu/shared/tasks/ScheduledTask';
 
 import { createTestContext } from '../utilities';
@@ -19,7 +20,7 @@ describe('BlobBackfillTask scheduling', () => {
   it('is scheduled, enabled, when the server starts its tasks', async () => {
     const polled = [];
     // Recorded rather than called through, so no cron jobs outlive the test.
-    const beginPolling = jest
+    const beginPolling = vi
       .spyOn(ScheduledTask.prototype, 'beginPolling')
       .mockImplementation(function record() {
         polled.push({ name: this.getName(), enabled: this.isEnabled, schedule: this.schedule });

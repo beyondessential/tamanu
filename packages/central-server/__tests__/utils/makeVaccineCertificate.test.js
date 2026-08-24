@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ReactPDF from '@react-pdf/renderer';
 
 import { makeVaccineCertificate } from '../../app/utils/makePatientCertificate';
@@ -42,7 +43,7 @@ describe('makeVaccineCertificate', () => {
 
   let render;
   beforeEach(() => {
-    render = jest.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
+    render = vi.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
   });
   afterEach(() => {
     render.mockRestore();

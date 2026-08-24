@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Readable } from 'node:stream';
 
 import config from 'config';

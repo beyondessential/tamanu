@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { QueryTypes } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_ROLES } from '@tamanu/constants';

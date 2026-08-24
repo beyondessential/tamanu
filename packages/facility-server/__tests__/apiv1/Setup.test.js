@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';

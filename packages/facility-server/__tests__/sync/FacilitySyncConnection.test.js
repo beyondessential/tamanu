@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ERROR_TYPE } from '@tamanu/errors';
 
 import { FacilitySyncConnection } from '../../app/sync/FacilitySyncConnection';
@@ -29,7 +30,7 @@ describe('FacilitySyncConnection', () => {
 
   beforeEach(() => {
     connection = new FacilitySyncConnection();
-    fetchMock = jest.spyOn(globalThis, 'fetch');
+    fetchMock = vi.spyOn(globalThis, 'fetch');
   });
 
   afterEach(() => {

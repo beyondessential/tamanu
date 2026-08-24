@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -14,11 +15,11 @@ import { createTestContext } from '../utilities';
 import { BlobOutboxPusher } from '../../app/blobCache/BlobOutboxPusher';
 import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
 
-jest.mock('@tamanu/shared/utils/getUploadedData');
+vi.mock('@tamanu/shared/utils/getUploadedData');
 
 // The route suites run against a mocked uploadAttachment; this one is about the
 // real thing, so it reaches past that mock.
-const { uploadAttachment } = jest.requireActual('../../app/utils/uploadAttachment');
+const { uploadAttachment } = await vi.importActual('../../app/utils/uploadAttachment');
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 

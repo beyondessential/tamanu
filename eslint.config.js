@@ -13,7 +13,12 @@ const BROWSER_PACKAGES = '{web,ui-components,patient-portal}';
 
 export default [
   {
-    files: [`packages/**/*.${TS_EXTS}`, `scripts/**/*.${TS_EXTS}`],
+    files: [
+      `packages/**/*.${TS_EXTS}`,
+      `scripts/**/*.${TS_EXTS}`,
+      // repo-root configs, e.g. vitest.config.ts
+      `**/*.config.${TS_EXTS}`,
+    ],
     plugins: {
       '@typescript-eslint': typescriptPlugin,
     },
@@ -106,14 +111,38 @@ export default [
     },
   },
   {
+    // mobile is the only package still on jest, and its suites use the globals. Everywhere
+    // else runs vitest with explicit `import { ... } from 'vitest'`, so no test globals are
+    // declared and a missing import is a no-undef error rather than a runtime failure.
     files: [
-      `packages/*/__{mocks,tests}__/**/*.${EXTS}`,
-      `packages/shared/src/test-helpers/**/*.${EXTS}`,
-      `**/jest.*.${EXTS}`,
-      `**/*.{spec,test}.${EXTS}`,
+      `packages/mobile/**/__{mocks,tests}__/**/*.${EXTS}`,
+      `packages/mobile/**/*.{spec,test}.${EXTS}`,
+      `packages/mobile/jest*.${EXTS}`,
     ],
     languageOptions: {
       globals: globals.jest,
+    },
+  },
+  {
+    files: [
+      `packages/*/__{mocks,tests}__/**/*.${EXTS}`,
+      `packages/shared/src/test-helpers/**/*.${EXTS}`,
+      `**/*.{spec,test}.${EXTS}`,
+    ],
+    rules: {
+      // vitest hoists vi.mock above the file's imports, which it can only do for a call at
+      // the top level of the module it's written in. Vitest 4 warns about a call nested in a
+      // function, block, or describe/test callback; vitest 5 throws. Reach for vi.doMock when
+      // a mock genuinely has to be registered part-way through a test.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.object.name='vi'][callee.property.name='mock']:not(Program > ExpressionStatement > CallExpression)",
+          message:
+            'vi.mock must be called at the top level of the test file; use vi.doMock to register a mock mid-test.',
+        },
+      ],
     },
   },
   {

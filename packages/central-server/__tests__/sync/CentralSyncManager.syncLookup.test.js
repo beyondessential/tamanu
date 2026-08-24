@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
 
 import { fake } from '@tamanu/fake-data/fake';
@@ -775,8 +776,8 @@ describe('Sync Lookup data', () => {
     await models.SyncDeviceTick.truncate({ force: true });
     await models.SyncLookupTick.truncate({ force: true });
 
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -946,7 +947,7 @@ describe('Sync Lookup data', () => {
     const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 because tickTocked twice
     const originalTickTockImplementation = centralSyncManager.tickTockGlobalClock;
 
-    const spy = jest
+    const spy = vi
       .spyOn(centralSyncManager, 'tickTockGlobalClock')
       .mockImplementationOnce(originalTickTockImplementation)
       .mockImplementationOnce(async () => ({
@@ -1461,7 +1462,7 @@ describe('Sync Lookup data', () => {
         where: { recordId: encounter3.id },
       });
 
-      expect(nonLabRequestEncounterLookupData.isLabRequest).toBeFalse();
+      expect(nonLabRequestEncounterLookupData.isLabRequest).toBe(false);
 
       const labRequest = await models.LabRequest.create(
         fake(models.LabRequest, {
@@ -1481,7 +1482,7 @@ describe('Sync Lookup data', () => {
       });
 
       expect(labRequestLookupData).toBeDefined();
-      expect(labRequestEncounterLookupData.isLabRequest).toBeTrue();
+      expect(labRequestEncounterLookupData.isLabRequest).toBe(true);
     });
   });
 
@@ -1501,8 +1502,8 @@ describe('Sync Lookup data', () => {
         persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
       });
 
-      const actualConfig = jest.requireActual('config');
-      const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
+      const actualConfig = (await vi.importActual('config'));
+      const { CentralSyncManager } = await import('../../app/sync/CentralSyncManager');
       const config = {
         ...actualConfig,
         sync: {

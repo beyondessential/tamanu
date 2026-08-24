@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -12,8 +13,8 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from './utilities';
 
 // The pause between batches is observed rather than waited out.
-jest.mock('@tamanu/utils/sleepAsync', () => ({
-  sleepAsync: jest.fn().mockResolvedValue(undefined),
+vi.mock('@tamanu/utils/sleepAsync', () => ({
+  sleepAsync: vi.fn().mockResolvedValue(undefined),
 }));
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -230,8 +231,8 @@ describe('BlobBackfillTask', () => {
     const messagesOf = spy => spy.mock.calls.map(([message]) => message);
 
     beforeEach(() => {
-      info = jest.spyOn(log, 'info');
-      warn = jest.spyOn(log, 'warn');
+      info = vi.spyOn(log, 'info');
+      warn = vi.spyOn(log, 'warn');
     });
 
     afterEach(() => {

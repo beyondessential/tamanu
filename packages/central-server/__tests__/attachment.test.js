@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Readable } from 'node:stream';
 
 import {
@@ -99,7 +100,7 @@ describe('Attachment (central-server)', () => {
   // The store refuses admission rather than cross the host's free-disk reserve,
   // and the route surfaces that as the upload's rejection (see capacity.md).
   it('should send error if there is no enough disk space', async () => {
-    jest
+    vi
       .spyOn(ctx.blobStore, 'put')
       .mockRejectedValueOnce(
         new InsufficientStorageError('Document cannot be uploaded due to lack of storage space.'),
@@ -223,7 +224,7 @@ describe('Attachment (central-server)', () => {
     // Inline encoding holds the whole content in memory, so content past the
     // limit is refused that way and the caller directed to stream it.
     it('refuses to encode content past the inline limit', async () => {
-      jest.spyOn(ctx.blobStore, 'servableStat').mockResolvedValueOnce({
+      vi.spyOn(ctx.blobStore, 'servableStat').mockResolvedValueOnce({
         size: MAX_INLINE_BLOB_BYTES + 1,
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
       });

@@ -40,7 +40,7 @@ export class FacilitySyncManager {
     this.config = _config;
   }
 
-  // This is only used for jest tests. It is a workaround to spies not working
+  // This is only used by the test suite. It is a workaround to spies not working
   // with importing modules in the way that this module is used. See the
   // FacilitySyncManager.test.js ('edge cases' suite) or SAV-249
   __testSpyEnabled = false;

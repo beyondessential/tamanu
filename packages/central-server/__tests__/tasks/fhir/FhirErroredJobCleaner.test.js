@@ -2,6 +2,7 @@
  * Tests for FhirErroredJobCleaner (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { subDays } from 'date-fns';
 
 import { JOB_QUEUE_STATUSES, JOB_TOPICS } from '@tamanu/constants';
