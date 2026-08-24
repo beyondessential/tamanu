@@ -7,7 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { fake } from '../../fake/index.js';
+import { fake, chance } from '../../fake/index.js';
 
 import type {
   Department,
@@ -23,6 +23,23 @@ import type {
   Survey,
   User,
 } from '@tamanu/database';
+
+// Realistic names for the reference data the seed generator creates, so seed
+// snapshots surface real-looking clinical data rather than fakeString placeholders
+// (e.g. "ReferenceData.name.<uuid>") in medication, allergy, and program registry lists.
+const DRUG_NAMES = ['Paracetamol', 'Amoxicillin', 'Ibuprofen', 'Metformin', 'Salbutamol'];
+
+const ALLERGY_NAMES = [
+  'Penicillins', 'Peanuts', 'NSAIDs', 'Sulfonamides', 'Shellfish',
+  'Latex', 'Aspirin', 'Eggs', 'Tree nuts', 'Soy',
+  'Cephalosporins', 'Iodine contrast', 'Bee stings', 'Dairy', 'Codeine',
+];
+
+const PROGRAM_REGISTRY_NAMES = [
+  'Hypertension', 'Diabetes', 'Tuberculosis', 'HIV', 'Antenatal care',
+  'Non-communicable disease', 'COVID-19', 'Cervical cancer screening',
+  'Mental health', 'Nutrition', 'Immunisation', 'Malaria',
+];
 
 export const generateImportData = async ({
   ReferenceData,
@@ -59,6 +76,7 @@ export const generateImportData = async ({
   const referenceData = await ReferenceData.create(
     fake(ReferenceData, {
       type: REFERENCE_TYPES.DRUG,
+      name: chance.pickone(DRUG_NAMES),
     }),
   );
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
@@ -66,12 +84,15 @@ export const generateImportData = async ({
   // Seed a small, stable pool of allergy reference data that patient allergies
   // can point at, rather than each patient allergy minting its own ReferenceData
   // (which bloated the table and slowed every random reference-data lookup).
-  // findOrCreate by code keeps it to ALLERGY_POOL_SIZE rows across the whole run.
-  const ALLERGY_POOL_SIZE = 15;
-  for (let i = 0; i < ALLERGY_POOL_SIZE; i++) {
+  // findOrCreate by code keeps it to one row per name across the whole run.
+  for (let i = 0; i < ALLERGY_NAMES.length; i++) {
     await ReferenceData.findOrCreate({
       where: { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` },
-      defaults: fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` }),
+      defaults: fake(ReferenceData, {
+        type: REFERENCE_TYPES.ALLERGY,
+        code: `allergy-${i}`,
+        name: ALLERGY_NAMES[i],
+      }),
     });
   }
 
@@ -113,6 +134,7 @@ export const generateImportData = async ({
   const programRegistry = await ProgramRegistry.create(
     fake(ProgramRegistry, {
       programId: program.id,
+      name: `${chance.pickone(PROGRAM_REGISTRY_NAMES)} program registry`,
     }),
   );
   await ProgramRegistryCondition.create(
