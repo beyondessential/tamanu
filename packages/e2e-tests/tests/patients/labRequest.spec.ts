@@ -91,7 +91,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.selectPanel(DEMO_PANEL);
       await labRequestModal.validateSelectedItems([DEMO_PANEL]);
       await labRequestModal.proceedToSampleDetails();
-      await labRequestModal.validatePanelInSampleDetails(DEMO_PANEL);
+      await labRequestModal.validateTestInSampleDetails(DEMO_PANEL);
       await labRequestModal.finalise();
       const categories = await labRequestModal.getFinalisedCategories(1);
       await labRequestModal.closeButton.click();
@@ -128,7 +128,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.selectPanel(DEMO_PANEL);
       await labRequestModal.proceedToSampleDetails();
       await labRequestModal.cancel();
-      await expect(labRequestModal.sampleDetailsPanels).not.toBeVisible();
+      await expect(labRequestModal.sampleDetailsTests).not.toBeVisible();
       await expect(labRequestPane.tableRows.locator('td')).toHaveText('No lab requests found');
     });
 
@@ -269,7 +269,7 @@ test.describe('Lab Request Tests', () => {
 
       // Sample details shows the panel by name plus a category row per selected request
       // (one for the panel's category, one for the standalone test's category).
-      await labRequestModal.validatePanelInSampleDetails(DEMO_PANEL);
+      await labRequestModal.validateTestInSampleDetails(DEMO_PANEL);
       await expect(labRequestModal.sampleDetailsCategories).toHaveCount(2);
       await labRequestModal.finalise();
 
