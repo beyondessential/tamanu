@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
+import { StyledEngineProvider } from '@mui/material/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -39,19 +40,21 @@ async function bootstrap() {
       <QueryClientProvider client={queryClient}>
         <ApiContext.Provider value={api}>
           <TranslationProvider>
-            <StylesProvider injectFirst>
-              <MuiLatestThemeProvider theme={theme}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <MuiThemeProvider theme={theme}>
-                    <ThemeProvider theme={theme}>
-                      <CustomToastContainer />
-                      <CssBaseline />
-                      <App />
-                    </ThemeProvider>
-                  </MuiThemeProvider>
-                </LocalizationProvider>
-              </MuiLatestThemeProvider>
-            </StylesProvider>
+            <StyledEngineProvider injectFirst>
+              <StylesProvider injectFirst>
+                <MuiLatestThemeProvider theme={theme}>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <MuiThemeProvider theme={theme}>
+                      <ThemeProvider theme={theme}>
+                        <CustomToastContainer />
+                        <CssBaseline />
+                        <App />
+                      </ThemeProvider>
+                    </MuiThemeProvider>
+                  </LocalizationProvider>
+                </MuiLatestThemeProvider>
+              </StylesProvider>
+            </StyledEngineProvider>
           </TranslationProvider>
         </ApiContext.Provider>
       </QueryClientProvider>

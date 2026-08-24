@@ -7,6 +7,7 @@ const MUI_SPACING_UNIT = 8;
 const themeConfig = {
   themeName: 'Tamanu',
   palette: {
+    mode: 'light',
     primary: {
       main: TAMANU_COLORS.primary,
       dark: TAMANU_COLORS.primaryDark,

@@ -1,14 +1,13 @@
-import { CircularProgress, IconButton, Button as MuiButton } from '@material-ui/core';
+import { CircularProgress, IconButton } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
-import { buttonClasses } from '@mui/material/Button';
+import MuiButton, { buttonClasses } from '@mui/material/Button';
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Link } from 'react-router';
 import styled from 'styled-components';
 
 import { TAMANU_COLORS } from '../../constants';
@@ -18,15 +17,7 @@ import { VisuallyHidden } from '../VisuallyHidden';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
-const StyledButton = styled(({ ...props }) => {
-  delete props.confirmStyle;
-  // disableRipple works around a crash in @material-ui/core v4's ButtonBase: when `disabled`
-  // flips true mid-interaction (e.g. a submit button disabling itself on click), its TouchRipple
-  // unmounts while deferred ripple callbacks still hold a ref to it, throwing
-  // "Cannot read properties of null (reading 'pulsate')". Remove once this component is
-  // migrated to the newer @mui/material, which guards those paths.
-  return <MuiButton disableRipple {...props} />;
-})`
+const StyledButton = styled(MuiButton)`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
@@ -36,6 +27,7 @@ const StyledButton = styled(({ ...props }) => {
   min-width: 100px;
 
   /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
+  & > .${svgIconClasses.root},
   & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
     width: 19.5px;
     height: auto;
@@ -60,8 +52,6 @@ const StyledButton = styled(({ ...props }) => {
     color: ${TAMANU_COLORS.primary30};
     border-color: ${TAMANU_COLORS.primary30};
   }
-
-  ${props => props.confirmStyle ?? ''}
 `;
 
 const StyledCircularProgress = styled(CircularProgress)`
@@ -80,7 +70,6 @@ const BaseButton = ({
   showLoadingIndicator,
   ...props
 }) => {
-  const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
 
   return (
@@ -90,7 +79,6 @@ const BaseButton = ({
       type={type}
       disabled={disabled || !hasPermission}
       {...props}
-      {...locationsProps}
     >
       {displayLock && <Lock data-testid="lock-zz2l" />}
       {showLoadingIndicator && (
@@ -266,13 +254,6 @@ export const DefaultIconButton = styled(IconButton).attrs({
   border-radius: 20%;
   padding: 0px;
 `;
-
-const getLocationProps = ({ to }) => {
-  if (to) {
-    return { component: Link, to };
-  }
-  return {};
-};
 
 const ButtonWithPermissionTooltip = withPermissionTooltip(Button);
 export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissionTooltip);

@@ -156,12 +156,7 @@ const LoginFormComponent = ({
         data-testid="loginbutton-gx21"
       />
       <LanguageSelector data-testid="languageselector-9z0j" />
-      <ForgotPasswordButton
-        onClick={onNavToResetPassword}
-        color="default"
-        variant="text"
-        data-testid="forgotpasswordbutton-mbnb"
-      >
+      <ForgotPasswordButton onClick={onNavToResetPassword} data-testid="forgotpasswordbutton-mbnb">
         <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot password?" />
       </ForgotPasswordButton>
     </FormGrid>

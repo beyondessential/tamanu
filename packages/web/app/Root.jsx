@@ -1,5 +1,6 @@
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { StyledEngineProvider } from '@mui/material/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -74,32 +75,34 @@ const queryClient = new QueryClient({
 
 function RootContent({ store }) {
   return (
-    <StylesProvider injectFirst>
-      <MuiLatestThemeProvider theme={theme}>
-        <MuiThemeProvider theme={theme}>
-          <StyledComponentsProvider>
-            <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-              <StateContextProviders store={store}>
-                <CustomToastContainer
-                  hideProgressBar
-                  transition={Slide}
-                  closeOnClick
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  theme="colored"
-                  icon={false}
-                  limit={5}
-                  closeButton={<ClearIcon />}
-                />
-                <CssBaseline />
-                <RoutingApp />
-              </StateContextProviders>
-            </MuiLocalisationProvider>
-          </StyledComponentsProvider>
-        </MuiThemeProvider>
-      </MuiLatestThemeProvider>
-    </StylesProvider>
+    <StyledEngineProvider injectFirst>
+      <StylesProvider injectFirst>
+        <MuiLatestThemeProvider theme={theme}>
+          <MuiThemeProvider theme={theme}>
+            <StyledComponentsProvider>
+              <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+                <StateContextProviders store={store}>
+                  <CustomToastContainer
+                    hideProgressBar
+                    transition={Slide}
+                    closeOnClick
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="colored"
+                    icon={false}
+                    limit={5}
+                    closeButton={<ClearIcon />}
+                  />
+                  <CssBaseline />
+                  <RoutingApp />
+                </StateContextProviders>
+              </MuiLocalisationProvider>
+            </StyledComponentsProvider>
+          </MuiThemeProvider>
+        </MuiLatestThemeProvider>
+      </StylesProvider>
+    </StyledEngineProvider>
   );
 }
 
