@@ -257,9 +257,12 @@ describe('Labs', () => {
 
     const createdRequests = await models.LabRequest.findAll({
       where: { id: response.body.map(request => request.id) },
+      include: [{ model: models.LabTestPanelRequest, as: 'labTestPanelRequests' }],
     });
-    const panelRequest = createdRequests.find(request => request.labTestPanelRequestId);
-    const individualRequest = createdRequests.find(request => !request.labTestPanelRequestId);
+    const panelRequest = createdRequests.find(request => request.labTestPanelRequests.length > 0);
+    const individualRequest = createdRequests.find(
+      request => request.labTestPanelRequests.length === 0,
+    );
     expect(panelRequest).toBeTruthy();
     expect(individualRequest).toBeTruthy();
     expect(individualRequest.labTestCategoryId).toBe(labTestCategoryId);
@@ -451,8 +454,8 @@ describe('Labs', () => {
       }),
     );
 
-    // A single sample keyed by the shared category should apply to both the panel request and the
-    // individual-tests request that live in that category.
+    // A panel and a same-category individual test collapse into one request for that category, and
+    // the category's sample applies to it.
     const response = await app.post('/api/labRequest').send({
       panelIds: [labTestPanel.id],
       labTestTypeIds: [individualTest.id],
@@ -462,23 +465,116 @@ describe('Labs', () => {
       },
     });
     expect(response).toHaveSucceeded();
-    expect(response.body).toHaveLength(2);
+    expect(response.body).toHaveLength(1);
 
-    const createdRequests = await models.LabRequest.findAll({
-      where: { id: response.body.map(request => request.id) },
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: [{ model: models.LabTestPanelRequest, as: 'labTestPanelRequests' }],
     });
-    const panelRequest = createdRequests.find(request => request.labTestPanelRequestId);
-    const individualRequest = createdRequests.find(request => !request.labTestPanelRequestId);
-    expect(panelRequest).toBeTruthy();
-    expect(individualRequest).toBeTruthy();
+    expect(createdRequest.labTestCategoryId).toBe(category.id);
+    expect(createdRequest.labTestPanelRequests).toHaveLength(1);
+    expect(createdRequest.sampleTime).toBe(sampleTime);
+    expect(createdRequest.specimenTypeId).toBe(specimenType.id);
+    expect(createdRequest.specimenAttached).toBe(true);
+    expect(createdRequest.status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
 
-    // Both requests received the shared sample.
-    for (const request of [panelRequest, individualRequest]) {
-      expect(request.sampleTime).toBe(sampleTime);
-      expect(request.specimenTypeId).toBe(specimenType.id);
-      expect(request.specimenAttached).toBe(true);
-      expect(request.status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
-    }
+    // The individual test carries no panel attribution; the panel's members are attributed to it.
+    const tests = await models.LabTest.findAll({ where: { labRequestId: createdRequest.id } });
+    const individualRow = tests.find(test => test.labTestTypeId === individualTest.id);
+    expect(individualRow.labTestPanelRequestId).toBeFalsy();
+    const panelRows = tests.filter(test => test.labTestPanelRequestId);
+    expect(panelRows.length).toBeGreaterThan(0);
+  });
+
+  it('creates one lab test per panel when two panels on a request share a test type', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const sharedType = await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: category.id,
+      isSensitive: false,
+      availableFacilities: null,
+    });
+    const makePanel = async () => {
+      const panel = await models.LabTestPanel.create({
+        name: `Shared type panel ${chance.guid()}`,
+        code: chance.guid(),
+        categoryId: category.id,
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: panel.id,
+        labTestTypeId: sharedType.id,
+      });
+      return panel;
+    };
+    const panelA = await makePanel();
+    const panelB = await makePanel();
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const response = await app.post('/api/labRequest').send({
+      panelIds: [panelA.id, panelB.id],
+      encounterId: encounter.id,
+    });
+    expect(response).toHaveSucceeded();
+    // Both panels share the one category, so one request holds both.
+    expect(response.body).toHaveLength(1);
+
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: [{ model: models.LabTestPanelRequest, as: 'labTestPanelRequests' }],
+    });
+    expect(createdRequest.labTestPanelRequests).toHaveLength(2);
+
+    const tests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id, labTestTypeId: sharedType.id },
+    });
+    // One row per panel for the shared type, each attributed to a distinct panel request.
+    expect(tests).toHaveLength(2);
+    expect(new Set(tests.map(test => test.labTestPanelRequestId)).size).toBe(2);
+  });
+
+  it('rejects the submission when a panel has no test types available at the facility', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const unavailableType = await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: category.id,
+      isSensitive: false,
+      availableFacilities: [`nonexistent-facility-${chance.guid()}`],
+    });
+    const panel = await models.LabTestPanel.create({
+      name: `Unavailable panel ${chance.guid()}`,
+      code: chance.guid(),
+      categoryId: category.id,
+    });
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: panel.id,
+      labTestTypeId: unavailableType.id,
+    });
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const response = await app.post('/api/labRequest').send({
+      panelIds: [panel.id],
+      encounterId: encounter.id,
+    });
+    expect(response).toHaveRequestError();
+
+    const created = await models.LabRequest.findAll({ where: { encounterId: encounter.id } });
+    expect(created).toHaveLength(0);
   });
 
   it('should not record a lab request with an invalid testTypeId', async () => {
@@ -980,23 +1076,24 @@ describe('Labs', () => {
         ),
       );
 
-      const labTestPanelRequest = await models.LabTestPanelRequest.create({
-        labTestPanelId: labTestPanel.id,
-        encounterId: testEncounter.id,
-      });
-
       const labRequest = await models.LabRequest.create({
         ...fake(models.LabRequest),
         encounterId: testEncounter.id,
         requestedById: app.user.id,
         status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-        labTestPanelRequestId: labTestPanelRequest.id,
+      });
+
+      const labTestPanelRequest = await models.LabTestPanelRequest.create({
+        labTestPanelId: labTestPanel.id,
+        encounterId: testEncounter.id,
+        labRequestId: labRequest.id,
       });
 
       const labTests = await Promise.all(
         labTestTypes.map(ltt =>
           models.LabTest.create({
             labRequestId: labRequest.id,
+            labTestPanelRequestId: labTestPanelRequest.id,
             labTestTypeId: ltt.id,
             status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           }),

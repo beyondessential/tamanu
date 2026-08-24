@@ -548,6 +548,10 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
+        const labTestPanelRequest = await models.LabTestPanelRequest.findOne({
+          where: { labRequestId: labRequest.id },
+        });
+
         const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result2.body).toMatchObject({
           displayId: 'INV-123',
@@ -558,7 +562,7 @@ describe('Encounter invoice', () => {
         expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              sourceRecordId: labRequest.labTestPanelRequestId,
+              sourceRecordId: labTestPanelRequest.id,
               sourceRecordType: 'LabTestPanelRequest',
               productId: labTestPanelGeneralProduct.id,
               orderedByUserId: user.id,
@@ -949,6 +953,10 @@ describe('Encounter invoice', () => {
 
           expect(labRequest2.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
+          const labTestPanelRequest = await models.LabTestPanelRequest.findOne({
+            where: { labRequestId: labRequest.id },
+          });
+
           // Invoice
           const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
           expect(result).toHaveSucceeded();
@@ -961,7 +969,7 @@ describe('Encounter invoice', () => {
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
-                sourceRecordId: labRequest.labTestPanelRequestId,
+                sourceRecordId: labTestPanelRequest.id,
                 sourceRecordType: 'LabTestPanelRequest',
                 productId: labTestPanelGeneralProduct.id,
                 orderedByUserId: user.id,
