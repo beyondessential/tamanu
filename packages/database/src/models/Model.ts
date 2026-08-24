@@ -193,12 +193,12 @@ export class Model<
     });
   }
 
-  static sanitizeForCentralServer(values: ModelSanitizeArgs) {
+  static sanitizeForCentralServer(values: ModelSanitizeArgs): ModelSanitizeArgs | Promise<ModelSanitizeArgs> {
     // implement on the specific model if needed
     return values;
   }
 
-  static sanitizeForFacilityServer(values: object) {
+  static sanitizeForFacilityServer(values: object): object | Promise<object> {
     // implement on the specific model if needed
     return values;
   }

@@ -63,31 +63,39 @@ export const saveChangesForModel = async (
       // is deleted and existing record is already deleted
     }
   });
-  const recordsForCreate = changes
-    .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(({ data, isDeleted }) => {
-      // validateRecord(data, null); TODO add in validation
-      // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
-      return { ...sanitizeData(data), isDeleted };
-    });
-  const recordsForUpdate = changes
-    .filter(r => idsForUpdate.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForRestore = changes
-    .filter(r => idsForRestore.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForDelete = changes
-    .filter(r => idsForDelete.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
+  const recordsForCreate = await Promise.all(
+    changes
+      .filter(c => idToExistingRecord[c.data.id] === undefined)
+      .map(async ({ data, isDeleted }) => {
+        // validateRecord(data, null); TODO add in validation
+        // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
+        return { ...(await sanitizeData(data)), isDeleted };
+      }),
+  );
+  const recordsForUpdate = await Promise.all(
+    changes
+      .filter(r => idsForUpdate.has(r.data.id))
+      .map(({ data }) => {
+        // validateRecord(data, null); TODO add in validation
+        return sanitizeData(data);
+      }),
+  );
+  const recordsForRestore = await Promise.all(
+    changes
+      .filter(r => idsForRestore.has(r.data.id))
+      .map(({ data }) => {
+        // validateRecord(data, null); TODO add in validation
+        return sanitizeData(data);
+      }),
+  );
+  const recordsForDelete = await Promise.all(
+    changes
+      .filter(r => idsForDelete.has(r.data.id))
+      .map(({ data }) => {
+        // validateRecord(data, null); TODO add in validation
+        return sanitizeData(data);
+      }),
+  );
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });

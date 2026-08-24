@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { DRUG_STOCK_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -68,6 +69,24 @@ export class ReferenceDrugFacility extends Model {
 
   static buildSyncFilter() {
     return `WHERE ${this.tableName}.facility_id IN (:facilityIds) AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
+
+  // mSupply is pulled in directly by the facility server (MSupplyStockOnHandProcessor) and
+  // never reaches central, so central's copy of quantity/stockStatus can be stale for a
+  // facility that treats mSupply as the source of truth. Strip those fields from anything
+  // synced down from central so a pull (including a full resync) can never clobber the
+  // facility's locally-maintained stock level.
+  static async sanitizeForFacilityServer(values: Record<string, any>) {
+    const { facilityId } = values;
+    if (!facilityId) return values;
+
+    const stockOnHandEnabled = await new ReadSettings(this.sequelize!.models, facilityId).get(
+      'integrations.mSupplyMed.stockOnHandEnabled',
+    );
+    if (!stockOnHandEnabled) return values;
+
+    const { quantity: _quantity, stockStatus: _stockStatus, ...rest } = values;
+    return rest;
   }
 
   static async buildSyncLookupQueryDetails() {
