@@ -421,6 +421,7 @@ describe('Encounter invoice', () => {
           fake(models.LabTestPanel, {
             name: 'General',
             code: 'GENERAL',
+            categoryId: labTestCategory.id,
           }),
         );
         labTestBloodsType = await models.LabTestType.create(
@@ -475,6 +476,7 @@ describe('Encounter invoice', () => {
           fake(models.LabTestPanel, {
             name: 'All',
             code: 'ALL',
+            categoryId: labTestCategory.id,
           }),
         );
 
@@ -522,7 +524,7 @@ describe('Encounter invoice', () => {
           encounterId: encounter.id,
           panelIds: [labTestPanelGeneral.id],
           sampleDetails: {
-            [labTestPanelGeneral.id]: {
+            [labTestCategory.id]: {
               sampleTime: new Date(),
             },
           },
@@ -755,7 +757,7 @@ describe('Encounter invoice', () => {
             encounterId: encounter.id,
             panelIds: [labTestPanelGeneral.id],
             sampleDetails: {
-              [labTestPanelGeneral.id]: {
+              [labTestCategory.id]: {
                 sampleTime: new Date(),
               },
             },
@@ -818,7 +820,7 @@ describe('Encounter invoice', () => {
           encounterId: encounter.id,
           panelIds: [labTestPanelAll.id],
           sampleDetails: {
-            [labTestPanelAll.id]: {
+            [labTestCategory.id]: {
               sampleTime: new Date(),
             },
           },
@@ -925,7 +927,7 @@ describe('Encounter invoice', () => {
             encounterId: encounter.id,
             panelIds: [labTestPanelGeneral.id],
             sampleDetails: {
-              [labTestPanelGeneral.id]: {
+              [labTestCategory.id]: {
                 sampleTime: new Date(),
               },
             },
