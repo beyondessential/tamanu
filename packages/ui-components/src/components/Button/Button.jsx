@@ -29,11 +29,20 @@ export const ButtonBase = props => {
   return <MuiButtonBase {...props} {...locationsProps} />;
 };
 
-const StyledButton = styled(({ ...props }) => {
-  delete props.functionallyDisabled;
-  delete props.confirmStyle;
-  return <MuiButton {...props} />;
-})`
+/**
+ * @privateRemarks `disableRipple` works around a crash in @material-ui/core v4's ButtonBase: when
+ *`functionallyDisabled` flips true mid-click (e.g. a submit button disabling itself on click),
+ * BaseButton swaps in a plain <button>, unmounting the live TouchRipple while a deferred ripple
+ * callback still holds a ref to it, throwing "Cannot read properties of null (reading 'pulsate')".
+ * Disabling the ripple means no TouchRipple ever mounts, so there's nothing for that stale ref to
+ * reach. Remove once this component is migrated to the newer @mui/material, which guards those
+ * callbacks.
+ */
+const StyledButton = styled(MuiButton)
+  .attrs({ disableRipple: true })
+  .withConfig({
+    shouldForwardProp: prop => !['functionallyDisabled', 'confirmStyle'].includes(prop),
+  })`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
