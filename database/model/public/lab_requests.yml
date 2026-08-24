@@ -170,14 +170,6 @@ sources:
                   arguments:
                     to: source('tamanu', 'departments')
                     field: id
-          - name: lab_test_panel_request_id
-            data_type: uuid
-            description: "{{ doc('lab_requests__lab_test_panel_request_id') }}"
-            data_tests:
-              - relationships:
-                  arguments:
-                    to: source('tamanu', 'lab_test_panel_requests')
-                    field: id
           - name: lab_sample_site_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_sample_site_id') }}"
