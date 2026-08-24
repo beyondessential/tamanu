@@ -121,6 +121,69 @@ whole submission,** preserving today's behaviour. Test types are filtered by
 `availableFacilities` at creation, and `createWithTests` already rejects an empty
 test list — merging does not soften that.
 
+## Implementation plan
+
+Grounded against the epic (A4/B4 merged). Today `lab_requests.lab_test_panel_request_id`
+is a single FK and `lab_tests` has no panel column — a test's panel is implied by the
+request's one link. Y3 makes panel requests children of the request and attributes each
+test to its panel request.
+
+### Steps, in order
+
+1. **Models.** `LabTestPanelRequest` gains `labRequestId` (`belongsTo LabRequest as 'labRequest'`)
+   and `hasMany LabTest as 'tests'`. `LabRequest` drops the `labTestPanelRequestId` column and
+   its `labTestPanelRequest` belongsTo, gaining `hasMany LabTestPanelRequest as 'labTestPanelRequests'`;
+   update `getListReferenceAssociations`. `LabTest` gains `labTestPanelRequestId`
+   (`belongsTo LabTestPanelRequest`). Rewrite `createWithTests` to take `labTestPanelIds[]`,
+   create the request first, then one panel request per panel with `labRequestId`, then each
+   test with its `labTestPanelRequestId` (null for individual tests). This inverts the current
+   create order and removes the FK-ordering caveat in the route handler.
+2. **Migrations** (central Sequelize, DDL/DML split): (a) DDL add `lab_test_panel_requests.lab_request_id`
+   nullable + index + FK; (b) DDL add `lab_tests.lab_test_panel_request_id` nullable + FK; (c) DML
+   `UPDATE lab_test_panel_requests SET lab_request_id = lr.id FROM lab_requests lr WHERE lr.lab_test_panel_request_id = …`
+   (existing rows only — historical tests are NOT stamped; read by inference); (d) DDL drop
+   `lab_requests.lab_test_panel_request_id` with `flag_lookup_model_to_rebuild('lab_requests')`,
+   `down` marked DESTRUCTIVE. Mobile TypeORM migration adds both columns (mobile never had the
+   request-side column, so additions only). Update dbt models for `lab_requests`, `lab_tests`,
+   `lab_test_panel_requests` and fill the `.md` TODOs.
+3. **Route.** Replace `createPanelLabRequests` + `createIndividualLabRequests` with one
+   per-category grouping in `facility-server/app/routes/apiv1/labs.js`: resolve each panel's
+   category (own `categoryId`, else the category its test types share, else the panel forms its
+   own request); pre-check all panels for facility-available test types and reject the whole
+   submission if any has none; merge panels + individual tests per category into one request;
+   a test type in two panels of a category gets one row per panel. `sampleDetails` stays keyed
+   by category id. The panel-ordered test display (`GET /:id/tests`) keeps single-panel behaviour;
+   multi-panel ordering is deferred to D4.
+4. **Invoicing.** `LabRequest/hooks.ts` `getItemsForLabRequest`: iterate the request's panel
+   requests, bill each panel product once; bill individual/uncovered tests against their type
+   product, deduplicated by `labTestTypeId` per request. `LabTest/hooks.ts` `addToInvoiceAfterCreateHook`:
+   key off the test's own `labTestPanelRequestId`, skip if its panel has a product, and apply the
+   same per-request-per-type dedup so the two entry points agree.
+5. **FHIR.** Add `serviceRequestLabCategoryCodeSystem` leaf in `settings/src/schema/definitions/fhir.ts`
+   (default Tamanu data-dictionary URL). In `ServiceRequest/getValues.ts`, `labCode` returns the
+   request's category coding; `labOrderDetails` emits both panels (panel code system) and tests
+   (test code system). Add the `category` include and switch to `labTestPanelRequests` in
+   `getQueryOptions.ts` and `getQueryToFindUpstreamIds.ts`. `Specimen/getValues.ts` unchanged
+   (already one specimen per request).
+6. **Importer.** `labTestPanelLoader` (`central-server/app/admin/referenceDataImporter/loaders.js`)
+   becomes async with `{ models, pushError }`, and rejects a panel whose test types span more than
+   one category. The no-category rejection already ships via the required `categoryId` in the panel
+   schema. The importer is the only authoring surface (no admin UI for panels).
+7. **Mobile.** Add the `labTestPanelRequestId` / `labRequest` relations on the mobile
+   `LabTest` / `LabTestPanelRequest` models to match.
+
+### Risks
+
+- Invoicing is the highest-value correctness risk: the panel-vs-test mutual-exclusivity assumption
+  is now false, and both hooks must apply the same `labTestTypeId`-per-request dedup key or they
+  double-bill.
+- FHIR materialisation does not currently eager-load the request's `category`, so the new `code`
+  logic silently nulls unless `getQueryOptions` is updated in lockstep. `ServiceRequest.test.js`
+  encodes today's panel-as-`code` contract and changes with it.
+- The `createWithTests` signature change breaks its many direct callers in `Labs.test.js` and
+  `createLabRequest` — update every one.
+- Dropping the request column requires the sync-lookup rebuild flag, after the DML relocation runs.
+
 ## To confirm with Rohan
 
 The spec commits to the category-as-`code` design and implementation proceeds on
