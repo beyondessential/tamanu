@@ -4,6 +4,7 @@ import { ILabTest } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
+import { LabTestPanelRequest } from './LabTestPanelRequest';
 import { LabTestType } from './LabTestType';
 import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
@@ -46,4 +47,9 @@ export class LabTest extends BaseModel implements ILabTest {
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
   labTestTypeId: string;
+
+  @ManyToOne(() => LabTestPanelRequest)
+  labTestPanelRequest: LabTestPanelRequest;
+  @RelationId(({ labTestPanelRequest }) => labTestPanelRequest)
+  labTestPanelRequestId: string;
 }
