@@ -20,7 +20,12 @@ import { withPermissionTooltip } from '../withPermissionTooltip';
 
 const StyledButton = styled(({ ...props }) => {
   delete props.confirmStyle;
-  return <MuiButton {...props} />;
+  // disableRipple works around a crash in @material-ui/core v4's ButtonBase: when `disabled`
+  // flips true mid-interaction (e.g. a submit button disabling itself on click), its TouchRipple
+  // unmounts while deferred ripple callbacks still hold a ref to it, throwing
+  // "Cannot read properties of null (reading 'pulsate')". Remove once this component is
+  // migrated to the newer @mui/material, which guards those paths.
+  return <MuiButton disableRipple {...props} />;
 })`
   font-weight: 500;
   font-size: 14px;
