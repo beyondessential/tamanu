@@ -8,6 +8,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
 import { fake } from '../../fake/index.js';
+import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 
 import type {
   Department,
@@ -63,15 +64,13 @@ export const generateImportData = async ({
   );
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
 
-  // Seed a small, stable pool of allergy reference data that patient allergies
-  // can point at, rather than each patient allergy minting its own ReferenceData
-  // (which bloated the table and slowed every random reference-data lookup).
-  // findOrCreate by code keeps it to ALLERGY_POOL_SIZE rows across the whole run.
-  const ALLERGY_POOL_SIZE = 15;
-  for (let i = 0; i < ALLERGY_POOL_SIZE; i++) {
+  // A small, stable pool of allergy reference data for patient allergies to point at,
+  // rather than each patient allergy minting its own ReferenceData: that bloats the table
+  // and slows every random reference-data lookup. findOrCreate keeps it to one row per name.
+  for (const name of REFERENCE_DATA_NAMES[REFERENCE_TYPES.ALLERGY]) {
     await ReferenceData.findOrCreate({
-      where: { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` },
-      defaults: fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` }),
+      where: { type: REFERENCE_TYPES.ALLERGY, name },
+      defaults: fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY, name }),
     });
   }
 
