@@ -46,13 +46,18 @@ export const getRequestedBy = ({ requestedBy }) =>
 export const getPatientName = row => <PatientNameDisplay patient={row} />;
 export const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 export const getStatus = ({ status }) => <StatusDisplay status={status} />;
-export const getPanelType = ({ labTestPanelId, labTestPanelName }) => (
-  <TranslatedReferenceData
-    value={labTestPanelId}
-    fallback={labTestPanelName}
-    category="labTestPanel"
-  />
-);
+export const getPanelType = ({ labTestPanelId, labTestPanelName }) => {
+  // A request spanning several panels has no single panel id, so render the aggregated panel
+  // names directly — TranslatedReferenceData only emits its fallback when a reference id is present.
+  if (!labTestPanelId) return labTestPanelName ?? '';
+  return (
+    <TranslatedReferenceData
+      value={labTestPanelId}
+      fallback={labTestPanelName}
+      category="labTestPanel"
+    />
+  );
+};
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (

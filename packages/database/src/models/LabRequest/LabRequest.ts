@@ -24,8 +24,15 @@ import {
 } from '../../sync/buildEncounterLinkedLookupFilter';
 import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks';
 
+interface LabRequestPanelInput {
+  labTestPanelId: string;
+  labTestTypeIds: string[];
+}
+
 interface LabRequestData {
   labTestTypeIds?: string[];
+  panels?: LabRequestPanelInput[];
+  // Deprecated single-panel form, kept for callers that create a one-panel request directly.
   labTestPanelId?: string;
   userId: string;
 }
@@ -53,13 +60,13 @@ export class LabRequest extends Model {
   declare labTestPriorityId?: string;
   declare labTestLaboratoryId?: string;
   declare specimenTypeId?: string;
-  declare labTestPanelRequestId?: string;
   declare priority?: ReferenceData;
+  declare category?: ReferenceData;
   declare tests: LabTest[];
   declare encounter?: Encounter;
   declare requestedBy?: User;
   declare notes: Note[];
-  declare labTestPanelRequest?: LabTestPanelRequest;
+  declare labTestPanelRequests?: LabTestPanelRequest[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -126,23 +133,28 @@ export class LabRequest extends Model {
     data: LabRequestData & ModelProperties<LabRequest> & { labTest: ModelProperties<LabTest> },
   ) {
     return this.sequelize!.transaction(async () => {
-      const { labTestTypeIds = [] } = data;
-      if (!labTestTypeIds.length) {
+      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models;
+      const {
+        labTest,
+        labTestPanelId,
+        panels: panelsInput,
+        labTestTypeIds = [],
+        userId,
+        ...requestData
+      } = data;
+
+      // A request can hold several panels plus loose individual tests from one category. The
+      // deprecated single-panel form maps to one panel whose members are labTestTypeIds.
+      const panels =
+        panelsInput ?? (labTestPanelId ? [{ labTestPanelId, labTestTypeIds }] : []);
+      const individualTestTypeIds = labTestPanelId && !panelsInput ? [] : labTestTypeIds;
+
+      const panelTestCount = panels.reduce((total, panel) => total + panel.labTestTypeIds.length, 0);
+      if (individualTestTypeIds.length + panelTestCount === 0) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models;
-      const { labTest, labTestPanelId, userId, ...requestData } = data;
-      let newLabRequest;
 
-      if (labTestPanelId) {
-        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
-          encounterId: data.encounterId,
-          labTestPanelId,
-        });
-        newLabRequest = await this.create({ ...requestData, labTestPanelRequestId });
-      } else {
-        newLabRequest = await this.create(requestData);
-      }
+      const newLabRequest = await this.create(requestData);
 
       await LabRequestLog.create({
         status: newLabRequest.status,
@@ -150,16 +162,50 @@ export class LabRequest extends Model {
         updatedById: userId,
       });
 
-      // then create tests
+      // Individual tests carry no panel attribution. Skip each row's invoicing hook here and
+      // resolve the whole request once below, so bulk creation stays linear.
       await Promise.all(
-        labTestTypeIds.map(t =>
-          LabTest.create({
-            labTestTypeId: t,
-            labRequestId: newLabRequest.id,
-            date: labTest?.date,
-          }),
+        individualTestTypeIds.map(labTestTypeId =>
+          LabTest.create(
+            {
+              labTestTypeId,
+              labRequestId: newLabRequest.id,
+              date: labTest?.date,
+            },
+            { hooks: false },
+          ),
         ),
       );
+
+      // Each ordered panel becomes a panel request on this lab request, and its member tests are
+      // attributed to it. A test type shared by two panels gets one row per panel.
+      for (const panel of panels) {
+        const panelRequest = await LabTestPanelRequest.create(
+          {
+            encounterId: newLabRequest.encounterId,
+            labTestPanelId: panel.labTestPanelId,
+            labRequestId: newLabRequest.id,
+          },
+          { hooks: false },
+        );
+        await Promise.all(
+          panel.labTestTypeIds.map(labTestTypeId =>
+            LabTest.create(
+              {
+                labTestTypeId,
+                labRequestId: newLabRequest.id,
+                labTestPanelRequestId: panelRequest.id,
+                date: labTest?.date,
+              },
+              { hooks: false },
+            ),
+          ),
+        );
+      }
+
+      // Every panel request and test now exists; resolve invoicing once instead of from each
+      // row's suppressed afterCreate hook.
+      await afterCreateHook(newLabRequest);
 
       return newLabRequest;
     });
@@ -211,9 +257,9 @@ export class LabRequest extends Model {
       as: 'specimenType',
     });
 
-    this.belongsTo(models.LabTestPanelRequest, {
-      foreignKey: 'labTestPanelRequestId',
-      as: 'labTestPanelRequest',
+    this.hasMany(models.LabTestPanelRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labTestPanelRequests',
     });
 
     this.hasMany(models.LabTest, {
@@ -251,7 +297,7 @@ export class LabRequest extends Model {
       'site',
       'collectedBy',
       'specimenType',
-      { association: 'labTestPanelRequest', include: ['labTestPanel'] },
+      { association: 'labTestPanelRequests', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
   }

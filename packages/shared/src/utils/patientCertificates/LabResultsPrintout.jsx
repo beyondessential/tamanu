@@ -96,7 +96,8 @@ const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getSetting }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
-    const { tests, labTestPanelRequest } = labRequest;
+    const { tests, labTestPanelRequests } = labRequest;
+    const labTestPanelRequest = labTestPanelRequests?.[0];
     const labResultsColumns = [
       {
         key: 'labTestType.name',

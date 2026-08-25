@@ -107,11 +107,6 @@ One of:
 Reference to the [Department](#!/source/source.tamanu.tamanu.departments) the request comes from.
 {% enddocs %}
 
-{% docs lab_requests__lab_test_panel_request_id %}
-Reference to the [Test Panel Request](#!/source/source.tamanu.tamanu.lab_test_panel_requests)
-associated with this request, if any.
-{% enddocs %}
-
 {% docs lab_requests__lab_sample_site_id %}
 Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing where
 on the patient the sample was taken.

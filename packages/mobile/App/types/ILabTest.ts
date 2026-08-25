@@ -1,5 +1,6 @@
 import { ID } from './ID';
 import { ILabRequest } from './ILabRequest';
+import { ILabTestPanelRequest } from './ILabTestPanelRequest';
 import { ILabTestType } from './ILabTestType';
 import { IReferenceData } from './IReferenceData';
 
@@ -20,4 +21,7 @@ export interface ILabTest {
 
   labTestType: ILabTestType;
   labTestTypeId: string;
+
+  labTestPanelRequest: ILabTestPanelRequest;
+  labTestPanelRequestId: string;
 }
