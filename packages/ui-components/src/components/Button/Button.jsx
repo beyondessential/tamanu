@@ -27,7 +27,6 @@ const StyledButton = styled(MuiButton)`
   min-width: 100px;
 
   /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
-  & > .${svgIconClasses.root},
   & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
     width: 19.5px;
     height: auto;
