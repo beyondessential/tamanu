@@ -194,4 +194,31 @@ describe('Sync lookup after patient merge', () => {
 
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
   });
+
+  describe('rebuild flag bookkeeping', () => {
+    it('stores a flagged patient once however many times it is flagged', async () => {
+      await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-a', 'patient-b']);
+      await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-a']);
+
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([
+        'patient-a',
+        'patient-b',
+      ]);
+
+      await models.LocalSystemFact.markLookupPatientsRebuilt(['patient-a', 'patient-b']);
+    });
+
+    it('clears only the rebuilt ids, so a patient flagged mid-build survives', async () => {
+      await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-a']);
+      // a merge commits while the build is running, after it read the flag list
+      await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-b']);
+
+      await models.LocalSystemFact.markLookupPatientsRebuilt(['patient-a']);
+
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual(['patient-b']);
+
+      await models.LocalSystemFact.markLookupPatientsRebuilt(['patient-b']);
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([]);
+    });
+  });
 });
