@@ -219,7 +219,15 @@ labRequest.get(
       makeFilter(filterParams.requestedById, 'lab_requests.requested_by_id = :requestedById'),
       makeFilter(filterParams.departmentId, 'lab_requests.department_id = :departmentId'),
       makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
-      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
+      makeFilter(
+        filterParams.labTestPanelId,
+        `EXISTS (
+          SELECT 1 FROM lab_test_panel_requests ltpr_filter
+          WHERE ltpr_filter.lab_request_id = lab_requests.id
+            AND ltpr_filter.lab_test_panel_id = :labTestPanelId
+        )`,
+        () => ({ labTestPanelId: filterParams.labTestPanelId }),
+      ),
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
@@ -289,13 +297,16 @@ labRequest.get(
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
         LEFT JOIN LATERAL (
-          SELECT ltp.id, ltp.name
+          SELECT
+            string_agg(ltp.name, ', ' ORDER BY ltp.name) AS name,
+            -- The list is not a per-panel view (that is card D4); expose a single panel id only
+            -- when the request holds exactly one panel, so a multi-panel request is never shown
+            -- as, or mistaken for, one of its panels.
+            CASE WHEN count(*) = 1 THEN min(ltp.id) ELSE NULL END AS id
           FROM lab_test_panel_requests AS ltpr
           INNER JOIN lab_test_panels AS ltp
             ON (ltp.id = ltpr.lab_test_panel_id)
           WHERE ltpr.lab_request_id = lab_requests.id
-          ORDER BY ltp.name
-          LIMIT 1
         ) lab_test_panel ON TRUE
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
