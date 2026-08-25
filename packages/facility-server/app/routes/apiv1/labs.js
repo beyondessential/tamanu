@@ -288,10 +288,15 @@ labRequest.get(
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
-        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
-          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
-        LEFT JOIN lab_test_panels AS lab_test_panel
-          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
+        LEFT JOIN LATERAL (
+          SELECT ltp.id, ltp.name
+          FROM lab_test_panel_requests AS ltpr
+          INNER JOIN lab_test_panels AS ltp
+            ON (ltp.id = ltpr.lab_test_panel_id)
+          WHERE ltpr.lab_request_id = lab_requests.id
+          ORDER BY ltp.name
+          LIMIT 1
+        ) lab_test_panel ON TRUE
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -307,7 +312,9 @@ labRequest.get(
             (
               SELECT BOOL_AND(ii.approved)
               FROM invoice_items ii
-              WHERE ii.source_record_id = lab_test_panel_requests.id::text
+              INNER JOIN lab_test_panel_requests ltpr
+                ON (ltpr.id::text = ii.source_record_id)
+              WHERE ltpr.lab_request_id = lab_requests.id
                 AND ii.source_record_type = 'LabTestPanelRequest'
                 AND ii.deleted_at IS NULL
               HAVING COUNT(*) > 0
