@@ -4,7 +4,6 @@ import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { refreshChildRecordsForSync } from '@tamanu/shared/utils/refreshChildRecordsForSync';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -12,9 +11,6 @@ const BULK_CREATE_BATCH_SIZE = 100;
 // Models included here will just have their patientId field
 // redirected to the new patient and that's all.
 
-// IMPORTANT: Any models here that have child records, please add the logic to handle them
-// in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const simpleUpdateModels = [
   'Encounter',
   'PatientAllergy',
@@ -41,9 +37,6 @@ export const simpleUpdateModels = [
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
 
-// IMPORTANT: Any models here that have child records, please add the logic to handle them
-// in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
@@ -442,43 +435,6 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
-export async function refreshMultiChildRecordsForSync(model, records) {
-  for (const record of records) {
-    await refreshChildRecordsForSync(model, record.id);
-  }
-}
-
-/**
- * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
- * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
- * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
- * @param {*} models
- * @param {*} unwantedPatientId
- */
-async function updateDependentRecordsForResync(models, unwantedPatientId) {
-  // Encounters
-  const encounters = await models.Encounter.findAll({
-    where: { patientId: unwantedPatientId },
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.Encounter, encounters);
-
-  // Patient Care Plans
-  const patientCarePlans = await models.PatientCarePlan.findAll({
-    where: { patientId: unwantedPatientId },
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.PatientCarePlan, patientCarePlans);
-
-  // Patient Death Data
-  const patientDeathDataRecords = await models.PatientDeathData.findAll({
-    where: { patientId: unwantedPatientId },
-
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
-}
-
 export async function mergePatient(
   models,
   keepPatientId,
@@ -521,12 +477,13 @@ export async function mergePatient(
     });
 
     if (updateDependentRecordsForResyncEnabled) {
-      // See the function's documentation for more details on why this is needed
-      await updateDependentRecordsForResync(models, unwantedPatientId);
       // Lookup rows can be scoped to this patient through joins their own tables don't declare
       // (prescriptions across a belongsToMany, lab_request_logs with no association at all), so
       // repointing alone strands them with a patient that syncs to no facility. Flagging the
-      // patient makes the next lookup build re-derive scope for every row still pointing at them.
+      // patient makes the next lookup build re-queue every row still scoped to them, which also
+      // re-delivers the records the facility's cascade hook soft deletes when the patient
+      // tombstone lands: the rebuilt rows share the tombstone's lookup tick, so a facility never
+      // pulls one without the other.
       await models.LocalSystemFact.flagLookupPatientsForRebuild([unwantedPatientId]);
     }
 
