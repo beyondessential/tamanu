@@ -10,6 +10,8 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
+  await query.addIndex('lab_test_panel_requests', ['lab_request_id']);
+
   await query.sequelize.query(`SELECT flag_lookup_model_to_rebuild('lab_test_panel_requests');`);
 }
 
