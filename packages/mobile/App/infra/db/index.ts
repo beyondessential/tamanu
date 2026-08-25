@@ -5,14 +5,9 @@ import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
+import getCacheSizeKiB from './cacheSize';
 
-const LOG_LEVELS = __DEV__
-  ? [
-      'error' as const,
-      // 'query' as const,
-      'schema' as const,
-    ]
-  : [];
+const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
@@ -130,10 +125,11 @@ class DatabaseHelper {
     try {
       await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
       await this.client.query(`PRAGMA synchronous = 2;`);
-      await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
+      const cacheSizeKiB = await getCacheSizeKiB();
+      await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
       await this.client.query(`PRAGMA locking_mode = NORMAL;`);
       await this.client.query(`PRAGMA temp_store = 0;`);
-      console.log('Applied default pragma settings');
+      console.log(`Applied default pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying default pragma settings:', e);
     }
@@ -210,13 +206,13 @@ class DatabaseHelper {
       await this.client.query('PRAGMA journal_mode = OFF;');
       // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
       await this.client.query('PRAGMA synchronous = 0;');
-      // Sets page cache to 1M pages (~1GB with default 1KB pages)
-      await this.client.query('PRAGMA cache_size = 1000000;');
+      const cacheSizeKiB = await getCacheSizeKiB(true);
+      await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
       // Locks database exclusively - prevents other processes from accessing
       await this.client.query('PRAGMA locking_mode = EXCLUSIVE;');
       // Stores temporary tables, indices, and views in RAM instead of disk
       await this.client.query('PRAGMA temp_store = MEMORY;');
-      console.log('Applied unsafe pragma settings');
+      console.log(`Applied unsafe pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying unsafe pragma settings:', e);
     }
