@@ -1,4 +1,5 @@
-import { randomRecordId } from '../randomRecord.js';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
@@ -17,7 +18,8 @@ export const createTask = async ({
 
   const resolvedEncounterId = encounterId || (await randomRecordId(models, 'Encounter'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
-  const resolvedRefDataId = referenceDataId || (await randomRecordId(models, 'ReferenceData'));
+  const resolvedRefDataId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON));
 
   const task = await Task.create(
     fake(Task, {
