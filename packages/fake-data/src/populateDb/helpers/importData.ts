@@ -74,9 +74,9 @@ export const generateImportData = async ({
     });
   }
 
-  // A deployment has dozens of facilities, not one per data round, so once the pool is
-  // full each round reuses one instead of minting another.
-  const FACILITY_POOL_SIZE = 25;
+  // A deployment has at most a few hundred facilities, not one per data round, so once
+  // the pool is full each round reuses one instead of minting another.
+  const FACILITY_POOL_SIZE = 100;
   const facilityIds = (await Facility.findAll({ attributes: ['id'], raw: true })).map(
     (row: { id: string }) => row.id,
   );
