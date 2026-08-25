@@ -11,3 +11,7 @@ The [test panel](#!/source/source.tamanu.tamanu.lab_test_panels).
 {% docs lab_test_panel_requests__encounter_id %}
 Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this lab test panel request is a part of.
 {% enddocs %}
+
+{% docs lab_test_panel_requests__lab_request_id %}
+The [lab request](#!/source/source.tamanu.tamanu.lab_requests) this panel request belongs to. One lab request can hold several panel requests from the same lab test category.
+{% enddocs %}

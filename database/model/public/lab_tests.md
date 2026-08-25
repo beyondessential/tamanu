@@ -10,6 +10,10 @@ The result of the test.
 The [lab request](#!/source/source.tamanu.tamanu.lab_requests) this test is part of.
 {% enddocs %}
 
+{% docs lab_tests__lab_test_panel_request_id %}
+The [panel request](#!/source/source.tamanu.tamanu.lab_test_panel_requests) this test is attributed to, or null for an individual test. A test type shared by two panels on the same request has one row per panel.
+{% enddocs %}
+
 {% docs lab_tests__lab_test_type_id %}
 The [type](#!/source/source.tamanu.tamanu.lab_test_types) of the test.
 {% enddocs %}
