@@ -118,6 +118,8 @@ export function getQueryOptions(models: Models) {
       {
         model: LabTestPanelRequest,
         as: 'labTestPanelRequests',
+        // Fetched separately so this has-many does not multiply rows against the tests has-many.
+        separate: true,
         include: [
           {
             model: LabTestPanel,
