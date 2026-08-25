@@ -1,23 +1,32 @@
 import React, { memo, useCallback, useState } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
-import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
+
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { convertToBase64 } from '@tamanu/utils/encodings';
-import { useApi, useSuggester } from '../../api';
-import { Field } from '../../components/Field';
+import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
 import {
+  ButtonRow,
   FileChooserField,
   FILTER_IMAGES,
-  TranslatedSelectField,
   Form,
-  LargeSubmitButton,
-  ButtonRow,
   FormGrid,
+  FormSubmitButton,
+  TranslatedSelectField,
 } from '@tamanu/ui-components';
-import { ContentPane } from '../../components/ContentPane';
-import { AdminViewContainer } from './components/AdminViewContainer';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { convertToBase64 } from '@tamanu/utils/encodings';
+import { useApi, useSuggester } from '../../api';
 import { AutocompleteField } from '../../components';
+import { ContentPane } from '../../components/ContentPane';
+import { Field } from '../../components/Field';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { AdminViewContainer } from './components/AdminViewContainer';
+
+const LargeSubmitButton = styled(FormSubmitButton)`
+  font-size: 15px;
+  line-height: 18px;
+  padding: 12px 25px;
+  border: 1px solid ${props => props.theme.palette.primary.main};
+`;
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
