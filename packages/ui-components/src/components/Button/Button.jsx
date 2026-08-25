@@ -106,7 +106,7 @@ export const GreyOutlinedButton = styled(StyledButton).attrs(p => ({
   color: p.theme.palette.text.secondary,
   variant: 'outlined',
 }))`
-  border: 1px solid #dedede;
+  border-color: #dedede;
 `;
 
 export const RedOutlinedButton = styled(StyledButton).attrs({
