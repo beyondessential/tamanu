@@ -162,36 +162,50 @@ export class LabRequest extends Model {
         updatedById: userId,
       });
 
-      // Individual tests carry no panel attribution.
+      // Individual tests carry no panel attribution. Skip each row's invoicing hook here and
+      // resolve the whole request once below, so bulk creation stays linear.
       await Promise.all(
         individualTestTypeIds.map(labTestTypeId =>
-          LabTest.create({
-            labTestTypeId,
-            labRequestId: newLabRequest.id,
-            date: labTest?.date,
-          }),
+          LabTest.create(
+            {
+              labTestTypeId,
+              labRequestId: newLabRequest.id,
+              date: labTest?.date,
+            },
+            { hooks: false },
+          ),
         ),
       );
 
       // Each ordered panel becomes a panel request on this lab request, and its member tests are
       // attributed to it. A test type shared by two panels gets one row per panel.
       for (const panel of panels) {
-        const panelRequest = await LabTestPanelRequest.create({
-          encounterId: newLabRequest.encounterId,
-          labTestPanelId: panel.labTestPanelId,
-          labRequestId: newLabRequest.id,
-        });
+        const panelRequest = await LabTestPanelRequest.create(
+          {
+            encounterId: newLabRequest.encounterId,
+            labTestPanelId: panel.labTestPanelId,
+            labRequestId: newLabRequest.id,
+          },
+          { hooks: false },
+        );
         await Promise.all(
           panel.labTestTypeIds.map(labTestTypeId =>
-            LabTest.create({
-              labTestTypeId,
-              labRequestId: newLabRequest.id,
-              labTestPanelRequestId: panelRequest.id,
-              date: labTest?.date,
-            }),
+            LabTest.create(
+              {
+                labTestTypeId,
+                labRequestId: newLabRequest.id,
+                labTestPanelRequestId: panelRequest.id,
+                date: labTest?.date,
+              },
+              { hooks: false },
+            ),
           ),
         );
       }
+
+      // Every panel request and test now exists; resolve invoicing once instead of from each
+      // row's suppressed afterCreate hook.
+      await afterCreateHook(newLabRequest);
 
       return newLabRequest;
     });
