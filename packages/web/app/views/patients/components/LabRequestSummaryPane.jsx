@@ -81,11 +81,11 @@ const getColumns = (showPanelColumn) => [
             />
           ),
           sortable: false,
-          accessor: ({ labTestPanelRequest }) =>
-            (labTestPanelRequest?.labTestPanel?.name && (
+          accessor: ({ labTestPanelRequests }) =>
+            (labTestPanelRequests?.[0]?.labTestPanel?.name && (
               <TranslatedReferenceData
-                fallback={labTestPanelRequest.labTestPanel.name}
-                value={labTestPanelRequest.labTestPanel.id}
+                fallback={labTestPanelRequests[0].labTestPanel.name}
+                value={labTestPanelRequests[0].labTestPanel.id}
                 category="labTestPanel"
                 data-testid="translatedreferencedata-6okl"
               />
@@ -156,7 +156,7 @@ export const LabRequestSummaryPane = React.memo(
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     const showPanelColumn = useMemo(
-      () => labRequests.some(request => Boolean(request.labTestPanelRequest)),
+      () => labRequests.some(request => Boolean(request.labTestPanelRequests?.length)),
       [labRequests],
     );
     // All the lab requests were made in a batch and have the same details

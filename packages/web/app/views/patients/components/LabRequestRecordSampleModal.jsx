@@ -55,7 +55,7 @@ const collator = new Intl.Collator();
 
 // The Test column lists the request's panel (as-is) or its individual tests, alphabetical by name.
 const getTestNames = labRequest => {
-  const panelName = labRequest.labTestPanelRequest?.labTestPanel?.name;
+  const panelName = labRequest.labTestPanelRequests?.[0]?.labTestPanel?.name;
   if (panelName) return [panelName];
   return (labRequest.tests ?? [])
     .map(test => test.labTestType?.name)

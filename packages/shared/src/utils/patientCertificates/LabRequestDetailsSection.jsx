@@ -91,7 +91,8 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
 export const FullLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime } = useDateTime();
-  const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
+  const labTestTypeAccessor = ({ labTestPanelRequests, tests }) => {
+    const labTestPanelRequest = labTestPanelRequests?.[0];
     if (labTestPanelRequest) {
       return labTestPanelRequest.labTestPanel.name;
     }
