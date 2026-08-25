@@ -5,7 +5,14 @@ import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 
 import { FORM_TYPES, PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { Field, Form, TranslatedText, useSettings, useTranslation } from '@tamanu/ui-components';
+import {
+  Field,
+  Form,
+  TranslatedText,
+  useSettings,
+  useTranslation,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
 import { RadioField } from '../components';
 import { IdField } from '../components/Field/IdField';
@@ -151,14 +158,20 @@ export const NewPatientForm = memo(
                   onClick={() => setExpanded(false)}
                   data-testid="styledimagebutton-yauj"
                 >
-                  <CirclePlus />
+                  <CircleMinus />
+                  <VisuallyHidden>
+                    <TranslatedText stringId="general.action.collapse" fallback="Collapse" />
+                  </VisuallyHidden>
                 </StyledIconButton>
               ) : (
                 <StyledIconButton
                   onClick={() => setExpanded(true)}
                   data-testid="styledimagebutton-8ihm"
                 >
-                  <CircleMinus />
+                  <CirclePlus />
+                  <VisuallyHidden>
+                    <TranslatedText stringId="general.action.expand" fallback="Expand" />
+                  </VisuallyHidden>
                 </StyledIconButton>
               )}
               <TranslatedText
