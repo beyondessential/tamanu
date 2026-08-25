@@ -20,7 +20,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   INJECTION_SITE_VALUES,
   INVOICE_INSURER_PAYMENT_STATUSES,
-  INVOICE_PAYMENT_STATUSES,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
   MANNER_OF_DEATHS,
@@ -680,7 +680,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Invoice: () => ({
     status: chance.pickone(Object.values(INVOICE_STATUSES)),
-    patientPaymentStatus: chance.pickone(Object.values(INVOICE_PAYMENT_STATUSES)),
+    patientPaymentStatus: chance.pickone(Object.values(INVOICE_PATIENT_PAYMENT_STATUSES)),
     insurerPaymentStatus: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
     displayId: `INV${chance.natural({ min: 100000, max: 999999 })}`,
   }),
@@ -815,7 +815,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
   AdministeredVaccine: () => {
-    const status = chance.pickone(Object.values(VACCINE_STATUS));
+    const status = chance.pickone(Object.values(VACCINE_RECORDING_TYPES));
     const vaccine = chance.pickone(VACCINES);
     return {
       status,
