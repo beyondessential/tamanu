@@ -346,4 +346,34 @@ describe('saveChangesForModel', () => {
       expect(invoiceItems).toHaveLength(0);
     });
   });
+
+  // A model whose sanitize hook needs something async (e.g. a settings lookup) resolves
+  // it once per batch via prepareSanitizeContext, not once per record — the per-record
+  // sanitizeForCentralServer/sanitizeForFacilityServer hooks stay synchronous and just
+  // read from whatever it returned. This pins that wiring using a plain model (not
+  // ReferenceDrugFacility's real mSupply logic, which has its own dedicated test).
+  describe('sanitize context: resolved once per batch, threaded into the per-record hook', () => {
+    it('calls prepareSanitizeContext once and passes its result into sanitizeForFacilityServer for every record', async () => {
+      const prepareSpy = vitest
+        .spyOn(models.SurveyScreenComponent, 'prepareSanitizeContext')
+        .mockResolvedValue('context-value');
+      const sanitizeSpy = vitest.spyOn(models.SurveyScreenComponent, 'sanitizeForFacilityServer');
+
+      const changes = [
+        { data: { id: 'ssc-1', text: 'a' }, isDeleted: false },
+        { data: { id: 'ssc-2', text: 'b' }, isDeleted: false },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      expect(prepareSpy).toHaveBeenCalledTimes(1);
+      expect(prepareSpy).toHaveBeenCalledWith(changes);
+      expect(sanitizeSpy).toHaveBeenCalledTimes(2);
+      expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-1', text: 'a' }, 'context-value');
+      expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-2', text: 'b' }, 'context-value');
+
+      prepareSpy.mockRestore();
+      sanitizeSpy.mockRestore();
+    });
+  });
 });

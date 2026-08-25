@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { DRUG_STOCK_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
@@ -166,5 +166,67 @@ describe('ReferenceDrugFacility sync: mSupply stock-on-hand protection', () => {
     });
     expect(stock.quantity).toBe(30);
     expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.IN_STOCK);
+  });
+
+  it('resolves the stock-on-hand setting once per distinct facility, not once per record in the batch', async () => {
+    const otherReferenceData = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      type: REFERENCE_TYPES.DRUG,
+    });
+    const otherReferenceDrug = await models.ReferenceDrug.create({
+      ...fake(models.ReferenceDrug),
+      referenceDataId: otherReferenceData.id,
+    });
+
+    settingsCache.reset(); // force a cold cache so a per-record read would show up as a DB call
+    const getSettingSpy = vi.spyOn(models.Setting, 'get');
+
+    // Three records in one batch, two of them for the same facility.
+    const changes = [
+      {
+        data: {
+          id: `${referenceDrugId};${sohFacilityId}`,
+          referenceDrugId,
+          facilityId: sohFacilityId,
+          quantity: 1,
+          stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+        },
+        isDeleted: false,
+      },
+      {
+        data: {
+          id: `${otherReferenceDrug.id};${sohFacilityId}`,
+          referenceDrugId: otherReferenceDrug.id,
+          facilityId: sohFacilityId,
+          quantity: 2,
+          stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+        },
+        isDeleted: false,
+      },
+      {
+        data: {
+          id: `${otherReferenceDrug.id};${manualFacilityId}`,
+          referenceDrugId: otherReferenceDrug.id,
+          facilityId: manualFacilityId,
+          quantity: 3,
+          stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+        },
+        isDeleted: false,
+      },
+    ];
+
+    await saveChangesForModel(models.ReferenceDrugFacility, changes, false, log);
+
+    // Isolated to the facility-scope query specifically (ignoring unrelated settings
+    // reads): two distinct facilities appear across three records, so the setting must
+    // resolve twice, not three times.
+    const facilityScopeCalls = getSettingSpy.mock.calls.filter(
+      ([, facilityId, scope]) => scope === SETTINGS_SCOPES.FACILITY && [sohFacilityId, manualFacilityId].includes(facilityId),
+    );
+    const facilityIdsQueried = facilityScopeCalls.map(([, facilityId]) => facilityId);
+    expect(facilityIdsQueried).toHaveLength(2);
+    expect(new Set(facilityIdsQueried)).toEqual(new Set([sohFacilityId, manualFacilityId]));
+
+    getSettingSpy.mockRestore();
   });
 });

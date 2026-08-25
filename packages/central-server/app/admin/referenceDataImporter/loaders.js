@@ -513,125 +513,148 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models, pushError }) {
-  /* eslint-disable no-unused-vars */
-  const {
-    id: drugId,
-    route,
-    dosingUnit,
-    dispensingUnit,
-    unitConversion = 1,
-    notes,
-    isSensitive = false,
-    name,
-    visibilityStatus,
-    code,
-    systemRequired,
-    availableFacilities,
-    ...rest
-  } = item;
-  /* eslint-enable no-unused-vars */
-  const rows = [];
+// The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
+// the duration of one import. A factory instance (see dependencies.js's `get loader()`,
+// which creates one per import) resolves each facility's flag once via this cache and
+// reuses it across every drug row, rather than re-reading settings — even as a cache hit,
+// still two settings-cache lookups and a lodash `get` — tens of thousands of times over a
+// large sheet while the import transaction is held open.
+export function drugLoaderFactory() {
+  const stockOnHandEnabledByFacilityId = new Map();
 
-  const validDrugUnits = Object.values(DRUG_UNITS);
-  if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
-    return [];
-  }
-  if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
-    return [];
+  async function getStockOnHandEnabled(models, facilityId) {
+    if (!stockOnHandEnabledByFacilityId.has(facilityId)) {
+      const enabled = await new ReadSettings(models, facilityId).get(
+        'integrations.mSupplyMed.stockOnHandEnabled',
+      );
+      stockOnHandEnabledByFacilityId.set(facilityId, enabled);
+    }
+    return stockOnHandEnabledByFacilityId.get(facilityId);
   }
 
-  let existingDrug;
-  if (drugId) {
-    existingDrug = await models.ReferenceDrug.findOne({
-      where: { referenceDataId: drugId },
+  return async function drugLoader(item, { models, pushError }) {
+    /* eslint-disable no-unused-vars */
+    const {
+      id: drugId,
+      route,
+      dosingUnit,
+      dispensingUnit,
+      unitConversion = 1,
+      notes,
+      isSensitive = false,
+      name,
+      visibilityStatus,
+      code,
+      systemRequired,
+      availableFacilities,
+      ...rest
+    } = item;
+    /* eslint-enable no-unused-vars */
+    const rows = [];
+
+    const validDrugUnits = Object.values(DRUG_UNITS);
+    if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
+      pushError(
+        `Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+      );
+      return [];
+    }
+    if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
+      pushError(
+        `Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+      );
+      return [];
+    }
+
+    let existingDrug;
+    if (drugId) {
+      existingDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: drugId },
+      });
+    }
+
+    const referenceDrugId = existingDrug?.id || crypto.randomUUID();
+    const newDrug = {
+      id: referenceDrugId,
+      referenceDataId: drugId,
+      route,
+      dosingUnit,
+      dispensingUnit,
+      unitConversion,
+      notes,
+      isSensitive: !!isSensitive,
+    };
+    rows.push({
+      model: 'ReferenceDrug',
+      values: newDrug,
     });
-  }
 
-  const referenceDrugId = existingDrug?.id || crypto.randomUUID();
-  const newDrug = {
-    id: referenceDrugId,
-    referenceDataId: drugId,
-    route,
-    dosingUnit,
-    dispensingUnit,
-    unitConversion,
-    notes,
-    isSensitive: !!isSensitive,
-  };
-  rows.push({
-    model: 'ReferenceDrug',
-    values: newDrug,
-  });
-
-  const facilitiesData = Object.fromEntries(
-    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
-  );
-  const facilityIdsToImport = Object.keys(facilitiesData);
-  const facilitiesToImport = await models.Facility.findAll({
-    attributes: ['id'],
-    where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
-  });
-
-  if (!facilitiesToImport.length) {
-    return rows;
-  }
-
-  if (facilitiesToImport.length !== facilityIdsToImport.length) {
-    const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
-    const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
-    pushError(
-      `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
+    const facilitiesData = Object.fromEntries(
+      Object.entries(rest).map(([key, value]) => [key.trim(), value]),
     );
-    return rows;
-  }
+    const facilityIdsToImport = Object.keys(facilitiesData);
+    const facilitiesToImport = await models.Facility.findAll({
+      attributes: ['id'],
+      where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
+    });
 
-  for (const [key, value] of Object.entries(facilitiesData)) {
-    const facilityId = key;
+    if (!facilitiesToImport.length) {
+      return rows;
+    }
 
-    // mSupply is the source of truth for stock on hand at this facility: leave
-    // quantity/stockStatus out so the existing values (kept in sync by
-    // MSupplyStockOnHandProcessor) aren't overwritten by this import.
-    const stockOnHandEnabled = await new ReadSettings(models, facilityId).get(
-      'integrations.mSupplyMed.stockOnHandEnabled',
-    );
-    if (stockOnHandEnabled) {
+    if (facilitiesToImport.length !== facilityIdsToImport.length) {
+      const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
+      const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
+      pushError(
+        `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
+      );
+      return rows;
+    }
+
+    for (const [key, value] of Object.entries(facilitiesData)) {
+      const facilityId = key;
+
+      // mSupply is the source of truth for stock on hand at this facility: leave
+      // quantity/stockStatus out so the existing values (kept in sync by
+      // MSupplyStockOnHandProcessor) aren't overwritten by this import.
+      const stockOnHandEnabled = await getStockOnHandEnabled(models, facilityId);
+      if (stockOnHandEnabled) {
+        rows.push({
+          model: 'ReferenceDrugFacility',
+          values: { referenceDrugId, facilityId },
+        });
+        continue;
+      }
+
+      const parsedQuantity = parseInt(value, 10);
+
+      let quantity = null;
+      let stockStatus;
+
+      if (Number.isNaN(parsedQuantity)) {
+        stockStatus =
+          value === DRUG_STOCK_STATUSES.UNAVAILABLE
+            ? DRUG_STOCK_STATUSES.UNAVAILABLE
+            : DRUG_STOCK_STATUSES.UNKNOWN;
+      } else {
+        quantity = parsedQuantity;
+        stockStatus =
+          quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+      }
+
       rows.push({
         model: 'ReferenceDrugFacility',
-        values: { referenceDrugId, facilityId },
+        values: {
+          referenceDrugId,
+          facilityId,
+          quantity,
+          stockStatus,
+        },
       });
-      continue;
     }
 
-    const parsedQuantity = parseInt(value, 10);
-
-    let quantity = null;
-    let stockStatus;
-
-    if (Number.isNaN(parsedQuantity)) {
-      stockStatus =
-        value === DRUG_STOCK_STATUSES.UNAVAILABLE
-          ? DRUG_STOCK_STATUSES.UNAVAILABLE
-          : DRUG_STOCK_STATUSES.UNKNOWN;
-    } else {
-      quantity = parsedQuantity;
-      stockStatus = quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
-    }
-
-    rows.push({
-      model: 'ReferenceDrugFacility',
-      values: {
-        referenceDrugId,
-        facilityId,
-        quantity,
-        stockStatus,
-      },
-    });
-  }
-
-  return rows;
+    return rows;
+  };
 }
 
 export async function medicationTemplateLoader(item, { models, pushError }) {

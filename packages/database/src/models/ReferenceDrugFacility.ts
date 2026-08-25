@@ -71,19 +71,27 @@ export class ReferenceDrugFacility extends Model {
     return `WHERE ${this.tableName}.facility_id IN (:facilityIds) AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
-  // mSupply is pulled in directly by the facility server (MSupplyStockOnHandProcessor) and
-  // never reaches central, so central's copy of quantity/stockStatus can be stale for a
-  // facility that treats mSupply as the source of truth. Strip those fields from anything
-  // synced down from central so a pull (including a full resync) can never clobber the
-  // facility's locally-maintained stock level.
-  static async sanitizeForFacilityServer(values: Record<string, any>) {
-    const { facilityId } = values;
-    if (!facilityId) return values;
+  static async prepareSanitizeContext(changes: { data: Record<string, any> }[]) {
+    const facilityIds = [...new Set(changes.map(({ data }) => data.facilityId).filter(Boolean))];
 
-    const stockOnHandEnabled = await new ReadSettings(this.sequelize!.models, facilityId).get(
-      'integrations.mSupplyMed.stockOnHandEnabled',
-    );
-    if (!stockOnHandEnabled) return values;
+    const stockOnHandEnabledByFacilityId = new Map<string, boolean>();
+    for (const facilityId of facilityIds) {
+      const stockOnHandEnabled = await new ReadSettings(this.sequelize!.models, facilityId).get(
+        'integrations.mSupplyMed.stockOnHandEnabled',
+      );
+      stockOnHandEnabledByFacilityId.set(facilityId, Boolean(stockOnHandEnabled));
+    }
+    return stockOnHandEnabledByFacilityId;
+  }
+
+  // mSupply pushes stock updates straight into the facility's own DB, so central's copy of
+  // quantity/stockStatus can be stale there — strip both so a sync pull never clobbers it.
+  static sanitizeForFacilityServer(
+    values: Record<string, any>,
+    stockOnHandEnabledByFacilityId?: Map<string, boolean>,
+  ) {
+    const { facilityId } = values;
+    if (!facilityId || !stockOnHandEnabledByFacilityId?.get(facilityId)) return values;
 
     const { quantity: _quantity, stockStatus: _stockStatus, ...rest } = values;
     return rest;
