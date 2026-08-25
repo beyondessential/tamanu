@@ -175,12 +175,9 @@ const updateLookupTableForModel = async (
 };
 
 // Flagged-patient pass: rebuilds every lookup row still scoped to a patient flagged by a merge.
-// Such rows derive their patient scope through other tables' joins, so nothing in their own table
-// advanced the sync clock and the incremental pass can't see them. Selecting straight from
-// sync_lookup by patient_id makes the join shape irrelevant, and keeping this clause on its own
-// (rather than OR'd into the incremental predicate) lets it plan as a semi-join off the
-// sync_lookup patient_id index. Unlike the self-heal pass the tick is not preserved, so rescoped
-// rows re-queue and facilities pull them.
+// Such rows derive their scope through other tables' joins, so the incremental pass can't see
+// them. The tick is not preserved (the rows must re-queue), and it runs as its own pass so the
+// where clause plans as a semi-join off the sync_lookup patient_id index.
 const rebuildLookupRowsForFlaggedPatientsForModel = async (
   model,
   config,
@@ -247,8 +244,6 @@ const rebuildLookupRowsForFlaggedPatients = async (
   syncLookupTick,
   patientIds,
 ) => {
-  // one probe of the patient_id index finds which record types are affected, so models with
-  // nothing scoped to these patients cost nothing
   const [staleRecordTypes] = await models.SyncLookup.sequelize.query(
     `SELECT DISTINCT record_type AS "recordType" FROM sync_lookup WHERE patient_id IN (:patientIds);`,
     { replacements: { patientIds } },
@@ -434,8 +429,8 @@ export const updateLookupTable = withConfig(
     await debugObject.addInfo({ changesCount });
     log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
-    // rebuiltPatientIds are cleared by the caller after commit: clearing here would write the same
-    // fact row a concurrent merge appends to, aborting the whole repeatable-read build
+    // cleared by the caller after commit: clearing here would write the fact row a concurrent
+    // merge appends to, aborting the whole repeatable-read build
     return { changesCount, rebuiltPatientIds: patientIdsToRebuild };
   },
 );

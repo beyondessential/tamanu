@@ -25,9 +25,9 @@ describe('Sync lookup after patient merge', () => {
     return row?.patientId;
   };
 
-  // One encounter carrying a record of each shape the child-association walk misses: a prescription
-  // across a belongsToMany, its MAR one hop further out, and a lab request log whose parent never
-  // declares it.
+  // One encounter carrying a record of each shape whose lookup scope derives through joins its own
+  // table doesn't declare: a prescription across a belongsToMany, its MAR one hop further out, and
+  // a lab request log with no association at all.
   const makeEncounterRecords = async patientId => {
     const {
       Encounter,

@@ -388,8 +388,7 @@ export class CentralSyncManager {
           debugObject,
         );
 
-        // Cleared with a remove of just these ids, so a patient flagged by a merge committing
-        // mid-build survives for the next build to pick up.
+        // remove just these ids, so a patient flagged by a merge committing mid-build survives
         if (rebuiltPatientIds.length) {
           transaction.afterCommit(async () => {
             await store.models.LocalSystemFact.markLookupPatientsRebuilt(rebuiltPatientIds);

@@ -477,13 +477,8 @@ export async function mergePatient(
     });
 
     if (updateDependentRecordsForResyncEnabled) {
-      // Lookup rows can be scoped to this patient through joins their own tables don't declare
-      // (prescriptions across a belongsToMany, lab_request_logs with no association at all), so
-      // repointing alone strands them with a patient that syncs to no facility. Flagging the
-      // patient makes the next lookup build re-queue every row still scoped to them, which also
-      // re-delivers the records the facility's cascade hook soft deletes when the patient
-      // tombstone lands: the rebuilt rows share the tombstone's lookup tick, so a facility never
-      // pulls one without the other.
+      // Re-queues every lookup row still scoped to this patient: repointing misses join-derived
+      // scope, and the facility cascade hook deletes dependants that don't arrive with the tombstone.
       await models.LocalSystemFact.flagLookupPatientsForRebuild([unwantedPatientId]);
     }
 

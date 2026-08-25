@@ -125,10 +125,8 @@ export class PatientMergeMaintainer extends ScheduledTask {
         }
       }
 
-      // Repointing a record leaves lookup rows that derived their patient scope through it still
-      // scoped to the merged patient; flagging the patient makes the next lookup build re-derive
-      // them. Only patients repointed this run are flagged, since the merged patient's tombstones
-      // stay scoped to them legitimately and re-flagging would re-sync those every run.
+      // Only patients repointed this run: tombstones legitimately stay scoped to the merged
+      // patient, so re-flagging every merged patient would re-sync them every run.
       if (
         mergedPatientIds.size &&
         (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled'))
