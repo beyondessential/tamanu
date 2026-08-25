@@ -7,7 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { fake } from '../../fake/index.js';
+import { chance, fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 
 import type {
@@ -74,7 +74,16 @@ export const generateImportData = async ({
     });
   }
 
-  const facility = await Facility.create(fake(Facility));
+  // A deployment has dozens of facilities, not one per data round, so once the pool is
+  // full each round reuses one instead of minting another.
+  const FACILITY_POOL_SIZE = 25;
+  const facilityIds = (await Facility.findAll({ attributes: ['id'], raw: true })).map(
+    (row: { id: string }) => row.id,
+  );
+  const facility =
+    facilityIds.length >= FACILITY_POOL_SIZE
+      ? (await Facility.findByPk(chance.pickone(facilityIds)))!
+      : await Facility.create(fake(Facility));
   const locationGroup = await LocationGroup.create(
     fake(LocationGroup, {
       facilityId: facility.id,
