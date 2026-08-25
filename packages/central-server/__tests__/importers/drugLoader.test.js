@@ -204,6 +204,16 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
     );
     expect(initialErrors).toHaveLength(0);
 
+    // The import never sets stock for this facility (even on first creation), so seed a
+    // quantity directly, as MSupplyStockOnHandProcessor would have.
+    const referenceDrugForSeed = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: 'drug-soh-3' },
+    });
+    await models.ReferenceDrugFacility.update(
+      { quantity: 5, stockStatus: DRUG_STOCK_STATUSES.IN_STOCK },
+      { where: { referenceDrugId: referenceDrugForSeed.id, facilityId: sohFacilityId } },
+    );
+
     const updatedHeaders = ['id', 'code', 'name', 'route', 'dosingUnit', sohFacilityId];
     const updatedRows = [
       {

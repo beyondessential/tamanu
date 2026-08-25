@@ -111,9 +111,12 @@ describe('config->settings migration round trip', () => {
     const taskingRows = rows.filter(r => r.key === 'tasking.upcomingTasksTimeFrame');
     expect(taskingRows.map(r => r.facilityId).sort()).toEqual([f1.id, f2.id].sort());
     expect(taskingRows[0].value).toBe(9);
-    // secret excluded from the mSupplyMed subtree
+    // secret excluded from the mSupplyMed subtree; `enabled` is legacy (renamed to
+    // medDispenseEnabled/stockOnHandEnabled) so the schema-driven walk no longer lifts
+    // it here — that key is migrated separately by migrateMSupplyIntegrationEnabledSettings
     const msupply = rows.find(r => r.key === 'integrations.mSupplyMed' && r.facilityId === f1.id);
-    expect(msupply.value).toMatchObject({ enabled: true, username: 'msu' });
+    expect(msupply.value).toMatchObject({ username: 'msu' });
+    expect(msupply.value.enabled).toBe(undefined);
     expect(msupply.value.password).toBe(undefined);
 
     // one facility already has an operator value: apply must skip it
