@@ -100,6 +100,25 @@ export const pushNotificationAfterUpdateHook = async (
   }
 };
 
+// Load the current invoice products for a set of source-record ids in one query, keyed by
+// source-record id, so the resolver issues two product queries per request rather than one per row.
+const findCurrentProductsBySourceId = async (
+  InvoiceProduct: any,
+  category: string,
+  sourceRecordIds: (string | undefined)[],
+): Promise<Map<string, any>> => {
+  const ids = [...new Set(sourceRecordIds.filter(Boolean))];
+  if (ids.length === 0) return new Map();
+  const products = await InvoiceProduct.findAll({
+    where: {
+      category,
+      sourceRecordId: ids,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  });
+  return new Map(products.map((product: any) => [product.sourceRecordId, product]));
+};
+
 // The single source of truth for what a lab request bills: one item per panel request whose panel
 // has a current product, plus one per individually-billable test type. All three lab invoicing
 // hooks (this model, LabTest, LabTestPanelRequest) resolve through here so the coverage and dedup
@@ -113,37 +132,42 @@ export const getInvoiceItemsForLabRequest = async (labRequest: LabRequest) => {
   ];
   const items = [];
 
-  // Each panel request whose panel has a current invoice product bills that product once; its
-  // tests are then covered and not billed individually.
   const panelRequests = await LabTestPanelRequest.findAll({
     where: { labRequestId: labRequest.id },
     order: deterministicOrder,
   });
+  const tests = await LabTest.findAll({
+    where: { labRequestId: labRequest.id },
+    order: deterministicOrder,
+  });
+
+  const panelProductsByPanelId = await findCurrentProductsBySourceId(
+    InvoiceProduct,
+    INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+    panelRequests.map((panelRequest: any) => panelRequest.labTestPanelId),
+  );
+  const testProductsByTypeId = await findCurrentProductsBySourceId(
+    InvoiceProduct,
+    INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+    tests.map((test: any) => test.labTestTypeId),
+  );
+
+  // Each panel request whose panel has a current invoice product bills that product once; its
+  // tests are then covered and not billed individually.
   const billedPanelRequestIds = new Set();
   for (const panelRequest of panelRequests) {
-    const panelProduct = await InvoiceProduct.findOne({
-      where: {
-        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-        sourceRecordId: panelRequest.labTestPanelId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
+    const panelProduct = panelProductsByPanelId.get(panelRequest.labTestPanelId);
     if (panelProduct) {
       items.push({ item: panelRequest, product: panelProduct });
       billedPanelRequestIds.add(panelRequest.id);
     }
   }
 
-  const tests = await LabTest.findAll({
-    where: { labRequestId: labRequest.id },
-    order: deterministicOrder,
-  });
-
   // A request migrated from the single-panel structure holds exactly one panel request and
   // unattributed tests; treat those tests as belonging to that panel so a historical request does
   // not bill its tests on top of the panel product.
   const inferredPanelRequestId =
-    panelRequests.length === 1 && tests.every(test => !test.labTestPanelRequestId)
+    panelRequests.length === 1 && tests.every((test: any) => !test.labTestPanelRequestId)
       ? panelRequests[0].id
       : null;
 
@@ -160,13 +184,7 @@ export const getInvoiceItemsForLabRequest = async (labRequest: LabRequest) => {
       continue;
     }
     billedTestTypeIds.add(test.labTestTypeId);
-    const testProduct = await InvoiceProduct.findOne({
-      where: {
-        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
-        sourceRecordId: test.labTestTypeId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
+    const testProduct = testProductsByTypeId.get(test.labTestTypeId);
     if (testProduct) {
       items.push({ item: test, product: testProduct });
     }
