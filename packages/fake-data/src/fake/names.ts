@@ -154,6 +154,14 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Islands Division',
     'Coastal Division',
   ],
+  [REFERENCE_TYPES.ENCOUNTER_FEE]: [
+    'Clinic consultation - standard',
+    'Clinic consultation - after hours',
+    'Clinic consultation - weekend',
+    'Emergency attendance - standard',
+    'Emergency attendance - after hours',
+    'Emergency attendance - weekend',
+  ],
   [REFERENCE_TYPES.ETHNICITY]: [
     'Melanesian',
     'Polynesian',
@@ -248,6 +256,14 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Renal',
     'Mental Health',
     'Rehabilitation',
+  ],
+  [REFERENCE_TYPES.MEDICATION_DISPENSE_MODIFY_REASON]: [
+    'Out of stock',
+    'Substituted with generic',
+    'Partial supply only',
+    'Dose adjusted by pharmacist',
+    'Pack size differs',
+    'Prescriber contacted',
   ],
   [REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON]: [
     'Patient refused',
@@ -352,6 +368,11 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Cheque',
     'Insurance claim',
     'Waived',
+  ],
+  [REFERENCE_TYPES.PHARMACY_ENCOUNTER_FEE]: [
+    'Pharmacy dispensing fee',
+    'Pharmacy consultation fee',
+    'Pharmacy after hours fee',
   ],
   [REFERENCE_TYPES.PLACE_OF_BIRTH]: [
     'Born in facility',
