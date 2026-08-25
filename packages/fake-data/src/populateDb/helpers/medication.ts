@@ -1,4 +1,6 @@
-import { randomRecordId } from '../randomRecord.js';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
@@ -25,7 +27,7 @@ export const createMedication = async ({
   // via EncounterPrescription.encounter, but EncounterPrescription doesn't exist yet
   const prescription = await Prescription.create(
     fake(Prescription, {
-      medicationId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+      medicationId: referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.DRUG)),
     }),
     { hooks: false },
   );

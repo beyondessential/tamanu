@@ -1,6 +1,6 @@
-import { NOTE_RECORD_TYPES } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import type { Encounter } from '@tamanu/database';
-import { randomRecordId } from '../randomRecord.js';
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 
 import { times } from 'es-toolkit/compat';
 import { fake, chance } from '../../fake/index.js';
@@ -51,7 +51,8 @@ export const createEncounter = async ({
   for (const _ of times(diagnosisCount)) {
     await EncounterDiagnosis.create(
       fake(EncounterDiagnosis, {
-        diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+        diagnosisId:
+          referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.DIAGNOSIS)),
         encounterId: encounter.id,
         clinicianId: userId || (await randomRecordId(models, 'User')),
       }),
