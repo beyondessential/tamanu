@@ -1,11 +1,7 @@
-import {
-  INVOICE_ITEMS_CATEGORIES,
-  SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { shouldAddLabRequestToInvoice } from './LabRequest/hooks';
+import { addLabRequestToInvoice, shouldAddLabRequestToInvoice } from './LabRequest/hooks';
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
@@ -16,10 +12,10 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../sync/buildEncounterLinkedLookupFilter';
 
-// A panel that has an invoice product bills that product once for its panel request. Panel requests
-// are created after their lab request, so this fires here rather than from the lab request hook.
+// A panel request is created after its lab request, so the request's create hook cannot see it yet;
+// re-resolve the whole request through the shared resolver here so a panel product is billed once.
 const addPanelToInvoiceAfterCreateHook = async (instance: LabTestPanelRequest) => {
-  const { LabRequest: LabRequestModel, InvoiceProduct, Invoice } = instance.sequelize.models;
+  const { LabRequest: LabRequestModel } = instance.sequelize.models;
   if (!instance.labRequestId) {
     return;
   }
@@ -30,24 +26,7 @@ const addPanelToInvoiceAfterCreateHook = async (instance: LabTestPanelRequest) =
   if (!(await shouldAddLabRequestToInvoice(labRequest))) {
     return;
   }
-
-  const panelProduct = await InvoiceProduct.findOne({
-    where: {
-      category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-      sourceRecordId: instance.labTestPanelId,
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    },
-  });
-  if (!panelProduct) {
-    return;
-  }
-
-  await Invoice.addItemToInvoice(
-    instance,
-    labRequest.encounterId,
-    panelProduct,
-    labRequest.requestedById,
-  );
+  await addLabRequestToInvoice(labRequest);
 };
 
 export class LabTestPanelRequest extends Model {
