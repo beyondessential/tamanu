@@ -670,6 +670,93 @@ describe('Labs', () => {
     expect(sharedRows).toHaveLength(2);
   });
 
+  it('orders panel tests first (reference-data order) then individual tests alphabetically (card D4)', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const makeType = name =>
+      models.LabTestType.create({
+        ...fake(models.LabTestType),
+        name,
+        labTestCategoryId: category.id,
+        isSensitive: false,
+        availableFacilities: null,
+      });
+    const makePanel = async (name, orderedTypeNames) => {
+      const panel = await models.LabTestPanel.create({
+        name,
+        code: chance.guid(),
+        categoryId: category.id,
+      });
+      for (let order = 0; order < orderedTypeNames.length; order++) {
+        const type = await makeType(orderedTypeNames[order]);
+        await models.LabTestPanelLabTestTypes.create({
+          labTestPanelId: panel.id,
+          labTestTypeId: type.id,
+          order,
+        });
+      }
+      return panel;
+    };
+
+    // Created Zebra-first so creation order differs from the alphabetical order the view must use;
+    // member-test names are chosen so alphabetical order would differ from reference-data order.
+    const zebra = await makePanel('Zebra panel', ['Mango', 'Cherry']);
+    const apple = await makePanel('Apple panel', ['Yttrium', 'Boron']);
+    const bravo = await makeType('Bravo');
+    const delta = await makeType('Delta');
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+    const {
+      body: [labRequest],
+    } = await app.post('/api/labRequest').send({
+      panelIds: [zebra.id, apple.id],
+      labTestTypeIds: [delta.id, bravo.id],
+      encounterId: encounter.id,
+    });
+
+    // A reflex test arrives later from the lab with no panel attribution; it is an individual test.
+    const aardvark = await makeType('Aardvark reflex');
+    await models.LabTest.create({
+      labRequestId: labRequest.id,
+      labTestTypeId: aardvark.id,
+      categoryId: category.id,
+    });
+
+    const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
+    expect(response).toHaveSucceeded();
+    expect(response.body.data.map(test => test.labTestType.name)).toEqual([
+      'Yttrium',
+      'Boron', // Apple panel, reference-data order
+      'Mango',
+      'Cherry', // Zebra panel, reference-data order
+      'Aardvark reflex',
+      'Bravo',
+      'Delta', // individual tests, alphabetical
+    ]);
+
+    const rowByName = Object.fromEntries(
+      response.body.data.map(test => [test.labTestType.name, test]),
+    );
+    expect(rowByName['Yttrium'].labTestPanel.name).toBe('Apple panel');
+    expect(rowByName['Mango'].labTestPanel.name).toBe('Zebra panel');
+    expect(rowByName['Bravo'].labTestPanel).toBeNull();
+    expect(rowByName['Aardvark reflex'].labTestPanel).toBeNull();
+
+    // The order is stable across pages.
+    const paged = await app.get(
+      `/api/labRequest/${labRequest.id}/tests?page=1&rowsPerPage=2`,
+    );
+    expect(paged.body.count).toBe(7);
+    expect(paged.body.data.map(test => test.labTestType.name)).toEqual(['Mango', 'Cherry']);
+  });
+
   it('rejects the submission when a panel has no test types available at the facility', async () => {
     const category = await models.ReferenceData.create(
       fake(models.ReferenceData, {
