@@ -19,6 +19,13 @@ export class enforceUniqueLocalSystemFactKeys1787706001000 implements MigrationI
     );
   }
 
+  /**
+   * SQLite has no `ALTER TABLE … DROP CONSTRAINT`, so TypeORM drops a unique constraint by
+   * rebuilding the whole table — and it rebuilds from `table.uniques`, which is why the constraint
+   * has to be looked up and handed over from there. Mirroring `up()` with
+   * `changeColumn({ isUnique: false })` apparently silently does nothing, so taking agents’ (yes,
+   * plural) word for it that this is the way to go.
+   */
   async down(queryRunner: QueryRunner): Promise<void> {
     const table = await getTable(queryRunner, TABLE_NAME);
     const uniqueConstraint = table.uniques.find(
