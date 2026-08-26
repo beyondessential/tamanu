@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, Index, IsNull, Not, OneToMany, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
 import { IUser } from '~/types';
@@ -78,8 +78,10 @@ export class User extends BaseModel implements IUser {
     const hasLoginPermission = ability.can('login', 'Facility');
     const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
 
+    // A facility is sensitive exactly when it belongs to a sensitive network.
+    // spec: specs/sync/sensitive-networks.md
     const sensitiveFacilities = await Facility.getRepository().count({
-      where: { isSensitive: true },
+      where: { sensitiveNetwork: Not(IsNull()) },
     });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
       return CAN_ACCESS_ALL_FACILITIES;
@@ -95,7 +97,7 @@ export class User extends BaseModel implements IUser {
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
       const allNonSensitiveFacilities = await Facility.getRepository().find({
-        where: { isSensitive: false },
+        where: { sensitiveNetwork: IsNull() },
         select: ['id'],
       });
       const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);

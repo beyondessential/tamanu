@@ -13,6 +13,7 @@ A sensitive network is a named group of facilities that share confidential data.
 - [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
 - [ ] Deleting a network that has member facilities is refused. Deletion would otherwise leave those facilities pointing at a deleted network, and either they stay sensitive with nothing to name them or they turn ordinary and begin syncing confidential data everywhere.
 - [ ] A network with no members can be deleted, including one left empty by its only member moving elsewhere.
+- [ ] A deleted facility still counts as a member, because restoring it would otherwise leave it pointing at a network that no longer exists.
 
 ## Facility membership
 

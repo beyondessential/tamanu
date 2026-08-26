@@ -3,10 +3,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { getModelsForPull } from '../../src/sync';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
-// facilities.is_sensitive reaches sync_lookup only through
+// facilities.sensitive_network_id reaches sync_lookup only through
 // ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE, so its presence in a model's select is what makes that
 // model's rows facility scoped
-const SENSITIVE_SCOPE_MARKER = 'facilities.is_sensitive';
+const SENSITIVE_SCOPE_MARKER = 'facilities.sensitive_network_id';
 
 describe('sync lookup facility scope', () => {
   let models;

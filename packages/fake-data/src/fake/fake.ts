@@ -654,6 +654,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
+  // Unique on both code and name, so both have to be distinct per network.
+  SensitiveNetwork: ({ name }) =>
+    named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
   Discharge: () => ({
     note: chance.pickone(DISCHARGE_NOTES),
     facilityName: null,

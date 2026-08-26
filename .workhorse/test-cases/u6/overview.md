@@ -16,9 +16,9 @@ Covers the data model and the migration of existing sensitive facilities. Member
 
 ## Schema
 
-- [ ] A facility can be assigned a network and read back through the association
-- [ ] A facility with no network reads back null, and is treated as not sensitive
-- [ ] Two networks cannot share a code, and cannot share a name (verifies spec: SENSNET)
+- [x] A facility can be assigned a network and read back through the association
+- [x] A facility with no network reads back null, and is treated as not sensitive
+- [x] Two networks cannot share a code, and cannot share a name (verifies spec: SENSNET)
 - [ ] A network requires both a code and a name (verifies spec: SENSNET)
 - [ ] `sync_lookup` accepts and indexes a sensitive network id (verifies spec: SENSNET)
 - [ ] Networks pull from central to a facility server and are not pushed back (verifies spec: SENSNET)
@@ -27,19 +27,25 @@ Covers the data model and the migration of existing sensitive facilities. Member
 
 ## Deleting a network
 
-- [ ] Deleting a network that has a member facility is refused (verifies spec: SENSNET)
-- [ ] Deleting a network with no members succeeds (verifies spec: SENSNET)
-- [ ] A network left empty by its only member moving elsewhere can be deleted (verifies spec: SENSNET)
+- [x] Deleting a network that has a member facility is refused (verifies spec: SENSNET)
+- [x] Deleting a network with no members succeeds (verifies spec: SENSNET)
+- [x] A network left empty by its only member moving elsewhere can be deleted (verifies spec: SENSNET)
+- [x] A refused delete leaves the member facilities untouched rather than cascading a soft delete
+      to them (verifies spec: SENSNET)
+- [x] A bulk delete covering a network with a member is refused, and takes none of the networks
+      with it (verifies spec: SENSNET)
+- [x] A soft-deleted facility still counts as a member, so its network cannot be deleted
+      (verifies spec: SENSNET)
 
 ## Facility access
 
 - [ ] With no facility in any network, a user who may access all non-sensitive facilities reaches
       every facility without enumeration (verifies spec: SENSNET)
-- [ ] With one facility in a network, that same user reaches every non-networked facility plus
+- [x] With one facility in a network, that same user reaches every non-networked facility plus
       their explicitly linked facilities (verifies spec: SENSNET)
-- [ ] A user explicitly linked to one member of a network gains no access to its siblings
+- [x] A user explicitly linked to one member of a network gains no access to its siblings
       (verifies spec: SENSNET)
-- [ ] A user restricted to explicit links reaches those facilities whether or not they are networked
+- [x] A user restricted to explicit links reaches those facilities whether or not they are networked
 - [ ] Mobile resolves all of the above identically to the server (verifies spec: SENSNET)
 
 ## Mobile

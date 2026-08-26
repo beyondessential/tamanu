@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';
+import { SensitiveNetwork } from './SensitiveNetwork';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -37,8 +38,12 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @Column({ nullable: false, default: false })
-  isSensitive: boolean;
+  // A facility is sensitive exactly when it belongs to a network.
+  @ManyToOne(() => SensitiveNetwork, { nullable: true })
+  sensitiveNetwork?: SensitiveNetwork;
+
+  @RelationId(({ sensitiveNetwork }: Facility) => sensitiveNetwork)
+  sensitiveNetworkId?: string;
 
   @OneToMany(() => Location, ({ facility }) => facility)
   locations: Location[];
