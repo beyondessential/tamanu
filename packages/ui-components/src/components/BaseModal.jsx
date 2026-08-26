@@ -40,8 +40,11 @@ const Dialog = styled(MuiDialog)`
 
   // The MUI v6 dialog paper is itself a scroll container (overflow-y: auto). Let the inner
   // ModalContainer own scrolling instead, so tall content doesn't produce a second scrollbar.
+  // 'clip' rather than 'hidden': a hidden box is still scrollable programmatically, so anything
+  // calling scrollIntoView() inside the modal (e.g. the form's scroll-to-first-error) would
+  // scroll the header out of view and leave a gap of bare paper below the content.
   .MuiDialog-paper {
-    overflow: hidden;
+    overflow: clip;
   }
 
   @media print {

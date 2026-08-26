@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+import { Formik } from 'formik';
 import { RequiredOrnament } from '@tamanu/ui-components';
 
 // Registers yup's translatedLabel method, which the medication schema uses.
@@ -9,7 +11,9 @@ import '../../app/utils/errorMessages';
 import {
   getMedicationsValidationSchema,
   MEDICATION_COLUMNS,
+  OrderingPrescriberField,
 } from '../../app/forms/DischargeMedicationColumns';
+import { renderElementWithTranslatedText } from '../helpers/render';
 
 const getTranslation = (_stringId, fallback) => fallback;
 const getEnumTranslation = () => '';
@@ -129,6 +133,43 @@ describe('MEDICATION_COLUMNS pharmacy ordering', () => {
   });
 });
 
+// The ordering prescriber is only required, and only marked so, once a medication is actually being
+// sent to pharmacy. While nothing is selected the field is disabled and must not show the required
+// asterisk (RequiredOrnament renders visually-hidden "Required" copy).
+describe('OrderingPrescriberField required asterisk', () => {
+  const mockSuggester = {
+    fetchSuggestions: async () => [],
+    fetchCurrentOption: async () => undefined,
+  };
+
+  const renderOrderingPrescriber = medications =>
+    renderElementWithTranslatedText(
+      <Formik
+        initialValues={{ medications, pharmacyOrder: { orderingClinicianId: '' } }}
+        initialStatus={{}}
+        onSubmit={() => {}}
+      >
+        <OrderingPrescriberField practitionerSuggester={mockSuggester} />
+      </Formik>,
+    );
+
+  it('is not marked required when nothing is being sent to pharmacy', () => {
+    const { queryByText } = renderOrderingPrescriber({
+      'medication-1': { sendToPharmacy: false },
+    });
+
+    expect(queryByText('Required')).toBeNull();
+  });
+
+  it('is marked required once a medication is being sent to pharmacy', () => {
+    const { queryByText } = renderOrderingPrescriber({
+      'medication-1': { sendToPharmacy: true },
+    });
+
+    expect(queryByText('Required')).not.toBeNull();
+  });
+});
+
 describe('MEDICATION_COLUMNS last sent', () => {
   const lastSentCell = row =>
     accessorFor(buildColumns({ isPharmacyOrderEnabled: true }), 'lastSent')(row);
@@ -167,25 +208,27 @@ describe('MEDICATION_COLUMNS dispensing quantity', () => {
     );
   });
 
-  // RequiredOrnament supplies its "Required" copy through styled-components attrs, which are only
-  // applied when it renders — so the ornament is matched by element type rather than by stringId.
+  // A quantity is only required of the rows being sent to pharmacy, so the column header must not
+  // carry a blanket required ornament. RequiredOrnament supplies its "Required" copy through
+  // styled-components attrs, which are only applied when it renders — so the ornament is matched by
+  // element type rather than by stringId.
   it.each([true, false])(
-    'marks the column required with pharmacy orders enabled: %s',
+    'leaves the column unmarked with pharmacy orders enabled: %s',
     isPharmacyOrderEnabled => {
       const { title } = buildColumns({ isPharmacyOrderEnabled }).find(
         column => column.key === 'quantity',
       );
 
       expect([title.props.children].flat().some(child => child?.type === RequiredOrnament)).toBe(
-        true,
+        false,
       );
     },
   );
 });
 
-// The discharge records a dispensing quantity against every listed prescription, so one is always
-// needed. Only the rows going to pharmacy have to be dispensing something, so zero is acceptable
-// elsewhere — including in the other ongoing medication table, whose rows start unselected.
+// A dispensing quantity can be left blank on any row — the server records a blank as zero. Only the
+// rows going to pharmacy have to be dispensing something, so blank and zero are both acceptable
+// elsewhere, including in the other ongoing medication table, whose rows start unselected.
 describe('getMedicationsValidationSchema', () => {
   const validate = medications =>
     getMedicationsValidationSchema('*Required')
@@ -193,13 +236,14 @@ describe('getMedicationsValidationSchema', () => {
       .then(() => null)
       .catch(error => error.message);
 
-  // Prescriptions without a quantity start the form blank, and clearing a number input leaves ''.
-  it.each([null, ''])(
-    'rejects a quantity of %p even when the medication is not being sent to pharmacy',
+  // Clearing a number input leaves '', and a prescription recorded before blanks were normalised
+  // to zero still arrives as null.
+  it.each([null, '', undefined])(
+    'accepts a quantity of %p when the medication is not being sent to pharmacy',
     async quantity => {
       await expect(
         validate({ 'medication-1': { quantity, repeats: '0', sendToPharmacy: false } }),
-      ).resolves.toBe('*Required');
+      ).resolves.toBeNull();
     },
   );
 

@@ -10,7 +10,7 @@ import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { useAuth } from '../../../contexts/Auth';
 
-export const VitalsPane = React.memo(({ patient, encounter, disabled }) => {
+export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const { facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getCurrentDateTime } = useDateTime();
@@ -61,7 +61,7 @@ export const VitalsPane = React.memo(({ patient, encounter, disabled }) => {
           <NoteModalActionBlocker>
             <Button
               onClick={() => setModalOpen(true)}
-              disabled={disabled}
+              disabled={readonly}
               data-testid="button-mk5r"
             >
               <TranslatedText

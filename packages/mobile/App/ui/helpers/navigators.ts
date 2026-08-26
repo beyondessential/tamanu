@@ -77,7 +77,11 @@ export const returnToVaccineTableWithRefresh = (
 
   if (tableRoute?.key && latestAdministeredVaccineId) {
     stackNavigation.dispatch({
-      ...CommonActions.setParams({ latestAdministeredVaccineId }),
+      // HACK: Append suffix so returning after an edit (same id) triggers refetch. To be superseded
+      // with TanStack QueryClient invalidation.
+      ...CommonActions.setParams({
+        latestAdministeredVaccineId: `${latestAdministeredVaccineId}\u{200D}${Date.now()}`,
+      }),
       source: tableRoute.key,
     });
   }

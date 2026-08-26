@@ -1,33 +1,31 @@
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@mui/material/IconButton';
+import { CircleMinus, CirclePlus } from 'lucide-react';
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
-import Button from '@material-ui/core/Button';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { Form } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
-
-import { Field } from '../components/Field';
-import { IdField } from '../components/Field/IdField';
-import { ModalFormActionRow } from '../components/ModalActionRow';
+import { FORM_TYPES, PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import {
+  Field,
+  Form,
+  TranslatedText,
+  useSettings,
+  useTranslation,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
+import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
 import { RadioField } from '../components';
+import { IdField } from '../components/Field/IdField';
 import { IdBanner } from '../components/IdBanner';
-import { getPatientDetailsValidation } from '../validations';
-
 import { LoadingIndicator } from '../components/LoadingIndicator';
-import plusCircle from '../assets/images/plus_circle.svg';
-import minusCircle from '../assets/images/minus_circle.svg';
+import { ModalFormActionRow } from '../components/ModalActionRow';
+import { Colors } from '../constants/styles';
+import { getPatientDetailsValidation } from '../validations';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 import { useLayoutComponents } from './PatientDetailsForm';
-import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
-import { useSettings } from '../contexts/Settings';
 
-const StyledImageButton = styled(Button)`
-  min-width: 30px;
-  margin-right: 5px;
-  background: ${Colors.background};
+const StyledIconButton = styled(IconButton)`
+  margin-inline-end: 5px;
 `;
 
 const IdBannerContainer = styled.div`
@@ -129,7 +127,6 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.newPatient"
                   fallback="Add new patient"
-                  data-testid="translatedtext-kswe"
                 />
               ),
             },
@@ -139,7 +136,6 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.birthRegistry"
                   fallback="Register birth"
-                  data-testid="translatedtext-h9jt"
                 />
               ),
             },
@@ -158,31 +154,35 @@ export const NewPatientForm = memo(
           {collapseAdditionalFields && (
             <div>
               {isExpanded ? (
-                <StyledImageButton
+                <StyledIconButton
                   onClick={() => setExpanded(false)}
                   data-testid="styledimagebutton-yauj"
                 >
-                  <img alt="Minus button" src={minusCircle} />
-                </StyledImageButton>
+                  <CircleMinus />
+                  <VisuallyHidden>
+                    <TranslatedText stringId="general.action.collapse" fallback="Collapse" />
+                  </VisuallyHidden>
+                </StyledIconButton>
               ) : (
-                <StyledImageButton
+                <StyledIconButton
                   onClick={() => setExpanded(true)}
                   data-testid="styledimagebutton-8ihm"
                 >
-                  <img alt="Plus button" src={plusCircle} />
-                </StyledImageButton>
+                  <CirclePlus />
+                  <VisuallyHidden>
+                    <TranslatedText stringId="general.action.expand" fallback="Expand" />
+                  </VisuallyHidden>
+                </StyledIconButton>
               )}
               <TranslatedText
                 stringId="patient.additionalInformation.label"
                 fallback="Add additional information"
-                data-testid="translatedtext-svf7"
               />
               <span>
                 {' '}
                 <TranslatedText
                   stringId="patient.additionalInformation.exampleText"
-                  fallback="(religion, occupation, blood type...)"
-                  data-testid="translatedtext-nfg6"
+                  fallback="(religion, occupation, blood type…)"
                 />
               </span>
             </div>
@@ -212,7 +212,6 @@ export const NewPatientForm = memo(
             <TranslatedText
               stringId="patient.register.action.createNewPatient"
               fallback="Create new patient"
-              data-testid="translatedtext-add-new-patient"
             />
           }
           onConfirm={submitForm}

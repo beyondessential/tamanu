@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { randomSixDigitCode } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 describe('randomSixDigitCode', () => {

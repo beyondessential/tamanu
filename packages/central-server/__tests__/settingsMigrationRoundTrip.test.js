@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FACT_FACILITY_IDS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
@@ -8,7 +9,7 @@ import { cloneDeep, merge } from 'es-toolkit/compat';
 import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from './utilities';
 
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 const logStub = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} };
 
