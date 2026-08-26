@@ -347,11 +347,8 @@ describe('saveChangesForModel', () => {
     });
   });
 
-  // A model whose sanitize hook needs something async (e.g. a settings lookup) resolves
-  // it once per batch via prepareSanitizeContext, not once per record — the per-record
-  // sanitizeForCentralServer/sanitizeForFacilityServer hooks stay synchronous and just
-  // read from whatever it returned. This pins that wiring using a plain model (not
-  // ReferenceDrugFacility's real mSupply logic, which has its own dedicated test).
+  // Pins the prepareSanitizeContext -> sanitizeForFacilityServer wiring itself, on a
+  // plain model (ReferenceDrugFacility's real mSupply logic has its own dedicated test).
   describe('sanitize context: resolved once per batch, threaded into the per-record hook', () => {
     it('calls prepareSanitizeContext once and passes its result into sanitizeForFacilityServer for every record', async () => {
       const prepareSpy = vitest

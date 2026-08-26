@@ -261,10 +261,8 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
     const { errors } = await doImport(buildDrugWorkbookBuffer(headers, rows));
     expect(errors).toHaveLength(0);
 
-    // Isolated to the facility-scope query specifically (ignoring unrelated settings
-    // reads elsewhere in the importer, e.g. importRows' own validateQuestionConfigs
-    // check): three rows referencing the same facility must resolve it once, not
-    // three times.
+    // Isolated to the facility-scope query (ignoring importRows' own unrelated settings
+    // read): three rows for the same facility must resolve it once, not three times.
     const facilityScopeCalls = getSettingSpy.mock.calls.filter(
       ([, facilityId, scope]) => facilityId === sohFacilityId && scope === SETTINGS_SCOPES.FACILITY,
     );
@@ -272,92 +270,60 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
 
     getSettingSpy.mockRestore();
   });
-});
 
-// The end-to-end test above can't cleanly prove drugLoaderFactory's own per-import cache
-// is what's doing the work — the underlying ReadSettings/settingsCache layer already
-// de-dupes repeated reads of a warm bucket on its own. This exercises the factory
-// directly, with a cache invalidation forced strictly between two calls to the same
-// loader instance, which only the loader's own cache (not settingsCache) can survive.
-describe('drugLoaderFactory per-import cache', () => {
-  let ctx;
-  let models;
-  let facilityId;
+  // The test above can't cleanly prove drugLoaderFactory's own cache is what's doing the
+  // work — ReadSettings' cache already de-dupes repeated reads of a warm bucket on its
+  // own. This forces a cache invalidation strictly between two calls to the same loader
+  // instance, which only the loader's own cache (not ReadSettings') can survive.
+  describe('drugLoaderFactory per-import cache', () => {
+    it('does not re-query settings for a facility already seen by this loader instance, even after an external cache invalidation', async () => {
+      const drugLoader = drugLoaderFactory();
+      const pushError = () => {};
 
-  beforeAll(async () => {
-    ctx = await createTestContext();
-    models = ctx.store.models;
+      await drugLoader(
+        { id: 'drug-cache-1', code: 'DRUG-CACHE-1', name: 'Drug 1', [sohFacilityId]: 1 },
+        { models, pushError },
+      );
 
-    const facility = await models.Facility.create({ ...fake(models.Facility) });
-    facilityId = facility.id;
-    await models.Setting.set(
-      'integrations.mSupplyMed',
-      { stockOnHandEnabled: true },
-      SETTINGS_SCOPES.FACILITY,
-      facilityId,
-    );
-    settingsCache.reset();
-  });
+      // Simulate an external settings change invalidating the shared cache between rows.
+      settingsCache.reset();
+      const getSettingSpy = vi.spyOn(models.Setting, 'get');
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+      const secondRowRows = await drugLoader(
+        { id: 'drug-cache-2', code: 'DRUG-CACHE-2', name: 'Drug 2', [sohFacilityId]: 1 },
+        { models, pushError },
+      );
 
-  afterEach(async () => {
-    await models.ReferenceDrugFacility.destroy({ where: {}, force: true });
-    await models.ReferenceDrug.destroy({ where: {}, force: true });
-    await models.ReferenceData.destroy({ where: { type: REFERENCE_TYPES.DRUG }, force: true });
-  });
+      expect(getSettingSpy).not.toHaveBeenCalled();
+      getSettingSpy.mockRestore();
 
-  it('does not re-query settings for a facility already seen by this loader instance, even after an external cache invalidation', async () => {
-    const drugLoader = drugLoaderFactory();
-    const pushError = () => {};
+      // drugLoader only builds rows, it doesn't write them, so check the built row
+      // directly: still stock-skipped like the first row, not falling back because the
+      // cache was cold.
+      const facilityRow = secondRowRows.find(row => row.model === 'ReferenceDrugFacility');
+      expect(facilityRow.values).not.toHaveProperty('quantity');
+      expect(facilityRow.values).not.toHaveProperty('stockStatus');
+    });
 
-    await drugLoader(
-      { id: 'drug-cache-1', code: 'DRUG-CACHE-1', name: 'Drug 1', [facilityId]: 1 },
-      { models, pushError },
-    );
+    it('a fresh loader instance (a new import) does re-query settings', async () => {
+      const firstImportLoader = drugLoaderFactory();
+      const pushError = () => {};
+      await firstImportLoader(
+        { id: 'drug-cache-3', code: 'DRUG-CACHE-3', name: 'Drug 3', [sohFacilityId]: 1 },
+        { models, pushError },
+      );
 
-    // Simulate an external settings change elsewhere invalidating the shared cache
-    // between rows — the kind of thing the loader-level cache must be immune to.
-    settingsCache.reset();
-    const getSettingSpy = vi.spyOn(models.Setting, 'get');
+      settingsCache.reset();
+      const getSettingSpy = vi.spyOn(models.Setting, 'get');
 
-    const secondRowRows = await drugLoader(
-      { id: 'drug-cache-2', code: 'DRUG-CACHE-2', name: 'Drug 2', [facilityId]: 1 },
-      { models, pushError },
-    );
+      const secondImportLoader = drugLoaderFactory();
+      await secondImportLoader(
+        { id: 'drug-cache-4', code: 'DRUG-CACHE-4', name: 'Drug 4', [sohFacilityId]: 1 },
+        { models, pushError },
+      );
 
-    expect(getSettingSpy).not.toHaveBeenCalled();
-    getSettingSpy.mockRestore();
-
-    // drugLoader only builds rows; it doesn't write them (importRows does that later in
-    // the real pipeline), so check the built row directly: still treated consistently
-    // with the first row (stock skipped — no quantity/stockStatus keys) rather than
-    // falling back to the "not source of truth" behaviour because the cache was cold.
-    const facilityRow = secondRowRows.find(row => row.model === 'ReferenceDrugFacility');
-    expect(facilityRow.values).not.toHaveProperty('quantity');
-    expect(facilityRow.values).not.toHaveProperty('stockStatus');
-  });
-
-  it('a fresh loader instance (a new import) does re-query settings', async () => {
-    const firstImportLoader = drugLoaderFactory();
-    const pushError = () => {};
-    await firstImportLoader(
-      { id: 'drug-cache-3', code: 'DRUG-CACHE-3', name: 'Drug 3', [facilityId]: 1 },
-      { models, pushError },
-    );
-
-    settingsCache.reset();
-    const getSettingSpy = vi.spyOn(models.Setting, 'get');
-
-    const secondImportLoader = drugLoaderFactory();
-    await secondImportLoader(
-      { id: 'drug-cache-4', code: 'DRUG-CACHE-4', name: 'Drug 4', [facilityId]: 1 },
-      { models, pushError },
-    );
-
-    expect(getSettingSpy).toHaveBeenCalled();
-    getSettingSpy.mockRestore();
+      expect(getSettingSpy).toHaveBeenCalled();
+      getSettingSpy.mockRestore();
+    });
   });
 });

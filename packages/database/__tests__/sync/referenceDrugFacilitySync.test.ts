@@ -7,11 +7,9 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { saveChangesForModel } from '../../src/sync';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
-// These exercise the facility-server side of sync (isCentralServer: false), where
-// ReferenceDrugFacility.sanitizeForFacilityServer strips quantity/stockStatus out of
-// anything central pushes down for a facility that treats mSupply as the stock-on-hand
-// source of truth — so a sync pull (including a full resync) can never clobber the
-// facility-local value that MSupplyStockOnHandProcessor maintains.
+// Facility-server side of sync (isCentralServer: false): a sync pull must never clobber
+// the local stock level MSupplyStockOnHandProcessor maintains for a facility where
+// mSupply is the source of truth.
 describe('ReferenceDrugFacility sync: mSupply stock-on-hand protection', () => {
   let models;
   let manualFacilityId;
@@ -217,11 +215,11 @@ describe('ReferenceDrugFacility sync: mSupply stock-on-hand protection', () => {
 
     await saveChangesForModel(models.ReferenceDrugFacility, changes, false, log);
 
-    // Isolated to the facility-scope query specifically (ignoring unrelated settings
-    // reads): two distinct facilities appear across three records, so the setting must
-    // resolve twice, not three times.
+    // Two distinct facilities appear across three records, so this must resolve twice.
     const facilityScopeCalls = getSettingSpy.mock.calls.filter(
-      ([, facilityId, scope]) => scope === SETTINGS_SCOPES.FACILITY && [sohFacilityId, manualFacilityId].includes(facilityId),
+      ([, facilityId, scope]) =>
+        scope === SETTINGS_SCOPES.FACILITY &&
+        [sohFacilityId, manualFacilityId].includes(facilityId),
     );
     const facilityIdsQueried = facilityScopeCalls.map(([, facilityId]) => facilityId);
     expect(facilityIdsQueried).toHaveLength(2);
