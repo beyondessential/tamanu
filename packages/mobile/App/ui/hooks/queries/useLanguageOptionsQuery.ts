@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
-import { keyBy, mapValues, uniq } from 'es-toolkit/compat';
+import { keyBy, mapValues, uniq } from 'es-toolkit';
 
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import type { LanguageOption } from '~/models/TranslatedString';
@@ -31,10 +31,16 @@ const toLanguageOptions = ({
   countryCodes = [],
 }: LanguageOptionsResponse): LanguageOption[] => {
   const languageDisplayNames = applyDefaultsToTranslations(
-    mapValues(keyBy(languageNames, 'language'), 'text'),
+    mapValues(
+      keyBy(languageNames, ({ language }) => language),
+      ({ text }) => text,
+    ),
   );
   const languageCountryCodes = applyDefaultsToTranslations(
-    mapValues(keyBy(countryCodes, 'language'), 'text'),
+    mapValues(
+      keyBy(countryCodes, ({ language }) => language),
+      ({ text }) => text,
+    ),
   );
   return uniq(
     languagesInDb.map(({ language }) =>
