@@ -6,7 +6,7 @@ import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/l
 
 import { DataFetchingTable } from '../../../components';
 import { RangeValidatedCell } from '../../../components/FormattedTableCell';
-import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { getCompletedDate, getMethod, shouldShowLabResultGroupHeader } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
@@ -37,6 +37,26 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
   const handleRowClick = row => {
     setModalLabTestId(row.id);
     setModalOpen(true);
+  };
+
+  // Panels lead, each under its name; the loose/reflex tests follow under one "Individual tests"
+  // heading. The header repeats at the top of each page (no previous row within the page).
+  const renderGroupHeader = (row, previousRow) => {
+    if (!shouldShowLabResultGroupHeader(row, previousRow)) return null;
+    return row.labTestPanel ? (
+      <TranslatedReferenceData
+        value={row.labTestPanel.id}
+        fallback={row.labTestPanel.name}
+        category="labTestPanel"
+        data-testid="labresult-group-header-panel"
+      />
+    ) : (
+      <TranslatedText
+        stringId="lab.results.individualTests.label"
+        fallback="Individual tests"
+        data-testid="labresult-group-header-individual"
+      />
+    );
   };
 
   const columns = useMemo(
@@ -224,10 +244,10 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         columns={columns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         initialSort={{ order: 'asc', orderBy: 'id' }}
-        disablePagination
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        getRowGroupHeader={renderGroupHeader}
         data-testid="styleddatafetchingtable-brdm"
         allowExport={false}
       />

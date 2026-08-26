@@ -58,6 +58,20 @@ export const getPanelType = ({ labTestPanelId, labTestPanelName }) => {
     />
   );
 };
+const INDIVIDUAL_TESTS_GROUP_KEY = 'individual';
+
+// A lab result row belongs to its panel (keyed by the panel request's panel id) or to the
+// individual-tests group when it carries no panel — reflex and individually-ordered tests both
+// land here.
+export const getLabResultGroupKey = ({ labTestPanel }) =>
+  labTestPanel?.id ?? INDIVIDUAL_TESTS_GROUP_KEY;
+
+// A group header shows above the first row of a group, and above the first row of a page (where
+// there is no previous row within the page) so a panel's header repeats and grouping stays legible
+// across pagination.
+export const shouldShowLabResultGroupHeader = (row, previousRow) =>
+  !previousRow || getLabResultGroupKey(previousRow) !== getLabResultGroupKey(row);
+
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (

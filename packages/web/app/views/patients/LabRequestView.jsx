@@ -365,7 +365,7 @@ export const LabRequestView = () => {
             text={
               <TranslatedText
                 stringId="lab.testCategory.label"
-                fallback="Test category"
+                fallback="Category"
                 data-testid="translatedtext-4nhr"
               />
             }

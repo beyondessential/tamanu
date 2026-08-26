@@ -19,7 +19,6 @@ import {
   simpleGet,
   simpleGetList,
   findRouteObject,
-  getResourceList,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
   getWhereClausesAndReplacementsFromFilters,
@@ -466,74 +465,88 @@ labRelations.get(
   '/:id/tests',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { LabRequest, LabTestPanelRequest, LabTestType, LabTestPanelLabTestTypes, LabTest } =
-      models;
+    const { LabTest, LabTestPanelLabTestTypes, LabTestPanelRequest } = models;
+    req.checkPermission('list', 'LabTest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
-    // First, get the lab request to check its panel requests
-    const labRequest = await LabRequest.findByPk(params.id, {
+    // Load every test on the request with what's needed to group and order it: its panel (via the
+    // panel request) and, below, its reference-data order within that panel. Panel-ordered display
+    // for a request holding several panels lives here (card D4); Y3 left multi-panel ordering to
+    // this view. Per-request test counts are small, so grouping and paging are done in memory.
+    const tests = await LabTest.findAll({
+      where: {
+        labRequestId: params.id,
+        ...(!canListSensitive && { '$labTestType.is_sensitive$': false }),
+      },
       include: [
-        {
-          model: LabTestPanelRequest,
-          as: 'labTestPanelRequests',
-        },
+        'category',
+        'labTestMethod',
+        'labTestType',
+        { association: 'labTestPanelRequest', required: false, include: ['labTestPanel'] },
       ],
     });
 
-    // A request grouped under a single panel is ordered by that panel's test order. Ordering a
-    // request that holds several panels is handled with the lab request view (card D4).
-    const [singlePanelRequest] =
-      labRequest?.labTestPanelRequests?.length === 1 ? labRequest.labTestPanelRequests : [];
-    if (singlePanelRequest?.labTestPanelId) {
-      req.checkPermission('list', 'LabTest');
+    // A historical single-panel request never stamped its tests with a panel request, so infer the
+    // panel the same way Y3's billing does: one panel request with no per-test attribution means
+    // those tests belong to that panel. Without it they would fall into the individual section.
+    const panelRequests = await LabTestPanelRequest.findAll({
+      where: { labRequestId: params.id },
+      include: ['labTestPanel'],
+    });
+    const inferredPanel =
+      panelRequests.length === 1 && tests.every(test => !test.labTestPanelRequestId)
+        ? panelRequests[0].labTestPanel
+        : null;
+    const panelOf = test => test.labTestPanelRequest?.labTestPanel ?? inferredPanel;
 
-      const { rowsPerPage, page } = query;
+    // Reference-data order for each (panel, test type) pairing present on the request.
+    const panelIds = [...new Set(tests.map(test => panelOf(test)?.id).filter(Boolean))];
+    const panelOrderRows = panelIds.length
+      ? await LabTestPanelLabTestTypes.findAll({ where: { labTestPanelId: panelIds } })
+      : [];
+    const orderKey = (panelId, testTypeId) => `${panelId}:${testTypeId}`;
+    const orderWithinPanel = new Map(
+      panelOrderRows.map(row => [orderKey(row.labTestPanelId, row.labTestTypeId), row.order]),
+    );
 
-      const baseQueryOptions = {
-        where: {
-          labRequestId: params.id,
-          ...(!canListSensitive && { '$labTestType.is_sensitive$': false }),
-        },
-        include: [
-          'category',
-          'labTestMethod',
-          {
-            model: LabTestType,
-            as: 'labTestType',
-            include: [
-              {
-                model: LabTestPanelLabTestTypes,
-                as: 'panelRelations',
-                where: {
-                  labTestPanelId: singlePanelRequest.labTestPanelId,
-                },
-                required: false,
-                attributes: ['order'],
-              },
-            ],
-          },
-        ],
-        order: [['labTestType', 'panelRelations', 'order', 'ASC']],
+    const collator = new Intl.Collator();
+    const panelNameOf = test => panelOf(test)?.name ?? '';
+    const testNameOf = test => test.labTestType?.name ?? '';
+    const panelOrderOf = test =>
+      orderWithinPanel.get(orderKey(panelOf(test)?.id, test.labTestTypeId)) ?? 0;
+
+    // Panels first, alphabetically by panel name, their tests in reference-data order; then the
+    // individual (unattributed) tests — including reflex tests added by the lab — alphabetically.
+    const panelTests = tests
+      .filter(test => panelOf(test))
+      .sort(
+        (a, b) =>
+          collator.compare(panelNameOf(a), panelNameOf(b)) ||
+          panelOrderOf(a) - panelOrderOf(b) ||
+          collator.compare(testNameOf(a), testNameOf(b)),
+      );
+    const individualTests = tests
+      .filter(test => !panelOf(test))
+      .sort((a, b) => collator.compare(testNameOf(a), testNameOf(b)));
+
+    const ordered = [...panelTests, ...individualTests];
+
+    const page = Number.parseInt(query.page, 10) || 0;
+    const rowsPerPage = query.rowsPerPage ? Number.parseInt(query.rowsPerPage, 10) : undefined;
+    const pageTests = rowsPerPage
+      ? ordered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      : ordered;
+
+    // The panel each row belongs to travels with the row so the view can group by it.
+    const data = pageTests.map(test => {
+      const panel = panelOf(test);
+      return {
+        ...test.forResponse(),
+        labTestPanel: panel ? { id: panel.id, name: panel.name } : null,
       };
+    });
 
-      const { count, rows: objects } = await LabTest.findAndCountAll({
-        ...baseQueryOptions,
-        limit: rowsPerPage,
-        offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-        distinct: true,
-      });
-
-      const data = objects.map(x => x.forResponse());
-
-      res.send({ count, data });
-    } else {
-      // For non-panel requests, use the default ordering
-      const options = canListSensitive
-        ? {}
-        : { additionalFilters: { '$labTestType.is_sensitive$': false } };
-      const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
-      res.send(response);
-    }
+    res.send({ count: ordered.length, data });
   }),
 );
 
