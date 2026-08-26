@@ -14,13 +14,13 @@ export class SensitiveNetwork extends Model {
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: { ...primaryKey, type: DataTypes.UUID },
         code: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         name: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },

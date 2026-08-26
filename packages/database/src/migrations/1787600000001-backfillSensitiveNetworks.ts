@@ -12,8 +12,8 @@ import { QueryInterface } from 'sequelize';
 // import, which is allowed because each facility is the sole member of its own network.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    INSERT INTO sensitive_networks (code, name)
-    SELECT code, name
+    INSERT INTO sensitive_networks (id, code, name)
+    SELECT gen_random_uuid(), code, name
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
