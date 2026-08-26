@@ -16,6 +16,12 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
   relations?: Array<string>;
+  excludeIds?: string[];
+  /**
+   * Extra predicate ANDed into the query, for conditions `where` can't express — a comparison
+   * against a joined relation, say. Any alias other than `entity` must be listed in `relations`.
+   */
+  andWhere?: { sql: string; parameters?: ObjectLiteral };
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
@@ -146,7 +152,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const { where = {}, relations } = this.options;
+    const { where = {}, relations, excludeIds, andWhere } = this.options;
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
@@ -166,6 +172,15 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       Object.entries(where).forEach(([key, value]) => {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       });
+
+      // Guarded because `NOT IN ()` isn't valid SQL
+      if (excludeIds?.length) {
+        query = query.andWhere('entity.id NOT IN (:...excludeIds)', { excludeIds });
+      }
+
+      if (andWhere) {
+        query = query.andWhere(andWhere.sql, andWhere.parameters);
+      }
 
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
