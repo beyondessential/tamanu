@@ -250,6 +250,14 @@ export const PatientHistory = ({ patient, onItemClick, refreshCount: externalRef
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
   const translationContext = useTranslation();
 
+  // Recording or reverting a death auto-discharges (or leaves) the active encounter on the server;
+  // the table fetches from an endpoint, so refetch it when the patient's death status changes.
+  const [prevDateOfDeath, setPrevDateOfDeath] = useState(patient.dateOfDeath);
+  if (patient.dateOfDeath !== prevDateOfDeath) {
+    setPrevDateOfDeath(patient.dateOfDeath);
+    updateRefreshCount();
+  }
+
   const actions = [
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
