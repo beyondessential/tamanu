@@ -8,7 +8,7 @@ A sensitive network is a named group of facilities that share confidential data.
 
 ## The network record
 
-- [ ] A sensitive network is identified by an id and carries a name, which is required.
+- [ ] A sensitive network is identified by an id and carries a code and a name, both required. Each is unique across networks, as a facility's are.
 - [ ] Networks are reference data, defined on the central server and pulled down to facility servers and mobile devices. They are never pushed upwards.
 - [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
 
@@ -38,5 +38,10 @@ Network membership scopes which data reaches a facility. It does not widen which
 Facilities previously marked sensitive were isolated from each other as well as from the rest of the deployment: each pulled its own confidential data and no other facility's. Networks preserve that.
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
-- [ ] Each of those networks takes the name of its facility, which an administrator can rename through the reference data import.
+- [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import.
 - [ ] A deployment with no sensitive facilities gains no networks.
+
+## Mobile
+
+- [ ] Mobile devices hold the network records and each facility's membership, pulled as reference data.
+- [ ] Membership is the only facility sensitivity mobile records, and it feeds the same facility access rules as elsewhere.
