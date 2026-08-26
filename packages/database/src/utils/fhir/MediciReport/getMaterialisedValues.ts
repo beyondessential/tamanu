@@ -20,6 +20,13 @@ notes_info as (
   where note_type_id <> '${NOTE_TYPES.SYSTEM}'
     and record_type in ('LabRequest','ImagingRequest')
     and deleted_at isnull
+    -- scope to this encounter's own lab/imaging requests: without this the aggregate
+    -- covers every lab and imaging note in the table on every materialisation
+    and record_id in (
+      select id from lab_requests where encounter_id = $encounter_id
+      union all
+      select id::varchar from imaging_requests where encounter_id = $encounter_id
+    )
   group by record_id
 ),
 
