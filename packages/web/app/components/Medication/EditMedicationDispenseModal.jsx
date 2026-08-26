@@ -249,7 +249,8 @@ export const EditMedicationDispenseModal = memo(
 
       if (onConfirm) onConfirm();
 
-      labelPrintRef.current.print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       // Close dispense modal
       onClose();

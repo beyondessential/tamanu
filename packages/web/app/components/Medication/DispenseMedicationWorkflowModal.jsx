@@ -538,7 +538,8 @@ export const DispenseMedicationWorkflowModal = memo(
       const ok = await performDispense();
       if (!ok) return;
 
-      labelPrintRef.current.print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       onClose();
     };

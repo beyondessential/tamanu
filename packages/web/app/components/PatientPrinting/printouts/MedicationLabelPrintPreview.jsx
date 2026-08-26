@@ -20,7 +20,8 @@ const PreviewDescription = styled(Box)`
 
 /**
  * Shows the labels on screen and carries the hidden frame they get printed
- * from. Call `print()` on the ref to print them.
+ * from. Call `print()` on the ref to print them; await it before unmounting,
+ * since the frame goes with this component.
  */
 export const MedicationLabelPrintPreview = forwardRef(({ labels, showDescription = true }, ref) => (
   <>
@@ -34,7 +35,7 @@ export const MedicationLabelPrintPreview = forwardRef(({ labels, showDescription
     )}
     <PreviewContainer>
       {labels.map((label, index) => (
-        <MedicationLabel key={label.id ?? index} data={label} />
+        <MedicationLabel key={label.id || index} data={label} />
       ))}
     </PreviewContainer>
     <MedicationLabelPrintFrame ref={ref} labels={labels} />

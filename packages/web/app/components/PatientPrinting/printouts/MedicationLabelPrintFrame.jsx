@@ -1,4 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import styled, { createGlobalStyle, StyleSheetManager } from 'styled-components';
@@ -62,29 +69,66 @@ const LabelPage = styled.div`
 
 /**
  * Renders the labels into a hidden same-origin frame and prints that frame.
- * Call `print()` on the ref to open the print dialog.
+ *
+ * `print()` on the ref resolves once the browser has taken the job, so a caller
+ * that closes on print can await it and not pull the frame out from under a
+ * print dialog that is still reading the document.
  */
 export const MedicationLabelPrintFrame = forwardRef(({ labels }, ref) => {
   const { width, height } = useLabelDimensions();
   const frameRef = useRef(null);
   const [frameDocument, setFrameDocument] = useState(null);
 
-  useEffect(() => {
-    const frame = frameRef.current;
-    // Chrome has the about:blank document ready as soon as the frame is in the
-    // DOM; other engines swap in a fresh one once the initial load settles.
-    const adoptDocument = () => setFrameDocument(frame.contentDocument);
-    adoptDocument();
-    frame.addEventListener('load', adoptDocument);
-    return () => frame.removeEventListener('load', adoptDocument);
+  // Adopted in a callback ref rather than an effect so it happens in the same
+  // commit that attaches the frame: the labels are portalled in before the
+  // browser paints, instead of a render later.
+  const attachFrame = useCallback(frame => {
+    frameRef.current = frame;
+    setFrameDocument(frame?.contentDocument ?? null);
   }, []);
 
-  useImperativeHandle(ref, () => ({ print: () => frameRef.current.contentWindow.print() }), []);
+  useEffect(() => {
+    const frame = frameRef.current;
+    // Chromium has the about:blank document ready as soon as the frame is in
+    // the DOM, which is what the callback ref picks up. Gecko and WebKit can
+    // swap in a fresh one once the initial load settles, so follow that too —
+    // otherwise the labels would be left in a document nobody prints.
+    const readoptDocument = () => setFrameDocument(frame.contentDocument);
+    frame.addEventListener('load', readoptDocument);
+    return () => frame.removeEventListener('load', readoptDocument);
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      print: () => {
+        const frame = frameRef.current;
+        // This handle and the portal are committed together, so a mismatch here
+        // means the frame has swapped its document and the labels have not
+        // landed in the new one yet. Reachable only in the instant between the
+        // frame mounting and its load settling, which is long before there is a
+        // print button to click — but printing a blank label is worse than not
+        // printing, so say so rather than carry on.
+        if (frame.contentDocument !== frameDocument) {
+          throw new Error('Cannot print: the medication label frame is not ready');
+        }
+        return new Promise(resolve => {
+          const frameWindow = frame.contentWindow;
+          // Chromium and Gecko block inside print() and fire afterprint before
+          // it returns; WebKit returns straight away and fires it when the
+          // sheet is dismissed. Resolving on the event covers both.
+          frameWindow.addEventListener('afterprint', resolve, { once: true });
+          frameWindow.print();
+        });
+      },
+    }),
+    [frameDocument],
+  );
 
   return (
     <>
       <PrintFrame
-        ref={frameRef}
+        ref={attachFrame}
         aria-hidden
         tabIndex={-1}
         data-testid="medication-label-print-frame"
@@ -95,7 +139,9 @@ export const MedicationLabelPrintFrame = forwardRef(({ labels }, ref) => {
             <>
               <FrameStyles $width={width} $height={height} />
               {labels.map((label, index) => (
-                <LabelPage key={label.id ?? index}>
+                // Falls back on any falsy id, not just a nullish one: a blank
+                // id would otherwise key every such label the same.
+                <LabelPage key={label.id || index}>
                   <MedicationLabel data={label} />
                 </LabelPage>
               ))}
