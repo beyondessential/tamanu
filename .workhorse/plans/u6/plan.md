@@ -19,14 +19,30 @@ for the upgrade and only fires when an operator deliberately adds a facility to 
 **Behaviour may change within this card.** The four cards ship as one release, so U6 does not need
 to hold sync behaviour constant while it drops `is_sensitive`.
 
+**Deleting a network with members is refused.** Otherwise it is a back door around T6's guard: the
+member facility either keeps a dangling reference or turns ordinary and starts syncing confidential
+data everywhere. The rule is specified here because it constrains the data model, but it sits
+naturally with T6's other write-time guards, so implement it there unless T6 has already shipped.
+
+## Open: networks of one collide with T6's move guard
+
+T6 forbids moving a facility into a different network. After a networks-of-one backfill, forming
+Fiji's HIV network out of existing sensitive facilities A, B and C means moving B and C out of
+their own networks — which that guard blocks. The backfill would leave the target state
+unreachable through the importer.
+
+Narrowest fix: allow a move when the facility is the **sole member** of its current network. That
+permits the merge, and still forbids the genuinely unsafe case of a facility leaving a network
+whose siblings' data it already holds. Needs confirming, and it changes T6's criteria.
+
 ## Migrations
 
 DDL and DML in separate files (`packages/database/CLAUDE.md`), in this order:
 
 - [ ] DDL: create `sensitive_networks`; add `facilities.sensitive_network_id` (nullable FK); add
       `sync_lookup.sensitive_network_id` (STRING, nullable, indexed)
-- [ ] DML: for each `facilities.is_sensitive = TRUE`, create a network taking that facility's code
-      and name, and point the facility at it
+- [ ] DML: for each `facilities.is_sensitive = TRUE` facility that is not soft-deleted, create a
+      network taking that facility's code and name, and point the facility at it
 - [ ] DDL: drop `facilities.is_sensitive`
 
 The drop has to be its own file and follow the backfill, which reads the column.
