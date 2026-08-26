@@ -23,9 +23,6 @@ export const saveChangesForModel = async (
   isCentralServer: boolean,
   log: Logger,
 ) => {
-  // Resolved once per batch, not per record — a model whose sanitize hook needs
-  // something async (e.g. a settings lookup) does it here rather than per record, so
-  // sanitizeForCentralServer/sanitizeForFacilityServer stay synchronous below.
   const sanitizeContext = await model.prepareSanitizeContext(changes);
   const sanitizeData = (d: ModelSanitizeArgs) =>
     isCentralServer
