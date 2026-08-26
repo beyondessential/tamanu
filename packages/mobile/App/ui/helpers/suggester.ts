@@ -1,4 +1,4 @@
-import { Brackets, type FindManyOptions, type ObjectLiteral } from 'typeorm';
+import type { FindManyOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
 import type { BaseModel } from '~/models/BaseModel';
@@ -40,15 +40,19 @@ const defaultFormatter = (record): OptionType => ({
   value: record.entity_id,
 });
 
-const getTranslationJoinParams = (dataType: string, language: string) => [
-  'translated_strings',
-  'translation',
-  'translation.stringId = :prefix || entity.id AND translation.language = :language',
-  {
-    prefix: `refData.${dataType}.`,
-    language,
-  },
-];
+/**
+ * `translated_strings.id` is generated as `${stringId};${language}`, and is the table's primary key.
+ * Matching on it lets SQLite satisfy the join from an index; matching on `stringId` and `language`
+ * separately is equivalent but unindexed, which costs a scan of the whole translations table for
+ * every suggestion query.
+ */
+const TRANSLATION_JOIN_CONDITION =
+  'translation.id = :stringIdPrefix || entity.id || :languageSuffix';
+
+const getTranslationJoinParams = (dataType: string, language: string) => ({
+  stringIdPrefix: `refData.${dataType}.`,
+  languageSuffix: `;${language}`,
+});
 
 export interface SuggesterConfig<ModelType> {
   model: ModelType;
@@ -93,20 +97,40 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     return this.model.findVisible(options);
   }
 
+  /**
+   * Adds the `entity_display_label` column that suggestions are searched, sorted, and labelled by:
+   * the record's translated name where there is one, otherwise its own name column.
+   */
+  private selectDisplayLabel<T>(
+    query: SelectQueryBuilder<T>,
+    language: string,
+  ): SelectQueryBuilder<T> {
+    const { column = 'name' } = this.options;
+    const dataType = getReferenceDataTypeFromSuggester(this);
+
+    // Models that aren't reference data have no translations to join against
+    if (!dataType) return query.addSelect(`entity.${column}`, 'entity_display_label');
+
+    return query
+      .leftJoin(
+        'translated_strings',
+        'translation',
+        TRANSLATION_JOIN_CONDITION,
+        getTranslationJoinParams(dataType, language),
+      )
+      .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
+  }
+
   fetchCurrentOption = async (
     value: string | null,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType> => {
-    const { column = 'name' } = this.options;
     if (!value) return undefined;
     try {
-      const dataType = getReferenceDataTypeFromSuggester(this);
-      const query = this.model
-        .getRepository()
-        .createQueryBuilder('entity')
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
-        .where('entity.id = :id', { id: value });
+      const query = this.selectDisplayLabel(
+        this.model.getRepository().createQueryBuilder('entity'),
+        language,
+      ).where('entity.id = :id', { id: value });
 
       const result = await query.getRawOne();
       if (!result) return undefined;
@@ -121,8 +145,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const { where = {}, column = 'name', relations } = this.options;
-    const dataType = getReferenceDataTypeFromSuggester(this);
+    const { where = {}, relations } = this.options;
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
@@ -133,18 +156,11 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         });
       }
 
-      // Assign a label property using the translation if it exists otherwise use the original entity name
-      query = query
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
+      query = this.selectDisplayLabel(query, language);
 
-      query = query.where(
-        new Brackets(qb => {
-          if (search) {
-            qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
-          }
-        }),
-      );
+      if (search) {
+        query = query.andWhere('entity_display_label LIKE :search', { search: `%${search}%` });
+      }
 
       Object.entries(where).forEach(([key, value]) => {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
