@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
@@ -54,31 +54,38 @@ export const AutocompleteModalField = ({
   const queryClient = useQueryClient();
   const { language } = useTranslation();
 
-  const onPress = (selectedItem): void => {
-    onChange(selectedItem.value, selectedItem);
-    // Optimistic update for immediate UI feedback
-    queryClient.setQueryData(
+  // Built in one place so the optimistic update below can't drift from the query key it seeds —
+  // if they diverge, selecting an option silently costs a fresh database read instead
+  const getCurrentOptionKey = useCallback(
+    (optionValue: string | undefined) =>
       suggestionKeys.currentOption(suggester?.model?.name, {
         options: suggester?.options,
-        value: selectedItem.value,
+        value: optionValue,
         language,
       }),
-      { value: selectedItem.value, label: selectedItem.label },
-    );
-  };
+    [suggester, language],
+  );
 
-  const openModal = (): void =>
-    navigation.navigate(modalRoute, {
-      callback: onPress,
-      suggester,
-    });
+  const openModal = useCallback(
+    (): void =>
+      navigation.navigate(modalRoute, {
+        callback: (selectedItem): void => {
+          onChange(selectedItem.value, selectedItem);
+          // Optimistic update for immediate UI feedback
+          queryClient.setQueryData(getCurrentOptionKey(selectedItem.value), {
+            value: selectedItem.value,
+            label: selectedItem.label,
+          });
+        },
+        suggester,
+      }),
+    [getCurrentOptionKey, modalRoute, navigation, onChange, queryClient, suggester],
+  );
 
+  // getCurrentOptionKey folds `language` into the key; the lint rule can't see through the helper
+  // eslint-disable-next-line @tanstack/query/exhaustive-deps
   const { data: currentOption } = useQuery({
-    queryKey: suggestionKeys.currentOption(suggester?.model?.name, {
-      options: suggester?.options,
-      value,
-      language,
-    }),
+    queryKey: getCurrentOptionKey(value),
     queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
     enabled: Boolean(suggester && value),
   });
