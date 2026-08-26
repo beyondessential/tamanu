@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
 import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import type { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -18,7 +18,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 interface AutocompleteModalFieldProps {
   value?: string;
   placeholder?: TranslatedTextElement;
-  onChange: (newValue: string, selectedItem: any) => void;
+  onChange: (newValue: string, selectedItem: OptionType) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
@@ -69,13 +69,13 @@ export const AutocompleteModalField = ({
   const openModal = useCallback(
     (): void =>
       navigation.navigate(modalRoute, {
-        callback: (selectedItem): void => {
+        callback: (selectedItem: OptionType): void => {
           onChange(selectedItem.value, selectedItem);
           // Optimistic update for immediate UI feedback
-          queryClient.setQueryData(getCurrentOptionKey(selectedItem.value), {
-            value: selectedItem.value,
-            label: selectedItem.label,
-          });
+          queryClient.setQueryData<OptionType>(
+            getCurrentOptionKey(selectedItem.value),
+            selectedItem,
+          );
         },
         suggester,
       }),
@@ -84,7 +84,7 @@ export const AutocompleteModalField = ({
 
   // getCurrentOptionKey folds `language` into the key; the lint rule can't see through the helper
   // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  const { data: currentOption } = useQuery({
+  const { data: currentOption } = useQuery<OptionType | null>({
     queryKey: getCurrentOptionKey(value),
     queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
     enabled: Boolean(suggester && value),
