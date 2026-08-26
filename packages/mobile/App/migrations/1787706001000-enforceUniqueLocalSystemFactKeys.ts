@@ -3,8 +3,8 @@ import { getTable } from './utils/queryRunner';
 
 const TABLE_NAME = 'local_system_facts';
 
-/** @see `dedupeLocalSystemFacts1786847785000` companion data migration */
-export class enforceUniqueLocalSystemFactKeys1786847786000 implements MigrationInterface {
+/** @see `dedupeLocalSystemFacts1787706000000` companion data migration */
+export class enforceUniqueLocalSystemFactKeys1787706001000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const table = await getTable(queryRunner, TABLE_NAME);
     await queryRunner.changeColumn(

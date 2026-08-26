@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-/** @see `1786847786000-enforceUniqueLocalSystemFactKeys` companion schema migration*/
-export class dedupeLocalSystemFacts1786847785000 implements MigrationInterface {
+/** @see `1787706001000-enforceUniqueLocalSystemFactKeys` companion schema migration*/
+export class dedupeLocalSystemFacts1787706000000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       DELETE FROM local_system_facts
