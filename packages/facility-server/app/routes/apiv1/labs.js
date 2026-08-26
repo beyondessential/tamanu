@@ -465,7 +465,7 @@ labRelations.get(
   '/:id/tests',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { LabTest, LabTestPanelLabTestTypes } = models;
+    const { LabTest, LabTestPanelLabTestTypes, LabTestPanelRequest } = models;
     req.checkPermission('list', 'LabTest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
@@ -486,10 +486,21 @@ labRelations.get(
       ],
     });
 
+    // A historical single-panel request never stamped its tests with a panel request, so infer the
+    // panel the same way Y3's billing does: one panel request with no per-test attribution means
+    // those tests belong to that panel. Without it they would fall into the individual section.
+    const panelRequests = await LabTestPanelRequest.findAll({
+      where: { labRequestId: params.id },
+      include: ['labTestPanel'],
+    });
+    const inferredPanel =
+      panelRequests.length === 1 && tests.every(test => !test.labTestPanelRequestId)
+        ? panelRequests[0].labTestPanel
+        : null;
+    const panelOf = test => test.labTestPanelRequest?.labTestPanel ?? inferredPanel;
+
     // Reference-data order for each (panel, test type) pairing present on the request.
-    const panelIds = [
-      ...new Set(tests.map(test => test.labTestPanelRequest?.labTestPanelId).filter(Boolean)),
-    ];
+    const panelIds = [...new Set(tests.map(test => panelOf(test)?.id).filter(Boolean))];
     const panelOrderRows = panelIds.length
       ? await LabTestPanelLabTestTypes.findAll({ where: { labTestPanelId: panelIds } })
       : [];
@@ -499,16 +510,15 @@ labRelations.get(
     );
 
     const collator = new Intl.Collator();
-    const panelNameOf = test => test.labTestPanelRequest?.labTestPanel?.name ?? '';
+    const panelNameOf = test => panelOf(test)?.name ?? '';
     const testNameOf = test => test.labTestType?.name ?? '';
     const panelOrderOf = test =>
-      orderWithinPanel.get(orderKey(test.labTestPanelRequest?.labTestPanelId, test.labTestTypeId)) ??
-      0;
+      orderWithinPanel.get(orderKey(panelOf(test)?.id, test.labTestTypeId)) ?? 0;
 
     // Panels first, alphabetically by panel name, their tests in reference-data order; then the
     // individual (unattributed) tests — including reflex tests added by the lab — alphabetically.
     const panelTests = tests
-      .filter(test => test.labTestPanelRequestId)
+      .filter(test => panelOf(test))
       .sort(
         (a, b) =>
           collator.compare(panelNameOf(a), panelNameOf(b)) ||
@@ -516,7 +526,7 @@ labRelations.get(
           collator.compare(testNameOf(a), testNameOf(b)),
       );
     const individualTests = tests
-      .filter(test => !test.labTestPanelRequestId)
+      .filter(test => !panelOf(test))
       .sort((a, b) => collator.compare(testNameOf(a), testNameOf(b)));
 
     const ordered = [...panelTests, ...individualTests];
@@ -529,7 +539,7 @@ labRelations.get(
 
     // The panel each row belongs to travels with the row so the view can group by it.
     const data = pageTests.map(test => {
-      const panel = test.labTestPanelRequest?.labTestPanel;
+      const panel = panelOf(test);
       return {
         ...test.forResponse(),
         labTestPanel: panel ? { id: panel.id, name: panel.name } : null,

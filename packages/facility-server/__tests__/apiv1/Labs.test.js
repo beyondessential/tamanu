@@ -757,6 +757,65 @@ describe('Labs', () => {
     expect(paged.body.data.map(test => test.labTestType.name)).toEqual(['Mango', 'Cherry']);
   });
 
+  it('groups a historical single-panel request under its panel via inference (card D4)', async () => {
+    const category = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'labTestCategory',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const panel = await models.LabTestPanel.create({
+      name: 'Legacy panel',
+      code: chance.guid(),
+      categoryId: category.id,
+    });
+    const makeType = name =>
+      models.LabTestType.create({
+        ...fake(models.LabTestType),
+        name,
+        labTestCategoryId: category.id,
+        isSensitive: false,
+        availableFacilities: null,
+      });
+    // Member tests whose reference-data order differs from alphabetical, so the assertion proves the
+    // panel's order wins rather than the individual-section alphabetical sort.
+    const first = await makeType('Zulu');
+    const second = await makeType('Alpha');
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: panel.id,
+      labTestTypeId: first.id,
+      order: 0,
+    });
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: panel.id,
+      labTestTypeId: second.id,
+      order: 1,
+    });
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+    const {
+      body: [labRequest],
+    } = await app.post('/api/labRequest').send({
+      panelIds: [panel.id],
+      encounterId: encounter.id,
+    });
+
+    // Simulate a request migrated from the single-panel era: its tests were never stamped with a
+    // panel request, so grouping has to be inferred from the request's single panel request.
+    await models.LabTest.update(
+      { labTestPanelRequestId: null },
+      { where: { labRequestId: labRequest.id } },
+    );
+
+    const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
+    expect(response).toHaveSucceeded();
+    expect(response.body.data.map(test => test.labTestType.name)).toEqual(['Zulu', 'Alpha']);
+    expect(response.body.data.every(test => test.labTestPanel?.name === 'Legacy panel')).toBe(true);
+  });
+
   it('rejects the submission when a panel has no test types available at the facility', async () => {
     const category = await models.ReferenceData.create(
       fake(models.ReferenceData, {
