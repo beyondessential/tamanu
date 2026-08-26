@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -115,6 +115,7 @@ export const EditMedicationDispenseModal = memo(
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelForPrint, setLabelForPrint] = useState(null);
+    const labelPrintRef = useRef(null);
 
     const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
       enabled: open,
@@ -248,7 +249,7 @@ export const EditMedicationDispenseModal = memo(
 
       if (onConfirm) onConfirm();
 
-      print();
+      labelPrintRef.current.print();
 
       // Close dispense modal
       onClose();
@@ -522,7 +523,7 @@ export const EditMedicationDispenseModal = memo(
         )}
 
         {step === MODAL_STEPS.REVIEW && labelForPrint && (
-          <MedicationLabelPrintPreview labels={[labelForPrint]} />
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={[labelForPrint]} />
         )}
       </StyledModal>
     );

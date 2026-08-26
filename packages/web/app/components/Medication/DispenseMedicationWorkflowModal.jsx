@@ -222,6 +222,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const [itemErrors, setItemErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
+    const labelPrintRef = useRef(null);
     const [isDispensing, setIsDispensing] = useState(false);
     const [modifyRowIndex, setModifyRowIndex] = useState(null);
     // The dispensable list is built into local `items` once per open. In-progress edits
@@ -537,7 +538,7 @@ export const DispenseMedicationWorkflowModal = memo(
       const ok = await performDispense();
       if (!ok) return;
 
-      print();
+      labelPrintRef.current.print();
 
       onClose();
     };
@@ -959,7 +960,9 @@ export const DispenseMedicationWorkflowModal = memo(
           </>
         )}
 
-        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+        {step === MODAL_STEPS.REVIEW && (
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={labelsForPrint} />
+        )}
 
         {modifyRowIndex !== null && (
           <ModifyPrescriptionModal
