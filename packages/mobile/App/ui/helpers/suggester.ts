@@ -7,6 +7,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 export interface OptionType {
   label: string;
   value: string;
+  [key: string]: unknown;
 }
 
 export type BaseModelSubclass = typeof BaseModel;
@@ -124,7 +125,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   fetchCurrentOption = async (
     value: string | null,
     language: string = ENGLISH_LANGUAGE_CODE,
-  ): Promise<OptionType> => {
+  ): Promise<OptionType | undefined> => {
     if (!value) return undefined;
     try {
       const query = this.selectDisplayLabel(
@@ -136,7 +137,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       if (!result) return undefined;
 
       return this.formatter(result);
-    } catch (_e) {
+    } catch {
       return undefined;
     }
   };
