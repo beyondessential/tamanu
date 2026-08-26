@@ -24,16 +24,12 @@ member facility either keeps a dangling reference or turns ordinary and starts s
 data everywhere. The rule is specified here because it constrains the data model, but it sits
 naturally with T6's other write-time guards, so implement it there unless T6 has already shipped.
 
-## Open: networks of one collide with T6's move guard
-
-T6 forbids moving a facility into a different network. After a networks-of-one backfill, forming
-Fiji's HIV network out of existing sensitive facilities A, B and C means moving B and C out of
-their own networks — which that guard blocks. The backfill would leave the target state
-unreachable through the importer.
-
-Narrowest fix: allow a move when the facility is the **sole member** of its current network. That
-permits the merge, and still forbids the genuinely unsafe case of a facility leaving a network
-whose siblings' data it already holds. Needs confirming, and it changes T6's criteria.
+**T6's move guard is relaxed for sole members.** As originally written, T6 forbade moving a facility
+into a different network, which would have left a networks-of-one backfill unable to reach Fiji's
+HIV network through the importer at all: forming it out of A, B and C means moving B and C out of
+their own networks. The rule is now that a facility which is the sole member of its network may
+move. That permits the merge and still forbids a facility leaving a network whose siblings' data it
+already holds. T6's criteria need updating to match.
 
 ## Migrations
 
