@@ -58,6 +58,30 @@ export const PrintStyles = createGlobalStyle`
       padding: 0;
     }
 
+    // The app renders into #root and MUI portals the modal to <body>, so without
+    // this the view behind the modal is still part of the print document and
+    // comes out as a leading page.
+    #root {
+      display: none;
+    }
+
+    // A fixed-position element is laid out on the first page only, so every label
+    // after the first would be silently dropped.
+    .MuiDialog-root {
+      position: static;
+    }
+
+    // The modal is opened with fullWidth, so MUI sizes the paper to
+    // calc(100% - 64px). Under print, 100% is the *page* width — which @page above
+    // has pinned to the label size — so the paper ends up 64px narrower than the
+    // label it holds (63mm for an 80mm label). The label has flex-shrink: 0 and is
+    // centred, so it overflows ~8.5mm off each edge and the left overflow is
+    // clipped away entirely. Let the paper be the full page instead.
+    .MuiDialog-container .MuiDialog-paper {
+      width: 100%;
+      max-width: none;
+    }
+
     .MuiDialogActions-root {
       display: none;
     }
