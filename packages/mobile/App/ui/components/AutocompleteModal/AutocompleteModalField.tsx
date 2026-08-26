@@ -54,8 +54,10 @@ export const AutocompleteModalField = ({
   const queryClient = useQueryClient();
   const { language } = useTranslation();
 
-  // Built in one place so the optimistic update below can't drift from the query key it seeds —
-  // if they diverge, selecting an option silently costs a fresh database read instead
+  /**
+   * Helper so the optimistic update in {@link openModal} to avoid query key drift. Otherwise we
+   * unnecessarily query the database.
+   */
   const getCurrentOptionKey = useCallback(
     (optionValue: string | undefined) =>
       suggestionKeys.currentOption(suggester?.model?.name, {

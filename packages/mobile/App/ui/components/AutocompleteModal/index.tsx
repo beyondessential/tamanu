@@ -53,11 +53,11 @@ type AutocompleteModalScreenProps = {
   };
 };
 
-type SuggestionRowProps = {
+interface SuggestionRowProps {
   option: OptionType;
   useDarkBackground: boolean;
   onSelect: (option: OptionType) => void;
-};
+}
 
 /**
  * Memoised so that a new search result set only re-renders the rows that actually changed, rather
