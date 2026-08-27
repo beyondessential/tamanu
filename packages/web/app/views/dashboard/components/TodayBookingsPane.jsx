@@ -21,7 +21,8 @@ import { useUserPreferencesMutation } from '../../../api/mutations';
 import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
 const Container = styled.div`
-  ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
+  flex-grow: 1;
+  ${({ showTasks }) => showTasks && 'width: 100%;'}
   min-width: 366px;
   min-height: 41%;
   border: 1px solid ${Colors.outline};
