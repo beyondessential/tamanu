@@ -5,7 +5,7 @@ import { REFERENCE_TYPES, SETTINGS_SCOPES, TASK_STATUSES } from '@tamanu/constan
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { sub } from 'date-fns';
+import { add, sub } from 'date-fns';
 
 import { createTestContext } from '../utilities';
 
@@ -254,23 +254,23 @@ describe('GET user/tasks', () => {
   });
 
   describe('overdue floor', () => {
-    const setFloor = async hours => {
-      await models.Setting.set(
-        'tasking.dashboardOverdueTasksTimeFrame',
-        hours,
-        SETTINGS_SCOPES.FACILITY,
-        facilityId,
-      );
+    const setSetting = async (key, hours) => {
+      await models.Setting.set(key, hours, SETTINGS_SCOPES.FACILITY, facilityId);
       settingsCache.reset();
     };
 
-    const createTaskDueAgo = async (name, hours) => {
+    const setFloor = hours => setSetting('tasking.dashboardOverdueTasksTimeFrame', hours);
+
+    const createTaskDueAt = async (name, dueTime) => {
       const task = await createTask(name);
-      return task.update({ dueTime: toDateTimeString(sub(new Date(), { hours })) });
+      return task.update({ dueTime: toDateTimeString(dueTime) });
     };
+
+    const createTaskDueAgo = (name, hours) => createTaskDueAt(name, sub(new Date(), { hours }));
 
     afterEach(async () => {
       await setFloor(null);
+      await setSetting('tasking.encounterOverdueTasksTimeFrame', null);
     });
 
     it('includes arbitrarily old tasks when no floor is set', async () => {
@@ -289,6 +289,31 @@ describe('GET user/tasks', () => {
       const names = response.body.data.map(t => t.name);
       expect(names).toContain('within-window');
       expect(names).not.toContain('too-old');
+      expect(response.body.count).toBe(1);
+    });
+
+    it('still applies the upcoming ceiling when a floor is set', async () => {
+      // upcomingTasksTimeFrame defaults to 8 hours, so a task due in 24 is above the ceiling
+      // whether or not a floor is in play.
+      await createTaskDueAt('too-far-ahead', add(new Date(), { hours: 24 }));
+      await createTaskDueAgo('within-window', 2);
+      await setFloor(8);
+
+      const response = await app.get(tasksUrl());
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toEqual(['within-window']);
+      expect(response.body.count).toBe(1);
+    });
+
+    it('is unaffected by the encounter floor', async () => {
+      await createTaskDueAgo('old', 10);
+      await setSetting('tasking.encounterOverdueTasksTimeFrame', 8);
+
+      const response = await app.get(tasksUrl());
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toEqual(['old']);
       expect(response.body.count).toBe(1);
     });
   });
