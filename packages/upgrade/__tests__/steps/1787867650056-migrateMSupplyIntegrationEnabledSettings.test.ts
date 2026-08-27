@@ -18,11 +18,11 @@ vi.mock('@tamanu/settings', () => ({
 }));
 
 import config from 'config';
-import { STEPS } from '../../src/steps/1785100000001-migrateMSupplyIntegrationEnabledSettings.js';
+import { STEPS } from '../../src/steps/1787867650056-migrateMSupplyIntegrationEnabledSettings.js';
 
 const [centralStep, facilityStep] = STEPS;
 
-describe('1785100000001-migrateMSupplyIntegrationEnabledSettings', () => {
+describe('1787867650056-migrateMSupplyIntegrationEnabledSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     readSettingsGet.mockResolvedValue(false);
