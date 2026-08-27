@@ -276,17 +276,20 @@ export const MedicationLabel = React.memo(({ data }) => {
   );
 });
 
+export const medicationLabelShape = PropTypes.shape({
+  id: PropTypes.string,
+  medicationName: PropTypes.string.isRequired,
+  instructions: PropTypes.string.isRequired,
+  patientName: PropTypes.string.isRequired,
+  dispensedAt: PropTypes.string.isRequired,
+  quantity: PropTypes.number.isRequired,
+  units: PropTypes.string,
+  remainingRepeats: PropTypes.number.isRequired,
+  prescriberName: PropTypes.string.isRequired,
+  requestNumber: PropTypes.string.isRequired,
+  facilityName: PropTypes.string,
+});
+
 MedicationLabel.propTypes = {
-  data: PropTypes.shape({
-    medicationName: PropTypes.string.isRequired,
-    instructions: PropTypes.string.isRequired,
-    patientName: PropTypes.string.isRequired,
-    dispensedAt: PropTypes.string.isRequired,
-    quantity: PropTypes.number.isRequired,
-    units: PropTypes.string,
-    remainingRepeats: PropTypes.number.isRequired,
-    prescriberName: PropTypes.string.isRequired,
-    requestNumber: PropTypes.string.isRequired,
-    facilityName: PropTypes.string,
-  }).isRequired,
+  data: medicationLabelShape.isRequired,
 };
