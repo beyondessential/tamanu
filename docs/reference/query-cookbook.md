@@ -24,10 +24,12 @@ Append `\go <path>` to a query to write its result out:
 SELECT ... \go C:\Tamanu\output.csv
 ```
 
-For CSV, Excel or SQLite, run the query normally and then re-render the saved
-result into the format you want:
+For CSV, Excel or SQLite, run the query under `\gz` so it isn't printed — you
+don't want a large result set dumped to the terminal first — then re-render the
+saved result into the format you want:
 
 ```
+SELECT ... \gz
 \re show format=csv to=C:\Tamanu\output.csv
 ```
 
