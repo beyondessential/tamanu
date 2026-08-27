@@ -18,9 +18,20 @@ than standard psql. Variables interpolate as `${name}` (not `:name` / `:'name'`)
 
 ## Output a query to a file
 
+Append `\go <path>` to a query to write its result out:
+
 ```
-\Copy (QUERY HERE) To 'C:\Tamanu\output.csv' With CSV DELIMITER ',' HEADER;
+SELECT ... \go C:\Tamanu\output.csv
 ```
+
+For CSV, Excel or SQLite, run the query normally and then re-render the saved
+result into the format you want:
+
+```
+\re show format=csv to=C:\Tamanu\output.csv
+```
+
+(`\re list` shows the recent results you can render this way.)
 
 Writes to the host filesystem. If the output contains patient data, treat it as
 **sensitive-data** (`../ruled-out-actions.md`) — do not copy it off the server.
