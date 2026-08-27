@@ -62,7 +62,19 @@ export const generateImportData = async ({
       type: REFERENCE_TYPES.DRUG,
     }),
   );
-  await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+  // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
+  // bare fake(ReferenceDataRelation) leaves referenceDataId null — central allows it (nullable
+  // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
+  // insert fails). Give it a valid parent and child.
+  const parentReferenceData = await ReferenceData.create(
+    fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+  );
+  await ReferenceDataRelation.create(
+    fake(ReferenceDataRelation, {
+      referenceDataParentId: parentReferenceData.id,
+      referenceDataId: referenceData.id,
+    }),
+  );
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
   // rather than each patient allergy minting its own ReferenceData: that bloats the table
