@@ -64,10 +64,11 @@ async function migrateFromCentralSettings({ toVersion, models }: StepArgs) {
       medScheduleEnabled,
       stockOnHandScheduleEnabled,
     )) {
-      // Never clobber a value an operator (or this same migration, on a previous
-      // partial run) has already recorded.
-      const existing = await Setting.get(key, facilityId, SETTINGS_SCOPES.FACILITY);
-      if (existing !== undefined) continue;
+      // Both keys are new, so a row can only exist here from this same migration
+      // re-running after a partial failure — re-deriving is safe and gives the same
+      // result. Skip writing `false`: the schema default is already `false`, so an
+      // explicit row is only needed when the derived value is `true`.
+      if (!value) continue;
       await Setting.set(key, value, SETTINGS_SCOPES.FACILITY, facilityId);
     }
   }
@@ -133,6 +134,9 @@ async function migrateFromFacilityConfig({ toVersion, log, models }: StepArgs) {
       medScheduleEnabled,
       stockOnHandScheduleEnabled,
     )) {
+      // Skip writing `false`: the schema default is already `false`, so a carrier row
+      // is only needed when the derived value is `true`.
+      if (!value) continue;
       await FacilitySettingMigration.upsert({
         id: carrierId(facilityId, key),
         key,

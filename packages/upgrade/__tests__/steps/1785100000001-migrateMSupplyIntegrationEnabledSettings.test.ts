@@ -86,7 +86,7 @@ describe('1785100000001-migrateMSupplyIntegrationEnabledSettings', () => {
         );
       });
 
-      it('derives false for a processor whose own schedule was never enabled', async () => {
+      it('skips writing a processor flag derived as false, relying on the schema default', async () => {
         const args = makeArgs();
         args.models.Setting.get.mockImplementation(async (key: string) => {
           if (key === 'integrations.mSupplyMed.enabled') return true;
@@ -96,11 +96,11 @@ describe('1785100000001-migrateMSupplyIntegrationEnabledSettings', () => {
 
         await centralStep.run(args as any);
 
-        expect(args.models.Setting.set).toHaveBeenCalledWith(
+        expect(args.models.Setting.set).not.toHaveBeenCalledWith(
           'integrations.mSupplyMed.medDispenseEnabled',
-          false,
-          'facility',
-          'f1',
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
         );
         expect(args.models.Setting.set).toHaveBeenCalledWith(
           'integrations.mSupplyMed.stockOnHandEnabled',
@@ -121,27 +121,20 @@ describe('1785100000001-migrateMSupplyIntegrationEnabledSettings', () => {
         );
       });
 
-      it('never overwrites a value already recorded for either new key', async () => {
+      it('re-derives and writes the same result on a retried partial run, regardless of what is already recorded', async () => {
         const args = makeArgs();
         args.models.Setting.get.mockImplementation(async (key: string) => {
           if (key === 'integrations.mSupplyMed.enabled') return true;
           if (key === 'schedules.mSupplyMedIntegrationProcessor.enabled') return true;
-          if (key === 'integrations.mSupplyMed.medDispenseEnabled') return false; // operator already set this
+          if (key === 'integrations.mSupplyMed.medDispenseEnabled') return false; // left over from a previous partial run
           return undefined;
         });
 
         await centralStep.run(args as any);
 
-        expect(args.models.Setting.set).not.toHaveBeenCalledWith(
-          'integrations.mSupplyMed.medDispenseEnabled',
-          expect.anything(),
-          expect.anything(),
-          expect.anything(),
-        );
-        // stockOnHandEnabled had no recorded value, so it still gets derived (false, no schedule)
         expect(args.models.Setting.set).toHaveBeenCalledWith(
-          'integrations.mSupplyMed.stockOnHandEnabled',
-          false,
+          'integrations.mSupplyMed.medDispenseEnabled',
+          true,
           'facility',
           'f1',
         );
@@ -215,6 +208,26 @@ describe('1785100000001-migrateMSupplyIntegrationEnabledSettings', () => {
         expect(args.models.LocalSystemFact.set).toHaveBeenCalledWith(
           FACT_MSUPPLY_INTEGRATION_SETTINGS_MIGRATED_FACILITY,
           '2.99.0',
+        );
+      });
+
+      it('skips writing a processor flag derived as false, relying on the schema default', async () => {
+        (config as any).integrations = { mSupplyMed: { enabled: true } };
+        readSettingsGet.mockImplementation(async (_facilityId: string, key: string) => {
+          if (key === 'schedules.mSupplyStockOnHandProcessor.enabled') return true;
+          return false; // med dispense schedule never enabled
+        });
+        const args = makeArgs();
+
+        await facilityStep.run(args as any);
+
+        expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledTimes(1);
+        expect(args.models.FacilitySettingMigration.upsert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            key: 'integrations.mSupplyMed.stockOnHandEnabled',
+            value: true,
+            facilityId: 'f1',
+          }),
         );
       });
 
