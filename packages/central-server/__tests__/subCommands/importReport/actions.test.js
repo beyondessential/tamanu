@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Table from 'cli-table3';
 import { log } from '@tamanu/shared/services/logging';
-import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { initDatabase } from '../../../app/database';
 import {
@@ -12,8 +12,6 @@ import {
   listVersions,
   OVERWRITING_TEXT,
 } from '../../../app/subCommands/importReport/actions';
-
-spyOnModule(jest, '../../../app/subCommands/importReport/actions');
 
 const baseVersionData = {
   query: 'test-query',
@@ -28,23 +26,24 @@ const baseVersionData = {
   },
 };
 
-jest.mock('@tamanu/shared/services/logging', () => ({
+vi.mock('@tamanu/shared/services/logging', () => ({
   log: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-const mockPush = jest.fn();
-const mockToString = jest.fn();
+const mockPush = vi.fn();
+const mockToString = vi.fn();
 
-jest.mock('cli-table3', () =>
-  jest.fn().mockImplementation(() => ({
-    push: mockPush,
-    toString: mockToString,
-  })),
-);
+vi.mock('cli-table3', () => ({
+  // `function`, not an arrow: the module's default export is called with `new`, and only a
+  // function has a construct trap whose return value replaces the instance.
+  default: vi.fn().mockImplementation(function () {
+    return { push: mockPush, toString: mockToString };
+  }),
+}));
 
 const mockDefinition = { id: 'test-definition-id', name: 'test-definition-name' };
 
@@ -56,30 +55,31 @@ const mockVersions = [
   { versionNumber: 1, status: 'draft', updatedAt: mockUpdatedAt },
 ];
 
-jest.mock('../../../app/database', () => ({
-  initDatabase: jest.fn().mockResolvedValue({
+vi.mock('../../../app/database', async () => ({
+  ...(await vi.importActual('../../../app/database')),
+  initDatabase: vi.fn().mockResolvedValue({
     models: {
       User: {
-        findOne: jest.fn().mockResolvedValue({
+        findOne: vi.fn().mockResolvedValue({
           id: 'test-user-id',
         }),
       },
       ReportDefinitionVersion: {
-        upsert: jest.fn().mockResolvedValue([{ versionNumber: 3, status: 'draft' }]),
+        upsert: vi.fn().mockResolvedValue([{ versionNumber: 3, status: 'draft' }]),
       },
       LocalSystemFact: {
-        get: jest.fn().mockResolvedValue('dummyFact'),
+        get: vi.fn().mockResolvedValue('dummyFact'),
       },
     },
     sequelize: {
-      query: jest.fn().mockResolvedValue([]),
+      query: vi.fn().mockResolvedValue([]),
     },
   }),
 }));
 
 describe('importReport actions', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('listVersions', () => {

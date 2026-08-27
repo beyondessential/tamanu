@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { isTrustedSetupSource } from '../../app/routes/apiv1/setup';
 
 describe('isTrustedSetupSource', () => {

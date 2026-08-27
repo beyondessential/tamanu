@@ -161,6 +161,12 @@ const themeConfig = {
         },
       },
     },
+    MuiButton: {
+      defaultProps: {
+        color: 'primary',
+        variant: 'contained',
+      },
+    },
     MuiCard: {
       root: {
         borderColor: Colors.outline,

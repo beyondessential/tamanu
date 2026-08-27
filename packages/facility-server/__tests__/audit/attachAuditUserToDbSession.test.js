@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 import defineExpress from 'express';
 import { QueryTypes, Sequelize } from 'sequelize';

@@ -284,7 +284,55 @@ user.get(
       }
     }
 
+    // The designation filters are pure predicates — the include selected no attributes — but
+    // as a belongsToMany chain (tasks -> task_designations -> reference_data ->
+    // user_designations -> users) they multiplied rows, and with subQuery: false the LIMIT
+    // applies to joined rows. One task with three designations of five users each consumed
+    // fifteen slots of a twenty-five row page, so a page could show a handful of tasks while
+    // reporting a much larger total. As EXISTS predicates they leave one row per task, which
+    // makes both the page and the count mean what they say. The per-encounter tasks route
+    // already filters designations this way.
+    const scopedToDesignation = designationId
+      ? 'AND task_designations.designation_id = :designationId'
+      : '';
+    // Note: when designationId is set, the second branch admits tasks carrying no designation
+    // *matching that filter* — including tasks designated to some other designation. That is
+    // the existing behaviour of the LEFT JOIN this replaces, preserved deliberately.
+    const assignedToUserOrUnassigned = Sequelize.literal(`(
+      EXISTS (
+        SELECT 1
+        FROM task_designations
+        INNER JOIN reference_data AS designation
+          ON designation.id = task_designations.designation_id
+          AND designation.deleted_at IS NULL
+        INNER JOIN user_designations
+          ON user_designations.designation_id = designation.id
+          AND user_designations.deleted_at IS NULL
+        INNER JOIN users AS designation_user
+          ON designation_user.id = user_designations.user_id
+          AND designation_user.deleted_at IS NULL
+        WHERE task_designations.task_id = "Task"."id"
+          AND task_designations.deleted_at IS NULL
+          AND designation_user.id = :designationUserId
+          ${scopedToDesignation}
+      )
+      OR NOT EXISTS (
+        SELECT 1
+        FROM task_designations
+        INNER JOIN reference_data AS designation
+          ON designation.id = task_designations.designation_id
+          AND designation.deleted_at IS NULL
+        WHERE task_designations.task_id = "Task"."id"
+          AND task_designations.deleted_at IS NULL
+          ${scopedToDesignation}
+      )
+    )`);
+
     const baseQueryOptions = {
+      replacements: {
+        designationUserId: req.user.id,
+        ...(designationId && { designationId }),
+      },
       where: {
         '$encounter->location.facility_id$': facilityId,
         status: TASK_STATUSES.TODO,
@@ -293,12 +341,7 @@ user.get(
         },
         ...(highPriority && { highPriority }),
         [Op.and]: [
-          {
-            [Op.or]: [
-              { '$designations.designationUsers.id$': req.user.id }, // get tasks assigned to the current user
-              { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
-            ],
-          },
+          assignedToUserOrUnassigned,
           // Filter out medication_due_task where all related MARs are either recorded or paused
           {
             [Op.or]: [
@@ -368,20 +411,6 @@ user.get(
             },
           ],
         },
-        {
-          attributes: [],
-          model: models.ReferenceData,
-          as: 'designations',
-          ...(designationId && { where: { id: designationId } }),
-          required: false,
-          include: [
-            {
-              attributes: [],
-              model: models.User,
-              as: 'designationUsers',
-            },
-          ],
-        },
       ],
       order: [...orderOptions, ...defaultOrder],
     };
@@ -394,7 +423,21 @@ user.get(
       ...baseQueryOptions,
     });
 
-    const count = await models.Task.count(baseQueryOptions);
+    // Counting repeats every predicate above, including the correlated MAR probe, over the
+    // whole match set with no LIMIT — the expensive half of this endpoint. Now that a task
+    // occupies exactly one row, a short *non-empty* page is the last one, so the total
+    // follows from the offset and needs no second pass.
+    //
+    // A short page that is also empty proves nothing: the offset may have run past a total
+    // that shrank since the client read it (tasks leave TODO constantly here), and deriving
+    // the total from the offset would invent one. Only page 0 is safe there, where an empty
+    // page means an empty result — and the same expression gives 0 for it.
+    const isLastPage = tasks.length > 0 && tasks.length < rowsPerPage;
+    const isEmptyFirstPage = page === 0 && tasks.length === 0;
+    const count =
+      isLastPage || isEmptyFirstPage
+        ? page * rowsPerPage + tasks.length
+        : await models.Task.count(baseQueryOptions);
     res.send({ data: tasks, count });
   }),
 );

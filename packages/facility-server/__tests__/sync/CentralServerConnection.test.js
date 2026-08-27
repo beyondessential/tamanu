@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   SERVER_TYPES,
   VERSION_COMPATIBILITY_ERRORS,
@@ -16,7 +17,7 @@ import {
 } from '@tamanu/errors';
 import * as jose from 'jose';
 
-const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
+const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
 
 const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -142,7 +143,7 @@ describe('CentralServerConnection', () => {
     let fetch;
     let centralServer;
     beforeEach(() => {
-      fetch = jest.spyOn(global, 'fetch');
+      fetch = vi.spyOn(global, 'fetch');
       centralServer = new CentralServerConnection({ deviceId: 'test' });
       centralServer.fetchImplementation = fetch;
     });
@@ -247,8 +248,8 @@ describe('CentralServerConnection', () => {
     });
 
     it('times out requests', async () => {
-      jest.setTimeout(2000); // fail quickly
-      jest.useFakeTimers();
+      vi.setConfig({ testTimeout: 2000 }); // fail quickly
+      vi.useFakeTimers();
       fetch.mockReturnValue(
         Promise.reject(
           new (class extends Error {
@@ -259,7 +260,7 @@ describe('CentralServerConnection', () => {
         ),
       );
       const connectPromise = centralServer.connect();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
