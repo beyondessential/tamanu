@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
@@ -222,6 +222,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const [itemErrors, setItemErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
+    const labelPrintRef = useRef(null);
     const [isDispensing, setIsDispensing] = useState(false);
     const [modifyRowIndex, setModifyRowIndex] = useState(null);
     // The dispensable list is built into local `items` once per open. In-progress edits
@@ -559,7 +560,8 @@ export const DispenseMedicationWorkflowModal = memo(
       const ok = await performDispense();
       if (!ok) return;
 
-      print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       onClose();
     };
@@ -984,7 +986,9 @@ export const DispenseMedicationWorkflowModal = memo(
           </>
         )}
 
-        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+        {step === MODAL_STEPS.REVIEW && (
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={labelsForPrint} />
+        )}
 
         {modifyRowIndex !== null && (
           <ModifyPrescriptionModal
