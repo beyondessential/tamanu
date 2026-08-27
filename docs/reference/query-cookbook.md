@@ -14,7 +14,8 @@ Syntax: these are written for **bestool psql**, which is its own client rather
 than standard psql. Variables interpolate as `${name}` (not `:name` / `:'name'`),
 `\set name value` stores the value **literally** — including any quotes you type
 — and `\g`-suffix modifiers replace the trailing `;`. See
-[its README](https://github.com/beyondessential/bestool/blob/main/crates/psql/README.md).
+[its README](https://github.com/beyondessential/bestool/blob/main/crates/psql/README.md)
+and its EXAMPLES.md; `\?` in-session is the exhaustive command reference.
 
 ## Output a query to a file
 
