@@ -1,4 +1,4 @@
-import { afterAll, beforeAll } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 
 import {

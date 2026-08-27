@@ -5,7 +5,9 @@ import { fetchPatientSummaryData } from './patientSummaryData';
 
 /**
  * Query logs.changes for ai_documents that were edited by a human for a given patient.
- * Returns each non-empty human edit paired with the most recent prior AI-generated content.
+ * Returns each non-empty human edit paired with the earliest AI-generated content
+ * that preceded it, so every correction is expressed against the same original
+ * baseline rather than against whatever regeneration happened to come before it.
  */
 export async function getPatientSummaryEditFeedback(patientId, models, sequelize) {
   const doc = await models.AiDocument.findOne({

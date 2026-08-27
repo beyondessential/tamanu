@@ -8,7 +8,6 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
-  DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
@@ -36,6 +35,7 @@ import {
 import { keyBy } from 'es-toolkit/compat';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
+import { createDocumentMetadata } from '../../utils/createDocumentMetadata';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 import { getLabRequestList } from '../../routeHandlers/labs';
@@ -51,6 +51,7 @@ import {
   createPharmacyOrder,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
+import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 import {
   discardDischargeDraft,
@@ -181,7 +182,7 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const prescriptions = req.body.medications || {};
+        const prescriptions = DISCHARGE_MEDICATIONS_SCHEMA.parse(req.body.medications ?? {});
         const pharmacyOrderLines = [];
         for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
           const { quantity, repeats, sendToPharmacy } = prescriptionValues;
@@ -342,16 +343,13 @@ encounter.post(
     }
 
     // Create file on the central server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
-    const documentMetadataObject = await models.DocumentMetadata.create({
-      ...metadata,
-      attachmentId,
-      type,
-      encounterId: params.id,
-      documentUploadedAt: getCurrentDateTimeString(),
-      source: DOCUMENT_SOURCES.UPLOADED,
-    });
+    const documentMetadataObject = await createDocumentMetadata(
+      req,
+      { encounterId: params.id },
+      uploaded,
+    );
 
     res.send(documentMetadataObject);
   }),

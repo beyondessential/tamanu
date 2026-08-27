@@ -54,7 +54,6 @@ remove_irrelevant_packages() {
 build_server() {
   # clear out the tests and files not useful for production
   rm -rf packages/*/__tests__ || true
-  rm -rf packages/*/jest.* || true
   rm -rf packages/*/docker || true
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true

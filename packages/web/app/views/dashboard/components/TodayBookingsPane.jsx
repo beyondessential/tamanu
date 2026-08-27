@@ -1,16 +1,11 @@
 import React from 'react';
 import { omit } from 'es-toolkit/compat';
 import styled from 'styled-components';
-import Timeline from '@material-ui/lab/Timeline';
-import TimelineItem from '@material-ui/lab/TimelineItem';
-import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
-import TimelineConnector from '@material-ui/lab/TimelineConnector';
-import TimelineContent from '@material-ui/lab/TimelineContent';
-import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
+import { RangeEndDisplay, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -52,62 +47,97 @@ const ActionLink = styled.span`
   font-size: 14px;
 `;
 
-const StyledTimeline = styled(Timeline)`
-  padding-top: 0;
+/**
+ * One grid for the whole list, each row a subgrid of it, so the time column is a single
+ * track and every card starts in the same place.
+ *
+ * The floor is on the card track rather than the time track: the card's contents carry
+ * `min-width: 0` to ellipsise, so without it the grid starves the card to nothing before
+ * the range ever wraps.
+ */
+const BookingsList = styled.div`
+  display: grid;
+  grid-template-columns: auto minmax(min-content, max-content) minmax(17ch, 1fr);
+  column-gap: 5px;
   padding-right: 20px;
   padding-left: 12px;
-  margin: 0;
+  /* Inherited from the MUI Timeline root this replaced; the -16px is tuned against it */
+  padding-bottom: 6px;
   margin-bottom: -16px;
   overflow-y: auto;
-  ${({ length }) => `max-height: calc(60px * ${length} + 21px);`}
 `;
 
-const StyledTimelineContent = styled(TimelineContent)`
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0;
-  padding-left: 6px;
-  width: 0;
-`;
-
-const StyledTimelineConnector = styled(TimelineConnector)`
-  background-color: ${Colors.outline};
-  width: 1px;
-`;
-
-const StyledTimelineItem = styled(TimelineItem)`
+const BookingRow = styled.div`
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   min-height: 60px;
-  &:before {
+`;
+
+const RowContent = styled.div`
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 2 / -1;
+  align-items: center;
+  font-size: 14px;
+`;
+
+/**
+ * The rail shares the indicator's grid cell so one mechanism centres both. Centring it
+ * with an inset and `translate: -50%` instead lands a 1px line on a half pixel, which
+ * renders smeared across two columns. Sized only in percentages, it adds nothing to the
+ * row's height.
+ */
+const Rail = styled.div`
+  display: grid;
+  grid-template-areas: 'indicator';
+  place-items: center;
+
+  &::before {
+    content: '';
+    grid-area: indicator;
+    inline-size: 1px;
+    block-size: 100%;
+    justify-self: center;
+    align-self: stretch;
+    background-color: ${Colors.outline};
+  }
+
+  /* Starts at the first indicator and stops at the last: half a row, anchored towards
+     the next one along */
+  ${BookingRow}:first-child &::before {
+    block-size: 50%;
+    align-self: end;
+  }
+  ${BookingRow}:last-child &::before {
+    block-size: 50%;
+    align-self: start;
+  }
+  /* A lone booking has nothing to thread to, so no rail */
+  ${BookingRow}:only-child &::before {
     content: none;
   }
-  &:last-child {
-    .MuiTimelineConnector-root {
-      display: none;
-    }
-  }
 `;
 
-const StyledTimelineDot = styled(TimelineDot)`
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  box-shadow: none;
-`;
-
-const StyledTimelineSeparator = styled(TimelineSeparator)`
+const StatusIndicator = styled.div`
+  grid-area: indicator;
+  /* Masks the rail, which would otherwise show through an outlined indicator */
   position: relative;
-  top: 21px;
+  background-color: ${Colors.white};
+  padding-block: 3px;
+  line-height: 0;
 `;
 
+/* Sized in lines of text, so it grows rather than clipping when a row wraps. Its lines
+   are centred to sit level with the indicator and range, which are centred too. */
 const Card = styled.div`
-  background-color: ${Colors.outline};
-  height: 54px;
+  min-block-size: 3lh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-radius: 3px;
-  padding: 8px 16px;
-  flex-grow: 0;
-  flex-shrink: 0;
+  padding-block: 8px;
+  padding-inline: 1rem;
   background-color: ${({ $color }) => `${$color}1a`};
 `;
 
@@ -123,18 +153,24 @@ const CardBody = styled(CardHeading)`
   font-weight: 400;
 `;
 
-const TimeText = styled.div`
-  flex-grow: 0;
-  flex-shrink: 0;
-  width: 122px;
-  text-transform: lowercase;
+/* Inline text rather than a flex row, so the gap between the ends stays a real space and
+   the range copies as "8:00am – 12 Aug". Centred so a wrap stays centred. */
+const RangeText = styled.div`
+  padding-left: 6px;
+  text-align: center;
 `;
 
+/* Unbreakable, so the range can only wrap between its two ends */
+const RangeEnd = styled.span`
+  white-space: nowrap;
+`;
+
+/* Holds the gap below the last booking and absorbs the leftover height. Draws nothing:
+   a rule here reads as an underline on the last booking, not the foot of the pane. */
 const Footer = styled.div`
   margin: 4px 20px 0;
   flex-grow: 1;
   min-height: 20px;
-  border-top: 1px solid ${Colors.outline};
   position: sticky;
   background-color: ${Colors.white};
 `;
@@ -158,33 +194,67 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-const BookingsTimelineItem = ({ appointment }) => {
-  const { formatTime } = useDateTime();
+/**
+ * The list is a snapshot of one day, so an end falling on that day shows its time alone
+ * and any other end shows its date — a date at either end is then what says the booking
+ * reaches beyond today. Days are compared as displayed, not as stored.
+ */
+const BookingRangeEnd = ({ date, today, withSeparator = false, ...props }) => {
+  const { toFacilityDateTime } = useDateTime();
+  const fallsToday = trimToDate(toFacilityDateTime(date)) === today;
+
+  return (
+    <RangeEnd {...props}>
+      <RangeEndDisplay
+        date={date}
+        dateFormat={fallsToday ? null : 'dayMonth'}
+        timeFormat={fallsToday ? 'default' : null}
+      />
+      {/* Held against this end so a wrap cannot strand it on the second line */}
+      {withSeparator && <>&nbsp;&ndash;</>}
+    </RangeEnd>
+  );
+};
+
+const BookingRowItem = ({ appointment, today }) => {
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
+  const hasEnd = Boolean(endTime);
 
   const [headingRef, isHeadingOverflowing] = useOverflow();
   const [bodyRef, isBodyOverflowing] = useOverflow();
   const showTooltip = isHeadingOverflowing || isBodyOverflowing;
 
   return (
-    <StyledTimelineItem data-testid="styledtimelineitem-fyu7">
-      <StyledTimelineSeparator data-testid="styledtimelineseparator-vte2">
-        <StyledTimelineDot data-testid="styledtimelinedot-9oqv">
+    <BookingRow data-testid="bookingrow-fyu7">
+      <Rail data-testid="rail-3nqa">
+        <StatusIndicator data-testid="statusindicator-9oqv">
           <AppointmentStatusIndicator
             appointmentStatus={status}
             width={13}
             height={13}
             data-testid="appointmentstatusindicator-1xys"
           />
-        </StyledTimelineDot>
-        <StyledTimelineConnector data-testid="styledtimelineconnector-qmh4" />
-      </StyledTimelineSeparator>
-      <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
-        <TimeText data-testid="timetext-4k7e">
-          {formatTime(startTime)} - {formatTime(endTime)}
-        </TimeText>
-        <Box width={0} flex={1} data-testid="box-i72x">
+        </StatusIndicator>
+      </Rail>
+      <RowContent data-testid="rowcontent-ptdu">
+        <RangeText data-testid="rangetext-4k7e">
+          <BookingRangeEnd
+            date={startTime}
+            today={today}
+            withSeparator={hasEnd}
+            data-testid="rangeend-start-8ptz"
+          />
+          {hasEnd && (
+            <>
+              {' '}
+              <BookingRangeEnd date={endTime} today={today} data-testid="rangeend-end-4vqx" />
+            </>
+          )}
+        </RangeText>
+        {/* min-width rather than width: in a grid track it is what lets the card
+            shrink below its content so the headings can ellipsise */}
+        <Box minWidth={0} data-testid="box-i72x">
           <ConditionalTooltip
             visible={showTooltip}
             title={
@@ -207,8 +277,8 @@ const BookingsTimelineItem = ({ appointment }) => {
             </Card>
           </ConditionalTooltip>
         </Box>
-      </StyledTimelineContent>
-    </StyledTimelineItem>
+      </RowContent>
+    </BookingRow>
   );
 };
 
@@ -286,15 +356,16 @@ export const TodayBookingsPane = ({ showTasks }) => {
         </NoDataContainer>
       ) : (
         <>
-          <StyledTimeline length={appointments.length} data-testid="styledtimeline-j8uu">
+          <BookingsList data-testid="bookingslist-j8uu">
             {appointments.map((appointment, index) => (
-              <BookingsTimelineItem
+              <BookingRowItem
                 key={appointment.id}
                 appointment={appointment}
-                data-testid={`bookingstimelineitem-kl6a-${index}`}
+                today={todayFacility}
+                data-testid={`bookingrowitem-kl6a-${index}`}
               />
             ))}
-          </StyledTimeline>
+          </BookingsList>
           <Footer data-testid="footer-02ym" />
         </>
       )}

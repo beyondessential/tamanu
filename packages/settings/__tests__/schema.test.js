@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
   validateSettings,
   globalDefaults,
@@ -246,6 +247,45 @@ describe('Schemas', () => {
           scope: 'global',
         }),
       ).rejects.toThrow('imagingTypes keys must be IMAGING_TYPES constants');
+    });
+  });
+
+  describe('Vaccinations settings category', () => {
+    const upcomingVaccinationsSchema = globalSettings.properties.upcomingVaccinations;
+
+    it('Is named "Vaccinations" (renamed from "Upcoming vaccinations")', () => {
+      expect(upcomingVaccinationsSchema.name).toBe('Vaccinations');
+    });
+
+    it('Still exposes the pre-existing threshold and age limit settings', () => {
+      expect(upcomingVaccinationsSchema.properties.ageLimit).toBeDefined();
+      expect(upcomingVaccinationsSchema.properties.thresholds).toBeDefined();
+    });
+
+    it('Defines a "Display birth certificate number" flag, disabled by default', () => {
+      const { displayBirthCertificateNumber } = upcomingVaccinationsSchema.properties;
+      expect(displayBirthCertificateNumber.name).toBe('Display birth certificate number');
+      expect(displayBirthCertificateNumber.defaultValue).toBe(false);
+    });
+
+    it('Defaults displayBirthCertificateNumber to false in the extracted global defaults', () => {
+      expect(globalDefaults.upcomingVaccinations.displayBirthCertificateNumber).toBe(false);
+    });
+
+    it('Validates displayBirthCertificateNumber as a boolean', async () => {
+      await expect(
+        validateSettings({
+          settings: { upcomingVaccinations: { displayBirthCertificateNumber: true } },
+          scope: 'global',
+        }),
+      ).resolves.not.toThrow();
+
+      await expect(
+        validateSettings({
+          settings: { upcomingVaccinations: { displayBirthCertificateNumber: 'not-a-boolean' } },
+          scope: 'global',
+        }),
+      ).rejects.toThrow(yup.ValidationError);
     });
   });
 

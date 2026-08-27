@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 import {
   getAbilityForUser,

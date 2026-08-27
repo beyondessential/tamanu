@@ -260,7 +260,7 @@ export const globalSettings = {
     imagingTypes: {
       name: 'Imaging types',
       description:
-        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-ray" } })',
       type: yup
         .object()
         .test(
@@ -1970,8 +1970,8 @@ export const globalSettings = {
       editor: SETTING_EDITORS.OBJECT_LIST,
     },
     upcomingVaccinations: {
-      name: 'Upcoming vaccinations',
-      description: 'Settings related to upcoming vaccinations',
+      name: 'Vaccinations',
+      description: 'Settings related to vaccinations',
       exposedToWeb: true,
       properties: {
         ageLimit: {
@@ -1985,6 +1985,12 @@ export const globalSettings = {
           description: '_',
           type: thresholdsSchema,
           defaultValue: thresholdsDefault,
+        },
+        displayBirthCertificateNumber: {
+          name: 'Display birth certificate number',
+          description: 'Display the birth certificate number on the vaccination certificate',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

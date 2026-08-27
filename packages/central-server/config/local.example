@@ -13,7 +13,7 @@
     "data": {
       "imagingTypes": {
         "xRay": {
-          "label": "X-Ray"
+          "label": "X-ray"
         }
       }
     }
