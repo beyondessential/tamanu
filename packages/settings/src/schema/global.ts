@@ -4,6 +4,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
   BROWSER_SUPPORT_POLICIES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
   PLATFORM_SUPPORT_POLICIES,
@@ -2199,8 +2200,7 @@ export const globalSettings = {
                     ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
                     ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
                     // So frequent, not meaningful to customise
-                    ADMINISTRATION_FREQUENCIES.HOURLY,
-                    ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+                    ...FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
                   ] as AdministrationFrequency[]
                 ).includes(frequency),
             ),

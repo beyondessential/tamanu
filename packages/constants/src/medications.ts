@@ -472,6 +472,10 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 } as const;
 
+/** These frequencies don’t have confiurable administration times. */
+export const FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES: ReadonlySet<AdministrationFrequency> =
+  new Set([ADMINISTRATION_FREQUENCIES.HOURLY, ADMINISTRATION_FREQUENCIES.HALF_HOURLY]);
+
 export const MEDICATION_DURATION_UNITS = {
   HOURS: 'hours',
   DAYS: 'days',
