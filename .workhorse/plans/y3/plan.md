@@ -99,12 +99,15 @@ import half already ships: `baseSchemas.js:193` has carried
 (`NASS-790`, 7ecd68a094). No model-level validator and no backfill, so existing
 category-less panels are left alone.
 
-**The importer also rejects a panel whose test types span categories,** turning
-the refinement note's assumption into an enforced rule. This is new work. Note
-there is no admin front-end form for lab test panels — they are created only
-through the reference-data spreadsheet importer (`labTestPanelLoader`,
-`loaders.js:309`), so the import schema is the only authoring surface there is to
-enforce on.
+**The importer warns on (but does not reject) a panel whose test types span
+categories.** An earlier revision made this a hard import error, but Tamanu's own
+default provisioning data ships cross-category panels (Bloods, CMP, Cardiac
+enzymes) — realistic panels genuinely span categories — so rejecting broke
+provisioning and would break any real deployment's re-import. The panel still
+groups under its own (mandatory) category, so a warning is enough. Note there is
+no admin front-end form for lab test panels — they are created only through the
+reference-data spreadsheet importer (`labTestPanelLoader`, `loaders.js`), so the
+import is the only authoring surface there is to warn from.
 
 A panel is reference data, not an order, so a category-less panel keeps producing
 new orders until its deployment re-imports its panel sheet. The population is
@@ -166,9 +169,10 @@ test to its panel request.
    `getQueryOptions.ts` and `getQueryToFindUpstreamIds.ts`. `Specimen/getValues.ts` unchanged
    (already one specimen per request).
 6. **Importer.** `labTestPanelLoader` (`central-server/app/admin/referenceDataImporter/loaders.js`)
-   becomes async with `{ models, pushError }`, and rejects a panel whose test types span more than
-   one category. The no-category rejection already ships via the required `categoryId` in the panel
-   schema. The importer is the only authoring surface (no admin UI for panels).
+   becomes async with `{ models }`, and warns (does not reject) on a panel whose test types span
+   more than one category — the panel still groups under its own category. The no-category
+   rejection already ships via the required `categoryId` in the panel schema. The importer is the
+   only authoring surface (no admin UI for panels).
 7. **Mobile.** Add the `labTestPanelRequestId` / `labRequest` relations on the mobile
    `LabTest` / `LabTestPanelRequest` models to match.
 
