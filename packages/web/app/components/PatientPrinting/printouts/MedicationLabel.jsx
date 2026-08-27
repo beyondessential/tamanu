@@ -136,6 +136,13 @@ const LabelFooterText = styled.div`
   overflow-wrap: break-word;
 `;
 
+export const useLabelDimensions = () => {
+  const { getSetting } = useSettings();
+  const width = getSetting('medications.dispensing.prescriptionLabelSize.width') ?? 80;
+  const height = getSetting('medications.dispensing.prescriptionLabelSize.height') ?? 40;
+  return { width, height };
+};
+
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   if (!quantity) return '';
   if (!units) return `${quantity}`;
