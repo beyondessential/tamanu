@@ -271,6 +271,20 @@ export const facilitySettings = {
           unit: 'hours',
           defaultValue: 8,
         },
+        dashboardOverdueTasksTimeFrame: {
+          description:
+            'How far back to include overdue tasks on the dashboard task list. Tasks overdue by longer than this stop appearing there. Unset means no limit',
+          type: yup.number().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
+        },
+        encounterOverdueTasksTimeFrame: {
+          description:
+            "How far back to include overdue tasks on an encounter's task list. Tasks overdue by longer than this stop appearing there. Unset means no limit",
+          type: yup.number().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
+        },
       },
     },
     vaccinations: vaccinationsSchema,

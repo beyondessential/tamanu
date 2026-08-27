@@ -1,9 +1,11 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, SETTINGS_SCOPES, TASK_STATUSES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { sub } from 'date-fns';
 
 import { createTestContext } from '../utilities';
 
@@ -248,6 +250,46 @@ describe('GET user/tasks', () => {
         'undesignated task',
       ]);
       expect(result.body.count).toBe(2);
+    });
+  });
+
+  describe('overdue floor', () => {
+    const setFloor = async hours => {
+      await models.Setting.set(
+        'tasking.dashboardOverdueTasksTimeFrame',
+        hours,
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+      settingsCache.reset();
+    };
+
+    const createTaskDueAgo = async (name, hours) => {
+      const task = await createTask(name);
+      return task.update({ dueTime: toDateTimeString(sub(new Date(), { hours })) });
+    };
+
+    afterEach(async () => {
+      await setFloor(null);
+    });
+
+    it('includes arbitrarily old tasks when no floor is set', async () => {
+      await createTaskDueAgo('ancient', 24 * 90);
+      const response = await app.get(tasksUrl());
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toContain('ancient');
+    });
+
+    it('drops tasks overdue by longer than the floor and keeps newer ones', async () => {
+      await createTaskDueAgo('too-old', 10);
+      await createTaskDueAgo('within-window', 2);
+      await setFloor(8);
+      const response = await app.get(tasksUrl());
+      expect(response).toHaveSucceeded();
+      const names = response.body.data.map(t => t.name);
+      expect(names).toContain('within-window');
+      expect(names).not.toContain('too-old');
+      expect(response.body.count).toBe(1);
     });
   });
 
