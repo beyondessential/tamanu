@@ -364,7 +364,7 @@ export const LabRequestView = () => {
             Icon={AutoAwesomeMotionIcon}
             text={
               <TranslatedText
-                stringId="lab.testCategory.label"
+                stringId="lab.view.tile.category.label"
                 fallback="Category"
                 data-testid="translatedtext-4nhr"
               />
