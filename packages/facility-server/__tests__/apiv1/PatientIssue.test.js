@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 

@@ -67,9 +67,7 @@ export const sortInDependencyOrder = async (queryRunner: QueryRunner): Promise<s
 
 export class wipeAllDataAndResync1675907161000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    const [patientCountRow] = await queryRunner.query(`
-      SELECT COUNT(*) AS "count" FROM patient
-    `);
+    const [patientCountRow] = await queryRunner.query('SELECT COUNT(*) AS "count" FROM patient');
     const patientCount = parseInt(patientCountRow.count, 10);
 
     if (!patientCount) {
@@ -81,7 +79,7 @@ export class wipeAllDataAndResync1675907161000 implements MigrationInterface {
     // Wipe all data that are synced from central
     const sortedTables = await sortInDependencyOrder(queryRunner);
     for (const tableName of sortedTables) {
-      queryRunner.query(`DELETE FROM ${tableName}`);
+      await queryRunner.query(`DELETE FROM ${tableName}`);
     }
 
     const [localSystemFactRow] = await queryRunner.query(`

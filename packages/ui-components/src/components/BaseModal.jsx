@@ -40,8 +40,11 @@ const Dialog = styled(MuiDialog)`
 
   // The MUI v6 dialog paper is itself a scroll container (overflow-y: auto). Let the inner
   // ModalContainer own scrolling instead, so tall content doesn't produce a second scrollbar.
+  // 'clip' rather than 'hidden': a hidden box is still scrollable programmatically, so anything
+  // calling scrollIntoView() inside the modal (e.g. the form's scroll-to-first-error) would
+  // scroll the header out of view and leave a gap of bare paper below the content.
   .MuiDialog-paper {
-    overflow: hidden;
+    overflow: clip;
   }
 
   @media print {
@@ -49,7 +52,6 @@ const Dialog = styled(MuiDialog)`
       print-color-adjust: exact;
     }
 
-    .MuiDialogTitle-root,
     .MuiDialogActions-root {
       display: none;
     }
@@ -87,6 +89,13 @@ const Header = styled.header`
   flex-wrap: wrap;
   padding-block: 14px;
   padding-inline: 32px 14px;
+
+  // Holds the title and the close/print icon buttons (Actions), neither of which
+  // has a MuiDialogTitle-root/MuiDialogActions-root class, so the print rule on
+  // Dialog above can't reach them — hide the whole header directly instead.
+  @media print {
+    display: none;
+  }
 `;
 
 const ModalTitle = styled(DialogTitle).attrs({ 'data-testid': 'modaltitle-ojhf' })`

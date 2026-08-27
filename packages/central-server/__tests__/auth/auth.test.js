@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 

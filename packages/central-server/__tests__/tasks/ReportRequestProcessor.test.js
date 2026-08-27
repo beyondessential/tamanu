@@ -1,14 +1,14 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { ReportRequestProcessor } from '../../app/tasks/ReportRequestProcessor';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/fake-data/fake';
 
-jest.mock('@tamanu/shared/reports', () => {
+vi.mock('@tamanu/shared/reports', () => {
   return {
-    __esModule: true,
-    getReportModule: jest.fn().mockReturnValue({
-      dataGenerator: jest.fn().mockReturnValue('report data'),
+    getReportModule: vi.fn().mockReturnValue({
+      dataGenerator: vi.fn().mockReturnValue('report data'),
     }),
   };
 });
@@ -23,21 +23,21 @@ describe('ReportRequestProcessor', () => {
     user = await User.create(fake(User));
   });
   afterAll(async () => {
-    jest.restoreAllMocks();
-    jest.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
     await ctx.close();
   });
 
   it('should attempt to exit all child process when parent process exits', async () => {
     const processEvents = {};
     const { ReportRequest } = ctx.store.models;
-    jest.spyOn(process, 'on').mockImplementation((event, cb) => {
+    vi.spyOn(process, 'on').mockImplementation((event, cb) => {
       processEvents[event] = cb;
     });
-    jest.spyOn(process, 'off').mockImplementation(event => {
+    vi.spyOn(process, 'off').mockImplementation(event => {
       delete processEvents[event];
     });
-    jest.spyOn(process, 'kill').mockImplementation((pid, signal) => {
+    vi.spyOn(process, 'kill').mockImplementation((pid, signal) => {
       processEvents[signal](signal);
     });
     const processor = new ReportRequestProcessor(ctx);
@@ -49,11 +49,11 @@ describe('ReportRequestProcessor', () => {
 
     const childProcessId = fakeUUID();
     const mockChildProcess = {
-      kill: jest.fn(),
+      kill: vi.fn(),
       killed: false,
       pid: childProcessId,
     };
-    processor.spawnReportProcess = jest.fn().mockImplementationOnce(() => {
+    processor.spawnReportProcess = vi.fn().mockImplementationOnce(() => {
       processor.childProcesses.set(childProcessId, mockChildProcess);
     });
     await ReportRequest.create({

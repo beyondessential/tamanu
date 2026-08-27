@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { insertChangelogRecords } from '@tamanu/database';
 import { createTestContext } from '../utilities';
 import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';

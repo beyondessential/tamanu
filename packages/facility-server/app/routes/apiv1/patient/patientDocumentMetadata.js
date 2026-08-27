@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { DOCUMENT_SIZE_LIMIT } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
+import { createDocumentMetadata } from '../../../utils/createDocumentMetadata';
 import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
 import { deleteDocumentMetadata } from '../../../routeHandlers/deleteModel';
@@ -89,16 +89,13 @@ patientDocumentMetadataRoutes.post(
     }
 
     // Create file on the central server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
-    const documentMetadataObject = await models.DocumentMetadata.create({
-      ...metadata,
-      attachmentId,
-      type,
-      patientId: params.id,
-      documentUploadedAt: getCurrentDateTimeString(),
-      source: DOCUMENT_SOURCES.UPLOADED,
-    });
+    const documentMetadataObject = await createDocumentMetadata(
+      req,
+      { patientId: params.id },
+      uploaded,
+    );
 
     res.send(documentMetadataObject);
   }),

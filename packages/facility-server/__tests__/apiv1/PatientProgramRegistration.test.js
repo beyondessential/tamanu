@@ -1,5 +1,5 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
-import { afterAll, beforeAll } from '@jest/globals';
 import {
   REGISTRATION_STATUSES,
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,

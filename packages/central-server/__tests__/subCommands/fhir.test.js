@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -42,7 +43,7 @@ describe('fhir sub commands', () => {
     // a second initDatabase() and concurrent use of the same DB (which can hang in CI).
     // Return a context-shaped object with the test store and a no-op close so the command
     // never closes the test DB.
-    jest.spyOn(ApplicationContext.prototype, 'init').mockResolvedValue({
+    vi.spyOn(ApplicationContext.prototype, 'init').mockResolvedValue({
       store: ctx.store,
       close: () => Promise.resolve(),
     });
@@ -50,7 +51,7 @@ describe('fhir sub commands', () => {
 
   afterAll(async () => {
     await ctx.close();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should refresh a FHIR resource to get updated from upstream', async () => {

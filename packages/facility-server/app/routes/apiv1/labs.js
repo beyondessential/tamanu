@@ -29,6 +29,54 @@ import {
 } from '../../utils/query';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
+// The fields of a lab test that can change after first entry, mapped from the column captured
+// in the audit log to the key returned to the client.
+const EDITABLE_LAB_TEST_FIELDS = {
+  result: 'result',
+  secondary_result: 'secondaryResult',
+  lab_test_method_id: 'labTestMethodId',
+  laboratory_officer: 'laboratoryOfficer',
+  verification: 'verification',
+  completed_date: 'completedDate',
+};
+
+// A field counts as edited when it has taken more than one distinct non-empty value over its
+// audit history (logs.changes) — so first filling in a blank is not an edit. This matches how
+// the patient-wide results grid derives its edited flag for results, so the two agree.
+const getEditedFieldsByLabTestId = async (db, labRequestId) => {
+  const auditColumns = Object.keys(EDITABLE_LAB_TEST_FIELDS);
+
+  // Built from the constant map above, never from user input.
+  const editedFlagSelections = auditColumns
+    .map(
+      column =>
+        `COUNT(DISTINCT (record_data->>'${column}'))
+           FILTER (WHERE NULLIF(TRIM(record_data->>'${column}'), '') IS NOT NULL) >= 2
+           AS "${column}"`,
+    )
+    .join(',\n       ');
+
+  const rows = await db.query(
+    `SELECT record_id,
+       ${editedFlagSelections}
+     FROM logs.changes
+     WHERE table_schema = 'public'
+       AND table_name = 'lab_tests'
+       AND record_id::uuid IN (
+         SELECT id FROM lab_tests WHERE lab_request_id = :labRequestId
+       )
+     GROUP BY record_id`,
+    { replacements: { labRequestId }, type: QueryTypes.SELECT },
+  );
+
+  return new Map(
+    rows.map(row => [
+      row.record_id,
+      auditColumns.filter(column => row[column]).map(column => EDITABLE_LAB_TEST_FIELDS[column]),
+    ]),
+  );
+};
+
 export const labRequest = express.Router();
 
 labRequest.get(
@@ -538,11 +586,13 @@ labRelations.get(
       : ordered;
 
     // The panel each row belongs to travels with the row so the view can group by it.
+    const editedFieldsByLabTestId = await getEditedFieldsByLabTestId(req.db, params.id);
     const data = pageTests.map(test => {
       const panel = panelOf(test);
       return {
         ...test.forResponse(),
         labTestPanel: panel ? { id: panel.id, name: panel.name } : null,
+        editedFields: editedFieldsByLabTestId.get(test.id) ?? [],
       };
     });
 
