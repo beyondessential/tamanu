@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledView, StyledViewProps } from '/styled/common';
+import { StyledView, type StyledViewProps } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 
 interface FormSectionHeadingProps extends StyledViewProps {

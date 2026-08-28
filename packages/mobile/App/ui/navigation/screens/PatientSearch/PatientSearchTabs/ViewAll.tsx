@@ -1,6 +1,6 @@
-import React, { FC, ReactElement, useCallback, useMemo } from 'react';
+import React, { type FC, type ReactElement, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
-import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
+import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
 import { useQuery } from '@tanstack/react-query';
 // Containers
@@ -12,12 +12,12 @@ import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
 import { Routes } from '/helpers/routes';
 //Props
-import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+import type { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { Database } from '~/infra/db';

@@ -3,7 +3,7 @@ import { subject } from '@casl/ability';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView } from '~/ui/styled/common';
 import { Routes } from '~/ui/helpers/routes';
 import { createStackNavigator } from '@react-navigation/stack';

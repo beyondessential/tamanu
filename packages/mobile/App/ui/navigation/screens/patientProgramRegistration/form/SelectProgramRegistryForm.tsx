@@ -10,7 +10,7 @@ import { FlatList } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import usePatientProgramRegistriesQuery from '~/ui/hooks/queries/usePatientProgramRegistriesQuery';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';

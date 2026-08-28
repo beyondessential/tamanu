@@ -7,12 +7,12 @@ import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
-import { IPatient, IPatientAdditionalData } from '~/types';
+import type { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
-import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
+import { NullableReferenceDataRelation, type ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
@@ -94,7 +94,7 @@ export class Patient extends BaseModel implements IPatient {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
 
-    const list = await this.getRepository().find({ where: { id: In(patientIds) } });
+    const list = await Patient.getRepository().find({ where: { id: In(patientIds) } });
 
     return (
       patientIds
@@ -107,7 +107,7 @@ export class Patient extends BaseModel implements IPatient {
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {
     const deviceId = getUniqueId();
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
     const thirtyYearsAgo = subYears(new Date(), 30);
 
@@ -188,7 +188,7 @@ export class Patient extends BaseModel implements IPatient {
 
   static async getReferralList(): Promise<any[]> {
     const deviceId = getUniqueId();
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
     const query = repo
@@ -206,7 +206,7 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async getVitals(patientId: string): Promise<any> {
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const results = await repo.query(
       `
       SELECT

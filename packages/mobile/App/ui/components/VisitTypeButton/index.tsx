@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useCallback } from 'react';
-import { SvgProps } from 'react-native-svg';
+import React, { type FunctionComponent, useCallback } from 'react';
+import type { SvgProps } from 'react-native-svg';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';

@@ -1,14 +1,14 @@
-import { NavigationProp, RouteProp } from '@react-navigation/native';
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { Database } from '~/infra/db';
 import { returnToVaccineTable } from '~/ui/helpers/navigators';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
-import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
+import { VaccineCard, type VaccineDataProps } from '/components/VaccineCard';
 import { Routes } from '/helpers/routes';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';

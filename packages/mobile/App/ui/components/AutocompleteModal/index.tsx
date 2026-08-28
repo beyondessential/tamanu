@@ -1,7 +1,7 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';

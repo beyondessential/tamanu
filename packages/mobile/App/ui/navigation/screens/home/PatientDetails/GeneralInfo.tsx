@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './CustomComponents/PatientSection';
 import { getGender } from '~/ui/helpers/user';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
 import { getFieldData, PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';

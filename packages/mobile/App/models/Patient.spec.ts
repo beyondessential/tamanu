@@ -1,6 +1,6 @@
 import { mocked } from 'jest-mock';
 
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { Database } from '~/infra/db';
 import { readConfig } from '~/services/config';
 jest.mock('~/services/config');

@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type FC, type ReactElement, useCallback, useEffect, useState } from 'react';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
@@ -6,13 +6,13 @@ import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
-import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
+import type { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { SummaryBoard } from './SummaryBoard';
-import { BarChartData } from '~/ui/interfaces/BarChartProps';
+import type { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 import { Dropdown } from './components/Dropdown';
 

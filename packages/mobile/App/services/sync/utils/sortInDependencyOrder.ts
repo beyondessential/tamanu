@@ -1,6 +1,6 @@
 import { getManager } from 'typeorm';
 
-import { ArrayOfModels, MODELS_MAP } from '../../../models/modelsMap';
+import type { ArrayOfModels, MODELS_MAP } from '../../../models/modelsMap';
 
 type DependencyMap = {
   [tableName: string]: string[];

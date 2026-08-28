@@ -1,19 +1,19 @@
-import React, { ComponentType, FunctionComponent } from 'react';
+import React, { type ComponentType, type FunctionComponent } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
-  NavigationState,
-  Route,
+  type NavigationState,
+  type Route,
   SceneMap,
-  SceneRendererProps,
+  type SceneRendererProps,
   TabBar,
   TabView,
 } from 'react-native-tab-view';
-import { SvgProps } from 'react-native-svg';
+import type { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
 import { StyledText, StyledView } from '/styled/common';
 import * as Icons from '../Icons';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-import { VaccineDataProps } from '../VaccineCard';
+import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import type { VaccineDataProps } from '../VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type CustomRoute = Route & {

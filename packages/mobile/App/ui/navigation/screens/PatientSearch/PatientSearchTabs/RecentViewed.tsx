@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { compose } from 'redux';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,7 +9,7 @@ import { PatientTile } from '/components/PatientTile';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 // props
-import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
+import type { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { FullView, StyledText, StyledView } from '/styled/common';

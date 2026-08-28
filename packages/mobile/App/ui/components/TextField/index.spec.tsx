@@ -16,7 +16,7 @@ describe('<TextField />', (): void => {
       const { getByLabelText } = await render(<BaseTextFieldStory {...nonMaskedProps} />);
       const input = getByLabelText(nonMaskedProps.label);
       await fireEvent.changeText(input, newValue);
-      expect(input.props['value']).toBe(newValue);
+      expect(input.props.value).toBe(newValue);
     });
   });
 });

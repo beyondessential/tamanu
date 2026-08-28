@@ -9,7 +9,7 @@ import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { GreenTickIcon } from '~/ui/components/Icons';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
-import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
+import type { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
 import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '../Button/index';

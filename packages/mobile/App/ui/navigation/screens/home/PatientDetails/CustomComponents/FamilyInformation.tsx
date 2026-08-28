@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { PatientParentsDataProps } from '/interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { PatientParentsDataProps } from '/interfaces/PatientDetails';
 import { RowView, StyledView } from '/styled/common';
 import { Separator } from '/components/Separator';
 import { InformationBox } from './InformationBox';

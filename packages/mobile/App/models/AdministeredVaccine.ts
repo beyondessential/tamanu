@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
-import { IAdministeredVaccine, InjectionSiteType } from '~/types';
+import type { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { Location } from './Location';
@@ -8,7 +8,7 @@ import { Department } from './Department';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
+import { NullableReferenceDataRelation, type ReferenceData } from './ReferenceData';
 
 @Entity('administered_vaccines')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
@@ -90,7 +90,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   vaccineName?: string;
 
   static async getById(id: string): Promise<IAdministeredVaccine | null> {
-    return this.getRepository()
+    return AdministeredVaccine.getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.examiner', 'examiner')
@@ -105,7 +105,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
-    return this.getRepository()
+    return AdministeredVaccine.getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.examiner', 'examiner')

@@ -5,9 +5,9 @@
 // - https://github.com/callstack/react-native-paper/issues/2381
 
 import * as React from 'react';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { type StyleProp, StyleSheet, type ViewStyle } from 'react-native';
 import { Text, TouchableRipple } from 'react-native-paper';
-import { $RemoveChildren } from 'react-native-paper/src/types';
+import type { $RemoveChildren } from 'react-native-paper/src/types';
 
 type Props = $RemoveChildren<typeof TouchableRipple> & {
   /**

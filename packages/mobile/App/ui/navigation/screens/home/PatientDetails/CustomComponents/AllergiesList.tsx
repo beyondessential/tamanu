@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { AllergiesProps } from '/interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { AllergiesProps } from '/interfaces/PatientDetails';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { Dot } from './Dot';
 import { theme } from '/styled/theme';

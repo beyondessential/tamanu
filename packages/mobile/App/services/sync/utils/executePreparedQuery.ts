@@ -1,6 +1,6 @@
-import { Repository } from 'typeorm';
+import type { Repository } from 'typeorm';
 import { chunk } from 'es-toolkit/compat';
-import { DataToPersist } from '../types';
+import type { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
 
 const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>
@@ -35,13 +35,13 @@ export const executePreparedInsert = async (
 
   for (const chunkRows of chunk(rows, chunkSize)) {
     const query = `
-    INSERT INTO ${tableName} (${columnNames}) 
+    INSERT INTO ${tableName} (${columnNames})
     VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
   `;
     const parameters = chunkRows.flatMap(row => columns.map(col => row[col]));
     try {
       await repository.query(query, parameters);
-    } catch (e: any) {
+    } catch {
       await Promise.all(
         chunkRows.map(async row => {
           try {
@@ -111,7 +111,7 @@ export const executePreparedUpdate = async (
 
       try {
         await repository.query(query, parameters);
-      } catch (e: any) {
+      } catch {
         await Promise.all(
           chunkRows.map(async row => {
             try {

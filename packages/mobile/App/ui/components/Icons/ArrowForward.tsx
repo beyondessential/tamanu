@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
 
 export const ArrowForwardIcon = memo(({ size, ...props }: IconWithSizeProps) => {
   const xml = `<svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">

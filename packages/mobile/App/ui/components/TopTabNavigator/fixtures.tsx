@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { type ReactElement, useState } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { createTopTabNavigator } from './index';

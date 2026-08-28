@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import type { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
 export const ChatIcon = memo(({ size = 16, ...props }: IconWithSizeProps) => {
   const xml = `

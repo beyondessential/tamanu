@@ -6,7 +6,7 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { SyncStatusModal } from './SyncStatusModal';
 import { SyncStatusIcon } from './SyncStatusIcon';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 interface PatientSyncStatusProps {
   selectedPatient: IPatient;

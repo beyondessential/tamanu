@@ -1,7 +1,7 @@
-import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
+import { Brackets, type FindManyOptions, type ObjectLiteral } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
-import { BaseModel } from '~/models/BaseModel';
+import type { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export interface OptionType {
@@ -112,7 +112,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       if (!result) return undefined;
 
       return this.formatter(result);
-    } catch (e) {
+    } catch (_e) {
       return undefined;
     }
   };
@@ -174,7 +174,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       const filteredData = this.filter ? data.filter(this.filter) : data;
       return filteredData.map(this.formatter);
-    } catch (e) {
+    } catch {
       return [];
     }
   };

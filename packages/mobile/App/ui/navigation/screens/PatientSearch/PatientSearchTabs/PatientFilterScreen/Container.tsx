@@ -1,7 +1,7 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { Screen } from './Screen';
 import { Routes } from '/helpers/routes';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { useFilterFields } from './hooks';
 
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {

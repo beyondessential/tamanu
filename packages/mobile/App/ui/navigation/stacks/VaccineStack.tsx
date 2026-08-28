@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import { createStackNavigator, StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
+import { createStackNavigator, type StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import { StackHeader } from '/components/StackHeader';
@@ -10,7 +10,7 @@ import { withPatient } from '~/ui/containers/Patient';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { joinNames } from '/helpers/user';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 const Stack = createStackNavigator();
 

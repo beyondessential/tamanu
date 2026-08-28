@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { NativeModules } from 'react-native';
 import { SETTING_KEYS } from '@tamanu/constants';
 import {
-  SecurityInfoModule,
-  StorageEncryptionStatus,
+  type SecurityInfoModule,
+  type StorageEncryptionStatus,
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
 import { useSettings } from '~/ui/contexts/SettingsContext';
-import { useTranslation, GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+import { useTranslation, type GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useOnForeground } from '~/ui/hooks/useOnForeground';
 

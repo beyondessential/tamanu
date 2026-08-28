@@ -9,7 +9,7 @@ import { theme } from '/styled/theme';
 import { StyledImage, StyledText, StyledView } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
-import { BaseInputProps } from '../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;
@@ -89,12 +89,9 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         {
           text: 'Save',
           onPress: async (): Promise<void> => {
-            const time = new Date().getTime();
-            const fileName = `${time}-image.jpg`;
+            const fileName = `${Date.now()}-image.jpg`;
             const filePath = await saveFileInDocuments(imageData, fileName);
-            await CameraRoll.save(`file://${filePath}`, {
-              type: 'photo',
-            });
+            await CameraRoll.save(`file://${filePath}`, { type: 'photo' });
             await deleteFileInDocuments(fileName);
 
             showMessage({
@@ -105,14 +102,9 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
           },
           style: 'default',
         },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
       ],
-      {
-        cancelable: true,
-      },
+      { cancelable: true },
     );
   }, [imageData]);
   return (

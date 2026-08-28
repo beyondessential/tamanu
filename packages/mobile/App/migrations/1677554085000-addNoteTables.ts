@@ -1,6 +1,6 @@
 import {
-  MigrationInterface,
-  QueryRunner,
+  type MigrationInterface,
+  type QueryRunner,
   Table,
   TableColumn,
   TableForeignKey,

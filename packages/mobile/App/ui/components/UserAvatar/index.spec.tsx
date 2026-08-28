@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { UserAvatar, UserAvatarProps } from './index';
+import { UserAvatar, type UserAvatarProps } from './index';
 import { getUserInitials, Genders } from '/helpers/user';
 
 describe('<UserAvatar/>', () => {

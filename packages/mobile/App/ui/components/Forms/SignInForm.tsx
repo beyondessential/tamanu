@@ -1,6 +1,6 @@
 import React, {
-  FunctionComponent,
-  ReactElement,
+  type FunctionComponent,
+  type ReactElement,
   useCallback,
   useEffect,
   useRef,

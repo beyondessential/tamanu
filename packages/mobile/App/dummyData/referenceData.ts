@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
-import { IReferenceData, ReferenceDataType } from '~/types';
-import { SyncRecord } from '~/services/sync/source';
+import { type IReferenceData, ReferenceDataType } from '~/types';
+import type { SyncRecord } from '~/services/sync/source';
 
 // for dummy data generation
 import { generatePatient } from '~/dummyData/patients';

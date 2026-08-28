@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
 import { Separator } from '/components/Separator';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';

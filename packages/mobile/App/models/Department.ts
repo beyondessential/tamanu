@@ -1,5 +1,5 @@
 import { Column, OneToMany, RelationId, Entity, ManyToOne } from 'typeorm';
-import { IDepartment } from '../types';
+import type { IDepartment } from '../types';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { AdministeredVaccine } from './AdministeredVaccine';

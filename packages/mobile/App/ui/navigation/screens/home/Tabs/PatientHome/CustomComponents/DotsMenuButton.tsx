@@ -1,5 +1,5 @@
-import React, { FC, ReactElement } from 'react';
-import { ButtonProps } from './fixture';
+import React, { type FC, type ReactElement } from 'react';
+import type { ButtonProps } from './fixture';
 import { KebabIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

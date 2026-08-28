@@ -1,6 +1,6 @@
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { BaseModel } from '../../../models/BaseModel';
-import { SyncRecord } from '../types';
+import type { BaseModel } from '../../../models/BaseModel';
+import type { SyncRecord } from '../types';
 
 const makeMockModel = (columnNames: string[]): typeof BaseModel =>
   ({

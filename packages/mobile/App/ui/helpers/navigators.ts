@@ -1,4 +1,4 @@
-import { CommonActions, NavigationProp } from '@react-navigation/native';
+import { CommonActions, type NavigationProp } from '@react-navigation/native';
 
 import { Routes } from './routes';
 

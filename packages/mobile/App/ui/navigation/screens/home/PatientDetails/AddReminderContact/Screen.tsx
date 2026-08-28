@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import * as yup from 'yup';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -8,7 +8,7 @@ import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   StyledSafeAreaView,
   StyledView,

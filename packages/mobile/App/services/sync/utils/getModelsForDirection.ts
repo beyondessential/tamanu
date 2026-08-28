@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '../../../models/types';
-import { MODELS_MAP } from '~/models/modelsMap';
+import type { MODELS_MAP } from '~/models/modelsMap';
 
-import { type EntityManager } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 
 export type TransactingModel = (typeof MODELS_MAP)[keyof typeof MODELS_MAP] & {
   getTransactionalRepository: () => any;

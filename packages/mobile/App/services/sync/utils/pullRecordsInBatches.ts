@@ -1,7 +1,7 @@
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
-import { PullParams } from '../MobileSyncManager';
-import { type SyncRecord } from '../types';
+import type { PullParams } from '../MobileSyncManager';
+import type { SyncRecord } from '../types';
 
 type PulledPage = { records: SyncRecord[]; pullTime: number };
 

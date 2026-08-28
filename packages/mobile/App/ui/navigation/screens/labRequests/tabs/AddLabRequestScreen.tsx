@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -13,9 +13,9 @@ import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import { ID } from '~/types/ID';
+import type { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 import { getCombinedDateString } from '/helpers/date';
 import { useTranslation } from '~/ui/contexts/TranslationContext';

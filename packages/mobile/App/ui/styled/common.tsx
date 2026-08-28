@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import styled from 'styled-components/native';
 import {
   alignItems,
@@ -28,8 +28,8 @@ import {
 } from 'styled-system';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SharedValue } from 'react-native-reanimated';
-import { GestureResponderEvent } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
+import type { GestureResponderEvent } from 'react-native';
 
 const sizes = [];
 for (let i = 0; i < 10; i++) {

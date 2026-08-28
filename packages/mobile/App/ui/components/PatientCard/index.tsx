@@ -8,7 +8,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as styles from './styles';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '../../helpers/user';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { useSettings } from '/contexts/SettingsContext';

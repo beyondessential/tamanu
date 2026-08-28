@@ -5,7 +5,7 @@ import { DateFormats } from '/helpers/constants';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { getYear } from 'date-fns';
-import { BarChartData } from '../../interfaces/BarChartProps';
+import type { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 

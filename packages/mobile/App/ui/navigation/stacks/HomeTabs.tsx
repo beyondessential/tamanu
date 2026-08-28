@@ -1,10 +1,10 @@
-import React, { FC, ReactElement } from 'react';
+import React, { type FC, type ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { compose } from 'redux';
 import {
-  BottomTabBarProps,
-  BottomTabNavigationOptions,
+  type BottomTabBarProps,
+  type BottomTabNavigationOptions,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
@@ -12,12 +12,12 @@ import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
-import { SvgProps } from 'react-native-svg';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { SvgProps } from 'react-native-svg';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
 import { MoreScreen, ReportScreen, SyncDataScreen } from '/navigation/screens/home/Tabs';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import type { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { SearchPatientStack } from './SearchPatient';
 import { HomeLogoIcon } from '~/ui/components/Icons/HomeLogo';
@@ -130,13 +130,21 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
-                    focused: isFocused,
-                    focusedColor: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
-                    strokeColor: isFocused ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE,
-                    color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
-                  })}
+                {Icon?.(
+                  isFocused
+                    ? {
+                        focused: true,
+                        focusedColor: theme.colors.SECONDARY_MAIN,
+                        strokeColor: theme.colors.PRIMARY_MAIN,
+                        color: theme.colors.SECONDARY_MAIN,
+                      }
+                    : {
+                        focused: false,
+                        focusedColor: theme.colors.WHITE,
+                        strokeColor: theme.colors.WHITE,
+                        color: 'none',
+                      },
+                )}
                 <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}>
                   {label}
                 </StyledText>

@@ -2,7 +2,7 @@ import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { User } from './User';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 

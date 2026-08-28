@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import React, { type ReactElement, useCallback, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
@@ -11,7 +11,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import {
   FullView,
   RowView,

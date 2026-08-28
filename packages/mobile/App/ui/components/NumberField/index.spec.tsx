@@ -16,18 +16,18 @@ describe('<NumberField />', (): void => {
     const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
     await fireEvent.changeText(input, newValue);
-    expect(input.props['value']).toBe(newValue);
+    expect(input.props.value).toBe(newValue);
   });
   it('should be nullable', async (): Promise<void> => {
     const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
     await fireEvent.changeText(input, undefined);
-    expect(input.props['value']).toBe('');
+    expect(input.props.value).toBe('');
   });
   it('should nullify alpha characters', async (): Promise<void> => {
     const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
     await fireEvent.changeText(input, 'invalid value');
-    expect(input.props['value']).toBe('');
+    expect(input.props.value).toBe('');
   });
 });

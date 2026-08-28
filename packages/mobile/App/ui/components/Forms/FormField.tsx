@@ -1,7 +1,7 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { type ReactNode, useCallback } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import type { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
   component: ReactNode;

@@ -13,7 +13,7 @@ import { addHours, startOfDay, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 
 import { BaseModel, IdRelation } from './BaseModel';
-import { EncounterType, IEncounter } from '~/types';
+import { EncounterType, type IEncounter } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { User } from './User';
@@ -21,14 +21,14 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
-import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+import type { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
-import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString, toDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
@@ -131,7 +131,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
@@ -158,7 +158,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getActiveEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     return repo
       .createQueryBuilder('encounter')
@@ -254,7 +254,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
 
     const encounters = await repo.find({
       where: { patient: { id: patientId } },
@@ -274,7 +274,7 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
-    const repo = this.getRepository();
+    const repo = Encounter.getRepository();
     // 28 days ago for report
     const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28);
     const query = repo

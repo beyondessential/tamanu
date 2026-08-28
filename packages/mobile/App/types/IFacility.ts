@@ -1,5 +1,5 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
 
 export interface IFacility {
   id: ID;

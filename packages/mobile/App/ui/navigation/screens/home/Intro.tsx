@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 //Components
@@ -12,7 +12,7 @@ import { authUserSelector } from '../../../helpers/selectors';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { useDisableAndroidBackButton } from '../../../helpers/android';
 // Props
-import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
+import type { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export interface IntroRouteProps {

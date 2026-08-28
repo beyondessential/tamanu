@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
-import { Patient } from '~/models/Patient';
+import type { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';

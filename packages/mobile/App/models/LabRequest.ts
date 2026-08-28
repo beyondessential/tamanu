@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, RelationId, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
+import { type IDataRequiredToCreateLabRequest, type ILabRequest, LabRequestStatus } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
@@ -88,7 +88,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   tests: LabTest[];
 
   static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
-    const query = this.getRepository()
+    const query = LabRequest.getRepository()
       .createQueryBuilder('labRequest')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
@@ -113,7 +113,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       throw new Error('A request must have at least one test');
     }
 
-    const labRequest = await this.createAndSaveOne(data);
+    const labRequest = await LabRequest.createAndSaveOne(data);
 
     // then create tests
     await Promise.all(

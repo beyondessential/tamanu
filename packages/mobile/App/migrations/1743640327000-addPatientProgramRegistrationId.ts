@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableForeignKey, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableForeignKey, TableColumn } from 'typeorm';
 
 export class addPatientProgramRegistrationId1743640327000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {

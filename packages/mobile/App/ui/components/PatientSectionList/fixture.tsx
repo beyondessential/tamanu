@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyledView } from '/styled/common';
 import { PatientSectionList } from './index';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 import { generatePatient } from '~/dummyData/patients';
 

@@ -4,12 +4,12 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { DateString, ID, INote, IUser, NoteRecordType } from '~/types';
+import type { DateString, ID, INote, IUser, NoteRecordType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel, IdRelation } from './BaseModel';
 import { User } from './User';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('notes')
 export class Note extends BaseModel implements INote {

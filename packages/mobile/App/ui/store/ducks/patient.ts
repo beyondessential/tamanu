@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { readConfig, writeConfig } from '~/services/config';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import queryClient from '~/ui/queryClient';
 import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
@@ -38,7 +38,7 @@ export const PatientSlice = createSlice({
   name: 'patient',
   initialState: initialState,
   reducers: {
-    setSelectedPatient(state, { payload: patient }: PayloadAction<IPatient>): PatientStateProps {
+    setSelectedPatient(_state, { payload: patient }: PayloadAction<IPatient>): PatientStateProps {
       if (patient?.id) addPatientToRecentlyViewed(patient.id);
 
       return {

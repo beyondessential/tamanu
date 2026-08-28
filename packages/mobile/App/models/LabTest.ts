@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
-import { ILabTest } from '~/types';
+import type { ILabTest } from '~/types';
 import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
 import { LabTestType } from './LabTestType';
 import { SYNC_DIRECTIONS } from './types';

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { Orientation, screenPercentageToDP } from '../../../../../../helpers/screen';
 import { FullView, RowView, StyledText } from '../../../../../../styled/common';
 import { theme } from '../../../../../../styled/theme';
