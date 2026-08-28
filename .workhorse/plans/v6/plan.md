@@ -44,9 +44,22 @@ empty list. Omit the clause entirely in that case rather than passing an empty a
 pattern the file already uses for `syncAllLabRequests`.
 
 Keep the resolved network list a **parameter** of the filter rather than deriving it inline. V6 only
-ever populates it from the requesting facilities' membership, but W6 needs the same filter driven by
-an explicit network id for its `since = -1` catch-up pass. A parameter lets W6 extend this rather
-than fork it.
+ever populates it from the requesting facilities' membership, but W6 needs an explicit network id for
+its `since = -1` catch-up pass. A parameter lets W6 extend this rather than fork it.
+
+Note W6's catch-up needs its own `AND`-composed where clause, not this admission clause with
+different parameters. The clause above is `OR`-composed, so `sensitive_network_id IN (...)` admits
+the whole network regardless of `facilityIds`, and the unscoped line pulls the entire non-sensitive
+dataset at `since = -1`. `facilityIds` also can't be repurposed to carry sibling ids: it scopes
+`patient_facilities` and facility settings in the same query, and model-specific filters outside this
+file consume it (`Referral.buildSyncFilter`).
+
+**Open decision — whether to null `facility_id` on rescoped rows.** The card says null it, which
+makes `facility_id` mean exactly one thing (genuinely facility-bound). Keeping it populated alongside
+the network filters identically — a row with `facility_id = F` and `network = N2` is admitted to F by
+the facility clause and to F's siblings by the network clause — but it lets W6's catch-up narrow with
+`AND facility_id IN (:newlyVisibleFacilityIds)` so a facility pulls only the data of members newly
+visible to it, never its own. Nulled, W6 can only re-pull the network's whole history per member.
 
 ## Rescoping existing lookup rows
 
