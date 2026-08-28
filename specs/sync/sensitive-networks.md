@@ -12,7 +12,7 @@ A sensitive network is a named group of facilities that share confidential data.
 - [ ] Networks are reference data, defined on the central server and pulled down to facility servers and mobile devices. They are never pushed upwards.
 - [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
 - [ ] Deleting a network that has member facilities is refused. Deletion would otherwise leave those facilities pointing at a deleted network, and either they stay sensitive with nothing to name them or they turn ordinary and begin syncing confidential data everywhere.
-- [ ] A network with no members can be deleted, including one left empty by its only member moving elsewhere.
+- [ ] A network with no members can be deleted, such as one defined ahead of the facilities that will be created into it.
 - [ ] A deleted facility still counts as a member, because restoring it would otherwise leave it pointing at a network that no longer exists.
 
 ## Facility membership
@@ -21,14 +21,14 @@ A sensitive network is a named group of facilities that share confidential data.
 - [ ] A facility is sensitive exactly when it belongs to a network. There is no separate sensitivity flag, so every reader of facility sensitivity tests network membership instead.
 - [ ] Placing a facility in a network is therefore the only way to make it sensitive.
 
-## Changing membership
+## Membership is fixed at creation
 
-Confidential data that has already synced to a facility cannot be recalled, so membership changes are permitted only in directions that do not strand a facility holding data it is no longer entitled to.
+Confidential data that has already synced to a facility cannot be recalled, and a facility that changed network would hold data it is no longer entitled to and lack data it now is. Membership is therefore settled once, when the facility is created.
 
-- [ ] A facility belonging to no network can be placed in one.
-- [ ] A facility cannot be removed from its network. Un-networking a facility means wiping its local data and resyncing it from scratch.
-- [ ] A facility that is the sole member of its network can be moved to another network, since it holds no sibling's data to take with it.
-- [ ] A facility that shares its network with other facilities cannot be moved to another network.
+- [ ] A facility's network is chosen when the facility is created and cannot be changed afterwards.
+- [ ] A facility created in no network belongs to no network for its lifetime, so it never becomes sensitive.
+- [ ] A facility in a network cannot be moved to another network, nor removed from its own, whether or not it is that network's only member.
+- [ ] Adding a facility to a network means creating a new facility enrolled in it.
 
 ## Facility access for users
 
@@ -65,6 +65,8 @@ Facilities previously marked sensitive were isolated from each other as well as 
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import.
+- [ ] Their lookup rows carry that network in place of the facility, so a facility created into one of those networks receives the confidential data recorded before it existed.
+- [ ] A deployment with no networked facility has no such rows and rebuilds nothing.
 - [ ] A facility that was deleted while sensitive gains no network, since it receives nothing.
 - [ ] A deployment with no sensitive facilities gains no networks.
 
