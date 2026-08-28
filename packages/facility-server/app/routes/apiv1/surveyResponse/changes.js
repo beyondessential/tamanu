@@ -82,7 +82,9 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
       WHERE
         c.migration_context IS NULL
         AND c.table_name = 'survey_response_answers'
-        AND (c.record_data ->> 'response_id') = :surveyResponseId
+        AND c.record_id IN (
+          SELECT id::text FROM survey_response_answers WHERE response_id = :surveyResponseId
+        )
       ORDER BY
         c.created_at,
         c.id
