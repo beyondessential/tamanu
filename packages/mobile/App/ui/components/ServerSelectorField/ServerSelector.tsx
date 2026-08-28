@@ -56,7 +56,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;
   }
 
-  if (isError) {
+  if (isError && !options?.length) {
     return (
       <StyledText color={theme.colors.ALERT}>
         <TranslatedText
