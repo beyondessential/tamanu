@@ -36,11 +36,9 @@ export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
-// Set once central/a facility server has derived the split medDispenseEnabled/
-// stockOnHandEnabled settings from the legacy combined `integrations.mSupplyMed.enabled`
-// flag, so the one-off migration runs only once per server.
-export const FACT_MSUPPLY_INTEGRATION_SETTINGS_MIGRATED_CENTRAL =
-  'mSupplyIntegrationSettingsMigratedCentral';
+// Set once a facility server has derived the split medDispenseEnabled/stockOnHandEnabled
+// settings from the legacy combined `integrations.mSupplyMed.enabled` flag, so the
+// one-off migration runs only once per server.
 export const FACT_MSUPPLY_INTEGRATION_SETTINGS_MIGRATED_FACILITY =
   'mSupplyIntegrationSettingsMigratedFacility';
 
