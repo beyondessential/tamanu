@@ -409,8 +409,8 @@ patientRelations.get(
       AND table_name = 'lab_tests'
       AND record_data->>'result' IS NOT NULL
       AND TRIM(record_data->>'result') != ''
-      AND record_id::uuid IN (
-        SELECT lab_tests.id
+      AND record_id IN (
+        SELECT lab_tests.id::text
         FROM lab_tests
         INNER JOIN lab_requests ON lab_tests.lab_request_id = lab_requests.id
         WHERE lab_requests.encounter_id IN (
