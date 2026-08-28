@@ -17,7 +17,6 @@ import {
 import __cjs_inflection from 'inflection';
 const { pluralize } = __cjs_inflection;
 import { isEmpty, isNil } from 'es-toolkit/compat';
-import { log } from '@tamanu/shared/services/logging';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -307,7 +306,7 @@ export async function permissionLoader(item, { models, pushError }) {
     });
 }
 
-export async function labTestPanelLoader(item, { models }) {
+export async function labTestPanelLoader(item, { models, pushError }) {
   const { id, testTypesInPanel, availableFacilities, ...otherFields } = item;
   const rows = [];
 
@@ -337,9 +336,8 @@ export async function labTestPanelLoader(item, { models }) {
     });
   });
 
-  // A panel groups best under a single category, but panels whose test types span categories are
-  // allowed: at order time such a panel forms its own request rather than joining a category's.
-  // Warn rather than reject so importing (and provisioning) still succeeds.
+  // A panel's test types must all belong to one lab test category, so an ordered panel can be
+  // grouped under a single category.
   if (testTypeIds.length) {
     const testTypes = await models.LabTestType.findAll({
       where: { id: { [Op.in]: testTypeIds } },
@@ -347,10 +345,7 @@ export async function labTestPanelLoader(item, { models }) {
     });
     const categoryIds = [...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean))];
     if (categoryIds.length > 1) {
-      log.warn('Lab test panel test types span multiple categories; it will not group under one', {
-        labTestPanelId: id,
-        categoryIds,
-      });
+      pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
     }
   }
 

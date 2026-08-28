@@ -12,7 +12,7 @@ request is specified in `requests.md`.
 ## Composing a request
 
 - [ ] Importing a lab test panel that has no lab test category is rejected as an import error, so newly authored panels always carry a category.
-- [ ] Importing a lab test panel whose test types do not all belong to one lab test category is allowed (a warning is logged); the panel still groups under its own category.
+- [ ] Importing a lab test panel whose test types do not all belong to one lab test category is rejected as an import error.
 - [ ] A submission produces one lab request per lab test category, holding both the panels and the individual tests ordered from that category.
 - [ ] A panel joins the request for the panel's own category.
 - [ ] A panel that has no category of its own joins the request for the category its test types share.

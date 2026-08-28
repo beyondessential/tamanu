@@ -66,8 +66,25 @@ describe('Lab Test Panel import', () => {
         },
       });
     });
+  });
 
-    it('should accept a panel whose test types span multiple lab test categories', async () => {
+  describe('Invalid data', () => {
+    it('should validate LabTestPanel mandatory categoryId field', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'lab-test-panel-no-category-id',
+        dryRun: true,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+
+      expect(errors).toContainValidationError(
+        'labTestPanel',
+        2,
+        'categoryId is a required field on labTestPanel at row 2',
+      );
+    });
+
+    it('should reject a panel whose test types span multiple lab test categories', async () => {
       const { id: otherCategoryId } = await models.ReferenceData.create({
         id: 'labTestCategory-XCAT',
         code: 'labTestCategory-XCAT',
@@ -88,26 +105,12 @@ describe('Lab Test Panel import', () => {
         dryRun: true,
       });
 
-      expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toHaveLength(0);
-    });
-  });
-
-  describe('Invalid data', () => {
-    it('should validate LabTestPanel mandatory categoryId field', async () => {
-      const { didntSendReason, errors } = await doImport({
-        file: 'lab-test-panel-no-category-id',
-        dryRun: true,
-      });
-
       expect(didntSendReason).toEqual('validationFailed');
-
-      expect(errors).toContainValidationError(
-        'labTestPanel',
-        2,
-        'categoryId is a required field on labTestPanel at row 2',
-      );
+      expect(
+        errors.some(error =>
+          error.message.includes('test types must all belong to one lab test category'),
+        ),
+      ).toBe(true);
     });
-
   });
 });
