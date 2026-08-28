@@ -229,20 +229,18 @@ export class Patient extends BaseModel implements IPatient {
       WHERE encounters.patientId = $1
         AND answer.body IS NOT NULL
         AND answer.deletedAt IS NULL
-      ORDER BY answer.createdAt desc LIMIT $2
+      ORDER BY answer.createdAt desc LIMIT 500
     `,
-      [patientId, 500],
+      [patientId],
     );
 
     const library = groupBy(results, 'responseId');
 
-    const data = Object.keys(library).reduce((state, key) => {
+    const data = Object.keys(library).reduce((acc, key) => {
       const records = library[key];
-      const newKey = records.find((x) => x.dataElementId === VitalsDataElements.dateRecorded);
-      if (newKey) {
-        return { ...state, [newKey.body]: records };
-      }
-      return state;
+      const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
+      if (newKey !== undefined) acc[newKey.body] = records;
+      return acc;
     }, {});
 
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());

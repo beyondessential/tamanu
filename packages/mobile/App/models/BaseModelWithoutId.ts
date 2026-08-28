@@ -24,16 +24,8 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   // accommodated too, but that's done by making those fields nullable or
   // giving them sane defaults)
 
-  const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
-  return Object.entries(data)
-    .filter(([key]) => columns.includes(key))
-    .reduce(
-      (state, [key, value]) => ({
-        ...state,
-        [key]: value,
-      }),
-      {},
-    );
+  const columns = new Set(repo.metadata.columns.map(({ propertyName }) => propertyName));
+  return Object.fromEntries(Object.entries(data).filter(([key]) => columns.has(key)));
 }
 
 export abstract class BaseModelWithoutId extends BaseEntity {

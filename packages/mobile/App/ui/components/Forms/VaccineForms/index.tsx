@@ -99,27 +99,15 @@ export const VaccineForm = ({
       { locationId: initialValues?.locationId, departmentId: initialValues?.departmentId },
     ],
     queryFn: async () => {
-      const { models } = Database;
       if (initialValues?.locationId && initialValues?.departmentId) {
         return { locationId: initialValues.locationId, departmentId: initialValues.departmentId };
       }
-
-      const currentEncounter = await models.Encounter.getCurrentEncounterForPatient(patientId);
-
-      if (currentEncounter) {
-        return {
-          locationId: currentEncounter.locationId,
-          departmentId: currentEncounter.departmentId,
-        };
-      }
-
-      const vaccinationDefaults =
-        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) || {};
-
-      return {
-        locationId: vaccinationDefaults.locationId,
-        departmentId: vaccinationDefaults.departmentId,
-      };
+      const { models } = Database;
+      const { locationId, departmentId } =
+        (await models.Encounter.getCurrentEncounterForPatient(patientId)) ??
+        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) ??
+        {};
+      return { locationId, departmentId };
     },
   });
 

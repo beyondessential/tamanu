@@ -31,7 +31,10 @@ export const SyncStatusModal = ({
   const { data: lastPull } = useQuery({
     queryKey: syncKeys.lastSuccessfulPull(),
     queryFn: () =>
-      Database.models.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
+      Database.models.LocalSystemFact.findOne({
+        where: { key: LAST_SUCCESSFUL_PULL },
+        select: ['updatedAt'],
+      }),
   });
   const { mutateAsync: markPatientForSync } = useMutation({
     mutationFn: () => Patient.markForSync(selectedPatient.id),

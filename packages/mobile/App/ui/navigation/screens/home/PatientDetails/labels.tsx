@@ -154,4 +154,4 @@ export const labels = {
   secondaryVillageId: (
     <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
   ),
-};
+} as const;

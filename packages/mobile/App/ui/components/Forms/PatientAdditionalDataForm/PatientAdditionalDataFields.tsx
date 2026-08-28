@@ -107,13 +107,13 @@ function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
 ): React.FC<{ fieldName: string; required: boolean }> {
-  if (plainFields.includes(fieldName)) {
+  if (plainFields.has(fieldName)) {
     return PlainField;
   }
-  if (selectFields.includes(fieldName)) {
+  if (selectFields.has(fieldName)) {
     return SelectField;
   }
-  if (relationIdFields.includes(fieldName)) {
+  if (relationIdFields.has(fieldName)) {
     return RelationField;
   }
   if (customFieldIds.includes(fieldName)) {
