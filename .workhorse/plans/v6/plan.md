@@ -43,6 +43,13 @@ A facility in no network contributes no network, so a session with no networked 
 empty list. Omit the clause entirely in that case rather than passing an empty array, following the
 pattern the file already uses for `syncAllLabRequests`.
 
+**Derive this list server-side; never accept it from the request body.** `facilityIds` is
+client-supplied and validated at session start against the sync user's facility access
+(`buildSyncRoutes.js:56-59`). Deriving the networks from that validated list is what keeps network
+scoping inside the same guard. It also makes W6's narrowing parameter safe to accept from a client,
+since it can then only narrow within networks the requester genuinely belongs to. If the network list
+were ever taken from the body, that guard is gone and a client could name any network.
+
 Keep the resolved network list a **parameter** of the filter rather than deriving it inline. V6 only
 ever populates it from the requesting facilities' membership, but W6 needs an explicit network id for
 its `since = -1` catch-up pass. A parameter lets W6 extend this rather than fork it.
