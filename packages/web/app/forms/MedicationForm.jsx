@@ -16,6 +16,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS_LABELS,
@@ -683,15 +684,21 @@ export const MedicationForm = ({
       data.frequency,
       frequenciesAdministrationIdealTimes,
     );
-    // The schedule is only populated once a frequency has been chosen and the accordion has reset
-    // itself to that frequency's defaults, so don't assume the field is an array yet.
+    const hasFixedTimes = FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(data.frequency);
+    // The schedule accordion is what populates `timeSlots`, so for the frequencies where it isn't
+    // rendered the field is empty (or stale from a frequency chosen earlier) and the fixed times
+    // are the only source. It's also unpopulated until a frequency has been chosen at all.
     const timeSlots = data.timeSlots ?? [];
-    if (!isOneTimeFrequency(data.frequency) && timeSlots.length < defaultIdealTimes.length) {
+    if (
+      !isOneTimeFrequency(data.frequency) &&
+      !hasFixedTimes &&
+      timeSlots.length < defaultIdealTimes.length
+    ) {
       setIdealTimesErrorOpen(true);
       return Promise.reject();
     }
 
-    const idealTimes = timeSlots.map(slot => slot.value);
+    const idealTimes = hasFixedTimes ? defaultIdealTimes : timeSlots.map(slot => slot.value);
     const payload = {
       ...data,
       doseAmount: data.doseAmount || undefined,
@@ -1116,24 +1123,28 @@ export const MedicationForm = ({
                 component={TooltipTextField}
                 data-testid="medication-field-notes-5b3t"
               />
-              <Hr />
-              {values.frequency ? (
-                <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
-              ) : (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <FieldLabel>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.label"
-                      fallback="Medication administration schedule"
-                    />
-                  </FieldLabel>
-                  <FieldContent>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
-                      fallback="Select a frequency above to complete the medication administration schedule"
-                    />
-                  </FieldContent>
-                </div>
+              {!FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(values.frequency) && (
+                <>
+                  <Hr />
+                  {values.frequency ? (
+                    <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
+                  ) : (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <FieldLabel>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.label"
+                          fallback="Medication administration schedule"
+                        />
+                      </FieldLabel>
+                      <FieldContent>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
+                          fallback="Select a frequency above to complete the medication administration schedule"
+                        />
+                      </FieldContent>
+                    </div>
+                  )}
+                </>
               )}
 
               {canSendToPharmacy && (

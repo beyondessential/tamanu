@@ -1,15 +1,16 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
+import { camelCase } from 'es-toolkit/compat';
+
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_UNIT_LABELS,
-  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   DRUG_UNIT_PLURAL_LABELS,
   DRUG_UNIT_SHORT_LABELS,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS,
 } from '@tamanu/constants';
-import { camelCase } from 'es-toolkit/compat';
 
 // One month is always treated as 30 days for dispensing quantity calculations.
 const DAYS_PER_MONTH = 30;
