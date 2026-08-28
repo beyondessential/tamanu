@@ -34,6 +34,14 @@ Readability is the highest priority. Every line of code is read many times over 
 - Schema changes (added/removed/changed tables or columns) require updating the dbt source models in `database/model/` — see `packages/database/CLAUDE.md`
 - Adding a new **importable reference-data type** (a new `reference_data` type, or anything added to `OTHER_REFERENCE_TYPES` that flows into `GENERAL_IMPORTABLE_DATA_TYPES`) makes it **required by the provisioning completeness check** (`validateFullReferenceDataImport` in `provision.js`). You must either add a matching `packages/central-server/app/subCommands/defaultProvisioningData/<Sheet>.json5` (with at least one data row) **or** add it to `EXCLUDED_FROM_FULL_IMPORT_CHECK` if it's optional — otherwise `provision` throws and the deploy's central-provisioner job fails (central-api never starts).
 
+### Queries
+
+- **Bound the work by what the response returns.** If a query pages its output, its joins and aggregates must be scoped to that page too. A CTE bounded by the parent record (an encounter, a patient) rather than the page does work proportional to that record's entire history, so it degrades worst for the longest-staying patients — the ones whose data is most needed. Watch for an aggregate computed over a wider set than the page and then discarded by the outer join.
+- **Justify every `logs.changes` read.** The changelog is the largest table in most deployments, grows with every write, and is never pruned on facility servers. Reading it on a page-load path needs a stated reason why the same fact cannot come from the domain tables instead — usually it can, via a column like `edited_time`. Prefer adding the column.
+- **A `logs.changes` read needs a predicate an index can actually serve.** `record_id` is indexed with a **hash** index on facility servers, so equality only — not `IN` lists, and not if you cast it (`record_id::uuid`). Filtering on a `record_data` extraction (`record_data->>'x'`) is unindexed; the GIN index on `record_data` cannot serve `->>`. `table_name` on its own is no help either: the index is on the concatenated `table_schema || '.' || table_name`, which a bare column filter cannot match. Anything else is a sequential scan of the whole table.
+- **Name the index in the PR, or say why a scan is acceptable.** For new or changed queries on large tables (`logs.changes`, `survey_response_answers`, `notes`, `encounters`, `sync_lookup`), work out the index when designing the feature, not after a site reports slowness. Migrations run in downtime, so a plain `addIndex` is cheap.
+- **Read the plan against realistic volume, not seed data.** Real cost is query cost multiplied by contention: a query that is comfortable on a dev database can take minutes on a busy facility server, where a small `work_mem` spills aggregates to disk.
+
 ### Sync
 
 - Never modify `updated_at_sync_tick` manually
@@ -66,7 +74,6 @@ Tamanu operates across facilities in different timezones while maintaining a sin
 - Australian/NZ English in all text: "finalise", "colour", "centre", "cancelled"
 - All user-facing strings (including prop values like titles, labels, toasts) must be wrapped in `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData` — see @llm/project-rules/translations.md
 - Parameterised queries only — never interpolate user input into SQL
-- Consider index usage for new queries on large tables
 
 ## Healthcare
 
