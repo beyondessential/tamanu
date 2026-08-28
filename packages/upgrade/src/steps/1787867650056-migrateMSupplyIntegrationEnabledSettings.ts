@@ -6,18 +6,11 @@ import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
 import { carrierId, servedFacilityIds } from './1785000000001-migrateFacilityConfigToSettings.js';
 
-// Before this version, the mSupplyMed integration had a single `enabled` flag shared by
-// both the medication-dispense push (mSupplyMedIntegrationProcessor) and the stock-on-hand
-// pull (MSupplyStockOnHandProcessor). It has since split into two independent flags,
-// medDispenseEnabled and stockOnHandEnabled, so each processor can be turned on
-// independently. For a deployment that already configured the old flag, what actually
-// determined whether a given processor did anything was `enabled` AND that processor's
-// own schedule being enabled — so each new flag is derived from both.
-//
-// Both processors run only on the facility server, so this only needs to run there: the
-// facility server that upgrades to the code reading the new flags does so in the same
-// upgrade that runs this migration, so there's no window where the new code is live
-// without the setting it depends on.
+// The old shared `enabled` flag split into independent medDispenseEnabled/
+// stockOnHandEnabled flags; each is derived as `enabled` AND that processor's own
+// schedule, since that combination is what actually gated the processor before. Both
+// processors run only on the facility server, which upgrades in lockstep with this
+// migration, so deriving here (not also on central) is sufficient.
 const MED_DISPENSE_SCHEDULE_KEY = 'schedules.mSupplyMedIntegrationProcessor.enabled';
 const STOCK_ON_HAND_SCHEDULE_KEY = 'schedules.mSupplyStockOnHandProcessor.enabled';
 const MED_DISPENSE_SETTING_KEY = 'integrations.mSupplyMed.medDispenseEnabled';
@@ -32,11 +25,9 @@ const deriveSettings = (
   [STOCK_ON_HAND_SETTING_KEY, Boolean(legacyEnabled) && Boolean(stockOnHandScheduleEnabled)],
 ];
 
-// The legacy `enabled` key was dropped from the schema, so the normal settings cascade
-// (whose config lift only walks leaves present in the *current* schema) can no longer
-// surface it. Prefer whatever migrateFacilityConfigToSettings already synced up into
-// Settings; only read the deployment's live config directly if that hasn't landed yet
-// (e.g. a multi-version jump that reaches this migration before that sync round trip).
+// The legacy key was dropped from the schema, so the settings cascade's config lift no
+// longer surfaces it. Prefer an already-migrated Setting; fall back to live config only
+// for a multi-version jump that reaches here before that sync has landed.
 async function getLegacyMSupplyMedEnabled(
   models: StepArgs['models'],
   facilityId: string,
@@ -53,9 +44,8 @@ async function getLegacyMSupplyMedEnabled(
   return Boolean(configValue);
 }
 
-// Derived values are written via the FacilitySettingMigration carrier (a facility can't
-// write its own facility-scoped Setting rows), so applying them needs a sync round trip —
-// the same latency migrateFacilityConfigToSettings itself accepts for the same reason.
+// A facility can't write its own facility-scoped Setting rows, so this goes through the
+// FacilitySettingMigration carrier and needs a sync round trip to apply.
 async function migrateFromFacilityConfig({ toVersion, log, models }: StepArgs) {
   const { Facility, FacilitySettingMigration, LocalSystemFact } = models;
   const facilityIds = await servedFacilityIds(LocalSystemFact);
@@ -89,8 +79,7 @@ async function migrateFromFacilityConfig({ toVersion, log, models }: StepArgs) {
       medScheduleEnabled,
       stockOnHandScheduleEnabled,
     )) {
-      // Skip writing `false`: the schema default is already `false`, so a carrier row
-      // is only needed when the derived value is `true`.
+      // Schema default is already `false`, so only `true` needs a row.
       if (!value) continue;
       await FacilitySettingMigration.upsert({
         id: carrierId(facilityId, key),
