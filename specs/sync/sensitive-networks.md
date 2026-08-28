@@ -45,6 +45,20 @@ Network membership scopes which data reaches a facility. It does not widen which
 - [ ] The sync lookup table carries the sensitive network a record belongs to, alongside the facility column that scopes genuinely facility-bound records such as patient facility links and facility-scoped settings.
 - [ ] The network column is indexed, because every outgoing snapshot filters on it.
 
+### What carries a network
+
+- [ ] A record that hangs off an encounter carries the network of the facility that encounter took place at, and carries no facility. Where that facility belongs to no network, the record carries neither, and so reaches every facility.
+- [ ] Notifications resolve their network the same way, through the encounter their metadata names.
+- [ ] Encounter data is the only data a network scopes. A record that is genuinely facility-bound — an appointment, an appointment schedule, a location assignment, a patient facility link, a facility-scoped setting — keeps its facility and carries no network, so it reaches that facility alone whether or not the facility belongs to a network.
+
+### Admitting a record to a facility
+
+- [ ] A sync session names the facilities it is pulling for, and resolves the networks those facilities belong to. A facility belonging to no network contributes no network.
+- [ ] An outgoing snapshot admits a record when it carries neither a facility nor a network, when its facility is one the session names, or when its network is one the session's facilities belong to.
+- [ ] A session whose facilities belong to no network resolves an empty set of networks, so only the first two conditions can admit a record.
+- [ ] A session covering several facilities admits every record scoped to any of them, and every record scoped to any network they belong to.
+- [ ] A facility configured to sync all lab requests receives every lab request, ahead of patient and network scoping.
+
 ## Facilities that were sensitive before networks existed
 
 Facilities previously marked sensitive were isolated from each other as well as from the rest of the deployment: each pulled its own confidential data and no other facility's. Networks preserve that.
