@@ -26,7 +26,7 @@ interface MultiSelectModalFieldProps {
 }
 
 const extractLabel = (items: OptionType[]) => {
-  return items.map((x) => x.label).join(', ');
+  return items.map(x => x.label).join(', ');
 };
 
 export const MultiSelectModalField = ({

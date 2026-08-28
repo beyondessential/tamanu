@@ -21,11 +21,7 @@ export const ConfirmModal = ({
   children,
 }: ConfirmModalProps): JSX.Element => {
   return (
-    <BaseModal
-      open={open}
-      onClose={onClose}
-      title={title}
-    >
+    <BaseModal open={open} onClose={onClose} title={title}>
       {children}
       <Button
         onPress={onConfirm}
@@ -48,10 +44,7 @@ export const ConfirmModal = ({
           borderWidth={1}
           fontSize={16}
           fontWeight={500}
-          buttonText={<TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-          />}
+          buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         />
       )}
     </BaseModal>

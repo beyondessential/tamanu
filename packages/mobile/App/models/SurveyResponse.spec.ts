@@ -1,12 +1,6 @@
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
-import {
-  fake,
-  fakeEncounter,
-  fakePatient,
-  fakeSurvey,
-  fakeUser,
-} from '/root/tests/helpers/fake';
+import { fake, fakeEncounter, fakePatient, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
 describe('SurveyResponse', () => {
@@ -70,14 +64,10 @@ describe('SurveyResponse', () => {
           surveyId: survey.id,
           encounterReason: 'Test survey response',
         },
-        {
-          [dataElement.code]: 'alastair@bes.au',
-        },
-      ),
-        await patient.reload();
-      expect(patient).toMatchObject({
-        email: 'alastair@bes.au',
-      });
+        { [dataElement.code]: 'alastair@bes.au' },
+      );
+      await patient.reload();
+      expect(patient).toMatchObject({ email: 'alastair@bes.au' });
     });
   });
 

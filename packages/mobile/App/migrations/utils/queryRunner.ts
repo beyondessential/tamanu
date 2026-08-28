@@ -3,10 +3,7 @@ import { QueryRunner, Table, TableColumn } from 'typeorm';
 // typeORM uses a PRAGMA table_xinfo when getting a tables column definitions
 // This doesn't work on android, so typeORM thinks there's no columns defined
 // so redo the column loading with a regular table_info
-export async function getTable(
-  queryRunner: QueryRunner,
-  tableName: string,
-): Promise<Table> {
+export async function getTable(queryRunner: QueryRunner, tableName: string): Promise<Table> {
   const tableObject = await queryRunner.getTable(tableName);
   const tableColumns = await queryRunner.query(`PRAGMA table_info('${tableName}');`);
 
@@ -17,9 +14,10 @@ export async function getTable(
     const tableColumn = new TableColumn();
     tableColumn.name = dbColumn.name;
     tableColumn.type = dbColumn.type.toLowerCase();
-    tableColumn.default = dbColumn.dflt_value !== null
-      && dbColumn.dflt_value !== undefined
-      ? dbColumn.dflt_value : undefined;
+    tableColumn.default =
+      dbColumn.dflt_value !== null && dbColumn.dflt_value !== undefined
+        ? dbColumn.dflt_value
+        : undefined;
     tableColumn.isNullable = dbColumn.notnull === 0;
     // primary keys are numbered starting with 1, columns that aren't primary keys are marked with 0
     tableColumn.isPrimary = dbColumn.pk > 0;

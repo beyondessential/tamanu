@@ -19,7 +19,7 @@ const VitalsHeaderCell = ({ date }: { date: string }): ReactElement => {
 
 export const vitalsTableHeader: TableHeader = {
   key: 'date',
-  accessor: (date) => <VitalsHeaderCell date={date} />,
+  accessor: date => <VitalsHeaderCell date={date} />,
 };
 
 const styles = StyleSheet.create({

@@ -45,8 +45,7 @@ export const TranslatedText = ({
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
   const translation = useMemo(
-    () =>
-      getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
+    () => getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
     [getTranslation, stringId, fallback, replacements, casing],
   );
 

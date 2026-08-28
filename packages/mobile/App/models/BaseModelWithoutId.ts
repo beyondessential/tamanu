@@ -79,7 +79,7 @@ export abstract class BaseModelWithoutId extends BaseEntity {
   ): Promise<T[]> {
     const repo = this.getRepository<T>();
 
-    if (repo.metadata.columns.find((col) => col.propertyName === 'visibilityStatus')) {
+    if (repo.metadata.columns.find(col => col.propertyName === 'visibilityStatus')) {
       return repo.find({
         ...options,
         where: { ...options.where, visibilityStatus: VisibilityStatus.Current },

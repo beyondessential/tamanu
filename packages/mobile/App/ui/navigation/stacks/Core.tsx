@@ -30,7 +30,8 @@ function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {
 export const Core: FunctionComponent<any> = () => {
   const { signedIn } = useAuth();
   const { facilityId } = useFacility();
-  const { isLoading, hasCompletedInitialCheck, securityIssues, fetchSecurityInfo } = useSecurityInfo();
+  const { isLoading, hasCompletedInitialCheck, securityIssues, fetchSecurityInfo } =
+    useSecurityInfo();
   const shouldBlockForInitialLoading = isLoading && !hasCompletedInitialCheck;
 
   if (shouldBlockForInitialLoading || securityIssues.length > 0) {
@@ -50,7 +51,10 @@ export const Core: FunctionComponent<any> = () => {
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
-      <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
+      <Stack.Screen
+        component={FrequencySearchModalScreen}
+        name={Routes.Forms.FrequencySearchModal}
+      />
       <Stack.Screen
         name={Routes.SignUpStack.Index}
         component={SignUpStack}

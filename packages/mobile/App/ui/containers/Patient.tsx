@@ -5,7 +5,7 @@ import { actions, PatientStateProps } from '/store/ducks/patient';
 import { ReduxStoreProps } from '../interfaces/ReduxStoreProps';
 import { IPatient } from '~/types/IPatient';
 
-export const withPatient = (WrappedComponent: FC<{selectedPatient: IPatient}>) => {
+export const withPatient = (WrappedComponent: FC<{ selectedPatient: IPatient }>) => {
   const mapStateToProps = (state: ReduxStoreProps): PatientStateProps => ({
     ...state.patient,
   });
@@ -14,8 +14,6 @@ export const withPatient = (WrappedComponent: FC<{selectedPatient: IPatient}>) =
     dispatch,
     ...bindActionCreators(actions, dispatch),
   });
-  const Wrapper = (props: any): React.ReactElement => (
-    <WrappedComponent {...props} />
-  );
+  const Wrapper = (props: any): React.ReactElement => <WrappedComponent {...props} />;
   return connect(mapStateToProps, mapDispatchToProps)(Wrapper);
 };

@@ -20,7 +20,7 @@ export interface SyncRecord {
   data: SyncRecordData;
   sortOrder?: number;
   isDeleted?: boolean;
-  direction?: SYNC_SESSION_DIRECTION
+  direction?: SYNC_SESSION_DIRECTION;
 }
 
 export type PersistResult = {

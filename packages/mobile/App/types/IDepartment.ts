@@ -7,5 +7,5 @@ export interface IDepartment {
   code: string;
   name: string;
   facility?: IFacility;
-  visibilityStatus: VisibilityStatus.Current,
+  visibilityStatus: VisibilityStatus.Current;
 }

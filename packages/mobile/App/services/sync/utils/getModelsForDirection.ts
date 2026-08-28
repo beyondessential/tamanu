@@ -3,12 +3,14 @@ import { MODELS_MAP } from '~/models/modelsMap';
 
 import { type EntityManager } from 'typeorm';
 
-export type TransactingModel = typeof MODELS_MAP[keyof typeof MODELS_MAP] & {
+export type TransactingModel = (typeof MODELS_MAP)[keyof typeof MODELS_MAP] & {
   getTransactionalRepository: () => any;
 };
 
 type TransactingModelMap = {
-  [K in keyof Partial<typeof MODELS_MAP>]: typeof MODELS_MAP[K] & { getTransactionalRepository: () => any };
+  [K in keyof Partial<typeof MODELS_MAP>]: (typeof MODELS_MAP)[K] & {
+    getTransactionalRepository: () => any;
+  };
 };
 
 export const getModelsForDirection = (

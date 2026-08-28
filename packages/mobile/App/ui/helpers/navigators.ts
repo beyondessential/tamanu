@@ -10,10 +10,7 @@ export const noSwipeGestureOnNavigator = {
 
 // Navigate on a delay in order to wait for navigation to this screen to complete
 export const navigateAfterTimeout = (navigation, route): void => {
-  setTimeout(
-    () => navigation.navigate(route),
-    30,
-  );
+  setTimeout(() => navigation.navigate(route), 30);
 };
 
 /** Reset ProgramStack to the View history tab after submitting a program survey. */

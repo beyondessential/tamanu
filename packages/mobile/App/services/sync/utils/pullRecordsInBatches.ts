@@ -28,12 +28,12 @@ export const pullRecordsInBatches = async (
   while (totalPulled < recordTotal && current.records.length > 0) {
     // Get next cursor and adjust page size based on how long the last pull took
     const last = current.records.at(-1);
-    const nextFromId = btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id }))
-    
+    const nextFromId = btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id }));
+
     limit = calculatePageLimit(dynamicLimiterSettings, limit, current.pullTime);
 
     // Prefetch next page in background
-    const nextPromise = fetchPage(limit, nextFromId)
+    const nextPromise = fetchPage(limit, nextFromId);
 
     // Process current page while next is downloading
     const recordsToSave = current.records.map(r => ({

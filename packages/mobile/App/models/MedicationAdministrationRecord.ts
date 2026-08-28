@@ -15,10 +15,7 @@ import {
   setDate,
   startOfDay,
 } from 'date-fns';
-import {
-  areDatesInSameTimeSlot,
-  getFirstAdministrationDate,
-} from '~/ui/helpers/medicationHelpers';
+import { areDatesInSameTimeSlot, getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
 import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
 import { EncounterPrescription } from './EncounterPrescription';
 import { EncounterType } from '~/types/IEncounter';
@@ -207,7 +204,6 @@ export class MedicationAdministrationRecord extends BaseModel {
     // Skip if this is not an inpatient encounter or is discharged
     if (!encounter || encounter.encounterType !== EncounterType.Admission || encounter.endDate)
       return;
-
 
     const existingTask = await Task.createQueryBuilder('task')
       .where('task.encounterId = :encounterId', { encounterId: encounter.id })

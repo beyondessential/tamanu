@@ -4,9 +4,11 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 
 jest.mock('./executePreparedQuery');
 jest.mock('./buildFromSyncRecord', () => ({
-  buildFromSyncRecord: jest.fn().mockImplementation((_model, records) =>
-    records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
-  ),
+  buildFromSyncRecord: jest
+    .fn()
+    .mockImplementation((_model, records) =>
+      records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
+    ),
 }));
 // Mock dependencies like `model.find`
 

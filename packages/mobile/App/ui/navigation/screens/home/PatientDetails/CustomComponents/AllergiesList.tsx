@@ -9,14 +9,11 @@ interface Allergies extends AllergiesProps {
   onEdit: () => void;
 }
 
-export const AllergiesList = ({
-  onEdit,
-  allergies: { data },
-}: Allergies): ReactElement => (
+export const AllergiesList = ({ onEdit, allergies: { data } }: Allergies): ReactElement => (
   <StyledView>
     <PatientSection title="Allergies" onEdit={onEdit}>
-      {data.length > 0
-        && data.map((condition: string) => (
+      {data.length > 0 &&
+        data.map((condition: string) => (
           <RowView key={condition} alignItems="center" marginTop={10}>
             <Dot />
             <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>

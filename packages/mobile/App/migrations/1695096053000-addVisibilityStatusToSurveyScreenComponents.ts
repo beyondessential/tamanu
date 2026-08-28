@@ -3,8 +3,7 @@ import { getTable } from './utils/queryRunner';
 
 const TABLE_NAME = 'survey_screen_component';
 
-export class addVisibilityStatusToSurveyScreenComponents1695096053000
-  implements MigrationInterface {
+export class addVisibilityStatusToSurveyScreenComponents1695096053000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, TABLE_NAME);
 

@@ -12,10 +12,7 @@ type SurveyResponseScreenParams = {
   };
 };
 
-type SurveyResponseScreenRouteProps = RouteProp<
-SurveyResponseScreenParams,
-'SurveyResponseScreen'
->;
+type SurveyResponseScreenRouteProps = RouteProp<SurveyResponseScreenParams, 'SurveyResponseScreen'>;
 
 export type SurveyResponseScreenProps = {
   navigation: NavigationProp<any>;

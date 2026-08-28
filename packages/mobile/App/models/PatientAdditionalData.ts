@@ -32,7 +32,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @PrimaryColumn()
   id: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.additionalData)
+  @ManyToOne(() => Patient, patient => patient.additionalData)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -185,7 +185,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
-      includedColumns.forEach((camelCaseKey) => {
+      includedColumns.forEach(camelCaseKey => {
         if (this[camelCaseKey] !== undefined) {
           newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
         }
@@ -196,7 +196,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     ) {
       // retain the old sync ticks from previous updatedAtByField
       newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
-      includedColumns.forEach((camelCaseKey) => {
+      includedColumns.forEach(camelCaseKey => {
         const snakeCaseKey = snakeCase(camelCaseKey);
         // when saving relation id for instance, typeorm requires saving using
         // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
@@ -252,7 +252,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -267,7 +267,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
