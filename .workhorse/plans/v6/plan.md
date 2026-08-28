@@ -13,14 +13,40 @@ The guard test needs no change: U6 already moved `SENSITIVE_SCOPE_MARKER` to
 
 ## Snapshot filter
 
-Keep the resolved network list a **parameter** of the filter rather than deriving it inline from the
-session's facilities. V6 only ever populates it from the requesting facilities' membership, but W6
-needs the same filter driven by an explicit network id to run its `since = -1` catch-up pass. A
-parameter lets W6 extend this rather than fork it.
+```sql
+AND (
+  <patientClause>
+  AND (
+    (facility_id IS NULL AND sensitive_network_id IS NULL)
+    OR facility_id IN (:facilityIds)
+    OR sensitive_network_id IN (:sensitiveNetworkIds)
+  )
+  <OR is_lab_request IS TRUE, when syncAllLabRequests>
+)
+```
+
+The first line is load-bearing. `facility_id IS NULL` alone used to mean "unscoped", but a
+network-scoped row also has a null `facility_id`, so leaving that condition as it stands admits every
+sensitive record to every facility. Both columns must be null for a row to count as unscoped. This is
+the one place the change fails open, so it wants a test that would catch it.
+
+Network list resolved from the session's facilities:
+
+```sql
+SELECT DISTINCT sensitive_network_id
+FROM facilities
+WHERE id IN (:facilityIds)
+  AND sensitive_network_id IS NOT NULL
+```
 
 A facility in no network contributes no network, so a session with no networked facility resolves an
-empty list and the clause reduces to today's behaviour. Guard the empty case — Sequelize renders
-`IN (:networkIds)` badly for an empty array.
+empty list. Omit the clause entirely in that case rather than passing an empty array, following the
+pattern the file already uses for `syncAllLabRequests`.
+
+Keep the resolved network list a **parameter** of the filter rather than deriving it inline. V6 only
+ever populates it from the requesting facilities' membership, but W6 needs the same filter driven by
+an explicit network id for its `since = -1` catch-up pass. A parameter lets W6 extend this rather
+than fork it.
 
 ## Rescoping existing lookup rows
 
@@ -29,6 +55,16 @@ Least-data approach, rather than the per-model full rebuild:
 - Touch only rows whose `facility_id` points at a facility that belongs to a network, and whose
   record type is encounter-scoped. Those are exactly the rows the old sensitivity `CASE` wrote.
 - Set the network from the facility, null the facility.
+
+```sql
+UPDATE sync_lookup
+SET sensitive_network_id = facilities.sensitive_network_id,
+    facility_id = NULL
+FROM facilities
+WHERE sync_lookup.facility_id = facilities.id
+  AND facilities.sensitive_network_id IS NOT NULL
+  AND sync_lookup.record_type IN (:encounterScopedRecordTypes);
+```
 - **Leave `updated_at_sync_tick` alone.** Nothing stamps `sync_lookup` itself — the sync tick and
   hard-delete triggers sit on the source tables and write into it — so a direct update preserves
   ticks and no facility re-pulls.
