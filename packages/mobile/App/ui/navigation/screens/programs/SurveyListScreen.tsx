@@ -11,7 +11,9 @@ import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
 import { IPatient, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { Survey } from '~/models/Survey';
@@ -37,32 +39,34 @@ type SurveyListScreenProps = {
 const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement => {
   const navigation = useNavigation();
   const { programId, programName } = route.params;
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
 
-  const [filteredSurveys, error, isLoading] = useBackendEffect(
-    async ({ models }: { models: any }) => {
-      const allSurveys = await models.Survey.find({
-        relations: ['program'],
-        where: {
-          surveyType: SurveyTypes.Programs,
-          program: { id: programId },
-          visibilityStatus: VisibilityStatus.Current,
-        },
-        order: {
-          name: 'ASC',
-        },
-      });
+  const { data: filteredSurveys, error, isPending: isLoading } =
+    // `ability` is based on signed-in user anyway; encoded in query key as `user.id`
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    useQuery({
+      queryKey: surveyKeys.list({
+        patientId: selectedPatient?.id,
+        programId,
+        userId: user?.id,
+      }),
+      queryFn: async () => {
+        const { models } = Database;
+        const allSurveys = await models.Survey.find({
+          relations: ['program'],
+          where: {
+            surveyType: SurveyTypes.Programs,
+            program: { id: programId },
+            visibilityStatus: VisibilityStatus.Current,
+          },
+          order: { name: 'ASC' },
+        });
 
-      const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
+        const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
 
-      return getProgramSurveysWithFormVisibility(
-        models,
-        filteredByAbility,
-        selectedPatient?.id,
-      );
-    },
-    [programId, selectedPatient?.id, ability],
-  );
+        return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
+      },
+    });
 
   const goBack = useCallback(() => {
     navigation.goBack();

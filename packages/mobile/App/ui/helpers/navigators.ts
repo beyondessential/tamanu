@@ -59,31 +59,16 @@ const getVaccineStackNavigation = (
   return undefined;
 };
 
-/** Pop back to the vaccine table and refresh it without resetting the active category tab. */
-export const returnToVaccineTableWithRefresh = (
-  navigation: NavigationProp<any>,
-  latestAdministeredVaccineId?: string,
-): void => {
+/**
+ * Pop back to the vaccine table without resetting the active category tab. The table
+ * refreshes via query invalidation from the vaccine mutation, not navigation params.
+ */
+export const returnToVaccineTable = (navigation: NavigationProp<any>): void => {
   const stackNavigation = getVaccineStackNavigation(navigation);
 
   if (!stackNavigation) {
     navigation.goBack();
     return;
-  }
-
-  const tableRoute = stackNavigation
-    .getState()
-    .routes.find(route => route.name === Routes.HomeStack.VaccineStack.VaccineTabs.Index);
-
-  if (tableRoute?.key && latestAdministeredVaccineId) {
-    stackNavigation.dispatch({
-      // HACK: Append suffix so returning after an edit (same id) triggers refetch. To be superseded
-      // with TanStack QueryClient invalidation.
-      ...CommonActions.setParams({
-        latestAdministeredVaccineId: `${latestAdministeredVaccineId}\u{200D}${Date.now()}`,
-      }),
-      source: tableRoute.key,
-    });
   }
 
   stackNavigation.goBack();

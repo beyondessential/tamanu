@@ -7,7 +7,10 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientFieldDefinitionKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import {
   getSuggester,
   plainFields,
@@ -72,11 +75,13 @@ const RelationField = ({ fieldName, required }): ReactElement => {
 };
 
 const CustomField = ({ fieldName, required }): ReactElement => {
-  const [fieldDefinition, _, loading] = useBackendEffect(({ models }) =>
-    models.PatientFieldDefinition.findOne({
-      where: { id: fieldName },
-    }),
-  );
+  const { data: fieldDefinition, isPending: loading } = useQuery({
+    queryKey: patientFieldDefinitionKeys.detail(fieldName),
+    queryFn: () =>
+      Database.models.PatientFieldDefinition.findOne({
+        where: { id: fieldName },
+      }),
+  });
 
   if (loading) return <ActivityIndicator />;
 
@@ -92,7 +97,7 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
       required={required}
     />
   );
@@ -132,23 +137,26 @@ export const PatientAdditionalDataFields = ({
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getSetting } = useSettings();
-  const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
-    models.PatientFieldDefinition.getRepository().find({
-      select: ['id'],
-    }),
-  );
-  const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
+  const { data: customFieldIds, isPending: loading } = useQuery({
+    queryKey: patientFieldDefinitionKeys.ids(),
+    queryFn: () =>
+      Database.models.PatientFieldDefinition.getRepository().find({
+        select: ['id'],
+      }),
+    select: definitions => definitions.map(d => d.id),
+  });
+
+  if (isCustomSection) {
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+  }
+
+  if (loading) return [];
 
   const padFields = getConfiguredPatientAdditionalDataFields(
     fields as string[],
     showMandatory,
     getSetting,
   );
-
-  if (isCustomSection)
-    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
-
-  if (loading) return [];
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);

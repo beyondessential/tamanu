@@ -7,7 +7,9 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
-import { useBackend } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
 import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
@@ -215,25 +217,20 @@ export const MultiSelectDropdown = ({ ...props }): ReactElement => (
 );
 
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
-  const { models } = useBackend();
   const { getTranslation } = useTranslation();
-  const [options, setOptions] = useState([]);
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
-      const translatedResults = results.map(option => {
-        const stringId = getReferenceDataStringId(option.value, referenceDataType);
-        return {
-          label: getTranslation(stringId, option.label),
-          value: option.value,
-        };
-      });
-      setOptions(translatedResults);
-    })();
-    // Only run once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data: options = [] } = useQuery({
+    queryKey: referenceKeys.dataByType(referenceDataType, { format: 'selectOptions' }),
+    queryFn: () => Database.models.ReferenceData.getSelectOptionsForType(referenceDataType),
+    select: data =>
+      data.map(option => ({
+        label: getTranslation(
+          getReferenceDataStringId(option.value, referenceDataType),
+          option.label,
+        ),
+        value: option.value,
+      })),
+  });
 
   return <Dropdown {...props} options={options} />;
 };

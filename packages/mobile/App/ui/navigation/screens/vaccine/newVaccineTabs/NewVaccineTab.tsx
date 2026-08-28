@@ -1,5 +1,6 @@
-import React, { FC, ReactElement, useCallback, useState } from 'react';
+import React, { FC, ReactElement, useCallback } from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
@@ -14,9 +15,10 @@ import { useBackend } from '~/ui/hooks';
 import { EncounterType, IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
+import { returnToVaccineTable } from '~/ui/helpers/navigators';
 import { Routes } from '~/ui/helpers/routes';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { VaccineCategory } from '../../../../helpers/patient';
 import { AdministeredVaccine } from '~/models/AdministeredVaccine';
 
@@ -48,7 +50,6 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
-  const [isSubmitting, setSubmitting] = useState(false);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -57,10 +58,9 @@ export const NewVaccineTabComponent = ({
   const user = useSelector(authUserSelector);
 
   const { models } = useBackend();
-  const recordVaccination = useCallback(
-    async (values: VaccineFormValues): Promise<void> => {
-      if (isSubmitting) return;
-      setSubmitting(true);
+  const queryClient = useQueryClient();
+  const { mutateAsync: saveVaccination, isPending: isSubmitting } = useMutation({
+    mutationFn: async (values: VaccineFormValues) => {
       const {
         scheduledVaccineId,
         recorderId,
@@ -138,6 +138,27 @@ export const NewVaccineTabComponent = ({
         relations: ['locationGroup'],
       });
       const department = await models.Department.findOne({ where: { id: departmentId } });
+
+      return { updatedVaccine, scheduledVaccine, encounter, notGivenReason, location, department };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+    },
+  });
+
+  const recordVaccination = useCallback(
+    async (values: VaccineFormValues): Promise<void> => {
+      if (isSubmitting) return;
+      const {
+        updatedVaccine,
+        scheduledVaccine,
+        encounter,
+        notGivenReason,
+        location,
+        department,
+      } = await saveVaccination(values);
+      const { departmentId, locationId } = values;
+
       if (values.administeredVaccine) {
         navigation.dispatch(
           StackActions.popTo(
@@ -163,10 +184,10 @@ export const NewVaccineTabComponent = ({
           ),
         );
       } else {
-        returnToVaccineTableWithRefresh(navigation, updatedVaccine.id);
+        returnToVaccineTable(navigation);
       }
     },
-    [isSubmitting],
+    [isSubmitting, saveVaccination, navigation, vaccine],
   );
 
   const vaccineObject = { ...vaccine, ...administeredVaccine };

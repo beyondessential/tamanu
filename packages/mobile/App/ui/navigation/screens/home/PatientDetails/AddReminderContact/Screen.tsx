@@ -2,6 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 import * as yup from 'yup';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
@@ -24,6 +25,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
 import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IFormValues {
@@ -39,13 +41,22 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     navigation.goBack();
   }, [navigation]);
 
+  const queryClient = useQueryClient();
+  const { mutateAsync: createContact } = useMutation({
+    mutationFn: (values: IFormValues) =>
+      PatientContact.createAndSaveOne<PatientContact>({
+        name: values.reminderContactName,
+        relationship: values.reminderContactRelationship,
+        method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+        patient: selectedPatient.id,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
+    },
+  });
+
   const submit = async (values: IFormValues) => {
-    const newContact = await PatientContact.createAndSaveOne<PatientContact>({
-      name: values.reminderContactName,
-      relationship: values.reminderContactRelationship,
-      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
-      patient: selectedPatient.id,
-    });
+    const newContact = await createContact(values);
     afterAddContact(
       {
         ...newContact,

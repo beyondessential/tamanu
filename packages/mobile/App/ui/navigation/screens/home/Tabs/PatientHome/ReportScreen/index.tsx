@@ -8,8 +8,9 @@ import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
-import { useIsFocused } from '@react-navigation/core';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
@@ -94,20 +95,19 @@ const ReportChart: FC<ReportChartProps> = ({
 export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement => {
   const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
-  const isFocused = useIsFocused();
 
-  const [data] = useBackendEffect(
-    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
-    [selectedSurveyId, isFocused],
-  );
+  const { data } = useQuery({
+    queryKey: reportKeys.encounterSummary(selectedSurveyId),
+    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+  });
 
-  const [surveys] = useBackendEffect(({ models }) =>
-    models.Survey.find({
-      where: {
-        surveyType: SurveyTypes.Programs,
-      },
-    }),
-  );
+  const { data: surveys } = useQuery({
+    queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
+    queryFn: () =>
+      Database.models.Survey.find({
+        where: { surveyType: SurveyTypes.Programs },
+      }),
+  });
 
   useEffect(() => {
     // automatically select the first survey as soon as surveys are loaded

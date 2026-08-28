@@ -1,7 +1,10 @@
 import React, { useCallback } from 'react';
-import { StyledText} from '~/ui/styled/common';
+import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { useBackend, useBackendEffect } from '../../hooks';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { syncKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '../../hooks';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ConfirmModal } from '../Modals/ConfirmModal';
 import { Patient } from '~/models/Patient';
@@ -25,15 +28,23 @@ export const SyncStatusModal = ({
   isMarkedForSync,
 }: SyncStatusModalModalProps): JSX.Element => {
   const { syncManager } = useBackend();
-  const [lastPull] = useBackendEffect(({ models: m }) =>
-    m.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
-  );
+  const { data: lastPull } = useQuery({
+    queryKey: syncKeys.lastSuccessfulPull(),
+    queryFn: () =>
+      Database.models.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
+  });
+  const { mutateAsync: markPatientForSync } = useMutation({
+    mutationFn: () => Patient.markForSync(selectedPatient.id),
+    onSuccess: () => {
+      syncManager.triggerUrgentSync();
+      onSyncPatient();
+    },
+  });
+
   const handleSyncPatient = useCallback(async (): Promise<void> => {
-    await Patient.markForSync(selectedPatient.id);
-    syncManager.triggerUrgentSync();
+    await markPatientForSync();
     onClose();
-    onSyncPatient();
-  }, [syncManager, selectedPatient, onClose, onSyncPatient]);
+  }, [markPatientForSync, onClose]);
 
   if (isMarkedForSync === false) {
     return (
@@ -41,14 +52,18 @@ export const SyncStatusModal = ({
         open={open}
         onClose={onClose}
         onConfirm={handleSyncPatient}
-        title={<TranslatedText
-          stringId="patient.details.modal.unsynced.title"
-          fallback="Sync patient?"
-        />}
-        confirmButtonText={<TranslatedText
-          stringId="patient.details.modal.unsynced.action.sync"
-          fallback="Sync patient"
-        />}
+        title={
+          <TranslatedText
+            stringId="patient.details.modal.unsynced.title"
+            fallback="Sync patient?"
+          />
+        }
+        confirmButtonText={
+          <TranslatedText
+            stringId="patient.details.modal.unsynced.action.sync"
+            fallback="Sync patient"
+          />
+        }
       >
         <StyledText
           textAlign="center"
@@ -69,38 +84,33 @@ export const SyncStatusModal = ({
 
   return (
     <ConfirmModal
-        open={open}
-        onClose={onClose}
-        onConfirm={onClose}
-        showCancelButton={false}
-        title={<TranslatedText
+      open={open}
+      onClose={onClose}
+      onConfirm={onClose}
+      showCancelButton={false}
+      title={
+        <TranslatedText
           stringId="patient.details.modal.synced.title"
           fallback="Patient sync information"
-        />}
-        confirmButtonText={<TranslatedText
-          stringId="general.action.close"
-          fallback="Close"
-        />}
+        />
+      }
+      confirmButtonText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+    >
+      <StyledText
+        textAlign="center"
+        fontSize={14}
+        fontWeight={500}
+        marginTop={20}
+        color={theme.colors.TEXT_SUPER_DARK}
       >
-        <StyledText
-          textAlign="center"
-          fontSize={14}
-          fontWeight={500}
-          marginTop={20}
-          color={theme.colors.TEXT_SUPER_DARK}
-        >
-          <TranslatedText
-            stringId="sync.subHeading.lastSuccessfulSync"
-            fallback="Last successful sync"
-          />
-        </StyledText>
-        <StyledText
-          textAlign="center"
-          fontSize={14}
-          color={theme.colors.TEXT_SUPER_DARK}
-        >
-          {formattedLastPull}
-        </StyledText>
-      </ConfirmModal>
+        <TranslatedText
+          stringId="sync.subHeading.lastSuccessfulSync"
+          fallback="Last successful sync"
+        />
+      </StyledText>
+      <StyledText textAlign="center" fontSize={14} color={theme.colors.TEXT_SUPER_DARK}>
+        {formattedLastPull}
+      </StyledText>
+    </ConfirmModal>
   );
-}
+};

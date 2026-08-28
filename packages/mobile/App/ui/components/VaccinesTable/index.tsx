@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
 import { uniqBy } from 'es-toolkit/compat';
-import { useIsFocused } from '@react-navigation/native';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
 import { VaccinesTableTitle } from './VaccinesTableTitle';
@@ -20,8 +22,6 @@ import { SETTING_KEYS } from '~/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 type VaccineTableCells = Record<string, VaccineTableCellData[]>;
-
-export const VaccineTableRefreshContext = createContext<string | undefined>(undefined);
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -41,8 +41,6 @@ export const VaccinesTable = ({
   );
 
   const scrollViewRef = useRef(null);
-  const isFocused = useIsFocused();
-  const latestAdministeredVaccineId = useContext(VaccineTableRefreshContext);
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
@@ -51,18 +49,16 @@ export const VaccinesTable = ({
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
-  const [scheduledVaccines, scheduledVaccineError] = useBackendEffect(
-    async ({ models }) =>
-      (await models.ScheduledVaccine.find({
+  const { data: scheduledVaccines, error: scheduledVaccineError } = useQuery({
+    queryKey: referenceKeys.scheduledVaccines({ category: categoryName }),
+    queryFn: async () =>
+      (await Database.models.ScheduledVaccine.find({
         order: { index: 'ASC' },
         where: { category: categoryName },
       })) as IScheduledVaccine[],
-    [],
-  );
-  const [patientAdministeredVaccines, administeredError] = useBackendEffect(
-    ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [isFocused, latestAdministeredVaccineId, selectedPatient.id],
-  );
+  });
+  const { data: patientAdministeredVaccines, error: administeredError } =
+    usePatientAdministeredVaccinesQuery(selectedPatient.id);
 
   const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];

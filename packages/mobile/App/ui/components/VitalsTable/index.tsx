@@ -7,7 +7,7 @@ import { Table, TableCells } from '../Table';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
 import { LoadingScreen } from '/components/LoadingScreen';
-import { useBackendEffect } from '~/ui/hooks';
+import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { VitalsDataElements } from '/helpers/constants';
 import { ScrollView } from 'react-native';
@@ -76,9 +76,7 @@ export const VitalsTable = memo(
     const { selectedPatient } = useSelector(
       (state: ReduxStoreProps): PatientStateProps => state.patient,
     );
-    const [vitalsSurvey, error] = useBackendEffect(({ models }) =>
-      models.Survey.getVitalsSurvey({ includeAllVitals: true }),
-    );
+    const { data: vitalsSurvey, error } = useVitalsSurveyQuery({ includeAllVitals: true });
     const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
     if (!vitalsSurvey) {

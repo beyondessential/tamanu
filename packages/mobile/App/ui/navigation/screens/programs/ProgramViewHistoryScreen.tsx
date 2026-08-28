@@ -12,7 +12,9 @@ import { LoadingScreen } from '../../../components/LoadingScreen';
 import { Separator } from '../../../components/Separator';
 import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 
-import { useBackendEffect } from '../../../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -27,14 +29,21 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
 
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const isFocused = useIsFocused();
 
-  // use latestResponseId to ensure that we refresh when
-  // a new survey is submitted (as this tab can be mounted while
-  // it isn't active)
-  const [responses, error, isLoading] = useBackendEffect(
-    async ({ models }) => {
+  const {
+    data: responses,
+    error,
+    isPending: isLoading,
+  } = useQuery({
+    queryKey: [
+      ...patientKeys.surveyResponses(selectedPatient.id),
+      { type: SurveyTypes.Programs, latestResponseId, userId: user?.id },
+    ],
+
+    queryFn: async () => {
+      const { models } = Database;
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       const surveys = await models.Survey.find({
         where: {
@@ -50,8 +59,7 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
           surveyIds.includes(response.surveyId),
       );
     },
-    [isFocused, latestResponseId, selectedPatient.id],
-  );
+  });
 
   useEffect(() => {
     if (!isFocused || isLoading || !responses) return;

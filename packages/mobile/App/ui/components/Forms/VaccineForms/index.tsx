@@ -19,7 +19,9 @@ import { Button } from '/components/Button';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '../../../../constants';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -86,8 +88,18 @@ export const VaccineForm = ({
 
   const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
-  const [locationAndDepartment, error, isLoading] = useBackendEffect(
-    async ({ models }) => {
+  const {
+    data: locationAndDepartment,
+    error,
+    isPending: isLoading,
+  } = useQuery({
+    queryKey: [
+      ...patientKeys.detail(patientId),
+      'vaccineFormDefaults',
+      { locationId: initialValues?.locationId, departmentId: initialValues?.departmentId },
+    ],
+    queryFn: async () => {
+      const { models } = Database;
       if (initialValues?.locationId && initialValues?.departmentId) {
         return { locationId: initialValues.locationId, departmentId: initialValues.departmentId };
       }
@@ -109,8 +121,7 @@ export const VaccineForm = ({
         departmentId: vaccinationDefaults.departmentId,
       };
     },
-    [patientId, initialValues?.locationId, initialValues?.departmentId],
-  );
+  });
 
   if (error) {
     return <ErrorScreen error={error} />;

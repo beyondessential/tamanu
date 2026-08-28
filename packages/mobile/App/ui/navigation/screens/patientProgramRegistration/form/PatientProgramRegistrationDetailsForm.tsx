@@ -20,7 +20,9 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { getCompleteRegistrationConditions } from '~/ui/helpers/programRegistration';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
-import { useBackendEffect } from '~/ui/hooks/index';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys, programRegistryKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -56,52 +58,61 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [models.Facility],
   );
 
-  const [clinicalStatusOptions] = useBackendEffect(
-    async ({ models }) => {
-      const statuses = await models.ProgramRegistryClinicalStatus.find({
+  const { data: clinicalStatusOptions } = useQuery({
+    queryKey: programRegistryKeys.clinicalStatuses(programRegistry.id),
+    queryFn: () =>
+      Database.models.ProgramRegistryClinicalStatus.find({
         where: {
           visibilityStatus: VisibilityStatus.Current,
           programRegistry: { id: programRegistry.id },
         },
-      });
-
-      return statuses.map((status) => {
-        const translatedName = getTranslation(
+      }),
+    select: statuses =>
+      statuses.map(status => ({
+        ...status,
+        translatedName: getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
-        );
-        return {
-          ...status,
-          translatedName,
-        };
-      });
-    },
-    [programRegistry.id],
-  );
-  const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    const newPpr: any = await PatientProgramRegistration.upsertRegistration(
-      selectedPatient.id,
-      programRegistry.id,
-      {
-        date: formData.date,
-        clinicalStatus: formData.clinicalStatusId,
-        registeringFacility: formData.registeringFacilityId,
-        clinician: formData.clinicianId,
-      },
-    );
+        ),
+      })),
+  });
+  const queryClient = useQueryClient();
+  const { mutateAsync: saveRegistration } = useMutation({
+    mutationFn: async (formData: IPatientProgramRegistryForm) => {
+      const newPpr: any = await PatientProgramRegistration.upsertRegistration(
+        selectedPatient.id,
+        programRegistry.id,
+        {
+          date: formData.date,
+          clinicalStatus: formData.clinicalStatusId,
+          registeringFacility: formData.registeringFacilityId,
+          clinician: formData.clinicianId,
+        },
+      );
 
-    // Only save rows with both a condition and a category: the "Add additional" button
-    // can leave an incomplete placeholder that would otherwise throw mid-loop (after the
-    // registration is saved), blocking navigation and duplicating conditions on re-submit.
-    for (const condition of getCompleteRegistrationConditions(formData.conditions)) {
-      await PatientProgramRegistrationCondition.createAndSaveOne({
-        date: formData.date,
-        programRegistryCondition: condition.condition.value,
-        programRegistryConditionCategory: condition.category.value,
-        clinician: formData.clinicianId,
-        patientProgramRegistration: newPpr.id,
-      });
-    }
+      // Only save rows with both a condition and a category: the "Add additional" button
+      // can leave an incomplete placeholder that would otherwise throw mid-loop (after the
+      // registration is saved), blocking navigation and duplicating conditions on re-submit.
+      for (const condition of getCompleteRegistrationConditions(formData.conditions)) {
+        await PatientProgramRegistrationCondition.createAndSaveOne({
+          date: formData.date,
+          programRegistryCondition: condition.condition.value,
+          programRegistryConditionCategory: condition.category.value,
+          clinician: formData.clinicianId,
+          patientProgramRegistration: newPpr.id,
+        });
+      }
+
+      return newPpr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all });
+    },
+  });
+
+  const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
+    const newPpr = await saveRegistration(formData);
 
     navigation.dispatch(
       StackActions.replace(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
@@ -213,7 +224,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({
+                      clinicalStatusOptions?.map(x => ({
                         label: x.translatedName,
                         value: x.id,
                       })) || []
@@ -230,7 +241,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     programRegistryId={programRegistry.id}
                     values={values.conditions}
-                    onChange={(newValue) => {
+                    onChange={newValue => {
                       values.conditions = newValue;
                     }}
                   />
