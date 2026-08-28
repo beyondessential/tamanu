@@ -58,8 +58,6 @@ export type MobileSyncSettings = {
   dynamicLimiter: DynamicLimiterSettings;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
-
 export interface PullParams {
   sessionId: string;
   recordTotal: number;

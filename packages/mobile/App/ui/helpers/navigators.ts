@@ -2,8 +2,6 @@ import { CommonActions, type NavigationProp } from '@react-navigation/native';
 
 import { Routes } from './routes';
 
-export const noTabComponent = (): null => null;
-
 export const noSwipeGestureOnNavigator = {
   gestureEnabled: false,
 };

@@ -15,13 +15,6 @@ import { useDisableAndroidBackButton } from '../../../helpers/android';
 import type { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-export interface IntroRouteProps {
-  message: string;
-  title: string;
-  nextRoute: string | '';
-  step: number;
-}
-
 export const Intro = (props: IntroScreenProps): ReactElement => {
   const { navigation, route } = props;
   const { title, message, step, nextRoute } = route.params;
