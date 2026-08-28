@@ -133,7 +133,7 @@ const StyledNumberFieldWrapper = styled.div`
   .MuiInputBase-input {
     font-size: 11px;
     height: 17px;
-    padding: 1px calc(${p => p.$units.length}ch + 5px) 1px 3px;
+    padding: 1px calc(${p => p.$units?.length ?? 0}ch + 5px) 1px 3px;
     text-align: center;
     width: 41px;
 
@@ -344,7 +344,9 @@ const GivenScreen = ({
               <StyledNumberFieldWrapper $units={dosingUnit} ref={doseInputRef}>
                 <Field name="doseAmount" component={NumberField} min={0.25} />
                 <InputSuffix>
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                  {dosingUnit && (
+                    <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                  )}
                   <RequiredOrnament />
                 </InputSuffix>
               </StyledNumberFieldWrapper>
