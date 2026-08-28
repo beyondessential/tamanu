@@ -21,14 +21,21 @@ A sensitive network is a named group of facilities that share confidential data.
 - [ ] A facility is sensitive exactly when it belongs to a network. There is no separate sensitivity flag, so every reader of facility sensitivity tests network membership instead.
 - [ ] Placing a facility in a network is therefore the only way to make it sensitive.
 
-## Membership is fixed at creation
+## Changing membership
 
-Confidential data that has already synced to a facility cannot be recalled, and a facility that changed network would hold data it is no longer entitled to and lack data it now is. Membership is therefore settled once, when the facility is created.
+Confidential data that has already synced to a facility cannot be recalled, so a facility only ever changes network when it carries nothing it is not entitled to take with it.
 
-- [ ] A facility's network is chosen when the facility is created and cannot be changed afterwards.
-- [ ] A facility created in no network belongs to no network for its lifetime, so it never becomes sensitive.
-- [ ] A facility in a network cannot be moved to another network, nor removed from its own, whether or not it is that network's only member.
-- [ ] Adding a facility to a network means creating a new facility enrolled in it.
+- [ ] A facility's network is chosen when the facility is created.
+- [ ] A facility belonging to no network cannot be placed in one. Making a facility sensitive means creating a new facility already enrolled in the network.
+- [ ] A facility cannot be removed from its network. Un-networking a facility means wiping its local data and resyncing it from scratch.
+- [ ] A facility that is the sole member of its network can be moved to another network, since it holds no sibling's data to take with it.
+- [ ] A facility that shares its network with other facilities cannot be moved to another network.
+
+### When a facility moves network
+
+- [ ] The facility's own records are rescoped to the network it moves to, so the facilities already in that network receive them.
+- [ ] The facility receives the confidential data its new network recorded before it moved, not only what is recorded afterwards.
+- [ ] The network the facility left is empty, and can be deleted.
 
 ## Facility access for users
 
@@ -65,8 +72,10 @@ Facilities previously marked sensitive were isolated from each other as well as 
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import.
-- [ ] Their lookup rows carry that network in place of the facility, so a facility created into one of those networks receives the confidential data recorded before it existed.
-- [ ] A deployment with no networked facility has no such rows and rebuilds nothing.
+- [ ] Their lookup rows carry that network in place of the facility, so a facility that later moves into one of those networks receives the confidential data recorded before it moved.
+- [ ] Only the lookup rows scoped to a facility that belongs to a network are rescoped. A deployment with no networked facility rescopes nothing.
+- [ ] Rows scoped to a facility deleted while it was sensitive keep their facility, because that facility has no network to move them to. They reach no facility, as they did before.
+- [ ] Rescoping leaves each row's sync tick alone, so no facility re-pulls a record it already holds.
 - [ ] A facility that was deleted while sensitive gains no network, since it receives nothing.
 - [ ] A deployment with no sensitive facilities gains no networks.
 
