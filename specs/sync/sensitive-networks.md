@@ -36,6 +36,7 @@ Confidential data that has already synced to a facility cannot be recalled, so a
 - [ ] The facility's own records are rescoped to the network it moves to, so the facilities already in that network receive them.
 - [ ] The facility receives the confidential data its new network recorded before it moved, not only what is recorded afterwards.
 - [ ] The network the facility left is empty, and can be deleted.
+- [ ] Network scoping widens which facilities a record can reach, and nothing else. A facility receives its network's confidential data only for the patients it syncs, following the same patient scoping every other record does.
 
 ## Facility access for users
 
