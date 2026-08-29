@@ -71,12 +71,33 @@ dataset at `since = -1`. `facilityIds` also can't be repurposed to carry sibling
 `patient_facilities` and facility settings in the same query, and model-specific filters outside this
 file consume it (`Referral.buildSyncFilter`).
 
-**Open decision — whether to null `facility_id` on rescoped rows.** The card says null it, which
-makes `facility_id` mean exactly one thing (genuinely facility-bound). Keeping it populated alongside
-the network filters identically — a row with `facility_id = F` and `network = N2` is admitted to F by
-the facility clause and to F's siblings by the network clause — but it lets W6's catch-up narrow with
-`AND facility_id IN (:newlyVisibleFacilityIds)` so a facility pulls only the data of members newly
-visible to it, never its own. Nulled, W6 can only re-pull the network's whole history per member.
+**Open decision — whether to null `facility_id`.** The card says null it. Recommendation is to keep
+it populated. Both filter identically: a row with `facility_id = F` and `network = N2` is admitted to
+F by the facility clause and to F's siblings by the network clause.
+
+Keeping it:
+
+- Makes the backfill purely additive (set the network, strip nothing), so it cannot fail open. The
+  null variant depends on the `sensitive_network_id IS NOT NULL` guard being right.
+- Makes a missed `ON CONFLICT DO UPDATE` entry fail closed — the row keeps its facility and is merely
+  not yet shared with siblings, rather than losing all scope.
+- Lets W6's catch-up narrow with `AND facility_id IN (:newlyVisibleFacilityIds)`, so a facility pulls
+  only the newly visible members' data, never its own or its existing siblings'.
+
+The cost is `facility_id` carrying two meanings, which the network column disambiguates: network
+non-null means "originated at this facility", network null means "bound to this facility". Worth a
+comment on the column saying exactly that.
+
+Note the `CASE` survives for `facility_id` under this option:
+
+```js
+sensitiveNetworkId: 'facilities.sensitive_network_id',
+facilityId: `CASE WHEN facilities.sensitive_network_id IS NOT NULL
+             THEN facilities.id ELSE NULL END`,
+```
+
+It cannot be an unconditional `facilities.id` — that would scope every encounter row to its facility
+and stop non-sensitive encounter data syncing anywhere else.
 
 ## Rescoping existing lookup rows
 
@@ -84,12 +105,12 @@ Least-data approach, rather than the per-model full rebuild:
 
 - Touch only rows whose `facility_id` points at a facility that belongs to a network, and whose
   record type is encounter-scoped. Those are exactly the rows the old sensitivity `CASE` wrote.
-- Set the network from the facility, null the facility.
+- Set the network from the facility. Whether the facility is also nulled follows the open decision
+  under Snapshot filter; the additive form below is the recommended one.
 
 ```sql
 UPDATE sync_lookup
-SET sensitive_network_id = facilities.sensitive_network_id,
-    facility_id = NULL
+SET sensitive_network_id = facilities.sensitive_network_id
 FROM facilities
 WHERE sync_lookup.facility_id = facilities.id
   AND facilities.sensitive_network_id IS NOT NULL
