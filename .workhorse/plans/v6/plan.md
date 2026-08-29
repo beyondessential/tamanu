@@ -71,33 +71,24 @@ dataset at `since = -1`. `facilityIds` also can't be repurposed to carry sibling
 `patient_facilities` and facility settings in the same query, and model-specific filters outside this
 file consume it (`Referral.buildSyncFilter`).
 
-**Open decision — whether to null `facility_id`.** The card says null it. Recommendation is to keep
-it populated. Both filter identically: a row with `facility_id = F` and `network = N2` is admitted to
-F by the facility clause and to F's siblings by the network clause.
+**Decided — null `facility_id`, per the card.** One meaning per column: `facility_id` means the
+record is bound to that facility, `sensitive_network_id` means it is scoped to that network. The
+alternative, keeping `facility_id` populated as "originated here", was considered and rejected: it
+overloads the column so neither value can be read without the other, and its benefits are small.
 
-Keeping it:
+- The backfill is safe either way. `WHERE facilities.sensitive_network_id IS NOT NULL` means a row
+  gains a network exactly when it loses its facility, driven by the same value, so it cannot end with
+  neither scope.
+- A missed `sensitive_network_id` in the `ON CONFLICT DO UPDATE` list only strands a row during the
+  window between the code deploying and the backfill running. The backfill runs in the same upgrade,
+  during downtime, before traffic. Still a review item, not a standing hazard.
+- The only real loss is W6's catch-up narrowing. That costs each member of a network re-pulling the
+  network's history once when a facility moves in. Networks are one to three facilities and moves are
+  a rare administrative act, so this is cheap.
 
-- Makes the backfill purely additive (set the network, strip nothing), so it cannot fail open. The
-  null variant depends on the `sensitive_network_id IS NOT NULL` guard being right.
-- Makes a missed `ON CONFLICT DO UPDATE` entry fail closed — the row keeps its facility and is merely
-  not yet shared with siblings, rather than losing all scope.
-- Lets W6's catch-up narrow with `AND facility_id IN (:newlyVisibleFacilityIds)`, so a facility pulls
-  only the newly visible members' data, never its own or its existing siblings'.
-
-The cost is `facility_id` carrying two meanings, which the network column disambiguates: network
-non-null means "originated at this facility", network null means "bound to this facility". Worth a
-comment on the column saying exactly that.
-
-Note the `CASE` survives for `facility_id` under this option:
-
-```js
-sensitiveNetworkId: 'facilities.sensitive_network_id',
-facilityId: `CASE WHEN facilities.sensitive_network_id IS NOT NULL
-             THEN facilities.id ELSE NULL END`,
-```
-
-It cannot be an unconditional `facilities.id` — that would scope every encounter row to its facility
-and stop non-sensitive encounter data syncing anywhere else.
+If W6 later demonstrates it needs the narrowing, add a separate `origin_facility_id` column meaning
+only "which member recorded this" rather than overloading `facility_id`. A mostly-null nullable UUID
+costs essentially nothing beyond the existing null bitmap.
 
 ## Rescoping existing lookup rows
 
@@ -105,17 +96,20 @@ Least-data approach, rather than the per-model full rebuild:
 
 - Touch only rows whose `facility_id` points at a facility that belongs to a network, and whose
   record type is encounter-scoped. Those are exactly the rows the old sensitivity `CASE` wrote.
-- Set the network from the facility. Whether the facility is also nulled follows the open decision
-  under Snapshot filter; the additive form below is the recommended one.
+- Set the network from the facility, null the facility.
 
 ```sql
 UPDATE sync_lookup
-SET sensitive_network_id = facilities.sensitive_network_id
+SET sensitive_network_id = facilities.sensitive_network_id,
+    facility_id = NULL
 FROM facilities
 WHERE sync_lookup.facility_id = facilities.id
   AND facilities.sensitive_network_id IS NOT NULL
   AND sync_lookup.record_type IN (:encounterScopedRecordTypes);
 ```
+
+Run this in the same upgrade as the code change, so no row is left old-shape while the new population
+logic is live.
 - **Leave `updated_at_sync_tick` alone.** Nothing stamps `sync_lookup` itself — the sync tick and
   hard-delete triggers sit on the source tables and write into it — so a direct update preserves
   ticks and no facility re-pulls.
