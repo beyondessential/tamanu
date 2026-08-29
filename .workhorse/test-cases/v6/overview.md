@@ -38,11 +38,6 @@ fixture is the main new work.
 - [ ] On a deployment with no networked facility, nothing is rescoped. verifies spec: SENSNET
 - [ ] After rescoping, a facility that was sensitive before networks existed receives exactly the records it received before. verifies spec: SENSNET
 
-## Facility list provenance
-
-- [ ] A snapshot is scoped by the facilities validated when the session started, not by whatever the pull request body claims. A session started for one facility and initiated with another's id returns the first facility's data.
-- [ ] Claiming a networked facility's id in the pull request does not yield that network's confidential data.
-
 ## Operational
 
 - [ ] An incremental lookup build that rebuilds an already-network-scoped row leaves it network-scoped, covering a missing entry in the `ON CONFLICT DO UPDATE` list.

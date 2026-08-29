@@ -98,28 +98,6 @@ the join work the lookup table exists to avoid, which is why it is wrong on the 
 acceptable here — it runs once, on a move. Reach for that before adding an `origin_facility_id`
 column.
 
-## Take the snapshot's facility list from the session, not the request body
-
-`POST /sync` validates the client's `facilityIds` against the sync user's facility access
-(`buildSyncRoutes.js:56-59`) and `startSession` persists them on the session
-(`CentralSyncManager.js:143`). But `pull/initiate` reads `facilityIds` from its **own** body
-(`buildSyncRoutes.js:196`) and `setupSnapshotForPull` uses that list throughout, never
-`session.parameters.facilityIds` — the stored copy is only read back at `endSession` for logging.
-Nothing reconciles the two. `connectToSession` also never checks the session belongs to the
-requesting device.
-
-So the snapshot runs on an unvalidated, client-supplied facility list. Patient scoping does not
-constrain it either: `createMarkedForSyncPatientsTable` is built from the same claimed list.
-
-This card keys network derivation off that list, taking the blast radius from one facility's
-confidential data to a whole network's. Fix it here: read `session.parameters.facilityIds` and ignore
-the body. Both clients already send identical lists at both calls (`getServerFacilityIds()` on
-facility servers, `[facilityId]` on mobile), so this is backwards compatible and needs no coordinated
-client release.
-
-The missing session-ownership check in `connectToSession` is a broader issue — worth raising
-separately rather than folding in here.
-
 ## Rescoping existing lookup rows
 
 Least-data approach, rather than the per-model full rebuild:
@@ -166,6 +144,16 @@ pulls lab requests from sensitive facilities today. Unchanged here, but it is a 
 hole rather than a neutral omission.
 
 ## Not covered here
+
+**The snapshot's facility list is unvalidated — out of scope for this card, but widened by it.**
+`POST /sync` validates the client's `facilityIds` (`buildSyncRoutes.js:56-59`) and `startSession`
+persists them (`CentralSyncManager.js:143`), but `pull/initiate` accepts a fresh list from its own
+body (`buildSyncRoutes.js:196`) and `setupSnapshotForPull` scopes on that, never consulting
+`session.parameters.facilityIds`. `connectToSession` also never checks the session belongs to the
+requesting device. Because this card derives the network from that list, the reach of a false claim
+grows from one facility's confidential data to a whole network's. The fix is subtraction — read the
+stored list, ignore the body; both clients already send identical lists at both calls, so it needs no
+client release.
 
 The non-lookup snapshot path (`snapshotOutgoingChangesFromModels`, used when
 `sync.lookupTable.enabled` is false) has no facility-sensitivity filtering at all, before or after
