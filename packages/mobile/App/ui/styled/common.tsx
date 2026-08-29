@@ -28,7 +28,6 @@ import {
 } from 'styled-system';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import type { SharedValue } from 'react-native-reanimated';
 import type { GestureResponderEvent } from 'react-native';
 
 const sizes = [];
@@ -52,18 +51,18 @@ export const themeSystem = {
 interface TextProps {
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   lineHeight?: number | string;
-  fontSize?: number | string | SharedValue<number>;
+  fontSize?: number | string;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
-  minHeight?: string | number | SharedValue<number>;
-  minWidth?: string | number | SharedValue<number>;
-  maxHeight?: string | number | SharedValue<number>;
-  maxWidth?: string | number | SharedValue<number>;
-  height?: string | number | SharedValue<number>;
-  width?: string | number | SharedValue<number>;
+  minHeight?: string | number;
+  minWidth?: string | number;
+  maxHeight?: string | number;
+  maxWidth?: string | number;
+  height?: string | number;
+  width?: string | number;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
@@ -78,10 +77,10 @@ export interface SpacingProps {
 
 interface PositionProps {
   position?: 'absolute' | 'relative';
-  top?: string | number | SharedValue<number>;
-  left?: string | number | SharedValue<number>;
-  right?: string | number | SharedValue<number>;
-  bottom?: string | number | SharedValue<number>;
+  top?: string | number;
+  left?: string | number;
+  right?: string | number;
+  bottom?: string | number;
   zIndex?: number;
 }
 
@@ -106,7 +105,7 @@ interface BorderProps {
 }
 
 interface VisibilityProps {
-  opacity?: string | number | SharedValue<number>;
+  opacity?: string | number;
 }
 
 export interface StyledTextProps extends SpacingProps, FlexProps, BorderProps, TextProps {}
