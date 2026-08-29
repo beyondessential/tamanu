@@ -86,9 +86,17 @@ overloads the column so neither value can be read without the other, and its ben
   network's history once when a facility moves in. Networks are one to three facilities and moves are
   a rare administrative act, so this is cheap.
 
-If W6 later demonstrates it needs the narrowing, add a separate `origin_facility_id` column meaning
-only "which member recorded this" rather than overloading `facility_id`. A mostly-null nullable UUID
-costs essentially nothing beyond the existing null bitmap.
+W6's catch-up therefore runs unnarrowed for now: a facility joining a network re-pulls that
+network's history, including its own records. `avoidRepull` (on by default) already drops rows this
+device pushed, which trims much of the redundancy for free, though it is best-effort — attribution
+comes from a build-time join against `sync_device_ticks` and the `IS NULL` branch lets unattributed
+rows through.
+
+If that ever proves too expensive, derive origin at catch-up time by joining back to source. Each
+model already encodes its joins to `facilities` in `buildSyncLookupQueryDetails`. That costs exactly
+the join work the lookup table exists to avoid, which is why it is wrong on the hot path and
+acceptable here — it runs once, on a move. Reach for that before adding an `origin_facility_id`
+column.
 
 ## Rescoping existing lookup rows
 
