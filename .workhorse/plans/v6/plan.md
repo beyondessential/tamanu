@@ -143,6 +143,23 @@ own comment notes vitals alone made the rebuild non-free; V6 would be flagging a
 pulls lab requests from sensitive facilities today. Unchanged here, but it is a live confidentiality
 hole rather than a neutral omission.
 
+## Index for the network filter
+
+Add `sensitive_network_id` to the composite index that already backs the snapshot's filter columns,
+`sync_lookup_updated_at_sync_tick_record_id_patient_id_facility_` on
+`(updated_at_sync_tick, record_id, patient_id, facility_id)`. It belongs at the end, in the same
+trailing-filter role `facility_id` plays. Keep U6's standalone index on `sensitive_network_id` —
+it serves network-scoped lookups such as W6's catch-up, which this composite would not.
+
+**Validate with `EXPLAIN` before writing the migration.** The snapshot query is
+`WHERE updated_at_sync_tick > :since AND id > :fromId ... ORDER BY id LIMIT :limit`, and `id` is not
+in this composite index at all, so the planner may already be preferring the primary key and treating
+the composite as dead weight. If that is what it is doing, appending a column to it changes nothing
+and the useful index is a different one. Confirm which index the query actually uses first.
+
+`sync_lookup` is large, so building this is slow. Migrations run during downtime, so a plain
+`CREATE INDEX` is acceptable, but expect it to add real time to the upgrade.
+
 ## Not covered here
 
 **The snapshot's facility list is unvalidated — out of scope for this card, but widened by it.**

@@ -41,4 +41,5 @@ fixture is the main new work.
 ## Operational
 
 - [ ] An incremental lookup build that rebuilds an already-network-scoped row leaves it network-scoped, covering a missing entry in the `ON CONFLICT DO UPDATE` list.
-- [ ] Outgoing snapshot timing on a realistic `sync_lookup` is not materially worse with the network clause added. The composite index `sync_lookup_updated_at_sync_tick_record_id_patient_id_facility_` does not include `sensitive_network_id`, so this wants an `EXPLAIN` rather than assumption.
+- [ ] Outgoing snapshot timing on a realistic `sync_lookup` is not materially worse with the network clause added.
+- [ ] `EXPLAIN` on the snapshot query confirms which index it uses, before and after adding `sensitive_network_id` to the composite index. The query orders by `id`, which that index does not contain, so the planner may be using the primary key instead.
