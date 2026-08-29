@@ -28,6 +28,7 @@ fixture is the main new work.
 - [ ] A session covering several facilities receives records scoped to any of them, and to any network they belong to. verifies spec: SENSNET
 - [ ] A facility set to sync all lab requests still receives every lab request, including from a network it does not belong to. Existing behaviour, deliberately unchanged — pinning it so the change to the surrounding clause does not alter it by accident. verifies spec: SENSNET
 - [ ] A facility receives its network's data only for patients it marks for sync. verifies spec: SENSNET
+- [ ] An encounter moved from a networked facility to a facility in no network takes its records with it, including those recorded before the move, and they become visible to every facility. verifies spec: SENSNET
 
 ## Rescoping existing rows
 

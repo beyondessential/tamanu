@@ -57,6 +57,7 @@ Network membership scopes which data reaches a facility. It does not widen which
 
 - [ ] A record that hangs off an encounter carries the network of the facility that encounter took place at, and carries no facility. Where that facility belongs to no network, the record carries neither, and so reaches every facility.
 - [ ] Notifications resolve their network the same way, through the encounter their metadata names.
+- [ ] A record's network follows the facility its encounter is currently at, rather than the facility it was recorded at. Moving an encounter to a facility in another network, or to a facility in no network, takes its records and everything already recorded against them along with it.
 - [ ] Encounter data is the only data a network scopes. A record that is genuinely facility-bound — an appointment, an appointment schedule, a location assignment, a patient facility link, a facility-scoped setting — keeps its facility and carries no network, so it reaches that facility alone whether or not the facility belongs to a network.
 
 ### Admitting a record to a facility

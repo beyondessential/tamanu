@@ -162,6 +162,11 @@ and the useful index is a different one. Confirm which index the query actually 
 
 ## Not covered here
 
+**Moving an encounter between facilities is not restricted.** `PUT /encounter/:id` accepts any valid
+`locationId` with no same-facility check (`encounter.js:271-276`), so an encounter can be moved out of
+a networked facility and its records — including those recorded before the move — become visible
+everywhere. This is accepted behaviour, specified in SENSNET; no guard is added here.
+
 **The snapshot's facility list is unvalidated — out of scope for this card, but widened by it.**
 `POST /sync` validates the client's `facilityIds` (`buildSyncRoutes.js:56-59`) and `startSession`
 persists them (`CentralSyncManager.js:143`), but `pull/initiate` accepts a fresh list from its own
