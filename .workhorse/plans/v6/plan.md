@@ -11,6 +11,16 @@ its INSERT column list, its select, and its `ON CONFLICT DO UPDATE` list.
 The guard test needs no change: U6 already moved `SENSITIVE_SCOPE_MARKER` to
 `facilities.sensitive_network_id`, and that string stays in the select afterwards.
 
+Two ways this fails open rather than erroring, both worth a test that would catch them:
+
+- **The `ON CONFLICT DO UPDATE` list.** Add `sensitive_network_id` to the INSERT but miss it in the
+  update list, and an existing row rebuilt incrementally gets `facility_id` nulled while keeping a
+  stale (usually NULL) network. The row ends with neither scope and syncs everywhere.
+- **Positional coupling.** `buildLookupUpsertQuery`'s INSERT column list and `buildSyncLookupSelect`'s
+  SELECT are matched by position across two files, and `facility_id`/`sensitive_network_id` are both
+  string/UUID. Transposing them compiles, runs, and scopes every sensitive record to a facility id
+  that is really a network id.
+
 ## Snapshot filter
 
 ```sql
@@ -96,9 +106,23 @@ Derive the encounter-scoped record types from the model registry rather than lis
 same predicate the guard test uses (table is `encounters`, or its lookup joins reach `encounters`).
 That set also catches `Notification`, whose joins reach encounters.
 
+**Precedent, if the flagged-rebuild route is preferred instead.**
+`1785372544730-RebuildLookupTableForSensitiveFacilityScopedModels.ts` does the conditioned rebuild:
+bail unless a sensitive facility exists, then `flag_lookup_model_to_rebuild(:tableName)` per model,
+letting the tick-preserving full-rebuild path re-materialise from source. It flagged 4 models and its
+own comment notes vitals alone made the rebuild non-free; V6 would be flagging around 50, including
+`encounters`, `notes` and `survey_responses`. That scale is the argument for the targeted update.
+
 ## Out of scope
 
 `syncAllLabRequests` already bypasses sensitivity: the snapshot clause is
 `(patientClause AND facilityClause) OR is_lab_request IS TRUE`, so a facility with the setting on
 pulls lab requests from sensitive facilities today. Unchanged here, but it is a live confidentiality
 hole rather than a neutral omission.
+
+## Not covered here
+
+The non-lookup snapshot path (`snapshotOutgoingChangesFromModels`, used when
+`sync.lookupTable.enabled` is false) has no facility-sensitivity filtering at all, before or after
+this card. Default config is `enabled: true`, so it is effectively legacy, but a deployment running
+with it off has no sensitive scoping either way.
