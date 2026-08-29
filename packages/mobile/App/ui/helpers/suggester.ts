@@ -18,7 +18,7 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   relations?: Array<string>;
   excludeIds?: string[];
   /**
-   * Extra predicate ANDed into the query, for conditions `where` can't express — a comparison
+   * Extra predicate AND-ed into the query, for conditions `where` can't express — a comparison
    * against a joined relation, say. Any alias other than `entity` must be listed in `relations`.
    */
   andWhere?: { sql: string; parameters?: ObjectLiteral };
