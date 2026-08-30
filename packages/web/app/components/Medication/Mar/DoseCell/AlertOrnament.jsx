@@ -22,7 +22,7 @@ const AlertOrnament = styled(
   inset-inline-end: 0;
   position: absolute;
   &.MuiSvgIcon-root {
-    font-size: 0.66666667em;
+    font-size: 0.6em;
   }
 `;
 
