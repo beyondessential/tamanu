@@ -21,7 +21,7 @@ const node = facilitySettings.properties.tasking.properties.encounterOverdueTask
 
 const renderInput = (value) => {
   const handleChangeSetting = vi.fn();
-  renderElementWithTranslatedText(
+  const build = (v) => (
     <SettingsContext.Provider value={{ getSetting: () => undefined }}>
       <Formik initialValues={{ settings: {} }} onSubmit={() => {}}>
         <SettingInput
@@ -29,16 +29,21 @@ const renderInput = (value) => {
           settingsPath={PATH}
           name="Encounter overdue tasks time frame"
           description={node.description}
-          value={value}
+          value={v}
           defaultValue={node.defaultValue}
           typeSchema={node.type}
           unit={node.unit}
           handleChangeSetting={handleChangeSetting}
         />
       </Formik>
-    </SettingsContext.Provider>,
+    </SettingsContext.Provider>
   );
-  return { handleChangeSetting, input: screen.getByRole('spinbutton') };
+  const { rerender } = renderElementWithTranslatedText(build(value));
+  return {
+    handleChangeSetting,
+    input: screen.getByRole('spinbutton'),
+    setValue: (v) => rerender(build(v)),
+  };
 };
 
 describe('SettingInput for a nullable number', () => {
@@ -75,5 +80,27 @@ describe('SettingInput for a nullable number', () => {
     renderInput(0.5);
 
     expect(screen.queryByText(/must be an integer/)).not.toBe(null);
+  });
+
+  it('empties the field when the override is taken away', () => {
+    // Reset to default hands back undefined without the field being typed in, so the
+    // input has to stay controlled through the change or it keeps showing the old number.
+    const { input, setValue } = renderInput(8);
+    expect(input.value).toBe('8');
+
+    setValue(undefined);
+
+    expect(input.value).toBe('');
+  });
+
+  it('empties the field when the override taken away was invalid', () => {
+    // The state a refused save leaves behind: the field still holds the rejected value.
+    const { input, setValue } = renderInput(0.5);
+    expect(input.value).toBe('0.5');
+
+    setValue(undefined);
+
+    expect(input.value).toBe('');
+    expect(screen.queryByText(/must be an integer/)).toBe(null);
   });
 });
