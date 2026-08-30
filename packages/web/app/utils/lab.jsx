@@ -72,6 +72,28 @@ export const getLabResultGroupKey = ({ labTestPanel }) =>
 export const shouldShowLabResultGroupHeader = (row, previousRow) =>
   !previousRow || getLabResultGroupKey(previousRow) !== getLabResultGroupKey(row);
 
+// Panels lead, each under its name; the loose/reflex tests follow under one "Individual tests"
+// heading. Returns null when the row continues its group, so the header shows only above the
+// first row of each group. Shared by the lab request view results table and the results entry
+// modal so both surfaces group identically.
+export const renderLabResultGroupHeader = (row, previousRow) => {
+  if (!shouldShowLabResultGroupHeader(row, previousRow)) return null;
+  return row.labTestPanel ? (
+    <TranslatedReferenceData
+      value={row.labTestPanel.id}
+      fallback={row.labTestPanel.name}
+      category="labTestPanel"
+      data-testid="labresult-group-header-panel"
+    />
+  ) : (
+    <TranslatedText
+      stringId="lab.results.individualTests.label"
+      fallback="Individual tests"
+      data-testid="labresult-group-header-individual"
+    />
+  );
+};
+
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (
