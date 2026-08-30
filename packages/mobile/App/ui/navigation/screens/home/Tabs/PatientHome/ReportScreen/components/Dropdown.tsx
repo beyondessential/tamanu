@@ -1,8 +1,15 @@
-import React, { FC, useRef, useState } from 'react';
+import React, { type FC, useRef, useState } from 'react';
 import { Modal, ScrollView, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { calculateDropdownPosition } from '~/ui/helpers/screen';
-import { DropdownContainer, OptionItem, OptionItemText, OptionsContainer, PlaceholderContainer, ReportSelectorContainer } from './DropdownStyledComponents';
+import {
+  DropdownContainer,
+  OptionItem,
+  OptionItemText,
+  OptionsContainer,
+  PlaceholderContainer,
+  ReportSelectorContainer,
+} from './DropdownStyledComponents';
 
 interface IOptionItem {
   value: string;
@@ -54,16 +61,14 @@ export const Dropdown: FC<IDropdownProps> = props => {
       <ReportSelectorContainer ref={placeholderRef}>
         <TouchableWithoutFeedback onPress={handlePress} style={{ flex: 1 }}>
           <PlaceholderContainer>
-            <OptionItemText>{!props.options?.length ? 'No options available' : (selectedItem?.label ?? '')}</OptionItemText>
+            <OptionItemText>
+              {!props.options?.length ? 'No options available' : (selectedItem?.label ?? '')}
+            </OptionItemText>
             <Icon name={isOpen ? 'caret-up' : 'caret-down'} />
           </PlaceholderContainer>
         </TouchableWithoutFeedback>
       </ReportSelectorContainer>
-      <Modal
-        visible={isOpen}
-        transparent
-        onRequestClose={(): void => setIsOpen(false)}
-      >
+      <Modal visible={isOpen} transparent onRequestClose={(): void => setIsOpen(false)}>
         <TouchableWithoutFeedback onPress={(): void => setIsOpen(false)}>
           <DropdownContainer>
             <OptionsContainer

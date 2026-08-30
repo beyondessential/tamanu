@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
@@ -12,9 +12,7 @@ const COLORS = {
   purple: '#971a1a',
 };
 
-function separateColorText(
-  resultText,
-): { color: string; strippedResultText: string } {
+function separateColorText(resultText): { color: string; strippedResultText: string } {
   for (const [key, color] of Object.entries(COLORS)) {
     // only match colors at the end that follow a result
     // "90% GREEN" -> "90%"
@@ -35,12 +33,7 @@ function separateColorText(
 export const SurveyResultBadge = ({ resultText }): ReactElement => {
   const { color, strippedResultText } = separateColorText(resultText);
   return (
-    <StyledView
-      paddingLeft="6"
-      paddingRight="6"
-      borderRadius={5}
-      background={color}
-    >
+    <StyledView paddingLeft="6" paddingRight="6" borderRadius={5} background={color}>
       <StyledText>{strippedResultText}</StyledText>
     </StyledView>
   );

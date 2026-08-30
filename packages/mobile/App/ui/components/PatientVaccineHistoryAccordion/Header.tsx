@@ -1,5 +1,5 @@
-import React, { FunctionComponent, ReactElement } from 'react';
-import { SvgProps } from 'react-native-svg';
+import React, { type FunctionComponent, type ReactElement } from 'react';
+import type { SvgProps } from 'react-native-svg';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
@@ -19,9 +19,7 @@ interface HeaderRightIconContainerProps {
   isActive: boolean;
 }
 
-const HeaderRightIconContainer = ({
-  isActive,
-}: HeaderRightIconContainerProps): ReactElement => (
+const HeaderRightIconContainer = ({ isActive }: HeaderRightIconContainerProps): ReactElement => (
   <StyledView>
     <StatusIcon
       height={12}
@@ -31,23 +29,19 @@ const HeaderRightIconContainer = ({
   </StyledView>
 );
 
-export const Header = (
-  section: any,
-  index: number,
-  isActive: boolean,
-): ReactElement => (
+export const Header = (section: any, _index: number, isActive: boolean): ReactElement => (
   <StyledView>
     <RowView
       width="100%"
-      background={
-        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-      }
+      background={isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY}
       height={60}
       alignItems="center"
       paddingLeft={20}
       paddingRight={20}
     >
-      <StyledText color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK} fontWeight="bold">{section.title}</StyledText>
+      <StyledText color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK} fontWeight="bold">
+        {section.title}
+      </StyledText>
       <HeaderRightIconContainer isActive={isActive} />
     </RowView>
     <Separator />

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';

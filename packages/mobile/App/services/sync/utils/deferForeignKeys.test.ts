@@ -4,7 +4,7 @@ import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
 import { deferForeignKeys } from './deferForeignKeys';
-import { IPatient, IUser } from '~/types';
+import type { IPatient, IUser } from '~/types';
 
 describe('deferForeignKeys', () => {
   let encounterId: string;
@@ -42,7 +42,9 @@ describe('deferForeignKeys', () => {
       await deferForeignKeys(em);
 
       const repo = em.getRepository(Task);
-      await repo.save(fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: parentId }));
+      await repo.save(
+        fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: parentId }),
+      );
       await repo.save(fakeTask(encounterId, requestedByUserId, { id: parentId }));
     });
 

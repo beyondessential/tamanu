@@ -1,12 +1,14 @@
-import { NavigationProp, RouteProp, useIsFocused } from '@react-navigation/native';
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { IPatient } from '~/types';
-import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
-import { useBackendEffect } from '~/ui/hooks';
+import type { IPatient } from '~/types';
+import { Database } from '~/infra/db';
+import { returnToVaccineTable } from '~/ui/helpers/navigators';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
-import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
+import { VaccineCard, type VaccineDataProps } from '/components/VaccineCard';
 import { Routes } from '/helpers/routes';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -31,20 +33,17 @@ export const VaccineModalScreen = ({
 }: VaccineModalScreenProps): ReactElement => {
   const { vaccine, patient } = route.params;
   const administeredVaccineId = vaccine.administeredVaccine?.id;
-  const isFocused = useIsFocused();
 
-  /**
-   * Ideally we’d declare, declaratively, the relevant vaccine data and delegate state management
-   * to something like TanStack Query. In its absence, we use an Effect dependent on focus to
-   * imperatively refetch data if and when the administered vaccine is edited.
-   */
-  const [administeredVaccine, error, isLoading] = useBackendEffect(
-    ({ models }) => {
-      if (administeredVaccineId === undefined) return null;
-      return models.AdministeredVaccine.getById(administeredVaccineId);
-    },
-    [administeredVaccineId, isFocused],
-  );
+  const {
+    data: administeredVaccine,
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: [...patientKeys.administeredVaccines(patient.id), administeredVaccineId],
+    queryFn: () => Database.models.AdministeredVaccine.getById(administeredVaccineId),
+    enabled: administeredVaccineId !== undefined,
+  });
+  const isLoading = administeredVaccineId !== undefined && isPending;
 
   const vaccineData = useMemo(
     () =>
@@ -54,9 +53,7 @@ export const VaccineModalScreen = ({
     [administeredVaccine, vaccine],
   );
 
-  const onNavigateBack = useCallback(() => {
-    returnToVaccineTableWithRefresh(navigation, administeredVaccineId);
-  }, [navigation, administeredVaccineId]);
+  const onNavigateBack = useCallback(() => void returnToVaccineTable(navigation), [navigation]);
 
   const onNavigateToEditDetails = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {

@@ -16,10 +16,7 @@ export const PatientProgramRegistryRegistrationStatus = ({ registrationStatus })
       ]}
     />
     <Text style={styles.text}>
-      <TranslatedEnum
-        value={registrationStatus}
-        enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
-      />
+      <TranslatedEnum value={registrationStatus} enumValues={PROGRAM_REGISTRATION_STATUS_LABELS} />
     </Text>
   </View>
 );

@@ -12,8 +12,8 @@ describe('<VisitTypeButton />', () => {
         type={VisitTypes.CLINIC}
         selected
         onPress={(): void => onPressMock()}
-        title=''
-        subtitle=''
+        title=""
+        subtitle=""
       />,
     );
     expect(getByText(VisitTypes.CLINIC)).not.toBeNull();
@@ -25,8 +25,8 @@ describe('<VisitTypeButton />', () => {
         type={VisitTypes.CLINIC}
         selected
         onPress={(): void => onPressMock()}
-        title=''
-        subtitle=''
+        title=""
+        subtitle=""
       />,
     );
     const textType = getByText(VisitTypes.CLINIC);

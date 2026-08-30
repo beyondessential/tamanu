@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { readConfig, writeConfig } from '~/services/config';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
+import queryClient from '~/ui/queryClient';
+import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
 export type WithPatientStoreProps = WithPatientActions & PatientStateProps;
 export interface WithPatientActions {
-  setSelectedPatient: (
-    payload: IPatient | null,
-  ) => PayloadAction<IPatient>;
+  setSelectedPatient: (payload: IPatient | null) => PayloadAction<IPatient>;
 }
 
 export interface PatientStateProps {
@@ -16,14 +16,18 @@ export interface PatientStateProps {
 const MAX_STORED_RECENT_PATIENTS = 20;
 
 const addPatientToRecentlyViewed = async (patientId: string): Promise<void> => {
-  const oldRecentlyViewedPatients: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
+  const prev: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
 
-  const updatedArray = [
-    patientId,
-    ...oldRecentlyViewedPatients.filter((id) => id !== patientId),
-  ].slice(0, MAX_STORED_RECENT_PATIENTS);
+  if (prev[0] === patientId) return;
 
-  writeConfig('recentlyViewedPatients', JSON.stringify(updatedArray));
+  const updatedArray = [patientId, ...prev.filter(id => id !== patientId)].slice(
+    0,
+    MAX_STORED_RECENT_PATIENTS,
+  );
+
+  await writeConfig('recentlyViewedPatients', JSON.stringify(updatedArray));
+
+  queryClient.invalidateQueries({ queryKey: patientListKeys.recentlyViewed() });
 };
 
 const initialState: PatientStateProps = {
@@ -34,10 +38,7 @@ export const PatientSlice = createSlice({
   name: 'patient',
   initialState: initialState,
   reducers: {
-    setSelectedPatient(
-      state,
-      { payload: patient }: PayloadAction<IPatient>,
-    ): PatientStateProps {
+    setSelectedPatient(_state, { payload: patient }: PayloadAction<IPatient>): PatientStateProps {
       if (patient?.id) addPatientToRecentlyViewed(patient.id);
 
       return {

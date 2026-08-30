@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // SQLite doesn't index foreign keys automatically, so these joins were all driving off full table
 // scans of the largest tables on the device.

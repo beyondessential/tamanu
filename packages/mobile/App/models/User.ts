@@ -1,7 +1,7 @@
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
-import { IUser } from '~/types';
+import type { IUser } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { Note } from './Note';
 import { LabRequest } from './LabRequest';
@@ -9,9 +9,9 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
-import { type PureAbility } from '@casl/ability';
+import type { PureAbility } from '@casl/ability';
 import { union } from 'es-toolkit/compat';
-import { MODELS_MAP } from './modelsMap';
+import type { MODELS_MAP } from './modelsMap';
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;

@@ -2,8 +2,8 @@ import React from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '../Button';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
-import { BaseModal, BaseModalProps } from './BaseModal';
+import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { BaseModal, type BaseModalProps } from './BaseModal';
 
 export interface ConfirmModalProps extends BaseModalProps {
   confirmButtonText: TranslatedTextElement;
@@ -21,11 +21,7 @@ export const ConfirmModal = ({
   children,
 }: ConfirmModalProps): JSX.Element => {
   return (
-    <BaseModal
-      open={open}
-      onClose={onClose}
-      title={title}
-    >
+    <BaseModal open={open} onClose={onClose} title={title}>
       {children}
       <Button
         onPress={onConfirm}
@@ -48,10 +44,7 @@ export const ConfirmModal = ({
           borderWidth={1}
           fontSize={16}
           fontWeight={500}
-          buttonText={<TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-          />}
+          buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         />
       )}
     </BaseModal>
