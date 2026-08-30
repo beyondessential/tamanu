@@ -127,7 +127,7 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
 
   return (
     <>
-      <TextButton color="blue" onClick={openModalCallback} data-testid="textbutton-p17p">
+      <TextButton onClick={openModalCallback} data-testid="textbutton-p17p">
         <TextDisplay isChartView={isChartView} />
       </TextButton>
       <Modal

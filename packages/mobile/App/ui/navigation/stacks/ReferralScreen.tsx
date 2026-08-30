@@ -1,13 +1,13 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { ReferralHistoryScreen } from '~/ui/navigation/screens/referrals/ReferralHistoryScreen';
 import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';

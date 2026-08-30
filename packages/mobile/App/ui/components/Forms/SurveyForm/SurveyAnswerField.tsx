@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { StyledView } from '/styled/common';
 import { useFormikContext } from 'formik';
-import { useBackend } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { renderAnswer } from '~/ui/navigation/screens/programs/SurveyResponseDetailsScreen';
 import { Text } from 'react-native';
 
 export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
-  const [answer, setAnswer] = useState<any>('');
-  const [sourceQuestion, setSourceQuestion] = useState<any>();
   const { setFieldValue } = useFormikContext();
-  const { models } = useBackend();
+  const source = config.source || config.Source;
 
-  useEffect(() => {
-    (async (): Promise<void> => {
+  const { data } = useQuery({
+    queryKey: patientKeys.lastAnswers(patient.id, { source }),
+    queryFn: async () => {
+      const { models } = Database;
       const answer = await models.SurveyResponseAnswer.getLatestAnswerForPatient(
         patient.id,
-        config.source || config.Source,
+        source,
       );
 
-      // Set the actual answer
-      setFieldValue(name, answer?.body);
+      if (!answer) return { answer: null, sourceQuestion: null };
 
-      if (answer) {
-        const dataElement = await models.ProgramDataElement.findOne({
-          where: { id: answer.dataElementId },
-          relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
-        });
+      const dataElement = await models.ProgramDataElement.findOne({
+        where: { id: answer.dataElementId },
+        relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
+      });
 
-        setSourceQuestion(dataElement.surveyScreenComponent);
-      }
-      if (answer?.body) {
-        setAnswer(answer?.body);
-      }
-    })();
-  }, []);
+      return { answer, sourceQuestion: dataElement.surveyScreenComponent };
+    },
+  });
+  const answerBody = data?.answer?.body ?? '';
+  const sourceQuestion = data?.sourceQuestion;
+
+  useEffect(() => {
+    if (data) setFieldValue(name, data.answer?.body);
+  }, [data, name, setFieldValue]);
 
   return (
     <StyledView alignItems="flex-start">
@@ -42,10 +44,10 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
         renderAnswer({
           type: sourceQuestion.dataElement.type,
           config: sourceQuestion.config,
-          answer,
+          answer: answerBody,
         })
       ) : (
-        <Text>{answer}</Text>
+        <Text>{answerBody}</Text>
       )}
     </StyledView>
   );

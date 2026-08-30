@@ -1,5 +1,5 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useState } from 'react';
+import type { NavigationProp } from '@react-navigation/native';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -88,8 +88,7 @@ export const NewPatientScreen = ({
           {joinNames(patient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {getGender(patient.sex)}{' '}
-          {getDisplayAge(patient.dateOfBirth, ageDisplayFormat)} old{' '}
+          {getGender(patient.sex)} {getDisplayAge(patient.dateOfBirth, ageDisplayFormat)} old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}

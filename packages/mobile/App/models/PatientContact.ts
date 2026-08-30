@@ -1,10 +1,10 @@
 import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
-import { IPatientContact } from '~/types';
+import type { IPatientContact } from '~/types';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('patient_contacts')
 export class PatientContact extends BaseModel implements IPatientContact {
@@ -20,7 +20,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: true })
   connectionDetails: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.contacts)
+  @ManyToOne(() => Patient, patient => patient.contacts)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -33,7 +33,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   relationshipId: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -48,7 +48,7 @@ export class PatientContact extends BaseModel implements IPatientContact {
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };

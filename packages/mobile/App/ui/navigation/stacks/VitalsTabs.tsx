@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
 import { withPatient } from '~/ui/containers/Patient';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 

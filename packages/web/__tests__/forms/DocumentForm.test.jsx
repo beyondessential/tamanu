@@ -50,8 +50,6 @@ const renderDocumentForm = ({ onSubmit = () => {} } = {}) =>
     />,
   );
 
-// Query by type rather than test id: the disabled variant of the button renders its
-// own hardcoded test id, so a test-id lookup wouldn't find it once it's disabled.
 const getAddButton = container => container.querySelector('button[type="submit"]');
 
 describe('DocumentForm double submit', () => {

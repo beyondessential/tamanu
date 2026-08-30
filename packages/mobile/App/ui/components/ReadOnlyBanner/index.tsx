@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { BaseInputProps } from '/interfaces/BaseInputProps';
+import type { BaseInputProps } from '/interfaces/BaseInputProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 interface ReadOnlyBannerProps extends BaseInputProps {

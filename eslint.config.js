@@ -1,6 +1,7 @@
 import globals from 'globals';
 import js from '@eslint/js';
 import markdown from 'eslint-plugin-markdown';
+import pluginQuery from '@tanstack/eslint-plugin-query';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import typescriptParser from '@typescript-eslint/parser';
@@ -78,6 +79,11 @@ export default [
       'react/display-name': 'off',
     },
   },
+  // TanStack Query recommended rules, scoped to packages that use it
+  ...pluginQuery.configs['flat/recommended'].map(config => ({
+    ...config,
+    files: [`packages/{mobile,web,patient-portal}/**/*.${EXTS}`],
+  })),
   {
     // mobile rule exclusions (as warnings, until we fix them)
     files: [`packages/mobile/**/*.${TS_EXTS}`],
