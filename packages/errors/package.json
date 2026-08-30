@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/errors",
-  "version": "2.60.14",
+  "version": "2.60.15",
   "private": true,
   "description": "API errors",
   "main": "./src/index",
