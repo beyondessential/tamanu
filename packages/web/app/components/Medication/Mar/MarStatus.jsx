@@ -477,7 +477,14 @@ export const MarStatus = ({
                   !dose.isRemoved && (
                     <div key={dose?.id}>
                       <span>{dose?.doseAmount}</span>{' '}
-                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
+                      {dosingUnit && (
+                        <>
+                          <TranslatedEnum
+                            enumValues={DRUG_UNIT_SHORT_LABELS}
+                            value={dosingUnit}
+                          />{' '}
+                        </>
+                      )}
                       <TranslatedText
                         stringId="medication.mar.givenAt.tooltip"
                         fallback="given at :time"
