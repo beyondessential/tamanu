@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { EditedOrnament } from '@tamanu/ui-components';
+import { EditedOrnament, TAMANU_COLORS } from '@tamanu/ui-components';
 import AlertOrnament from './AlertOrnament';
 import MarStatusIcon from './MarStatusIcon';
 import { MarDataCell, MarDoseSlot } from '../components';
@@ -20,9 +20,11 @@ const IconWrapper = styled.span`
 `;
 
 const StyledEditedOrnament = styled(EditedOrnament)`
+  color: ${TAMANU_COLORS.darkText};
+  font-size: 12px;
+  inset-block-start: 2px;
+  inset-inline-end: 3px;
   position: absolute;
-  right: 3px;
-  top: 2px;
 `;
 
 /**
