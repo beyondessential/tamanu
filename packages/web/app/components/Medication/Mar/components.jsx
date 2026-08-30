@@ -38,6 +38,7 @@ export const MarCellButton = styled(UnstyledHtmlButton)`
 `;
 
 export const MarHeaderCellButton = styled(MarCellButton)`
+  min-block-size: calc(3lh + 20px);
   padding: 10px;
   &[data-discontinued='true'] {
     background-color: unset;
