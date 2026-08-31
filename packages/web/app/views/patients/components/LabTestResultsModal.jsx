@@ -24,6 +24,7 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
+import { renderLabResultGroupHeader } from '../../../utils/lab';
 import { SuggesterSelectField } from '../../../components/Field';
 import { FormModal } from '../../../components/FormModal';
 import { TableFormFields } from '../../../components/Table';
@@ -401,6 +402,7 @@ const ResultsForm = ({
         <StyledTableFormFields
           columns={columns}
           data={labTestResults?.data}
+          getRowGroupHeader={renderLabResultGroupHeader}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
