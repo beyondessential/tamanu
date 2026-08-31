@@ -609,7 +609,10 @@ patientRoute.get(
     const baseQuery = {
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
@@ -732,7 +735,10 @@ patientRoute.get(
     const dischargeMedications = await Prescription.findAll({
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: EncounterPrescription,
           as: 'encounterPrescription',

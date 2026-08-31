@@ -349,7 +349,10 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Medication');
 
-    const associations = Prescription.getListReferenceAssociations() || [];
+    // medication is included explicitly below with its referenceDrug nested include
+    const associations = (Prescription.getListReferenceAssociations() || []).filter(
+      association => association !== 'medication',
+    );
 
     const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');

@@ -802,6 +802,71 @@ describe('Medication', () => {
     });
   });
 
+  // Regression: without `list SensitiveMedication` these listings filter on
+  // medication.referenceDrug.is_sensitive. The medication association must be joined once, carrying
+  // its referenceDrug include — otherwise the query references an alias with no FROM-clause entry
+  // and Postgres errors for exactly these least-privilege users.
+  describe('medication listings without list SensitiveMedication', () => {
+    disableHardcodedPermissionsForSuite();
+
+    // The filter needs a reference drug row to match against, so give the drug an explicit
+    // non-sensitive one rather than leaning on the test role's permissions.
+    const addNonSensitiveReferenceDrug = medicationId =>
+      models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, { referenceDataId: medicationId, isSensitive: false }),
+      );
+
+    it('returns the ongoing prescriptions listing', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: localPatient.id,
+        prescriberId: app.user.id,
+      });
+      await addNonSensitiveReferenceDrug(ongoingPrescription.medicationId);
+      const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
+
+      const result = await limitedApp.get(`/api/patient/${localPatient.id}/ongoing-prescriptions`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.find(p => p.id === ongoingPrescription.id)).toBeDefined();
+    });
+
+    it('returns the encounter medications listing', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      await addNonSensitiveReferenceDrug(medication.id);
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: localPatient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+      const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
+
+      const result = await limitedApp.get(`/api/encounter/${encounter.id}/medications`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.find(p => p.id === prescription.id)).toBeDefined();
+    });
+  });
+
   describe('findPatientOngoingPrescriptionWithSameDetails', () => {
     const createUnitlessOngoing = async dosingUnit => {
       const medication = await models.ReferenceData.create(
