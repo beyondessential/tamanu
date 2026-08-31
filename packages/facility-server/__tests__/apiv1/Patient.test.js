@@ -139,10 +139,12 @@ describe('Patient', () => {
     });
   });
 
-  // Regression: without `list SensitiveMedication` the listing filters on
-  // medication.referenceDrug.is_sensitive. The medication association must be joined once, carrying
-  // its referenceDrug include — otherwise the query references an alias with no FROM-clause entry
-  // and Postgres errors for exactly these least-privilege users.
+  // Least-privilege coverage for the discharge listing, which filters on
+  // medication.referenceDrug.is_sensitive for users without `list SensitiveMedication`.
+  // Unlike the ongoing-prescriptions and encounter listings, this query neither paginates nor
+  // nests a facility include under referenceDrug, so it does not reach the Sequelize subquery
+  // path that turns a duplicated medication association into a missing FROM-clause entry. This
+  // case therefore guards the endpoint for these users rather than reproducing that failure.
   describe('discharge medications least-privilege access', () => {
     disableHardcodedPermissionsForSuite();
 

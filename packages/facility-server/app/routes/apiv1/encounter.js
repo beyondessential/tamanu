@@ -461,6 +461,10 @@ encounterRelations.get(
 
     const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
+      // The sensitive-medication filter references the nested medication->referenceDrug join.
+      // Applying a limit would otherwise make Sequelize emit that join inside a subquery while
+      // leaving the WHERE outside it, and Postgres reports a missing FROM-clause entry.
+      subQuery: false,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });

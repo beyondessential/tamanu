@@ -825,10 +825,18 @@ describe('Medication', () => {
       await addNonSensitiveReferenceDrug(ongoingPrescription.medicationId);
       const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
 
-      const result = await limitedApp.get(`/api/patient/${localPatient.id}/ongoing-prescriptions`);
+      // Both query params matter, and only together: facilityId nests a further include under
+      // referenceDrug, and paginating pushes Sequelize into a subquery. Drop either and the
+      // listing succeeds even with the duplicated association. This is what the web client sends.
+      const result = await limitedApp.get(
+        `/api/patient/${localPatient.id}/ongoing-prescriptions?facilityId=${facilityId}&page=0&rowsPerPage=10`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.find(p => p.id === ongoingPrescription.id)).toBeDefined();
+      // Joining rather than sub-querying can multiply rows, which would inflate both.
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.count).toBe(1);
     });
 
     it('returns the encounter medications listing', async () => {
@@ -858,9 +866,18 @@ describe('Medication', () => {
           prescriptionId: prescription.id,
         }),
       );
-      const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
+      // The route sits under a router that gates on `read Encounter`, so the role needs it to
+      // reach the listing at all. It still withholds `list SensitiveMedication`, which is what
+      // this case is covering.
+      const limitedApp = await baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'Medication'],
+      ]);
 
-      const result = await limitedApp.get(`/api/encounter/${encounter.id}/medications`);
+      // Same pairing as the ongoing-prescriptions case above: facilityId plus pagination.
+      const result = await limitedApp.get(
+        `/api/encounter/${encounter.id}/medications?facilityId=${facilityId}&page=0&rowsPerPage=10`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.find(p => p.id === prescription.id)).toBeDefined();
