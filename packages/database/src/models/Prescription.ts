@@ -121,7 +121,7 @@ export class Prescription extends Model {
         displayPharmacyNotesInMar: DataTypes.BOOLEAN,
         quantity: DataTypes.INTEGER,
         discontinued: DataTypes.BOOLEAN,
-        discontinuedDate: DataTypes.STRING,
+        discontinuedDate: dateTimeType('discontinuedDate'),
         discontinuingReason: DataTypes.STRING,
         repeats: DataTypes.INTEGER,
       },
