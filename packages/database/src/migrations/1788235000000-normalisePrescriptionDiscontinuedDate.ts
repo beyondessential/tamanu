@@ -5,9 +5,9 @@ import { QueryInterface } from 'sequelize';
 // events that would make the next migration's ALTER TABLE fail in the same transaction.
 
 export async function up(query: QueryInterface): Promise<void> {
-  // A cast is the only thing that can tell a real timestamp from junk: no pattern knows that
-  // 2024-02-30 is not a date. It raises rather than returning null, so it has to be wrapped,
-  // otherwise one unparseable value stops the upgrade.
+  // Only a cast can tell a real timestamp from junk: no pattern knows that 2024-02-30 is not a
+  // date. It raises rather than returning null, so it is wrapped, otherwise one bad value stops
+  // the upgrade.
   await query.sequelize.query(`
     CREATE FUNCTION normalise_prescription_discontinued_date(value text)
     RETURNS text AS $$
