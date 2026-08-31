@@ -1,6 +1,6 @@
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { Op, Sequelize } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
@@ -25,23 +25,29 @@ export class MedicationDiscontinuer extends ScheduledTask {
 
   async discontinueMedications() {
     const { Prescription } = this.models;
-    const currentDateTime = getCurrentDateTimeString();
 
-    await Prescription.update(
+    // Model.update cannot express discontinued_date = end_date: validation hands the literal to
+    // the discontinuedDate setter, which rejects it. Plain SQL, like the other scheduled sweeps.
+    await Prescription.sequelize.query(
+      `
+      UPDATE prescriptions
+      SET discontinued = true,
+          discontinued_date = end_date,
+          discontinuing_clinician_id = :systemUserId,
+          discontinuing_reason = :reason,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE end_date IS NOT NULL
+        AND end_date <= :currentDateTime
+        AND discontinued IS NOT TRUE
+        AND deleted_at IS NULL
+      `,
       {
-        discontinued: true,
-        discontinuedDate: Sequelize.literal('end_date'),
-        discontinuingClinicianId: SYSTEM_USER_UUID,
-        discontinuingReason: 'Prescription end date and time reached',
-      },
-      {
-        where: {
-          endDate: { [Op.and]: [{ [Op.lte]: currentDateTime }, { [Op.not]: null }] },
-          discontinued: { [Op.not]: true },
+        replacements: {
+          systemUserId: SYSTEM_USER_UUID,
+          reason: 'Prescription end date and time reached',
+          currentDateTime: getCurrentDateTimeString(),
         },
-        // Validation builds an instance, which hands the literal to the discontinuedDate setter
-        // and is rejected. Every value here is set by this task, so there is nothing to validate.
-        validate: false,
+        type: QueryTypes.UPDATE,
       },
     );
   }
