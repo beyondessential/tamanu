@@ -150,7 +150,6 @@ export const SurveyQuestion = memo(
     );
 
     if (!fieldInput) return null;
-    const isMultiline = dataElement.type === FieldTypes.MULTILINE;
 
     return (
       <StyledView marginTop={12} zIndex={zIndex} onLayout={handleLayout}>
@@ -159,7 +158,7 @@ export const SurveyQuestion = memo(
           name={dataElement.code}
           defaultText={dataElement.defaultText}
           options={translatedOptions || EMPTY_OPTIONS}
-          multiline={isMultiline}
+          multiline={dataElement.type === FieldTypes.MULTILINE}
           patient={patient}
           config={config}
           setDisableSubmit={setDisableSubmit}
