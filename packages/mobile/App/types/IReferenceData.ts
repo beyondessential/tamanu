@@ -1,5 +1,5 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
 
 export const ReferenceDataType = {
   Allergy: 'allergy',

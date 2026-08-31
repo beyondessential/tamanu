@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
-import { ILabTest } from '~/types';
+import type { ILabTest } from '~/types';
 import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
 import { LabTestPanelRequest } from './LabTestPanelRequest';
 import { LabTestType } from './LabTestType';
@@ -33,7 +33,7 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'text', nullable: true })
   referenceRangeText?: string;
 
-  @ManyToOne(() => LabRequest, (labRequest) => labRequest.tests)
+  @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
   labRequestId: string;

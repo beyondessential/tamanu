@@ -1,27 +1,27 @@
 import React, {
   createContext,
-  PropsWithChildren,
-  ReactElement,
-  RefObject,
+  type PropsWithChildren,
+  type ReactElement,
+  type RefObject,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { NavigationContainerRef } from '@react-navigation/native';
+import type { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
-import { PureAbility } from '@casl/ability';
+import type { PureAbility } from '@casl/ability';
 import { readConfig } from '~/services/config';
 import { withAuth } from '~/ui/containers/Auth';
-import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import type { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
-import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
-import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
+import type { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
+import type { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
 import { resolveAuthErrorAction } from '~/ui/helpers/auth';
-import { User } from '~/models/User';
+import type { User } from '~/models/User';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -45,6 +45,12 @@ interface AuthContextData {
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+
+const signUpRoutes = new Set([
+  Routes.SignUpStack.Index,
+  Routes.SignUpStack.Intro,
+  Routes.SignUpStack.SignIn,
+]);
 
 const Provider = ({
   setToken,
@@ -141,12 +147,7 @@ const Provider = ({
   const signOutClient = (signedOutFromInactivity: boolean): void => {
     setSignedInStatus(false);
     const currentRoute = navRef.current?.getCurrentRoute().name;
-    const signUpRoutes = [
-      Routes.SignUpStack.Index,
-      Routes.SignUpStack.Intro,
-      Routes.SignUpStack.SignIn,
-    ];
-    if (!signUpRoutes.includes(currentRoute)) {
+    if (!signUpRoutes.has(currentRoute)) {
       navRef.current?.reset({
         index: 0,
         routes: [
@@ -190,9 +191,8 @@ const Provider = ({
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const errHandler = (): void => {
-      const { shouldSignOut, nextPreventSignOutOnFailure } = resolveAuthErrorAction(
-        preventSignOutOnFailure,
-      );
+      const { shouldSignOut, nextPreventSignOutOnFailure } =
+        resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped
       setPreventSignOutOnFailure(nextPreventSignOutOnFailure);
       if (shouldSignOut) {

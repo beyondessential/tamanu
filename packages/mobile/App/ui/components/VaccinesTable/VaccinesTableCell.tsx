@@ -4,10 +4,10 @@ import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/st
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
+import type { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
-import { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
+import type { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
 
 export interface VaccineTableCellData {
   administeredVaccine: IAdministeredVaccine;

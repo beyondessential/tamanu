@@ -1,8 +1,8 @@
 import React, {
-  Dispatch,
-  MutableRefObject,
-  ReactElement,
-  SetStateAction,
+  type Dispatch,
+  type MutableRefObject,
+  type ReactElement,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -12,16 +12,18 @@ import React, {
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
+import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
@@ -91,10 +93,7 @@ const SurveyFormInner = ({
         ...lastAppliedCalculatedValuesRef.current,
         ...changedCalculatedValues,
       };
-      setValues(
-        { ...values, ...changedCalculatedValues },
-        false,
-      );
+      setValues({ ...values, ...changedCalculatedValues }, false);
     }
   }, [calculatedValues, setValues, values]);
 
@@ -147,9 +146,7 @@ export const SurveyForm = ({
 }: SurveyFormProps): ReactElement => {
   const { getTranslation } = useTranslation();
   const currentUser = useSelector(authUserSelector);
-  const { customPatientFieldValues } = usePatientAdditionalData(
-    patient?.id,
-  );
+  const { customPatientFieldValues } = usePatientAdditionalData(patient?.id);
   const initialValues = useMemo(
     () =>
       getFormInitialValues(
@@ -160,30 +157,38 @@ export const SurveyForm = ({
         patientProgramRegistration,
         customPatientFieldValues,
       ),
-    [components, currentUser, patient, patientAdditionalData, patientProgramRegistration, customPatientFieldValues],
+    [
+      components,
+      currentUser,
+      patient,
+      patientAdditionalData,
+      patientProgramRegistration,
+      customPatientFieldValues,
+    ],
   );
-  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
-    async ({ models }) => {
-      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
+  const {
+    data: encounterResult,
+    error: encounterError,
+    isPending: isEncounterLoading,
+  } = useQuery({
+    queryKey: [...patientKeys.encounters(patient.id), 'current'],
+    queryFn: async () => {
+      const encounter = await Database.models.Encounter.getCurrentEncounterForPatient(patient.id);
       return { encounter };
     },
-    [patient.id],
-  );
+  });
 
   const { encounter } = encounterResult || {};
   const encounterProp = useMemo(
-    () => encounter ? { encounterType: encounter.encounterType } : undefined,
+    () => (encounter ? { encounterType: encounter.encounterType } : undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [encounter?.encounterType],
   );
-  const hasCalculations = useMemo(
-    () => components.some(c => c.calculation),
-    [components],
-  );
+  const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
 
   const formValuesRef = useRef(initialValues);
-  const [visibleComponentKey, setVisibleComponentKey] = useState(
-    () => computeVisibleKey(components, initialValues),
+  const [visibleComponentKey, setVisibleComponentKey] = useState(() =>
+    computeVisibleKey(components, initialValues),
   );
 
   const formValidationSchema = useMemo(() => {
