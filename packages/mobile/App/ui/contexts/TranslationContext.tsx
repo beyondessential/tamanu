@@ -185,11 +185,6 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     await writeConfig('language', languageCode);
   };
 
-  const restoreLanguage = async () => {
-    const languageCode = await readConfig('language');
-    setLanguage(languageCode);
-  };
-
   useEffect(() => {
     registerYup(translations);
   }, [translations]);
@@ -212,6 +207,10 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
   }, [language, getLatestTranslations, getLanguageOptions, syncManager.emitter]);
 
   useEffect(() => {
+    const restoreLanguage = async () => {
+      const languageCode = await readConfig('language');
+      setLanguage(languageCode);
+    };
     restoreLanguage();
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () =>
