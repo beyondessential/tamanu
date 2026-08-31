@@ -39,6 +39,9 @@ export class MedicationDiscontinuer extends ScheduledTask {
           endDate: { [Op.and]: [{ [Op.lte]: currentDateTime }, { [Op.not]: null }] },
           discontinued: { [Op.not]: true },
         },
+        // Validation builds an instance, which hands the literal to the discontinuedDate setter
+        // and is rejected. Every value here is set by this task, so there is nothing to validate.
+        validate: false,
       },
     );
   }
