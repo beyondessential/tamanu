@@ -94,6 +94,21 @@ export const renderLabResultGroupHeader = (row, previousRow) => {
   );
 };
 
+// The tests and panels a lab request holds, as a single alphabetical list of names: each panel by
+// its name, plus the individual tests not attributed to a panel (a panel's own member tests are
+// represented by the panel, so they are not listed again). Plain names, matching how the sample
+// details step lists a category's tests.
+export const getLabRequestTestAndPanelNames = ({ labTestPanelRequests, tests } = {}) => {
+  const panelNames = (labTestPanelRequests ?? [])
+    .map(panelRequest => panelRequest.labTestPanel?.name)
+    .filter(Boolean);
+  const individualTestNames = (tests ?? [])
+    .filter(test => !test.labTestPanelRequestId)
+    .map(test => test.labTestType?.name)
+    .filter(Boolean);
+  return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
+};
+
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (

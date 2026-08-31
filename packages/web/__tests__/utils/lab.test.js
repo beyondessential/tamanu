@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 
-import { getLabResultGroupKey, shouldShowLabResultGroupHeader } from '../../app/utils/lab';
+import {
+  getLabRequestTestAndPanelNames,
+  getLabResultGroupKey,
+  shouldShowLabResultGroupHeader,
+} from '../../app/utils/lab';
 
 describe('lab result grouping helpers', () => {
   const panelA1 = { labTestPanel: { id: 'panel-a', name: 'A' } };
@@ -30,5 +34,26 @@ describe('lab result grouping helpers', () => {
 
   it('treats individual and reflex tests as one group', () => {
     expect(shouldShowLabResultGroupHeader(reflex, individual)).toBe(false);
+  });
+});
+
+describe('getLabRequestTestAndPanelNames', () => {
+  it('lists panels and individual (non-panel) tests, sorted alphabetically', () => {
+    const request = {
+      labTestPanelRequests: [{ labTestPanel: { name: 'FBC' } }],
+      tests: [
+        // a panel member — represented by its panel, so not listed again
+        { labTestPanelRequestId: 'ptr-1', labTestType: { name: 'Haemoglobin' } },
+        // loose/reflex tests — listed individually
+        { labTestPanelRequestId: null, labTestType: { name: 'Vitamin D' } },
+        { labTestPanelRequestId: null, labTestType: { name: 'CRP' } },
+      ],
+    };
+    expect(getLabRequestTestAndPanelNames(request)).toEqual(['CRP', 'FBC', 'Vitamin D']);
+  });
+
+  it('returns an empty array when the request has no tests or panels', () => {
+    expect(getLabRequestTestAndPanelNames({})).toEqual([]);
+    expect(getLabRequestTestAndPanelNames(undefined)).toEqual([]);
   });
 });

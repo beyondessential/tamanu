@@ -16,6 +16,7 @@ import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/m
 import { useLabRequestNotesQuery } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -57,7 +58,7 @@ const Actions = styled.div`
   }
 `;
 
-const getColumns = (showPanelColumn) => [
+const getColumns = () => [
   {
     key: 'displayId',
     title: (
@@ -69,36 +70,6 @@ const getColumns = (showPanelColumn) => [
     ),
     sortable: false,
   },
-  ...(showPanelColumn
-    ? [
-        {
-          key: 'panelId',
-          title: (
-            <TranslatedText
-              stringId="lab.requestSummary.table.column.panel"
-              fallback="Panel"
-              data-testid="translatedtext-me7m"
-            />
-          ),
-          sortable: false,
-          accessor: ({ labTestPanelRequests }) =>
-            (labTestPanelRequests?.[0]?.labTestPanel?.name && (
-              <TranslatedReferenceData
-                fallback={labTestPanelRequests[0].labTestPanel.name}
-                value={labTestPanelRequests[0].labTestPanel.id}
-                category="labTestPanel"
-                data-testid="translatedreferencedata-6okl"
-              />
-            )) || (
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                data-testid="translatedtext-zjj6"
-              />
-            ),
-        },
-      ]
-    : []),
   {
     key: 'labTestCategory',
     title: (
@@ -121,11 +92,23 @@ const getColumns = (showPanelColumn) => [
       '',
   },
   {
+    key: 'testsAndPanels',
+    title: (
+      <TranslatedText
+        stringId="lab.requestSummary.table.column.test"
+        fallback="Test"
+        data-testid="translatedtext-test-column"
+      />
+    ),
+    sortable: false,
+    accessor: row => getLabRequestTestAndPanelNames(row).join(', '),
+  },
+  {
     key: 'sampleDate',
     title: (
       <TranslatedText
-        stringId="lab.requestSummary.table.column.sampleDate"
-        fallback="Sample date"
+        stringId="lab.requestSummary.table.column.dateTimeCollected"
+        fallback="Date & time collected"
         data-testid="translatedtext-m30l"
       />
     ),
@@ -153,12 +136,11 @@ export const LabRequestSummaryPane = React.memo(
     const [isOpen, setIsOpen] = useState(false);
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
+      showIndeterminate: true,
+      // Categories whose sample is already recorded start selected; the rest are left for the user.
+      getIsRowInitiallySelected: request => Boolean(request.sampleTime),
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
-    const showPanelColumn = useMemo(
-      () => labRequests.some(request => Boolean(request.labTestPanelRequests?.length)),
-      [labRequests],
-    );
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
@@ -261,7 +243,7 @@ export const LabRequestSummaryPane = React.memo(
           </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
-            columns={[selectableColumn, ...getColumns(showPanelColumn)]}
+            columns={[selectableColumn, ...getColumns()]}
             data={labRequests}
             elevated={false}
             noDataMessage={

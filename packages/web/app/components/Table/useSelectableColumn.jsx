@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckInput } from '../Field';
 
 export const useSelectableColumn = (
@@ -11,6 +11,9 @@ export const useSelectableColumn = (
     showIndeterminate = false,
     getRowsFilterer = () => () => true,
     selectAllOnInit = false,
+    // Optional predicate to pre-select a subset of rows once, when they first load (e.g. rows
+    // whose sample has been recorded). Applied a single time so it never overrides later toggles.
+    getIsRowInitiallySelected = null,
   } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
@@ -28,6 +31,15 @@ export const useSelectableColumn = (
       setSelectedKeys(allKeys);
     }
   }, [rows, selectAllOnInit, selectionKey]);
+
+  const hasAppliedInitialSelection = useRef(false);
+  useEffect(() => {
+    if (hasAppliedInitialSelection.current || !getIsRowInitiallySelected || !rows?.length) return;
+    hasAppliedInitialSelection.current = true;
+    setSelectedKeys(
+      new Set(rows.filter(getIsRowInitiallySelected).map(row => row[selectionKey])),
+    );
+  }, [rows, getIsRowInitiallySelected, selectionKey]);
 
   const cellOnChange = useCallback(
     (event, rowIndex) => {
