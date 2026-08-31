@@ -3,6 +3,7 @@ import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { useMutation } from '@tanstack/react-query';
 import { ERROR_TYPE, NotFoundError } from '@tamanu/errors';
 import { useBackend } from '~/ui/hooks';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
@@ -15,7 +16,7 @@ import {
 import { deleteFileInDocuments } from '/helpers/file';
 import { BlobAwaitingUploadError } from '~/services/blobs';
 import type { BackendManager } from '~/services/BackendManager';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 import { theme } from '~/ui/styled/theme';
 
@@ -178,26 +179,43 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const { models, blobCache } = useBackend();
   const { isInternetReachable } = useNetInfo();
 
-  const removeAttachment = useCallback(async value => {
-    if (!value) {
-      return;
-    }
-    const attachment = await models.Attachment.findOne({ where: { id: value } });
-    if (!attachment) {
-      return;
-    }
-    await models.Attachment.delete(value);
-    // A removed draft photo's blob has no referencing record left, so it can
-    // never become eligible for push; demote it to reclaimable cache.
-    if (attachment.hash) {
-      const stillReferenced = await models.Attachment.findOne({
-        where: { hash: attachment.hash },
-      });
-      if (!stillReferenced) {
-        await blobCache.demote(attachment.hash);
+  // No queries read attachments from the local database (they're synced up and
+  // deleted), so these mutations have nothing to invalidate.
+  const { mutateAsync: deleteAttachment } = useMutation({
+    mutationFn: (attachmentId: string) => models.Attachment.delete(attachmentId),
+  });
+  const { mutateAsync: createAttachment } = useMutation({
+    mutationFn: ({ hash, size }: { hash: string; size: number }) =>
+      models.Attachment.createAndSaveOne({
+        hash,
+        size,
+        type: 'image/jpeg',
+      }),
+  });
+
+  const removeAttachment = useCallback(
+    async value => {
+      if (!value) {
+        return;
       }
-    }
-  }, []);
+      const attachment = await models.Attachment.findOne({ where: { id: value } });
+      if (!attachment) {
+        return;
+      }
+      await deleteAttachment(value);
+      // A removed draft photo's blob has no referencing record left, so it can
+      // never become eligible for push; demote it to reclaimable cache.
+      if (attachment.hash) {
+        const stillReferenced = await models.Attachment.findOne({
+          where: { hash: attachment.hash },
+        });
+        if (!stillReferenced) {
+          await blobCache.demote(attachment.hash);
+        }
+      }
+    },
+    [deleteAttachment],
+  );
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
@@ -302,11 +320,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         return;
       }
 
-      const { id } = await models.Attachment.createAndSaveOne({
-        hash: putResult.hash,
-        size: putResult.size,
-        type: 'image/jpeg',
-      });
+      const { id } = await createAttachment({ hash: putResult.hash, size: putResult.size });
 
       onChange(id);
       setPhoto({ attachmentId: id, status: 'ready', imageData: image.base64 });

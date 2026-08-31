@@ -1,6 +1,7 @@
 import React from 'react';
-import { act, fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render as renderComponent } from '@testing-library/react-native';
 import { Popup } from 'popup-ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useNetInfo } from '@react-native-community/netinfo';
 
 import { BLOB_TIERS } from '@tamanu/constants';
@@ -35,6 +36,15 @@ jest.mock('/helpers/image', () => ({
 }));
 
 jest.mock('~/ui/hooks', () => ({ useBackend: jest.fn() }));
+
+const render = (ui: React.ReactElement): ReturnType<typeof renderComponent> => {
+  const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+  return renderComponent(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    ),
+  });
+};
 
 const ROOT = '/blobs';
 const RESIZED_PATH = '/documents/resized.jpg';

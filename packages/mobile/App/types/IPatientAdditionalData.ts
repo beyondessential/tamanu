@@ -1,6 +1,6 @@
-import { IFacility } from './IFacility';
-import { IPatient } from './IPatient';
-import { IReferenceData } from './IReferenceData';
+import type { IFacility } from './IFacility';
+import type { IPatient } from './IPatient';
+import type { IReferenceData } from './IReferenceData';
 
 export interface IPatientAdditionalData {
   patient: IPatient;

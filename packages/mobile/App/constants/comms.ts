@@ -3,7 +3,7 @@ export const PATIENT_COMMUNICATION_CHANNELS = {
   EMAIL: 'Email',
   SMS: 'Sms',
   WHATSAPP: 'WhatsApp',
-  TELEGRAM: 'Telegram'
+  TELEGRAM: 'Telegram',
 };
 
 export const GEOLOCATION_OPTIONS = {

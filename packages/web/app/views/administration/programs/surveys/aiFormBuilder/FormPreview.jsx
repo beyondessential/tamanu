@@ -256,7 +256,7 @@ function PreviewSubmitButton() {
       }
     >
       <PreviewSubmitTooltipTarget>
-        <Button color="primary" variant="contained" functionallyDisabled>
+        <Button disabled>
           <TranslatedText stringId="general.action.submit" fallback="Submit" />
         </Button>
       </PreviewSubmitTooltipTarget>

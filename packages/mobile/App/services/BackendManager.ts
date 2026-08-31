@@ -9,7 +9,7 @@ import { AuthService } from './auth';
 import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
-import { MODELS_MAP } from '../models/modelsMap';
+import type { MODELS_MAP } from '../models/modelsMap';
 import { SettingsService } from './settings';
 import {
   BlobOutboxPusher,

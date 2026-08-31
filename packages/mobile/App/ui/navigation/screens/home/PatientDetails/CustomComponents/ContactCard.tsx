@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IPatientContact, ReferenceDataType } from '~/types';
+import { type IPatientContact, ReferenceDataType } from '~/types';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';

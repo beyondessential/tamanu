@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import {
@@ -14,7 +14,7 @@ import { theme } from '/styled/theme';
 
 import { Routes } from '/helpers/routes';
 import { Button } from '/components/Button';
-import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
+import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 
 import { Form } from '~/ui/components/Forms/Form';
@@ -44,7 +44,7 @@ async function fetchFacilityOptions({ centralServer }) {
   const { data: facilities } = await centralServer.get('facility', {});
 
   // map them to select option format
-  return facilities.map((f: { name: string; id: string; }) => ({
+  return facilities.map((f: { name: string; id: string }) => ({
     label: f.name,
     value: f.id,
   }));
@@ -124,16 +124,19 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
   const { signOut } = useAuth();
   const backend = useBackend();
 
-  const onSubmitForm = useCallback(async values => {
-    // Fetch facility-specific settings before assigning facility
-    const { settings } = await backend.centralServer.setFacility(values.facilityId);
-    if (settings) {
-      await backend.settings.setSettings(settings);
-    }
-    await assignFacility(values.facilityId, values.facilityName);
-    // trigger sync when user finish selecting the facility for the device
-    await backend.syncManager.triggerSync();
-  }, [assignFacility, backend.centralServer, backend.settings, backend.syncManager]);
+  const onSubmitForm = useCallback(
+    async values => {
+      // Fetch facility-specific settings before assigning facility
+      const { settings } = await backend.centralServer.setFacility(values.facilityId);
+      if (settings) {
+        await backend.settings.setSettings(settings);
+      }
+      await assignFacility(values.facilityId, values.facilityName);
+      // trigger sync when user finish selecting the facility for the device
+      await backend.syncManager.triggerSync();
+    },
+    [assignFacility, backend.centralServer, backend.settings, backend.syncManager],
+  );
 
   useEffect(() => {
     // if we already have a facility id, immediately navigate onward to the home screen

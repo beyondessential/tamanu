@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceData } from './ReferenceData';
-import { ID } from '~/types';
+import type { ID } from '~/types';
 
 @Entity('reference_drugs')
 export class ReferenceDrug extends BaseModel {

@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '/components/ErrorBoundary';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { joinNames } from '~/ui/helpers/user';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
-import { NavigationProp } from '@react-navigation/native';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { NavigationProp } from '@react-navigation/native';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistration/PatientProgramRegistrySummary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -33,10 +33,7 @@ const PatientSummary = ({
     <ErrorBoundary>
       <StackHeader
         title={
-          <TranslatedText
-            stringId="programRegistry.header.title"
-            fallback="Program registries"
-          />
+          <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />
         }
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}

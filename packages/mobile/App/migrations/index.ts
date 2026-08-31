@@ -100,6 +100,8 @@ import { addBlobQuarantinesTable1785930000000 } from './1785930000000-addBlobQua
 import { addHotPathQueryIndexes1786664141000 } from './1786664141000-addHotPathQueryIndexes';
 import { removeZeroBenefitIndexes1787214563000 } from './1787214563000-removeZeroBenefitIndexes';
 import { dropLegacyNoteTables1787220453000 } from './1787220453000-dropLegacyNoteTables';
+import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocalSystemFacts';
+import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-enforceUniqueLocalSystemFactKeys';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -203,4 +205,6 @@ export const migrationList = [
   addHotPathQueryIndexes1786664141000,
   removeZeroBenefitIndexes1787214563000,
   dropLegacyNoteTables1787220453000,
+  dedupeLocalSystemFacts1787706000000,
+  enforceUniqueLocalSystemFactKeys1787706001000,
 ];

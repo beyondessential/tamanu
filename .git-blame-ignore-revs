@@ -1,0 +1,12 @@
+# Commits ignored from Git blame (e.g. large-scale formatting or style changes)
+#
+# To configure your local git to ignore revisions in this file, run:
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# LINKS
+# - https://git-scm.com/docs/git-blame#Documentation/git-blame.txt---ignore-revs-filefile
+# - https://docs.github.com/en/repositories/working-with-files/using-files/viewing-and-understanding-files#ignore-commits-in-the-blame-view
+
+# fmt(mobile): apply Prettier formatting (#10831)
+7c7b1ca49f36eb43cc3275b17bf9d548480b4064

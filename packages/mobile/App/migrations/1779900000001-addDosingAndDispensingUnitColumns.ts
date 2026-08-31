@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 
 export class addDosingAndDispensingUnitColumns1779900000001 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
@@ -31,9 +31,7 @@ export class addDosingAndDispensingUnitColumns1779900000001 implements Migration
       'prescriptions',
       new TableColumn({ name: 'unitConversion', type: 'decimal', isNullable: true }),
     );
-    await queryRunner.query(
-      `UPDATE prescriptions SET dosingUnit = units, dispensingUnit = units`,
-    );
+    await queryRunner.query(`UPDATE prescriptions SET dosingUnit = units, dispensingUnit = units`);
     await queryRunner.query(`
       UPDATE prescriptions
       SET unitConversion = reference_drugs.unitConversion

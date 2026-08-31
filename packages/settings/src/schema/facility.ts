@@ -326,9 +326,23 @@ export const facilitySettings = {
       properties: {
         upcomingTasksTimeFrame: {
           description: 'How far ahead to include upcoming (not-yet-due) tasks in task lists',
-          type: yup.number().positive(),
+          type: yup.number().integer().positive(),
           unit: 'hours',
           defaultValue: 8,
+        },
+        dashboardOverdueTasksTimeFrame: {
+          description:
+            'How far back to include overdue tasks on the dashboard task list. Tasks overdue by longer than this stop appearing there. Unset means no limit',
+          type: yup.number().integer().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
+        },
+        encounterOverdueTasksTimeFrame: {
+          description:
+            "How far back to include overdue tasks on an encounter's task list. Tasks overdue by longer than this stop appearing there. Unset means no limit",
+          type: yup.number().integer().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
         },
       },
     },

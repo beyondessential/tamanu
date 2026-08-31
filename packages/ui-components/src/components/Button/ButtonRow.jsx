@@ -54,7 +54,6 @@ export const FormSubmitCancelRow = React.memo(
       />
     ),
     confirmDisabled,
-    confirmStyle,
     CustomConfirmButton,
     'data-testid': testId = 'formsubmitcancelrow',
     ...props
@@ -76,7 +75,6 @@ export const FormSubmitCancelRow = React.memo(
           color={confirmColor}
           onSubmit={onConfirm}
           disabled={confirmDisabled}
-          {...(confirmStyle && { confirmStyle })}
           data-testid={`${testId}-confirmButton`}
         >
           {confirmText}

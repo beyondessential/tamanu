@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 
 const tableName = 'lab_requests';
 const columnName = 'resultsInterpretation';
@@ -22,4 +22,3 @@ export class addLabRequestResultsInterpretation1763435712934 implements Migratio
     await queryRunner.dropColumn(tableObject, columnName);
   }
 }
-

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 // Components
 import {
@@ -14,12 +14,12 @@ import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomCom
 // Helpers
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { getGender, joinNames } from '/helpers/user';
 import { getDisplayAge } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 import { PatientSyncStatus } from '~/ui/components/PatientSyncStatus';
 import { useSettings } from '/contexts/SettingsContext';
 
