@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -20,6 +21,20 @@ import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
 const Container = styled.div`
   padding-top: 20px;
+`;
+
+const SuccessHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+const SuccessIcon = styled(CheckCircleOutlineIcon)`
+  color: ${Colors.green};
+  font-size: 34px;
+  margin-bottom: 10px;
 `;
 
 const StyledInfoCard = styled(InfoCard)`
@@ -149,18 +164,21 @@ export const LabRequestSummaryPane = React.memo(
 
     return (
       <Container data-testid="container-nnz7">
-        <Heading3 mb="12px" data-testid="heading3-en7t">
-          <TranslatedText
-            stringId="lab.requestSummary.heading"
-            fallback="Request finalised"
-            data-testid="translatedtext-puds"
-          />
-        </Heading3>
-        <BodyText mb="28px" color="textTertiary" data-testid="bodytext-1b6q">
+        <SuccessHeader data-testid="successheader-lab">
+          <SuccessIcon data-testid="successicon-lab" />
+          <Heading3 data-testid="heading3-en7t">
+            <TranslatedText
+              stringId="lab.requestSummary.finalisedHeading"
+              fallback="Your lab request has been finalised."
+              data-testid="translatedtext-puds"
+            />
+          </Heading3>
+        </SuccessHeader>
+        <FormSeparatorLine data-testid="formseparatorline-heading" />
+        <BodyText mt="20px" mb="28px" color="textTertiary" data-testid="bodytext-1b6q">
           <TranslatedText
             stringId="lab.requestSummary.instruction"
-            fallback="Your lab request has been finalised. Please select items from the list below to print
-          requests or sample labels."
+            fallback="Please select items from the list below to print sample labels or the lab request."
             data-testid="translatedtext-9d2v"
           />
         </BodyText>
@@ -264,8 +282,8 @@ export const LabRequestSummaryPane = React.memo(
             data-testid="outlinedbutton-skm0"
           >
             <TranslatedText
-              stringId="lab.action.printLabel"
-              fallback="Print label"
+              stringId="lab.requestSummary.action.printLabels"
+              fallback="Print labels"
               data-testid="translatedtext-z6vw"
             />
           </OutlinedButton>
