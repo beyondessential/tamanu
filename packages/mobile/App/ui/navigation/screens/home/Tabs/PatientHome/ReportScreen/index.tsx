@@ -1,17 +1,16 @@
-import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type FC, type ReactElement, useCallback, useEffect, useState } from 'react';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
-import { Routes } from '/helpers/routes';
-import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
-import { useIsFocused } from '@react-navigation/core';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { SummaryBoard } from './SummaryBoard';
-import { BarChartData } from '~/ui/interfaces/BarChartProps';
+import type { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 import { Dropdown } from './components/Dropdown';
 
@@ -91,23 +90,22 @@ const ReportChart: FC<ReportChartProps> = ({
     </StyledView>
   );
 
-export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement => {
+export const ReportScreen = (): ReactElement => {
   const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
-  const isFocused = useIsFocused();
 
-  const [data] = useBackendEffect(
-    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
-    [selectedSurveyId, isFocused],
-  );
+  const { data } = useQuery({
+    queryKey: reportKeys.encounterSummary(selectedSurveyId),
+    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+  });
 
-  const [surveys] = useBackendEffect(({ models }) =>
-    models.Survey.find({
-      where: {
-        surveyType: SurveyTypes.Programs,
-      },
-    }),
-  );
+  const { data: surveys } = useQuery({
+    queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
+    queryFn: () =>
+      Database.models.Survey.find({
+        where: { surveyType: SurveyTypes.Programs },
+      }),
+  });
 
   useEffect(() => {
     // automatically select the first survey as soon as surveys are loaded
@@ -153,10 +151,6 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     }
   }, [isReportWeekly]);
 
-  const navigateToExportData = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.ExportDataScreen);
-  }, []);
-
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
@@ -174,17 +168,6 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
           justifyContent="space-between"
         >
           <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
-          <Button
-            height={screenPercentageToDP(4.25, Orientation.Height)}
-            width={screenPercentageToDP(25.54, Orientation.Width)}
-            outline
-            borderColor={theme.colors.WHITE}
-            fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-            buttonText={
-              <TranslatedText stringId="report.action.exportData" fallback="Export Data" />
-            }
-            onPress={navigateToExportData}
-          />
         </RowView>
         <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
           <StyledText

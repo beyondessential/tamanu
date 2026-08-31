@@ -1,23 +1,25 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
 import { subject } from '@casl/ability';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import type { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '../../../helpers/routes';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../components/LoadingScreen';
 import { Separator } from '../../../components/Separator';
 import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 
-import { useBackendEffect } from '../../../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 
 export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
@@ -27,31 +29,38 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
 
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
   const isFocused = useIsFocused();
 
-  // use latestResponseId to ensure that we refresh when
-  // a new survey is submitted (as this tab can be mounted while
-  // it isn't active)
-  const [responses, error, isLoading] = useBackendEffect(
-    async ({ models }) => {
-      const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
-      const surveys = await models.Survey.find({
-        where: {
-          surveyType: SurveyTypes.Programs,
-        },
+  const {
+    data: responses,
+    error,
+    isPending: isLoading,
+  } = useQuery({
+    queryKey: [
+      ...patientKeys.surveyResponses(selectedPatient.id),
+      { type: SurveyTypes.Programs, latestResponseId, userId: user?.id },
+    ],
+
+    queryFn: async () => {
+      const { models } = Database;
+      const surveyResponses = await models.SurveyResponse.getForPatient({
+        patientId: selectedPatient.id,
       });
 
-      const surveyIds = surveys.map(survey => survey.id);
+      const surveys = await models.Survey.find({
+        select: ['id'],
+        where: { surveyType: SurveyTypes.Programs },
+      });
+      const surveyIds = new Set(surveys.map(survey => survey.id));
 
       return surveyResponses.filter(
         response =>
           ability.can('read', subject('Survey', { id: response.surveyId })) &&
-          surveyIds.includes(response.surveyId),
+          surveyIds.has(response.surveyId),
       );
     },
-    [isFocused, latestResponseId, selectedPatient.id],
-  );
+  });
 
   useEffect(() => {
     if (!isFocused || isLoading || !responses) return;
@@ -99,7 +108,7 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
             </StyledText>
           );
         }
-        return <></>;
+        return null;
       }}
     />
   );

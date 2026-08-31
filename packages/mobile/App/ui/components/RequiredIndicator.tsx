@@ -8,5 +8,8 @@ interface RequiredIndicatorProps {
 }
 
 export const RequiredIndicator = ({ marginLeft }: RequiredIndicatorProps): JSX.Element => (
-  <StyledText marginLeft={marginLeft} color={theme.colors.ALERT}> *</StyledText>
+  <StyledText marginLeft={marginLeft} color={theme.colors.ALERT}>
+    {' '}
+    *
+  </StyledText>
 );

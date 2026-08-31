@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { fake } from '@tamanu/fake-data/fake';

@@ -1,15 +1,15 @@
 import React, { useCallback } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import {
   createNavigatorFactory,
-  DefaultNavigatorOptions,
+  type DefaultNavigatorOptions,
   TabRouter,
-  TabRouterOptions,
+  type TabRouterOptions,
   useNavigationBuilder,
 } from '@react-navigation/native';
 import {
   MaterialTopTabView,
-  MaterialTopTabNavigationOptions,
+  type MaterialTopTabNavigationOptions,
 } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -21,7 +21,7 @@ import { Field } from '/components/Forms/FormField';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
-import { WithPatientStoreProps } from '/store/ducks/patient';
+import type { WithPatientStoreProps } from '/store/ducks/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 

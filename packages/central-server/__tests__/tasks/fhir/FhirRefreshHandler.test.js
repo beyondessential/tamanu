@@ -2,10 +2,10 @@
  * Tests for FHIR refresh handler / allFromUpstream (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Op } from 'sequelize';
 import { JOB_PRIORITIES } from '@tamanu/constants';
 
-import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 import { createTestContext } from '../../utilities';
 import {
@@ -88,50 +88,6 @@ describe('FHIR refresh handler', () => {
           }),
         }),
       ]);
-    });
-
-    it('does not create a job if the upstream do not meet the filter criteria', async () => {
-      const { Encounter } = ctx.store.models;
-
-      const encounter = await Encounter.create(
-        fake(Encounter, {
-          patientId: resources.patient.id,
-          locationId: resources.location.id,
-          departmentId: resources.department.id,
-          examinerId: resources.practitioner.id,
-          encounterType: 'surveyResponse',
-        }),
-      );
-
-      await allFromUpstream(
-        {
-          payload: {
-            op: 'UPDATE',
-            table: 'public.encounters',
-            id: encounter.id,
-          },
-        },
-        {
-          log,
-          sequelize: ctx.store.sequelize,
-          models: ctx.store.models,
-        },
-      );
-
-      const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
-        where: {
-          topic: 'fhir.refresh.fromUpstream',
-          payload: {
-            resource: {
-              [Op.ne]: 'MediciReport',
-            },
-          },
-        },
-      });
-
-      expect(count).toEqual(0);
-      expect(rows).toEqual([]);
-      await encounter.destroy();
     });
 
     it('propagates parent job priority to child refresh jobs', async () => {

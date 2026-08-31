@@ -54,7 +54,7 @@ runs:
 
     - name: Pre-install pulumi
       if: inputs.ops-ssh-key
-      uses: pulumi/actions@v5
+      uses: pulumi/actions@v7
 
     - name: Connect to Tailscale
       uses: tailscale/github-action@v4

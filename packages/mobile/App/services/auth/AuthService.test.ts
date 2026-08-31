@@ -56,10 +56,7 @@ describe('AuthService', () => {
       authService = new AuthService(models, centralServerConnection);
 
       await expect(
-        authService.localSignIn(
-          { email: 'unknown@example.com', password: 'password' },
-          jest.fn(),
-        ),
+        authService.localSignIn({ email: 'unknown@example.com', password: 'password' }, jest.fn()),
       ).rejects.toThrow(new AuthenticationError(invalidUserCredentialsMessage));
     });
   });

@@ -161,9 +161,12 @@ const columns = (getTranslation, getEnumTranslation) => [
     accessor: ({ route }) => getEnumTranslation(DRUG_ROUTE_LABELS, route),
   },
   {
+    // A prescription with no recorded quantity is dispensing none of it, so the column reads zero
+    // rather than blank — matching repeats below, and covering prescriptions written before a
+    // dispensing quantity was recorded against every discharged medication.
     key: 'quantity',
     title: getTranslation('pdf.table.column.quantity', 'Quantity'),
-    accessor: ({ quantity }) => quantity,
+    accessor: ({ quantity }) => quantity ?? 0,
   },
   {
     key: 'repeats',

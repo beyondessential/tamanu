@@ -167,12 +167,12 @@ const TimezoneActionBar = ({
   return (
     <ActionBarContainer className={className}>
       {actions.includes('clear') && (
-        <Button onClick={onClear} size="small">
+        <Button onClick={onClear} size="small" variant="text">
           {clearLabel}
         </Button>
       )}
       {actions.includes('today') && (
-        <Button onClick={onSetToday} size="small">
+        <Button onClick={onSetToday} size="small" variant="text">
           {todayLabel}
         </Button>
       )}

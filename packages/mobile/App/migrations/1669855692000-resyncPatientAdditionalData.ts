@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class resyncPatientAdditionalData1669855692000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {

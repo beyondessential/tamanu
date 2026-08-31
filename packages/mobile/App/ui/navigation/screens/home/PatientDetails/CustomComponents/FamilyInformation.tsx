@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { PatientParentsDataProps } from '/interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { PatientParentsDataProps } from '/interfaces/PatientDetails';
 import { RowView, StyledView } from '/styled/common';
 import { Separator } from '/components/Separator';
 import { InformationBox } from './InformationBox';
@@ -11,13 +11,8 @@ interface FamilyInformationProps extends PatientParentsDataProps {
   onEdit: () => void;
 }
 
-export const FamilyInformation = (
-  props: FamilyInformationProps,
-): ReactElement => (
-  <PatientSection
-    onEdit={props.onEdit}
-    title="Family Information"
-  >
+export const FamilyInformation = (props: FamilyInformationProps): ReactElement => (
+  <PatientSection onEdit={props.onEdit} title="Family Information">
     <StyledView marginTop={20}>
       <RowView alignItems="center" justifyContent="space-between">
         <InformationBox title="Mother" info={props.parentsInfo.motherName} />

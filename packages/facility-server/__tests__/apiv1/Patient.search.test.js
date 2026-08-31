@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -8,7 +9,6 @@ import { startOfDay, subDays, subYears } from 'date-fns';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { afterAll, beforeAll } from '@jest/globals';
 
 // helper function to check we've found the intended samples
 // (we're using first name as the field that indicates which
@@ -623,6 +623,38 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, (x) => x.departmentName);
+    });
+
+    it('should sort by area (not on all-patients listing)', async () => {
+      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+        orderBy: 'locationGroupName',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.locationGroupName);
+    });
+
+    it('should sort by clinician (not on all-patients listing)', async () => {
+      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+        orderBy: 'clinician',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.clinician);
+    });
+
+    it('should sort by sex', async () => {
+      const response = await app
+        .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)
+        .query({
+          orderBy: 'sex',
+        });
+
+      expect(response).toHaveSucceeded();
+
+      expectSorted(response.body.data, (x) => x.sex);
     });
 
     it('should sort by village', async () => {

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
@@ -8,7 +8,7 @@ import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as Icons from '../Icons';
 import { InputContainer } from '../TextField/styles';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
@@ -16,6 +16,13 @@ import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 // Spinner mode ignores colorAccent from styles.xml — set button colours explicitly.
 // See https://github.com/react-native-datetimepicker/datetimepicker/issues/543
 const ANDROID_PICKER_BUTTON_COLOR = '#009688';
+
+/**
+ * Android snaps back to epoch when given `maximumDate` without `minimumDate`. Fall back to earliest
+ * date supported by platform picker.
+ * @see https://github.com/react-native-datetimepicker/datetimepicker/issues/935
+ */
+const EARLIEST_SUPPORTED_DATE = new Date(1900, 0, 1);
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -48,6 +55,8 @@ const DatePicker = ({
 }: DatePickerProps): ReactElement => {
   if (!isVisible) return null;
 
+  const minimumDate = min ?? (max && mode !== 'time' ? EARLIEST_SUPPORTED_DATE : undefined);
+
   return (
     <DateTimePicker
       value={value}
@@ -56,7 +65,7 @@ const DatePicker = ({
       onChange={onDateChange}
       style={styles.androidPickerStyles}
       maximumDate={max}
-      minimumDate={min}
+      minimumDate={minimumDate}
       {...(Platform.OS === 'android' && {
         positiveButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
         negativeButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
@@ -109,7 +118,7 @@ export const DateField = React.memo(
     }, [mode]);
 
     const onAndroidDateChange = useCallback(
-      (event, selectedDate) => {
+      (_event, selectedDate) => {
         if (selectedDate) {
           if (mode === 'datetime') {
             if (currentPickerMode === 'date') {

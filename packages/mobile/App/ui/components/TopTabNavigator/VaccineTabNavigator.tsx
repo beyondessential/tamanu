@@ -1,19 +1,19 @@
-import React, { ComponentType, FunctionComponent } from 'react';
+import React, { type ComponentType, type FunctionComponent } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
-  NavigationState,
-  Route,
+  type NavigationState,
+  type Route,
   SceneMap,
-  SceneRendererProps,
+  type SceneRendererProps,
   TabBar,
   TabView,
 } from 'react-native-tab-view';
-import { SvgProps } from 'react-native-svg';
+import type { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
 import { StyledText, StyledView } from '/styled/common';
 import * as Icons from '../Icons';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-import { VaccineDataProps } from '../VaccineCard';
+import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import type { VaccineDataProps } from '../VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type CustomRoute = Route & {
@@ -43,11 +43,7 @@ const VaccineTabLabel = ({
       paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
     >
       <StyledView>
-        {focused ? (
-          <Icon size={tabIconSize} />
-        ) : (
-          <Icons.ScheduledVaccine size={tabIconSize} />
-        )}
+        {focused ? <Icon size={tabIconSize} /> : <Icons.ScheduledVaccine size={tabIconSize} />}
       </StyledView>
       <StyledText
         marginTop={screenPercentageToDP(1.21, Orientation.Height)}
@@ -89,28 +85,24 @@ const TabBarStyle = StyleSheet.create({
   },
 });
 
-const CustomTabBar = React.memo(
-  (props: TabBarProps): JSX.Element => {
-    const {
-      navigationState: { routes, index },
-    } = props;
-    const options = React.useMemo(() => getTabOptions(routes), [routes]);
-    return (
-      <TabBar
-        {...props}
-        style={TabBarStyle.tabBar}
-        activeColor={routes[index].color}
-        inactiveColor={theme.colors.TEXT_SOFT}
-        options={options}
-        indicatorStyle={customIndicatorStyle(routes[index].color).indicator}
-      />
-    );
-  },
-);
+const CustomTabBar = React.memo((props: TabBarProps): JSX.Element => {
+  const {
+    navigationState: { routes, index },
+  } = props;
+  const options = React.useMemo(() => getTabOptions(routes), [routes]);
+  return (
+    <TabBar
+      {...props}
+      style={TabBarStyle.tabBar}
+      activeColor={routes[index].color}
+      inactiveColor={theme.colors.TEXT_SOFT}
+      options={options}
+      indicatorStyle={customIndicatorStyle(routes[index].color).indicator}
+    />
+  );
+});
 
-const renderTabBar = (props: TabBarProps): JSX.Element => (
-  <CustomTabBar {...props} />
-);
+const renderTabBar = (props: TabBarProps): JSX.Element => <CustomTabBar {...props} />;
 
 interface VaccineTabNavigatorProps {
   state: any;

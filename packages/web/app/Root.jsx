@@ -1,6 +1,9 @@
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 import { CssBaseline } from '@material-ui/core';
-import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { jssPreset, MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
+import { create as createJss } from 'jss';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -63,6 +66,20 @@ function StyledComponentsProvider({ children }) {
   );
 }
 
+/**
+ * MUI v4 (JSS) and MUI v6 (emotion) generate the same global `.MuiXxx-*` class
+ * names with equal-specificity rules, so order matters.
+ * @see packages/web/index.html
+ */
+const jss = createJss({
+  plugins: jssPreset().plugins,
+  insertionPoint: document.getElementById('jss-insertion-point') ?? undefined,
+});
+const emotionCache = createCache({
+  key: 'css',
+  insertionPoint: document.querySelector('meta[name="emotion-insertion-point"]') ?? undefined,
+});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -74,32 +91,34 @@ const queryClient = new QueryClient({
 
 function RootContent({ store }) {
   return (
-    <StylesProvider injectFirst>
-      <MuiLatestThemeProvider theme={theme}>
-        <MuiThemeProvider theme={theme}>
-          <StyledComponentsProvider>
-            <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-              <StateContextProviders store={store}>
-                <CustomToastContainer
-                  hideProgressBar
-                  transition={Slide}
-                  closeOnClick
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  theme="colored"
-                  icon={false}
-                  limit={5}
-                  closeButton={<ClearIcon />}
-                />
-                <CssBaseline />
-                <RoutingApp />
-              </StateContextProviders>
-            </MuiLocalisationProvider>
-          </StyledComponentsProvider>
-        </MuiThemeProvider>
-      </MuiLatestThemeProvider>
-    </StylesProvider>
+    <CacheProvider value={emotionCache}>
+      <StylesProvider jss={jss}>
+        <MuiLatestThemeProvider theme={theme}>
+          <MuiThemeProvider theme={theme}>
+            <StyledComponentsProvider>
+              <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+                <StateContextProviders store={store}>
+                  <CustomToastContainer
+                    hideProgressBar
+                    transition={Slide}
+                    closeOnClick
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="colored"
+                    icon={false}
+                    limit={5}
+                    closeButton={<ClearIcon />}
+                  />
+                  <CssBaseline />
+                  <RoutingApp />
+                </StateContextProviders>
+              </MuiLocalisationProvider>
+            </StyledComponentsProvider>
+          </MuiThemeProvider>
+        </MuiLatestThemeProvider>
+      </StylesProvider>
+    </CacheProvider>
   );
 }
 

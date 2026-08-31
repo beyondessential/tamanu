@@ -1,13 +1,15 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';
 import { StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import type { BaseModelSubclass, Suggester, OptionType } from '../../helpers/suggester';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
@@ -47,26 +49,39 @@ type AutocompleteModalScreenProps = {
   };
 };
 
+const holdPreviousData: PlaceholderDataFunction<OptionType[]> = previousData => previousData ?? [];
+
 export const AutocompleteModalScreen = ({
   route,
   navigation,
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester, modalTitle } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedOptions, setDisplayedOptions] = useState([]);
   const { language, getTranslation } = useTranslation();
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const data = await suggester.fetchSuggestions(searchTerm, language);
-      setDisplayedOptions(data);
-    })();
-  }, [suggester, searchTerm, language]);
+  const { data: displayedOptions } = useQuery<OptionType[]>({
+    // The Suggester instance itself must stay out of the key: it holds non-serializable
+    // members (model class, filter/formatter functions), so it would hash incompletely.
+    // Its query-relevant state is captured by model name + options + filterCacheKey.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: suggestionKeys.list(suggester.model.name, {
+      options: suggester.options,
+      search: searchTerm,
+      language,
+      filterCacheKey: suggester.filterCacheKey,
+    }),
+    queryFn: () => suggester.fetchSuggestions(searchTerm, language),
+    // Keep previous list on screen while during reloads to prevent flicker
+    placeholderData: holdPreviousData,
+  });
 
-  const onSelectItem = useCallback((item) => {
-    navigation.goBack();
-    callback(item);
-  }, [callback, navigation]);
+  const onSelectItem = useCallback(
+    item => {
+      navigation.goBack();
+      callback(item);
+    },
+    [callback, navigation],
+  );
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();

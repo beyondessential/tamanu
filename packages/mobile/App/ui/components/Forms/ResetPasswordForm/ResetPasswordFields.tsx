@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';

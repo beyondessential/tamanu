@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Sequelize } from 'sequelize';
 import { SETTING_KEYS, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';

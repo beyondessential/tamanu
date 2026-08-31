@@ -8,7 +8,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
-import {
+import type {
   DateTimeString,
   ID,
   IFacility,
@@ -34,7 +34,7 @@ import { PatientProgramRegistrationCondition } from './PatientProgramRegistratio
 
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
-const getValuesFromRelations = (values) => {
+const getValuesFromRelations = values => {
   if (!values) {
     return {};
   }
@@ -117,7 +117,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
 
   @BeforeInsert()
   async assignIdAsPatientProgramRegistrationId(): Promise<void> {
-    // For patient program registrations, we use a composite 
+    // For patient program registrations, we use a composite
     // primary key of patientId plus programRegistryId
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
@@ -129,7 +129,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     patientId?: string,
   ): Promise<PatientProgramRegistration> {
     if (!programId || !patientId) return null;
-    return this.getRepository()
+    return PatientProgramRegistration.getRepository()
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
@@ -139,7 +139,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   }
 
   static async getMostRecentRegistrationsForPatient(patientId: string) {
-    const registrationRepository = this.getRepository();
+    const registrationRepository = PatientProgramRegistration.getRepository();
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
       .where('registration.registrationStatus != :status', {
@@ -156,7 +156,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   }
 
   static async getFullPprById(id: string) {
-    const registrationRepository = this.getRepository();
+    const registrationRepository = PatientProgramRegistration.getRepository();
     const fullPpr = await registrationRepository
       .createQueryBuilder('registration')
       .where('registration.id = :id', { id })

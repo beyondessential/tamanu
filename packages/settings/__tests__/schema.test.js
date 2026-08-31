@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
   validateSettings,
   globalDefaults,
@@ -249,6 +250,45 @@ describe('Schemas', () => {
     });
   });
 
+  describe('Vaccinations settings category', () => {
+    const upcomingVaccinationsSchema = globalSettings.properties.upcomingVaccinations;
+
+    it('Is named "Vaccinations" (renamed from "Upcoming vaccinations")', () => {
+      expect(upcomingVaccinationsSchema.name).toBe('Vaccinations');
+    });
+
+    it('Still exposes the pre-existing threshold and age limit settings', () => {
+      expect(upcomingVaccinationsSchema.properties.ageLimit).toBeDefined();
+      expect(upcomingVaccinationsSchema.properties.thresholds).toBeDefined();
+    });
+
+    it('Defines a "Display birth certificate number" flag, disabled by default', () => {
+      const { displayBirthCertificateNumber } = upcomingVaccinationsSchema.properties;
+      expect(displayBirthCertificateNumber.name).toBe('Display birth certificate number');
+      expect(displayBirthCertificateNumber.defaultValue).toBe(false);
+    });
+
+    it('Defaults displayBirthCertificateNumber to false in the extracted global defaults', () => {
+      expect(globalDefaults.upcomingVaccinations.displayBirthCertificateNumber).toBe(false);
+    });
+
+    it('Validates displayBirthCertificateNumber as a boolean', async () => {
+      await expect(
+        validateSettings({
+          settings: { upcomingVaccinations: { displayBirthCertificateNumber: true } },
+          scope: 'global',
+        }),
+      ).resolves.not.toThrow();
+
+      await expect(
+        validateSettings({
+          settings: { upcomingVaccinations: { displayBirthCertificateNumber: 'not-a-boolean' } },
+          scope: 'global',
+        }),
+      ).rejects.toThrow(yup.ValidationError);
+    });
+  });
+
   describe('Central settings', () => {
     it('Should validate valid settings', () => {
       // No current validation for central settings
@@ -317,6 +357,46 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: facilityDefaults, scope: 'facility' }),
       ).resolves.not.toThrow();
+    });
+
+    // The task list time frames are handed to date-fns as an hour count, which truncates
+    // toward zero: a floor of 0.5 becomes 0 and puts the cut-off on the current instant,
+    // hiding every overdue task. Whole hours only.
+    describe('Tasking time frames', () => {
+      const tasking = settings =>
+        validateSettings({ settings: { tasking: settings }, scope: 'facility' });
+
+      const KEYS = [
+        'upcomingTasksTimeFrame',
+        'dashboardOverdueTasksTimeFrame',
+        'encounterOverdueTasksTimeFrame',
+      ];
+
+      it.each(KEYS)('%s accepts a positive whole number of hours', async key => {
+        await expect(tasking({ [key]: 48 })).resolves.not.toThrow();
+      });
+
+      it.each(KEYS)('%s rejects a fractional number of hours', async key => {
+        await expect(tasking({ [key]: 0.5 })).rejects.toThrow(yup.ValidationError);
+      });
+
+      it.each(KEYS)('%s rejects zero and negatives', async key => {
+        await expect(tasking({ [key]: 0 })).rejects.toThrow(yup.ValidationError);
+        await expect(tasking({ [key]: -8 })).rejects.toThrow(yup.ValidationError);
+      });
+
+      it.each(['dashboardOverdueTasksTimeFrame', 'encounterOverdueTasksTimeFrame'])(
+        '%s accepts null, meaning no floor',
+        async key => {
+          await expect(tasking({ [key]: null })).resolves.not.toThrow();
+        },
+      );
+
+      it('upcomingTasksTimeFrame is not nullable: the ceiling always applies', async () => {
+        await expect(tasking({ upcomingTasksTimeFrame: null })).rejects.toThrow(
+          yup.ValidationError,
+        );
+      });
     });
   });
 

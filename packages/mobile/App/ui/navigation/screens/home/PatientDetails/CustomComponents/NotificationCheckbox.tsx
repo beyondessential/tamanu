@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { Separator } from '/components/Separator';
 import { StyledView } from '/styled/common';
 import { Checkbox } from '/components/Checkbox';
@@ -8,9 +8,7 @@ interface NotificationCheckboxProps {
   value: boolean;
 }
 
-export const NotificationCheckbox = (
-  props: NotificationCheckboxProps,
-): ReactElement => (
+export const NotificationCheckbox = (props: NotificationCheckboxProps): ReactElement => (
   <>
     <Separator marginTop={20} />
     <StyledView marginTop={20} marginBottom={20}>

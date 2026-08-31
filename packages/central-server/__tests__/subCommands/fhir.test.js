@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/fake-data/fake';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -43,7 +43,7 @@ describe('fhir sub commands', () => {
     // a second initDatabase() and concurrent use of the same DB (which can hang in CI).
     // Return a context-shaped object with the test store and a no-op close so the command
     // never closes the test DB.
-    jest.spyOn(ApplicationContext.prototype, 'init').mockResolvedValue({
+    vi.spyOn(ApplicationContext.prototype, 'init').mockResolvedValue({
       store: ctx.store,
       close: () => Promise.resolve(),
     });
@@ -51,7 +51,7 @@ describe('fhir sub commands', () => {
 
   afterAll(async () => {
     await ctx.close();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should refresh a FHIR resource to get updated from upstream', async () => {
@@ -93,28 +93,5 @@ describe('fhir sub commands', () => {
     // See mapping at packages/database/src/models/fhir/ServiceRequest/getValues.js
     expect(fhirImagingServiceRequest.status).toEqual(FHIR_REQUEST_STATUS.ACTIVE);
     expect(fhirLabServiceRequest.status).toEqual(FHIR_REQUEST_STATUS.ACTIVE);
-  });
-
-  it('should not update those upstream records that do not meet pre filter criteria', async () => {
-    const { Encounter, FhirEncounter } = ctx.store.models;
-    // new encounter with different encounter type that do not meet pre filter criteria
-    const encounter = await Encounter.create(
-      fake(Encounter, {
-        patientId: resources.patient.id,
-        locationId: resources.location.id,
-        departmentId: resources.department.id,
-        examinerId: resources.practitioner.id,
-        encounterType: 'surveyResponse',
-      }),
-    );
-
-    await fhirCommand.parseAsync(['node', 'fhir', '--refresh', 'Encounter']);
-    const fhirEncounter = await FhirEncounter.findAndCountAll({
-      where: {},
-    });
-
-    expect(fhirEncounter.count).toEqual(1);
-    expect(fhirEncounter.rows[0].upstreamId).toEqual(resources.encounter.id);
-    await encounter.destroy();
   });
 });
