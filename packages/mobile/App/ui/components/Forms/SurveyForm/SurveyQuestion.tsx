@@ -59,6 +59,16 @@ const useGetConfig = component => {
   return configObject;
 };
 
+/**
+ * Text-entry fields validate on blur rather than on every keystroke (for responsiveness, esepcially
+ * on lower-end devices). Other field types commit a value per interaction, so validate on commit.
+ */
+const TEXT_ENTRY_FIELD_TYPES: ReadonlySet<string> = new Set([
+  FieldTypes.MULTILINE,
+  FieldTypes.NUMBER,
+  FieldTypes.TEXT,
+]);
+
 const optionsCache = new Map<string, { label: any; value: any }[] | null>();
 
 // Keep in sync with web/app/utils/survey.jsx
@@ -151,6 +161,12 @@ export const SurveyQuestion = memo(
 
     if (!fieldInput) return null;
 
+    // PatientData questions render as the writeToPatient field type (see getField)
+    const renderedFieldType =
+      dataElement.type === FieldTypes.PATIENT_DATA && config?.writeToPatient?.fieldType
+        ? config.writeToPatient.fieldType
+        : dataElement.type;
+
     return (
       <StyledView marginTop={12} zIndex={zIndex} onLayout={handleLayout}>
         <Field
@@ -162,6 +178,7 @@ export const SurveyQuestion = memo(
           patient={patient}
           config={config}
           setDisableSubmit={setDisableSubmit}
+          validateOnValueChange={!TEXT_ENTRY_FIELD_TYPES.has(renderedFieldType)}
         />
       </StyledView>
     );
