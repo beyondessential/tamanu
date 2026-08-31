@@ -1,31 +1,15 @@
-import React, { type ReactElement, useEffect, useState } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { keyBy, mapValues, uniq } from 'es-toolkit/compat';
 
-import { Dropdown, type SelectOption } from '../Dropdown';
+import { Dropdown } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import * as overrides from '/root/serverOverrides.json';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import type { LanguageOption } from '~/models/TranslatedString';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { TranslatedText } from '../Translations/TranslatedText';
+import useLanguageOptionsQuery from '~/ui/hooks/queries/useLanguageOptionsQuery';
+import useServersQuery from '~/ui/hooks/queries/useServersQuery';
 
-type Server = {
-  name: string;
-  type: string;
-  host: string;
-};
-
-const applyDefaultsToTranslations = ({
-  [DEFAULT_LANGUAGE_CODE]: defaultText,
-  [ENGLISH_LANGUAGE_CODE]: enText,
-  ...rest
-}) => ({
-  ...rest,
-  [ENGLISH_LANGUAGE_CODE]: enText || defaultText,
-});
-
-const usePrepareLanguageData = async () => {
+const usePrepareLanguageData = (): void => {
   const {
     language: selectedLanguage,
     languageOptions,
@@ -33,77 +17,31 @@ const usePrepareLanguageData = async () => {
     setLanguage,
     host,
   } = useTranslation();
-  useEffect(() => {
-    const getOptions = async () => {
-      const response = await fetch(`${host}/api/public/translation/languageOptions`);
-      const { languageNames = [], languagesInDb = [], countryCodes = [] } = await response.json();
-      const languageDisplayNames = applyDefaultsToTranslations(
-        mapValues(keyBy(languageNames, 'language'), 'text'),
-      );
-      const languageCountryCodes = applyDefaultsToTranslations(
-        mapValues(keyBy(countryCodes, 'language'), 'text'),
-      );
-      const languagesInDbDefaulted = uniq(
-        languagesInDb.map(({ language }) =>
-          language === DEFAULT_LANGUAGE_CODE ? ENGLISH_LANGUAGE_CODE : language,
-        ),
-      ).map((language): LanguageOption => ({
-        label: languageDisplayNames[language],
-        languageCode: language,
-        countryCode: languageCountryCodes[language] ?? null,
-      }));
+  const { data: fetchedLanguageOptions } = useLanguageOptionsQuery(host);
+
+  useEffect(
+    function syncLanguageOptionsIntoTranslationContext() {
+      if (!fetchedLanguageOptions?.length) return;
       if (
-        !selectedLanguage ||
-        JSON.stringify(languageOptions) !== JSON.stringify(languagesInDbDefaulted)
+        selectedLanguage &&
+        JSON.stringify(languageOptions) === JSON.stringify(fetchedLanguageOptions)
       ) {
-        setLanguage(languagesInDbDefaulted[0].languageCode);
-        setLanguageOptions(languagesInDbDefaulted);
+        return;
       }
-    };
-    if (host) {
-      getOptions();
-    }
-  }, [host, languageOptions, selectedLanguage, setLanguage, setLanguageOptions]);
-};
-
-const fetchServers = async (): Promise<SelectOption[]> => {
-  // To use a local server, just edit this and select it.
-  // The central server config is sticky, so you can safely revert it after
-  // the first sync begins and it'll stay connecting to your local server.
-  // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
-
-  // allows overriding the central server list or meta server in builds
-  const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
-  if (centralServerOverrides) {
-    return centralServerOverrides;
-  }
-
-  const defaultMetaServer = 'https://meta.tamanu.app';
-  const metaServer = metaServerOverride || defaultMetaServer;
-  const response = await fetch(`${metaServer}/servers`);
-  const servers: Server[] = await response.json();
-
-  const options = servers.map(s => ({
-    label: s.name,
-    value: s.host,
-  }));
-
-  if (__DEV__) {
-    // If dev mode, add a local server option using special alias to localhost
-    options.unshift({
-      label: 'Local central server (port 3000)',
-      value: 'http://10.0.2.2:3000',
-    });
-  }
-
-  return options;
+      setLanguage(fetchedLanguageOptions[0].languageCode);
+      setLanguageOptions(fetchedLanguageOptions);
+    },
+    [fetchedLanguageOptions, languageOptions, selectedLanguage, setLanguage, setLanguageOptions],
+  );
 };
 
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   usePrepareLanguageData();
-  const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
   const { setLanguageOptions, setLanguage, setHost } = useTranslation();
+  const { data: options, isError } = useServersQuery({
+    enabled: netInfo.isInternetReachable === true,
+  });
 
   const updateHost = value => {
     onChange(value);
@@ -114,24 +52,26 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     }
   };
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      if (!value && netInfo.isInternetReachable) {
-        const servers = await fetchServers();
-        setOptions(servers);
-      }
-    })();
-  }, [netInfo.isInternetReachable]);
-
   if (!netInfo.isInternetReachable) {
     return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;
+  }
+
+  if (isError && !options?.length) {
+    return (
+      <StyledText color={theme.colors.ALERT}>
+        <TranslatedText
+          stringId="login.serverSelect.error.couldNotLoad"
+          fallback="Could not load the list of countries. Please check your connection and try again."
+        />
+      </StyledText>
+    );
   }
 
   return (
     <StyledView style={{ zIndex: 9999 }}>
       <Dropdown
         value={value}
-        options={options}
+        options={options ?? []}
         onChange={updateHost}
         label={label}
         fixedHeight
