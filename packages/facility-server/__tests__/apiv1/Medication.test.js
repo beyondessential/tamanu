@@ -802,6 +802,88 @@ describe('Medication', () => {
     });
   });
 
+  // Regression: without `list SensitiveMedication` these listings filter on
+  // medication.referenceDrug.is_sensitive. The medication association must be joined once, carrying
+  // its referenceDrug include — otherwise the query references an alias with no FROM-clause entry
+  // and Postgres errors for exactly these least-privilege users.
+  describe('medication listings without list SensitiveMedication', () => {
+    disableHardcodedPermissionsForSuite();
+
+    // The filter needs a reference drug row to match against, so give the drug an explicit
+    // non-sensitive one rather than leaning on the test role's permissions.
+    const addNonSensitiveReferenceDrug = medicationId =>
+      models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, { referenceDataId: medicationId, isSensitive: false }),
+      );
+
+    it('returns the ongoing prescriptions listing', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: localPatient.id,
+        prescriberId: app.user.id,
+      });
+      await addNonSensitiveReferenceDrug(ongoingPrescription.medicationId);
+      const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
+
+      // Both query params matter, and only together: facilityId nests a further include under
+      // referenceDrug, and paginating pushes Sequelize into a subquery. Drop either and the
+      // listing succeeds even with the duplicated association. This is what the web client sends.
+      const result = await limitedApp.get(
+        `/api/patient/${localPatient.id}/ongoing-prescriptions?facilityId=${facilityId}&page=0&rowsPerPage=10`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.find(p => p.id === ongoingPrescription.id)).toBeDefined();
+      // Joining rather than sub-querying can multiply rows, which would inflate both.
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.count).toBe(1);
+    });
+
+    it('returns the encounter medications listing', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      await addNonSensitiveReferenceDrug(medication.id);
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: localPatient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+      // The route sits under a router that gates on `read Encounter`, so the role needs it to
+      // reach the listing at all. It still withholds `list SensitiveMedication`, which is what
+      // this case is covering.
+      const limitedApp = await baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'Medication'],
+      ]);
+
+      // Same pairing as the ongoing-prescriptions case above: facilityId plus pagination.
+      const result = await limitedApp.get(
+        `/api/encounter/${encounter.id}/medications?facilityId=${facilityId}&page=0&rowsPerPage=10`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.find(p => p.id === prescription.id)).toBeDefined();
+    });
+  });
+
   describe('findPatientOngoingPrescriptionWithSameDetails', () => {
     const createUnitlessOngoing = async dosingUnit => {
       const medication = await models.ReferenceData.create(
