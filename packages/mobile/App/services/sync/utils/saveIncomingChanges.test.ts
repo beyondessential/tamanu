@@ -10,10 +10,11 @@ jest.mock('./buildFromSyncRecord', () => ({
       records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
     ),
 }));
-// Mock dependencies like `model.find`
+// Mock dependencies like `repository.query`
 
 const repository = {
-  find: jest.fn(),
+  query: jest.fn(),
+  metadata: { tableName: 'test_table' },
 };
 const getModel = jest.fn(() => ({
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
@@ -42,7 +43,7 @@ const generateExistingRecord = (id, data = {}) => ({
   ...data,
 });
 const mockExistingRecords = records => {
-  repository.find.mockImplementation(() => records);
+  repository.query.mockImplementation(() => records.map(({ id }) => ({ id })));
 };
 
 describe('saveChangesForModel', () => {
