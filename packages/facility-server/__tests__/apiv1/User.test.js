@@ -780,6 +780,20 @@ describe('User', () => {
       const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
+
+    it('should not error when the patient is not present locally', async () => {
+      const missingPatientId = fake(models.Patient).id;
+
+      const result = await app.post(
+        `/api/user/recently-viewed-patients/${missingPatientId}`,
+      );
+      expect(result).toHaveStatus(204);
+
+      const recorded = await models.UserRecentlyViewedPatient.count({
+        where: { patientId: missingPatientId },
+      });
+      expect(recorded).toBe(0);
+    });
   });
 
   describe('User preference', () => {
