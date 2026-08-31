@@ -1,7 +1,6 @@
 import React, {
   createContext,
   isValidElement,
-  type PropsWithChildren,
   type ReactElement,
   useContext,
   useEffect,
@@ -112,7 +111,7 @@ const TranslationContext = createContext<TranslationContextData>({
   getReferenceDataTranslation: () => '',
 } as TranslationContextData);
 
-export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
+export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const { models, syncManager } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
@@ -164,12 +163,10 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
-    if (!enumValues[value]) {
-      return getTranslation('general.fallback.unknown', 'Unknown');
-    }
+    const fallback = enumValues[value];
+    if (fallback === undefined) return getTranslation('general.fallback.unknown', 'Unknown');
 
     const stringId = getEnumStringId(value, enumValues);
-    const fallback = enumValues[value];
     return getTranslation(stringId, fallback);
   };
 
