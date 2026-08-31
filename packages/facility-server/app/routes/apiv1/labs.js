@@ -476,7 +476,40 @@ labRequest.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    // Each returned request's panels + individual (non-panel) tests, for the Category cell tooltip.
+    // Bounded to the page's ids so this stays cheap on the active-requests listing, rather than
+    // aggregating for every matching row in the main query.
+    const labRequestIds = result.map(labRequestRow => labRequestRow.id);
+    const testAndPanelNameRows = labRequestIds.length
+      ? await req.db.query(
+          `
+          SELECT lab_request_id, string_agg(name, ', ' ORDER BY name) AS names
+          FROM (
+            SELECT ltpr.lab_request_id, ltp.name
+              FROM lab_test_panel_requests ltpr
+              INNER JOIN lab_test_panels ltp ON (ltp.id = ltpr.lab_test_panel_id)
+              WHERE ltpr.lab_request_id IN (:labRequestIds)
+            UNION ALL
+            SELECT lt.lab_request_id, ltt.name
+              FROM lab_tests lt
+              INNER JOIN lab_test_types ltt ON (ltt.id = lt.lab_test_type_id)
+              WHERE lt.lab_request_id IN (:labRequestIds)
+                AND lt.lab_test_panel_request_id IS NULL
+                AND lt.deleted_at IS NULL
+          ) AS tests_and_panels
+          GROUP BY lab_request_id
+          `,
+          { replacements: { labRequestIds }, type: QueryTypes.SELECT },
+        )
+      : [];
+    const testAndPanelNamesByRequestId = new Map(
+      testAndPanelNameRows.map(row => [row.lab_request_id, row.names]),
+    );
+
+    const forResponse = result.map(labRequestRow => ({
+      ...renameObjectKeys(labRequestRow.forResponse()),
+      testsAndPanelNames: testAndPanelNamesByRequestId.get(labRequestRow.id) ?? '',
+    }));
     res.send({
       data: forResponse,
       count,

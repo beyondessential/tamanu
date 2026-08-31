@@ -4,13 +4,12 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTableWithPermissionCheck } from '../components';
 import {
   getDateWithTimeTooltip,
-  getPanelType,
   getPatientDisplayId,
   getPatientName,
   getPriority,
   getPublishedDate,
   getRequestId,
-  getRequestType,
+  getRequestTypeWithTestsTooltip,
   getStatus,
 } from '../utils/lab';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -53,14 +52,9 @@ export const LabRequestsTable = React.memo(
           sortable: false,
         },
         {
-          key: 'labTestPanelName',
-          title: <TranslatedText stringId="lab.panel.label" fallback="Panel" />,
-          accessor: getPanelType,
-        },
-        {
           key: 'testCategory',
-          title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
-          accessor: getRequestType,
+          title: <TranslatedText stringId="lab.category.label" fallback="Category" />,
+          accessor: getRequestTypeWithTestsTooltip,
         },
         {
           key: 'requestedDate',
