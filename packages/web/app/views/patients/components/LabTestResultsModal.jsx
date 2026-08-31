@@ -393,7 +393,7 @@ const ResultsForm = ({
           <StyledSmallBodyText data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results, other test result details and any relevant notes."
+              fallback="Please record the test results below."
             />
           </StyledSmallBodyText>
         </div>
@@ -413,7 +413,12 @@ const ResultsForm = ({
           disabled={areLabTestResultsReadOnly}
           rows={6}
           name="resultsInterpretation"
-          label="Results Interpretation"
+          label={
+            <TranslatedText
+              stringId="lab.resultsInterpretation.label"
+              fallback="Results interpretation"
+            />
+          }
           data-testid="field-resultsinterpretation"
         />
       </InterpretationFieldSection>
