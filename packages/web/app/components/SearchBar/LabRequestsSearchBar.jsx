@@ -199,8 +199,8 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         name="category"
         label={
           <TranslatedText
-            stringId="lab.testCategory.label"
-            fallback="Test category"
+            stringId="lab.category.label"
+            fallback="Category"
             data-testid="translatedtext-iate"
           />
         }

@@ -7,7 +7,7 @@ import {
   getPriority,
   getRequestedBy,
   getRequestId,
-  getRequestType,
+  getRequestTypeWithTestsTooltip,
   getStatus,
 } from '../../utils/lab';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -29,12 +29,12 @@ const columns = [
     key: 'category.name',
     title: (
       <TranslatedText
-        stringId="lab.testCategory.label"
-        fallback="Test category"
+        stringId="lab.category.label"
+        fallback="Category"
         data-testid="translatedtext-7vec"
       />
     ),
-    accessor: getRequestType,
+    accessor: getRequestTypeWithTestsTooltip,
   },
   {
     key: 'requestedDate',

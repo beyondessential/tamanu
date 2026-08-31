@@ -4,6 +4,7 @@ import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../components/Translation';
+import { ThemedTooltip } from '../components/Tooltip';
 
 export const StatusDisplay = React.memo(({ status }) => {
   const { background, color } = LAB_REQUEST_STATUS_CONFIG[status];
@@ -114,6 +115,19 @@ export const getRequestType = ({ categoryName, categoryId, category }) => {
     );
   }
   return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
+};
+
+// The category cell on the lab request listings, with the request's tests and panels shown on
+// hover. testsAndPanelNames is supplied by the list endpoints (a comma-separated, alphabetical
+// list); with none present the plain category is rendered.
+export const getRequestTypeWithTestsTooltip = row => {
+  const category = getRequestType(row);
+  if (!row.testsAndPanelNames) return category;
+  return (
+    <ThemedTooltip title={row.testsAndPanelNames}>
+      <span>{category}</span>
+    </ThemedTooltip>
+  );
 };
 export const getPriority = ({ priorityName, priorityId, priority }) =>
   priorityName || priority ? (

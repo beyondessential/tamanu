@@ -275,6 +275,47 @@ describe('Labs', () => {
     expect(individualTests[0].labTestTypeId).toBe(individualTest.id);
   });
 
+  it('exposes each request\'s panels and individual tests for the category tooltip', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: `Tooltip panel ${chance.guid()}`,
+      code: chance.guid(),
+    });
+    await createTestTypesForPanel(models, labTestPanel);
+
+    const { id: labTestCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: `Category ${chance.guid()}`,
+      code: chance.guid(),
+    });
+    const individualTest = await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId,
+      isSensitive: false,
+      availableFacilities: null,
+    });
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const createResponse = await app.post('/api/labRequest').send({
+      panelIds: [labTestPanel.id],
+      labTestTypeIds: [individualTest.id],
+      encounterId: encounter.id,
+    });
+    expect(createResponse).toHaveSucceeded();
+
+    const listResponse = await app.get(`/api/encounter/${encounter.id}/labRequests`);
+    expect(listResponse).toHaveSucceeded();
+
+    // A panel request lists its panel name (its member tests are represented by the panel); an
+    // individual request lists the loose test's name.
+    const rows = listResponse.body.data;
+    expect(rows.some(row => row.testsAndPanelNames === labTestPanel.name)).toBe(true);
+    expect(rows.some(row => row.testsAndPanelNames === individualTest.name)).toBe(true);
+  });
+
   it('includes panel member tests on GET /api/labTestPanel', async () => {
     const labTestPanel = await models.LabTestPanel.create({
       name: `Contract panel ${chance.guid()}`,
