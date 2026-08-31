@@ -8,7 +8,7 @@ import { useDateTime } from '../pdf/withDateTimeContext';
 const patientFields = getTranslation => [
   {
     key: 'firstName',
-    label: getTranslation('pdf.vaccineCertificate.patientDetails.firstName', 'First Name'),
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.firstName', 'First name'),
   },
   {
     key: 'displayId',
@@ -16,7 +16,7 @@ const patientFields = getTranslation => [
   },
   {
     key: 'lastName',
-    label: getTranslation('pdf.vaccineCertificate.patientDetails.lastName', 'Last Name'),
+    label: getTranslation('pdf.vaccineCertificate.patientDetails.lastName', 'Last name'),
   },
   {
     key: 'sex',
@@ -49,11 +49,11 @@ export const PatientDetailsSection = ({
   return (
     <>
       <H3 style={{ marginBottom: 0 }}>
-        {getTranslation('pdf.vaccineCertificate.patientDetails.title', 'Patient Details')}
+        {getTranslation('pdf.vaccineCertificate.patientDetails.title', 'Patient details')}
       </H3>
       <LightDivider />
       <Row>
-        <Col style={{ marginBottom: 5 }}>
+        <Col style={{ width: '100%' }}>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
@@ -79,7 +79,7 @@ export const PatientDetailsSection = ({
           </Row>
         </Col>
       </Row>
-      <LightDivider />
+      <LightDivider style={{ marginTop: 0, marginBottom: 10 }} />
     </>
   );
 };

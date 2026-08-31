@@ -89,7 +89,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     noItemsText: PropTypes.string,
     selectedText: PropTypes.string,
     disabled: PropTypes.bool,
-    clearable: PropTypes.bool
+    clearable: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -436,16 +436,14 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     }
   };
 
-  _filterItemsPartial = (searchTerm) => {
+  _filterItemsPartial = searchTerm => {
     const { items, displayKey } = this.props;
     const filteredItems = [];
     const parts = searchTerm.trim().split(/[ \-:]+/);
 
-    items.forEach((item) => {
+    items.forEach(item => {
       const displayValue = get(item, displayKey);
-      const isMatch = parts.every((part) =>
-        displayValue.toLowerCase().includes(part.toLowerCase())
-      );
+      const isMatch = parts.every(part => displayValue.toLowerCase().includes(part.toLowerCase()));
       if (isMatch) {
         filteredItems.push(item);
       }
@@ -454,10 +452,10 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     return filteredItems;
   };
 
-  _filterItemsFull = (searchTerm) => {
+  _filterItemsFull = searchTerm => {
     const { items, displayKey } = this.props;
     const filteredItems = [];
-    items.forEach((item) => {
+    items.forEach(item => {
       if (item[displayKey].toLowerCase().indexOf(searchTerm.trim().toLowerCase()) >= 0) {
         filteredItems.push(item);
       }
@@ -672,8 +670,8 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                               altFontFamily
                                 ? { fontFamily: altFontFamily }
                                 : fontFamily
-                                ? { fontFamily }
-                                : {},
+                                  ? { fontFamily }
+                                  : {},
                             ]
                           : [
                               {

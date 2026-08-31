@@ -1,5 +1,10 @@
 import { Database } from '~/infra/db';
-import { fakePatient, fakeProgramDataElement, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
+import {
+  fakePatient,
+  fakeProgramDataElement,
+  fakeSurvey,
+  fakeUser,
+} from '/root/tests/helpers/fake';
 import { writeConfig } from '~/services/config';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
@@ -95,7 +100,9 @@ describe('SurveyResponseAnswer.getLastAnswerValuesByQuestionCodes', () => {
   });
 
   it('returns an empty map when no question codes are requested', async () => {
-    expect(await SurveyResponseAnswer.getLastAnswerValuesByQuestionCodes(patientId, [])).toEqual({});
+    expect(await SurveyResponseAnswer.getLastAnswerValuesByQuestionCodes(patientId, [])).toEqual(
+      {},
+    );
   });
 
   it('returns the most recent answer per question code, and omits codes with no answer', async () => {

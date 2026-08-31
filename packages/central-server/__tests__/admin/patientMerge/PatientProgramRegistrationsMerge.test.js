@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 

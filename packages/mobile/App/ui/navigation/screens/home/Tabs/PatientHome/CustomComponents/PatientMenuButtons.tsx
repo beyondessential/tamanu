@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Separator } from '/components/Separator';
 import { MenuOptionButton } from '/components/MenuOptionButton';
-import { MenuOptionButtonProps } from '/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '/types/MenuOptionButtonProps';
 
 interface PatientMenuListProps {
   list: MenuOptionButtonProps[];

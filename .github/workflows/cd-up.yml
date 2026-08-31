@@ -108,7 +108,7 @@ jobs:
 
       - name: Up!
         id: up
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@v7
         with:
           work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: up

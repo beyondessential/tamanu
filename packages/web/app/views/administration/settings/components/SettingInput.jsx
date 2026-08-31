@@ -31,7 +31,7 @@ import {
 } from '../../../../components';
 import { useTranslation } from '../../../../contexts/Translation';
 import { Colors } from '../../../../constants/styles';
-import { JSONEditor } from './JSONEditor';
+import { JSONEditor } from '@tamanu/ui-components';
 import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
@@ -1906,7 +1906,7 @@ export const SettingInput = ({
       return (
         <Flexbox style={{ width: SETTING_INPUT_WIDTH }} data-testid="flexbox-w2c5">
           <StyledNumberInput
-            value={displayValue}
+            value={displayValue ?? ''}
             onChange={handleChangeNumber}
             // flex (not a fixed width) so the input fills the column but still
             // leaves room for the unit label beside it
@@ -1923,7 +1923,7 @@ export const SettingInput = ({
       return (
         <JSONEditorFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
-            value={displayValue}
+            value={displayValue ?? ''}
             onChange={defaultHandleChange}
             style={{ width: SETTING_INPUT_WIDTH, minHeight: '156px' }}
             multiline

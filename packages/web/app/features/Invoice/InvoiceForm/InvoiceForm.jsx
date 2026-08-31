@@ -181,7 +181,15 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: isAddForm ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
+        // Tag already-saved lines so validation keeps their product/ordered-by required: clearing a
+        // field on an existing line must block save (see invoiceFormSchema) rather than silently drop
+        // the line. Blank add-rows stay untagged so they remain discardable on save.
+        invoiceItems: isAddForm
+          ? inProgressItems
+          : [
+              ...(invoice.items ?? []).map(item => ({ ...item, isExistingItem: true })),
+              ...inProgressItems,
+            ],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,

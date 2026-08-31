@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import * as jose from 'jose';
 
@@ -115,7 +116,7 @@ describe('Patient Portal Auth', () => {
     });
 
     it('Should return success for a non-existent email and not create a token', async () => {
-      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
+      const spy = vi.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
       const response = await baseApp.post('/api/portal/request-login-token').send({
         email: 'nonexistent@test.com',
       });
@@ -130,7 +131,7 @@ describe('Patient Portal Auth', () => {
     });
 
     it('Should return success for a deactivated portal user and not create a token', async () => {
-      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
+      const spy = vi.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
       const response = await baseApp.post('/api/portal/request-login-token').send({
         email: deactivatedPortalUser.email,
       });
@@ -140,7 +141,7 @@ describe('Patient Portal Auth', () => {
     });
 
     it('Should return success for a deceased patient email and not create a token', async () => {
-      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
+      const spy = vi.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
       const response = await baseApp.post('/api/portal/request-login-token').send({
         email: deceasedPortalUser.email,
       });

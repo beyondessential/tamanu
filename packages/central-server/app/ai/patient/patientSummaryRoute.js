@@ -6,6 +6,8 @@ import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 
+import { buildSummaryUserMessage } from '../summaryUserMessage';
+
 // The facility server authenticates to central with device credentials, not
 // end-user credentials. Bounding the accepted keys limits what a caller can
 // inject into the LLM prompt — unknown top-level fields are rejected.
@@ -54,18 +56,13 @@ patientSummaryRoute.post(
 
     const { patientData, editFeedback } = patientSummaryBodySchema.parse(req.body);
 
-    let userMessage = JSON.stringify(patientData, null, 2);
+    // Per-request content stays in the human turn so the system prompt can cache.
+    const userMessage = buildSummaryUserMessage({
+      dataTag: 'patient_data',
+      data: patientData,
+      editFeedback,
+    });
 
-    if (editFeedback.length > 0) {
-      const feedbackSection = editFeedback
-        .map(
-          (f, i) =>
-            `Correction ${i + 1}:\nOriginal AI output: ${f.aiGenerated}\nClinician corrected to: ${f.userEdited}`,
-        )
-        .join('\n\n');
-
-      userMessage += `\n\n---\nPrevious summaries for this patient were corrected by a clinician. Apply these corrections to your output:\n\n${feedbackSection}`;
-    }
 
     const response = await req.aiService.invoke(AI_CONTEXT_NAMES.PATIENT_SUMMARY, userMessage);
 

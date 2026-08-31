@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { SvgXml, XmlProps } from 'react-native-svg';
+import { SvgXml, type XmlProps } from 'react-native-svg';
 
 export const AppIntro1Icon = memo<Omit<XmlProps, 'xml'>>(props => {
   const xml = `<svg width="203" height="203" viewBox="0 0 203 203" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { debounce } from '/helpers/input';
 import { StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -31,11 +31,7 @@ export function BaseStory(): ReactElement {
           Something called after debounce.
         </StyledText>
       )}
-      <SearchInput
-        placeholder="Search for patients"
-        value={text}
-        onChange={onChangeText}
-      />
+      <SearchInput placeholder="Search for patients" value={text} onChange={onChangeText} />
     </>
   );
 }

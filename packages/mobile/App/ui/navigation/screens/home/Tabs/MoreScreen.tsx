@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';

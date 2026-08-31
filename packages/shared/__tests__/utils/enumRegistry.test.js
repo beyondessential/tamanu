@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { isRegisteredEnum } from '../../src/utils';
 

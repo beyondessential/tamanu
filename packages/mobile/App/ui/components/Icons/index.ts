@@ -1,11 +1,7 @@
-export * from './Alert';
 export * from './AppIntro1';
 export * from './AppIntro2';
 export * from './AppIntro3';
-export * from './Phone';
-export * from './Email';
 export * from './Cross';
-export * from './Chat';
 export * from './Search';
 export * from './ScheduledVaccine';
 export * from './GreenTick';
@@ -24,18 +20,11 @@ export * from './Pencil';
 export * from './CircleAdd';
 
 // Logos
-export * from './CLR';
 export * from './LogoV1';
-export * from './LogoREV';
 export * from './LogoV2';
-export * from './LogoV2REV';
-export * from './Medicine';
 
-export * from './Notepad';
 export * from './Profile';
 export * from './Question';
-export * from './DotsMenu';
-export * from './Fingerprint';
 export * from './User';
 export * from './CheckboxMark';
 export * from './FilterIcon';
@@ -71,8 +60,6 @@ export * from './MarkedForSync';
 // Home Tab Icons
 export * from './SyncData';
 export * from './HomeBottomLogo';
-export * from './BarChart';
-export * from './More';
 export * from './HomeLogo';
 export * from './SyncCloud';
 export * from './Patient';

@@ -21,19 +21,17 @@ export class Suggester {
     this.baseQueryParameters = baseQueryParameters;
     this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
-    this.lastUpdatedAt = -Infinity;
-    this.cachedData = null;
   }
 
+  /**
+   * One suggester instance is routinely shared by several fields — a form typically creates a single
+   * `practitioner` suggester and hands it to every clinician field on the form. So each call must
+   * resolve to its own response: caching the last response on the instance and returning that
+   * instead would let concurrent callers read each other's data, which showed up as one field
+   * displaying another field's selection.
+   */
   async fetch(suffix, queryParameters) {
-    const requestedAt = Date.now();
-    const data = await this.api.get(`${this.endpoint}${suffix}`, queryParameters);
-    if (this.lastUpdatedAt < requestedAt) {
-      this.cachedData = data;
-      this.lastUpdatedAt = requestedAt;
-    }
-
-    return this.cachedData;
+    return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
   }
 
   fetchCurrentOption = async value => {

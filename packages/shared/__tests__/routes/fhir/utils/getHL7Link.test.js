@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { getHL7Link } from '../../../../src/routes/fhir/utils/getHL7Link';
 
 describe('getHL7Link', () => {

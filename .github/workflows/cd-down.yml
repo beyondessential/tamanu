@@ -74,7 +74,7 @@ jobs:
         if: steps.check.outcome == 'success'
         id: down
         name: Down!
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@v7
         with:
           work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy
@@ -101,7 +101,7 @@ jobs:
         if: always() && steps.down.outcome != 'success'
         continue-on-error: true
         name: Down again!
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@v7
         with:
           work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
           command: destroy

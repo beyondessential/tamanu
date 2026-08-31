@@ -70,16 +70,15 @@ export class FhirImagingStudy extends FhirResource {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
     const dataDicts = getFhirDataDictionaries();
     const serviceRequestFhirId = this.basedOn
-      ?.map((ref) => ref.fhirTypeAndId())
+      ?.map(ref => ref.fhirTypeAndId())
       .filter(Boolean)
       .find(({ type }: { type: string }) => type === 'ServiceRequest')?.id;
     const serviceRequestId = this.basedOn?.find(
-      (b) =>
-        b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === dataDicts.serviceRequestImagingId,
+      b =>
+        b?.type === 'ServiceRequest' && b?.identifier?.system === dataDicts.serviceRequestImagingId,
     )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn?.find(
-      (b) =>
+      b =>
         b?.type === 'ServiceRequest' &&
         b?.identifier?.system === dataDicts.serviceRequestImagingDisplayId,
     )?.identifier.value;
@@ -173,19 +172,20 @@ export class FhirImagingStudy extends FhirResource {
       status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
       reasonForCancellation: cancelledReason,
     });
-    await this.sequelize.transaction(async () => {
-      await (imagingRequest as any).createNote({
-        noteTypeId: NOTE_TYPES.OTHER,
-        content: `Request cancelled. Reason: ${cancelledReason}.`,
-        authorId: requesterId,
-      });
-      await imagingRequest.save();
+    await (imagingRequest as any).createNote({
+      noteTypeId: NOTE_TYPES.OTHER,
+      content: `Request cancelled. Reason: ${cancelledReason}.`,
+      authorId: requesterId,
     });
+    await imagingRequest.save();
   }
 
-  async attachResults(imagingRequest: ImagingRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
+  async attachResults(
+    imagingRequest: ImagingRequest,
+    dataDicts: ReturnType<typeof getFhirDataDictionaries>,
+  ) {
     const imagingAccessCode = this.identifier?.find(
-      (i) => i?.system === dataDicts.imagingStudyAccessionId,
+      i => i?.system === dataDicts.imagingStudyAccessionId,
     )?.value;
     const resultImageUrl = this.contained?.[0]?.address;
     if (!imagingAccessCode && !resultImageUrl) {
@@ -205,7 +205,7 @@ export class FhirImagingStudy extends FhirResource {
     let result = await ImagingResult.findOne({
       where: whereClause,
     });
-    const resultNotes = this.note?.map((n) => n.text).join('\n\n');
+    const resultNotes = this.note?.map(n => n.text).join('\n\n');
     if (result) {
       result.set({ description: resultNotes, resultImageUrl });
       await result.save();

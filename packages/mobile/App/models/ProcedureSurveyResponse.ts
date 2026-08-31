@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 import { Procedure } from './Procedure';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
-import { IProcedureSurveyResponse } from '~/types/IProcedureSurveyResponse';
+import type { IProcedureSurveyResponse } from '~/types/IProcedureSurveyResponse';
 
 @Entity('procedure_survey_responses')
 export class ProcedureSurveyResponse extends BaseModel implements IProcedureSurveyResponse {

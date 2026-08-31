@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm';
 
-import {
+import type {
   ID,
   IPatientProgramRegistrationCondition,
   IProgramRegistry,

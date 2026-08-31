@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
@@ -8,16 +8,25 @@ import { subject } from '@casl/ability';
 import { CenterView, FullView, RowView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
-import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { GenericFormValues, SurveyTypes } from '~/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import {
+  patientKeys,
+  registrationKeys,
+  reportKeys,
+  surveyKeys,
+} from '~/ui/hooks/queries/queryKeys';
+import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
+import { useBackend } from '~/ui/hooks';
+import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { joinNames } from '~/ui/helpers/user';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -49,29 +58,51 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
   const [showModal, setShowModal] = useState(false);
 
-  const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
-    models.Survey.getRepository().findOne({ where: { id: surveyId } }),
-  );
-
-  const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents({ includeAllVitals: false }),
-    [survey],
-  );
-
-  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models }) =>
-      models.PatientAdditionalData.getRepository().findOne({
-        where: {
-          patient: { id: selectedPatient.id },
-        },
+  const {
+    data: survey,
+    error: surveyError,
+    isPending: isSurveyLoading,
+  } = useQuery({
+    queryKey: surveyKeys.detail(surveyId),
+    queryFn: () =>
+      Database.models.Survey.getRepository().findOne({
+        where: { id: surveyId },
       }),
-    [selectedPatient.id],
-  );
+  });
 
-  const [patientProgramRegistration, pprError, isPprLoading] = useBackendEffect(
-    async ({ models }) => {
+  const {
+    data: components,
+    error: componentsError,
+    isPending: areComponentsLoading,
+  } = useQuery({
+    queryKey: surveyKeys.components(surveyId),
+    queryFn: () => survey.getComponents({ includeAllVitals: false }),
+    enabled: Boolean(survey),
+  });
+
+  const {
+    data: patientAdditionalData,
+    error: padError,
+    isPending: isPadLoading,
+  } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
+
+  const user = useSelector(authUserSelector);
+
+  const {
+    data: patientProgramRegistration,
+    error: pprError,
+    isPending: isPprLoading,
+    // `canReadRegistration` is based on the signed-in user; encoded in query key as `user.id`
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  } = useQuery({
+    queryKey: [
+      ...patientKeys.registrations(selectedPatient.id),
+      'recent',
+      { programId: survey?.programId, userId: user?.id },
+    ],
+    queryFn: async () => {
       if (canReadRegistration === false) return null;
-      const patientProgramRegistry = await models.PatientProgramRegistration.getRecentOne(
+      const patientProgramRegistry = await Database.models.PatientProgramRegistration.getRecentOne(
         survey?.programId,
         selectedPatient.id,
       );
@@ -87,16 +118,17 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       return canReadProgramRegistry ? patientProgramRegistry : null;
     },
-    [survey],
-  );
-
-  const user = useSelector(authUserSelector);
+    enabled: survey != null,
+  });
 
   const { models } = useBackend();
-  const onSubmit = useCallback(
-    async (values: GenericFormValues) => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: submitSurveyResponse } = useMutation({
+    // Referral.submit and SurveyResponse.submit return different record types; the
+    // caller only relies on the shared id field.
+    mutationFn: (values: GenericFormValues): Promise<{ id: string } | null> => {
       const model = isReferral ? models.Referral : models.SurveyResponse;
-      const response = await model.submit(
+      return model.submit(
         selectedPatientId,
         user.id,
         {
@@ -107,6 +139,18 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         },
         values,
       );
+    },
+    onSuccess: response => {
+      if (!response) return;
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatientId) });
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
+
+  const onSubmit = useCallback(
+    async (values: GenericFormValues) => {
+      const response = await submitSurveyResponse(values);
 
       if (!response) return;
       if (isReferral) {
@@ -115,7 +159,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         resetToProgramSurveyHistory(navigation, response.id);
       }
     },
-    [survey, components],
+    [submitSurveyResponse, isReferral, navigation],
   );
 
   const closeModalCallback = useCallback(async () => {
@@ -137,8 +181,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   };
 
   const error = surveyError || componentsError || padError || pprError;
-  // due to how useBackendEffect works we need to stay in the loading state for queries which depend
-  // on other data, like the query for components
   const isLoading =
     !survey ||
     !components ||
@@ -163,7 +205,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         />
         <SurveyForm
           patient={selectedPatient}
-          patientAdditionalData={patientAdditionalData}
+          // PatientAdditionalData and IPatientAdditionalData disagree on
+          // patient.village.visibilityStatus (string vs enum), a pre-existing model typing quirk
+          patientAdditionalData={patientAdditionalData as unknown as IPatientAdditionalData}
           patientProgramRegistration={patientProgramRegistration}
           components={components}
           onSubmit={onSubmit}

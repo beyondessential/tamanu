@@ -1,14 +1,13 @@
-
 export interface MultiSelectProps {
   single?: boolean;
   selectedItems?: any[];
   items: any[];
-  uniqueKey?: string,
+  uniqueKey?: string;
   tagBorderColor?: string;
   tagTextColor?: string;
   fontFamily?: string;
   tagRemoveIconColor?: string;
-  onSelectedItemsChange: ((items: any[]) => void),
+  onSelectedItemsChange: (items: any[]) => void;
   selectedItemFontFamily?: string;
   selectedItemTextColor?: string;
   itemFontFamily?: string;
@@ -38,7 +37,7 @@ export interface MultiSelectProps {
   textColor?: string;
   fontSize?: number;
   fixedHeight?: boolean;
-  hideTags?: boolean,
+  hideTags?: boolean;
   canAddItems?: boolean;
   onToggleList?: () => void;
   onAddItem?: (newItems: any[]) => void;

@@ -1,11 +1,13 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField, formatForMuiDateTimePicker } from '@utils/dateTimeHelpers';
+import { MedicationDiscontinueModal } from '../../MedicationsPage/modals/MedicationDiscontinueModal';
 
 export class PrepareDischargeModal {
   readonly page: Page;
   readonly form: Locator;
-  
+
   // Form fields
   readonly dischargeNoteTextarea: Locator;
 
@@ -15,6 +17,7 @@ export class PrepareDischargeModal {
   readonly dispositionField: Locator;
   readonly dispositionInput: Locator;
 
+  readonly orderingPrescriberField: Locator;
   readonly orderingPrescriberInput: Locator;
 
   // Action buttons
@@ -31,22 +34,25 @@ export class PrepareDischargeModal {
     
     // Form fields
     this.dischargeNoteTextarea = page.getByTestId('field-0uma-input');
-    // The field's test id lands on the input's container rather than the input, so the disabled
-    // state is only readable from the input itself.
     // The autocomplete helper drives the field container (it reads its test id to find the
     // suggestions list), while assertions read the input the selection lands in.
     this.dischargeDateInput = page.locator('input[name="endDate"]');
-    this.dischargingClinicianField = page.getByTestId('field-6we6');
+    this.dischargingClinicianField = page.getByTestId('field-6we6-input');
     this.dischargingClinicianInput = page.locator('input[name="discharge.dischargerId"]');
-    this.dispositionField = page.getByTestId('localisedfield-d7fu');
+    this.dispositionField = page.getByTestId('localisedfield-d7fu-input');
     this.dispositionInput = page.locator('input[name="discharge.dispositionId"]');
 
+    // The field's test id lands on the input's container rather than the input. The suggestion
+    // helpers want that container...
+    this.orderingPrescriberField = page.getByTestId('field-orderingprescriber-input');
+    // ...while the disabled state and the selected value are only readable from the input itself.
     this.orderingPrescriberInput = page.locator(
       'input[name="pharmacyOrder.orderingClinicianId"]',
     );
     
-    // Action buttons (these would need to be updated with actual test IDs from the modal)
-    this.confirmButton = page.getByTestId('box-p5wr');
+    this.confirmButton = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Finalise discharge', exact: true });
     // Only closes the modal outright on an untouched form. A form with edits steps forward to
     // the unsaved-changes screen instead, so use cancelAndDiscardChanges() for that.
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
@@ -86,12 +92,39 @@ export class PrepareDischargeModal {
     return this.page.locator(`input[name="medications.${prescriptionId}.sendToPharmacy"]`);
   }
 
+  /** A medication's row in either discharge table, addressed by its own quantity input. */
+  medicationRow(prescriptionId: string): Locator {
+    return this.page.locator('tr', { has: this.dispensingQuantityInput(prescriptionId) });
+  }
+
   /** The inline validation message beneath a row's dispensing quantity. */
   dispensingQuantityError(prescriptionId: string): Locator {
     // The message is rendered outside the input's own container, so it is addressed via the row.
-    return this.page
-      .locator('tr', { has: this.dispensingQuantityInput(prescriptionId) })
-      .locator('.MuiFormHelperText-root');
+    return this.medicationRow(prescriptionId).locator('.MuiFormHelperText-root');
+  }
+
+  /** The row's Discontinue control, which carries no test id of its own. */
+  discontinueLink(prescriptionId: string): Locator {
+    return this.medicationRow(prescriptionId).getByText('Discontinue', { exact: true });
+  }
+
+  /** Opens the discontinue modal for a listed medication, without submitting it. */
+  async clickDiscontinue(prescriptionId: string): Promise<MedicationDiscontinueModal> {
+    await this.discontinueLink(prescriptionId).click();
+    const discontinueModal = new MedicationDiscontinueModal(this.page);
+    await discontinueModal.waitForModalToLoad();
+    return discontinueModal;
+  }
+
+  /**
+   * Picks an ordering prescriber other than the given user, returning the name chosen so a caller
+   * can assert the field still holds it later.
+   */
+  async changeOrderingPrescriber(currentUserDisplayName: string): Promise<string> {
+    return (await selectAutocompleteFieldOption(this.page, this.orderingPrescriberField, {
+      optionToAvoid: currentUserDisplayName,
+      returnOptionText: true,
+    })) as string;
   }
 
   async setDispensingQuantity(prescriptionId: string, quantity: number) {
@@ -101,13 +134,23 @@ export class PrepareDischargeModal {
   }
 
   /**
-   * Sets the discharge date. The field is a native datetime-local, so the value is read back in
-   * the same form it is written — callers compare against what they set rather than a stored
-   * representation, which the facility timezone may shift.
+   * Sets the discharge date, given as `yyyy-MM-dd'T'HH:mm`. The field is a masked text input the
+   * picker only reads on blur, and one that silently keeps its previous value when what it is
+   * given does not parse, so the write is confirmed before the caller moves on.
    */
-  async setDischargeDate(value: string) {
+  async setDischargeDate(dateTime: string) {
     await this.dischargeDateInput.waitFor({ state: 'visible' });
-    await this.dischargeDateInput.fill(value);
+    await fillMuiDateTimeField(this.dischargeDateInput, dateTime);
+    await this.expectDischargeDate(dateTime);
+  }
+
+  /**
+   * Asserts the discharge date the field shows, given as `yyyy-MM-dd'T'HH:mm`. Compares against
+   * what the field displays rather than what is stored: the two differ whenever the facility
+   * timezone does, and the display is what the clinician reads back.
+   */
+  async expectDischargeDate(dateTime: string) {
+    await expect(this.dischargeDateInput).toHaveValue(formatForMuiDateTimePicker(dateTime));
   }
 
   /**
@@ -170,7 +213,9 @@ export class PrepareDischargeModal {
   /** Finalises the discharge, including the confirmation step the form shows before submitting. */
   async finaliseDischarge() {
     await this.attemptFinaliseDischarge();
-    const confirmDischargeButton = this.page.getByRole('button', { name: 'Confirm' });
+    const confirmDischargeButton = this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Confirm', exact: true });
     await confirmDischargeButton.waitFor({ state: 'visible' });
     await confirmDischargeButton.click();
     await this.waitForModalToClose();

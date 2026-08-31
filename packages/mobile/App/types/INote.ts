@@ -1,6 +1,6 @@
-import { ID } from './ID';
-import { IUser } from './IUser';
-import { DateString } from './DateString';
+import type { ID } from './ID';
+import type { IUser } from './IUser';
+import type { DateString } from './DateString';
 
 export const NoteRecordType = {
   ENCOUNTER: 'Encounter',

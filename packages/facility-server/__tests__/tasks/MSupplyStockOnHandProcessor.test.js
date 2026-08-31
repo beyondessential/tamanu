@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { createTestContext } from '../utilities';
 import { MSupplyStockOnHandProcessor } from '../../app/tasks/MSupplyStockOnHandProcessor';
@@ -7,12 +8,12 @@ import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/c
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 
-jest.mock('../../app/serverConfig', () => ({
-  ...jest.requireActual('../../app/serverConfig'),
-  getServerFacilityIds: jest.fn(() => ['balwyn']),
+vi.mock('../../app/serverConfig', async () => ({
+  ...(await vi.importActual('../../app/serverConfig')),
+  getServerFacilityIds: vi.fn(() => ['balwyn']),
 }));
 
-jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
+vi.mock('@tamanu/api-client/fetchWithRetryBackoff');
 
 const FACILITY_ID = 'balwyn';
 
@@ -92,7 +93,7 @@ describe('MSupplyStockOnHandProcessor', () => {
   afterAll(() => context?.close());
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     getServerFacilityIds.mockReturnValue([FACILITY_ID]);
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
 

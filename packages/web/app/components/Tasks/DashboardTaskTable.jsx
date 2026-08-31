@@ -173,7 +173,9 @@ const getStatus = row => {
 const getDueTime = ({ dueTime }) => {
   return (
     <DateWrapper data-testid="datewrapper-hd7h">
-      <BodyText data-testid="bodytext-fq9o"><TimeDisplay date={dueTime} /></BodyText>
+      <BodyText data-testid="bodytext-fq9o">
+        <TimeDisplay date={dueTime} />
+      </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-grca">
         <DateDisplay date={dueTime} format="shortest" />
       </SmallBodyText>
@@ -344,6 +346,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     queryParams,
     [
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${currentUser?.id}`,
+      `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:facility:${facilityId}`,
+      // Undesignated tasks are announced per-facility; :all remains only for the case where
+      // the server cannot work out which facility a changed task belonged to.
       `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`,
     ],
     { keepPreviousData: true, refetchOnMount: true },

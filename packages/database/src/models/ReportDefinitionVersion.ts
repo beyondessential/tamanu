@@ -25,6 +25,14 @@ const optionsValidator = yup.object({
   defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
 });
 
+// Freeform metadata, but known keys are type-checked so misconfiguration is caught
+// before it reaches an integration. dhis2DataSet is sent to the DHIS2 API as-is.
+const advancedConfigValidator = yup
+  .object({
+    dhis2DataSet: yup.string().strict(),
+  })
+  .nullable();
+
 const generateReportFromQueryData = (queryData: any[]) => {
   if (queryData.length === 0) {
     return [];
@@ -39,6 +47,7 @@ export class ReportDefinitionVersion extends Model {
   declare status: string;
   declare query: string;
   declare queryOptions: Record<string, any>;
+  declare advancedConfig: Record<string, any> | null;
   declare reportDefinitionId?: string;
   declare userId?: string;
 
@@ -81,13 +90,27 @@ export class ReportDefinitionVersion extends Model {
            *       "suggesterEndpoint": "nursingZone"
            *     }
            *   ],
-           *   "dataSources": [],
+           *   "dataSources": []
            * }
            */
           type: DataTypes.JSON,
           allowNull: false,
           validate: {
             matchesSchema: (value: Record<string, any>) => optionsValidator.validate(value),
+          },
+        },
+        advancedConfig: {
+          /**
+           * Arbitrary metadata for the report version, not used as query parameters.
+           * e.g.
+           * {
+           *   "dhis2DataSet": "optional-data-set-id-for-dhis2-integration"
+           * }
+           */
+          type: DataTypes.JSONB,
+          allowNull: true,
+          validate: {
+            matchesSchema: (value: Record<string, any>) => advancedConfigValidator.validate(value),
           },
         },
       },
@@ -118,6 +141,10 @@ export class ReportDefinitionVersion extends Model {
     return typeof this.queryOptions === 'string'
       ? JSON.parse(this.queryOptions)
       : this.queryOptions;
+  }
+
+  getAdvancedConfig() {
+    return this.advancedConfig ?? {};
   }
 
   getParameters() {

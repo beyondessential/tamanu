@@ -1,6 +1,6 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { IProgramRegistry } from './IProgramRegistry';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { IProgramRegistry } from './IProgramRegistry';
 
 export interface IProgramRegistryConditionCategory {
   id: ID;

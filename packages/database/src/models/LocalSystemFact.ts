@@ -22,6 +22,7 @@ export class LocalSystemFact extends Model {
         key: {
           type: DataTypes.STRING,
           allowNull: false,
+          unique: true,
         },
         value: {
           type: DataTypes.TEXT,
@@ -31,7 +32,6 @@ export class LocalSystemFact extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
-        indexes: [{ unique: true, fields: ['key'] }],
       },
     );
   }

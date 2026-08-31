@@ -1,11 +1,11 @@
-import { ID } from './ID';
-import { IScheduledVaccine } from './IScheduledVaccine';
-import { IEncounter } from './IEncounter';
-import { IUser } from './IUser';
-import { ILocation } from './ILocation';
-import { IDepartment } from './IDepartment';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { INJECTION_SITE_VALUES, INJECTION_SITE_LABELS } from '@tamanu/constants';
+import type { ID } from './ID';
+import type { IScheduledVaccine } from './IScheduledVaccine';
+import type { IEncounter } from './IEncounter';
+import type { IUser } from './IUser';
+import type { ILocation } from './ILocation';
+import type { IDepartment } from './IDepartment';
+import type { VaccineStatus } from '~/ui/helpers/patient';
+import { type INJECTION_SITE_VALUES, INJECTION_SITE_LABELS } from '@tamanu/constants';
 
 export interface IAdministeredVaccine {
   id: ID;

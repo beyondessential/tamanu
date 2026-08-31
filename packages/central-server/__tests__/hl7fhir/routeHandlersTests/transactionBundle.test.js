@@ -1,7 +1,9 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
+import { base64pdf } from '@tamanu/shared/test-helpers';
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_OBSERVATION_STATUS,
@@ -462,6 +464,143 @@ describe(`FHIR API - Transaction Bundle`, () => {
 
       await labRequest.reload();
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.RESULTS_PENDING); // the lab request should not be updated because the diagnostic report is invalid
+    });
+
+    it('will not leave the LabRequest published if a valid DiagnosticReport is bundled with an invalid Observation', async () => {
+      // arrange
+      const { FhirServiceRequest, LabRequestLog, LabTest, LabTestType } = ctx.store.models;
+
+      await FhirServiceRequest.resolveUpstreams();
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const labMat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const labTests = await LabTest.findAll({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: { labRequestId: labRequest.id },
+      });
+      await FhirServiceRequest.resolveUpstreams();
+
+      // act: the DiagnosticReport itself is entirely valid and would publish the LabRequest
+      // (status final + presentedForm), but one of the bundled Observations has a code that
+      // doesn't match any LabTestType, so the whole bundle should be rejected and rolled back.
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'DiagnosticReport',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
+              category: [
+                {
+                  coding: [
+                    {
+                      code: '108252007',
+                      system: 'http://snomed.info/sct',
+                    },
+                  ],
+                },
+              ],
+              code: {
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '42191-7',
+                    display: 'Hepatitis Panel',
+                  },
+                ],
+              },
+              presentedForm: [
+                {
+                  contentType: 'application/pdf',
+                  data: base64pdf,
+                  title: 'Results',
+                },
+              ],
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/DiagnosticReport`,
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [
+                  {
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
+                    code: labTests[0].labTestType.code,
+                  },
+                ],
+              },
+              valueString: 'Result 0',
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Observation`,
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [
+                  {
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
+                    code: 'code-not-present-in-reference-data',
+                  },
+                ],
+              },
+              valueString: 'Result 1',
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Observation`,
+            },
+          },
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400);
+
+      await labRequest.reload();
+      // the DiagnosticReport's own status/publishedDate change must roll back along with
+      // everything else in the bundle, not just the failing Observation
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.RESULTS_PENDING);
+      expect(labRequest.publishedDate).toBeFalsy();
+
+      const logs = await LabRequestLog.findAll({ where: { labRequestId: labRequest.id } });
+      expect(logs).toHaveLength(0);
     });
 
     it('will throw an error if the method is not POST', async () => {
