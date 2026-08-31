@@ -189,22 +189,20 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     registerYup(translations);
   }, [translations]);
 
-  useEffect(() => {
+  const reloadTranslations = useCallback(() => {
     getLanguageOptions();
     getLatestTranslations(language);
-  }, [language, getLatestTranslations, getLanguageOptions]);
+  }, [getLanguageOptions, getLatestTranslations, language]);
 
-  // Reload latest translations on successful sync
-  useEffect(() => {
-    const handler = () => {
-      getLanguageOptions();
-      getLatestTranslations(language);
-    };
+  useEffect(() => void reloadTranslations(), [reloadTranslations]);
 
-    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
-
-    return () => syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
-  }, [language, getLatestTranslations, getLanguageOptions, syncManager.emitter]);
+  useEffect(
+    function reloadTranslationsOnSync() {
+      syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, reloadTranslations);
+      return () => syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, reloadTranslations);
+    },
+    [reloadTranslations, syncManager.emitter],
+  );
 
   useEffect(() => {
     const restoreLanguage = async () => {
