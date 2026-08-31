@@ -1,9 +1,9 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { QueryInterface, QueryTypes } from 'sequelize';
 
-// prescriptions.discontinued_date was declared DataTypes.STRING while every other date on the
-// model uses dateTimeType, so it was created as varchar(255) and gets none of the normalisation
-// the setter provides. Bring it onto the date_time_string domain like date, start_date and
-// end_date, which is also what the mobile model already declares it as.
+// Migration 1 of 2: Normalise data (DML)
+// Separated from the schema change to avoid "pending trigger events" error --
+// record_prescriptions_changelog is a deferred constraint trigger, so an UPDATE here queues
+// events that would make an ALTER TABLE in the same transaction fail.
 
 const CANONICAL = String.raw`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$`;
 const DATE_LIKE = String.raw`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])`;
@@ -31,17 +31,24 @@ export async function up(query: QueryInterface): Promise<void> {
       AND discontinued_date !~ '${CANONICAL}'
   `);
 
-  await query.changeColumn('prescriptions', 'discontinued_date', {
-    type: DataTypes.DATETIMESTRING,
-    allowNull: true,
-  });
+  // Fail here rather than in the next migration, where the same problem surfaces as an opaque
+  // "value too long for type character(19)".
+  const remaining: any = await query.sequelize.query(
+    `SELECT COUNT(*) as count FROM prescriptions
+     WHERE discontinued_date IS NOT NULL AND discontinued_date !~ '${CANONICAL}'`,
+    { type: QueryTypes.SELECT },
+  );
+
+  const count = parseInt(remaining[0].count, 10);
+  if (count > 0) {
+    throw new Error(
+      `Cannot narrow discontinued_date to date_time_string: ${count} prescription(s) still hold ` +
+        `a value that is neither null nor a canonical date-time string.`,
+    );
+  }
 }
 
-export async function down(query: QueryInterface): Promise<void> {
-  // Widening back to varchar(255) always succeeds, but the values cleared by `up` are not
-  // recoverable from this migration.
-  await query.changeColumn('prescriptions', 'discontinued_date', {
-    type: DataTypes.STRING,
-    allowNull: true,
-  });
+export async function down(_query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: normalising and clearing cannot be reversed -- the original values are not
+  // recorded anywhere this migration can read back.
 }
