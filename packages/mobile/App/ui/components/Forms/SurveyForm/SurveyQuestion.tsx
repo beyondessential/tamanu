@@ -82,7 +82,7 @@ function mapOptionsToValues(optionsString: string) {
   return result;
 }
 
-const EMPTY_OPTIONS: any[] = [];
+const EMPTY_OPTIONS = [] as const;
 
 export const SurveyQuestion = memo(
   ({
