@@ -46,7 +46,9 @@ describe('PatientIssue', () => {
     const note = 'b'.repeat(500);
     const result = await app.put(`/api/patientIssue/${created.id}`).send({ note });
     expect(result).toHaveSucceeded();
+    expect(result.body.note).toEqual(note);
 
+    // reload to confirm postgres stored the note in full rather than truncating it
     const reloaded = await models.PatientIssue.findByPk(created.id);
     expect(reloaded.note).toEqual(note);
   });
