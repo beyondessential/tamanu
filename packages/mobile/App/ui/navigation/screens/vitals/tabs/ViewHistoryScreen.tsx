@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VitalsTable } from '/components/VitalsTable';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
@@ -9,6 +10,10 @@ import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
 
 export const ViewHistoryScreen = (): ReactElement => {
+  const route = useRoute();
+  // Bumped by the Add Vitals tab after each submit so the table refetches to
+  // include the vital just added.
+  const refreshToken = (route.params as { refreshToken?: number })?.refreshToken;
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
@@ -16,7 +21,7 @@ export const ViewHistoryScreen = (): ReactElement => {
   // Note: Vitals are only filtered by patient instead of encounter on mobile
   const [response, error] = useBackendEffect(
     ({ models }) => models.Patient.getVitals(selectedPatient.id),
-    [selectedPatient.id],
+    [selectedPatient.id, refreshToken],
   );
 
   if (error) return <ErrorScreen error={error} />;
