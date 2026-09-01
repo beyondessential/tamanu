@@ -146,7 +146,7 @@ describe('useLanguageOptionsQuery', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('falls back to the public endpoint when nothing is synced and a host is set', async () => {
+  it('fetches the selected server’s language options when a host is set', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({

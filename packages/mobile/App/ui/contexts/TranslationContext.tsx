@@ -15,7 +15,7 @@ import type { LanguageOption } from '~/models/TranslatedString';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
-import useTranslationsQuery from '../hooks/queries/useTranslationsQuery';
+import useTranslationsQuery, { type Translations } from '../hooks/queries/useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -44,7 +44,7 @@ interface TranslatedReferenceDataProps {
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: LanguageOption[];
+  languageOptions: LanguageOption[] | undefined;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
@@ -97,7 +97,7 @@ const applyCasing = (text: string, casing: Casing) => {
 const TranslationContext = createContext<TranslationContextData>({
   debugMode: false,
   language: 'en',
-  languageOptions: null,
+  languageOptions: undefined,
   getTranslation: () => {
     return '';
   },
@@ -111,24 +111,31 @@ const TranslationContext = createContext<TranslationContextData>({
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [language, setLanguageState] = useState<string | null>(null);
+  const [isLanguageRestored, setIsLanguageRestored] = useState(false);
   const [host, setHost] = useState<string | null>(null);
 
-  const { data: translations = {} } = useTranslationsQuery(language, host);
-  const { data: languageOptionsData } = useLanguageOptionsQuery(host);
-  // Consumers treat "no options available" as null rather than an empty list
-  const languageOptions = languageOptionsData?.length ? languageOptionsData : null;
+  const { data: translations } = useTranslationsQuery(language, host);
+  const { data: languageOptions } = useLanguageOptionsQuery(host);
 
   const setLanguage = useCallback((languageCode: string) => {
     setLanguageState(languageCode);
     void writeConfig('language', languageCode);
   }, []);
 
+  // Keep the selected language one of the available options, defaulting to the first when
+  // nothing valid is stored — e.g. a fresh install, or a language removed by a later sync
+  useEffect(() => {
+    if (!isLanguageRestored || !languageOptions?.length) return;
+    if (language && languageOptions.some(({ languageCode }) => languageCode === language)) return;
+    setLanguage(languageOptions[0].languageCode);
+  }, [isLanguageRestored, language, languageOptions, setLanguage]);
+
   const getTranslation = (
     stringId: string,
     fallback?: string,
     translationOptions?: TranslationOptions,
   ) => {
-    const translation = translations[stringId] ?? fallback;
+    const translation = translations?.[stringId] ?? fallback;
     return replaceStringVariables(translation, translationOptions, translations);
   };
 
@@ -158,7 +165,8 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
   useEffect(() => {
     const restoreLanguage = async () => {
       const languageCode = await readConfig('language');
-      setLanguageState(languageCode);
+      setLanguageState(languageCode ?? null);
+      setIsLanguageRestored(true);
     };
     restoreLanguage();
     if (!__DEV__) return;

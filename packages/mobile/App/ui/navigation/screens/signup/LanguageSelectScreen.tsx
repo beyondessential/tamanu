@@ -83,7 +83,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
     onNavigateToSignIn();
   };
 
-  if (!languageOptions) {
+  if (!languageOptions?.length) {
     return <ErrorScreen error={{ message: 'Problem loading language list' }} />;
   }
 

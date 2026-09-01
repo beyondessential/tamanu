@@ -4,6 +4,7 @@ import { keyBy, mapValues, uniq } from 'es-toolkit';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { Database } from '~/infra/db';
 import type { LanguageOption } from '~/models/TranslatedString';
+import { fetchJson } from './fetchJson';
 import { translationKeys } from './queryKeys';
 
 interface TranslatedLanguageField {
@@ -54,31 +55,29 @@ const toLanguageOptions = ({
   }));
 };
 
-const getLocalLanguageOptions = async (): Promise<LanguageOption[]> => {
-  const languageOptions = await Database.models.TranslatedString.getLanguageOptions();
-
-  // Hide the default (fallback) language when a custom English language exists
+// Hide the default (fallback) language when a custom English language exists
+const collapseDefaultLanguage = (languageOptions: LanguageOption[]): LanguageOption[] => {
   if (languageOptions.some(({ languageCode }) => languageCode === ENGLISH_LANGUAGE_CODE)) {
     return languageOptions.filter(({ languageCode }) => languageCode !== DEFAULT_LANGUAGE_CODE);
   }
   return languageOptions;
 };
 
-const fetchRemoteLanguageOptions = async (host: string): Promise<LanguageOption[]> => {
-  const response = await fetch(`${host}/api/public/translation/languageOptions`);
-  if (!response.ok) {
-    throw new Error(`Could not fetch language options from ${host}: ${response.status}`);
+const fetchRemoteLanguageOptions = async (host: string): Promise<LanguageOption[]> =>
+  toLanguageOptions(
+    await fetchJson<LanguageOptionsResponse>(`${host}/api/public/translation/languageOptions`),
+  );
+
+const fetchLanguageOptions = async (host: string | null | undefined): Promise<LanguageOption[]> => {
+  if (host) {
+    // The selected server's language list is authoritative
+    try {
+      return await fetchRemoteLanguageOptions(host);
+    } catch {
+      // Server unreachable — fall back to whatever has synced down
+    }
   }
-  return toLanguageOptions(await response.json());
-};
-
-const fetchLanguageOptions = async (host: string | null): Promise<LanguageOption[]> => {
-  const localOptions = await getLocalLanguageOptions();
-  if (localOptions.length > 0) return localOptions;
-  if (!host) return [];
-
-  // Nothing synced down yet — fall back to the public server endpoint
-  return fetchRemoteLanguageOptions(host);
+  return Database.models.TranslatedString.getLanguageOptions();
 };
 
 export default function useLanguageOptionsQuery(
@@ -87,9 +86,10 @@ export default function useLanguageOptionsQuery(
 ): UseQueryResult<LanguageOption[]> {
   return useQuery({
     queryKey: translationKeys.languageOptions(host),
-    queryFn: () => fetchLanguageOptions(host ?? null),
+    queryFn: () => fetchLanguageOptions(host),
     refetchOnReconnect: true,
     retry: 2,
+    select: collapseDefaultLanguage,
     staleTime: 60_000,
     ...useQueryOptions,
   });

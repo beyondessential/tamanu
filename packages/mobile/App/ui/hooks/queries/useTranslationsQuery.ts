@@ -7,6 +7,7 @@ import {
 import { isEmpty } from 'es-toolkit/compat';
 
 import { Database } from '~/infra/db';
+import { fetchJson } from './fetchJson';
 import { translationKeys } from './queryKeys';
 
 export interface Translations {
@@ -20,15 +21,8 @@ const fetchTranslations = async (
   const localTranslations = await Database.models.TranslatedString.getForLanguage(languageCode);
   if (!isEmpty(localTranslations)) return localTranslations;
   if (!host) return {};
-
-  // Nothing synced down yet — fall back to the public server endpoint
-  const response = await fetch(`${host}/api/public/translation/${languageCode}`);
-  if (!response.ok) {
-    throw new Error(
-      `Couldn’t fetch translations from ${host}: ${response.status} ${response.statusText}`,
-    );
-  }
-  return response.json();
+  // Nothing synced down yet; fall back to public API
+  return fetchJson<Translations>(`${host}/api/public/translation/${languageCode}`);
 };
 
 export default function useTranslationsQuery(
@@ -39,10 +33,15 @@ export default function useTranslationsQuery(
   const { enabled = true, ...rest } = useQueryOptions;
   return useQuery({
     queryKey: translationKeys.forLanguage(languageCode, host),
-    queryFn: async () => await fetchTranslations(languageCode, host),
+    queryFn: () => fetchTranslations(languageCode, host),
     enabled: enabled && Boolean(languageCode),
     // Keep showing the previous language while a newly selected one loads
     placeholderData: keepPreviousData,
+    /**
+     * The remote fallback is worth retrying — a single failed fetch after a language
+     * switch would otherwise drop the UI back to hardcoded fallbacks
+     */
+    retry: 2,
     ...rest,
   });
 }
