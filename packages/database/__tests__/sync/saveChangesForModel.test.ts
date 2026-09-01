@@ -1,7 +1,8 @@
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
-import { saveChangesForModel } from '../../src/sync';
+import { saveChangesForModel, SYNC_TICK_FLAGS } from '../../src/sync';
 import * as saveChangeModules from '../../src/sync/saveChanges';
 import { closeDatabase, createTestDatabase } from '../utilities';
 import { describe, expect, it, vitest, beforeAll, afterEach, afterAll } from 'vitest';
@@ -201,6 +202,107 @@ describe('saveChangesForModel', () => {
       });
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
+    });
+  });
+
+  // Regression coverage for pullIncomingChanges marking every pulled record with
+  // updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER (-1), which the
+  // set_updated_at_sync_tick() trigger is supposed to rewrite to
+  // SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE (-999) so the record is never pushed back
+  // to the central server. saveDeletes/saveRestores go through Sequelize's paranoid
+  // model.destroy()/model.restore(), which issue a bare `UPDATE ... SET deleted_at = ...`
+  // with no updated_at_sync_tick in the SET clause, so the trigger's NEW.updated_at_sync_tick
+  // is left holding whatever was already stored rather than -1, and falls through to
+  // stamping the current sync tick instead.
+  describe('pulled records are stamped with LAST_UPDATED_ELSEWHERE (regression)', () => {
+    // A known, non--999 tick lets a wrongly-stamped record show up as this exact
+    // value in a failed assertion, rather than an incidental-looking number.
+    const KNOWN_CURRENT_SYNC_TICK = '424242';
+
+    beforeAll(async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, KNOWN_CURRENT_SYNC_TICK);
+    });
+
+    it('stamps an updated record with LAST_UPDATED_ELSEWHERE', async () => {
+      // setup test data
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      const newRecord = {
+        id: existingRecord.id,
+        text: 'current',
+        updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+      };
+      const changes = [{ data: newRecord, isDeleted: false }];
+      // act
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+      // assert
+      const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(Number(updatedRecordInDb.updatedAtSyncTick)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
+    });
+
+    it('stamps a newly created record with LAST_UPDATED_ELSEWHERE', async () => {
+      // setup test data
+      const newRecord = {
+        id: 'new_record_id',
+        text: 'new_record_name',
+        updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+      };
+      const changes = [{ data: newRecord, isDeleted: false }];
+      // act
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+      // assert
+      const newRecordInDb = await models.SurveyScreenComponent.findByPk(newRecord.id);
+      expect(Number(newRecordInDb.updatedAtSyncTick)).toBe(SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
+    });
+
+    it('stamps a deleted record with LAST_UPDATED_ELSEWHERE', async () => {
+      // setup test data
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      const newRecord = {
+        id: existingRecord.id,
+        text: 'current',
+        updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+      };
+      const changes = [{ data: newRecord, isDeleted: true }];
+      // act
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+      // assert
+      const deletedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
+        paranoid: false,
+      });
+      expect(deletedRecordInDb.deletedAt).toBeDefined();
+      expect(Number(deletedRecordInDb.updatedAtSyncTick)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
+    });
+
+    it('stamps a restored record with LAST_UPDATED_ELSEWHERE', async () => {
+      // setup test data
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      await existingRecord.destroy();
+      const newRecord = {
+        id: existingRecord.id,
+        text: 'current',
+        updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+      };
+      const changes = [{ data: newRecord, isDeleted: false }];
+      // act (restores only originate from central server, so isCentralServer is false)
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+      // assert
+      const restoredRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(Number(restoredRecordInDb.updatedAtSyncTick)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
     });
   });
 
