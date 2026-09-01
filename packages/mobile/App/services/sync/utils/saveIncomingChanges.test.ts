@@ -127,6 +127,38 @@ describe('saveChangesForModel', () => {
     });
   });
 
+  describe('existence check', () => {
+    it('queries existing ids with a raw parameterised select', async () => {
+      // setup test data
+      const existingRecords = [generateExistingRecord('existing_record_id')];
+      mockExistingRecords(existingRecords);
+      const changes = [
+        {
+          id: 'existing_record_id',
+          recordId: 'existing_record_id',
+          recordType: 'string',
+          data: { id: 'existing_record_id' },
+          isDeleted: false,
+        },
+        {
+          id: 'new_record_id',
+          recordId: 'new_record_id',
+          recordType: 'string',
+          data: { id: 'new_record_id' },
+          isDeleted: false,
+        },
+      ];
+      // act
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
+      // assertions
+      expect(repository.query).toBeCalledTimes(1);
+      expect(repository.query).toBeCalledWith('SELECT id FROM test_table WHERE id IN (?,?)', [
+        'existing_record_id',
+        'new_record_id',
+      ]);
+    });
+  });
+
   describe('saveUpdates', () => {
     it('should update existing records correctly', async () => {
       // setup test data
