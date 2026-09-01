@@ -63,7 +63,7 @@ export const parseDate = (date: DateInput) => {
   if (typeof date === 'string' && date.trim() === '') return null;
 
   const dateObj = makeDateObject(date);
-  if (!isValid(dateObj)) throw new Error('Not a valid date');
+  if (!isValid(dateObj)) throw new Error(`“${date}” (${typeof date}) can’t be parsed into a Date`);
   return dateObj;
 };
 
