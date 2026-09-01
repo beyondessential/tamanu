@@ -1,10 +1,10 @@
-import React, { type ReactElement } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StyledText, StyledView } from '/styled/common';
 import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import type { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -18,7 +18,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 interface AutocompleteModalFieldProps {
   value?: string;
   placeholder?: TranslatedTextElement;
-  onChange: (newValue: string, selectedItem: any) => void;
+  onChange: (newValue: string, selectedItem: OptionType) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
@@ -54,31 +54,40 @@ export const AutocompleteModalField = ({
   const queryClient = useQueryClient();
   const { language } = useTranslation();
 
-  const onPress = (selectedItem): void => {
-    onChange(selectedItem.value, selectedItem);
-    // Optimistic update for immediate UI feedback
-    queryClient.setQueryData(
+  /**
+   * Helper so the optimistic update in {@link openModal} to avoid query key drift. Otherwise we
+   * unnecessarily query the database.
+   */
+  const getCurrentOptionKey = useCallback(
+    (optionValue: string | undefined) =>
       suggestionKeys.currentOption(suggester?.model?.name, {
         options: suggester?.options,
-        value: selectedItem.value,
+        value: optionValue,
         language,
       }),
-      { value: selectedItem.value, label: selectedItem.label },
-    );
-  };
+    [suggester, language],
+  );
 
-  const openModal = (): void =>
-    navigation.navigate(modalRoute, {
-      callback: onPress,
-      suggester,
-    });
+  const openModal = useCallback(
+    (): void =>
+      navigation.navigate(modalRoute, {
+        callback: (selectedItem: OptionType): void => {
+          onChange(selectedItem.value, selectedItem);
+          // Optimistic update for immediate UI feedback
+          queryClient.setQueryData<OptionType>(
+            getCurrentOptionKey(selectedItem.value),
+            selectedItem,
+          );
+        },
+        suggester,
+      }),
+    [getCurrentOptionKey, modalRoute, navigation, onChange, queryClient, suggester],
+  );
 
-  const { data: currentOption } = useQuery({
-    queryKey: suggestionKeys.currentOption(suggester?.model?.name, {
-      options: suggester?.options,
-      value,
-      language,
-    }),
+  // getCurrentOptionKey folds `language` into the key; the lint rule can't see through the helper
+  // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  const { data: currentOption } = useQuery<OptionType | null>({
+    queryKey: getCurrentOptionKey(value),
     queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
     enabled: Boolean(suggester && value),
   });
