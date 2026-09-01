@@ -103,9 +103,10 @@ const FormFooter = styled(({ children, ...props }) => (
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
   /**
-   * `crypto.randomUUID` requires HTTPS, which isn’t currently supported when accessting Tamanu via
-   * literal IP address over LAN (e.g. Iti). `uuid` uses crypto API when available, but falls back
-   * as needed. Saves users from getting crash with “crypto.randomUUID is not a function”.
+   * `crypto.randomUUID` requires a secure context, but Tamanu is sometimes accessed via a literal
+   * IP address over a LAN (e.g. Iti) using HTTP. (HTTPS not yet supported in this scenario.) Hence
+   * using `uuid`, which prefers `crypto.randomUUID` but falls back to `crypto.getRandomValues` as
+   * needed. Saves users from getting crash with “crypto.randomUUID is not a function”.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
    */
   id: uuidv4(),
