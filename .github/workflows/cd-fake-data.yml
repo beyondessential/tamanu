@@ -58,6 +58,7 @@ jobs:
             const { initDatabase } = require("@tamanu/database/services/database");
             const { populateDbFromTallyFile } = require("@tamanu/fake-data/populateDb");
             const config = require("config");
+            const fs = require("fs");
 
             (async () => {
               const db = await initDatabase(config.db);
@@ -66,10 +67,27 @@ jobs:
               if (!Number.isInteger(rounds) || rounds < 1) {
                 throw new Error("Invalid ROUNDS: " + process.env.ROUNDS);
               }
-              console.log("Generating fake data:", rounds, "rounds using tally:", tally);
-              for (let i = 0; i < rounds; i++) {
-                console.log("Round " + (i + 1) + "/" + rounds);
-                await populateDbFromTallyFile(db.models, tally);
+
+              // This step runs on every deploy, and the seed only ever appends, so a
+              // persistent deployment would accumulate fake data without bound: redeploy
+              // it 50 times and it holds 50x the intended volume. Treat ROUNDS as a target
+              // rather than an increment: seed only the rounds still missing, measured
+              // against the patients one round is expected to add.
+              const patientsPerRound = JSON.parse(fs.readFileSync(tally, "utf8")).Patient?.POST ?? 0;
+              const targetPatients = rounds * patientsPerRound;
+              const existingPatients = await db.models.Patient.count();
+              const roundsToRun = patientsPerRound > 0
+                ? Math.max(0, Math.ceil((targetPatients - existingPatients) / patientsPerRound))
+                : rounds;
+
+              if (roundsToRun === 0) {
+                console.log("Skipping fake data: " + existingPatients + " patients already present (target " + targetPatients + " for " + rounds + " round(s)).");
+              } else {
+                console.log("Generating fake data: " + roundsToRun + " round(s) (" + existingPatients + " patients present, target " + targetPatients + ") using tally: " + tally);
+                for (let i = 0; i < roundsToRun; i++) {
+                  console.log("Round " + (i + 1) + "/" + roundsToRun);
+                  await populateDbFromTallyFile(db.models, tally);
+                }
               }
               await db.sequelize.close();
               console.log("Done");
