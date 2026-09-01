@@ -2,21 +2,20 @@ import React, {
   createContext,
   isValidElement,
   type ReactElement,
+  useCallback,
   useContext,
   useEffect,
   useState,
-  useCallback,
 } from 'react';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { DevSettings } from 'react-native';
-import { useBackend } from '../hooks';
-import { isEmpty, upperFirst } from 'es-toolkit/compat';
+import { upperFirst } from 'es-toolkit/compat';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 import type { LanguageOption } from '~/models/TranslatedString';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
-import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
+import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
+import useTranslationsQuery from '../hooks/queries/useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -46,7 +45,6 @@ interface TranslationContextData {
   debugMode: boolean;
   language: string;
   languageOptions: LanguageOption[];
-  setLanguageOptions: (languageOptions: LanguageOption[]) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
@@ -100,7 +98,6 @@ const TranslationContext = createContext<TranslationContextData>({
   debugMode: false,
   language: 'en',
   languageOptions: null,
-  setLanguageOptions: () => {},
   getTranslation: () => {
     return '';
   },
@@ -112,53 +109,26 @@ const TranslationContext = createContext<TranslationContextData>({
 } as TranslationContextData);
 
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
-  const { models, syncManager } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [translations, setTranslations] = useState({});
-  const [languageOptions, setLanguageOptions] = useState(null);
-  const [language, setLanguage] = useState(null);
-  const [host, setHost] = useState(null);
+  const [language, setLanguageState] = useState<string | null>(null);
+  const [host, setHost] = useState<string | null>(null);
 
-  const getLanguageOptions = useCallback(async () => {
-    let languageOptionArray = await models.TranslatedString.getLanguageOptions();
+  const { data: translations = {} } = useTranslationsQuery(language, host);
+  const { data: languageOptionsData } = useLanguageOptionsQuery(host);
+  // Consumers treat "no options available" as null rather than an empty list
+  const languageOptions = languageOptionsData?.length ? languageOptionsData : null;
 
-    // Filter out the default language if we have a custom English language
-    if (languageOptionArray.some(({ languageCode }) => languageCode === ENGLISH_LANGUAGE_CODE)) {
-      languageOptionArray = languageOptionArray.filter(
-        ({ languageCode }) => languageCode !== DEFAULT_LANGUAGE_CODE,
-      );
-    }
-
-    if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
-  }, [models.TranslatedString]);
-
-  // Used to routinely fetch the
-  const getLatestTranslations = useCallback(
-    async (languageCode: string | null) => {
-      if (!languageCode) return;
-
-      await writeLanguage(languageCode);
-      const translations = await models.TranslatedString.getForLanguage(languageCode);
-      if (isEmpty(translations) && host) {
-        // If we don't have translations synced down, fetch from the public server endpoint directly
-        const response = await fetch(`${host}/api/public/translation/${languageCode}`);
-        const data = await response.json();
-        setTranslations(data);
-      } else {
-        setTranslations(translations);
-      }
-    },
-    [host, models.TranslatedString],
-  );
+  const setLanguage = useCallback((languageCode: string) => {
+    setLanguageState(languageCode);
+    void writeConfig('language', languageCode);
+  }, []);
 
   const getTranslation = (
     stringId: string,
     fallback?: string,
     translationOptions?: TranslationOptions,
   ) => {
-    if (!translations) return replaceStringVariables(fallback, translationOptions, translations);
     const translation = translations[stringId] ?? fallback;
-
     return replaceStringVariables(translation, translationOptions, translations);
   };
 
@@ -181,33 +151,14 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
       : placeholder;
   };
 
-  const writeLanguage = async (languageCode: string) => {
-    await writeConfig('language', languageCode);
-  };
-
   useEffect(() => {
     registerYup(translations);
   }, [translations]);
 
-  const reloadTranslations = useCallback(() => {
-    getLanguageOptions();
-    getLatestTranslations(language);
-  }, [getLanguageOptions, getLatestTranslations, language]);
-
-  useEffect(() => void reloadTranslations(), [reloadTranslations]);
-
-  useEffect(
-    function reloadTranslationsOnSync() {
-      syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, reloadTranslations);
-      return () => syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, reloadTranslations);
-    },
-    [reloadTranslations, syncManager.emitter],
-  );
-
   useEffect(() => {
     const restoreLanguage = async () => {
       const languageCode = await readConfig('language');
-      setLanguage(languageCode);
+      setLanguageState(languageCode);
     };
     restoreLanguage();
     if (!__DEV__) return;
@@ -222,7 +173,6 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
         debugMode: isDebugMode,
         language,
         languageOptions,
-        setLanguageOptions,
         getTranslation,
         setLanguage,
         host,

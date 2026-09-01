@@ -2,6 +2,7 @@ import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/r
 import { keyBy, mapValues, uniq } from 'es-toolkit';
 
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { Database } from '~/infra/db';
 import type { LanguageOption } from '~/models/TranslatedString';
 import { translationKeys } from './queryKeys';
 
@@ -49,11 +50,21 @@ const toLanguageOptions = ({
   ).map(language => ({
     label: languageDisplayNames[language],
     languageCode: language,
-    countryCode: languageCountryCodes[language] ?? null,
+    countryCode: languageCountryCodes[language] ?? '',
   }));
 };
 
-const fetchLanguageOptions = async (host: string): Promise<LanguageOption[]> => {
+const getLocalLanguageOptions = async (): Promise<LanguageOption[]> => {
+  const languageOptions = await Database.models.TranslatedString.getLanguageOptions();
+
+  // Hide the default (fallback) language when a custom English language exists
+  if (languageOptions.some(({ languageCode }) => languageCode === ENGLISH_LANGUAGE_CODE)) {
+    return languageOptions.filter(({ languageCode }) => languageCode !== DEFAULT_LANGUAGE_CODE);
+  }
+  return languageOptions;
+};
+
+const fetchRemoteLanguageOptions = async (host: string): Promise<LanguageOption[]> => {
   const response = await fetch(`${host}/api/public/translation/languageOptions`);
   if (!response.ok) {
     throw new Error(`Could not fetch language options from ${host}: ${response.status}`);
@@ -61,18 +72,25 @@ const fetchLanguageOptions = async (host: string): Promise<LanguageOption[]> => 
   return toLanguageOptions(await response.json());
 };
 
+const fetchLanguageOptions = async (host: string | null): Promise<LanguageOption[]> => {
+  const localOptions = await getLocalLanguageOptions();
+  if (localOptions.length > 0) return localOptions;
+  if (!host) return [];
+
+  // Nothing synced down yet — fall back to the public server endpoint
+  return fetchRemoteLanguageOptions(host);
+};
+
 export default function useLanguageOptionsQuery(
   host: string | null | undefined,
   useQueryOptions: Omit<UseQueryOptions<LanguageOption[]>, 'queryKey' | 'queryFn'> = {},
 ): UseQueryResult<LanguageOption[]> {
-  const { enabled = true, ...rest } = useQueryOptions;
   return useQuery({
     queryKey: translationKeys.languageOptions(host),
-    queryFn: () => fetchLanguageOptions(host),
-    enabled: enabled && Boolean(host),
+    queryFn: () => fetchLanguageOptions(host ?? null),
     refetchOnReconnect: true,
     retry: 2,
     staleTime: 60_000,
-    ...rest,
+    ...useQueryOptions,
   });
 }

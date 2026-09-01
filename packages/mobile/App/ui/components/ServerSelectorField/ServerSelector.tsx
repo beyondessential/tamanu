@@ -6,49 +6,29 @@ import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedText } from '../Translations/TranslatedText';
-import useLanguageOptionsQuery from '~/ui/hooks/queries/useLanguageOptionsQuery';
 import useServersQuery from '~/ui/hooks/queries/useServersQuery';
 
-const usePrepareLanguageData = (): void => {
-  const {
-    language: selectedLanguage,
-    languageOptions,
-    setLanguageOptions,
-    setLanguage,
-    host,
-  } = useTranslation();
-  const { data: fetchedLanguageOptions } = useLanguageOptionsQuery(host);
-
-  useEffect(
-    function syncLanguageOptionsIntoTranslationContext() {
-      if (!fetchedLanguageOptions?.length) return;
-      if (
-        selectedLanguage &&
-        JSON.stringify(languageOptions) === JSON.stringify(fetchedLanguageOptions)
-      ) {
-        return;
-      }
-      setLanguage(fetchedLanguageOptions[0].languageCode);
-      setLanguageOptions(fetchedLanguageOptions);
-    },
-    [fetchedLanguageOptions, languageOptions, selectedLanguage, setLanguage, setLanguageOptions],
-  );
-};
-
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
-  usePrepareLanguageData();
   const netInfo = useNetInfo();
-  const { setLanguageOptions, setLanguage, setHost } = useTranslation();
+  const { language, languageOptions, setLanguage, host, setHost } = useTranslation();
   const { data: options, isError } = useServersQuery({
     enabled: netInfo.isInternetReachable === true,
   });
+
+  useEffect(
+    function selectDefaultLanguageForHost() {
+      if (!host || !languageOptions) return;
+      if (languageOptions.some(({ languageCode }) => languageCode === language)) return;
+      setLanguage(languageOptions[0].languageCode);
+    },
+    [host, language, languageOptions, setLanguage],
+  );
 
   const updateHost = value => {
     onChange(value);
     setHost(value);
     if (!value) {
       setLanguage('en');
-      setLanguageOptions(null);
     }
   };
 
