@@ -245,6 +245,17 @@ describe('buildMedicationsInitialValues', () => {
     expect(values['prescription-1'].sendToPharmacy).toBe(false);
   });
 
+  it('preselects encounter medications when the facility setting is enabled', () => {
+    const values = buildMedicationsInitialValues({
+      encounterMedications: [prescribed],
+      ongoingMedications: [],
+      draft: null,
+      preselectSendToPharmacyOnDischarge: true,
+    });
+
+    expect(values['prescription-1'].sendToPharmacy).toBe(true);
+  });
+
   it('does not preselect encounter medications when the facility setting is disabled', () => {
     const values = buildMedicationsInitialValues({
       encounterMedications: [prescribed],
