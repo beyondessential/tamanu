@@ -159,7 +159,7 @@ describe('buildMedicationsInitialValues', () => {
       encounterMedications: [prescribed],
       ongoingMedications: [],
       draft,
-      isPharmacyOrderEnabled: true,
+      preselectSendToPharmacyOnDischarge: true,
     });
 
   it('takes the live prescription values when there is no draft', () => {
@@ -175,7 +175,7 @@ describe('buildMedicationsInitialValues', () => {
       encounterMedications: [{ id: 'prescription-1' }],
       ongoingMedications: [],
       draft: null,
-      isPharmacyOrderEnabled: false,
+      preselectSendToPharmacyOnDischarge: false,
     });
 
     expect(values['prescription-1']).toEqual({
@@ -224,7 +224,7 @@ describe('buildMedicationsInitialValues', () => {
       encounterMedications: [prescribed, { id: 'prescription-2', quantity: 9, repeats: 2 }],
       ongoingMedications: [],
       draft,
-      isPharmacyOrderEnabled: true,
+      preselectSendToPharmacyOnDischarge: true,
     });
 
     expect(values['prescription-2']).toEqual({
@@ -239,7 +239,18 @@ describe('buildMedicationsInitialValues', () => {
       encounterMedications: [],
       ongoingMedications: [prescribed],
       draft: null,
-      isPharmacyOrderEnabled: true,
+      preselectSendToPharmacyOnDischarge: true,
+    });
+
+    expect(values['prescription-1'].sendToPharmacy).toBe(false);
+  });
+
+  it('does not preselect encounter medications when the facility setting is disabled', () => {
+    const values = buildMedicationsInitialValues({
+      encounterMedications: [prescribed],
+      ongoingMedications: [],
+      draft: null,
+      preselectSendToPharmacyOnDischarge: false,
     });
 
     expect(values['prescription-1'].sendToPharmacy).toBe(false);
@@ -257,7 +268,7 @@ describe('discharge draft medication round trip', () => {
       encounterMedications: medications,
       ongoingMedications: [],
       draft: payload,
-      isPharmacyOrderEnabled: true,
+      preselectSendToPharmacyOnDischarge: true,
     });
   };
 

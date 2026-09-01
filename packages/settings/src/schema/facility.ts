@@ -302,6 +302,13 @@ export const facilitySettings = {
                 },
               ],
             },
+            preselectSendToPharmacyOnDischarge: {
+              name: 'Preselect send to pharmacy when preparing discharge',
+              description:
+                'Preselect the "Send to pharmacy" checkbox for encounter medications in the discharge modal.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
         medicationDispensing: {

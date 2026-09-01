@@ -249,6 +249,9 @@ export const DischargeForm = ({
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
   const isPharmacyOrderEnabled =
     getSetting('features.pharmacyOrder.enabled') && ability.can('create', 'MedicationRequest');
+  const preselectSendToPharmacyOnDischarge =
+    isPharmacyOrderEnabled &&
+    getSetting('medications.pharmacyOrder.preselectSendToPharmacyOnDischarge');
   const alreadyOrderedConfirmationTimeout = getSetting(
     'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
   );
@@ -313,7 +316,7 @@ export const DischargeForm = ({
     encounterMedications: activeMedications,
     ongoingMedications,
     draft,
-    isPharmacyOrderEnabled,
+    preselectSendToPharmacyOnDischarge,
   });
 
   // Stock is only recorded against a facility's drug list, so the column is dropped entirely where
