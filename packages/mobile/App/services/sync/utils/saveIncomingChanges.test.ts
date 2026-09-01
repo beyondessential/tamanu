@@ -23,20 +23,20 @@ const getModel = jest.fn(() => ({
 const Model = getModel() as any;
 const progressCallback = jest.fn();
 
-const mobileSyncSettings: MobileSyncSettings = {
+const mobileSyncSettings = {
   maxRecordsPerInsertBatch: 500,
   maxRecordsPerUpdateBatch: 500,
   maxBatchesToKeepInMemory: 10,
   maxRecordsPerSnapshotBatch: 500,
   useUnsafeSchemaForInitialSync: true,
   dynamicLimiter: {
-    initialLimit: 10000,
-    minLimit: 1000,
-    maxLimit: 40000,
+    initialLimit: 10_000,
+    minLimit: 1_000,
+    maxLimit: 40_000,
     maxLimitChangePerPage: 0.3,
     optimalTimePerPage: 500,
   },
-};
+} as const satisfies MobileSyncSettings;
 
 const generateExistingRecord = (id, data = {}) => ({
   id,
