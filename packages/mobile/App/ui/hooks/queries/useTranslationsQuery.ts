@@ -4,7 +4,7 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { isEmpty } from 'es-toolkit/compat';
+import { isEmptyObject } from 'es-toolkit';
 
 import { Database } from '~/infra/db';
 import { fetchJson } from './fetchJson';
@@ -19,7 +19,7 @@ const fetchTranslations = async (
   host: string | null,
 ): Promise<Translations> => {
   const localTranslations = await Database.models.TranslatedString.getForLanguage(languageCode);
-  if (!isEmpty(localTranslations)) return localTranslations;
+  if (!isEmptyObject(localTranslations)) return localTranslations;
   if (!host) return {};
   // Nothing synced down yet; fall back to public API
   return fetchJson<Translations>(`${host}/api/public/translation/${languageCode}`);
