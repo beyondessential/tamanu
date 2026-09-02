@@ -13,3 +13,4 @@ export * from './administeredVaccine.schema';
 export * from './ongoingPrescription.schema';
 export * from './upcomingVaccination.schema';
 export * from './portalSurveyAssignment.schema';
+export * from './translations.schema';

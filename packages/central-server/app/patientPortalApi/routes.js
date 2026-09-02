@@ -12,6 +12,7 @@ import {
   getProcedures,
 } from './patientData';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import { getLanguageOptions, getTranslations } from '../publicRoutes/translation';
 import { getAuthSecret } from '@tamanu/shared/utils';
 
 const passthrough = (_req, _res, next) => next();
@@ -28,6 +29,11 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.post('/login', limiter, login({ secret: getAuthSecret() }));
   router.post('/request-login-token', limiter, requestLoginToken);
   router.post('/verify-registration', limiter, register);
+
+  // Translations are unauthenticated so the portal can render translated UI before login.
+  // Read-only and cheap; the global rate limiter in createApi still applies.
+  router.get('/translation/languageOptions', getLanguageOptions);
+  router.get('/translation/:language', getTranslations);
 
   // Portal auth middleware
   router.use(patientPortalMiddleware({ secret: getAuthSecret() }));
