@@ -30,25 +30,26 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
-import { useMarDoses } from '../../../api/queries/useMarDoses';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { CheckField } from '../../Field';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { FormModal } from '../../FormModal';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { WarningModal } from '../WarningModal';
+import { useUpdateMarMutation } from '../../../../api/mutations/useMarMutation';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { Colors } from '../../../../constants/styles';
+import { useAuth } from '../../../../contexts/Auth';
+import { useEncounter } from '../../../../contexts/Encounter';
+import useIsEncounterDischarged from '../../../../hooks/useIsEncounterDischarged';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { CheckField } from '../../../Field';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { FormModal } from '../../../FormModal';
+import { NoteModalActionBlocker } from '../../../NoteModalActionBlocker';
+import { WarningModal } from '../../WarningModal';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import KeyValueDisplay from './KeyValueDisplay';
-import DoseEntry, { DoseHeading } from './MarDose';
+import DoseEntry, { DoseHeader, DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 import RemoveAdditionalDoseModal from './RemoveAdditionalDoseModal';
+import useMarDoses from '../useMarDoses';
 
 const Container = styled.div`
   display: flex;
@@ -64,11 +65,19 @@ const Card = styled(Box)`
   background-color: ${p => p.theme.palette.background.paper};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
-  column-rule: 1px solid ${p => p.theme.palette.divider};
-
   padding-block: 16px;
   padding-inline: 20px;
   position: relative;
+`;
+
+const TwoUp = styled(Card)`
+  column-rule: 1px solid ${p => p.theme.palette.divider};
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-inline: unset;
+  > * {
+    padding-inline: 20px;
+  }
 `;
 
 const DarkText = styled(Box)`
@@ -77,6 +86,7 @@ const DarkText = styled(Box)`
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${p => p.theme.palette.error.main};
+  display: inline-block;
   font-size: 16px;
 `;
 
@@ -100,13 +110,20 @@ const EditButton = styled(({ children, onClick, ...props }) => (
   background-color: inherit !important;
 `;
 
-const HorizontalSeparator = styled.hr`
+const Hr = styled.hr`
   margin-block: 14px;
 `;
 
 const StyledAddIcon = styled(Add)`
   color: ${p => p.theme.palette.primary.main};
   font-size: 18px;
+`;
+
+const DoseList = styled.ul.attrs({ role: 'list' })`
+  /* Don’t bother labelling ‘Dose 1’ if it’s the only one */
+  li:only-of-type ${DoseHeading} {
+    display: none;
+  }
 `;
 
 const AddAdditionalDoseButton = styled.a`
@@ -160,11 +177,6 @@ const StyledTimePickerField = styled(Field).attrs({
   }
 `;
 
-const Dose = styled.div`
-  padding-block-start: 14px;
-  border-block-start: 1px solid ${p => p.theme.palette.divider};
-`;
-
 function PractitionerField(props) {
   const practitionerSuggester = useSuggester('practitioner');
   return (
@@ -183,6 +195,16 @@ const ErrorMessage = styled.div`
 const requiredMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
 );
+
+const Footer = styled.footer`
+  border-block-start: 1px solid ${p => p.theme.palette.divider};
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 10px;
+  margin-inline: -32px;
+  padding-block-start: 18px;
+  padding-inline: 32px;
+`;
 
 export const MarDetails = ({
   medication,
@@ -204,7 +226,7 @@ export const MarDetails = ({
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
 
-  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo.id);
+  const { data: marDoses = [] } = useMarDoses(marInfo.id);
   const { mutateAsync: updateMar } = useUpdateMarMutation(marInfo?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
@@ -212,7 +234,7 @@ export const MarDetails = ({
     },
   });
 
-  const isEncounterDischarged = !!encounter?.endDate;
+  const isEncounterDischarged = useIsEncounterDischarged();
   const canEditMar = ability.can('write', 'MedicationAdministration') && !isEncounterDischarged;
 
   const onSubmit = async (data, { setFieldValue }) => {
@@ -255,9 +277,7 @@ export const MarDetails = ({
           suppressErrorDialog
           onSubmit={onSubmit}
           formType={FORM_TYPES.EDIT_FORM}
-          initialValues={{
-            doses: [],
-          }}
+          initialValues={{ doses: [] }}
           validationSchema={yup.object().shape({
             doses: yup.array().of(
               yup.object().shape({
@@ -283,79 +303,72 @@ export const MarDetails = ({
           render={({ values, setFieldValue, errors }) => (
             <>
               <Container>
-                <MarInfoPane medication={medication} marInfo={marInfo} />
+                <MarInfoPane medication={medication} marInfo={marInfo} timeSlot={timeSlot} />
                 <Card display="flex" flexDirection="column">
                   {marInfo?.isError ? (
                     <Box display="flex" flexDirection="column">
-                      <Box display="flex" alignItems="center">
-                        <DarkText fontWeight={500}>
-                          <TranslatedText
-                            stringId="medication.mar.medicationMarkedAsError"
-                            fallback="Medication has been marked with error"
-                          />
-                        </DarkText>
+                      <DarkText fontWeight={500}>
+                        <TranslatedText
+                          stringId="medication.mar.medicationMarkedAsError"
+                          fallback="Medication has been marked with error"
+                        />
                         <StyledPriorityHighIcon />
-                      </Box>
+                      </DarkText>
                       <KeyValueDisplay
                         label={<TranslatedText stringId="medication.mar.notes" fallback="Notes" />}
                         value={marInfo.errorNotes || '—' /* em dash */}
                       />
                     </Box>
                   ) : (
-                    <FormGrid style={{ width: '100%' }}>
-                      <div style={{ gridColumn: '1 / -1', width: 'fit-content' }}>
-                        <ConditionalTooltip
-                          visible={!canEditMar}
-                          title={
-                            isEncounterDischarged ? (
+                    <>
+                      <ConditionalTooltip
+                        visible={!canEditMar}
+                        title={
+                          isEncounterDischarged ? (
+                            <TranslatedText
+                              stringId="medication.mar.action.discharged.tooltip"
+                              fallback="This can’t be edited because the encounter has been discharged"
+                            />
+                          ) : (
+                            <TranslatedText
+                              stringId="general.error.noPermission"
+                              fallback="No permission to perform this action"
+                            />
+                          )
+                        }
+                      >
+                        <Field
+                          label={
+                            <DarkText>
                               <TranslatedText
-                                stringId="medication.mar.action.discharged.tooltip"
-                                fallback="This can’t be edited because the encounter has been discharged"
+                                stringId="medication.mar.markAsMedicationError.label"
+                                fallback="Mark as medication error"
                               />
-                            ) : (
-                              <TranslatedText
-                                stringId="general.error.noPermission"
-                                fallback="No permission to perform this action"
-                              />
-                            )
+                              <StyledPriorityHighIcon />
+                            </DarkText>
                           }
-                        >
-                          <Field
-                            label={
-                              <Box display="flex" alignItems="center">
-                                <DarkText>
-                                  <TranslatedText
-                                    stringId="medication.mar.markAsMedicationError.label"
-                                    fallback="Mark as medication error"
-                                  />
-                                </DarkText>
-                                <StyledPriorityHighIcon />
-                              </Box>
-                            }
-                            name="isError"
-                            component={CheckField}
-                            disabled={!canEditMar}
-                          />
-                        </ConditionalTooltip>
-                      </div>
+                          name="isError"
+                          component={CheckField}
+                          disabled={!canEditMar}
+                        />
+                      </ConditionalTooltip>
                       {values.isError && (
-                        <div style={{ gridColumn: '1 / -1', marginTop: '-8px' }}>
-                          <Field
-                            name="errorNotes"
-                            label={
-                              <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
-                            }
-                            component={TextField}
-                          />
-                        </div>
+                        <Field
+                          name="errorNotes"
+                          label={
+                            <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
+                          }
+                          component={TextField}
+                          style={{ marginBlockStart: '0.3rem' }}
+                        />
                       )}
-                    </FormGrid>
+                    </>
                   )}
                   {(isRecordedOutsideAdministrationSchedule ||
                     isDoseAmountNotMatch ||
                     isRecordedDuringPaused) && (
                     <>
-                      <HorizontalSeparator />
+                      <Hr />
                       <KeyValueDisplay
                         label={
                           <TranslatedText
@@ -404,9 +417,9 @@ export const MarDetails = ({
                 </Card>
                 {marInfo.status === ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <>
-                    <HorizontalSeparator />
-                    <Card display="flex">
-                      <Box flex={1}>
+                    <Hr />
+                    <TwoUp>
+                      <div>
                         <KeyValueDisplay
                           label={
                             <TranslatedText stringId="medication.mar.reason" fallback="Reason" />
@@ -419,8 +432,8 @@ export const MarDetails = ({
                             />
                           }
                         />
-                      </Box>
-                      <Box flex={1} mr={2.5}>
+                      </div>
+                      <div>
                         <KeyValueDisplay
                           label={
                             <TranslatedText
@@ -430,28 +443,129 @@ export const MarDetails = ({
                           }
                           value={marInfo.recordedByUser.displayName}
                         />
-                      </Box>
+                      </div>
                       {canEditMar && <EditButton onClick={() => void setShowEditDoseModal({})} />}
-                    </Card>
+                    </TwoUp>
                   </>
                 )}
-                {marInfo.status === ADMINISTRATION_STATUS.GIVEN &&
-                  marDoses.map(dose => (
-                    <Fragment key={dose.id}>
-                      {(marDoses.length > 1 || !!values.doses.length) && (
-                        <DoseEntry
-                          dose={dose}
-                          index={dose.doseIndex + 1}
-                          medication={medication}
-                          onRemove={() => void setShowRemoveDoseModal(dose)}
-                        >
-                          {canEditMar && (
-                            <EditButton onClick={() => void setShowEditDoseModal(dose)} />
-                          )}
-                        </DoseEntry>
-                      )}
-                    </Fragment>
-                  ))}
+                <DoseList role="list">
+                  {marInfo.status === ADMINISTRATION_STATUS.GIVEN &&
+                    marDoses.map(dose => (
+                      <DoseEntry
+                        dose={dose}
+                        index={dose.doseIndex + 1}
+                        key={dose.id}
+                        medication={medication}
+                        onRemove={() => void setShowRemoveDoseModal(dose)}
+                      >
+                        {canEditMar && (
+                          <EditButton onClick={() => void setShowEditDoseModal(dose)} />
+                        )}
+                      </DoseEntry>
+                    ))}
+                  <FieldArray name="doses">
+                    {formArrayMethods => (
+                      <>
+                        {values?.doses?.map((_, index) => (
+                          <li key={index} style={{ marginBlockStart: 14 }}>
+                            <DoseHeader>
+                              <DoseHeading>
+                                <TranslatedText
+                                  stringId="medication.mar.form.dose.label"
+                                  fallback="Dose :index"
+                                  replacements={{ index: index + marDoses.length + 1 }}
+                                />
+                              </DoseHeading>
+                              <RemoveAdditionalDoseButton
+                                onClick={() => void formArrayMethods.remove(index)}
+                              />
+                            </DoseHeader>
+                            <FormGrid>
+                              <Field
+                                name={`doses.${index}.doseAmount`}
+                                component={NumberField}
+                                label={
+                                  <TranslatedText
+                                    stringId="mar.details.doseGiven.label"
+                                    fallback="Dose given"
+                                  />
+                                }
+                                unit={
+                                  medication?.dosingUnit
+                                    ? getDrugUnitLabel(
+                                        medication.dosingUnit,
+                                        values.doses[index]?.doseAmount,
+                                        getEnumTranslation,
+                                      )
+                                    : undefined
+                                }
+                                required
+                              />
+                              <div>
+                                <DarkText fontWeight={500} mb="3px">
+                                  <TranslatedText
+                                    stringId="medication.mar.givenTime.label"
+                                    fallback="Time given"
+                                  />
+                                  <RequiredOrnament />
+                                </DarkText>
+                                <StyledTimePickerField
+                                  name={`doses.${index}.givenTime`}
+                                  onChange={value => {
+                                    setFieldValue(`doses.${index}.givenTime`, value);
+                                  }}
+                                  error={errors[`doses.${index}.givenTime`]}
+                                  slotProps={{
+                                    textField: {
+                                      InputProps: { placeholder: '‒‒:‒‒ ‒‒' /* figure dashes */ },
+                                      error: errors?.doses?.[index]?.givenTime,
+                                    },
+                                    digitalClockSectionItem: {
+                                      sx: { fontSize: '14px' },
+                                    },
+                                  }}
+                                />
+                                {errors?.doses?.[index]?.givenTime && (
+                                  <ErrorMessage>{errors?.doses?.[index]?.givenTime}</ErrorMessage>
+                                )}
+                              </div>
+                              <PractitionerField
+                                name={`doses.${index}.givenByUserId`}
+                                label="Given by"
+                              />
+                              <PractitionerField
+                                name={`doses.${index}.recordedByUserId`}
+                                label="Recorded by"
+                              />
+                            </FormGrid>
+                          </li>
+                        ))}
+                        {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMar && (
+                          <NoteModalActionBlocker>
+                            <AddAdditionalDoseButton
+                              onClick={() =>
+                                formArrayMethods.push({
+                                  doseAmount: medication?.isVariableDose
+                                    ? ''
+                                    : medication?.doseAmount,
+                                  givenByUserId: currentUser?.id,
+                                  recordedByUserId: currentUser?.id,
+                                  givenTime: null,
+                                })
+                              }
+                            >
+                              <StyledAddIcon aria-hidden />
+                              <TranslatedText
+                                stringId="medication.mar.addAdditionalDose"
+                                fallback="Add additional dose"
+                              />
+                            </AddAdditionalDoseButton>
+                          </NoteModalActionBlocker>
+                        )}
+                      </>
+                    )}
+                  </FieldArray>
+                </DoseList>
                 {showWarningModal && (
                   <WarningModal
                     modal={showWarningModal}
@@ -462,135 +576,26 @@ export const MarDetails = ({
                     }}
                   />
                 )}
-                <FieldArray name="doses">
-                  {formArrayMethods => (
-                    <>
-                      {values?.doses?.map((_, index) => (
-                        <div key={index}>
-                          <Dose>
-                            <DoseHeading>
-                              <TranslatedText
-                                stringId="medication.mar.form.dose.label"
-                                fallback="Dose :index"
-                                replacements={{ index: index + marDoses.length + 1 }}
-                              />
-                            </DoseHeading>
-                            <RemoveAdditionalDoseButton
-                              onClick={() => void formArrayMethods.remove(index)}
-                            />
-                          </Dose>
-                          <FormGrid>
-                            <Field
-                              name={`doses.${index}.doseAmount`}
-                              component={NumberField}
-                              label={
-                                <TranslatedText
-                                  stringId="mar.details.doseGiven.label"
-                                  fallback="Dose given"
-                                />
-                              }
-                              unit={
-                                medication?.dosingUnit
-                                  ? getDrugUnitLabel(
-                                      medication.dosingUnit,
-                                      values.doses[index]?.doseAmount,
-                                      getEnumTranslation,
-                                    )
-                                  : undefined
-                              }
-                              required
-                            />
-                            <div>
-                              <DarkText fontWeight={500} mb="3px">
-                                <TranslatedText
-                                  stringId="medication.mar.givenTime.label"
-                                  fallback="Time given"
-                                />
-                                <RequiredOrnament />
-                              </DarkText>
-                              <StyledTimePickerField
-                                name={`doses.${index}.givenTime`}
-                                onChange={value => {
-                                  setFieldValue(`doses.${index}.givenTime`, value);
-                                }}
-                                error={errors[`doses.${index}.givenTime`]}
-                                slotProps={{
-                                  textField: {
-                                    InputProps: { placeholder: '‒‒:‒‒ ‒‒' /* figure dashes */ },
-                                    error: errors?.doses?.[index]?.givenTime,
-                                  },
-                                  digitalClockSectionItem: {
-                                    sx: { fontSize: '14px' },
-                                  },
-                                }}
-                              />
-                              {errors?.doses?.[index]?.givenTime && (
-                                <ErrorMessage>{errors?.doses?.[index]?.givenTime}</ErrorMessage>
-                              )}
-                            </div>
-                            <PractitionerField
-                              name={`doses.${index}.givenByUserId`}
-                              label="Given by"
-                            />
-                            <PractitionerField
-                              name={`doses.${index}.recordedByUserId`}
-                              label="Recorded by"
-                            />
-                          </FormGrid>
-                        </div>
-                      ))}
-                      {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMar && (
-                        <NoteModalActionBlocker>
-                          <AddAdditionalDoseButton
-                            onClick={() =>
-                              formArrayMethods.push({
-                                doseAmount: medication?.isVariableDose
-                                  ? ''
-                                  : medication?.doseAmount,
-                                givenByUserId: currentUser?.id,
-                                recordedByUserId: currentUser?.id,
-                                givenTime: null,
-                              })
-                            }
-                          >
-                            <StyledAddIcon aria-hidden />
-                            <TranslatedText
-                              stringId="medication.mar.addAdditionalDose"
-                              fallback="Add additional dose"
-                            />
-                          </AddAdditionalDoseButton>
-                        </NoteModalActionBlocker>
-                      )}
-                    </>
-                  )}
-                </FieldArray>
               </Container>
 
-              <Box
-                mx={-4}
-                px={4}
-                pt={2.5}
-                borderTop={`1px solid ${Colors.outline}`}
-                display="flex"
-                justifyContent="flex-end"
-              >
+              <Footer>
                 {values.isError || values.doses.length > 0 ? (
-                  <Box display="flex" style={{ gap: '10px' }}>
-                    <OutlinedButton onClick={onClose}>
-                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                    </OutlinedButton>
+                  <>
                     <NoteModalActionBlocker>
                       <Button type="submit">
                         <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                       </Button>
                     </NoteModalActionBlocker>
-                  </Box>
+                    <OutlinedButton onClick={onClose}>
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    </OutlinedButton>
+                  </>
                 ) : (
                   <Button onClick={onClose} type="submit">
                     <TranslatedText stringId="general.action.close" fallback="Close" />
                   </Button>
                 )}
-              </Box>
+              </Footer>
             </>
           )}
         />

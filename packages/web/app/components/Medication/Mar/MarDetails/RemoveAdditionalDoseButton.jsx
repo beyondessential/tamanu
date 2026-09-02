@@ -16,6 +16,7 @@ const RemoveAdditionalDoseButton = styled(TextButton).attrs({
   color: ${p => p.theme.palette.text.primary};
   font-size: 14px;
   font-weight: 400;
+  grid-column: '-2 / -1';
   line-height: 1.3;
   text-decoration: underline;
 `;

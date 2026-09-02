@@ -79,9 +79,6 @@ export const formatTimeWithSeconds = createFormatter(
   compactTime,
 );
 
-/** "3pm" - hour only, no minutes or seconds */
-export const formatTimeSlot = createFormatter({ hour: 'numeric', hour12: true }, '__', compactTime);
-
 /** "Thu" */
 export const formatWeekdayShort = createFormatter({ weekday: 'short' }, 'Unknown');
 

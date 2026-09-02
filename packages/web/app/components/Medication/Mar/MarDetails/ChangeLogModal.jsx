@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { ConfirmCancelRow, TranslatedText, Modal, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
+import { Colors } from '../../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
+import { useMarChangelogQuery } from '../../../../api/queries/useMarChangelogQuery';
 import { Box } from '@mui/material';
-import { useTranslation } from '../../../contexts/Translation';
+import { useTranslation } from '../../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const LogContainer = styled.div`
