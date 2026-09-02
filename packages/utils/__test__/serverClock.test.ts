@@ -43,17 +43,17 @@ describe('current-time utils with an explicit instant', () => {
   const nowMs = Date.parse('2026-08-28T18:13:00Z');
 
   test('getCurrentDateTimeStringInTimezone', () => {
-    expect(getCurrentDateTimeStringInTimezone('Pacific/Nauru', nowMs)).toBe('2026-08-29 06:13:00');
+    expect(getCurrentDateTimeStringInTimezone('Pacific/Auckland', nowMs)).toBe('2026-08-29 06:13:00');
     expect(getCurrentDateTimeStringInTimezone('UTC', nowMs)).toBe('2026-08-28 18:13:00');
   });
 
   test('getCurrentDateStringInTimezone', () => {
-    expect(getCurrentDateStringInTimezone('Pacific/Nauru', nowMs)).toBe('2026-08-29');
+    expect(getCurrentDateStringInTimezone('Pacific/Auckland', nowMs)).toBe('2026-08-29');
     expect(getCurrentDateStringInTimezone('UTC', nowMs)).toBe('2026-08-28');
   });
 
   test('getFacilityNowDate', () => {
-    const date = getFacilityNowDate('UTC', 'Pacific/Nauru', nowMs);
+    const date = getFacilityNowDate('UTC', 'Pacific/Auckland', nowMs);
     expect(date.getFullYear()).toBe(2026);
     expect(date.getMonth()).toBe(7);
     expect(date.getDate()).toBe(29);
