@@ -8,7 +8,11 @@ import type { InitOptions, Models } from '../types/model';
 // recorded before joining a network already exists elsewhere in the deployment. So a facility's
 // network is fixed when the facility is created: it cannot be set later, cleared, or repointed.
 // spec: specs/sync/sensitive-networks.md
-export const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+//
+// Deliberately not exported. models/index.ts re-exports this file wholesale and initDatabase treats
+// every export as a model class, so a non-model export here breaks database init everywhere. Tests
+// assert against the message text directly.
+const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
   'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
 
 export class Facility extends Model {

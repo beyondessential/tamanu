@@ -2,8 +2,12 @@ import { describe, expect, it, beforeAll, beforeEach, afterAll } from 'vitest';
 
 import { fake } from '@tamanu/fake-data/fake';
 
-import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '../../src/models/Facility';
 import { closeDatabase, createTestDatabase } from '../utilities';
+
+// Asserted as text rather than imported: the constant is deliberately not exported from
+// models/Facility, because initDatabase treats every export of a model file as a model class.
+const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
 
 // spec: specs/sync/sensitive-networks.md
 describe('SensitiveNetwork', () => {

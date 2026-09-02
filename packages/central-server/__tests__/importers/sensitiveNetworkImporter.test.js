@@ -2,14 +2,17 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { utils } from 'xlsx';
 
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
-import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '@tamanu/database/models/Facility';
-
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 
 // the importer can take a little while
 vi.setConfig({ testTimeout: 50000 });
+
+// Asserted as text rather than imported: the constant is deliberately not exported from
+// models/Facility, because initDatabase treats every export of a model file as a model class.
+const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
 
 // A null cell is genuinely blank — aoa_to_sheet writes no cell record for it, which is what a user
 // leaving a spreadsheet cell empty produces. An empty string is a different case, covered explicitly.
