@@ -65,11 +65,19 @@ const Card = styled(Box)`
   background-color: ${p => p.theme.palette.background.paper};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
-  column-rule: 1px solid ${p => p.theme.palette.divider};
-
   padding-block: 16px;
   padding-inline: 20px;
   position: relative;
+`;
+
+const TwoUp = styled(Card)`
+  column-rule: 1px solid ${p => p.theme.palette.divider};
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-inline: unset;
+  > * {
+    padding-inline: 20px;
+  }
 `;
 
 const DarkText = styled(Box)`
@@ -78,6 +86,7 @@ const DarkText = styled(Box)`
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${p => p.theme.palette.error.main};
+  display: inline-block;
   font-size: 16px;
 `;
 
@@ -286,15 +295,13 @@ export const MarDetails = ({
                 <Card display="flex" flexDirection="column">
                   {marInfo?.isError ? (
                     <Box display="flex" flexDirection="column">
-                      <Box display="flex" alignItems="center">
-                        <DarkText fontWeight={500}>
-                          <TranslatedText
-                            stringId="medication.mar.medicationMarkedAsError"
-                            fallback="Medication has been marked with error"
-                          />
-                        </DarkText>
+                      <DarkText fontWeight={500}>
+                        <TranslatedText
+                          stringId="medication.mar.medicationMarkedAsError"
+                          fallback="Medication has been marked with error"
+                        />
                         <StyledPriorityHighIcon />
-                      </Box>
+                      </DarkText>
                       <KeyValueDisplay
                         label={<TranslatedText stringId="medication.mar.notes" fallback="Notes" />}
                         value={marInfo.errorNotes || '—' /* em dash */}
@@ -321,13 +328,13 @@ export const MarDetails = ({
                         >
                           <Field
                             label={
-                                <DarkText>
-                                  <TranslatedText
-                                    stringId="medication.mar.markAsMedicationError.label"
-                                    fallback="Mark as medication error"
-                                  />
-                                <StyledPriorityHighIcon style={{ display: 'inline-box' }} />
-                                </DarkText>
+                              <DarkText>
+                                <TranslatedText
+                                  stringId="medication.mar.markAsMedicationError.label"
+                                  fallback="Mark as medication error"
+                                />
+                                <StyledPriorityHighIcon />
+                              </DarkText>
                             }
                             name="isError"
                             component={CheckField}
@@ -402,8 +409,8 @@ export const MarDetails = ({
                 {marInfo.status === ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <>
                     <Hr />
-                    <Card display="flex">
-                      <Box flex={1}>
+                    <TwoUp>
+                      <div>
                         <KeyValueDisplay
                           label={
                             <TranslatedText stringId="medication.mar.reason" fallback="Reason" />
@@ -416,8 +423,8 @@ export const MarDetails = ({
                             />
                           }
                         />
-                      </Box>
-                      <Box flex={1} mr={2.5}>
+                      </div>
+                      <div>
                         <KeyValueDisplay
                           label={
                             <TranslatedText
@@ -427,9 +434,9 @@ export const MarDetails = ({
                           }
                           value={marInfo.recordedByUser.displayName}
                         />
-                      </Box>
+                      </div>
                       {canEditMar && <EditButton onClick={() => void setShowEditDoseModal({})} />}
-                    </Card>
+                    </TwoUp>
                   </>
                 )}
                 {marInfo.status === ADMINISTRATION_STATUS.GIVEN &&
