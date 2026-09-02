@@ -194,6 +194,16 @@ const requiredMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
 );
 
+const Footer = styled.footer`
+  border-block-start: 1px solid ${p => p.theme.palette.divider};
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 10px;
+  margin-inline: -32px;
+  padding-block-start: 18px;
+  padding-inline: 32px;
+`;
+
 export const MarDetails = ({
   medication,
   marInfo,
@@ -567,31 +577,24 @@ export const MarDetails = ({
                 </FieldArray>
               </Container>
 
-              <Box
-                mx={-4}
-                px={4}
-                pt={2.5}
-                borderTop={`1px solid ${Colors.outline}`}
-                display="flex"
-                justifyContent="flex-end"
-              >
+              <Footer>
                 {values.isError || values.doses.length > 0 ? (
-                  <Box display="flex" style={{ gap: '10px' }}>
-                    <OutlinedButton onClick={onClose}>
-                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                    </OutlinedButton>
+                  <>
                     <NoteModalActionBlocker>
                       <Button type="submit">
                         <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                       </Button>
                     </NoteModalActionBlocker>
-                  </Box>
+                    <OutlinedButton onClick={onClose}>
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    </OutlinedButton>
+                  </>
                 ) : (
                   <Button onClick={onClose} type="submit">
                     <TranslatedText stringId="general.action.close" fallback="Close" />
                   </Button>
                 )}
-              </Box>
+              </Footer>
             </>
           )}
         />
