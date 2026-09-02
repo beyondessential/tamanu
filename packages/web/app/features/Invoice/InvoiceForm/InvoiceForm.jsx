@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Form,
@@ -101,7 +102,14 @@ const FormFooter = styled(({ children, ...props }) => (
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
-  id: crypto.randomUUID(),
+  /**
+   * `crypto.randomUUID` requires a secure context, but Tamanu is sometimes accessed via a literal
+   * IP address over a LAN (e.g. Iti) using HTTP. (HTTPS not yet supported in this scenario.) Hence
+   * using `uuid`, which prefers `crypto.randomUUID` but falls back to `crypto.getRandomValues` as
+   * needed. Saves users from getting crash with “crypto.randomUUID is not a function”.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
+   */
+  id: uuidv4(),
   quantity: 1,
   orderDate: getCurrentDate(),
   orderedByUserId,
