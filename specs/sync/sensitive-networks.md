@@ -34,6 +34,25 @@ network boundary no longer describes.
 - [ ] A facility cannot be moved from one network to another, whether or not it is the sole member of its current network.
 - [ ] A facility joining an existing network is therefore always a new facility, which holds no history of its own. It receives what the network recorded before it was created, so the members it joins have nothing to pull from it.
 
+### Refusing a membership change
+
+- [ ] A membership change is refused wherever a facility record is written, so the rule holds on every path that can reach one rather than on the import path alone.
+- [ ] A refusal names the facility and the change that was attempted, distinguishing a facility being removed from its network from one being moved to a different network.
+
+## Administering networks
+
+Networks and facility membership are defined through the reference data import, alongside every other reference data type.
+
+- [ ] Networks are imported from a sheet of their own, each row carrying the network's id, code and name.
+- [ ] A facility's network is set from a column on the facility sheet holding the id of the network the facility belongs to.
+- [ ] The reference data export writes networks to the same sheet and facilities with the same network column, so a deployment can export its reference data, edit it, and import it back with every facility's membership intact.
+- [ ] A facility row that leaves the network column empty leaves that facility's membership as it stands. An empty cell is an absence of instruction, not an instruction to remove the facility from its network.
+- [ ] Importing a network again under its own id changes its code and name. Both are labels, and changing them moves no data.
+- [ ] Importing networks is permission-checked as its own reference data type.
+- [ ] An import that would change a facility's network fails on that row, reporting the facility and the row it appeared on. The import as a whole is abandoned, so a file that changes one facility's network imports none of its other rows either.
+- [ ] Validating a file without importing it reports the same failure, so the refusal is visible before anything is written.
+- [ ] A deployment with no confidential data defines no networks, so a reference data file is complete without a network sheet.
+
 ## Facility access for users
 
 Network membership scopes which data reaches a facility. It does not widen which facilities a user may log in to, which stays a per-facility relationship.
