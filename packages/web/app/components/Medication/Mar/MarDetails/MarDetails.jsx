@@ -120,7 +120,8 @@ const StyledAddIcon = styled(Add)`
 `;
 
 const DoseList = styled.ul.attrs({ role: 'list' })`
-  li:only-of-type ${DoseHeader} {
+  /* Don’t bother labelling ‘Dose 1’ if it’s the only one */
+  li:only-of-type ${DoseHeading} {
     display: none;
   }
 `;
