@@ -9,9 +9,16 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - delete_sensitive_networks_from_sync_lookup
+              - notify_sensitive_networks_changed
+              - record_sensitive_networks_changelog
+              - set_sensitive_networks_updated_at
+              - set_sensitive_networks_updated_at_sync_tick
         columns:
           - name: id
-            data_type: character varying(255)
+            data_type: uuid
             description: "{{ doc('generic__id') }} in sensitive_networks."
             data_tests:
               - unique
@@ -19,23 +26,25 @@ sources:
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in sensitive_networks."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in sensitive_networks."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in sensitive_networks."
           - name: code
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('sensitive_networks__code') }}"
             data_tests:
-              - unique
               - not_null
           - name: name
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('sensitive_networks__name') }}"
             data_tests:
-              - unique
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint

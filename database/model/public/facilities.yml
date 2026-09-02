@@ -84,7 +84,7 @@ sources:
             data_tests:
               - not_null
           - name: sensitive_network_id
-            data_type: character varying(255)
+            data_type: uuid
             description: "{{ doc('facilities__sensitive_network_id') }}"
             data_tests:
               - relationships:
