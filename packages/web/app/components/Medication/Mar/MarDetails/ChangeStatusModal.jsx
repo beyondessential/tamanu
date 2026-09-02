@@ -220,7 +220,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
         <TranslatedText stringId="modal.mar.changeStatusModal.title" fallback="Change status" />
       }
     >
-      <MarInfoPane medication={medication} marInfo={marInfo} />
+      <MarInfoPane medication={medication} marInfo={marInfo} timeSlot={timeSlot} />
       <Box height={16} />
       <Form
         suppressErrorDialog

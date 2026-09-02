@@ -282,7 +282,7 @@ export const MarDetails = ({
           render={({ values, setFieldValue, errors }) => (
             <>
               <Container>
-                <MarInfoPane medication={medication} marInfo={marInfo} />
+                <MarInfoPane medication={medication} marInfo={marInfo} timeSlot={timeSlot} />
                 <Card display="flex" flexDirection="column">
                   {marInfo?.isError ? (
                     <Box display="flex" flexDirection="column">

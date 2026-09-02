@@ -216,7 +216,7 @@ export const EditAdministrationRecordModal = ({
         />
       }
     >
-      <MarInfoPane medication={medication} marInfo={marInfo} />
+      <MarInfoPane medication={medication} marInfo={marInfo} timeSlot={timeSlot} />
       {showDoseIndex ? (
         <DoseLabel>
           <TranslatedText
