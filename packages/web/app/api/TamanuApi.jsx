@@ -5,6 +5,7 @@ import {
   writePersistedAuthToken,
 } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
+import { updateServerClockFromDateHeader } from '@tamanu/utils/serverClock';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
@@ -152,6 +153,19 @@ export class TamanuApi extends ApiClient {
       config.headers.set('date-time-locale', Intl.DateTimeFormat().resolvedOptions().locale);
       return config;
     });
+
+    this.interceptors.response.use(
+      response => {
+        updateServerClockFromDateHeader(response?.headers?.get('date'));
+        return response;
+      },
+      error => {
+        if (error instanceof Response) {
+          updateServerClockFromDateHeader(error.headers.get('date'));
+        }
+        return Promise.reject(error);
+      },
+    );
   }
 
   async setToken(token, refreshToken = null) {

@@ -13,6 +13,7 @@ import {
   type DateInput,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
+import { serverNowMs } from '@tamanu/utils/serverClock';
 
 import { useAuth } from './AuthContext';
 import { useSettings } from './SettingsContext';
@@ -90,9 +91,10 @@ const DateTimeProviderInner = ({
       facilityTimeZone,
       locale: locale ?? runtimeLocale,
       ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
-      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
-      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      getFacilityNowDate: () => getFacilityNowDate(primaryTimeZone, facilityTimeZone),
+      getCurrentDate: () =>
+        getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone, serverNowMs()),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone, serverNowMs()),
+      getFacilityNowDate: () => getFacilityNowDate(primaryTimeZone, facilityTimeZone, serverNowMs()),
       getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
       toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
       toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),

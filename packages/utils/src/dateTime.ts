@@ -326,13 +326,20 @@ export const intlFormatDate = (
   }
 };
 
+const zonedNow = (timezone: string, nowMs?: number): Temporal.ZonedDateTime => {
+  const tz = timezone ?? Temporal.Now.timeZoneId();
+  return nowMs == null
+    ? Temporal.Now.zonedDateTimeISO(tz)
+    : Temporal.Instant.fromEpochMilliseconds(nowMs).toZonedDateTimeISO(tz);
+};
+
 /** Get current datetime string in a specific timezone (ISO 9075 — space-separated, for storage) */
-export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
-  toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
+export const getCurrentDateTimeStringInTimezone = (timezone: string, nowMs?: number) =>
+  toISO9075DateTime(zonedNow(timezone, nowMs));
 
 /** Get current date string in a specific timezone */
-export const getCurrentDateStringInTimezone = (timezone: string) =>
-  Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
+export const getCurrentDateStringInTimezone = (timezone: string, nowMs?: number) =>
+  zonedNow(timezone, nowMs).toPlainDate().toString();
 
 /**
  * Parse a stored datetime string (ISO 9075 in primary timezone, or ISO 8601 with Z) to epoch milliseconds.
@@ -361,9 +368,10 @@ export const storedDateTimeToEpochMilliseconds = (
 export const getFacilityNowDate = (
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  nowMs?: number,
 ): Date => {
   const tz = facilityTimeZone ?? primaryTimeZone;
-  return new Date(getCurrentDateTimeStringInTimezone(tz).replace(' ', 'T'));
+  return new Date(getCurrentDateTimeStringInTimezone(tz, nowMs).replace(' ', 'T'));
 };
 
 /**
