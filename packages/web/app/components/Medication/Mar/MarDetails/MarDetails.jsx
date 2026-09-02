@@ -308,52 +308,49 @@ export const MarDetails = ({
                       />
                     </Box>
                   ) : (
-                    <FormGrid style={{ width: '100%' }}>
-                      <div style={{ gridColumn: '1 / -1', width: 'fit-content' }}>
-                        <ConditionalTooltip
-                          visible={!canEditMar}
-                          title={
-                            isEncounterDischarged ? (
+                    <>
+                      <ConditionalTooltip
+                        visible={!canEditMar}
+                        title={
+                          isEncounterDischarged ? (
+                            <TranslatedText
+                              stringId="medication.mar.action.discharged.tooltip"
+                              fallback="This can’t be edited because the encounter has been discharged"
+                            />
+                          ) : (
+                            <TranslatedText
+                              stringId="general.error.noPermission"
+                              fallback="No permission to perform this action"
+                            />
+                          )
+                        }
+                      >
+                        <Field
+                          label={
+                            <DarkText>
                               <TranslatedText
-                                stringId="medication.mar.action.discharged.tooltip"
-                                fallback="This can’t be edited because the encounter has been discharged"
+                                stringId="medication.mar.markAsMedicationError.label"
+                                fallback="Mark as medication error"
                               />
-                            ) : (
-                              <TranslatedText
-                                stringId="general.error.noPermission"
-                                fallback="No permission to perform this action"
-                              />
-                            )
+                              <StyledPriorityHighIcon />
+                            </DarkText>
                           }
-                        >
-                          <Field
-                            label={
-                              <DarkText>
-                                <TranslatedText
-                                  stringId="medication.mar.markAsMedicationError.label"
-                                  fallback="Mark as medication error"
-                                />
-                                <StyledPriorityHighIcon />
-                              </DarkText>
-                            }
-                            name="isError"
-                            component={CheckField}
-                            disabled={!canEditMar}
-                          />
-                        </ConditionalTooltip>
-                      </div>
+                          name="isError"
+                          component={CheckField}
+                          disabled={!canEditMar}
+                        />
+                      </ConditionalTooltip>
                       {values.isError && (
-                        <div style={{ gridColumn: '1 / -1', marginTop: '-8px' }}>
-                          <Field
-                            name="errorNotes"
-                            label={
-                              <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
-                            }
-                            component={TextField}
-                          />
-                        </div>
+                        <Field
+                          name="errorNotes"
+                          label={
+                            <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
+                          }
+                          component={TextField}
+                          style={{ marginBlockStart: '0.3rem' }}
+                        />
                       )}
-                    </FormGrid>
+                    </>
                   )}
                   {(isRecordedOutsideAdministrationSchedule ||
                     isDoseAmountNotMatch ||
