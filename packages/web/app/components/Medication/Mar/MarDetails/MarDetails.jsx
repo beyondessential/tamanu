@@ -101,7 +101,7 @@ const EditButton = styled(({ children, onClick, ...props }) => (
   background-color: inherit !important;
 `;
 
-const HorizontalSeparator = styled.hr`
+const Hr = styled.hr`
   margin-block: 14px;
 `;
 
@@ -354,7 +354,7 @@ export const MarDetails = ({
                     isDoseAmountNotMatch ||
                     isRecordedDuringPaused) && (
                     <>
-                      <HorizontalSeparator />
+                      <Hr />
                       <KeyValueDisplay
                         label={
                           <TranslatedText
@@ -403,7 +403,7 @@ export const MarDetails = ({
                 </Card>
                 {marInfo.status === ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <>
-                    <HorizontalSeparator />
+                    <Hr />
                     <Card display="flex">
                       <Box flex={1}>
                         <KeyValueDisplay
