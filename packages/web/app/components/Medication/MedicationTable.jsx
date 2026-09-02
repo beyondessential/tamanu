@@ -341,10 +341,7 @@ export const EncounterMedicationTable = ({
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
       searchParams.delete('openMedicationId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
   }, []);
 
@@ -364,9 +361,10 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
   `;
 

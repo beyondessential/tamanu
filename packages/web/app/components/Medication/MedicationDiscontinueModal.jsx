@@ -147,10 +147,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
               gap={2}
               data-testid="box-formactions-discontinue-def456"
             >
-              <FormCancelButton 
-                onClick={onClose}
-                data-testid="formcancelbutton-cancel-xyz789"
-              >
+              <FormCancelButton onClick={onClose} data-testid="formcancelbutton-cancel-xyz789">
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton
