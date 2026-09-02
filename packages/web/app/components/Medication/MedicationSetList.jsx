@@ -1,20 +1,22 @@
+import { IconButton } from '@material-ui/core';
+import CheckIcon from '@mui/icons-material/Check';
+import EditIcon from '@mui/icons-material/Edit';
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
-import CheckIcon from '@mui/icons-material/Check';
-import { Box, IconButton } from '@material-ui/core';
-import EditIcon from '@mui/icons-material/Edit';
 
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
-import { getMedicationDoseDisplay, getTranslatedFrequency, getDrugUnitLabel } from '@tamanu/shared/utils/medication';
-
-import { Colors } from '../../constants/styles';
-import { BodyText, Heading4, SmallBodyText } from '..';
-import { useTranslation } from '../../contexts/Translation';
+import {
+  getDrugUnitLabel,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
+import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { Colors } from '../../constants/styles';
 import { useEncounter } from '../../contexts/Encounter';
+import { BodyText, Heading4, SmallBodyText } from '../Typography';
 
-const ListContainer = styled(Box)`
+const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
