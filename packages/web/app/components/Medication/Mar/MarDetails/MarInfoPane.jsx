@@ -122,10 +122,6 @@ export const MarInfoPane = ({
 
   const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
 
-  const onChangeLogClick = () => {
-    setShowChangeLogModal(true);
-  };
-
   return (
     <>
       <Container>
@@ -175,7 +171,7 @@ export const MarInfoPane = ({
               )}
             </Box>
           </Box>
-          <ChangeLogLink onClick={onChangeLogClick}>
+          <ChangeLogLink onClick={() => void setShowChangeLogModal(true)}>
             <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
           </ChangeLogLink>
         </MedicationInfoContainer>
