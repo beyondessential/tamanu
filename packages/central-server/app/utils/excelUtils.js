@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import * as XLSX from 'xlsx';
-import * as fs from 'node:fs';
 
 // xlsx's ESM build does not bind Node's fs automatically, so readFile/writeFile throw
 // "cannot save file" unless we wire it up explicitly. Its other builds auto-bind fs and
