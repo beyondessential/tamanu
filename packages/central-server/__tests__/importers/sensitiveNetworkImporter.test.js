@@ -24,6 +24,12 @@ const buildWorkbook = sheets => {
   return workbook;
 };
 
+// SensitiveNetwork.id is a UUID column, unlike the string primary keys every other reference data
+// sheet uses, so fixture ids have to be well-formed UUIDs rather than readable slugs.
+const NETWORK_A = '11111111-1111-0000-0000-000000000001';
+const NETWORK_B = '22222222-2222-0000-0000-000000000002';
+const NETWORK_MISSING = '99999999-9999-0000-0000-000000000099';
+
 const networkSheet = rows => [['id', 'code', 'name'], ...rows];
 const facilitySheet = rows => [['id', 'code', 'name', 'sensitiveNetworkId'], ...rows];
 
@@ -57,7 +63,7 @@ describe('Sensitive network import', () => {
       ...options,
     });
 
-  const seedNetwork = (id, code = id, name = id) =>
+  const seedNetwork = (id, code = id.slice(0, 8), name = id.slice(0, 8)) =>
     models.SensitiveNetwork.create({ id, code, name });
 
   const seedFacility = (id, sensitiveNetworkId = null) =>
@@ -66,80 +72,80 @@ describe('Sensitive network import', () => {
   describe('importing networks', () => {
     it('creates a network from its id, code and name', async () => {
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-a', 'NETA', 'Network A']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
       });
 
       expect(errors).toEqual([]);
-      const network = await models.SensitiveNetwork.findByPk('net-a');
+      const network = await models.SensitiveNetwork.findByPk(NETWORK_A);
       expect(network).toMatchObject({ code: 'NETA', name: 'Network A' });
     });
 
     it('fails a row with no code', async () => {
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-a', null, 'Network A']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, null, 'Network A']]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(await models.SensitiveNetwork.findByPk('net-a')).toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).toBeNull();
     });
 
     it('fails a row with no name', async () => {
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-a', 'NETA', null]]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', null]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(await models.SensitiveNetwork.findByPk('net-a')).toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).toBeNull();
     });
 
     it('fails a row whose code duplicates another network', async () => {
-      await seedNetwork('net-a', 'NETA', 'Network A');
+      await seedNetwork(NETWORK_A, 'NETA', 'Network A');
 
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-b', 'NETA', 'Network B']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_B, 'NETA', 'Network B']]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(await models.SensitiveNetwork.findByPk('net-b')).toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_B)).toBeNull();
     });
 
     it('fails a row whose name duplicates another network', async () => {
-      await seedNetwork('net-a', 'NETA', 'Network A');
+      await seedNetwork(NETWORK_A, 'NETA', 'Network A');
 
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-b', 'NETB', 'Network A']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_B, 'NETB', 'Network A']]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(await models.SensitiveNetwork.findByPk('net-b')).toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_B)).toBeNull();
     });
 
     it('updates a network re-imported under its own id', async () => {
-      await seedNetwork('net-a', 'NETA', 'Network A');
+      await seedNetwork(NETWORK_A, 'NETA', 'Network A');
 
       const { errors } = await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-a', 'RENAMED', 'Renamed network']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'RENAMED', 'Renamed network']]) },
       });
 
       expect(errors).toEqual([]);
-      const network = await models.SensitiveNetwork.findByPk('net-a');
+      const network = await models.SensitiveNetwork.findByPk(NETWORK_A);
       expect(network).toMatchObject({ code: 'RENAMED', name: 'Renamed network' });
     });
 
     it('accepts the sheet under its singular tab name', async () => {
       const { errors } = await doImport({
-        sheets: { 'Sensitive Network': networkSheet([['net-a', 'NETA', 'Network A']]) },
+        sheets: { 'Sensitive Network': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
       });
 
       expect(errors).toEqual([]);
-      expect(await models.SensitiveNetwork.findByPk('net-a')).not.toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).not.toBeNull();
     });
 
     it('checks create and write permission against the network type', async () => {
       const checkPermission = vi.fn();
 
       await doImport({
-        sheets: { 'Sensitive Networks': networkSheet([['net-a', 'NETA', 'Network A']]) },
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
         checkPermission,
       });
 
@@ -161,36 +167,36 @@ describe('Sensitive network import', () => {
 
   describe('enrolling facilities', () => {
     it('creates a facility already enrolled in an existing network', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', NETWORK_A]]) },
       });
 
       expect(errors).toEqual([]);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
 
     it('defines a network and creates facilities into it in one file', async () => {
       const { errors } = await doImport({
         sheets: {
-          'Sensitive Networks': networkSheet([['net-a', 'NETA', 'Network A']]),
+          'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]),
           Facilities: facilitySheet([
-            ['fac-a', 'FACA', 'Facility A', 'net-a'],
-            ['fac-b', 'FACB', 'Facility B', 'net-a'],
+            ['fac-a', 'FACA', 'Facility A', NETWORK_A],
+            ['fac-b', 'FACB', 'Facility B', NETWORK_A],
           ]),
         },
       });
 
       expect(errors).toEqual([]);
-      const members = await models.Facility.findAll({ where: { sensitiveNetworkId: 'net-a' } });
+      const members = await models.Facility.findAll({ where: { sensitiveNetworkId: NETWORK_A } });
       expect(members.map(f => f.id).sort()).toEqual(['fac-a', 'fac-b']);
     });
 
     it('fails a facility row naming a network that does not exist', async () => {
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', 'no-such-net']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', NETWORK_MISSING]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
@@ -210,11 +216,11 @@ describe('Sensitive network import', () => {
 
   describe('refusing membership changes', () => {
     it('refuses enrolling an existing facility that belongs to no network', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
       await seedFacility('fac-a');
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
@@ -223,40 +229,40 @@ describe('Sensitive network import', () => {
     });
 
     it('refuses moving an existing facility to a different network', async () => {
-      await seedNetwork('net-a');
-      await seedNetwork('net-b');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedNetwork(NETWORK_B);
+      await seedFacility('fac-a', NETWORK_A);
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-b']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_B]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
 
     it('refuses moving a facility that is the sole member of its network', async () => {
-      await seedNetwork('net-a');
-      await seedNetwork('net-b');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedNetwork(NETWORK_B);
+      await seedFacility('fac-a', NETWORK_A);
 
-      expect(await models.Facility.count({ where: { sensitiveNetworkId: 'net-a' } })).toBe(1);
+      expect(await models.Facility.count({ where: { sensitiveNetworkId: NETWORK_A } })).toBe(1);
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-b']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_B]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
     });
 
     it('refuses enrolling a soft-deleted facility rather than restoring it into a network', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
       const facility = await seedFacility('fac-a');
       await facility.destroy();
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
       });
 
       expect(errors.length).toBeGreaterThan(0);
@@ -265,11 +271,11 @@ describe('Sensitive network import', () => {
     });
 
     it('names the facility and says only a new facility can be enrolled', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
       await seedFacility('fac-a');
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
       });
 
       const message = errors.map(error => error.message).join('\n');
@@ -278,30 +284,30 @@ describe('Sensitive network import', () => {
     });
 
     it('abandons the whole file when one facility row is refused', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
       await seedFacility('fac-a');
 
       const { errors } = await doImport({
         sheets: {
-          'Sensitive Networks': networkSheet([['net-b', 'NETB', 'Network B']]),
+          'Sensitive Networks': networkSheet([[NETWORK_B, 'NETB', 'Network B']]),
           Facilities: facilitySheet([
-            ['fac-a', 'fac-a', 'fac-a', 'net-a'],
+            ['fac-a', 'fac-a', 'fac-a', NETWORK_A],
             ['fac-new', 'FACNEW', 'Facility New', null],
           ]),
         },
       });
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(await models.SensitiveNetwork.findByPk('net-b')).toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_B)).toBeNull();
       expect(await models.Facility.findByPk('fac-new')).toBeNull();
     });
 
     it('reports the refusal when validating without importing', async () => {
-      await seedNetwork('net-a');
+      await seedNetwork(NETWORK_A);
       await seedFacility('fac-a');
 
       const { errors, didntSendReason } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
         dryRun: true,
       });
 
@@ -314,8 +320,8 @@ describe('Sensitive network import', () => {
 
   describe('an empty network cell is not a removal', () => {
     it('keeps membership when the facility sheet has no network column at all', async () => {
-      await seedNetwork('net-a');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedFacility('fac-a', NETWORK_A);
 
       const { errors } = await doImport({
         sheets: {
@@ -328,13 +334,13 @@ describe('Sensitive network import', () => {
 
       expect(errors).toEqual([]);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
       expect(facility.name).toBe('Renamed facility');
     });
 
     it('keeps membership when the network cell is blank', async () => {
-      await seedNetwork('net-a');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedFacility('fac-a', NETWORK_A);
 
       const { errors } = await doImport({
         sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', null]]) },
@@ -342,12 +348,12 @@ describe('Sensitive network import', () => {
 
       expect(errors).toEqual([]);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
 
     it('keeps membership when the network cell is an empty string', async () => {
-      await seedNetwork('net-a');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedFacility('fac-a', NETWORK_A);
 
       const { errors } = await doImport({
         sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', '']]) },
@@ -355,7 +361,7 @@ describe('Sensitive network import', () => {
 
       expect(errors).toEqual([]);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
 
     it('imports a facility sheet with no network column for a facility in no network', async () => {
@@ -378,29 +384,29 @@ describe('Sensitive network import', () => {
 
   describe('re-importing an unchanged file', () => {
     it('accepts a facility row naming the network it already belongs to', async () => {
-      await seedNetwork('net-a');
-      await seedFacility('fac-a', 'net-a');
+      await seedNetwork(NETWORK_A);
+      await seedFacility('fac-a', NETWORK_A);
 
       const { errors } = await doImport({
-        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', 'net-a']]) },
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
       });
 
       expect(errors).toEqual([]);
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
 
     it('accepts the same file imported twice', async () => {
       const sheets = {
-        'Sensitive Networks': networkSheet([['net-a', 'NETA', 'Network A']]),
-        Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', 'net-a']]),
+        'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]),
+        Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', NETWORK_A]]),
       };
 
       expect((await doImport({ sheets })).errors).toEqual([]);
       expect((await doImport({ sheets })).errors).toEqual([]);
 
       const facility = await models.Facility.findByPk('fac-a');
-      expect(facility.sensitiveNetworkId).toBe('net-a');
+      expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
     });
   });
 

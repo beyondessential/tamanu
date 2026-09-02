@@ -7,11 +7,15 @@ Spec: `specs/sync/sensitive-networks.md` (SENSNET).
 Tests live in `packages/central-server/__tests__/importers/sensitiveNetworkImporter.test.js`,
 `.../sensitiveNetworkRoundTrip.test.js`, and `packages/database/__tests__/models/SensitiveNetwork.test.ts`.
 
-**These tests have been written but not executed.** `npm install` fails in this worktree — `xlsx` is
-declared as a remote tarball from `cdn.sheetjs.com` and remote fetches are disabled here — so there
-is no way to run vitest against them. A tick below means a test exists for the scenario, not that it
-has been seen to pass. The suite needs a run somewhere with dependencies installed before any of
-this is trusted.
+**These tests cannot be run locally**: `npm install` fails in this worktree — `xlsx` is declared as
+a remote tarball from `cdn.sheetjs.com` and remote fetches are disabled here — so CI is the only
+place they execute. They have now had one CI run, which surfaced real defects in the fixtures (see
+the plan); a tick still means a test exists and is believed correct, not that it has been seen green.
+Confirm against a clean CI run before trusting the ticks.
+
+Two cases were **removed** from `CentralSyncManager.sensitiveFacilities.test.js` rather than fixed:
+they covered lookup behaviour when a facility changes to or from sensitive, which the membership
+rules settled on this card make unreachable. See the plan.
 
 ## Importing networks
 

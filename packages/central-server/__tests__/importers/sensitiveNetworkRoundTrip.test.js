@@ -19,6 +19,10 @@ vi.mock('../../app/utils/excelUtils', async () => {
 
 vi.setConfig({ testTimeout: 50000 });
 
+// SensitiveNetwork.id is a UUID column, unlike the string primary keys every other reference data
+// sheet uses, so fixture ids have to be well-formed UUIDs rather than readable slugs.
+const NETWORK_A = '11111111-1111-0000-0000-000000000001';
+
 // The import column has to match what the export writes. If it does not, exporting a deployment's
 // reference data and importing it back drops every facility's membership — and drops it silently,
 // because a missing column reads as "no change" and never trips the guard.
@@ -51,7 +55,7 @@ describe('Sensitive network export round trip', () => {
   const sheetNamed = (sheets, name) => sheets.find(sheet => sheet.name === name);
 
   it('exports networks to their own sheet', async () => {
-    await models.SensitiveNetwork.create({ id: 'net-a', code: 'NETA', name: 'Network A' });
+    await models.SensitiveNetwork.create({ id: NETWORK_A, code: 'NETA', name: 'Network A' });
 
     const sheets = await exportSheets([OTHER_REFERENCE_TYPES.SENSITIVE_NETWORK]);
     const networkSheet = sheetNamed(sheets, 'Sensitive Network');
@@ -64,28 +68,28 @@ describe('Sensitive network export round trip', () => {
   });
 
   it('exports the facility network column under the name the importer reads', async () => {
-    await models.SensitiveNetwork.create({ id: 'net-a', code: 'NETA', name: 'Network A' });
+    await models.SensitiveNetwork.create({ id: NETWORK_A, code: 'NETA', name: 'Network A' });
     await models.Facility.create({
       id: 'fac-a',
       code: 'FACA',
       name: 'Facility A',
-      sensitiveNetworkId: 'net-a',
+      sensitiveNetworkId: NETWORK_A,
     });
 
     const sheets = await exportSheets([OTHER_REFERENCE_TYPES.FACILITY]);
     const [headers, ...rows] = sheetNamed(sheets, 'Facility').data;
 
     expect(headers).toContain('sensitiveNetworkId');
-    expect(rows[0][headers.indexOf('sensitiveNetworkId')]).toBe('net-a');
+    expect(rows[0][headers.indexOf('sensitiveNetworkId')]).toBe(NETWORK_A);
   });
 
   it('preserves membership when exported reference data is imported back unchanged', async () => {
-    await models.SensitiveNetwork.create({ id: 'net-a', code: 'NETA', name: 'Network A' });
+    await models.SensitiveNetwork.create({ id: NETWORK_A, code: 'NETA', name: 'Network A' });
     await models.Facility.create({
       id: 'fac-a',
       code: 'FACA',
       name: 'Facility A',
-      sensitiveNetworkId: 'net-a',
+      sensitiveNetworkId: NETWORK_A,
     });
     await models.Facility.create({ id: 'fac-b', code: 'FACB', name: 'Facility B' });
 
@@ -108,7 +112,7 @@ describe('Sensitive network export round trip', () => {
     });
 
     expect(errors).toEqual([]);
-    expect((await models.Facility.findByPk('fac-a')).sensitiveNetworkId).toBe('net-a');
+    expect((await models.Facility.findByPk('fac-a')).sensitiveNetworkId).toBe(NETWORK_A);
     expect((await models.Facility.findByPk('fac-b')).sensitiveNetworkId).toBeNull();
   });
 });

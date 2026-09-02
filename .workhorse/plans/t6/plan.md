@@ -175,6 +175,34 @@ yup cast behaviour run directly against yup 0.32.11.
 
 The whole suite needs a run somewhere with dependencies installed before this is trusted.
 
+## Surfaced by the first CI run
+
+**Two sibling-card tests removed, not fixed.**
+`CentralSyncManager.sensitiveFacilities.test.js` carried two edge cases from the pre-network
+`is_sensitive` world, renamed mechanically by V6: "a facility changes from sensitive to
+non-sensitive" and "a facility changes to sensitive". Both drive the transition through
+`facility.update({ sensitiveNetworkId: ... })`, which the guard now refuses, and both describe
+behaviour the spec has deliberately made unreachable. Keeping them by bypassing the guard with raw
+SQL would assert desirable behaviour for a transition we have decided is unsafe. The migration path
+that *can* still change membership is covered by V6's own lookup-rescope tests.
+
+**Open question: should a network id be a UUID?** `SensitiveNetwork.id` is `DataTypes.UUID`, while
+every other importable reference type — facility, department, location group, scheduled vaccine, lab
+test panel, patient field definition — uses the standard string primary key, and the provisioning
+data uses readable ids like `facility-DemoLan`. So the network sheet is the only one where an
+administrator must supply a UUID, and supplying anything else surfaces a raw Postgres
+`invalid input syntax for type uuid` rather than a row-level validation error.
+
+Not changed here, for two reasons: the column belongs to U6, and switching it to a string would also
+mean reworking U6's DDL, changing the backfill's `gen_random_uuid()` (it already derives code and
+name from the facility, so the facility code is available), matching the `sync_lookup` column type,
+and regenerating the dbt source models — which cannot be run in this worktree. No bespoke UUID
+validator was added either, since that would formally commit the sheet to UUIDs, which is the
+decision to be made rather than assumed. yup's own `.uuid()` is unusable regardless: its regex
+requires RFC version 1-5 and Tamanu's generated ids carry version nibble `0`.
+
+Raise with the user before merging.
+
 ## Build steps
 
 - [x] Verify the empty-cell behaviour of the yup `Facility` cast, and settle whether
