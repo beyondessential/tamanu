@@ -3,11 +3,11 @@ import asyncHandler from 'express-async-handler';
 import { ReadSettings } from '@tamanu/settings';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
-import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 import { telegramWebhookRoutes } from './telegramWebhook';
+import { getLanguageOptions, getTranslations } from './translation';
 
 export const publicRoutes = express.Router();
 
@@ -27,25 +27,8 @@ publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
 
-publicRoutes.get('/translation/languageOptions', async (req, res) => {
-  const { TranslatedString } = req.models;
-  const response = await TranslatedString.getPossibleLanguages();
-  res.send(response);
-});
-
-publicRoutes.get('/translation/:language', async (req, res) => {
-  const {
-    models: { TranslatedString },
-    params: { language },
-  } = req;
-
-  const translatedStringRecords = await TranslatedString.findAll({
-    where: { language },
-    attributes: ['stringId', 'text'],
-  });
-
-  res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
-});
+publicRoutes.get('/translation/languageOptions', getLanguageOptions);
+publicRoutes.get('/translation/:language', getTranslations);
 
 publicRoutes.post('/browser-support', async (req, res) => {
   // Pre-login gate for the admin panel; the client posts its parsed navigator info.
