@@ -45,7 +45,7 @@ import { WarningModal } from '../../WarningModal';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import KeyValueDisplay from './KeyValueDisplay';
-import DoseEntry, { DoseHeading } from './MarDose';
+import DoseEntry, { DoseHeader, DoseHeading } from './MarDose';
 import { MarInfoPane } from './MarInfoPane';
 import RemoveAdditionalDoseButton from './RemoveAdditionalDoseButton';
 import RemoveAdditionalDoseModal from './RemoveAdditionalDoseModal';
@@ -168,11 +168,6 @@ const StyledTimePickerField = styled(Field).attrs({
       border-color: ${Colors.softText};
     }
   }
-`;
-
-const Dose = styled.div`
-  padding-block-start: 14px;
-  border-block-start: 1px solid ${p => p.theme.palette.divider};
 `;
 
 function PractitionerField(props) {
@@ -478,7 +473,7 @@ export const MarDetails = ({
                     <>
                       {values?.doses?.map((_, index) => (
                         <div key={index}>
-                          <Dose>
+                          <DoseHeader>
                             <DoseHeading>
                               <TranslatedText
                                 stringId="medication.mar.form.dose.label"
@@ -489,7 +484,7 @@ export const MarDetails = ({
                             <RemoveAdditionalDoseButton
                               onClick={() => void formArrayMethods.remove(index)}
                             />
-                          </Dose>
+                          </DoseHeader>
                           <FormGrid>
                             <Field
                               name={`doses.${index}.doseAmount`}
