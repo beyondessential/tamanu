@@ -64,6 +64,15 @@ Keep the resolved network list a **parameter** of the filter rather than derivin
 ever populates it from the requesting facilities' membership, but W6 needs an explicit network id for
 its `since = -1` catch-up pass. A parameter lets W6 extend this rather than fork it.
 
+**Built as a `sessionConfig` key, not a positional argument.** `snapshotOutgoingChanges` already
+takes ten positional arguments and has around thirty call sites across the test suites, all passing
+them positionally; inserting an eleventh shifts `deviceId`, `sessionConfig` and the `withConfig`-
+appended `config` at every one of them, silently and without a type error. `sessionConfig` is already
+the bag session-derived scoping travels in (`syncAllLabRequests`), and W6 can put an explicit network
+id there just as easily. The one place this needs care is the newly-marked-patients snapshot, which
+deliberately passes an empty config to drop `syncAllLabRequests` — it now passes
+`{ sensitiveNetworkIds }` so network scoping still applies to that pass.
+
 Note W6's catch-up needs its own `AND`-composed where clause, not this admission clause with
 different parameters. The clause above is `OR`-composed, so `sensitive_network_id IN (...)` admits
 the whole network regardless of `facilityIds`, and the unscoped line pulls the entire non-sensitive
@@ -181,3 +190,36 @@ The non-lookup snapshot path (`snapshotOutgoingChangesFromModels`, used when
 `sync.lookupTable.enabled` is false) has no facility-sensitivity filtering at all, before or after
 this card. Default config is `enabled: true`, so it is effectively legacy, but a deployment running
 with it off has no sensitive scoping either way.
+
+## Build steps
+
+- [x] `buildSyncLookupSelect` learns a `sensitiveNetworkId` column, emitted immediately after
+      `facilityId` so the SELECT stays positionally aligned with the INSERT list.
+- [x] `buildEncounterLinkedLookupSelect` sets `sensitiveNetworkId` from
+      `facilities.sensitive_network_id` and stops setting `facilityId`.
+      `ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE` goes.
+- [x] `Notification.buildSyncLookupQueryDetails` — the second call site — does the same.
+- [x] `updateLookupTable.js` adds `sensitive_network_id` to the INSERT column list (after
+      `facility_id`) and to the `ON CONFLICT DO UPDATE` list.
+- [x] `setupSnapshotForPull` resolves the session's networks from its validated `facilityIds` and
+      threads them through `snapshotOutgoingChanges` as a parameter.
+- [x] The lookup snapshot's admission clause requires both scope columns null for "unscoped", and
+      admits a row whose network the session belongs to. Clause omitted when the list is empty.
+- [x] Migration rescopes existing lookup rows: network from the facility, facility nulled, only for
+      encounter-scoped record types whose facility belongs to a network. Ticks untouched.
+- [x] `EXPLAIN` the snapshot query to find which index it actually uses, then decide whether
+      appending `sensitive_network_id` to the composite index is worth anything.
+      **No index migration written.** On a 300k-row `sync_lookup` the planner picks
+      `sync_lookup_pkey` and applies every predicate as a filter:
+      `Index Scan using sync_lookup_pkey ... Filter: (data IS NOT NULL) AND (patient_id IS NULL)
+      AND (updated_at_sync_tick > ...) AND (((facility_id IS NULL) AND (sensitive_network_id IS
+      NULL)) OR ...) AND record_type = ...`. The composite index is never touched, which is what
+      the section above predicted: `ORDER BY id LIMIT` is satisfied by the primary key and `id` is
+      not in the composite at all. Appending a column to an index the planner ignores buys nothing
+      and costs real build time during the upgrade. U6's standalone
+      `sync_lookup_sensitive_network_id_index` stays, since W6's catch-up looks up by network.
+      (Measured on synthetic uniform data; the reason is structural rather than data-dependent, but
+      a check against a real deployment's statistics would be worth doing before ruling it out for
+      good.)
+- [x] Rework the sensitive facility suite around networks: a sibling fixture (two facilities in one
+      network, a third outside), sibling data reaching a sibling, and the fail-open case.

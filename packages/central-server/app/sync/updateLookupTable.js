@@ -49,6 +49,7 @@ const buildLookupUpsertQuery = ({
 
       patient_id,
       facility_id,
+      sensitive_network_id,
       encounter_id,
       is_lab_request,
       updated_at_by_field_sum,
@@ -102,6 +103,7 @@ const buildLookupUpsertQuery = ({
       patient_id = EXCLUDED.patient_id,
       encounter_id = EXCLUDED.encounter_id,
       facility_id = EXCLUDED.facility_id,
+      sensitive_network_id = EXCLUDED.sensitive_network_id,
       updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
       is_deleted = EXCLUDED.is_deleted,
       pushed_by_device_id = EXCLUDED.pushed_by_device_id,

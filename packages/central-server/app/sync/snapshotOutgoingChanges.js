@@ -229,7 +229,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { avoidRepull } = config.sync.lookupTable;
-    const { syncAllLabRequests } = sessionConfig;
+    const { syncAllLabRequests, sensitiveNetworkIds } = sessionConfig;
     const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
@@ -268,12 +268,20 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             patientCount,
             markedForSyncPatientsTable,
           )}
-          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
-          --- or facility_id has to match the current facility, eg: patient_facilities
+          --- a record is unscoped only when it carries neither a facility nor a network. a
+          --- network scoped record has a null facility_id too, so testing facility_id alone
+          --- would admit every sensitive record to every facility
           AND (
-            facility_id IS NULL
+            (facility_id IS NULL AND sensitive_network_id IS NULL)
             OR
             facility_id in (:facilityIds)
+            ${
+              sensitiveNetworkIds?.length
+                ? `
+            OR
+            sensitive_network_id in (:sensitiveNetworkIds)`
+                : ''
+            }
           )
           --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
           ${
@@ -305,6 +313,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             // include replacement params used in some model specific sync filters outside of this file
             // see e.g. Referral.buildSyncFilter
             facilityIds,
+            ...(sensitiveNetworkIds?.length ? { sensitiveNetworkIds } : {}),
             limit: CHUNK_SIZE,
             fromId,
             recordTypes,

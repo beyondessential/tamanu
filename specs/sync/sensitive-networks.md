@@ -21,22 +21,18 @@ A sensitive network is a named group of facilities that share confidential data.
 - [ ] A facility is sensitive exactly when it belongs to a network. There is no separate sensitivity flag, so every reader of facility sensitivity tests network membership instead.
 - [ ] Placing a facility in a network is therefore the only way to make it sensitive.
 
-## Changing membership
+## Membership does not change
 
-Confidential data that has already synced to a facility cannot be recalled, so a facility only ever changes network when it carries nothing it is not entitled to take with it.
+A facility's network is fixed for its lifetime. Confidential data that has already synced to a
+facility cannot be recalled, and data the facility recorded before joining a network already exists
+elsewhere in the deployment, so changing membership would leave the deployment in a state the
+network boundary no longer describes.
 
-- [ ] A facility's network is chosen when the facility is created.
+- [ ] A facility's network is chosen when the facility is created, and never changes afterwards.
 - [ ] A facility belonging to no network cannot be placed in one. Making a facility sensitive means creating a new facility already enrolled in the network.
 - [ ] A facility cannot be removed from its network. Un-networking a facility means wiping its local data and resyncing it from scratch.
-- [ ] A facility that is the sole member of its network can be moved to another network, since it holds no sibling's data to take with it.
-- [ ] A facility that shares its network with other facilities cannot be moved to another network.
-
-### When a facility moves network
-
-- [ ] The facility's own records are rescoped to the network it moves to, so the facilities already in that network receive them.
-- [ ] The facility receives the confidential data its new network recorded before it moved, not only what is recorded afterwards.
-- [ ] The network the facility left is empty, and can be deleted.
-- [ ] Network scoping widens which facilities a record can reach, and nothing else. A facility receives its network's confidential data only for the patients it syncs, following the same patient scoping every other record does.
+- [ ] A facility cannot be moved from one network to another, whether or not it is the sole member of its current network.
+- [ ] A facility joining an existing network is therefore always a new facility, which holds no history of its own. It receives what the network recorded before it was created, so the members it joins have nothing to pull from it.
 
 ## Facility access for users
 
@@ -67,6 +63,7 @@ Network membership scopes which data reaches a facility. It does not widen which
 - [ ] A session whose facilities belong to no network resolves an empty set of networks, so only the first two conditions can admit a record.
 - [ ] A session covering several facilities admits every record scoped to any of them, and every record scoped to any network they belong to.
 - [ ] A facility configured to sync all lab requests receives every lab request, ahead of patient and network scoping.
+- [ ] Network scoping widens which facilities a record can reach, and nothing else. A facility receives its network's confidential data only for the patients it syncs, following the same patient scoping every other record does.
 
 ## Facilities that were sensitive before networks existed
 
@@ -74,7 +71,7 @@ Facilities previously marked sensitive were isolated from each other as well as 
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import.
-- [ ] Their lookup rows carry that network in place of the facility, so a facility that later moves into one of those networks receives the confidential data recorded before it moved.
+- [ ] Their lookup rows carry that network in place of the facility, so a facility later created into one of those networks receives the confidential data recorded before it existed.
 - [ ] Only the lookup rows scoped to a facility that belongs to a network are rescoped. A deployment with no networked facility rescopes nothing.
 - [ ] Rows scoped to a facility deleted while it was sensitive keep their facility, because that facility has no network to move them to. They reach no facility, as they did before.
 - [ ] Rescoping leaves each row's sync tick alone, so no facility re-pulls a record it already holds.

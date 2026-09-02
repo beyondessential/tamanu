@@ -160,7 +160,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     return outgoingChanges.filter(c => c.recordType === recordType).map(c => c.recordId);
   };
 
-  it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
+  it('will populate the lookup table with the network of a sensitive encounter, and no facility', async () => {
     const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
     await centralSyncManager.updateLookupTable();
 
@@ -168,7 +168,11 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     const sensitiveLookupRecord = lookupData.find(l => l.recordId === sensitiveEncounter.id);
     const nonSensitiveLookupRecord = lookupData.find(l => l.recordId === nonSensitiveEncounter.id);
 
-    expect(sensitiveLookupRecord.facilityId).toBe(sensitiveFacility.id);
+    expect(sensitiveLookupRecord.sensitiveNetworkId).toBe(sensitiveFacility.sensitiveNetworkId);
+    expect(sensitiveLookupRecord.facilityId).toBeNull();
+
+    // an encounter at a facility in no network carries neither scope, so it reaches everywhere
+    expect(nonSensitiveLookupRecord.sensitiveNetworkId).toBeNull();
     expect(nonSensitiveLookupRecord.facilityId).toBeNull();
   });
 
@@ -1093,6 +1097,129 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         expect(labRequestIds).toContain(sensitiveLabRequest.id);
         expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
       });
+    });
+  });
+
+  describe('sharing within a network', () => {
+    // A facility plus the location, department and encounter needed to record something at it.
+    const createFacilityWithEncounter = async sensitiveNetworkId => {
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { facilityId: facility.id }),
+      );
+      const department = await models.Department.create(
+        fake(models.Department, { facilityId: facility.id }),
+      );
+      const encounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: practitioner.id,
+        endDate: null,
+      });
+      return { facility, encounter };
+    };
+
+    const pullEncounterIdsFor = async (centralSyncManager, facilityIds) => {
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(sessionId, { since: 1, facilityIds }, () => true);
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      return outgoingChanges.filter(c => c.recordType === 'encounters').map(c => c.recordId);
+    };
+
+    it("syncs a facility's encounters to its sibling in the same network, and to nobody else", async () => {
+      const networkId = await createNetworkId();
+      const { facility: memberA, encounter: encounterA } =
+        await createFacilityWithEncounter(networkId);
+      const { facility: memberB } = await createFacilityWithEncounter(networkId);
+      const { facility: outsider } = await createFacilityWithEncounter(null);
+
+      const noteA = await models.Note.create({
+        ...fake(models.Note),
+        recordId: encounterA.id,
+        recordType: 'Encounter',
+        noteTypeId: NOTE_TYPES.OTHER,
+        authorId: practitioner.id,
+      });
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      expect(await pullEncounterIdsFor(centralSyncManager, [memberB.id])).toContain(encounterA.id);
+      expect(await pullEncounterIdsFor(centralSyncManager, [memberA.id])).toContain(encounterA.id);
+
+      // the records hanging off that encounter carry its network too, so they arrive with it
+      const noteLookupRow = await models.SyncLookup.findOne({ where: { recordId: noteA.id } });
+      expect(noteLookupRow.sensitiveNetworkId).toBe(networkId);
+      expect(noteLookupRow.facilityId).toBeNull();
+
+      // The fail-open case. A network scoped row has a null facility_id, so an admission clause
+      // that still treats a null facility_id alone as "unscoped" hands every sensitive record to
+      // every facility, and nothing else in this suite catches it.
+      expect(await pullEncounterIdsFor(centralSyncManager, [outsider.id])).not.toContain(
+        encounterA.id,
+      );
+    });
+
+    it('syncs to a session covering several facilities everything scoped to any of their networks', async () => {
+      const { facility: memberA, encounter: encounterA } =
+        await createFacilityWithEncounter(await createNetworkId());
+      const { facility: memberB, encounter: encounterB } =
+        await createFacilityWithEncounter(await createNetworkId());
+      const { encounter: otherNetworkEncounter } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const encounterIds = await pullEncounterIdsFor(centralSyncManager, [memberA.id, memberB.id]);
+
+      expect(encounterIds).toContain(encounterA.id);
+      expect(encounterIds).toContain(encounterB.id);
+      expect(encounterIds).not.toContain(otherNetworkEncounter.id);
+    });
+
+    it('keeps a row network scoped when an incremental build rebuilds it', async () => {
+      // Miss sensitive_network_id in the ON CONFLICT DO UPDATE list and this row is rebuilt with
+      // its facility nulled and a stale network, leaving it with neither scope and syncing
+      // everywhere. Nothing else here rebuilds an already-network-scoped row.
+      const networkId = await createNetworkId();
+      const { encounter } = await createFacilityWithEncounter(networkId);
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 10);
+      await encounter.update({ reasonForEncounter: 'edited after the first build' });
+      await centralSyncManager.updateLookupTable();
+
+      const lookupRow = await models.SyncLookup.findOne({ where: { recordId: encounter.id } });
+      expect(lookupRow.sensitiveNetworkId).toBe(networkId);
+      expect(lookupRow.facilityId).toBeNull();
+    });
+
+    it('leaves a session whose facilities belong to no network seeing exactly what it saw before', async () => {
+      const { encounter: networkedEncounter } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
+      const { facility: outsider, encounter: outsiderEncounter } =
+        await createFacilityWithEncounter(null);
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const encounterIds = await pullEncounterIdsFor(centralSyncManager, [outsider.id]);
+
+      expect(encounterIds).toContain(outsiderEncounter.id);
+      expect(encounterIds).toContain(nonSensitiveEncounter.id);
+      expect(encounterIds).not.toContain(networkedEncounter.id);
     });
   });
 
