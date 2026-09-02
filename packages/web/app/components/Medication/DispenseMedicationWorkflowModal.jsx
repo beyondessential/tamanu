@@ -441,7 +441,8 @@ export const DispenseMedicationWorkflowModal = memo(
           ...prevErrors,
           [current.id]: {
             hasQuantityError:
-              current.selected && (!(quantity ?? current.quantity) || (quantity ?? current.quantity) <= 0),
+              current.selected &&
+              (!(quantity ?? current.quantity) || (quantity ?? current.quantity) <= 0),
             hasInstructionsError: current.selected && !String(nextInstructions || '').trim(),
           },
         }));
