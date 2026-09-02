@@ -18,6 +18,7 @@ import {
 } from '@tamanu/shared/utils/medication';
 import {
   DateDisplay,
+  TimeDisplay,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -116,9 +117,6 @@ export const MarInfoPane = ({
   // via getDisplayedPharmacyNote; kept here for the "View change" link's change-history modal.
   const { latestModifiedDispense } = medication;
 
-  const slotStart = getDateFromTimeString(timeSlot.startTime);
-  const slotEnd = getDateFromTimeString(timeSlot.endTime);
-
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { medication: medicationRef, frequency, route, notes } = medication;
 
@@ -198,9 +196,9 @@ export const MarInfoPane = ({
             </Label>
             <Value>
               <LowerText>
-                <time dateTime={slotStart?.toISOString()}>{formatTime(slotStart)}</time>
+                <TimeDisplay date={getDateFromTimeString(timeSlot.startTime)} noTooltip />
                 &thinsp;&ndash;&thinsp;
-                <time dateTime={slotEnd?.toISOString()}>{formatTime(slotEnd)}</time>
+                <TimeDisplay date={getDateFromTimeString(timeSlot.endTime)} noTooltip />
               </LowerText>{' '}
               <span>
                 (
