@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { DRUG_STOCK_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
+import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -73,13 +74,26 @@ export class ReferenceDrugFacility extends Model {
 
   static async prepareSanitizeContext(changes: { data: Record<string, any> }[]) {
     const facilityIds = [...new Set(changes.map(({ data }) => data.facilityId).filter(Boolean))];
+    // TEMP DIAGNOSTIC (remove once the stock-on-hand clobber bug is found)
+    log.info('ReferenceDrugFacility.prepareSanitizeContext: TEMP DIAGNOSTIC', {
+      changeCount: changes.length,
+      facilityIds,
+    });
 
     const stockOnHandEnabledByFacilityId = new Map<string, boolean>();
     for (const facilityId of facilityIds) {
-      const stockOnHandEnabled = await new ReadSettings(this.sequelize!.models, facilityId).get(
+      const rawSetting = await new ReadSettings(this.sequelize!.models, facilityId).get(
         'integrations.mSupplyMed.stockOnHandEnabled',
       );
-      stockOnHandEnabledByFacilityId.set(facilityId, Boolean(stockOnHandEnabled));
+      const stockOnHandEnabled = Boolean(rawSetting);
+      stockOnHandEnabledByFacilityId.set(facilityId, stockOnHandEnabled);
+      // TEMP DIAGNOSTIC (remove once the stock-on-hand clobber bug is found)
+      log.info('ReferenceDrugFacility.prepareSanitizeContext: TEMP DIAGNOSTIC resolved setting', {
+        facilityId,
+        rawSetting,
+        rawSettingType: typeof rawSetting,
+        stockOnHandEnabled,
+      });
     }
     return stockOnHandEnabledByFacilityId;
   }
@@ -90,8 +104,23 @@ export class ReferenceDrugFacility extends Model {
     values: Record<string, any>,
     stockOnHandEnabledByFacilityId?: Map<string, boolean>,
   ) {
-    const { facilityId } = values;
-    if (!facilityId || !stockOnHandEnabledByFacilityId?.get(facilityId)) return values;
+    const { facilityId, id, quantity, stockStatus } = values;
+    const stockOnHandEnabled = stockOnHandEnabledByFacilityId?.get(facilityId);
+    // TEMP DIAGNOSTIC (remove once the stock-on-hand clobber bug is found)
+    log.info('ReferenceDrugFacility.sanitizeForFacilityServer: TEMP DIAGNOSTIC', {
+      id,
+      facilityId,
+      quantity,
+      stockStatus,
+      hasContext: Boolean(stockOnHandEnabledByFacilityId),
+      contextFacilityIds: stockOnHandEnabledByFacilityId
+        ? [...stockOnHandEnabledByFacilityId.keys()]
+        : null,
+      stockOnHandEnabled,
+      willStrip: Boolean(facilityId) && Boolean(stockOnHandEnabled),
+    });
+
+    if (!facilityId || !stockOnHandEnabled) return values;
 
     const { quantity: _quantity, stockStatus: _stockStatus, ...rest } = values;
     return rest;
