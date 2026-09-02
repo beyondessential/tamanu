@@ -321,15 +321,13 @@ export const MarDetails = ({
                         >
                           <Field
                             label={
-                              <Box display="flex" alignItems="center">
                                 <DarkText>
                                   <TranslatedText
                                     stringId="medication.mar.markAsMedicationError.label"
                                     fallback="Mark as medication error"
                                   />
+                                <StyledPriorityHighIcon style={{ display: 'inline-box' }} />
                                 </DarkText>
-                                <StyledPriorityHighIcon />
-                              </Box>
                             }
                             name="isError"
                             component={CheckField}
