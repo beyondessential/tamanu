@@ -35,7 +35,7 @@ export default function DoseEntry({ children, dose, index, medication, onRemove,
   const canEditMar = ability.can('write', 'MedicationAdministration');
 
   return (
-    <div {...props}>
+    <li {...props}>
       <DoseHeader>
         <DoseHeading>
           <TranslatedText
@@ -54,6 +54,6 @@ export default function DoseEntry({ children, dose, index, medication, onRemove,
           {children}
         </DoseSummary>
       )}
-    </div>
+    </li>
   );
 }
