@@ -9,6 +9,8 @@ export interface FieldProps {
   label?: TranslatedTextElement;
   type?: string;
   disabled?: boolean;
+  onBlur?: () => void;
+  validateOnValueChange?: boolean;
   [key: string]: any;
 }
 
@@ -20,9 +22,12 @@ export const Field = ({
   disabled = false,
   options,
   onChange,
+  onBlur,
+  validateOnValueChange,
   ...rest
 }: FieldProps): JSX.Element => {
-  const [field, meta] = useField(name);
+  const [field, meta, { setValue, setTouched }] = useField(name);
+  const { onChange: fieldOnChange } = field;
   const { status, submitCount } = useFormikContext();
 
   const showError = status === SUBMIT_ATTEMPTED_STATUS || submitCount > 0;
@@ -30,19 +35,31 @@ export const Field = ({
 
   const combinedOnChange = useCallback(
     (newValue: any, selectedItem: any): any => {
-      if (onChange) {
-        onChange(newValue, selectedItem);
+      onChange?.(newValue, selectedItem);
+      // When unset, defer to the form’s `validateOnChange` setting
+      if (validateOnValueChange === undefined) {
+        return fieldOnChange({ target: { name, value: newValue } });
       }
-      return field.onChange({ target: { name, value: newValue } });
+      return setValue(newValue, validateOnValueChange);
     },
-    [field.onChange, name, onChange],
+    [fieldOnChange, name, setValue, validateOnValueChange, onChange],
   );
+
+  /**
+   * Formik’s own handleBlur expects a DOM event with target.name, which React Native components
+   * don’t produce. Mark touched instead, which validates when the form’s set to `validateOnBlur`.
+   */
+  const augmentedOnBlur = useCallback((): void => {
+    onBlur?.();
+    setTouched(true);
+  }, [setTouched, onBlur]);
 
   return (
     <FormikField
       as={component}
       name={name}
       onChange={combinedOnChange}
+      onBlur={augmentedOnBlur}
       value={field.value}
       label={label}
       error={error}
