@@ -1,5 +1,6 @@
 import __cjs_case from 'case';
 const { snake } = __cjs_case;
+import { mapValues } from 'es-toolkit';
 import { Sequelize } from 'sequelize';
 
 const SCHEMA = 'sync_snapshots';
@@ -83,15 +84,28 @@ export const dropAllSnapshotTables = async (sequelize: Sequelize) => {
 const snakeKey = (obj: object) =>
   Object.fromEntries(Object.entries(obj).map(([key, value]) => [snake(key), value]));
 
+function isJsonAttribute(attr: string): attr is 'data' | 'changelog_records' {
+  return attr === 'data' || attr === 'changelog_records';
+}
+
+/**
+ * The `snapshot` table is written to without a Sequelize model, so nothing knows these columns are
+ * JSON. node-postgres serialises a JavaScript array (`[1, 2, 3]`) to a PostgreSQL array literal
+ * (`{1, 2, 3}`), which JSON rejects. Serialise them here instead.
+ */
+function stringifyJsonAttributes(record: Record<string, unknown>) {
+  return mapValues(record, (value, key) =>
+    isJsonAttribute(key) && value != null ? JSON.stringify(value) : value,
+  );
+}
+
 export const insertSnapshotRecords = async (
   sequelize: Sequelize,
   sessionId: string,
   records: object[],
 ) => {
   const queryInterface = sequelize.getQueryInterface();
-  const sanitizedRecords = records
-    .map((r) => snakeKey(r))
-    .map((r) => ({ ...r, data: JSON.stringify(r.data), changelog_records: JSON.stringify(r.changelog_records) }));
+  const sanitizedRecords = records.map(r => stringifyJsonAttributes(snakeKey(r)));
   await queryInterface.bulkInsert({ tableName: sessionId, schema: SCHEMA }, sanitizedRecords);
 };
 
@@ -104,7 +118,7 @@ export const updateSnapshotRecords = async (
   const queryInterface = sequelize.getQueryInterface();
   await queryInterface.bulkUpdate(
     { tableName: sessionId, schema: SCHEMA },
-    snakeKey(values),
+    stringifyJsonAttributes(snakeKey(values)),
     snakeKey(where),
   );
 };
