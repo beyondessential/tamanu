@@ -279,17 +279,11 @@ export const EncounterMedicationTable = ({
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
       searchParams.delete('openMedicationId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     } else if (openNotDispensedId) {
       handleInitialNotDispensedRecord(openNotDispensedId);
       searchParams.delete('openNotDispensedId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -314,13 +308,15 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication, encounterPrescription }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
-    ${getPauseData({ encounterPrescription, discontinued })
-      ? `color: ${Colors.softText}; font-style: italic;`
-      : ''
+    ${
+      getPauseData({ encounterPrescription, discontinued })
+        ? `color: ${Colors.softText}; font-style: italic;`
+        : ''
     }
   `;
 
