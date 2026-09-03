@@ -13,7 +13,7 @@ import { QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT gen_random_uuid(), code, name
+    SELECT 'sensitiveNetwork-' || code, code, name
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
