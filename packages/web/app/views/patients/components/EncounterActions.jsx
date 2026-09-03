@@ -17,6 +17,7 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 import { useEncounterDischargeDraftQuery } from '../../../api/queries/useEncounterDischargeDraftQuery';
+import { IS_DISCHARGE_DRAFT_ENABLED } from '../../../forms/dischargeDraft';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../../../constants';
 
@@ -74,9 +75,9 @@ export const EncounterActions = React.memo(({ encounter }) => {
   // Scoped to the logged-in clinician by the endpoint, so this only lights up for someone
   // returning to their own interrupted discharge.
   const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id, {
-    enabled: !encounter.endDate,
+    enabled: IS_DISCHARGE_DRAFT_ENABLED && !encounter.endDate,
   });
-  const hasDischargeDraft = Boolean(dischargeDraftData?.draft);
+  const hasDischargeDraft = IS_DISCHARGE_DRAFT_ENABLED && Boolean(dischargeDraftData?.draft);
 
   const canWriteEncounter = ability.can('write', 'Encounter');
 

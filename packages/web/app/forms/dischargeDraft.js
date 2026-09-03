@@ -6,6 +6,24 @@
  */
 
 /**
+ * Whether the discharge draft workflow is exposed to clinicians.
+ *
+ * Work in progress, awaiting Product design. The workflow is built and tested, and everything
+ * behind the entry points is left in place: the tables, the endpoints, and the merge rules in
+ * this module. What is hidden is every way a clinician reaches it: saving a draft, the "Draft"
+ * tag on an encounter, the unsaved-changes prompt on leaving the form, and restoring a saved
+ * draft into the form. With no way to save one, no draft is written while this is false.
+ *
+ * It is hidden because supporting tracking of edits to the discharge planning note needs further
+ * work, and how that should behave is a product decision still to be made. Once Product has
+ * settled it, flip this to true and the workflow comes back.
+ *
+ * Hidden by Workhorse card A8. The workflow itself is card S3, and its intended behaviour is
+ * specified in specs/encounters/discharge-draft.md.
+ */
+export const IS_DISCHARGE_DRAFT_ENABLED = false;
+
+/**
  * The treatment plan and follow-up notes the form opens with.
  *
  * Without a draft this is the encounter's discharge planning notes, oldest first, so the
