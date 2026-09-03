@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Field } from '../../components';
-import { BodyText, Heading3 } from '../../components/Typography';
+import { BodyText } from '../../components/Typography';
 import {
   SAMPLE_DETAILS_FIELD_PREFIX,
   SampleDetailsField,
@@ -42,13 +42,6 @@ export const LabRequestFormScreen3 = (props) => {
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
-      <Heading3 mb="12px" data-testid="heading3-2en6">
-        <TranslatedText
-          stringId="lab.sampleDetails.heading"
-          fallback="Sample details"
-          data-testid="translatedtext-u0h8"
-        />
-      </Heading3>
       <StyledBodyText mb="28px" color="textTertiary" data-testid="styledbodytext-ic37">
         <TranslatedText
           stringId="lab.sampleDetails.instruction"
