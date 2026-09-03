@@ -15,7 +15,6 @@ import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
-import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 import { useEncounterDischargeDraftQuery } from '../../../api/queries/useEncounterDischargeDraftQuery';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../../../constants';
@@ -69,8 +68,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
   const onViewSummary = () => navigateToSummary();
 
-  const { data: discharge } = useEncounterDischargeQuery(encounter)
-
   // Scoped to the logged-in clinician by the endpoint, so this only lights up for someone
   // returning to their own interrupted discharge.
   const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id, {
@@ -80,13 +77,12 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
   const canWriteEncounter = ability.can('write', 'Encounter');
 
+  // An end date is what makes an encounter discharged. Some discharged encounters have no
+  // discharge record (see useEncounterDischargeQuery), and they still get these actions.
+  // spec: DSCHV#encounter-actions
   if (encounter.endDate) {
-    // Ideally we would have a dedicated encounter type for discharged encounters and filter
-    // at the same level as the other encounter types. Because discharge uses clinic data we
-    // need this extra check here to only show encounter/discharge summary actions when
-    // the encounter is actually discharged (discharge record exists).
     return (
-      discharge && <>
+      <>
         <ActionsContainer data-testid="actionscontainer-w92z">
           <StyledButton
             size="small"
@@ -199,58 +195,35 @@ export const EncounterActions = React.memo(({ encounter }) => {
   return (
     <NoteModalActionBlocker>
       <ActionsContainer>
-        {encounter.endDate ? (
-          <>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
-            >
-              <TranslatedText
-                stringId="encounter.action.encounterRecord"
-                fallback="Encounter record"
-              />
-            </Button>
-            <Button size="small" onClick={() => navigateToSummary()}>
-              <TranslatedText
-                stringId="encounter.action.dischargeSummary"
-                fallback="Discharge summary"
-              />
-            </Button>
-          </>
-        ) : (
-          <>
-            {hasDischargeDraft && (
-              <DraftTag data-testid="dischargedrafttag-p3wq">
-                <TranslatedText stringId="discharge.draft.tag" fallback="Draft" />
-              </DraftTag>
-            )}
-            <StyledButtonWithPermissionCheck
-              size="small"
-              variant="outlined"
-              verb="write"
-              noun="Encounter"
-              onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
-            >
-              <TranslatedText
-                stringId="encounter.action.prepareDischarge"
-                fallback="Prepare discharge"
-              />
-            </StyledButtonWithPermissionCheck>
-            <MoveButtonWithPermissionCheck
-              size="small"
-              color="primary"
-              verb="write"
-              noun="Encounter"
-              onClick={() => {
-                setNewEncounterType(null);
-                setOpenModal(ENCOUNTER_MODALS.MOVE);
-              }}
-            >
-              <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-            </MoveButtonWithPermissionCheck>
-          </>
+        {hasDischargeDraft && (
+          <DraftTag data-testid="dischargedrafttag-p3wq">
+            <TranslatedText stringId="discharge.draft.tag" fallback="Draft" />
+          </DraftTag>
         )}
+        <StyledButtonWithPermissionCheck
+          size="small"
+          variant="outlined"
+          verb="write"
+          noun="Encounter"
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
+        >
+          <TranslatedText
+            stringId="encounter.action.prepareDischarge"
+            fallback="Prepare discharge"
+          />
+        </StyledButtonWithPermissionCheck>
+        <MoveButtonWithPermissionCheck
+          size="small"
+          color="primary"
+          verb="write"
+          noun="Encounter"
+          onClick={() => {
+            setNewEncounterType(null);
+            setOpenModal(ENCOUNTER_MODALS.MOVE);
+          }}
+        >
+          <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
+        </MoveButtonWithPermissionCheck>
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 

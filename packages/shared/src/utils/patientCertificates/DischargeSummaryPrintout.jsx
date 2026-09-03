@@ -199,7 +199,19 @@ const DischargeSummaryPrintoutComponent = ({
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const notes = discharge?.note;
-  const { name: facilityName, address: facilityAddress, town: facilityTown } = discharge.address;
+  // A discharged encounter may have no discharge record (encounters closed by the outpatient
+  // discharger before v1.26.0 never got one). The letterhead facility is the encounter's own
+  // facility either way, which is also how the server derives `discharge.address`.
+  const encounterFacility = encounter.location?.facility;
+  const {
+    name: facilityName,
+    address: facilityAddress,
+    town: facilityTown,
+  } = discharge?.address ?? {
+    name: encounterFacility?.name,
+    address: encounterFacility?.streetAddress,
+    town: encounterFacility?.cityTown,
+  };
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {

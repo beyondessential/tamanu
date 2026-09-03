@@ -33,6 +33,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
   readonly dischargeDraftTag: Locator;
   readonly dischargeSummaryButton: Locator;
+  readonly encounterRecordButton: Locator;
   readonly vaccineTab: Locator;
   readonly patientMedicationTab: Locator;
   readonly procedureTab: Locator;
@@ -142,6 +143,12 @@ export class PatientDetailsPage extends BasePatientPage {
     // A discharged encounter offers its summary in place of the discharge action.
     this.dischargeSummaryButton = this.page.getByRole('button', {
       name: 'Discharge summary',
+      exact: true,
+    });
+    // A discharged encounter also offers its full encounter record as a button, where an active
+    // encounter has "Encounter progress record" in the actions menu instead.
+    this.encounterRecordButton = this.page.getByRole('button', {
+      name: 'Encounter record',
       exact: true,
     });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
@@ -697,6 +704,27 @@ export class PatientDetailsPage extends BasePatientPage {
     const modal = this.getEditEncounterModal();
     await modal.waitForModalToLoad();
     return modal;
+  }
+
+  // Opens the "Encounter record" button shown for a discharged encounter, which renders the
+  // encounter record PDF in a viewer modal.
+  async openEncounterRecord(): Promise<void> {
+    await this.encounterRecordButton.click();
+  }
+
+  // The title of whichever modal is open.
+  get modalTitle(): Locator {
+    return this.page.getByTestId('modaltitle-ojhf');
+  }
+
+  // The discharge summary page's rendered PDF, shown in an iframe with a blob: URL.
+  get dischargeSummaryPdfFrame(): Locator {
+    return this.page.getByTestId('fulliframe-v76w');
+  }
+
+  // Shown on the discharge summary page in place of the PDF when it could not be generated.
+  get dischargeSummaryPdfError(): Locator {
+    return this.page.getByTestId('errordisplay-k6pm');
   }
 
   // Opens the "Encounter progress record" action (shown for an active encounter) from the
