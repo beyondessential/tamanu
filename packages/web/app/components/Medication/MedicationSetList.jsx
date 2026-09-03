@@ -217,7 +217,7 @@ export const MedicationSetMedicationsList = ({
                       getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
                       getTranslatedFrequency(frequency, getTranslation),
                       getEnumTranslation(DRUG_ROUTE_LABELS, route),
-                      durationUnit && durationValue && `${durationValue} ${durationUnit}`, // nonbreaking space
+                      durationUnit && durationValue && `${durationValue}\u{00A0}${durationUnit}`,
                     ]
                       .filter(Boolean)
                       .join(', ')}
