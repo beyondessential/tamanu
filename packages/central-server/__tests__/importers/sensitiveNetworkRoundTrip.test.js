@@ -19,9 +19,7 @@ vi.mock('../../app/utils/excelUtils', async () => {
 
 vi.setConfig({ testTimeout: 50000 });
 
-// SensitiveNetwork.id is a UUID column, unlike the string primary keys every other reference data
-// sheet uses, so fixture ids have to be well-formed UUIDs rather than readable slugs.
-const NETWORK_A = '11111111-1111-0000-0000-000000000001';
+const NETWORK_A = 'sensitiveNetwork-northern';
 
 // The import column has to match what the export writes. If it does not, exporting a deployment's
 // reference data and importing it back drops every facility's membership — and drops it silently,

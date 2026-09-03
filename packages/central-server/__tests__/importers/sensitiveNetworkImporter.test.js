@@ -24,11 +24,9 @@ const buildWorkbook = sheets => {
   return workbook;
 };
 
-// SensitiveNetwork.id is a UUID column, unlike the string primary keys every other reference data
-// sheet uses, so fixture ids have to be well-formed UUIDs rather than readable slugs.
-const NETWORK_A = '11111111-1111-0000-0000-000000000001';
-const NETWORK_B = '22222222-2222-0000-0000-000000000002';
-const NETWORK_MISSING = '99999999-9999-0000-0000-000000000099';
+const NETWORK_A = 'sensitiveNetwork-northern';
+const NETWORK_B = 'sensitiveNetwork-southern';
+const NETWORK_MISSING = 'sensitiveNetwork-nowhere';
 
 const networkSheet = rows => [['id', 'code', 'name'], ...rows];
 const facilitySheet = rows => [['id', 'code', 'name', 'sensitiveNetworkId'], ...rows];
@@ -63,7 +61,7 @@ describe('Sensitive network import', () => {
       ...options,
     });
 
-  const seedNetwork = (id, code = id.slice(0, 8), name = id.slice(0, 8)) =>
+  const seedNetwork = (id, code = id, name = id) =>
     models.SensitiveNetwork.create({ id, code, name });
 
   const seedFacility = (id, sensitiveNetworkId = null) =>
