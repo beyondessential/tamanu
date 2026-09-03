@@ -192,10 +192,6 @@ export const SampleDetailsField = ({
                   // for this sample, unless one is already chosen. Stays editable.
                   if (currentUser?.id && !samples[categoryId]?.collectedById) {
                     setValue(categoryId, 'collectedById', currentUser.id);
-                    setFieldValue(
-                      `${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${categoryId}`,
-                      currentUser.id,
-                    );
                   }
                 } else {
                   // Clearing the collection time abandons the whole sample. Also reset the sibling
@@ -222,7 +218,9 @@ export const SampleDetailsField = ({
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[categoryId]?.collectedBy ?? ''}
+              // Read the stored id so the autocomplete reflects the defaulted collector, not just
+              // an explicit selection.
+              value={samples[categoryId]?.collectedById ?? ''}
               onChange={({ target: { value } }) => {
                 setValue(categoryId, 'collectedById', value);
               }}
