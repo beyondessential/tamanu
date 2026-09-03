@@ -5,6 +5,8 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   SYSTEM_DATA_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
@@ -372,6 +374,25 @@ describe('Reference Data Manage', () => {
     it('should reject an invalid type', async () => {
       const response = await adminApp.get(BASE_URL).query({ referenceDataType: 'invalidType' });
       expect(response).toHaveRequestError();
+    });
+
+    it('lists panelOnly lab test types by default so they can be managed', async () => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const panelOnlyType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.some(record => record.id === panelOnlyType.id)).toBe(true);
     });
 
     it('should forbid access without permission', async () => {

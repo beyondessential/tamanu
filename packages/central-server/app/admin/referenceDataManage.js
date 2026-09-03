@@ -1,7 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  SEARCHABLE_COLUMN_TYPES,
+  VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
@@ -181,10 +186,15 @@ referenceDataManageRouter.get(
       }
     }
 
-    // Default to current records when model has visibilityStatus and no filter was sent
+    // Default to current records when model has visibilityStatus and no filter was sent.
+    // Lab test types also surface panelOnly so they can be managed here (they can't be ordered
+    // individually, but their integration codes still need editing).
     const hasVisibilityStatus = columns.some(c => c.key === 'visibilityStatus');
     if (hasVisibilityStatus && !searchWhere.visibilityStatus) {
-      searchWhere.visibilityStatus = VISIBILITY_STATUSES.CURRENT;
+      searchWhere.visibilityStatus =
+        referenceDataType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+          ? [VISIBILITY_STATUSES.CURRENT, LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]
+          : VISIBILITY_STATUSES.CURRENT;
     }
 
     const where = { ...typeFilter, ...searchWhere };
