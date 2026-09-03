@@ -16,22 +16,42 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 
+const { CURRENT_USER_ID } = vi.hoisted(() => ({ CURRENT_USER_ID: 'current-user-1' }));
+
 // The real "Date & time collected" input is a heavy MUI date picker. Replace it
-// (and the sibling autocompletes) with light stubs so we can drive the clear
-// handler directly; the reset logic under test lives in SampleDetailsField, not
-// in these field widgets.
+// (and the sibling autocompletes) with light stubs so we can drive the change
+// handlers directly; the logic under test lives in SampleDetailsField, not in
+// these field widgets. The date stub exposes buttons to set and clear a time;
+// the autocomplete stub exposes a button to simulate an explicit selection.
 vi.mock('../../../app/components/Field', async () => {
   const actual = await vi.importActual('../../../app/components/Field');
   return {
     ...actual,
     DateTimeField: props => (
+      <>
+        <button
+          type="button"
+          data-testid="set-collection-time"
+          onClick={() =>
+            props.onChange({ target: { value: '2023-06-12 10:00', name: props.field?.name } })
+          }
+        />
+        <button
+          type="button"
+          data-testid="clear-collection-time"
+          onClick={() => props.onChange({ target: { value: '', name: props.field?.name } })}
+        />
+      </>
+    ),
+    AutocompleteField: props => (
       <button
         type="button"
-        data-testid="clear-collection-time"
-        onClick={() => props.onChange({ target: { value: '', name: props.field?.name } })}
+        data-testid={`autocomplete-${props.field?.name}`}
+        onClick={() =>
+          props.onChange({ target: { value: 'explicit-collector', name: props.field?.name } })
+        }
       />
     ),
-    AutocompleteField: props => <div data-testid={`autocomplete-${props.field?.name}`} />,
   };
 });
 
@@ -54,6 +74,15 @@ vi.mock('../../../app/contexts/Settings', async () => {
   };
 });
 
+// SampleDetailsField defaults the collector to the current user; stub the auth context.
+vi.mock('../../../app/contexts/Auth', async () => {
+  const actual = await vi.importActual('../../../app/contexts/Auth');
+  return {
+    ...actual,
+    useAuth: () => ({ currentUser: { id: CURRENT_USER_ID } }),
+  };
+});
+
 import {
   SampleDetailsField,
   SAMPLE_DETAILS_FIELD_PREFIX,
@@ -72,7 +101,7 @@ const noopSuggester = {
 
 const readValues = () => JSON.parse(screen.getByTestId('formik-values').textContent);
 
-const renderSampleDetails = () =>
+const renderSampleDetails = ({ onSampleChange = () => {} } = {}) =>
   renderElementWithTranslatedText(
     <Formik
       initialValues={{
@@ -97,13 +126,16 @@ const renderSampleDetails = () =>
             practitionerSuggester={noopSuggester}
             specimenTypeSuggester={noopSuggester}
             labSampleSiteSuggester={noopSuggester}
-            onSampleChange={() => {}}
+            onSampleChange={onSampleChange}
           />
           <div data-testid="formik-values">{JSON.stringify(values)}</div>
         </>
       )}
     </Formik>,
   );
+
+// The submitted sample map is what onSampleChange reports; read the latest one.
+const latestSamples = onSampleChange => onSampleChange.mock.calls.at(-1)?.[0] ?? {};
 
 describe('SampleDetailsField', () => {
   it('resets collectedBy, specimenType and site when the collection time is cleared', async () => {
@@ -122,6 +154,33 @@ describe('SampleDetailsField', () => {
       expect(values[COLLECTED_BY_FIELD]).toBeUndefined();
       expect(values[SPECIMEN_TYPE_FIELD]).toBeUndefined();
       expect(values[SITE_FIELD]).toBeUndefined();
+    });
+  });
+
+  it('defaults the collector to the current user when a sample time is entered', async () => {
+    const user = userEvent.setup();
+    const onSampleChange = vi.fn();
+    renderSampleDetails({ onSampleChange });
+
+    await user.click(screen.getByTestId('set-collection-time'));
+
+    await waitFor(() => {
+      expect(latestSamples(onSampleChange)[IDENTIFIER]?.collectedById).toBe(CURRENT_USER_ID);
+    });
+  });
+
+  it('does not overwrite a collector that has already been selected', async () => {
+    const user = userEvent.setup();
+    const onSampleChange = vi.fn();
+    renderSampleDetails({ onSampleChange });
+
+    await user.click(screen.getByTestId('set-collection-time'));
+    await user.click(screen.getByTestId(`autocomplete-${COLLECTED_BY_FIELD}`));
+    // Re-entering a time must not clobber the explicit selection.
+    await user.click(screen.getByTestId('set-collection-time'));
+
+    await waitFor(() => {
+      expect(latestSamples(onSampleChange)[IDENTIFIER]?.collectedById).toBe('explicit-collector');
     });
   });
 });
