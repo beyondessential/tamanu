@@ -8,10 +8,9 @@ import { useAuth } from '../../contexts/Auth';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
-import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
+import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
-import { SAMPLE_DETAILS_FIELD_PREFIX } from '../../views/labRequest/SampleDetailsField';
 
 const hasSelection = values =>
   Boolean((values.labTestTypeIds?.length ?? 0) + (values.panelIds?.length ?? 0));
@@ -65,24 +64,30 @@ export const LabRequestMultiStepForm = ({
     notes: yup.string(),
   });
 
-  const screen3ValidationSchema = yup.object().shape(
-    initialSamples.reduce((acc, sample) => {
-      acc[`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.categoryId}`] = mandateSpecimenType
-        ? yup.string().when(`sampleDetails.${sample.categoryId}.sampleTime`, {
-            is: value => Boolean(value),
-            then: yup
-              .string()
-              .required()
-              .translatedLabel(
-                <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
-              ),
-            otherwise: yup.string(),
-          })
-        : yup.string();
+  // Specimen type is required per category once its sample time is entered (when the feature is on).
+  // sampleDetails is a map keyed by categoryId; each entry holds that category's sample fields.
+  const screen2ValidationSchema = yup.object().shape({
+    sampleDetails: yup.object().shape(
+      initialSamples.reduce((acc, sample) => {
+        acc[sample.categoryId] = yup.object().shape({
+          specimenTypeId: mandateSpecimenType
+            ? yup.string().when('sampleTime', {
+                is: value => Boolean(value),
+                then: yup
+                  .string()
+                  .required()
+                  .translatedLabel(
+                    <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
+                  ),
+                otherwise: yup.string(),
+              })
+            : yup.string(),
+        });
 
-      return acc;
-    }, {}),
-  );
+        return acc;
+      }, {}),
+    ),
+  });
 
   return (
     <MultiStepForm
@@ -114,18 +119,18 @@ export const LabRequestMultiStepForm = ({
         />
       </FormStep>
       <FormStep
-        validationSchema={screen3ValidationSchema}
+        validationSchema={screen2ValidationSchema}
         submitButtonText={
           <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
         }
         data-testid="formstep-2u2d"
       >
-        <LabRequestFormScreen3
+        <LabRequestFormScreen2
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
           initialSamples={initialSamples}
-          data-testid="labrequestformscreen3-jejy"
+          data-testid="labrequestformscreen2-jejy"
         />
       </FormStep>
     </MultiStepForm>
