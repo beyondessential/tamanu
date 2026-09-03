@@ -8,7 +8,7 @@ export function clear(): Promise<void> {
 export async function readConfig(key: string, defaultValue: string = null): Promise<string> {
   try {
     const value = await AsyncStorage.getItem(key);
-    return (value !== null) ? value : defaultValue;
+    return value !== null ? value : defaultValue;
   } catch (e) {
     console.warn(e);
     return defaultValue;

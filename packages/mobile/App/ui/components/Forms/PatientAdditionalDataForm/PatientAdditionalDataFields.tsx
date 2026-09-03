@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
@@ -7,7 +7,10 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientFieldDefinitionKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import {
   getSuggester,
   plainFields,
@@ -20,7 +23,7 @@ import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/labels';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
@@ -72,11 +75,13 @@ const RelationField = ({ fieldName, required }): ReactElement => {
 };
 
 const CustomField = ({ fieldName, required }): ReactElement => {
-  const [fieldDefinition, _, loading] = useBackendEffect(({ models }) =>
-    models.PatientFieldDefinition.findOne({
-      where: { id: fieldName },
-    }),
-  );
+  const { data: fieldDefinition, isPending: loading } = useQuery({
+    queryKey: patientFieldDefinitionKeys.detail(fieldName),
+    queryFn: () =>
+      Database.models.PatientFieldDefinition.findOne({
+        where: { id: fieldName },
+      }),
+  });
 
   if (loading) return <ActivityIndicator />;
 
@@ -92,7 +97,7 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
       required={required}
     />
   );
@@ -102,13 +107,13 @@ function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
 ): React.FC<{ fieldName: string; required: boolean }> {
-  if (plainFields.includes(fieldName)) {
+  if (plainFields.has(fieldName)) {
     return PlainField;
   }
-  if (selectFields.includes(fieldName)) {
+  if (selectFields.has(fieldName)) {
     return SelectField;
   }
-  if (relationIdFields.includes(fieldName)) {
+  if (relationIdFields.has(fieldName)) {
     return RelationField;
   }
   if (customFieldIds.includes(fieldName)) {
@@ -132,23 +137,26 @@ export const PatientAdditionalDataFields = ({
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getSetting } = useSettings();
-  const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
-    models.PatientFieldDefinition.getRepository().find({
-      select: ['id'],
-    }),
-  );
-  const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
+  const { data: customFieldIds, isPending: loading } = useQuery({
+    queryKey: patientFieldDefinitionKeys.ids(),
+    queryFn: () =>
+      Database.models.PatientFieldDefinition.getRepository().find({
+        select: ['id'],
+      }),
+    select: definitions => definitions.map(d => d.id),
+  });
+
+  if (isCustomSection) {
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+  }
+
+  if (loading) return [];
 
   const padFields = getConfiguredPatientAdditionalDataFields(
     fields as string[],
     showMandatory,
     getSetting,
   );
-
-  if (isCustomSection)
-    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
-
-  if (loading) return [];
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);

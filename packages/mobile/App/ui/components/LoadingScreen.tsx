@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator } from 'react-native';
 import { CenterView, FullView } from '~/ui/styled/common';
 
 export const LoadingScreen: React.FC = memo(() => (

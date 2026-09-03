@@ -63,8 +63,8 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
      FROM logs.changes
      WHERE table_schema = 'public'
        AND table_name = 'lab_tests'
-       AND record_id::uuid IN (
-         SELECT id FROM lab_tests WHERE lab_request_id = :labRequestId
+       AND record_id IN (
+         SELECT id::text FROM lab_tests WHERE lab_request_id = :labRequestId
        )
      GROUP BY record_id`,
     { replacements: { labRequestId }, type: QueryTypes.SELECT },

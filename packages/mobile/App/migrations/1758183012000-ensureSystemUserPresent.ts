@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 export class ensureSystemUserPresent1758183012000 implements MigrationInterface {

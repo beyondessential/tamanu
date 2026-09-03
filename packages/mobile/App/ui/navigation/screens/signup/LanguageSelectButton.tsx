@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { theme } from '~/ui/styled/theme';
@@ -7,7 +7,7 @@ import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/comm
 import { Routes } from '~/ui/helpers/routes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { isISO31661Alpha2 } from 'validator';
 import CountryFlag from 'react-native-country-flag';
 

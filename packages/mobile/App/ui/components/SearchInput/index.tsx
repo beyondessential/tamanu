@@ -1,9 +1,9 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { type FC, useCallback, useState } from 'react';
 import styled from 'styled-components/native';
 import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 const StyledTextInput = styled.TextInput`
   font-size: 16px;

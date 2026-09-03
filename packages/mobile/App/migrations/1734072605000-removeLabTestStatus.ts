@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 export class removeLabTestStatus1734072605000 implements MigrationInterface {

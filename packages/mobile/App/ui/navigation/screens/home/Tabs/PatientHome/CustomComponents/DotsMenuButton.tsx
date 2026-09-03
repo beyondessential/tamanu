@@ -1,12 +1,10 @@
-import React, { FC, ReactElement } from 'react';
-import { ButtonProps } from './fixture';
+import React, { type FC, type ReactElement } from 'react';
+import type { ButtonProps } from './fixture';
 import { KebabIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-export const DotsMenuButton: FC<ButtonProps> = ({
-  onPress,
-}: ButtonProps): ReactElement => (
+export const DotsMenuButton: FC<ButtonProps> = ({ onPress }: ButtonProps): ReactElement => (
   <StyledTouchableOpacity onPress={onPress}>
     <StyledView
       alignItems="center"

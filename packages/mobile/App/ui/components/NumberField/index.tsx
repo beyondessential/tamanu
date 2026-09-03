@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ReturnKeyTypeOptions } from 'react-native';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import type { ReturnKeyTypeOptions } from 'react-native';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextField } from '../TextField/TextField';
 
 export interface NumberFieldProps extends BaseInputProps {
