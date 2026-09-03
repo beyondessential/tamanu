@@ -61,11 +61,11 @@ describe('SettingsConfigReader', () => {
 
   it('serves facility-scoped rows and keeps secrets out of a subtree', async () => {
     config.tasking = { upcomingTasksTimeFrame: 12 };
-    config.integrations = { mSupplyMed: { enabled: true, password: 'super-secret' } };
+    config.integrations = { mSupplyMed: { medDispenseEnabled: true, password: 'super-secret' } };
     const result = await readFacility();
     expect(result).toEqual({
       tasking: { upcomingTasksTimeFrame: 12 },
-      integrations: { mSupplyMed: { enabled: true } },
+      integrations: { mSupplyMed: { medDispenseEnabled: true } },
     });
     expect(JSON.stringify(result)).not.toContain('super-secret');
   });

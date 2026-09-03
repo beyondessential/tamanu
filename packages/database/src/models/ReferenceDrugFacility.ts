@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { DRUG_STOCK_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -68,6 +69,32 @@ export class ReferenceDrugFacility extends Model {
 
   static buildSyncFilter() {
     return `WHERE ${this.tableName}.facility_id IN (:facilityIds) AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
+
+  static async prepareSanitizeContext(changes: { data: Record<string, any> }[]) {
+    const facilityIds = [...new Set(changes.map(({ data }) => data.facilityId).filter(Boolean))];
+
+    const stockOnHandEnabledByFacilityId = new Map<string, boolean>();
+    for (const facilityId of facilityIds) {
+      const stockOnHandEnabled = await new ReadSettings(this.sequelize!.models, facilityId).get(
+        'integrations.mSupplyMed.stockOnHandEnabled',
+      );
+      stockOnHandEnabledByFacilityId.set(facilityId, Boolean(stockOnHandEnabled));
+    }
+    return stockOnHandEnabledByFacilityId;
+  }
+
+  // mSupply pushes stock updates straight into the facility's own DB, so central's copy of
+  // quantity/stockStatus can be stale there — strip both so a sync pull never clobbers it.
+  static sanitizeForFacilityServer(
+    values: Record<string, any>,
+    stockOnHandEnabledByFacilityId?: Map<string, boolean>,
+  ) {
+    const { facilityId } = values;
+    if (!facilityId || !stockOnHandEnabledByFacilityId?.get(facilityId)) return values;
+
+    const { quantity: _quantity, stockStatus: _stockStatus, ...rest } = values;
+    return rest;
   }
 
   static async buildSyncLookupQueryDetails() {

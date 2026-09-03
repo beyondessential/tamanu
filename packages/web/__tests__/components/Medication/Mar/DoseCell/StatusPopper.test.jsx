@@ -2,26 +2,26 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 
-import { renderElementWithTranslatedText } from '../../helpers';
-import { GivenScreen } from '../../../app/components/Medication/Mar/StatusPopper';
+import { renderElementWithTranslatedText } from '../../../../helpers';
+import { GivenScreen } from '../../../../../app/components/Medication/Mar/DoseCell/StatusPopper';
 
 // The give-dose screen reads the prescription's dosingUnit twice: to size the number input's
 // padding (a styled-components interpolation that only fires on render) and to render the unit
 // suffix. When a drug has no dosing unit the API strips the null column, so dosingUnit arrives
 // as undefined (or null on paths that keep it). These stubs keep the render light while leaving
 // the real StyledNumberFieldWrapper interpolation and the unit-suffix branch exercised.
-vi.mock('../../../app/api/mutations/useMarMutation', () => ({
+vi.mock('../../../../../app/api/mutations/useMarMutation', () => ({
   useGivenMarMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
   useNotGivenMarMutation: () => ({ mutateAsync: vi.fn(), isLoading: false }),
 }));
 
-vi.mock('../../../app/contexts/Encounter', () => ({
+vi.mock('../../../../../app/contexts/Encounter', () => ({
   useEncounter: () => ({ encounter: { id: 'encounter-1' } }),
 }));
 
 // The Time given picker pulls in the MUI date-time adapter; stub it to a plain input so the test
 // stays focused on the dose-unit rendering.
-vi.mock('../../../app/components/Field/TimePickerField', () => ({
+vi.mock('../../../../../app/components/Field/TimePickerField', () => ({
   TimePickerField: () => <input data-testid="time-given-input" readOnly />,
 }));
 

@@ -1,66 +1,57 @@
-import Box from '@mui/material/Box';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import {
-  findAdministrationTimeSlotFromIdealTime,
-  getMedicationDoseDisplay,
-  getTranslatedFrequency,
-} from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
   TranslatedReferenceData,
   TranslatedText,
+  UnstyledHtmlButton,
   useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
-import { Colors } from '../../../constants/styles';
-import { useAuth } from '../../../contexts/Auth';
 import { useEncounter } from '../../../contexts/Encounter';
 import { getDisplayedPharmacyNote } from '../../../utils/medications';
 import { MedicationDetails } from '../MedicationDetails';
 import { PrescriptionChangeHistoryModal } from '../PrescriptionChangeHistoryModal';
-import { MarStatus } from './MarStatus';
+import { MarHeaderCellButton } from './components';
+import MarCell from './DoseCell/MarCell';
+import { getDosesPerSlot, mapRecordsToWindows } from './marTimeSlots';
+import useCanViewMedication from './useCanViewMedication';
 
-/**
- * @param {{ dueAt: string, id?: string }[]} [medicationAdministrationRecords]
- * @param {import('@tamanu/ui-components').DateTimeContextValue['toFacilityDateTime']} toFacilityDateTime
- * @returns {({ dueAt: string, id?: string } | null)[]}
- */
-const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
-  const result = Array(12).fill(null);
-
-  medicationAdministrationRecords.forEach(record => {
-    const facilityDueAt = toFacilityDateTime(record.dueAt);
-    const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
-    if (!facilityTime) return;
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(facilityTime).index;
-    result[windowIndex] = record;
-  });
-
-  return result;
-};
-
-const MarRowContainer = styled.div`
-  padding: 8px 12px;
-  font-size: 14px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  ${props => props.discontinued && `text-decoration: line-through;`}
-  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
-  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
-  &:hover {
-    background-color: ${props => (props.$disabled ? 'transparent' : Colors.veryLightBlue)};
-  }
+const TableRowHeader = styled(({ children, disabled, discontinued, paused, onClick, ...props }) => (
+  <th scope="row" {...props}>
+    <MarHeaderCellButton
+      data-discontinued={discontinued}
+      data-paused={paused}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </MarHeaderCellButton>
+  </th>
+))`
+  font-weight: inherit;
 `;
 
-const ViewChangeLink = styled.span`
-  color: ${Colors.darkestText};
+const MedicationName = styled.span`
+  font-weight: 500;
+`;
+
+const PharmacyNote = styled.div`
+  color: ${p => p.theme.palette.text.tertiary};
+`;
+
+const ViewChangeLink = styled(UnstyledHtmlButton)`
+  color: ${p => p.theme.palette.text.primary};
+  cursor: pointer;
   font-weight: 500;
   text-decoration: underline;
-  cursor: pointer;
+  &:hover {
+    color: ${p => p.theme.palette.primary.main};
+  }
 `;
 
 export const MarTableRow = ({
@@ -80,9 +71,7 @@ export const MarTableRow = ({
     latestModifiedDispense,
   } = medication;
   const { toFacilityDateTime } = useDateTime();
-  const { ability } = useAuth();
-  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
-  const isSensitive = medicationRef.referenceDrug?.isSensitive;
+  const canViewMedication = useCanViewMedication(medicationRef);
 
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -90,7 +79,7 @@ export const MarTableRow = ({
   const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
 
-  const [openMedicationDetails, setOpenMedicationDetails] = useState(false);
+  const [medicationDetailsOpen, setMedicationDetailsOpen] = useState(false);
   const [openModifyHistory, setOpenModifyHistory] = useState(false);
 
   const { modifiedPharmacyNote, displayedPharmacyNote } = getDisplayedPharmacyNote(medication);
@@ -100,94 +89,96 @@ export const MarTableRow = ({
     setOpenModifyHistory(true);
   };
 
+  const openMedicationDetails = () => {
+    if (!canViewMedication) return;
+    setMedicationDetailsOpen(true);
+  };
+
   const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
     marDate: selectedDate,
   });
 
-  const handleRefreshMar = () => {
-    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-    queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
-  };
-
-  const handleRowClick = () => {
-    if (isSensitive && !canViewSensitiveMedications) {
-      return;
-    }
-    setOpenMedicationDetails(true);
-  };
+  const dosesPerSlot = getDosesPerSlot(frequency);
+  const recordsByWindow = mapRecordsToWindows(
+    medicationAdministrationRecords,
+    toFacilityDateTime,
+    dosesPerSlot,
+  );
 
   return (
     <>
-      <MarRowContainer
-        discontinued={discontinued}
-        isPausing={isPausing}
-        onClick={handleRowClick}
-        $disabled={isSensitive && !canViewSensitiveMedications}
-      >
-        <Box fontWeight={500}>
-          <TranslatedReferenceData
-            fallback={medicationRef.name}
-            value={medicationRef.id}
-            category={medicationRef.type}
-          />
-          {isPausing && (
-            <>
-              {' '}
-              <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
-            </>
-          )}
-        </Box>
-        <Box>
-          {[
-            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
-            getTranslatedFrequency(frequency, getTranslation),
-            getEnumTranslation(DRUG_ROUTE_LABELS, route),
-          ]
-            .filter(Boolean)
-            .join(', ')}
-        </Box>
-        <Box color={!isPausing ? Colors.midText : undefined}>
-          <span>{notes}</span>
-          {displayedPharmacyNote && (
-            <span>
-              {notes && ', '}
-              <TranslatedText
-                stringId="medication.mar.pharmacyNotes"
-                fallback="Pharmacy note"
-              />: {displayedPharmacyNote}
-            </span>
-          )}
-          {modifiedPharmacyNote && (
-            <>
-              {' '}
-              <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
-                <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
-              </ViewChangeLink>
-            </>
-          )}
-        </Box>
-      </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map((record, index, array) => {
-        return (
-          <MarStatus
-            key={record?.id || index}
+      <tr>
+        <TableRowHeader
+          disabled={!canViewMedication}
+          discontinued={discontinued}
+          onClick={openMedicationDetails}
+          paused={isPausing}
+        >
+          <MedicationName>
+            <TranslatedReferenceData
+              fallback={medicationRef.name}
+              value={medicationRef.id}
+              category={medicationRef.type}
+            />
+            {isPausing && (
+              <>
+                {' '}
+                <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
+              </>
+            )}
+          </MedicationName>
+          <div data-testid="mar-dosage">
+            {[
+              getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+              getTranslatedFrequency(frequency, getTranslation),
+              getEnumTranslation(DRUG_ROUTE_LABELS, route),
+            ]
+              .filter(Boolean)
+              .join(', ')}
+          </div>
+          <PharmacyNote>
+            <span>{notes}</span>
+            {displayedPharmacyNote && (
+              <span>
+                {notes && ', '}
+                <TranslatedText
+                  stringId="medication.mar.pharmacyNotes"
+                  fallback="Pharmacy note"
+                />: {displayedPharmacyNote}
+              </span>
+            )}
+            {modifiedPharmacyNote && (
+              <>
+                {' '}
+                <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
+                  <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
+                </ViewChangeLink>
+              </>
+            )}
+          </PharmacyNote>
+        </TableRowHeader>
+        {recordsByWindow.map((marInfos, index) => (
+          <MarCell
+            key={marInfos.find(r => r?.id)?.id || index}
             selectedDate={selectedDate}
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
-            marInfo={record}
-            previousMarInfo={array[index - 1]}
-            nextMarInfo={array[index + 1]}
+            marInfos={marInfos}
+            nextWindowMarInfos={recordsByWindow[index + 1]}
             pauseRecords={pauseRecords}
             anchorEl={popperAnchorEl}
             onAnchorElChange={onPopperAnchorElChange}
           />
-        );
-      })}
-      {openMedicationDetails && (
+        ))}
+      </tr>
+      {medicationDetailsOpen && (
         <MedicationDetails
           initialMedication={medication}
-          onClose={() => setOpenMedicationDetails(false)}
-          onReloadTable={handleRefreshMar}
+          onClose={() => setMedicationDetailsOpen(false)}
+          onReloadTable={() => {
+            queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+            queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
+          }}
         />
       )}
       <PrescriptionChangeHistoryModal

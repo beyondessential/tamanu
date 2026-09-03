@@ -42,15 +42,16 @@ export const executePreparedInsert = async (
     try {
       await repository.query(query, parameters);
     } catch {
-      await Promise.all(
-        chunkRows.map(async row => {
-          try {
-            await repository.insert(row);
-          } catch (error: any) {
-            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
-          }
-        }),
-      );
+      // `Promise.all` doesn’t abort other in-flight promises if one throws, so we do this
+      // sequentially. (Concurrent queries still share the same SQLite connection, racing against
+      // the transaction's ROLLBACK.
+      for (const row of chunkRows) {
+        try {
+          await repository.insert(row);
+        } catch (error: any) {
+          throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+        }
+      }
     }
     progressCallback(chunkRows.length);
   }

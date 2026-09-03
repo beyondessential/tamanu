@@ -346,4 +346,31 @@ describe('saveChangesForModel', () => {
       expect(invoiceItems).toHaveLength(0);
     });
   });
+
+  // Pins the prepareSanitizeContext -> sanitizeForFacilityServer wiring itself, on a
+  // plain model (ReferenceDrugFacility's real mSupply logic has its own dedicated test).
+  describe('sanitize context: resolved once per batch, threaded into the per-record hook', () => {
+    it('calls prepareSanitizeContext once and passes its result into sanitizeForFacilityServer for every record', async () => {
+      const prepareSpy = vitest
+        .spyOn(models.SurveyScreenComponent, 'prepareSanitizeContext')
+        .mockResolvedValue('context-value');
+      const sanitizeSpy = vitest.spyOn(models.SurveyScreenComponent, 'sanitizeForFacilityServer');
+
+      const changes = [
+        { data: { id: 'ssc-1', text: 'a' }, isDeleted: false },
+        { data: { id: 'ssc-2', text: 'b' }, isDeleted: false },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      expect(prepareSpy).toHaveBeenCalledTimes(1);
+      expect(prepareSpy).toHaveBeenCalledWith(changes);
+      expect(sanitizeSpy).toHaveBeenCalledTimes(2);
+      expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-1', text: 'a' }, 'context-value');
+      expect(sanitizeSpy).toHaveBeenCalledWith({ id: 'ssc-2', text: 'b' }, 'context-value');
+
+      prepareSpy.mockRestore();
+      sanitizeSpy.mockRestore();
+    });
+  });
 });

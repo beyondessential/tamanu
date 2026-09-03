@@ -1,35 +1,35 @@
+import { Divider } from '@material-ui/core';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import Box from '@mui/material/Box';
+import { addMilliseconds, subMilliseconds } from 'date-fns';
+import ms from 'ms';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
-import { addMilliseconds, subMilliseconds } from 'date-fns';
 
+import { TASK_ACTIONS, TASK_DURATION_UNIT, TASK_STATUSES } from '@tamanu/constants';
 import {
-  BodyText,
-  SmallBodyText,
-  TranslatedText,
-  useSelectableColumn,
-  DataFetchingTable,
   DateDisplay,
+  ThemedTooltip,
   TimeDisplay,
-} from '../.';
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
+import useIsEncounterDischarged from '../../hooks/useIsEncounterDischarged';
 import useOverflow from '../../hooks/useOverflow';
-import { ThemedTooltip } from '../Tooltip';
+import { DataFetchingTable, useSelectableColumn } from '../Table';
+import { BodyText, SmallBodyText } from '../Typography';
+
 import { TaskActionModal } from './TaskActionModal';
 import {
+  PriorityIconSlot,
   StyledPriorityHighIcon,
   TaskNameContainer,
-  PriorityIconSlot,
   TaskNameText,
 } from './TaskPriorityIcon';
-import { useAuth } from '../../contexts/Auth';
-import ms from 'ms';
-import { useEncounter } from '../../contexts/Encounter';
-import { useDateTime } from '@tamanu/ui-components';
 
 const OVERDUE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
 
@@ -413,9 +413,10 @@ const DurationTooltip = ({ endDate }) => {
   );
 };
 
-const FrequencyCell = ({ task, isEncounterDischarged }) => {
+const FrequencyCell = ({ task }) => {
   const { frequencyValue, frequencyUnit } = task;
   const isRepeatingTask = frequencyValue && frequencyUnit;
+  const isEncounterDischarged = useIsEncounterDischarged();
   if (isRepeatingTask) {
     return (
       <TableTooltip
@@ -597,7 +598,6 @@ const NoDataMessage = () => (
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
   const { ability } = useAuth();
-  const { encounter } = useEncounter();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
   const canDoAction = canWrite || canDelete;
@@ -704,7 +704,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         />
       ),
       maxWidth: 90,
-      accessor: task => <FrequencyCell task={task} isEncounterDischarged={!!encounter?.endDate} />,
+      accessor: task => <FrequencyCell task={task} />,
       sortable: false,
     },
     {
