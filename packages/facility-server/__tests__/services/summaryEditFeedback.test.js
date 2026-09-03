@@ -1,4 +1,3 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 
 import { getPatientSummaryEditFeedback } from '../../app/services/patientSummary';
