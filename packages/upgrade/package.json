@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/upgrade",
-  "version": "2.63.0",
+  "version": "2.63.1",
   "private": true,
   "description": "Tamanu upgrade files",
   "main": "./src/index",
