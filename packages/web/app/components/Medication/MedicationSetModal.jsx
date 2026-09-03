@@ -88,14 +88,14 @@ const CardWrapper = styled.div`
   grid-template-rows: auto 1fr;
 `;
 
-const MODAL_SCREENS = {
+const MODAL_SCREENS = /** @type {const} */ ({
   SELECT_MEDICATION_SET: 'select_medication_set',
   REVIEW_MEDICATION_SET: 'review_medication_set',
   EDIT_MEDICATION: 'edit_medication',
   REMOVE_MEDICATION: 'remove_medication',
   DISCARD_CHANGES: 'discard_changes',
   CANCEL_MEDICATION_SET: 'cancel_medication_set',
-};
+});
 
 const RemoveScreen = ({ medicationName }) => {
   return (
