@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { SEARCHABLE_COLUMN_TYPES, NONPATIENT_VISIBILITY_STATUS_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  SEARCHABLE_COLUMN_TYPES,
+  NONPATIENT_VISIBILITY_STATUS_VALUES,
+  VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
@@ -19,7 +25,7 @@ const getFieldSortOrder = col => {
   return 0;
 };
 
-export const SearchBar = ({ columns, onSearch }) => {
+export const SearchBar = ({ columns, onSearch, selectedType }) => {
   const searchFields = useMemo(
     () =>
       columns
@@ -55,13 +61,19 @@ export const SearchBar = ({ columns, onSearch }) => {
         }
       }
       if (hasVisibilityStatus) {
-        nonEmpty[VISIBILITY_STATUS_KEY] = values[VISIBILITY_STATUS_KEY]
-          ? NONPATIENT_VISIBILITY_STATUS_VALUES.join(',')
-          : VISIBILITY_STATUSES.CURRENT;
+        const statuses = values[VISIBILITY_STATUS_KEY]
+          ? [...NONPATIENT_VISIBILITY_STATUS_VALUES]
+          : [VISIBILITY_STATUSES.CURRENT];
+        // Lab test types are managed here even though they can't be ordered; keep panelOnly
+        // visible when searching, otherwise the row disappears the moment staff filter.
+        if (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE) {
+          statuses.push(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+        }
+        nonEmpty[VISIBILITY_STATUS_KEY] = statuses.join(',');
       }
       onSearch(nonEmpty);
     },
-    [onSearch, hasVisibilityStatus],
+    [onSearch, hasVisibilityStatus, selectedType],
   );
 
   if (searchFields.length === 0) return null;
