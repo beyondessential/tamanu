@@ -1,4 +1,4 @@
-import { Divider, IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import Print from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
@@ -63,8 +63,10 @@ export const buildMedicationSetPrescription = (
   return child;
 };
 
-const StyledDivider = styled(Divider)`
-  margin: 36px -32px 20px -32px;
+const Hr = styled.hr`
+  inline-size: calc(100% + 64px);
+  margin-block: 32px 16px;
+  margin-inline: -32px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -555,7 +557,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       {renderScreen()}
       {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
         <>
-          <StyledDivider />
+          <Hr aria-hidden />
           <ConfirmCancelBackRow
             confirmText={getConfirmText()}
             onConfirm={onNext}
