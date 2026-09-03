@@ -7,6 +7,7 @@ import { Form, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, FormModal } from '../../../components';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
+import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedReferenceData } from '../../../components/Translation';
 import {
@@ -161,6 +162,7 @@ export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const { getSetting } = useSettings();
     const { getCurrentDateTime } = useDateTime();
+    const { currentUser } = useAuth();
     const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
@@ -204,7 +206,8 @@ export const LabRequestRecordSampleModal = React.memo(
             sampleTime: labRequest.sampleTime || getCurrentDateTime(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
-            collectedById: labRequest.collectedById,
+            // Default the collector to the current user unless one is already recorded.
+            collectedById: labRequest.collectedById ?? currentUser?.id,
             mandateSpecimenType,
           }}
           render={props => (

@@ -9,6 +9,7 @@ import { AutocompleteField, DateTimeField, Field } from '../../components/Field'
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { TranslatedReferenceData } from '../../components/Translation/index.js';
 import { SETTING_KEYS } from '@tamanu/constants';
+import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 
 export const SampleDetailsContainer = styled.div`
@@ -110,6 +111,7 @@ export const SampleDetailsField = ({
 }) => {
   const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
+  const { currentUser } = useAuth();
   const { setFieldValue } = useFormikContext();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
@@ -186,6 +188,15 @@ export const SampleDetailsField = ({
               onChange={({ target: { value } }) => {
                 if (value) {
                   setValue(categoryId, 'sampleTime', value);
+                  // Default the collector to the current user the first time a time is entered
+                  // for this sample, unless one is already chosen. Stays editable.
+                  if (currentUser?.id && !samples[categoryId]?.collectedById) {
+                    setValue(categoryId, 'collectedById', currentUser.id);
+                    setFieldValue(
+                      `${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${categoryId}`,
+                      currentUser.id,
+                    );
+                  }
                 } else {
                   // Clearing the collection time abandons the whole sample. Also reset the sibling
                   // Formik fields so their stale values aren't validated (e.g. mandatory specimen
@@ -256,6 +267,7 @@ export const SampleDetailsField = ({
       setValue,
       setFieldValue,
       getCurrentDateTime,
+      currentUser,
     ],
   );
 
