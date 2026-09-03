@@ -8,8 +8,7 @@ const SENSITIVE_NETWORKS = 'sensitive_networks';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(SENSITIVE_NETWORKS, {
     id: {
-      defaultValue: Sequelize.fn('gen_random_uuid'),
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
     },
@@ -53,7 +52,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // A facility belongs to at most one network, and is sensitive exactly when this is set.
   await query.addColumn('facilities', 'sensitive_network_id', {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING,
     allowNull: true,
     references: {
       model: SENSITIVE_NETWORKS,
@@ -64,7 +63,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // Takes over from facility_id for sensitive-data scoping. facility_id keeps scoping records
   // that are genuinely facility-bound, such as patient_facilities and facility-scoped settings.
   await query.addColumn('sync_lookup', 'sensitive_network_id', {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING,
     allowNull: true,
   });
 
