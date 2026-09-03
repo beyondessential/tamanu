@@ -1,15 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Divider, IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import Print from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
-import { ConfirmCancelBackRow, Modal, TranslatedText, useDateTime, useSettings } from '@tamanu/ui-components';
 import { getAutocalculatedDispensingQuantity } from '@tamanu/shared/utils/medication';
-
+import {
+  ConfirmCancelBackRow,
+  Modal,
+  TranslatedText,
+  useDateTime,
+  useSettings,
+} from '@tamanu/ui-components';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Colors } from '../../constants/styles';
@@ -58,8 +63,10 @@ export const buildMedicationSetPrescription = (
   return child;
 };
 
-const StyledDivider = styled(Divider)`
-  margin: 36px -32px 20px -32px;
+const Hr = styled.hr`
+  inline-size: calc(100% + 64px);
+  margin-block: 32px 16px;
+  margin-inline: -32px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -69,20 +76,26 @@ const StyledModal = styled(Modal)`
 `;
 
 const SetContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  height: calc(100vh - 370px);
+  column-gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto 1fr;
 `;
 
-const MODAL_SCREENS = {
+const CardWrapper = styled.div`
+  display: grid;
+  grid-row: 2;
+  grid-template-rows: auto 1fr;
+`;
+
+const MODAL_SCREENS = /** @type {const} */ ({
   SELECT_MEDICATION_SET: 'select_medication_set',
   REVIEW_MEDICATION_SET: 'review_medication_set',
   EDIT_MEDICATION: 'edit_medication',
   REMOVE_MEDICATION: 'remove_medication',
   DISCARD_CHANGES: 'discard_changes',
   CANCEL_MEDICATION_SET: 'cancel_medication_set',
-};
+});
 
 const RemoveScreen = ({ medicationName }) => {
   return (
@@ -130,60 +143,44 @@ const SelectScreen = ({
   medicationSetsLoading,
   onSelect,
   selectedMedicationSet,
-}) => {
-  const medicationSetListRef = useRef(null);
-  const [listHeight, setListHeight] = useState(null);
+}) => (
+  <SetContainer>
+    <Box gridColumn={1} gridRow={1}>
+      <PatientAllergiesWarning patientId={patientId} style={{ marginBlockEnd: '1em' }} />
+      <BodyText color={Colors.darkText}>
+        <TranslatedText
+          stringId="medication.modal.medicationSet.question"
+          fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
+        />
+      </BodyText>
+    </Box>
 
-  useEffect(() => {
-    const updateHeight = () => {
-      if (medicationSetListRef.current) {
-        setListHeight(medicationSetListRef.current.offsetHeight);
-      }
-    };
+    <CardWrapper>
+      <Heading5 color={Colors.darkText} style={{ marginBlock: '1em 0.5em' }}>
+        <TranslatedText stringId="medication.modal.medicationSet.label" fallback="Medication set" />
+      </Heading5>
+      <MedicationSetList
+        isLoading={medicationSetsLoading}
+        medicationSets={medicationSets}
+        onSelect={onSelect}
+        selectedMedicationSet={selectedMedicationSet}
+        style={{ gridColumn: 1 }}
+      />
+    </CardWrapper>
 
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, [medicationSets, medicationSetsLoading]);
-
-  return (
-    <SetContainer>
-      <Box flex={1} display="flex" flexDirection="column" height="100%">
-        <PatientAllergiesWarning patientId={patientId} style={{ marginBlockEnd: '1em' }} />
-        <BodyText color={Colors.darkText}>
+    {selectedMedicationSet && (
+      <CardWrapper>
+        <Heading5 color={Colors.darkText} style={{ marginBlock: '1em 0.5em' }}>
           <TranslatedText
-            stringId="medication.modal.medicationSet.question"
-            fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
-          />
-        </BodyText>
-        <Heading5 color={Colors.darkText} mt="25px" mb={0}>
-          <TranslatedText
-            stringId="medication.modal.medicationSet.label"
-            fallback="Medication set"
+            stringId="medication.modal.medicationSetMedications.label"
+            fallback="Medication set medications"
           />
         </Heading5>
-        <MedicationSetList
-          ref={medicationSetListRef}
-          medicationSets={medicationSets}
-          isLoading={medicationSetsLoading}
-          onSelect={onSelect}
-          selectedMedicationSet={selectedMedicationSet}
-        />
-      </Box>
-      {selectedMedicationSet && (
-        <Box>
-          <Heading5 color={Colors.darkText} mt="25px" mb={0}>
-            <TranslatedText
-              stringId="medication.modal.medicationSetMedications.label"
-              fallback="Medication set medications"
-            />
-          </Heading5>
-          <MedicationSetMedicationsList medicationSet={selectedMedicationSet} height={listHeight} />
-        </Box>
-      )}
-    </SetContainer>
-  );
-};
+        <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
+      </CardWrapper>
+    )}
+  </SetContainer>
+);
 
 const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
   return (
@@ -560,7 +557,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       {renderScreen()}
       {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
         <>
-          <StyledDivider />
+          <Hr aria-hidden />
           <ConfirmCancelBackRow
             confirmText={getConfirmText()}
             onConfirm={onNext}
