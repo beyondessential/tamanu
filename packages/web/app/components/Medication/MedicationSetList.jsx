@@ -1,7 +1,8 @@
 import { IconButton } from '@material-ui/core';
+import Skeleton from '@mui/material/Skeleton';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import React, { forwardRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
@@ -10,59 +11,55 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-import { TranslatedText, useTranslation } from '@tamanu/ui-components';
+import { TranslatedText, UnstyledHtmlButton, useTranslation } from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { Colors } from '../../constants/styles';
 import { useEncounter } from '../../contexts/Encounter';
 import { BodyText, Heading4, SmallBodyText } from '../Typography';
 
-const ListContainer = styled.div`
-  display: flex;
+const Card = styled.div`
+  background-color: ${p => p.theme.palette.background.paper};
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
   flex-direction: column;
-  gap: 10px;
-  padding: 6px 0px;
-  border-radius: 3px;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  overflow-y: auto;
   flex-grow: 1;
+  min-block-size: 20rem;
+  overflow-y: auto;
+  padding: 16px;
 `;
 
-const ListItem = styled.div`
-  cursor: pointer;
-  width: 100%;
-  height: 28px;
-  display: flex;
+const SetListItem = styled(UnstyledHtmlButton).attrs({ role: 'radio' })`
   align-items: center;
-  padding: 0 16px;
-  position: relative;
-`;
-
-const MedicationListItem = styled.div`
-  padding: 16px 20px;
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px;
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid transparent;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 0px 16px;
+  inline-size: 100%;
+  padding-block: 5px;
+  padding-inline: 10px;
   position: relative;
+  &:hover {
+    background-color: ${p => p.theme.palette.action.hover};
+  }
+  &[aria-checked='true'] {
+    border-color: ${p => p.theme.palette.primary.main};
+  }
 `;
 
-const SelectOverlay = styled.div`
-  position: absolute;
-  left: 6px;
-  top: 0;
-  border: 1px solid ${Colors.primary};
-  border-radius: 5px;
-  width: calc(100% - 12px);
-  height: 100%;
-  svg {
-    position: absolute;
-    right: 18px;
-    top: 4px;
-    width: 18px;
-    height: 18px;
+const MedicationListItem = styled.li`
+  & + & {
+    margin-block-start: 10px;
+  }
+`;
+
+const MedicationCard = styled.div`
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  padding-block: 16px;
+  padding-inline: 20px;
+  position: relative;
+  > * + * {
+    margin-block-start: 3px;
   }
 `;
 
@@ -97,43 +94,49 @@ const CheckedLabel = styled(BodyText)`
   }
 `;
 
-export const MedicationSetList = forwardRef(
-  ({ medicationSets, isLoading, onSelect, selectedMedicationSet }, ref) => {
-    if (isLoading)
-      return (
-        <ListContainer ref={ref}>
-          <BodyText pl="16px">
-            <TranslatedText stringId="general.table.loading" fallback="Loading…" />
-          </BodyText>
-        </ListContainer>
-      );
-    return (
-      <ListContainer ref={ref}>
-        {medicationSets?.map(medicationSet => (
-          <ListItem
-            key={medicationSet.id}
-            onClick={() => onSelect(medicationSet)}
-            selected={selectedMedicationSet?.id === medicationSet.id}
-          >
-            {selectedMedicationSet?.id === medicationSet.id && (
-              <SelectOverlay>
-                <CheckIcon color="primary" />
-              </SelectOverlay>
-            )}
-            <BodyText>{medicationSet.name}</BodyText>
-          </ListItem>
-        ))}
-      </ListContainer>
-    );
-  },
-);
+export const MedicationSetList = ({
+  medicationSets,
+  isLoading,
+  onSelect,
+  selectedMedicationSet,
+  style,
+  ...props
+}) => {
+  return (
+    <Card
+      aria-busy={isLoading || undefined}
+      role="radiogroup"
+      style={{ padding: 6, ...style }}
+      {...props}
+    >
+      {isLoading
+        ? Array.from({ length: 6 }).map((_, i) => <Skeleton height={32} key={i} />)
+        : medicationSets?.map(medicationSet => {
+            const checked = selectedMedicationSet?.id === medicationSet.id;
+            return (
+              <SetListItem
+                aria-checked={checked}
+                key={medicationSet.id}
+                onClick={() => void onSelect(medicationSet)}
+              >
+                {medicationSet.name}
+                {checked && (
+                  <CheckIcon color="primary" style={{ fontSize: 18, marginInlineStart: 'auto' }} />
+                )}
+              </SetListItem>
+            );
+          })}
+    </Card>
+  );
+};
 
 export const MedicationSetMedicationsList = ({
   medicationSet,
   editable = false,
   onEdit,
   onRemove,
-  height,
+  style,
+  ...props
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
@@ -143,93 +146,95 @@ export const MedicationSetMedicationsList = ({
     .map(({ medication }) => medication?.id);
 
   return (
-    <ListContainer style={{ blockSize: height, inlineSize: 420 }}>
-      <Heading4 textAlign="center" mt="6px" mb="2px">
+    <Card style={{ inlineSize: 420, ...style }} {...props}>
+      <Heading4 textAlign="center" style={{ marginBlock: '0 16px' }}>
         {medicationSet.name}
       </Heading4>
-      {medicationSet.children.map(medication => {
-        const {
-          medication: medicationRef,
-          route,
-          frequency,
-          notes,
-          durationUnit,
-          durationValue,
-          isPrn,
-          isOngoing,
-          quantity,
-          dispensingUnit,
-        } = medication;
-        const hasQuantity = quantity !== null && quantity !== undefined && quantity !== '';
-        return (
-          <div key={medicationRef.id}>
-            <MedicationListItem>
-              <BodyText fontWeight="500">{medicationRef.name}</BodyText>
-              {isOngoing && (
-                <CheckedLabel>
-                  <CheckIcon color="primary" />
-                  <TranslatedText
-                    stringId="medication.model.ongoingMedication.label"
-                    fallback="Ongoing medication"
-                  />
-                </CheckedLabel>
-              )}
-              {isPrn && (
-                <CheckedLabel>
-                  <CheckIcon color="primary" />
-                  <TranslatedText
-                    stringId="medication.model.prnMedication.label"
-                    fallback="PRN medication"
-                  />
-                </CheckedLabel>
-              )}
-              <BodyText sx={{ paddingRight: '52px' }}>
-                {[
-                  getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
-                  getTranslatedFrequency(frequency, getTranslation),
-                  getEnumTranslation(DRUG_ROUTE_LABELS, route),
-                  durationUnit && durationValue && `${durationValue} ${durationUnit}`,
-                ]
-                  .filter(Boolean)
-                  .join(', ')}
-              </BodyText>
-              {hasQuantity && (
-                <BodyText color={Colors.midText}>
-                  <TranslatedText
-                    stringId="medication.dispensingQuantity.summary"
-                    fallback="Dispensing quantity: :quantity :unit"
-                    replacements={{
-                      quantity,
-                      unit: dispensingUnit
-                        ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
-                        : '',
-                    }}
-                  />
+      <ul role="list">
+        {medicationSet.children.map(medication => {
+          const {
+            medication: medicationRef,
+            route,
+            frequency,
+            notes,
+            durationUnit,
+            durationValue,
+            isPrn,
+            isOngoing,
+            quantity,
+            dispensingUnit,
+          } = medication;
+          const hasQuantity = quantity != null && quantity !== '';
+          return (
+            <MedicationListItem key={medicationRef.id}>
+              <MedicationCard>
+                <BodyText fontWeight="500">{medicationRef.name}</BodyText>
+                {isOngoing && (
+                  <CheckedLabel>
+                    <CheckIcon color="primary" />
+                    <TranslatedText
+                      stringId="medication.model.ongoingMedication.label"
+                      fallback="Ongoing medication"
+                    />
+                  </CheckedLabel>
+                )}
+                {isPrn && (
+                  <CheckedLabel>
+                    <CheckIcon color="primary" />
+                    <TranslatedText
+                      stringId="medication.model.prnMedication.label"
+                      fallback="PRN medication"
+                    />
+                  </CheckedLabel>
+                )}
+                <BodyText sx={{ paddingRight: '52px' }}>
+                  {[
+                    getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+                    getTranslatedFrequency(frequency, getTranslation),
+                    getEnumTranslation(DRUG_ROUTE_LABELS, route),
+                    durationUnit && durationValue && `${durationValue} ${durationUnit}`, // nonbreaking space
+                  ]
+                    .filter(Boolean)
+                    .join(', ')}
                 </BodyText>
-              )}
-              {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
-              {editable && (
-                <>
-                  <StyledIconButton onClick={() => onEdit(medication)}>
-                    <EditIcon />
-                  </StyledIconButton>
-                  <RemoveText onClick={() => onRemove(medication)}>
-                    <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                  </RemoveText>
-                </>
+                {hasQuantity && (
+                  <BodyText color={Colors.midText}>
+                    <TranslatedText
+                      stringId="medication.dispensingQuantity.summary"
+                      fallback="Dispensing quantity: :quantity :unit"
+                      replacements={{
+                        quantity,
+                        unit: dispensingUnit
+                          ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                          : '',
+                      }}
+                    />
+                  </BodyText>
+                )}
+                {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+                {editable && (
+                  <>
+                    <StyledIconButton onClick={() => onEdit(medication)}>
+                      <EditIcon />
+                    </StyledIconButton>
+                    <RemoveText onClick={() => onRemove(medication)}>
+                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                    </RemoveText>
+                  </>
+                )}
+              </MedicationCard>
+              {existingDrugIds.includes(medicationRef.id) && editable && (
+                <SmallBodyText mx="16px" mt="2px" color={Colors.darkText} component="aside">
+                  <TranslatedText
+                    stringId="medication.warning.existingDrug"
+                    fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
+                  />
+                </SmallBodyText>
               )}
             </MedicationListItem>
-            {existingDrugIds.includes(medicationRef.id) && editable && (
-              <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
-                <TranslatedText
-                  stringId="medication.warning.existingDrug"
-                  fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
-                />
-              </SmallBodyText>
-            )}
-          </div>
-        );
-      })}
-    </ListContainer>
+          );
+        })}
+      </ul>
+    </Card>
   );
 };
