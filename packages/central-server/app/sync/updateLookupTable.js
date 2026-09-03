@@ -228,7 +228,7 @@ const rebuildLookupRowsForFlaggedPatientsForModel = async (
       },
     );
 
-    const chunkCount = parseInt(count, 10); // count should always be default to '0'
+    const chunkCount = Number.parseInt(count, 10); // count should always be default to '0'
     fromId = maxId;
     rebuiltCount += chunkCount;
   }
