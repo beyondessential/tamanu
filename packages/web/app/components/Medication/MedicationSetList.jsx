@@ -11,7 +11,13 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
-import { TranslatedText, UnstyledHtmlButton, useTranslation } from '@tamanu/ui-components';
+import {
+  TextButton,
+  TranslatedText,
+  UnstyledHtmlButton,
+  useTranslation,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { Colors } from '../../constants/styles';
 import { useEncounter } from '../../contexts/Encounter';
@@ -55,32 +61,50 @@ const MedicationListItem = styled.li`
 const MedicationCard = styled.div`
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
+  display: grid;
+  grid-template-columns: 1fr auto;
   padding-block: 16px;
   padding-inline: 20px;
   position: relative;
+`;
+
+const MedicationDetails = styled.div`
   > * + * {
     margin-block-start: 3px;
   }
 `;
 
-const StyledIconButton = styled(IconButton)`
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  padding: 0;
-  svg {
-    width: 18px;
-    height: 18px;
-    color: ${Colors.primary};
-  }
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
-const RemoveText = styled(BodyText)`
-  text-decoration: underline;
-  cursor: pointer;
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
+const EditButton = styled(IconButton).attrs({
+  children: (
+    <>
+      <EditIcon style={{ fontSize: 18 }} />
+      <VisuallyHidden>
+        <TranslatedText stringId="general.action.edit" fallback="Edit" />
+      </VisuallyHidden>
+    </>
+  ),
+  color: 'primary',
+  size: 'small',
+})`
+  margin-inline-start: auto;
+`;
+
+const RemoveButton = styled(TextButton).attrs({
+  children: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+})`
+  color: ${p => p.theme.palette.text.primary};
+  font-size: 14px;
+  &,
+  &:hover {
+    font-weight: 400;
+    text-decoration-line: underline;
+  }
 `;
 
 const CheckedLabel = styled(BodyText)`
@@ -168,59 +192,57 @@ export const MedicationSetMedicationsList = ({
           return (
             <MedicationListItem key={medicationRef.id}>
               <MedicationCard>
-                <BodyText fontWeight="500">{medicationRef.name}</BodyText>
-                {isOngoing && (
-                  <CheckedLabel>
-                    <CheckIcon color="primary" />
-                    <TranslatedText
-                      stringId="medication.model.ongoingMedication.label"
-                      fallback="Ongoing medication"
-                    />
-                  </CheckedLabel>
-                )}
-                {isPrn && (
-                  <CheckedLabel>
-                    <CheckIcon color="primary" />
-                    <TranslatedText
-                      stringId="medication.model.prnMedication.label"
-                      fallback="PRN medication"
-                    />
-                  </CheckedLabel>
-                )}
-                <BodyText sx={{ paddingRight: '52px' }}>
-                  {[
-                    getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
-                    getTranslatedFrequency(frequency, getTranslation),
-                    getEnumTranslation(DRUG_ROUTE_LABELS, route),
-                    durationUnit && durationValue && `${durationValue} ${durationUnit}`, // nonbreaking space
-                  ]
-                    .filter(Boolean)
-                    .join(', ')}
-                </BodyText>
-                {hasQuantity && (
-                  <BodyText color={Colors.midText}>
-                    <TranslatedText
-                      stringId="medication.dispensingQuantity.summary"
-                      fallback="Dispensing quantity: :quantity :unit"
-                      replacements={{
-                        quantity,
-                        unit: dispensingUnit
-                          ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
-                          : '',
-                      }}
-                    />
+                <MedicationDetails>
+                  <BodyText fontWeight="500">{medicationRef.name}</BodyText>
+                  {isOngoing && (
+                    <CheckedLabel>
+                      <CheckIcon color="primary" />
+                      <TranslatedText
+                        stringId="medication.model.ongoingMedication.label"
+                        fallback="Ongoing medication"
+                      />
+                    </CheckedLabel>
+                  )}
+                  {isPrn && (
+                    <CheckedLabel>
+                      <CheckIcon color="primary" />
+                      <TranslatedText
+                        stringId="medication.model.prnMedication.label"
+                        fallback="PRN medication"
+                      />
+                    </CheckedLabel>
+                  )}
+                  <BodyText>
+                    {[
+                      getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+                      getTranslatedFrequency(frequency, getTranslation),
+                      getEnumTranslation(DRUG_ROUTE_LABELS, route),
+                      durationUnit && durationValue && `${durationValue} ${durationUnit}`, // nonbreaking space
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
                   </BodyText>
-                )}
-                {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+                  {hasQuantity && (
+                    <BodyText color={Colors.midText}>
+                      <TranslatedText
+                        stringId="medication.dispensingQuantity.summary"
+                        fallback="Dispensing quantity: :quantity :unit"
+                        replacements={{
+                          quantity,
+                          unit: dispensingUnit
+                            ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)
+                            : '',
+                        }}
+                      />
+                    </BodyText>
+                  )}
+                  {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+                </MedicationDetails>
                 {editable && (
-                  <>
-                    <StyledIconButton onClick={() => onEdit(medication)}>
-                      <EditIcon />
-                    </StyledIconButton>
-                    <RemoveText onClick={() => onRemove(medication)}>
-                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                    </RemoveText>
-                  </>
+                  <ButtonGroup>
+                    <EditButton onClick={() => void onEdit(medication)} />
+                    <RemoveButton onClick={() => void onRemove(medication)} />
+                  </ButtonGroup>
                 )}
               </MedicationCard>
               {existingDrugIds.includes(medicationRef.id) && editable && (
