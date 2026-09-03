@@ -2,7 +2,7 @@ import { Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import Print from '@mui/icons-material/Print';
 import Box from '@mui/material/Box';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
@@ -74,10 +74,16 @@ const StyledModal = styled(Modal)`
 `;
 
 const SetContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  height: calc(100vh - 370px);
+  column-gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto 1fr;
+`;
+
+const CardWrapper = styled.div`
+  display: grid;
+  grid-row: 2;
+  grid-template-rows: auto 1fr;
 `;
 
 const MODAL_SCREENS = {
@@ -135,60 +141,44 @@ const SelectScreen = ({
   medicationSetsLoading,
   onSelect,
   selectedMedicationSet,
-}) => {
-  const medicationSetListRef = useRef(null);
-  const [listHeight, setListHeight] = useState(null);
+}) => (
+  <SetContainer>
+    <Box gridColumn={1} gridRow={1}>
+      <PatientAllergiesWarning patientId={patientId} style={{ marginBlockEnd: '1em' }} />
+      <BodyText color={Colors.darkText}>
+        <TranslatedText
+          stringId="medication.modal.medicationSet.question"
+          fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
+        />
+      </BodyText>
+    </Box>
 
-  useEffect(() => {
-    const updateHeight = () => {
-      if (medicationSetListRef.current) {
-        setListHeight(medicationSetListRef.current.offsetHeight);
-      }
-    };
+    <CardWrapper>
+      <Heading5 color={Colors.darkText} style={{ marginBlock: '1em 0.5em' }}>
+        <TranslatedText stringId="medication.modal.medicationSet.label" fallback="Medication set" />
+      </Heading5>
+      <MedicationSetList
+        isLoading={medicationSetsLoading}
+        medicationSets={medicationSets}
+        onSelect={onSelect}
+        selectedMedicationSet={selectedMedicationSet}
+        style={{ gridColumn: 1 }}
+      />
+    </CardWrapper>
 
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, [medicationSets, medicationSetsLoading]);
-
-  return (
-    <SetContainer>
-      <Box flex={1} display="flex" flexDirection="column" height="100%">
-        <PatientAllergiesWarning patientId={patientId} style={{ marginBlockEnd: '1em' }} />
-        <BodyText color={Colors.darkText}>
+    {selectedMedicationSet && (
+      <CardWrapper>
+        <Heading5 color={Colors.darkText} style={{ marginBlock: '1em 0.5em' }}>
           <TranslatedText
-            stringId="medication.modal.medicationSet.question"
-            fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
-          />
-        </BodyText>
-        <Heading5 color={Colors.darkText} mt="25px" mb={0}>
-          <TranslatedText
-            stringId="medication.modal.medicationSet.label"
-            fallback="Medication set"
+            stringId="medication.modal.medicationSetMedications.label"
+            fallback="Medication set medications"
           />
         </Heading5>
-        <MedicationSetList
-          ref={medicationSetListRef}
-          medicationSets={medicationSets}
-          isLoading={medicationSetsLoading}
-          onSelect={onSelect}
-          selectedMedicationSet={selectedMedicationSet}
-        />
-      </Box>
-      {selectedMedicationSet && (
-        <Box>
-          <Heading5 color={Colors.darkText} mt="25px" mb={0}>
-            <TranslatedText
-              stringId="medication.modal.medicationSetMedications.label"
-              fallback="Medication set medications"
-            />
-          </Heading5>
-          <MedicationSetMedicationsList medicationSet={selectedMedicationSet} height={listHeight} />
-        </Box>
-      )}
-    </SetContainer>
-  );
-};
+        <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
+      </CardWrapper>
+    )}
+  </SetContainer>
+);
 
 const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
   return (
