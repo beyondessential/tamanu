@@ -77,7 +77,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id, {
     enabled: IS_DISCHARGE_DRAFT_ENABLED && !encounter.endDate,
   });
-  const hasDischargeDraft = IS_DISCHARGE_DRAFT_ENABLED && Boolean(dischargeDraftData?.draft);
+  const hasDischargeDraft = Boolean(dischargeDraftData?.draft);
 
   const canWriteEncounter = ability.can('write', 'Encounter');
 

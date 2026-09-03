@@ -14,6 +14,10 @@
  * tag on an encounter, the unsaved-changes prompt on leaving the form, and restoring a saved
  * draft into the form. With no way to save one, no draft is written while this is false.
  *
+ * Each entry point is gated once, on the query that fetches the draft. A disabled query
+ * yields nothing and only the gated mutations write the cache, so code deriving from it needs
+ * no second check of this flag.
+ *
  * It is hidden because supporting tracking of edits to the discharge planning note needs further
  * work, and how that should behave is a product decision still to be made. Once Product has
  * settled it, flip this to true and the workflow comes back.

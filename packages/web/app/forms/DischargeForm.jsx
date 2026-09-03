@@ -278,7 +278,7 @@ export const DischargeForm = ({
     usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
   const { data: dischargeDraftData, isFetched: isDischargeDraftFetched } =
     useEncounterDischargeDraftQuery(encounter.id, { enabled: IS_DISCHARGE_DRAFT_ENABLED });
-  const draft = IS_DISCHARGE_DRAFT_ENABLED ? (dischargeDraftData?.draft ?? null) : null;
+  const draft = dischargeDraftData?.draft ?? null;
 
   // The form is initialised once from data that arrives asynchronously — encounter medications,
   // ongoing prescriptions, the saved draft, and discharge notes. Waiting for all of it before
