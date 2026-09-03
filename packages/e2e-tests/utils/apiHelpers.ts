@@ -188,6 +188,46 @@ export const dischargeEncounterViaApi = async (
 
   return response.json();
 };
+// A discharged encounter that has no discharge record. Encounters closed by the outpatient
+// discharger before v1.26.0 look like this in production, so the client has to handle it.
+// Creating the encounter with its end date already set reproduces the shape: creation does not
+// run the discharge flow that a later end-date update would, so no discharge record is written.
+// If encounter creation ever starts writing one, this helper stops producing the shape and the
+// tests that use it need another arrange step.
+export const createDischargedEncounterWithoutRecordViaApi = async (
+  api: APIRequestContext,
+  patientId: string,
+) => {
+  const encounterUrl = constructFacilityUrl('/api/encounter');
+  const user = await getUser(api);
+
+  const startDate = new Date(Date.now() - 2 * 60 * 60 * 1000);
+  const endDate = new Date(Date.now() - 60 * 60 * 1000);
+  const toStoredDateTime = (date: Date) => date.toISOString().replace('T', ' ').substring(0, 19);
+
+  const response = await api.post(encounterUrl, {
+    data: {
+      departmentId: testData.departmentId,
+      encounterType: 'clinic',
+      examinerId: user.id,
+      locationId: testData.locationId,
+      patientId,
+      startDate: toStoredDateTime(startDate),
+      endDate: toStoredDateTime(endDate),
+      reasonForEncounter: 'Discharged encounter without a discharge record',
+    },
+  });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to create discharged encounter without record: ${response.status()} ${errorText}`,
+    );
+  }
+
+  return response.json();
+};
+
 // TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createTriageEncounterViaApi = async (
   api: APIRequestContext,
