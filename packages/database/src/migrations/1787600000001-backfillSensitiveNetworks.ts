@@ -8,8 +8,9 @@ import { QueryInterface } from 'sequelize';
 // preserves that exactly; pooling them into one shared network would newly expose each facility's
 // confidential data to the others, which cannot be undone once synced.
 //
-// An operator who does want them in one network merges them afterwards through the reference data
-// import, which is allowed because each facility is the sole member of its own network.
+// There is no way to merge these networks afterwards: a facility's network is fixed when the
+// facility is created, so an operator who wants two facilities in one network stands up a new
+// facility enrolled in it.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)

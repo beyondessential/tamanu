@@ -145,6 +145,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   ScheduledVaccine: [List, Read, Write, Create],
   SensitiveLabRequest: [List, Read, Write, Create],
   SensitiveMedication: [List, Read, Write, Create],
+  SensitiveNetwork: [List, Read, Write, Create],
   Setting: [List, Read, Write],
   Signer: [List, Read],
   Survey: [List, Read, Write, Create, Submit],
