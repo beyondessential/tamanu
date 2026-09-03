@@ -62,7 +62,7 @@ sources:
                     to: source('tamanu', 'facilities')
                     field: id
           - name: sensitive_network_id
-            data_type: uuid
+            data_type: character varying(255)
             description: "{{ doc('sync_lookup__sensitive_network_id') }}"
             data_tests:
               - relationships:

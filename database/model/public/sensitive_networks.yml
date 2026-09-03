@@ -18,7 +18,7 @@ sources:
               - set_sensitive_networks_updated_at_sync_tick
         columns:
           - name: id
-            data_type: uuid
+            data_type: character varying(255)
             description: "{{ doc('generic__id') }} in sensitive_networks."
             data_tests:
               - unique
