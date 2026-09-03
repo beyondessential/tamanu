@@ -430,7 +430,7 @@ const EncounterRecordPrintoutComponent = ({
   const renderNotesContinuation = section === 'notes';
   const renderVitals = section === 'full' || section === 'vitals';
 
-  const documentName = discharge
+  const documentName = encounter.endDate
     ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
     : getTranslation('pdf.encounterProgressRecord.title', 'Patient encounter progress record');
 
