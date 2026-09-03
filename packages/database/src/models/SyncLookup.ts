@@ -32,10 +32,8 @@ export class SyncLookup extends Model {
         encounterId: { type: DataTypes.STRING },
         facilityId: { type: DataTypes.STRING },
         // Scopes a record to every facility in one sensitive network, where facilityId scopes to a
-        // single facility. UUID rather than STRING because sensitive_networks.id is a uuid, unlike
-        // facilities.id - declaring it STRING makes generated test data fail the column's type.
-        // spec: specs/sync/sensitive-networks.md
-        sensitiveNetworkId: { type: DataTypes.UUID },
+        // single facility. spec: specs/sync/sensitive-networks.md
+        sensitiveNetworkId: { type: DataTypes.STRING },
         isLabRequest: { type: DataTypes.BOOLEAN },
         isDeleted: { type: DataTypes.BOOLEAN },
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
