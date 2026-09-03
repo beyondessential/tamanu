@@ -657,6 +657,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   // Unique on both code and name, so both have to be distinct per network.
   SensitiveNetwork: ({ name }) =>
     named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
+  // A lookup row is unscoped unless a test deliberately scopes it. The outgoing snapshot admits a
+  // row only when facility_id and sensitive_network_id are both null, so generating a random
+  // network here would withhold every faked row from every facility.
+  SyncLookup: () => ({ sensitiveNetworkId: null }),
   Discharge: () => ({
     note: chance.pickone(DISCHARGE_NOTES),
     facilityName: null,

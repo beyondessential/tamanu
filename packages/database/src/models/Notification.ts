@@ -7,7 +7,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import {
   buildPatientSyncFilterViaPatientId,
   buildSyncLookupSelect,
-  ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
+  ENCOUNTER_SENSITIVE_NETWORK_ID,
 } from '../sync';
 
 const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
@@ -68,7 +68,7 @@ export class Notification extends Model {
     return {
       select: await buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
-        facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
+        sensitiveNetworkId: ENCOUNTER_SENSITIVE_NETWORK_ID,
       }),
       joins: `
         LEFT JOIN encounters
