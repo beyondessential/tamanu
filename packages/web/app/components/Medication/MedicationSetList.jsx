@@ -143,7 +143,7 @@ export const MedicationSetMedicationsList = ({
     .map(({ medication }) => medication?.id);
 
   return (
-    <ListContainer width="420px" height={height}>
+    <ListContainer style={{ blockSize: height, inlineSize: 420 }}>
       <Heading4 textAlign="center" mt="6px" mb="2px">
         {medicationSet.name}
       </Heading4>
