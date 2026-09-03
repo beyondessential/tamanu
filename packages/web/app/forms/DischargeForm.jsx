@@ -38,6 +38,7 @@ import { createPrescriptionHash } from '../utils/medications';
 import { foreignKey } from '../utils/validation';
 import { EncounterOverview } from './DischargeEncounterOverview';
 import {
+  IS_DISCHARGE_DRAFT_ENABLED,
   buildDischargeNote,
   buildMedicationsInitialValues,
   toDischargeDraftPayload,
@@ -279,7 +280,7 @@ export const DischargeForm = ({
   const { data: ongoingPrescriptions, isLoading: isLoadingOngoingPrescriptions } =
     usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
   const { data: dischargeDraftData, isFetched: isDischargeDraftFetched } =
-    useEncounterDischargeDraftQuery(encounter.id);
+    useEncounterDischargeDraftQuery(encounter.id, { enabled: IS_DISCHARGE_DRAFT_ENABLED });
   const draft = dischargeDraftData?.draft ?? null;
 
   // The form is initialised once from data that arrives asynchronously — encounter medications,
@@ -289,7 +290,8 @@ export const DischargeForm = ({
   // never seeded over by live data.
   //
   // The draft is gated on having settled rather than on having arrived: a query that ends in error
-  // never yields data, and the form still has to open.
+  // never yields data, and the form still has to open. A disabled query never settles at all, so
+  // it drops out of the gate entirely while the workflow is hidden.
   //
   // The gate is one-way. Rendering a loader in place of the form swaps the element type at this
   // position, which unmounts Formik and loses every edit the clinician has made; going back to
@@ -297,7 +299,7 @@ export const DischargeForm = ({
   const hasInitialData =
     !isLoadingEncounterMedications &&
     !isLoadingOngoingPrescriptions &&
-    isDischargeDraftFetched &&
+    (!IS_DISCHARGE_DRAFT_ENABLED || isDischargeDraftFetched) &&
     dischargeNotes !== null;
   const [isInitialDataReady, setIsInitialDataReady] = useState(false);
   if (hasInitialData && !isInitialDataReady) {
