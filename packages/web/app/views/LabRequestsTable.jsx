@@ -105,7 +105,8 @@ export const LabRequestsTable = React.memo(
 
     const fetchOptions = useMemo(() => {
       const { status, ...otherSearchFilters } = searchParameters;
-      return { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
+      // The status filter is a multiselect; fall back to the table's statuses when none are chosen.
+      return { ...otherSearchFilters, facilityId, statuses: status?.length ? status : statuses };
     }, [searchParameters, facilityId, statuses]);
 
     return (
