@@ -59,3 +59,7 @@ Information about the quantity of the medication to be dispensed and the number 
 {% docs fhir__medication_requests__category %}
 The type of medication usage. Currently will only be present as 'discharge' if its a discharge prescription.
 {% enddocs %}
+
+{% docs fhir__medication_requests__reason_code %}
+Codeable concepts for the encounter's diagnoses at the time of materialisation, used as the clinical reason for the medication request. Excludes diagnoses recorded as disproven or in error. Null if the encounter has no relevant diagnosis.
+{% enddocs %}

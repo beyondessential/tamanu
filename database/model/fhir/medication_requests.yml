@@ -90,3 +90,6 @@ sources:
           - name: category
             data_type: jsonb
             description: "{{ doc('fhir__medication_requests__category') }}"
+          - name: reason_code
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__reason_code') }}"
