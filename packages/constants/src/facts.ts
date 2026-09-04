@@ -53,5 +53,13 @@ export const FACT_REPORTING_ROLE_SECRET = 'reportingRoleSecret';
 // When that secret was last (re)generated, for automatic age-based rotation.
 export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
 
+// spec: SCRUB
+// How many cache blobs this server has dropped for failing verification, and
+// when it last did. A dropped cache blob leaves no registry row, so these are
+// the only durable record that it happened: one drop is a bad sector the refetch
+// already corrected, a climbing count is failing media.
+export const FACT_BLOB_CACHE_FAULTS = 'blobCacheFaults';
+export const FACT_BLOB_CACHE_FAULT_AT = 'blobCacheFaultAt';
+
 // Materialised views
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;

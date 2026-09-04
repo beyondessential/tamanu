@@ -34,6 +34,37 @@ describe('snapshotOutgoingChanges', () => {
     }),
   );
 
+  // spec: BKFL
+  // An attachment held locally and not yet pushed when the server upgrades keeps
+  // its bytes in the row: the push selects on sync tick alone, so the record goes
+  // to central inline exactly as it did before the epic, and central's own backfill
+  // relocates the content. A facility converting it locally instead would create a
+  // hash reference to content only that facility holds, pinned un-evictable in its
+  // cache for as long as the reference stood.
+  it(
+    'pushes an attachment still holding its bytes, carrying them inline',
+    withErrorShown(async () => {
+      const { Attachment, LocalSystemFact } = models;
+      const bytes = Buffer.from('an attachment that never got pushed', 'utf8');
+      const since = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
+
+      const legacy = await Attachment.create({
+        type: 'text/plain',
+        size: bytes.length,
+        data: bytes,
+      });
+      expect(legacy.hash).toBeFalsy();
+
+      const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, since - 1);
+
+      const pushed = result.find(change => change.recordId === legacy.id);
+      expect(pushed).toBeTruthy();
+      expect(pushed.recordType).toBe('attachments');
+      expect(pushed.data.hash).toBeFalsy();
+      expect(Buffer.from(pushed.data.data, 'base64')).toEqual(bytes);
+    }),
+  );
+
   it(
     'throws error when outgoing models contain invalid sync direction',
     withErrorShown(async () => {

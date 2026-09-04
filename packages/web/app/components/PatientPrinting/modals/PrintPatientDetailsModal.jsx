@@ -361,13 +361,18 @@ const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
   </PrintOptionButton>
 );
 
+const BLANK_PIXEL =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 async function getPatientProfileImage(api, patientId) {
   try {
     const { data } = await api.get(`patient/${patientId}/profilePicture`);
-    return data;
+    // The route answers with an availability state and no data when the picture
+    // exists but its bytes have not arrived; an ID card prints without it, the
+    // same as for a patient who has none.
+    return data ?? BLANK_PIXEL;
   } catch (e) {
-    // 1x1 blank pixel
-    return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    return BLANK_PIXEL;
   }
 }
 

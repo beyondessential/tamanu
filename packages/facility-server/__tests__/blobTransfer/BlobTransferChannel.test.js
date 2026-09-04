@@ -1,0 +1,651 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createHash, randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+
+import { TamanuApi } from '@tamanu/api-client';
+import { blobEndpoints } from '@tamanu/blobs';
+import {
+  BLOB_AVAILABILITY_STATES,
+  BLOB_INTEGRITY_STATES,
+  BLOB_OFFER_STATUSES,
+} from '@tamanu/constants';
+import { BlobStore } from '@tamanu/database/blobStore';
+import { ERROR_TYPE, Problem } from '@tamanu/errors';
+
+import { BlobTransferChannel } from '../../app/blobTransfer/BlobTransferChannel';
+
+// The shared test environment auto-mocks this, which would answer every call
+// with undefined; the point here is the request the real one builds.
+const { CentralServerConnection } = await vi.importActual('../../app/sync/CentralServerConnection');
+
+const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
+
+// In-memory stand-in for the Blob registry, as in the BlobStore unit tests.
+function makeFakeBlobModel() {
+  const rows = new Map();
+  return {
+    rows,
+    async findOne({ where: { hash } }) {
+      return rows.get(hash) ?? null;
+    },
+    async update(values, { where }) {
+      const row = rows.get(where.hash);
+      if (!row) return;
+      // The only operator the store uses here is Op.ne on integrityState.
+      const excluded = where.integrityState
+        ? Object.getOwnPropertySymbols(where.integrityState).map(s => where.integrityState[s])
+        : [];
+      if (excluded.includes(row.integrityState)) return;
+      Object.assign(row, values);
+    },
+    async destroy({ where: { hash } }) {
+      rows.delete(hash);
+    },
+    sequelize: {
+      async query(_sql, { bind }) {
+        if (!rows.has(bind.hash)) {
+          rows.set(bind.hash, { ...bind });
+        }
+      },
+    },
+  };
+}
+
+async function makeStore() {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-channel-test-'));
+  const store = new BlobStore({
+    root,
+    models: { Blob: makeFakeBlobModel() },
+    getFreeDiskReserveBytes: async () => 0,
+  });
+  return { root, store };
+}
+
+async function readAll(stream) {
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
+// Stands in for CentralServerConnection, implementing the central blob routes
+// against a second BlobStore. Failure injection simulates the poor links the
+// channel is built for: dropped fetch streams and pushes cut mid-chunk.
+class FakeCentralConnection {
+  // stop each fetch stream (with an error) after this many bytes; null = off
+  dropFetchStreamsAfter = null;
+  // accept only this many bytes of each pushed chunk, then fail; null = off
+  cutPushChunksAfter = null;
+  // refuse offers/content deliveries as the central access gate does when the
+  // hash is not expected (see specs/blob-storage/access-control.md)
+  refuseOffers = false;
+  refuseContent = false;
+
+  fetchCalls = 0;
+  // Transient one-shot failures the push loop must survive: each throws a
+  // remote error and decrements. failReoffersRemaining fails only re-offers
+  // (offer calls after the first), leaving the initial offer intact.
+  failPutsRemaining = 0;
+  failReoffersRemaining = 0;
+  failFetchGetsRemaining = 0;
+  #offerCalls = 0;
+
+  constructor(store) {
+    this.store = store;
+  }
+
+  async fetch(endpoint, options = {}, upOptions = null) {
+    this.fetchCalls += 1;
+    const match = endpoint.match(/^blob\/(?<hash>[^/]+)(?:\/(?<action>availability|offer|content))?$/);
+    if (!match) throw new Error(`FakeCentralConnection: unexpected endpoint ${endpoint}`);
+    const hash = decodeURIComponent(match.groups.hash);
+
+    switch (match.groups.action) {
+      case 'availability':
+        return await this.#availability(hash);
+      case 'offer':
+        return await this.#offer(hash);
+      case 'content':
+        return await this.#putContent(hash, options);
+      default:
+        return await this.#get(hash, upOptions ?? options);
+    }
+  }
+
+  async #availability(hash) {
+    const held = await this.store.stat(hash);
+    return held
+      ? { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: held.size }
+      : { availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD };
+  }
+
+  async #offer(hash) {
+    this.#offerCalls += 1;
+    if (this.refuseOffers) {
+      throw new Problem(ERROR_TYPE.FORBIDDEN, 'Forbidden', 403, `Blob not expected: ${hash}`);
+    }
+    if (this.#offerCalls > 1 && this.failReoffersRemaining > 0) {
+      this.failReoffersRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 're-offer failed');
+    }
+    if (await this.store.stat(hash)) {
+      return { status: BLOB_OFFER_STATUSES.ALREADY_STORED };
+    }
+    return {
+      status: BLOB_OFFER_STATUSES.WANTED,
+      receivedBytes: await this.store.stagedSize(hash),
+    };
+  }
+
+  async #putContent(hash, { query: { offset, totalSize }, body }) {
+    if (this.refuseContent) {
+      throw new Problem(ERROR_TYPE.FORBIDDEN, 'Forbidden', 403, `Blob not expected: ${hash}`);
+    }
+    if (this.failPutsRemaining > 0) {
+      this.failPutsRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'push chunk failed');
+    }
+    if (await this.store.stat(hash)) {
+      return { acknowledged: true, existed: true };
+    }
+
+    let accepted = body;
+    let cut = false;
+    if (this.cutPushChunksAfter !== null && body.length > this.cutPushChunksAfter) {
+      accepted = body.subarray(0, this.cutPushChunksAfter);
+      cut = true;
+    }
+    const staged = await this.store.stagedSize(hash);
+    if (offset !== staged) {
+      throw new Problem(
+        ERROR_TYPE.VALIDATION,
+        'Validation error',
+        400,
+        `offset ${offset} does not match staged ${staged}`,
+      );
+    }
+    const { stagedSize } = await this.store.stage(hash, Readable.from(accepted), { offset });
+    if (cut) {
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'connection lost mid-chunk');
+    }
+    if (stagedSize < totalSize) {
+      return { acknowledged: false, receivedBytes: stagedSize };
+    }
+    try {
+      const { size, existed } = await this.store.commitStaged(hash);
+      return { acknowledged: true, existed, size };
+    } catch (error) {
+      if (error.type === ERROR_TYPE.BLOB_HASH_MISMATCH) {
+        throw new Problem(error.type, error.title, error.status, error.detail);
+      }
+      throw error;
+    }
+  }
+
+  async #get(hash, { headers = {} } = {}) {
+    if (this.failFetchGetsRemaining > 0) {
+      this.failFetchGetsRemaining -= 1;
+      throw new Problem(ERROR_TYPE.REMOTE, 'Remote call failed', 500, 'fetch failed');
+    }
+    const held = await this.store.stat(hash);
+    if (!held) {
+      throw new Problem(ERROR_TYPE.NOT_FOUND, 'Not found', 404, `Blob not held: ${hash}`);
+    }
+
+    const start = parseInt(headers.range?.match(/^bytes=(\d+)-$/)?.[1] ?? '0', 10);
+    const full = await readAll(await this.store.get(hash, start > 0 ? { start } : {}));
+
+    // Model a dropped connection the way the client actually observes one: the
+    // headers promise the full remaining size, but the body delivers fewer
+    // bytes and then ends. The channel stages the short read, sees it is under
+    // the known size, and resumes with a range request. A clean early close
+    // (rather than an errored stream) keeps the simulation free of the
+    // web-stream error-propagation hazards.
+    const delivered =
+      this.dropFetchStreamsAfter !== null && full.length > this.dropFetchStreamsAfter
+        ? full.subarray(0, this.dropFetchStreamsAfter)
+        : full;
+    const body = new ReadableStream({
+      start(controller) {
+        if (delivered.length > 0) {
+          controller.enqueue(delivered);
+        }
+        controller.close();
+      },
+    });
+
+    // content-length always reports the full remaining bytes, so the channel
+    // learns the true size even when the body is short.
+    const length = full.length;
+    const responseHeaders = new Map([['content-length', String(length)]]);
+    if (start > 0) {
+      responseHeaders.set('content-range', `bytes ${start}-${held.size - 1}/${held.size}`);
+    }
+    return {
+      status: start > 0 ? 206 : 200,
+      headers: responseHeaders,
+      body,
+    };
+  }
+}
+
+describe('BlobTransferChannel', () => {
+  let localRoot;
+  let centralRoot;
+  let localStore;
+  let centralStore;
+  let central;
+  let channel;
+
+  beforeEach(async () => {
+    ({ root: localRoot, store: localStore } = await makeStore());
+    ({ root: centralRoot, store: centralStore } = await makeStore());
+    central = new FakeCentralConnection(centralStore);
+    channel = new BlobTransferChannel({
+      blobStore: localStore,
+      centralServer: central,
+      facilityIds: ['test-facility'],
+      pushChunkBytes: 8,
+    });
+  });
+
+  afterEach(async () => {
+    await fs.rm(localRoot, { recursive: true, force: true });
+    await fs.rm(centralRoot, { recursive: true, force: true });
+  });
+
+  // spec: BLAC
+  // Central scopes blob access to the facilities the caller declares and refuses
+  // a caller declaring none, so a channel built without them would forbid every
+  // transfer. It refuses to construct instead.
+  describe('construction', () => {
+    it('refuses to build without the server facility ids', () => {
+      for (const facilityIds of [undefined, []]) {
+        expect(
+          () => new BlobTransferChannel({ blobStore: localStore, centralServer: central, facilityIds }),
+        ).toThrow(/facility ids/);
+      }
+    });
+  });
+
+  // spec: BLAC, XFER
+  // Central scopes every blob operation to the facilities the caller declares
+  // in its query string, so the ids have to reach the query slot of each call
+  // rather than its request config. The channel addresses the api client two
+  // ways — a local two-argument form and the api-client three-argument form —
+  // which is where a call can lose them without any local check noticing. This
+  // reads the calls as the client turns them into a URL.
+  describe('facility scoping on the wire', () => {
+    // Declaring a token so the request goes out rather than pausing to log in.
+    class SignedInCentralConnection extends CentralServerConnection {
+      hasToken() {
+        return true;
+      }
+    }
+
+    const bodyOf = content =>
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(content);
+          controller.close();
+        },
+      });
+
+    it('declares the server facility ids on every operation', async () => {
+      const content = Buffer.from('bytes that make every round trip');
+      const hash = hashOf(content);
+      const sent = [];
+      const apiFetch = vi
+        .spyOn(TamanuApi.prototype, 'fetch')
+        .mockImplementation(async (endpoint, query) => {
+          sent.push({ endpoint, query });
+          if (endpoint === blobEndpoints.availability(hash)) {
+            return { availability: BLOB_AVAILABILITY_STATES.AVAILABLE, size: content.length };
+          }
+          if (endpoint === blobEndpoints.offer(hash)) {
+            return { status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 0 };
+          }
+          if (endpoint === blobEndpoints.upload(hash)) {
+            return { acknowledged: true, size: content.length };
+          }
+          return {
+            status: 200,
+            headers: new Map([['content-length', String(content.length)]]),
+            body: bodyOf(content),
+          };
+        });
+
+      try {
+        const scoped = new BlobTransferChannel({
+          blobStore: localStore,
+          centralServer: new SignedInCentralConnection({ deviceId: 'test-device' }),
+          facilityIds: ['test-facility'],
+          pushChunkBytes: 8,
+        });
+
+        await scoped.availability(hash);
+        await scoped.fetchFromCentral(hash);
+        await scoped.pushToCentral(hash);
+      } finally {
+        apiFetch.mockRestore();
+      }
+
+      expect(new Set(sent.map(({ endpoint }) => endpoint))).toEqual(
+        new Set([
+          blobEndpoints.availability(hash),
+          blobEndpoints.content(hash),
+          blobEndpoints.offer(hash),
+          blobEndpoints.upload(hash),
+        ]),
+      );
+      for (const { endpoint, query } of sent) {
+        expect(query.facilityIds, `facility ids missing from ${endpoint}`).toEqual([
+          'test-facility',
+        ]);
+      }
+    });
+  });
+
+  describe('availability', () => {
+    it('reports locally held bytes as available', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.from('local bytes')));
+      expect(await channel.availability(hash)).toEqual({
+        availability: BLOB_AVAILABILITY_STATES.AVAILABLE,
+        size: 11,
+      });
+    });
+
+    it('reports bytes held only by central as awaiting fetch', async () => {
+      const { hash, size } = await centralStore.put(Readable.from(Buffer.from('central bytes')));
+      expect(await channel.availability(hash)).toEqual({
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH,
+        size,
+      });
+    });
+
+    it('reports bytes held by neither as awaiting upload', async () => {
+      expect(await channel.availability(hashOf('nowhere'))).toEqual({
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD,
+      });
+    });
+
+    // spec: SCRUB — a copy the store retains but will not serve is not local
+    // availability, so the servable copy central holds is what is reported.
+    it('does not advertise a corrupt local copy as available', async () => {
+      const content = Buffer.from('corrupt locally');
+      const { hash, size } = await localStore.put(Readable.from(content));
+      await centralStore.put(Readable.from(content));
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+
+      expect(await channel.availability(hash)).toEqual({
+        availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH,
+        size,
+      });
+    });
+  });
+
+  describe('pushToCentral', () => {
+    it('delivers a blob in chunks and reports the verified-store acknowledgement', async () => {
+      const content = Buffer.from('this content spans several push chunks');
+      const { hash } = await localStore.put(Readable.from(content));
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toMatchObject({ acknowledged: true, existed: false });
+      expect((await readAll(await centralStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('skips the byte transfer when central already holds the content', async () => {
+      const content = Buffer.from('already on central');
+      const { hash } = await localStore.put(Readable.from(content));
+      await centralStore.put(Readable.from(content));
+      central.fetchCalls = 0;
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toEqual({ acknowledged: true, existed: true });
+      expect(central.fetchCalls).toBe(1); // the offer alone
+    });
+
+    it('resumes from the bytes central staged when a chunk is cut mid-delivery', async () => {
+      const content = Buffer.from('pushed across a connection that keeps dropping');
+      const { hash } = await localStore.put(Readable.from(content));
+      central.cutPushChunksAfter = 5;
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toMatchObject({ acknowledged: true });
+      expect((await readAll(await centralStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('pushes a zero-byte blob', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.alloc(0)));
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toMatchObject({ acknowledged: true });
+      expect(await centralStore.has(hash)).toBe(true);
+    });
+
+    it('survives a re-offer that itself fails transiently after an interruption', async () => {
+      const content = Buffer.from('pushed despite a flaky re-offer on the way');
+      const { hash } = await localStore.put(Readable.from(content));
+      // the first push chunk fails, and the re-offer that follows fails too:
+      // the re-offer failure must be treated as a stalled attempt, not abort
+      // the push and swallow the original error
+      central.failPutsRemaining = 1;
+      central.failReoffersRemaining = 1;
+
+      const result = await channel.pushToCentral(hash);
+      expect(result).toMatchObject({ acknowledged: true });
+      expect((await readAll(await centralStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('surfaces a hash mismatch without retrying', async () => {
+      const content = Buffer.from('honest content');
+      const { hash } = await localStore.put(Readable.from(content));
+      // corrupt the local bytes so what we deliver no longer matches the hash
+      const digest = hash.split(':')[1];
+      await fs.writeFile(
+        path.join(localRoot, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4)),
+        'corrupt content',
+      );
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.BLOB_HASH_MISMATCH,
+      });
+      expect(await centralStore.has(hash)).toBe(false);
+    });
+
+    it('refuses to push a blob not held locally', async () => {
+      await expect(channel.pushToCentral(hashOf('never stored'))).rejects.toMatchObject({
+        type: ERROR_TYPE.NOT_FOUND,
+      });
+    });
+
+    // spec: SCRUB — the read that feeds a push refuses corrupt bytes, so
+    // offering them only spends a round of offers and backoff to be refused.
+    it('refuses to push a corrupt blob, without offering it', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.from('bad bytes')));
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+      central.fetchCalls = 0;
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.NOT_FOUND,
+      });
+      expect(central.fetchCalls).toBe(0);
+    });
+
+    // spec: BLAC
+    it('fails a refused offer immediately, without a resume loop', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.from('refused at offer')));
+      central.refuseOffers = true;
+      central.fetchCalls = 0;
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.FORBIDDEN,
+      });
+      expect(central.fetchCalls).toBe(1); // the offer alone, no retries
+    });
+
+    // spec: BLAC
+    it('fails a push refused mid-transfer without re-offering', async () => {
+      const content = Buffer.from('this content spans several push chunks');
+      const { hash } = await localStore.put(Readable.from(content));
+      central.refuseContent = true;
+      central.fetchCalls = 0;
+
+      await expect(channel.pushToCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.FORBIDDEN,
+      });
+      expect(central.fetchCalls).toBe(2); // the offer and the one refused delivery
+      expect(await centralStore.has(hash)).toBe(false);
+    });
+  });
+
+  describe('fetchFromCentral', () => {
+    it('downloads, verifies, and stores central content', async () => {
+      const content = Buffer.from('fetched from central');
+      const { hash } = await centralStore.put(Readable.from(content));
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('skips the transfer when the content is already held locally', async () => {
+      const content = Buffer.from('already local');
+      const { hash } = await localStore.put(Readable.from(content));
+      central.fetchCalls = 0;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, existed: true });
+      expect(central.fetchCalls).toBe(0);
+    });
+
+    // spec: SCRUB — the self-heal path: a hash occupied by a copy the store will
+    // not serve is fetched, and the replacement settles the state on commit.
+    it('replaces a corrupt local copy rather than reporting it held', async () => {
+      const content = Buffer.from('a copy central can replace');
+      const { hash } = await localStore.put(Readable.from(content));
+      await centralStore.put(Readable.from(content));
+      await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('resumes from the staged bytes when the stream keeps dropping', async () => {
+      const content = Buffer.from('a download that arrives a little at a time');
+      const { hash } = await centralStore.put(Readable.from(content));
+      central.dropFetchStreamsAfter = 7;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('propagates content-pending when central does not hold the bytes', async () => {
+      await expect(channel.fetchFromCentral(hashOf('not on central'))).rejects.toMatchObject({
+        type: ERROR_TYPE.NOT_FOUND,
+      });
+    });
+
+    it('retries a fetch that fails transiently before delivering', async () => {
+      const content = Buffer.from('fetched after a transient failure');
+      const { hash } = await centralStore.put(Readable.from(content));
+      central.failFetchGetsRemaining = 1;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    it('commits fully staged bytes without re-downloading, as after a crash before commit', async () => {
+      const content = Buffer.from('staged in full then interrupted');
+      const { hash } = await centralStore.put(Readable.from(content));
+      await localStore.stage(hash, Readable.from(content), { offset: 0 });
+      central.fetchCalls = 0;
+
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect(central.fetchCalls).toBe(1); // the availability probe alone, no byte transfer
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+
+    // spec: XFER — many small blobs transfer as concurrent requests over one
+    // shared connection, so a blob held up in transit must not hold up the
+    // blobs behind it. Serialising per hash is enough for staging integrity.
+    it('lets a transfer of another hash finish while one is still in flight', async () => {
+      const held = Buffer.from('a blob whose delivery is held open');
+      const behind = Buffer.from('the blob queued behind it');
+      const { hash: heldHash } = await centralStore.put(Readable.from(held));
+      const { hash: behindHash } = await centralStore.put(Readable.from(behind));
+
+      let releaseHeld;
+      const heldDelivery = new Promise(resolve => {
+        releaseHeld = resolve;
+      });
+      const deliver = central.fetch.bind(central);
+      central.fetch = async (endpoint, options, upOptions) => {
+        if (endpoint === blobEndpoints.content(heldHash)) {
+          await heldDelivery;
+        }
+        return await deliver(endpoint, options, upOptions);
+      };
+
+      const completed = [];
+      const heldFetch = channel.fetchFromCentral(heldHash).then(() => completed.push('held'));
+      await channel.fetchFromCentral(behindHash);
+      completed.push('behind');
+      releaseHeld();
+      await heldFetch;
+
+      expect(completed).toEqual(['behind', 'held']);
+      expect(await localStore.has(behindHash)).toBe(true);
+      expect(await localStore.has(heldHash)).toBe(true);
+    }, 15000);
+
+    it('recovers on the next call when fully staged bytes fail verification', async () => {
+      const content = Buffer.from('central holds the true content');
+      const { hash } = await centralStore.put(Readable.from(content));
+      await localStore.stage(hash, Readable.from(Buffer.from('locally staged corrupt content')), {
+        offset: 0,
+      });
+
+      await expect(channel.fetchFromCentral(hash)).rejects.toMatchObject({
+        type: ERROR_TYPE.BLOB_HASH_MISMATCH,
+      });
+
+      // the mismatch discarded the staging, so a retry downloads cleanly
+      const result = await channel.fetchFromCentral(hash);
+      expect(result).toMatchObject({ hash, size: content.length, existed: false });
+      expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
+    });
+  });
+
+  describe('open', () => {
+    it('serves local bytes directly', async () => {
+      const content = Buffer.from('open local');
+      const { hash } = await localStore.put(Readable.from(content));
+      central.fetchCalls = 0;
+
+      expect((await readAll(await channel.open(hash))).equals(content)).toBe(true);
+      expect(central.fetchCalls).toBe(0);
+    });
+
+    it('fetches from central on a local miss, then serves', async () => {
+      const content = Buffer.from(randomUUID());
+      const { hash } = await centralStore.put(Readable.from(content));
+
+      expect((await readAll(await channel.open(hash))).toString()).toBe(content.toString());
+      expect(await localStore.has(hash)).toBe(true);
+    });
+
+    it('serves a range', async () => {
+      const { hash } = await localStore.put(Readable.from(Buffer.from('hello world')));
+      expect((await readAll(await channel.open(hash, { start: 6 }))).toString()).toBe('world');
+    });
+  });
+});

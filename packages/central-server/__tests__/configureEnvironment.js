@@ -2,6 +2,10 @@ import { afterAll, expect } from 'vitest';
 
 import { Problem } from '@tamanu/errors';
 
+// Sets global.serverInfo (serverType: 'central') the way a booted server does,
+// so serviceContext() reports the server type under test as it would in production.
+import '../app/serverInfo';
+
 // Close any database connections opened during the file. Setup files run per test file, so
 // this is correctly scoped to the connections that file opened, and module resolution goes
 // through vitest rather than a bare loader.

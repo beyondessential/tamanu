@@ -105,7 +105,9 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
         }
         continue;
       }
-      const body = await models.SurveyResponse.getBodyForAnswer(dataElementType, value, models);
+      const body = await models.SurveyResponse.getBodyForAnswer(dataElementType, value, models, {
+        encounterId: responseRecord.encounterId,
+      });
       if (body === null) continue;
 
       const existingAnswer = answerByDataElementId.get(dataElementId);

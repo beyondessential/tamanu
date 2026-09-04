@@ -1,8 +1,18 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
+import ms from 'ms';
 
+import {
+  BLOB_FAULTS,
+  BlobScanner,
+  BlobScrubber,
+  BlobStore,
+  createScannerDriver,
+} from '@tamanu/database/blobStore';
+import { FACILITY_PARITY_TIERS } from '@tamanu/blobs';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { facilityDefaults } from '@tamanu/settings';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -10,6 +20,8 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
+import { BLOB_REFERENCE_TABLES, FacilityBlobCache, makeSyncedReferenceResolver } from './blobCache';
+import { FacilityBlobHealer, onBlobInfected } from './blobIntegrity';
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -32,6 +44,21 @@ export class ApplicationContext {
    * @type {ReadSettings<FacilitySettingPath> | null}
    */
   settings = null;
+
+  /** @type {BlobStore | null} */
+  blobStore = null;
+
+  /** @type {FacilityBlobCache | null} */
+  blobCache = null;
+
+  /** @type {FacilityBlobHealer | null} */
+  blobHealer = null;
+
+  /** @type {BlobScrubber | null} */
+  blobScrubber = null;
+
+  /** @type {BlobScanner | null} */
+  blobScanner = null;
 
   reportSchemaStores = null;
 
@@ -68,6 +95,134 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = ReadSettings.forGlobal(this.models);
+
+    // spec: CAS, CAP
+    // The root is facility-scoped but server-wide, so the first facility's value
+    // applies; a server that has not synced a facility yet falls back to the default.
+    this.blobStore = new BlobStore({
+      root: facilityIds.length
+        ? await this.settings[facilityIds[0]].get('blobStorage.root')
+        : facilityDefaults.blobStorage.root,
+      models: this.models,
+      getFreeDiskReserveBytes: async () =>
+        (await this.settings.global.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+      // spec: CAP — as free disk approaches the reserve, cache is evicted
+      // before any other measure. Late-bound: blobCache is built just below.
+      evictCache: async bytesNeeded => {
+        await this.blobCache?.evictBytes(bytesNeeded);
+      },
+      // spec: SCRUB — a whole-blob read that fails verification heals by the
+      // same ladder the scrub uses. Late-bound for the same reason as above.
+      onCorruptionDetected: async hash => {
+        await this.blobHealer?.heal({
+          hash,
+          fault: BLOB_FAULTS.CORRUPT,
+          blob: await this.models.Blob.findOne({ where: { hash } }),
+        });
+      },
+      // spec: FEC — the outbox is this server's only durable content; a cache
+      // copy is durable on central and costs a refetch.
+      errorCorrection: {
+        coveredTiers: FACILITY_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = facilityIds.length
+            ? await this.settings[facilityIds[0]].get('blobStorage.errorCorrection')
+            : facilityDefaults.blobStorage.errorCorrection;
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
+      },
+      log,
+    });
+
+    // spec: CACHE
+    // The budget is a facility setting; tasks convention applies on a
+    // multi-facility server (first facility's value). A server booted before
+    // setup has no facility yet and runs on the schema default.
+    const [primaryFacilityId] = facilityIds;
+    this.blobCache = new FacilityBlobCache({
+      blobStore: this.blobStore,
+      models: this.models,
+      getCacheBudgetBytes: async () => {
+        const budgetGB = primaryFacilityId
+          ? await this.settings[primaryFacilityId].get('blobStorage.cacheSizeBudgetGB')
+          : facilityDefaults.blobStorage.cacheSizeBudgetGB;
+        return budgetGB * 1024 ** 3;
+      },
+    });
+
+    // spec: ATCH
+    // Shared model code admits attachment content through this so it reaches the
+    // store from deep in a write (a survey photo answer) with no request to carry
+    // it. On a facility, origin content lands in the outbox and the pusher
+    // delivers it once the referencing record has synchronised.
+    this.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobCache.putOutbox(source, options);
+
+    // spec: SCRUB
+    // Detection is server-agnostic; grading and repair are not. The facility
+    // grades on the cache/outbox tier, since that already records whether a
+    // copy is the only durable one.
+    this.blobHealer = new FacilityBlobHealer({ blobStore: this.blobStore, models: this.models });
+    this.blobScrubber = new BlobScrubber({
+      blobStore: this.blobStore,
+      models: this.models,
+      getLimits: async () => {
+        const scrub = primaryFacilityId
+          ? await this.settings[primaryFacilityId].get('schedules.blobIntegrityScrub')
+          : facilityDefaults.schedules.blobIntegrityScrub;
+        return {
+          maxBlobs: scrub.maxBlobsPerPass,
+          maxBytes: scrub.maxGigabytesPerPass * 1024 ** 3,
+        };
+      },
+      heal: report => this.blobHealer.heal(report),
+      log,
+    });
+
+    // spec: AV
+    // A facility scans only where it has a scanner of its own. Without one it
+    // records no verdicts and serves on central's, which reach it as quarantine
+    // records rather than as verdicts of its own.
+    const antivirusSettings = async () =>
+      primaryFacilityId
+        ? await this.settings[primaryFacilityId].get('blobStorage.antivirus')
+        : facilityDefaults.blobStorage.antivirus;
+    const antivirus = await antivirusSettings();
+    const scannerDriver = createScannerDriver({
+      scanner: antivirus.scanner,
+      address: antivirus.address,
+      timeoutMs: ms(antivirus.timeout),
+    });
+    this.blobScanner =
+      scannerDriver &&
+      new BlobScanner({
+        blobStore: this.blobStore,
+        models: this.models,
+        driver: scannerDriver,
+        getLimits: async () => {
+          const scan = primaryFacilityId
+            ? await this.settings[primaryFacilityId].get('schedules.blobAntivirusScan')
+            : facilityDefaults.schedules.blobAntivirusScan;
+          const { maxScanMB } = await antivirusSettings();
+          return {
+            maxBlobs: scan.maxBlobsPerPass,
+            maxBytes: scan.maxGigabytesPerPass * 1024 ** 3,
+            maxScanBytes: maxScanMB * 1024 ** 2,
+          };
+        },
+        onInfected: async hash => onBlobInfected(this.blobStore, hash),
+        log,
+      });
+
+    // spec: CACHE — consumers (attachments, assets) register in
+    // BLOB_REFERENCE_TABLES; these resolvers report which of their references
+    // have synchronised, so the blobs behind them become eligible for push.
+    this.blobReferenceResolvers = BLOB_REFERENCE_TABLES.map(table =>
+      makeSyncedReferenceResolver(table),
+    );
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
 

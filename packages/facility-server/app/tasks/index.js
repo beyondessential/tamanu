@@ -1,4 +1,5 @@
 import {
+  BlobBackfillTask,
   SendStatusToMetaServer,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
@@ -10,6 +11,10 @@ import { facilityDefaults } from '@tamanu/settings';
 import { getServerFacilityIds } from '../serverConfig';
 
 import { BedFeeCharger } from './BedFeeCharger';
+import { BlobCacheEvictorTask } from './BlobCacheEvictorTask';
+import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
+import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
+import { BlobOutboxPusherTask } from './BlobOutboxPusherTask';
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
@@ -22,12 +27,17 @@ const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
   SendStatusToMetaServer,
   TimeSyncTask,
+  BlobOutboxPusherTask,
+  BlobCacheEvictorTask,
+  BlobIntegrityScrubTask,
+  BlobAntivirusScanTask,
   FhirMissingResources,
   FhirJobWorkerCleaner,
   FhirErroredJobCleaner,
   mSupplyMedIntegrationProcessor,
   MSupplyStockOnHandProcessor,
   BedFeeCharger,
+  BlobBackfillTask,
   CleanupIdempotencyKeys,
 ];
 

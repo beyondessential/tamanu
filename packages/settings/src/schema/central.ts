@@ -4,9 +4,13 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   batchingProperties,
+  blobAntivirusProperties,
+  blobScanProperties,
+  blobScrubProperties,
   cronExpressionSchema,
   durationStringSchema,
   dhis2IdSchemeSchema,
+  errorCorrectionProperties,
   emailSchema,
   formBuilderProperties,
   limitProperty,
@@ -75,6 +79,26 @@ export const centralSettings = {
           type: yup.string(),
           defaultValue: '',
         },
+      },
+    },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      highRisk: true,
+      properties: {
+        root: {
+          name: 'Store root',
+          description:
+            'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
+          type: yup.string(),
+          defaultValue: 'data/blobs',
+        },
+        errorCorrection: {
+          name: 'Error correction',
+          description: 'Parity data over stored blobs, so limited corruption is repaired in place',
+          properties: errorCorrectionProperties(),
+        },
+        ...blobAntivirusProperties(),
       },
     },
     disk: {
@@ -846,6 +870,20 @@ export const centralSettings = {
           { schedule: '*/30 * * * * *' },
           limitProperty(100),
         ),
+        // spec: SCRUB — central holds the authoritative copy of every blob, so
+        // its scrub is the one that finds loss nothing else can recover from
+        blobIntegrityScrub: scheduledTaskSchema(
+          { schedule: '17 * * * *', jitterTime: '5m' },
+          blobScrubProperties(),
+        ),
+        // spec: AV — every fifteen minutes, so content admitted between passes
+        // is scanned soon enough that serve-only-when-known-good is usable. It
+        // runs whatever the setting says and finds nothing to do when no scanner
+        // is configured
+        blobAntivirusScan: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', jitterTime: '2m' },
+          blobScanProperties(),
+        ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
@@ -968,6 +1006,14 @@ export const centralSettings = {
         programRegistryPltfuFlagger: scheduledTaskSchema(
           { schedule: '0 3 * * *' },
           batchingProperties(100, 50),
+        ),
+        // Runs often so a deployment upgraded mid-day starts moving content
+        // without waiting for a nightly window; it no-ops once complete.
+        // Batches are small and the pause long: a blob move is far heavier
+        // than a row update, and there is no deadline to meet.
+        blobBackfill: scheduledTaskSchema(
+          { schedule: '*/5 * * * *', jitterTime: '30s' },
+          batchingProperties(50, 1000),
         ),
       },
     },
